@@ -143,6 +143,7 @@ user_satisfaction:
 - Optional LLM-based inference for alias suggestion (prototype stage)
 - Reproducible prototyping via Jupyter notebooks
 - Optional lightweight UI layer for upload-to-export interaction
+- Cross-study synthesis examples in Python and R for standardized multi-dataset analysis (`docs/multi_study_analysis_guide.md`)
 
 ---
 ## Methodology
