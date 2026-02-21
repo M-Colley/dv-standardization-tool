@@ -107,7 +107,7 @@ read_study <- function(path) {
   }
 }
 
-files <- list.files(input_dir, pattern = "\\.(csv|xlsx)$", full.names = TRUE)
+files <- list.files(input_dir, pattern = "\\.(csv|xlsx)$", full.names = TRUE, recursive = TRUE)
 if (length(files) == 0) {
   stop(paste("No CSV/XLSX files found in", input_dir))
 }

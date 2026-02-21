@@ -310,19 +310,25 @@ def main() -> None:
     studies = load_studies(input_dir)
     overlap = compute_overlap(studies)
     summary = harmonized_summary(studies)
-    composite = build_composite_index(studies)
+
 
     output_dir.mkdir(parents=True, exist_ok=True)
     overlap.to_csv(output_dir / "dv_overlap_matrix.csv")
     summary.to_csv(output_dir / "harmonized_dv_summary.csv", index=False)
-    composite.to_csv(output_dir / "cross_study_composite_summary.csv", index=False)
     save_plots(overlap, summary, output_dir)
-    save_composite_plot(studies, output_dir)
 
     print("Loaded studies:", ", ".join(studies.keys()))
     print("\nDV overlap matrix:\n", overlap.round(2).to_string())
     print("\nTop harmonized summaries:\n", summary.head(12).round(3).to_string(index=False))
-    print("\nComposite index by study:\n", composite.round(3).to_string(index=False))
+    
+    try:
+        composite = build_composite_index(studies)
+        composite.to_csv(output_dir / "cross_study_composite_summary.csv", index=False)
+        save_composite_plot(studies, output_dir)
+        print("\nComposite index by study:\n", composite.round(3).to_string(index=False))
+    except ValueError as e:
+        print(f"\n[WARNING] Skipping composite index: {e}")
+
 
 
 if __name__ == "__main__":
