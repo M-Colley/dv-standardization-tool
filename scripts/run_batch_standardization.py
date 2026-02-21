@@ -20,6 +20,7 @@ from typing import Any
 
 import pandas as pd
 import yaml
+from tqdm import tqdm
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 if str(REPO_ROOT) not in sys.path:
@@ -144,6 +145,45 @@ def _load_any_table(path: Path) -> pd.DataFrame:
     return load_input_file(str(path))
 
 
+def _load_repository_mapping(source_root: Path) -> tuple[dict[str, str], str | None]:
+    """Load a source-local mapping YAML if one is unambiguously available."""
+    mapping_patterns = [
+        "*mapping*.yaml",
+        "*mapping*.yml",
+        "*dv*.yaml",
+        "*dv*.yml",
+    ]
+    candidates: list[Path] = []
+    for pattern in mapping_patterns:
+        candidates.extend(path for path in source_root.glob(pattern) if path.is_file())
+
+    unique_candidates = sorted(set(candidates))
+    if len(unique_candidates) != 1:
+        return {}, None
+
+    mapping_path = unique_candidates[0]
+    schema_data = load_schema(
+        str(mapping_path),
+        standard_schema_path=str(REPO_ROOT / "schemas" / "standard_dv_mapping.yaml"),
+    )
+    return schema_data["mapping"], str(mapping_path)
+
+
+def _merge_with_standard_precedence(
+    source_mapping: dict[str, str],
+    standard_mapping: dict[str, str],
+) -> dict[str, str]:
+    """Merge mapping dictionaries while preserving standard aliases on case-insensitive conflicts."""
+    merged = {**source_mapping, **standard_mapping}
+    standard_ci = {alias.lower(): canonical for alias, canonical in standard_mapping.items() if isinstance(alias, str)}
+
+    for alias, canonical in list(merged.items()):
+        if isinstance(alias, str):
+            merged[alias] = standard_ci.get(alias.lower(), canonical)
+
+    return merged
+
+
 def _summarize_dataset(
     source_id: str,
     dataset_id: str,
@@ -194,7 +234,7 @@ def _summarize_dataset(
 
 def run_batch(manifest_path: Path, output_dir: Path, schema_path: Path) -> dict[str, Any]:
     schema_data = load_schema(str(schema_path))
-    mapping = schema_data["mapping"]
+    standard_mapping = schema_data["mapping"]
 
     output_dir.mkdir(parents=True, exist_ok=True)
     standardized_root = output_dir / "standardized"
@@ -207,8 +247,10 @@ def run_batch(manifest_path: Path, output_dir: Path, schema_path: Path) -> dict[
     with TemporaryDirectory(prefix="opendv_batch_") as temp_dir:
         checkout_root = Path(temp_dir)
 
-        for source in sources:
+        source_progress = tqdm(sources, desc="Sources", unit="source")
+        for source in source_progress:
             source_id = source["source_id"]
+            source_progress.set_postfix(source_id=source_id)
             source_output_dir = standardized_root / source_id
             source_output_dir.mkdir(parents=True, exist_ok=True)
 
@@ -232,15 +274,29 @@ def run_batch(manifest_path: Path, output_dir: Path, schema_path: Path) -> dict[
             processed = 0
             failed = 0
             total_unknown = 0
+            source_mapping = dict(standard_mapping)
+            source_mapping_path = None
+            if source["source_type"] in {"local_path", "github_repo"}:
+                source_specific_mapping, detected_mapping_path = _load_repository_mapping(base_dir)
+                if source_specific_mapping:
+                    source_mapping = _merge_with_standard_precedence(source_specific_mapping, standard_mapping)
+                    source_mapping_path = detected_mapping_path
 
-            for file_path in files:
+            dataset_progress = tqdm(
+                files,
+                desc=f"Datasets ({source_id})",
+                unit="file",
+                leave=False,
+            )
+            for file_path in dataset_progress:
                 dataset_id = file_path.stem
+                dataset_progress.set_postfix(dataset=dataset_id)
                 destination = source_output_dir / f"{dataset_id}-standardized{file_path.suffix}"
                 relative_path = str(file_path.relative_to(base_dir))
 
                 try:
                     original_df = _load_any_table(file_path)
-                    standardized_df = standardize_columns(original_df.copy(), mapping)
+                    standardized_df = standardize_columns(original_df.copy(), source_mapping)
                     if destination.suffix.lower() == ".tsv":
                         standardized_df.to_csv(destination, sep="\t", index=False)
                     else:
@@ -251,6 +307,7 @@ def run_batch(manifest_path: Path, output_dir: Path, schema_path: Path) -> dict[
                         "location": source["location"],
                         "path": relative_path,
                         "commit": commit_sha,
+                        "source_mapping": source_mapping_path,
                         "run_timestamp": datetime.now(timezone.utc).isoformat(),
                     }
                     rows, quality = _summarize_dataset(
@@ -258,7 +315,7 @@ def run_batch(manifest_path: Path, output_dir: Path, schema_path: Path) -> dict[
                         dataset_id,
                         original_df,
                         standardized_df,
-                        mapping,
+                        source_mapping,
                         provenance,
                     )
                     total_unknown += quality["unknown_columns"]
