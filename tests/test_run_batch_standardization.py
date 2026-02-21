@@ -145,7 +145,7 @@ class BatchStandardizationTests(unittest.TestCase):
             output_dir = tmp / "output"
             run_batch(manifest_path, output_dir, SCHEMA_PATH)
 
-            standardized_path = output_dir / "standardized" / "semicolon_source" / "ObservationsPerEvaluation-standardized.csv"
+            standardized_path = output_dir / "standardized" / "semicolon_source" / "ObservationsPerEvaluation_csv-standardized.csv"
             standardized_df = pd.read_csv(standardized_path)
 
             self.assertIn("mental_demand", standardized_df.columns)
@@ -189,8 +189,8 @@ class BatchStandardizationTests(unittest.TestCase):
 
             meta_view_path = output_dir / "meta_view.csv"
             run_summary_path = output_dir / "run_summary.json"
-            standardized_path = output_dir / "standardized" / "study_source" / "study-standardized.csv"
-            quality_path = output_dir / "standardized" / "study_source" / "study-quality.json"
+            standardized_path = output_dir / "standardized" / "study_source" / "study_csv-standardized.csv"
+            quality_path = output_dir / "standardized" / "study_source" / "study_csv-quality.json"
 
             self.assertTrue(meta_view_path.exists())
             self.assertTrue(run_summary_path.exists())
@@ -254,7 +254,7 @@ class BatchStandardizationTests(unittest.TestCase):
             output_dir = tmp / "output"
             run_batch(manifest_path, output_dir, SCHEMA_PATH)
 
-            standardized_path = output_dir / "standardized" / "study_source" / "study-standardized.csv"
+            standardized_path = output_dir / "standardized" / "study_source" / "study_csv-standardized.csv"
             meta_view_path = output_dir / "meta_view.csv"
 
             standardized_df = pd.read_csv(standardized_path)
@@ -269,6 +269,52 @@ class BatchStandardizationTests(unittest.TestCase):
             )
             self.assertIn("Unmapped", standardized_df.columns)
 
+
+    def test_run_batch_uses_relative_path_prefix_to_avoid_filename_collisions(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            tmp = Path(tmpdir)
+            input_dir = tmp / "input"
+            (input_dir / "wave1").mkdir(parents=True)
+            (input_dir / "wave2").mkdir(parents=True)
+
+            pd.DataFrame({"Trust": [1.0, 2.0]}).to_csv(input_dir / "wave1" / "results.csv", index=False)
+            pd.DataFrame({"Trust": [3.0, 4.0]}).to_csv(input_dir / "wave2" / "results.csv", index=False)
+
+            manifest_path = tmp / "manifest.yaml"
+            manifest_path.write_text(
+                yaml.safe_dump(
+                    {
+                        "sources": [
+                            {
+                                "source_id": "study_source",
+                                "source_type": "local_path",
+                                "location": str(input_dir),
+                                "include_globs": ["**/*.csv"],
+                            }
+                        ]
+                    }
+                ),
+                encoding="utf-8",
+            )
+
+            output_dir = tmp / "output"
+            summary = run_batch(manifest_path, output_dir, SCHEMA_PATH)
+
+            source_output = output_dir / "standardized" / "study_source"
+            standardized_files = sorted(p.name for p in source_output.glob("*-standardized.csv"))
+
+            self.assertEqual(summary["results"][0]["discovered_files"], 2)
+            self.assertEqual(summary["results"][0]["processed_files"], 2)
+            self.assertEqual(
+                standardized_files,
+                [
+                    "wave1_results_csv-standardized.csv",
+                    "wave2_results_csv-standardized.csv",
+                ],
+            )
+
+            meta_df = pd.read_csv(output_dir / "meta_view.csv")
+            self.assertEqual(sorted(meta_df["dataset_id"].unique().tolist()), ["wave1/results.csv", "wave2/results.csv"])
     @unittest.skipUnless(
         os.environ.get("RUN_GITHUB_BATCH_INTEGRATION") == "1",
         "Set RUN_GITHUB_BATCH_INTEGRATION=1 to run live GitHub discovery checks.",
