@@ -349,7 +349,7 @@ dvs:
     measurement:
       category: Likert
       primary_unit: "7-point"
-      allowed_units: ["5-point", "7-point", "100-point", "Likert"]
+      allowed_units: ["5-point", "7-point", "Likert"]
       scale_type: ordinal
       direction: higher_is_better
     aliases:
@@ -360,12 +360,11 @@ dvs:
       - sus_score
       - system_usability_scale
     instruments:
-      - "SUS"
       - "UEQ"
       - "UMUX / UMUX-Lite"
       - "CSAT"
       - "NPS"
-    units: [ "SUS (0–100)", "UEQ scale", "Likert", "NPS" ]
+    units: ["UEQ scale", "Likert", "NPS" ]
 
   - id: usability
     label: "Usability"
@@ -386,6 +385,381 @@ dvs:
     instruments:
       - "SUS"
     units: ["SUS (0–100)"]
+
+
+  - id: SUS1
+    label: "SUS Item 1"
+    cluster: ux_satisfaction
+    measurement:
+      category: Likert
+      primary_unit: "5-point"
+      allowed_units: ["5-point", "Likert"]
+      scale_type: ordinal
+      direction: higher_is_better
+    aliases:
+      - sus1
+      - usability_q1
+      - UsabilityQ1
+      - U1
+    instruments:
+      - "SUS"
+    units: ["Likert"]
+
+  - id: SUS2
+    label: "SUS Item 2"
+    cluster: ux_satisfaction
+    measurement:
+      category: Likert
+      primary_unit: "5-point"
+      allowed_units: ["5-point", "Likert"]
+      scale_type: ordinal
+      direction: higher_is_better
+    aliases:
+      - sus2
+      - usability_q2
+      - UsabilityQ2
+      - U2
+    instruments:
+      - "SUS"
+    units: ["Likert"]
+
+  - id: SUS3
+    label: "SUS Item 3"
+    cluster: ux_satisfaction
+    measurement:
+      category: Likert
+      primary_unit: "5-point"
+      allowed_units: ["5-point", "Likert"]
+      scale_type: ordinal
+      direction: higher_is_better
+    aliases:
+      - sus3
+      - usability_q3
+      - UsabilityQ3
+      - U3
+    instruments:
+      - "SUS"
+    units: ["Likert"]
+
+  - id: SUS4
+    label: "SUS Item 4"
+    cluster: ux_satisfaction
+    measurement:
+      category: Likert
+      primary_unit: "5-point"
+      allowed_units: ["5-point", "Likert"]
+      scale_type: ordinal
+      direction: higher_is_better
+    aliases:
+      - sus4
+      - usability_q4
+      - UsabilityQ4
+      - U4
+    instruments:
+      - "SUS"
+    units: ["Likert"]
+
+  - id: SUS5
+    label: "SUS Item 5"
+    cluster: ux_satisfaction
+    measurement:
+      category: Likert
+      primary_unit: "5-point"
+      allowed_units: ["5-point", "Likert"]
+      scale_type: ordinal
+      direction: higher_is_better
+    aliases:
+      - sus5
+      - usability_q5
+      - UsabilityQ5
+      - U5
+    instruments:
+      - "SUS"
+    units: ["Likert"]
+
+  - id: SUS6
+    label: "SUS Item 6"
+    cluster: ux_satisfaction
+    measurement:
+      category: Likert
+      primary_unit: "5-point"
+      allowed_units: ["5-point", "Likert"]
+      scale_type: ordinal
+      direction: higher_is_better
+    aliases:
+      - sus6
+      - usability_q6
+      - UsabilityQ6
+      - U6
+    instruments:
+      - "SUS"
+    units: ["Likert"]
+
+  - id: SUS7
+    label: "SUS Item 7"
+    cluster: ux_satisfaction
+    measurement:
+      category: Likert
+      primary_unit: "5-point"
+      allowed_units: ["5-point", "Likert"]
+      scale_type: ordinal
+      direction: higher_is_better
+    aliases:
+      - sus7
+      - usability_q7
+      - UsabilityQ7
+      - U7
+    instruments:
+      - "SUS"
+    units: ["Likert"]
+
+  - id: SUS8
+    label: "SUS Item 8"
+    cluster: ux_satisfaction
+    measurement:
+      category: Likert
+      primary_unit: "5-point"
+      allowed_units: ["5-point", "Likert"]
+      scale_type: ordinal
+      direction: higher_is_better
+    aliases:
+      - sus8
+      - usability_q8
+      - UsabilityQ8
+      - U8
+    instruments:
+      - "SUS"
+    units: ["Likert"]
+
+  - id: SUS9
+    label: "SUS Item 9"
+    cluster: ux_satisfaction
+    measurement:
+      category: Likert
+      primary_unit: "5-point"
+      allowed_units: ["5-point", "Likert"]
+      scale_type: ordinal
+      direction: higher_is_better
+    aliases:
+      - sus9
+      - usability_q9
+      - UsabilityQ9
+      - U9
+    instruments:
+      - "SUS"
+    units: ["Likert"]
+
+  - id: SUS10
+    label: "SUS Item 10"
+    cluster: ux_satisfaction
+    measurement:
+      category: Likert
+      primary_unit: "5-point"
+      allowed_units: ["5-point", "Likert"]
+      scale_type: ordinal
+      direction: higher_is_better
+    aliases:
+      - sus10
+      - usability_q10
+      - UsabilityQ10
+      - U10
+    instruments:
+      - "SUS"
+    units: ["Likert"]
+
+  # ---------------- Affective & Emotion — van der Laan Acceptance ---------------- #
+
+  - id: AOA_USEFULNESS
+    label: "van der Laan Acceptance — Usefulness Subscale"
+    cluster: affective_emotion
+    measurement:
+      category: Score
+      primary_unit: "5-point (-2 to +2)"
+      allowed_units: ["5-point", "Likert"]
+      scale_type: ordinal
+      direction: higher_is_better
+    aliases:
+      - AOAUsefulness
+      - aoa_usefulness
+      - van_der_laan_usefulness
+      - acceptance_usefulness
+    instruments:
+      - "van der Laan Acceptance Scale"
+    units: ["Likert"]
+    notes: "Derived subscale score; mean of AOA usefulness items."
+
+  - id: AOA_SATISFYING
+    label: "van der Laan Acceptance — Satisfying Subscale"
+    cluster: affective_emotion
+    measurement:
+      category: Score
+      primary_unit: "5-point (-2 to +2)"
+      allowed_units: ["5-point", "Likert"]
+      scale_type: ordinal
+      direction: higher_is_better
+    aliases:
+      - AOASatisfying
+      - aoa_satisfying
+      - van_der_laan_satisfying
+      - acceptance_satisfying
+    instruments:
+      - "van der Laan Acceptance Scale"
+    units: ["Likert"]
+    notes: "Derived subscale score; mean of AOA satisfying items."
+
+  - id: AOA1
+    label: "van der Laan Acceptance — Item 1"
+    cluster: affective_emotion
+    measurement:
+      category: Likert
+      primary_unit: "5-point (-2 to +2)"
+      allowed_units: ["5-point", "Likert"]
+      scale_type: ordinal
+      direction: higher_is_better
+    aliases:
+      - aoa1
+      - acceptance_1
+      - vdL_1
+    instruments:
+      - "van der Laan Acceptance Scale"
+    units: ["Likert"]
+
+  - id: AOA2
+    label: "van der Laan Acceptance — Item 2"
+    cluster: affective_emotion
+    measurement:
+      category: Likert
+      primary_unit: "5-point (-2 to +2)"
+      allowed_units: ["5-point", "Likert"]
+      scale_type: ordinal
+      direction: higher_is_better
+    aliases:
+      - aoa2
+      - acceptance_2
+      - vdL_2
+    instruments:
+      - "van der Laan Acceptance Scale"
+    units: ["Likert"]
+
+  - id: AOA3
+    label: "van der Laan Acceptance — Item 3"
+    cluster: affective_emotion
+    measurement:
+      category: Likert
+      primary_unit: "5-point (-2 to +2)"
+      allowed_units: ["5-point", "Likert"]
+      scale_type: ordinal
+      direction: higher_is_better
+    aliases:
+      - aoa3
+      - acceptance_3
+      - vdL_3
+    instruments:
+      - "van der Laan Acceptance Scale"
+    units: ["Likert"]
+
+  - id: AOA4
+    label: "van der Laan Acceptance — Item 4"
+    cluster: affective_emotion
+    measurement:
+      category: Likert
+      primary_unit: "5-point (-2 to +2)"
+      allowed_units: ["5-point", "Likert"]
+      scale_type: ordinal
+      direction: higher_is_better
+    aliases:
+      - aoa4
+      - acceptance_4
+      - vdL_4
+    instruments:
+      - "van der Laan Acceptance Scale"
+    units: ["Likert"]
+
+  - id: AOA5
+    label: "van der Laan Acceptance — Item 5"
+    cluster: affective_emotion
+    measurement:
+      category: Likert
+      primary_unit: "5-point (-2 to +2)"
+      allowed_units: ["5-point", "Likert"]
+      scale_type: ordinal
+      direction: higher_is_better
+    aliases:
+      - aoa5
+      - acceptance_5
+      - vdL_5
+    instruments:
+      - "van der Laan Acceptance Scale"
+    units: ["Likert"]
+
+  - id: AOA6
+    label: "van der Laan Acceptance — Item 6"
+    cluster: affective_emotion
+    measurement:
+      category: Likert
+      primary_unit: "5-point (-2 to +2)"
+      allowed_units: ["5-point", "Likert"]
+      scale_type: ordinal
+      direction: higher_is_better
+    aliases:
+      - aoa6
+      - acceptance_6
+      - vdL_6
+    instruments:
+      - "van der Laan Acceptance Scale"
+    units: ["Likert"]
+
+  - id: AOA7
+    label: "van der Laan Acceptance — Item 7"
+    cluster: affective_emotion
+    measurement:
+      category: Likert
+      primary_unit: "5-point (-2 to +2)"
+      allowed_units: ["5-point", "Likert"]
+      scale_type: ordinal
+      direction: higher_is_better
+    aliases:
+      - aoa7
+      - acceptance_7
+      - vdL_7
+    instruments:
+      - "van der Laan Acceptance Scale"
+    units: ["Likert"]
+
+  - id: AOA8
+    label: "van der Laan Acceptance — Item 8"
+    cluster: affective_emotion
+    measurement:
+      category: Likert
+      primary_unit: "5-point (-2 to +2)"
+      allowed_units: ["5-point", "Likert"]
+      scale_type: ordinal
+      direction: higher_is_better
+    aliases:
+      - aoa8
+      - acceptance_8
+      - vdL_8
+    instruments:
+      - "van der Laan Acceptance Scale"
+    units: ["Likert"]
+
+  - id: AOA9
+    label: "van der Laan Acceptance — Item 9"
+    cluster: affective_emotion
+    measurement:
+      category: Likert
+      primary_unit: "5-point (-2 to +2)"
+      allowed_units: ["5-point", "Likert"]
+      scale_type: ordinal
+      direction: higher_is_better
+    aliases:
+      - aoa9
+      - acceptance_9
+      - vdL_9
+    instruments:
+      - "van der Laan Acceptance Scale"
+    units: ["Likert"]
+
 
   - id: usability_problems
     label: "Usability Problems"
