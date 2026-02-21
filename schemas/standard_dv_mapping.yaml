@@ -126,8 +126,7 @@ dvs:
     instruments: []
     units: [ "s", "min" ]
     
-    
-- id: TLX_SCORE
+  - id: TLX_SCORE
     label: "NASA-TLX Composite Score"
     cluster: cognitive_load
     measurement:
