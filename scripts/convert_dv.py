@@ -15,15 +15,16 @@ Usage:
 
 import argparse
 import json
-import pandas as pd
-import yaml
 from datetime import datetime
 from pathlib import Path
 from typing import Dict, Tuple
 
+import pandas as pd
+import yaml
+
 # Import the new inference module
 try:
-    from dv_inference import batch_infer, get_measurement_from_schema, load_inference_rules
+    from dv_inference import batch_infer, get_measurement_from_schema
 except ImportError:
     print("Warning: dv_inference module not found. Metadata inference will be disabled.")
     batch_infer = None
@@ -51,14 +52,21 @@ def load_schema(schema_path: str) -> Dict:
             aliases = dv.get('aliases', [])
             for alias in aliases:
                 alias_to_standard[alias] = standard_name
+                # Case-insensitive matching improves robustness for common
+                # real-world formatting inconsistencies.
+                alias_to_standard[alias.lower()] = standard_name
             # Also map the id itself
             alias_to_standard[standard_name] = standard_name
+            alias_to_standard[standard_name.lower()] = standard_name
     else:
         # Legacy format: flat dict {standard_name: [aliases]}
         for standard, aliases in schema.items():
             if isinstance(aliases, list):
                 for alias in aliases:
                     alias_to_standard[alias] = standard
+                    alias_to_standard[alias.lower()] = standard
+                alias_to_standard[standard] = standard
+                alias_to_standard[standard.lower()] = standard
 
     return {"mapping": alias_to_standard, "schema": schema}
 
@@ -122,9 +130,24 @@ def standardize_columns(df: pd.DataFrame, mapping: Dict) -> pd.DataFrame:
     """
     new_columns = []
     for col in df.columns:
-        new_columns.append(mapping.get(col, col))  # Default to original if not found
+        mapped_col = mapping.get(col)
+        if mapped_col is None and isinstance(col, str):
+            mapped_col = mapping.get(col.lower())
+        new_columns.append(mapped_col or col)  # Default to original if not found
     df.columns = new_columns
     return df
+
+
+def build_original_column_lookup(df: pd.DataFrame, mapping: Dict) -> Dict[str, list]:
+    """Build standardized column -> original input columns lookup."""
+    original_names: Dict[str, list] = {}
+    for col in df.columns:
+        mapped_col = mapping.get(col)
+        if mapped_col is None and isinstance(col, str):
+            mapped_col = mapping.get(col.lower())
+        standardized = mapped_col or col
+        original_names.setdefault(standardized, []).append(col)
+    return original_names
 
 
 def standardize_with_metadata(
@@ -145,8 +168,9 @@ def standardize_with_metadata(
     Returns:
         (standardized_df, column_metadata)
     """
-    # Step 1: Rename columns (existing logic)
-    standardized_df = df.rename(columns=lambda col: mapping.get(col, col))
+    # Step 1: Rename columns and track source names for metadata lineage.
+    original_names = build_original_column_lookup(df, mapping)
+    standardized_df = standardize_columns(df.copy(), mapping)
 
     # Step 2: Infer measurement types for all columns
     column_meta = {}
@@ -155,7 +179,7 @@ def standardize_with_metadata(
         # If inference module not available, return basic metadata
         for col in standardized_df.columns:
             column_meta[col] = {
-                "original_name": [k for k, v in mapping.items() if v == col] or [col],
+                "original_name": original_names.get(col, [col]),
                 "inference_available": False
             }
         return standardized_df, column_meta
@@ -169,15 +193,15 @@ def standardize_with_metadata(
             # Use schema-defined metadata (highest confidence)
             column_meta[col] = {
                 **schema_meta.to_dict(),
-                "original_name": [k for k, v in mapping.items() if v == col] or [col]
+                "original_name": original_names.get(col, [col])
             }
         else:
             # Infer metadata for columns not in schema
             inferences = batch_infer([col], confidence_threshold)
-            _, meta, needs_review = inferences[0]
+            _, meta, _ = inferences[0]
             column_meta[col] = {
                 **meta.to_dict(),
-                "original_name": [k for k, v in mapping.items() if v == col] or [col]
+                "original_name": original_names.get(col, [col])
             }
 
     return standardized_df, column_meta
@@ -196,9 +220,9 @@ def export_with_metadata(
         - output_path: Standardized CSV
         - output_path_metadata.json: Column metadata
     """
-    # Export CSV
-    df.to_csv(output_path, index=False)
-    print(f"✓ Standardized CSV saved to: {output_path}")
+    # Export standardized dataset with extension-aware serializer.
+    save_output_file(df, output_path)
+    print(f"✓ Standardized file saved to: {output_path}")
 
     # Export metadata JSON
     meta_path = str(Path(output_path).with_suffix('')) + "_metadata.json"
@@ -280,6 +304,9 @@ Examples:
     )
 
     args = parser.parse_args()
+
+    if not 0 <= args.confidence_threshold <= 1:
+        raise ValueError("--confidence-threshold must be between 0 and 1.")
 
     print("=" * 60)
     print("OpenDV-HCI: DV Standardization Tool")
