@@ -11,19 +11,22 @@ in HCI research.
 Usage:
     python convert_dv.py --input path/to/input.csv --output path/to/output.csv
     python convert_dv.py --input data.csv --output standardized.csv --with-metadata
+    python convert_dv.py --input path/to/folder
 """
 
 import argparse
 import json
-import pandas as pd
-import yaml
+import warnings
 from datetime import datetime
 from pathlib import Path
 from typing import Dict, Tuple
 
+import pandas as pd
+import yaml
+
 # Import the new inference module
 try:
-    from dv_inference import batch_infer, get_measurement_from_schema, load_inference_rules
+    from dv_inference import batch_infer, get_measurement_from_schema
 except ImportError:
     print("Warning: dv_inference module not found. Metadata inference will be disabled.")
     batch_infer = None
@@ -51,14 +54,21 @@ def load_schema(schema_path: str) -> Dict:
             aliases = dv.get('aliases', [])
             for alias in aliases:
                 alias_to_standard[alias] = standard_name
+                # Case-insensitive matching improves robustness for common
+                # real-world formatting inconsistencies.
+                alias_to_standard[alias.lower()] = standard_name
             # Also map the id itself
             alias_to_standard[standard_name] = standard_name
+            alias_to_standard[standard_name.lower()] = standard_name
     else:
         # Legacy format: flat dict {standard_name: [aliases]}
         for standard, aliases in schema.items():
             if isinstance(aliases, list):
                 for alias in aliases:
                     alias_to_standard[alias] = standard
+                    alias_to_standard[alias.lower()] = standard
+                alias_to_standard[standard] = standard
+                alias_to_standard[standard.lower()] = standard
 
     return {"mapping": alias_to_standard, "schema": schema}
 
@@ -83,6 +93,95 @@ def load_input_file(input_path: str) -> pd.DataFrame:
         f"Unsupported input format: '{suffix or 'no extension'}'. "
         "Supported formats are .csv, .xlsx, and .xls."
     )
+
+
+def detect_single_file(folder: Path, patterns: Tuple[str, ...], kind: str) -> Path | None:
+    """
+    Detect exactly one file in a folder by suffix pattern.
+
+    Returns:
+        The file path if exactly one candidate is found, else None.
+    """
+    candidates = sorted(
+        path for path in folder.iterdir()
+        if path.is_file() and path.suffix.lower() in patterns
+    )
+
+    if len(candidates) > 1:
+        warnings.warn(
+            (
+                f"Multiple {kind} files detected in '{folder}': "
+                f"{', '.join(path.name for path in candidates)}"
+            ),
+            stacklevel=2,
+        )
+        return None
+
+    if len(candidates) == 1:
+        return candidates[0]
+
+    return None
+
+
+def resolve_io_paths(input_arg: str, output_arg: str | None, schema_arg: str | None) -> Tuple[Path, Path, Path]:
+    """Resolve input/output/schema paths from file or folder-oriented CLI arguments."""
+    input_path = Path(input_arg)
+    default_schema = Path(__file__).resolve().parents[1] / "schemas" / "standard_dv_mapping.yaml"
+
+    if input_path.is_file():
+        resolved_input = input_path
+        resolved_schema = Path(schema_arg) if schema_arg else default_schema
+    elif input_path.is_dir():
+        data_candidates = [
+            path for path in sorted(input_path.iterdir())
+            if path.is_file() and path.suffix.lower() in {".csv", ".xlsx", ".xls"}
+        ]
+        if len(data_candidates) > 1:
+            warnings.warn(
+                (
+                    f"Multiple input data files detected in '{input_path}': "
+                    f"{', '.join(path.name for path in data_candidates)}"
+                ),
+                stacklevel=2,
+            )
+            raise ValueError(
+                "Multiple input files found. Please provide --input with a specific CSV/Excel file."
+            )
+        if not data_candidates:
+            raise ValueError(
+                "No CSV/Excel file found in the provided folder. "
+                "Provide --input with a valid file or add a single input file to the folder."
+            )
+        resolved_input = data_candidates[0]
+
+        if schema_arg:
+            resolved_schema = Path(schema_arg)
+        else:
+            schema_candidates = [
+                path for path in sorted(input_path.iterdir())
+                if path.is_file() and path.suffix.lower() in {".yaml", ".yml"}
+            ]
+            if len(schema_candidates) > 1:
+                warnings.warn(
+                    (
+                        f"Multiple schema files detected in '{input_path}': "
+                        f"{', '.join(path.name for path in schema_candidates)}"
+                    ),
+                    stacklevel=2,
+                )
+                raise ValueError(
+                    "Multiple schema files found. Please pass --schema with the YAML file to use."
+                )
+            resolved_schema = schema_candidates[0] if schema_candidates else default_schema
+    else:
+        raise ValueError(f"Input path does not exist: {input_arg}")
+
+    if output_arg:
+        resolved_output = Path(output_arg)
+    else:
+        resolved_output = resolved_input.with_name(f"{resolved_input.stem}-standardized{resolved_input.suffix}")
+
+    return resolved_input, resolved_output, resolved_schema
 
 
 def save_output_file(df: pd.DataFrame, output_path: str) -> None:
@@ -122,9 +221,24 @@ def standardize_columns(df: pd.DataFrame, mapping: Dict) -> pd.DataFrame:
     """
     new_columns = []
     for col in df.columns:
-        new_columns.append(mapping.get(col, col))  # Default to original if not found
+        mapped_col = mapping.get(col)
+        if mapped_col is None and isinstance(col, str):
+            mapped_col = mapping.get(col.lower())
+        new_columns.append(mapped_col or col)  # Default to original if not found
     df.columns = new_columns
     return df
+
+
+def build_original_column_lookup(df: pd.DataFrame, mapping: Dict) -> Dict[str, list]:
+    """Build standardized column -> original input columns lookup."""
+    original_names: Dict[str, list] = {}
+    for col in df.columns:
+        mapped_col = mapping.get(col)
+        if mapped_col is None and isinstance(col, str):
+            mapped_col = mapping.get(col.lower())
+        standardized = mapped_col or col
+        original_names.setdefault(standardized, []).append(col)
+    return original_names
 
 
 def standardize_with_metadata(
@@ -145,8 +259,9 @@ def standardize_with_metadata(
     Returns:
         (standardized_df, column_metadata)
     """
-    # Step 1: Rename columns (existing logic)
-    standardized_df = df.rename(columns=lambda col: mapping.get(col, col))
+    # Step 1: Rename columns and track source names for metadata lineage.
+    original_names = build_original_column_lookup(df, mapping)
+    standardized_df = standardize_columns(df.copy(), mapping)
 
     # Step 2: Infer measurement types for all columns
     column_meta = {}
@@ -155,7 +270,7 @@ def standardize_with_metadata(
         # If inference module not available, return basic metadata
         for col in standardized_df.columns:
             column_meta[col] = {
-                "original_name": [k for k, v in mapping.items() if v == col] or [col],
+                "original_name": original_names.get(col, [col]),
                 "inference_available": False
             }
         return standardized_df, column_meta
@@ -169,15 +284,15 @@ def standardize_with_metadata(
             # Use schema-defined metadata (highest confidence)
             column_meta[col] = {
                 **schema_meta.to_dict(),
-                "original_name": [k for k, v in mapping.items() if v == col] or [col]
+                "original_name": original_names.get(col, [col])
             }
         else:
             # Infer metadata for columns not in schema
             inferences = batch_infer([col], confidence_threshold)
-            _, meta, needs_review = inferences[0]
+            _, meta, _ = inferences[0]
             column_meta[col] = {
                 **meta.to_dict(),
-                "original_name": [k for k, v in mapping.items() if v == col] or [col]
+                "original_name": original_names.get(col, [col])
             }
 
     return standardized_df, column_meta
@@ -196,9 +311,9 @@ def export_with_metadata(
         - output_path: Standardized CSV
         - output_path_metadata.json: Column metadata
     """
-    # Export CSV
-    df.to_csv(output_path, index=False)
-    print(f"✓ Standardized CSV saved to: {output_path}")
+    # Export standardized dataset with extension-aware serializer.
+    save_output_file(df, output_path)
+    print(f"✓ Standardized file saved to: {output_path}")
 
     # Export metadata JSON
     meta_path = str(Path(output_path).with_suffix('')) + "_metadata.json"
@@ -240,6 +355,9 @@ Examples:
   # Basic usage (column renaming only):
   python convert_dv.py --input data.csv --output standardized.csv
 
+  # Folder mode (auto-detect one input file and optional schema):
+  python convert_dv.py --input ./dataset_folder
+
   # With measurement metadata inference:
   python convert_dv.py --input data.csv --output standardized.csv --with-metadata
 
@@ -252,20 +370,24 @@ Examples:
         "--input",
         type=str,
         required=True,
-        help="Path to input CSV file"
+        help="Path to input CSV/Excel file OR a folder containing exactly one CSV/Excel file"
     )
     parser.add_argument(
         "--output",
         type=str,
-        required=True,
-        help="Path to save the standardized CSV file"
+        default=None,
+        help="Path to save standardized CSV/Excel output (default: '<input>-standardized.<ext>')"
     )
     default_schema = Path(__file__).resolve().parents[1] / "schemas" / "standard_dv_mapping.yaml"
     parser.add_argument(
         "--schema",
         type=str,
-        default=str(default_schema),
-        help=f"Path to YAML schema file (default: {default_schema})"
+        default=None,
+        help=(
+            "Path to YAML schema file. In folder mode, if omitted, the tool auto-uses "
+            "exactly one .yaml/.yml in the folder, else falls back to "
+            f"{default_schema}."
+        )
     )
     parser.add_argument(
         "--with-metadata",
@@ -281,18 +403,27 @@ Examples:
 
     args = parser.parse_args()
 
+    if not 0 <= args.confidence_threshold <= 1:
+        raise ValueError("--confidence-threshold must be between 0 and 1.")
+
+    resolved_input, resolved_output, resolved_schema = resolve_io_paths(
+        args.input,
+        args.output,
+        args.schema,
+    )
+
     print("=" * 60)
     print("OpenDV-HCI: DV Standardization Tool")
     print("=" * 60)
 
     # Load input file
-    print(f"Loading input file: {args.input}")
-    df = load_input_file(args.input)
+    print(f"Loading input file: {resolved_input}")
+    df = load_input_file(str(resolved_input))
     print(f"  ✓ Loaded {len(df)} rows, {len(df.columns)} columns")
 
     # Load schema and build mapping
-    print(f"Loading schema: {args.schema}")
-    schema_data = load_schema(args.schema)
+    print(f"Loading schema: {resolved_schema}")
+    schema_data = load_schema(str(resolved_schema))
     mapping = schema_data["mapping"]
     schema = schema_data["schema"]
     print(f"  ✓ Loaded {len(mapping)} alias mappings")
@@ -306,12 +437,14 @@ Examples:
             schema,
             args.confidence_threshold
         )
-        export_with_metadata(df_standardized, column_meta, args.output, schema.get('version', '2.1'))
+        resolved_output.parent.mkdir(parents=True, exist_ok=True)
+        export_with_metadata(df_standardized, column_meta, str(resolved_output), schema.get('version', '2.1'))
     else:
         print("Standardizing columns (metadata inference disabled)...")
         df_standardized = standardize_columns(df, mapping)
-        save_output_file(df_standardized, args.output)
-        print(f"✓ Standardized file saved to: {args.output}")
+        resolved_output.parent.mkdir(parents=True, exist_ok=True)
+        save_output_file(df_standardized, str(resolved_output))
+        print(f"✓ Standardized file saved to: {resolved_output}")
 
     print("=" * 60)
     print("✓ Standardization complete!")
