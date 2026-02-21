@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 import shutil
 import subprocess
 import sys
@@ -143,6 +144,13 @@ def _load_any_table(path: Path) -> pd.DataFrame:
     if path.suffix.lower() == ".tsv":
         return pd.read_csv(path, sep="\t")
     return load_input_file(str(path))
+
+
+def _build_artifact_prefix(relative_path: Path) -> str:
+    """Create a collision-safe file prefix from a path relative to the source root."""
+    normalized = relative_path.as_posix()
+    safe_prefix = re.sub(r"[^A-Za-z0-9]+", "_", normalized).strip("_")
+    return safe_prefix or "dataset"
 
 
 def _load_repository_mapping(source_root: Path) -> tuple[dict[str, str], str | None]:
@@ -289,10 +297,12 @@ def run_batch(manifest_path: Path, output_dir: Path, schema_path: Path) -> dict[
                 leave=False,
             )
             for file_path in dataset_progress:
-                dataset_id = file_path.stem
+                relative_file = file_path.relative_to(base_dir)
+                dataset_id = relative_file.as_posix()
+                artifact_prefix = _build_artifact_prefix(relative_file)
                 dataset_progress.set_postfix(dataset=dataset_id)
-                destination = source_output_dir / f"{dataset_id}-standardized{file_path.suffix}"
-                relative_path = str(file_path.relative_to(base_dir))
+                destination = source_output_dir / f"{artifact_prefix}-standardized{file_path.suffix}"
+                relative_path = str(relative_file)
 
                 try:
                     original_df = _load_any_table(file_path)
@@ -321,13 +331,13 @@ def run_batch(manifest_path: Path, output_dir: Path, schema_path: Path) -> dict[
                     total_unknown += quality["unknown_columns"]
                     meta_rows.extend(rows)
 
-                    with open(source_output_dir / f"{dataset_id}-quality.json", "w", encoding="utf-8") as f:
+                    with open(source_output_dir / f"{artifact_prefix}-quality.json", "w", encoding="utf-8") as f:
                         json.dump(quality, f, indent=2)
 
                     processed += 1
                 except Exception as exc:  # noqa: BLE001
                     failed += 1
-                    with open(source_output_dir / f"{dataset_id}-error.log", "w", encoding="utf-8") as f:
+                    with open(source_output_dir / f"{artifact_prefix}-error.log", "w", encoding="utf-8") as f:
                         f.write(str(exc))
 
             status = "completed" if failed == 0 else ("partial" if processed else "failed")
