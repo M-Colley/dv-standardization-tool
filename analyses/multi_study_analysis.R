@@ -14,6 +14,85 @@ id_like <- c(
   "session_id", "submitdate", "seed", "lastpage"
 )
 
+normalize_colname <- function(x) {
+  gsub("[^a-z0-9]", "", tolower(x))
+}
+
+resolve_mapped_series <- function(df, candidates) {
+  normalized_df <- normalize_colname(names(df))
+  for (cand in candidates) {
+    idx <- which(normalized_df == normalize_colname(cand))
+    if (length(idx) > 0) {
+      return(suppressWarnings(as.numeric(df[[idx[[1]]]])))
+    }
+  }
+  NULL
+}
+
+add_derived_scale_scores <- function(df) {
+  out <- df
+
+  tlx_item_candidates <- list(
+    c("tlx1", "nasa_tlx1", "mental_demand", "tlx_mental_demand", "nasa_tlx_mental"),
+    c("tlx2", "nasa_tlx2", "physical_demand"),
+    c("tlx3", "nasa_tlx3", "temporal_demand"),
+    c("tlx4", "nasa_tlx4", "performance"),
+    c("tlx5", "nasa_tlx5", "effort"),
+    c("tlx6", "nasa_tlx6", "frustration")
+  )
+  tlx_items <- map(tlx_item_candidates, ~ resolve_mapped_series(out, .x))
+  if (all(map_lgl(tlx_items, ~ !is.null(.x)))) {
+    out$nasa_tlx_score <- rowMeans(as.data.frame(tlx_items), na.rm = FALSE)
+  }
+
+  sus_item_candidates <- list(
+    c("sus1", "sus_1"), c("sus2", "sus_2"), c("sus3", "sus_3"),
+    c("sus4", "sus_4"), c("sus5", "sus_5"), c("sus6", "sus_6"),
+    c("sus7", "sus_7"), c("sus8", "sus_8"), c("sus9", "sus_9"),
+    c("sus10", "sus_10")
+  )
+  sus_items <- map(sus_item_candidates, ~ resolve_mapped_series(out, .x))
+  if (all(map_lgl(sus_items, ~ !is.null(.x)))) {
+    out$sus_score <- (
+      (sus_items[[1]] - 1) +
+      (sus_items[[3]] - 1) +
+      (sus_items[[5]] - 1) +
+      (sus_items[[7]] - 1) +
+      (sus_items[[9]] - 1) +
+      (5 - sus_items[[2]]) +
+      (5 - sus_items[[4]]) +
+      (5 - sus_items[[6]]) +
+      (5 - sus_items[[8]]) +
+      (5 - sus_items[[10]])
+    ) * 2.5
+  }
+
+  aoa_item_candidates <- list(
+    c("aoa1", "aoa_1"), c("aoa2", "aoa_2"), c("aoa3", "aoa_3"),
+    c("aoa4", "aoa_4"), c("aoa5", "aoa_5"), c("aoa6", "aoa_6"),
+    c("aoa7", "aoa_7"), c("aoa8", "aoa_8"), c("aoa9", "aoa_9")
+  )
+  aoa_items <- map(aoa_item_candidates, ~ resolve_mapped_series(out, .x))
+  if (all(map_lgl(aoa_items, ~ !is.null(.x)))) {
+    out$aoa_usefulness <- (
+      (3 - aoa_items[[1]]) +
+      (-3 + aoa_items[[3]]) +
+      (3 - aoa_items[[5]]) +
+      (3 - aoa_items[[7]]) +
+      (3 - aoa_items[[9]])
+    ) / 5.0
+
+    out$aoa_satisfying <- (
+      (3 - aoa_items[[2]]) +
+      (3 - aoa_items[[4]]) +
+      (-3 + aoa_items[[6]]) +
+      (-3 + aoa_items[[8]])
+    ) / 4.0
+  }
+
+  out
+}
+
 args <- commandArgs(trailingOnly = TRUE)
 input_dir <- ifelse(length(args) >= 1, args[[1]], "data/processed/multi_study_examples")
 output_dir <- ifelse(length(args) >= 2, args[[2]], "analyses/output_r")
@@ -33,7 +112,7 @@ if (length(files) == 0) {
   stop(paste("No CSV/XLSX files found in", input_dir))
 }
 
-studies <- set_names(map(files, read_study), nm = tools::file_path_sans_ext(basename(files)))
+studies <- set_names(map(files, ~ add_derived_scale_scores(read_study(.x))), nm = tools::file_path_sans_ext(basename(files)))
 
 numeric_dvs <- function(df) {
   names(df)[sapply(df, is.numeric) & !(tolower(names(df)) %in% id_like)]
