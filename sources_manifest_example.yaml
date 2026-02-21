@@ -31,3 +31,4 @@ sources:
       - "**/QuestionnaireResponses.csv"
       - "**/first upload/**"
       - "**/last year/**"
+      - "**/ehmi-optimization-chi25-demographic-data.csv"
