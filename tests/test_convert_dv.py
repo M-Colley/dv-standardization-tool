@@ -112,6 +112,25 @@ dvs:
                     alias_conflict_policy="error",
                 )
 
+
+    def test_load_schema_raises_for_empty_yaml(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            schema_path = Path(tmpdir) / "empty.yaml"
+            schema_path.write_text("", encoding="utf-8")
+
+            with self.assertRaisesRegex(ValueError, "empty or only contains null"):
+                load_schema(str(schema_path))
+
+    def test_load_schema_handles_null_dvs_as_empty_mapping(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            schema_path = Path(tmpdir) / "null_dvs.yaml"
+            schema_path.write_text("version: '2.1'\ndvs: null\n", encoding="utf-8")
+
+            loaded = load_schema(str(schema_path))
+
+            self.assertEqual(loaded["mapping"], {})
+            self.assertFalse(loaded["standard_mappings_applied"])
+
     def test_identify_unmapped_columns_lists_unknown_values(self):
         mapping = {"task_time": "task_completion_time", "task_completion_time": "task_completion_time"}
 

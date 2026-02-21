@@ -45,6 +45,21 @@ class BatchStandardizationTests(unittest.TestCase):
             self.assertEqual(merged_mapping["duration"], "task_completion_time")
             self.assertEqual(merged_mapping["local_alias_only"], "custom_task_time")
 
+
+    def test_load_repository_mapping_tolerates_null_dvs(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            source_root = Path(tmpdir)
+            (source_root / "custom_mapping.yaml").write_text(
+                "version: '2.1'\ndvs: null\n",
+                encoding="utf-8",
+            )
+
+            merged_mapping, mapping_path = _load_repository_mapping(source_root)
+
+            self.assertIn("task_time", merged_mapping)
+            self.assertIsNotNone(mapping_path)
+            self.assertTrue(mapping_path.endswith("custom_mapping.yaml"))
+
     def test_load_repository_mapping_ignores_ambiguous_mapping_candidates(self):
         with tempfile.TemporaryDirectory() as tmpdir:
             source_root = Path(tmpdir)
@@ -133,7 +148,7 @@ class BatchStandardizationTests(unittest.TestCase):
             standardized_path = output_dir / "standardized" / "semicolon_source" / "ObservationsPerEvaluation-standardized.csv"
             standardized_df = pd.read_csv(standardized_path)
 
-            self.assertIn("mental_effort", standardized_df.columns)
+            self.assertIn("mental_demand", standardized_df.columns)
             self.assertIn("trust_rating", standardized_df.columns)
 
     def test_run_batch_generates_meta_view_and_summary_for_local_source(self):

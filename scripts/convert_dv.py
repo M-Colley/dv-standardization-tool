@@ -37,14 +37,35 @@ def _build_alias_mapping(schema: Dict) -> Dict[str, str]:
     """Build a case-insensitive alias -> standard_name mapping for a schema dictionary."""
     alias_to_standard: Dict[str, str] = {}
 
+    if schema is None:
+        return alias_to_standard
+    if not isinstance(schema, dict):
+        raise ValueError("Schema must be a YAML object (mapping) at the top level.")
+
     # Handle new schema format (version 2.1+) with 'dvs' list
     if 'dvs' in schema:
-        for dv in schema['dvs']:
+        dvs = schema.get('dvs')
+        if dvs is None:
+            return alias_to_standard
+        if not isinstance(dvs, list):
+            raise ValueError("Schema field 'dvs' must be a list when provided.")
+
+        for dv in dvs:
+            if not isinstance(dv, dict):
+                continue
             standard_name = dv.get('id')
             aliases = dv.get('aliases', [])
+            if aliases is None:
+                aliases = []
+            if not isinstance(aliases, list):
+                raise ValueError(
+                    f"Schema field 'aliases' must be a list for DV '{standard_name or '<missing id>'}'."
+                )
             if not standard_name:
                 continue
             for alias in aliases:
+                if not isinstance(alias, str):
+                    continue
                 alias_to_standard[alias] = standard_name
                 # Case-insensitive matching improves robustness for common
                 # real-world formatting inconsistencies.
@@ -108,8 +129,18 @@ def load_schema(
     Returns:
         Dictionary with alias_to_standard mapping and full schema
     """
-    with open(schema_path, "r") as f:
+    with open(schema_path, "r", encoding="utf-8") as f:
         schema = yaml.safe_load(f)
+
+    if schema is None:
+        raise ValueError(
+            f"Schema file '{schema_path}' is empty or only contains null values. "
+            "Provide a YAML object with either a 'dvs' list or legacy alias mapping entries."
+        )
+    if not isinstance(schema, dict):
+        raise ValueError(
+            f"Schema file '{schema_path}' must contain a YAML object (mapping) at the top level."
+        )
 
     # If a custom schema is selected, combine it with the standard schema.
     # Standard mappings take precedence on conflicts; custom schema extends
@@ -118,8 +149,12 @@ def load_schema(
         standard_path = Path(standard_schema_path).resolve()
         selected_path = Path(schema_path).resolve()
         if selected_path != standard_path:
-            with open(standard_path, "r") as f:
+            with open(standard_path, "r", encoding="utf-8") as f:
                 standard_schema = yaml.safe_load(f)
+            if standard_schema is None or not isinstance(standard_schema, dict):
+                raise ValueError(
+                    f"Standard schema file '{standard_path}' must contain a non-empty YAML object."
+                )
 
             custom_mapping = _build_alias_mapping(schema)
             standard_mapping = _build_alias_mapping(standard_schema)
