@@ -10,7 +10,11 @@ sources:
       - "**/*.xlsx"
       - "**/*.xls"
       - "**/*.tsv"
-
+    # Exclude selected files and folder trees from ingestion.
+    exclude_globs:
+      - "**/results-roads-final-chi25.xlsx"
+      - "**/ClearedLogs/**"
+  
   - source_id: ehmi_optimization_chi25
     source_type: github_repo
     location: https://github.com/M-Colley/ehmi-optimization-chi25-data
@@ -20,3 +24,10 @@ sources:
       - "**/*.xlsx"
       - "**/*.xls"
       - "**/*.tsv"
+    # Exclude selected files and folder trees from ingestion.
+    exclude_globs:
+      - "**/ExecutionTimes.csv"
+      - "**/HypervolumePerEvaluation.csv"
+      - "**/QuestionnaireResponses.csv"
+      - "**/first upload/**"
+      - "**/last year/**"
