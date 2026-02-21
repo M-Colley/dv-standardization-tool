@@ -67,6 +67,50 @@ dvs:
             self.assertTrue(loaded["standard_mappings_applied"])
             self.assertEqual(loaded["mapping"]["task_time"], "task_completion_time")
             self.assertEqual(loaded["mapping"]["novel_alias"], "custom_task_time")
+            self.assertEqual(loaded["alias_conflict_policy"], "prefer_standard")
+            self.assertGreaterEqual(len(loaded["alias_conflicts"]), 1)
+
+    def test_load_schema_prefer_custom_policy_keeps_custom_target_on_conflict(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            custom_schema = Path(tmpdir) / "custom_mapping.yaml"
+            custom_schema.write_text(
+                """
+version: "2.1"
+dvs:
+  - id: custom_task_time
+    aliases:
+      - task_time
+""".strip()
+            )
+
+            loaded = load_schema(
+                str(custom_schema),
+                str(SCHEMA_PATH),
+                alias_conflict_policy="prefer_custom",
+            )
+
+            self.assertEqual(loaded["mapping"]["task_time"], "custom_task_time")
+            self.assertEqual(loaded["alias_conflict_policy"], "prefer_custom")
+
+    def test_load_schema_error_policy_raises_on_conflict(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            custom_schema = Path(tmpdir) / "custom_mapping.yaml"
+            custom_schema.write_text(
+                """
+version: "2.1"
+dvs:
+  - id: custom_task_time
+    aliases:
+      - task_time
+""".strip()
+            )
+
+            with self.assertRaises(ValueError):
+                load_schema(
+                    str(custom_schema),
+                    str(SCHEMA_PATH),
+                    alias_conflict_policy="error",
+                )
 
     def test_identify_unmapped_columns_lists_unknown_values(self):
         mapping = {"task_time": "task_completion_time", "task_completion_time": "task_completion_time"}
