@@ -6,7 +6,7 @@ PREFERRED_INPUT_DIR="data/processed/batch_runs/latest/standardized"
 FALLBACK_INPUT_DIR="data/processed/multi_study_examples"
 OUTPUT_DIR="${1:-analyses/output_python_latest_standardized}"
 
-if [ -d "$PREFERRED_INPUT_DIR" ] && find "$PREFERRED_INPUT_DIR" -maxdepth 1 -type f \( -name '*.csv' -o -name '*.xlsx' \) | grep -q .; then
+if [ -d "$PREFERRED_INPUT_DIR" ] && find "$PREFERRED_INPUT_DIR" -maxdepth 2 -type f \( -name '*.csv' -o -name '*.xlsx' \) | grep -q .; then
   INPUT_DIR="$PREFERRED_INPUT_DIR"
   echo "Using latest standardized batch datasets: $INPUT_DIR"
 else
