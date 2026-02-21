@@ -88,6 +88,54 @@ class BatchStandardizationTests(unittest.TestCase):
             "https://github.com/M-Colley/ehmi-optimization-chi25-data",
         )
 
+    def test_run_batch_maps_semicolon_csv_columns_including_mental_load(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            tmp = Path(tmpdir)
+            input_dir = tmp / "input"
+            input_dir.mkdir()
+
+            (input_dir / "ObservationsPerEvaluation.csv").write_text(
+                "User_ID;Trust;MentalLoad\n1;4.0;2.0\n2;3.5;1.5\n",
+                encoding="utf-8",
+            )
+            (input_dir / "ehmi_mapping.yaml").write_text(
+                yaml.safe_dump(
+                    {
+                        "dvs": [
+                            {"id": "trust_rating", "aliases": ["Trust"]},
+                            {"id": "mental_effort", "aliases": ["MentalLoad"]},
+                        ]
+                    }
+                ),
+                encoding="utf-8",
+            )
+
+            manifest_path = tmp / "manifest.yaml"
+            manifest_path.write_text(
+                yaml.safe_dump(
+                    {
+                        "sources": [
+                            {
+                                "source_id": "semicolon_source",
+                                "source_type": "local_path",
+                                "location": str(input_dir),
+                                "include_globs": ["*.csv"],
+                            }
+                        ]
+                    }
+                ),
+                encoding="utf-8",
+            )
+
+            output_dir = tmp / "output"
+            run_batch(manifest_path, output_dir, SCHEMA_PATH)
+
+            standardized_path = output_dir / "standardized" / "semicolon_source" / "ObservationsPerEvaluation-standardized.csv"
+            standardized_df = pd.read_csv(standardized_path)
+
+            self.assertIn("mental_effort", standardized_df.columns)
+            self.assertIn("trust_rating", standardized_df.columns)
+
     def test_run_batch_generates_meta_view_and_summary_for_local_source(self):
         with tempfile.TemporaryDirectory() as tmpdir:
             tmp = Path(tmpdir)
