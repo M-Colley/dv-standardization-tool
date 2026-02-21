@@ -234,3 +234,23 @@ If you use this repository or the accompanying tool, please cite:
 * **Supervisor**: Mark Colley
 * **Institution**: UCL Interaction Centre (UCLIC), University College London
 * **Emails**: [meriem.mehri.24@ucl.ac.uk](mailto:meriem.mehri.24@ucl.ac.uk) ; [m.colley@ucl.ac.uk](mailto:m.colley@ucl.ac.uk)
+
+## Batch standardization (manifest-driven)
+
+You can now process multiple data sources (local folders or GitHub repositories) with a single manifest and produce a consolidated meta-view.
+The included `sources_manifest_example.yaml` is preconfigured for:
+- `https://github.com/M-Colley/roads-chi25-data`
+- `https://github.com/M-Colley/ehmi-optimization-chi25-data`
+
+```bash
+python scripts/run_batch_standardization.py \
+  --manifest sources_manifest_example.yaml \
+  --output-dir data/processed/batch_runs/latest \
+  --snapshot-manifest
+```
+
+Outputs include:
+- `meta_view.csv` and `meta_view.json` (cross-source harmonized summary backbone)
+- per-source standardized files under `standardized/<source_id>/`
+- per-dataset quality sidecars (`*-quality.json`)
+- run-level provenance/status log (`run_summary.json`)

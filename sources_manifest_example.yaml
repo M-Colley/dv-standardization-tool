@@ -1,0 +1,22 @@
+# Example source manifest for scripts/run_batch_standardization.py
+# Uses two public CHI'25 data repositories.
+sources:
+  - source_id: roads_chi25
+    source_type: github_repo
+    location: https://github.com/M-Colley/roads-chi25-data
+    ref: main
+    include_globs:
+      - "**/*.csv"
+      - "**/*.xlsx"
+      - "**/*.xls"
+      - "**/*.tsv"
+
+  - source_id: ehmi_optimization_chi25
+    source_type: github_repo
+    location: https://github.com/M-Colley/ehmi-optimization-chi25-data
+    ref: main
+    include_globs:
+      - "**/*.csv"
+      - "**/*.xlsx"
+      - "**/*.xls"
+      - "**/*.tsv"
