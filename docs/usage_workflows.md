@@ -61,7 +61,10 @@ python scripts/convert_dv.py \
 
 When a custom schema is provided:
 - The tool includes **both** mappings from the selected custom schema and from `schemas/standard_dv_mapping.yaml`.
-- The standard mapping has higher priority if both define the same alias.
+- Alias collisions are controlled by `--alias-conflict-policy`:
+  - `prefer_standard` (default): standard mapping wins and preserves canonical IDs.
+  - `prefer_custom`: custom mapping wins for conflicting aliases.
+  - `error`: abort if any conflicts are detected.
 - The custom schema still extends coverage for additional aliases not yet in the standard mapping.
 
 ### 5) Metadata inference workflow

@@ -247,7 +247,7 @@ The included `sources_manifest_example.yaml` is preconfigured for:
 1. The runner validates the manifest and iterates through each source with a `tqdm` progress tracker.
 2. For each source, tabular datasets (`.csv`, `.tsv`, `.xls`, `.xlsx`) are discovered and processed with a per-dataset progress tracker.
 3. If a source/repository includes a single mapping YAML file matching `*mapping*.y*ml` or `*dv*.y*ml`, that mapping is merged with the standard schema so local aliases are recognized.
-4. Standard schema aliases always take precedence in collisions, ensuring canonical OpenDV mappings remain authoritative.
+4. Alias collisions are handled with an explicit policy (`--alias-conflict-policy`): default is `prefer_standard` (canonical OpenDV IDs stay authoritative), with optional `prefer_custom` and `error` modes for stricter local workflows.
 5. Outputs include standardized files, quality sidecars, and an aggregated meta-view with provenance fields (including the detected source mapping path when used).
 
 ```bash

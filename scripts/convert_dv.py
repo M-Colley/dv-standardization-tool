@@ -20,7 +20,7 @@ import re
 import warnings
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, List, Tuple
+from typing import Dict, List, Literal, Tuple
 
 import pandas as pd
 import yaml
@@ -65,7 +65,40 @@ def _build_alias_mapping(schema: Dict) -> Dict[str, str]:
     return alias_to_standard
 
 
-def load_schema(schema_path: str, standard_schema_path: str | None = None) -> Dict:
+def _collect_alias_conflicts(
+    custom_mapping: Dict[str, str],
+    standard_mapping: Dict[str, str],
+) -> List[Dict[str, str]]:
+    """Return alias collisions where custom and standard map to different DV ids."""
+    conflicts: Dict[str, Dict[str, str]] = {}
+
+    for alias, custom_target in custom_mapping.items():
+        standard_target = standard_mapping.get(alias)
+        if standard_target is None or standard_target == custom_target:
+            continue
+
+        normalized = alias.lower() if isinstance(alias, str) else str(alias)
+        existing = conflicts.get(normalized)
+
+        if existing is None:
+            conflicts[normalized] = {
+                "alias": str(alias),
+                "custom_id": custom_target,
+                "standard_id": standard_target,
+            }
+        else:
+            # Prefer preserving the original-case alias when available.
+            if existing["alias"] == normalized and alias != normalized:
+                existing["alias"] = str(alias)
+
+    return sorted(conflicts.values(), key=lambda row: row["alias"].lower())
+
+
+def load_schema(
+    schema_path: str,
+    standard_schema_path: str | None = None,
+    alias_conflict_policy: Literal["prefer_standard", "prefer_custom", "error"] = "prefer_standard",
+) -> Dict:
     """
     Load the DV mapping schema from YAML.
 
@@ -90,7 +123,22 @@ def load_schema(schema_path: str, standard_schema_path: str | None = None) -> Di
 
             custom_mapping = _build_alias_mapping(schema)
             standard_mapping = _build_alias_mapping(standard_schema)
-            merged_mapping = {**custom_mapping, **standard_mapping}
+            conflicts = _collect_alias_conflicts(custom_mapping, standard_mapping)
+
+            if conflicts and alias_conflict_policy == "error":
+                preview = ", ".join(
+                    f"{row['alias']} (custom={row['custom_id']} vs standard={row['standard_id']})"
+                    for row in conflicts[:5]
+                )
+                raise ValueError(
+                    "Alias conflicts detected between custom and standard mappings. "
+                    f"Set --alias-conflict-policy to prefer_standard or prefer_custom to proceed. Conflicts: {preview}"
+                )
+
+            if alias_conflict_policy == "prefer_custom":
+                merged_mapping = {**standard_mapping, **custom_mapping}
+            else:
+                merged_mapping = {**custom_mapping, **standard_mapping}
 
             return {
                 "mapping": merged_mapping,
@@ -98,12 +146,16 @@ def load_schema(schema_path: str, standard_schema_path: str | None = None) -> Di
                 "standard_mappings_applied": True,
                 "standard_mapping_count": len(standard_mapping),
                 "custom_mapping_count": len(custom_mapping),
+                "alias_conflicts": conflicts,
+                "alias_conflict_policy": alias_conflict_policy,
             }
 
     return {
         "mapping": _build_alias_mapping(schema),
         "schema": schema,
         "standard_mappings_applied": False,
+        "alias_conflicts": [],
+        "alias_conflict_policy": alias_conflict_policy,
     }
 
 
@@ -509,6 +561,17 @@ Examples:
         default=0.7,
         help="Minimum confidence threshold for auto-accepting inferences (default: 0.7)"
     )
+    parser.add_argument(
+        "--alias-conflict-policy",
+        type=str,
+        default="prefer_standard",
+        choices=["prefer_standard", "prefer_custom", "error"],
+        help=(
+            "How to resolve alias collisions when combining --schema with the standard mapping. "
+            "prefer_standard keeps canonical IDs from schemas/standard_dv_mapping.yaml (default), "
+            "prefer_custom keeps custom IDs, and error aborts on the first conflict set."
+        ),
+    )
 
     args = parser.parse_args()
 
@@ -532,15 +595,33 @@ Examples:
 
     # Load schema and build mapping
     print(f"Loading schema: {resolved_schema}")
-    schema_data = load_schema(str(resolved_schema), str(default_schema))
+    schema_data = load_schema(
+        str(resolved_schema),
+        str(default_schema),
+        alias_conflict_policy=args.alias_conflict_policy,
+    )
     mapping = schema_data["mapping"]
     schema = schema_data["schema"]
     print(f"  ✓ Loaded {len(mapping)} alias mappings")
     if schema_data.get("standard_mappings_applied"):
         print(
             "  ✓ Combined selected schema with standard mapping "
-            f"(standard precedence, extensible custom aliases)."
+            f"(policy={schema_data['alias_conflict_policy']}; extensible custom aliases)."
         )
+        alias_conflicts = schema_data.get("alias_conflicts", [])
+        if alias_conflicts:
+            print(
+                "  ⚠ Detected alias conflicts between selected and standard schema: "
+                f"{len(alias_conflicts)}"
+            )
+            for conflict in alias_conflicts[:10]:
+                print(
+                    "    - "
+                    f"{conflict['alias']}: custom={conflict['custom_id']}, "
+                    f"standard={conflict['standard_id']}"
+                )
+            if len(alias_conflicts) > 10:
+                print(f"    ... and {len(alias_conflicts) - 10} more conflicts")
 
     unknown_columns = identify_unmapped_columns([str(col) for col in df.columns], mapping)
 
