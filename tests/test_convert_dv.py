@@ -6,11 +6,15 @@ import unittest
 from pathlib import Path
 
 import pandas as pd
+import yaml
 
 from scripts.convert_dv import (
     build_original_column_lookup,
     detect_single_file,
+    build_schema_suggestion_template,
     export_with_metadata,
+    identify_unmapped_columns,
+    write_schema_suggestion_file,
     load_schema,
     resolve_io_paths,
     standardize_columns,
@@ -31,6 +35,53 @@ class ConvertDVTests(unittest.TestCase):
 
         self.assertEqual(standardized.columns.tolist()[0], "task_completion_time")
         self.assertEqual(standardized.columns.tolist()[1], "foo")
+
+    def test_load_schema_combines_custom_and_standard_with_standard_priority(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            custom_schema = Path(tmpdir) / "custom_mapping.yaml"
+            custom_schema.write_text(
+                """
+version: "2.1"
+dvs:
+  - id: custom_task_time
+    aliases:
+      - task_time
+      - novel_alias
+""".strip()
+            )
+
+            loaded = load_schema(str(custom_schema), str(SCHEMA_PATH))
+
+            self.assertTrue(loaded["standard_mappings_applied"])
+            self.assertEqual(loaded["mapping"]["task_time"], "task_completion_time")
+            self.assertEqual(loaded["mapping"]["novel_alias"], "custom_task_time")
+
+    def test_identify_unmapped_columns_lists_unknown_values(self):
+        mapping = {"task_time": "task_completion_time", "task_completion_time": "task_completion_time"}
+
+        unknown = identify_unmapped_columns(["task_time", "unknown_dv", "Task_Time"], mapping)
+
+        self.assertEqual(unknown, ["unknown_dv"])
+
+
+    def test_build_schema_suggestion_template_creates_yaml_ready_entries(self):
+        template = build_schema_suggestion_template(["Time to Complete", "NASA-TLX?"])
+
+        self.assertIn("dvs", template)
+        self.assertEqual(template["dvs"][0]["id"], "time_to_complete")
+        self.assertEqual(template["dvs"][0]["aliases"], ["Time to Complete"])
+        self.assertEqual(template["dvs"][1]["id"], "nasa_tlx")
+
+    def test_write_schema_suggestion_file_writes_expected_yaml_file(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            output_path = Path(tmpdir) / "standardized.csv"
+            suggestion_path = write_schema_suggestion_file(str(output_path), ["Rare Metric"])
+
+            self.assertTrue(suggestion_path.exists())
+            self.assertTrue(suggestion_path.name.endswith("_schema_suggestions.yaml"))
+
+            loaded = yaml.safe_load(suggestion_path.read_text())
+            self.assertEqual(loaded["dvs"][0]["aliases"], ["Rare Metric"])
 
     def test_original_column_lookup_tracks_source_aliases(self):
         mapping = {
@@ -118,6 +169,35 @@ class ConvertDVTests(unittest.TestCase):
 
             parsed = json.loads(sidecar_json.read_text())
             self.assertEqual(parsed["summary"]["total_columns"], 1)
+
+    def test_export_with_metadata_includes_unknown_mapping_recommendation(self):
+        df = pd.DataFrame({"task_completion_time": [1.2, 2.3]})
+        meta = {
+            "task_completion_time": {
+                "category": "continuous",
+                "needs_review": False,
+                "original_name": ["Task_Completion_Time"],
+            }
+        }
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            output_path = Path(tmpdir) / "standardized.csv"
+            export_with_metadata(
+                df,
+                meta,
+                str(output_path),
+                schema_version="2.1",
+                unknown_columns=["rare_metric"],
+            )
+
+            sidecar_json = Path(tmpdir) / "standardized_metadata.json"
+            parsed = json.loads(sidecar_json.read_text())
+
+            self.assertEqual(parsed["summary"]["unknown_columns"], ["rare_metric"])
+            self.assertIn("Consider proposing", parsed["summary"]["recommendation"])
+            self.assertIn("schema_suggestion_template", parsed["summary"])
+            suggestion_file = Path(parsed["summary"]["schema_suggestion_file"])
+            self.assertTrue(suggestion_file.exists())
 
 
 if __name__ == "__main__":

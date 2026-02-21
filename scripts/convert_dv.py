@@ -16,10 +16,11 @@ Usage:
 
 import argparse
 import json
+import re
 import warnings
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, Tuple
+from typing import Dict, List, Tuple
 
 import pandas as pd
 import yaml
@@ -32,26 +33,17 @@ except ImportError:
     batch_infer = None
 
 
-def load_schema(schema_path: str) -> Dict:
-    """
-    Load the DV mapping schema from YAML.
-
-    Args:
-        schema_path: Path to standard_dv_mapping.yaml
-
-    Returns:
-        Dictionary with alias_to_standard mapping and full schema
-    """
-    with open(schema_path, "r") as f:
-        schema = yaml.safe_load(f)
-
-    alias_to_standard = {}
+def _build_alias_mapping(schema: Dict) -> Dict[str, str]:
+    """Build a case-insensitive alias -> standard_name mapping for a schema dictionary."""
+    alias_to_standard: Dict[str, str] = {}
 
     # Handle new schema format (version 2.1+) with 'dvs' list
     if 'dvs' in schema:
         for dv in schema['dvs']:
             standard_name = dv.get('id')
             aliases = dv.get('aliases', [])
+            if not standard_name:
+                continue
             for alias in aliases:
                 alias_to_standard[alias] = standard_name
                 # Case-insensitive matching improves robustness for common
@@ -70,7 +62,49 @@ def load_schema(schema_path: str) -> Dict:
                 alias_to_standard[standard] = standard
                 alias_to_standard[standard.lower()] = standard
 
-    return {"mapping": alias_to_standard, "schema": schema}
+    return alias_to_standard
+
+
+def load_schema(schema_path: str, standard_schema_path: str | None = None) -> Dict:
+    """
+    Load the DV mapping schema from YAML.
+
+    Args:
+        schema_path: Path to standard_dv_mapping.yaml
+
+    Returns:
+        Dictionary with alias_to_standard mapping and full schema
+    """
+    with open(schema_path, "r") as f:
+        schema = yaml.safe_load(f)
+
+    # If a custom schema is selected, combine it with the standard schema.
+    # Standard mappings take precedence on conflicts; custom schema extends
+    # coverage for unmapped/novel aliases.
+    if standard_schema_path:
+        standard_path = Path(standard_schema_path).resolve()
+        selected_path = Path(schema_path).resolve()
+        if selected_path != standard_path:
+            with open(standard_path, "r") as f:
+                standard_schema = yaml.safe_load(f)
+
+            custom_mapping = _build_alias_mapping(schema)
+            standard_mapping = _build_alias_mapping(standard_schema)
+            merged_mapping = {**custom_mapping, **standard_mapping}
+
+            return {
+                "mapping": merged_mapping,
+                "schema": schema,
+                "standard_mappings_applied": True,
+                "standard_mapping_count": len(standard_mapping),
+                "custom_mapping_count": len(custom_mapping),
+            }
+
+    return {
+        "mapping": _build_alias_mapping(schema),
+        "schema": schema,
+        "standard_mappings_applied": False,
+    }
 
 
 def load_input_file(input_path: str) -> pd.DataFrame:
@@ -241,6 +275,50 @@ def build_original_column_lookup(df: pd.DataFrame, mapping: Dict) -> Dict[str, l
     return original_names
 
 
+def identify_unmapped_columns(column_names: List[str], mapping: Dict[str, str]) -> List[str]:
+    """Return input columns that do not resolve to a known standard DV mapping."""
+    unknown_columns: List[str] = []
+    for col in column_names:
+        mapped_col = mapping.get(col)
+        if mapped_col is None and isinstance(col, str):
+            mapped_col = mapping.get(col.lower())
+        if mapped_col is None:
+            unknown_columns.append(col)
+    return unknown_columns
+
+
+
+def _suggest_dv_id(alias: str) -> str:
+    """Create a conservative snake_case DV id suggestion from an unknown alias."""
+    normalized = re.sub(r"[^a-z0-9]+", "_", alias.strip().lower())
+    normalized = re.sub(r"_+", "_", normalized).strip("_")
+    return normalized or "proposed_dv"
+
+
+def build_schema_suggestion_template(unknown_columns: List[str]) -> Dict:
+    """Build a schema-ready suggestion payload for unknown aliases."""
+    suggestions = []
+    for alias in unknown_columns:
+        suggestions.append({
+            "id": _suggest_dv_id(str(alias)),
+            "aliases": [str(alias)],
+            "notes": "TODO: assign to an existing standard DV id or add a new DV definition.",
+        })
+    return {"dvs": suggestions}
+
+
+def write_schema_suggestion_file(output_path: str, unknown_columns: List[str]) -> Path:
+    """Write unknown-alias suggestions to a YAML file next to the output artifact."""
+    suggestion_template = build_schema_suggestion_template(unknown_columns)
+    suggestion_path = Path(output_path).with_suffix('')
+    suggestion_path = Path(str(suggestion_path) + "_schema_suggestions.yaml")
+
+    with open(suggestion_path, "w") as f:
+        yaml.safe_dump(suggestion_template, f, sort_keys=False, allow_unicode=True)
+
+    return suggestion_path
+
+
 def standardize_with_metadata(
     df: pd.DataFrame,
     mapping: Dict,
@@ -302,8 +380,9 @@ def export_with_metadata(
     df: pd.DataFrame,
     column_meta: Dict,
     output_path: str,
-    schema_version: str = "2.1"
-) -> None:
+    schema_version: str = "2.1",
+    unknown_columns: List[str] | None = None,
+) -> Dict[str, str | None]:
     """
     Export CSV with sidecar metadata JSON.
 
@@ -327,9 +406,20 @@ def export_with_metadata(
                 1 for m in column_meta.values()
                 if m.get("needs_review", False)
             ),
-            "categories": {}
+            "categories": {},
+            "unknown_columns": unknown_columns or [],
         }
     }
+
+    suggestion_path: Path | None = None
+    if unknown_columns:
+        metadata["summary"]["recommendation"] = (
+            "Consider proposing these unknown aliases to schemas/standard_dv_mapping.yaml "
+            "in a pull request so future runs can standardize them automatically."
+        )
+        metadata["summary"]["schema_suggestion_template"] = build_schema_suggestion_template(unknown_columns)
+        suggestion_path = write_schema_suggestion_file(output_path, unknown_columns)
+        metadata["summary"]["schema_suggestion_file"] = str(suggestion_path)
 
     # Count categories
     for col, meta in column_meta.items():
@@ -344,6 +434,23 @@ def export_with_metadata(
     # Warn if columns need review
     if metadata["summary"]["needs_review"] > 0:
         print(f"⚠ Warning: {metadata['summary']['needs_review']} column(s) flagged for manual review (low confidence)")
+
+    if unknown_columns:
+        print(
+            "⚠ Unknown columns detected: "
+            f"{', '.join(str(col) for col in unknown_columns)}"
+        )
+        print(
+            "  → Consider adding these aliases to schemas/standard_dv_mapping.yaml "
+            "via a pull request."
+        )
+        if suggestion_path is not None:
+            print(f"  → Schema suggestion template written to: {suggestion_path}")
+
+    return {
+        "metadata_path": meta_path,
+        "schema_suggestion_file": str(suggestion_path) if suggestion_path else None,
+    }
 
 
 def main():
@@ -423,10 +530,17 @@ Examples:
 
     # Load schema and build mapping
     print(f"Loading schema: {resolved_schema}")
-    schema_data = load_schema(str(resolved_schema))
+    schema_data = load_schema(str(resolved_schema), str(default_schema))
     mapping = schema_data["mapping"]
     schema = schema_data["schema"]
     print(f"  ✓ Loaded {len(mapping)} alias mappings")
+    if schema_data.get("standard_mappings_applied"):
+        print(
+            "  ✓ Combined selected schema with standard mapping "
+            f"(standard precedence, extensible custom aliases)."
+        )
+
+    unknown_columns = identify_unmapped_columns([str(col) for col in df.columns], mapping)
 
     # Apply standardization
     if args.with_metadata:
@@ -438,13 +552,31 @@ Examples:
             args.confidence_threshold
         )
         resolved_output.parent.mkdir(parents=True, exist_ok=True)
-        export_with_metadata(df_standardized, column_meta, str(resolved_output), schema.get('version', '2.1'))
+        _ = export_with_metadata(
+            df_standardized,
+            column_meta,
+            str(resolved_output),
+            schema.get('version', '2.1'),
+            unknown_columns=unknown_columns,
+        )
     else:
         print("Standardizing columns (metadata inference disabled)...")
         df_standardized = standardize_columns(df, mapping)
         resolved_output.parent.mkdir(parents=True, exist_ok=True)
         save_output_file(df_standardized, str(resolved_output))
         print(f"✓ Standardized file saved to: {resolved_output}")
+
+        if unknown_columns:
+            print(
+                "⚠ Unknown columns detected: "
+                f"{', '.join(str(col) for col in unknown_columns)}"
+            )
+            print(
+                "  → Consider adding these aliases to schemas/standard_dv_mapping.yaml "
+                "via a pull request."
+            )
+            suggestion_path = write_schema_suggestion_file(str(resolved_output), unknown_columns)
+            print(f"  → Schema suggestion template written to: {suggestion_path}")
 
     print("=" * 60)
     print("✓ Standardization complete!")
