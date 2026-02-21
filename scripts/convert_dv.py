@@ -63,6 +63,52 @@ def load_schema(schema_path: str) -> Dict:
     return {"mapping": alias_to_standard, "schema": schema}
 
 
+def load_input_file(input_path: str) -> pd.DataFrame:
+    """Load tabular input data from CSV or Excel files."""
+    input_file = Path(input_path)
+    suffix = input_file.suffix.lower()
+
+    if suffix in {".xlsx", ".xls"}:
+        try:
+            return pd.read_excel(input_file)
+        except ImportError as exc:
+            raise ImportError(
+                "Reading Excel files requires the optional dependency 'openpyxl'. "
+                "Install it with: pip install openpyxl"
+            ) from exc
+    if suffix == ".csv":
+        return pd.read_csv(input_file)
+
+    raise ValueError(
+        f"Unsupported input format: '{suffix or 'no extension'}'. "
+        "Supported formats are .csv, .xlsx, and .xls."
+    )
+
+
+def save_output_file(df: pd.DataFrame, output_path: str) -> None:
+    """Save standardized data to CSV or Excel based on file extension."""
+    output_file = Path(output_path)
+    suffix = output_file.suffix.lower()
+
+    if suffix in {".xlsx", ".xls"}:
+        try:
+            df.to_excel(output_file, index=False)
+        except ImportError as exc:
+            raise ImportError(
+                "Writing Excel files requires the optional dependency 'openpyxl'. "
+                "Install it with: pip install openpyxl"
+            ) from exc
+        return
+    if suffix == ".csv":
+        df.to_csv(output_file, index=False)
+        return
+
+    raise ValueError(
+        f"Unsupported output format: '{suffix or 'no extension'}'. "
+        "Supported formats are .csv, .xlsx, and .xls."
+    )
+
+
 def standardize_columns(df: pd.DataFrame, mapping: Dict) -> pd.DataFrame:
     """
     Rename DataFrame columns using the alias mapping.
@@ -214,11 +260,12 @@ Examples:
         required=True,
         help="Path to save the standardized CSV file"
     )
+    default_schema = Path(__file__).resolve().parents[1] / "schemas" / "standard_dv_mapping.yaml"
     parser.add_argument(
         "--schema",
         type=str,
-        default="../schemas/standard_dv_mapping.yaml",
-        help="Path to YAML schema file (default: ../schemas/standard_dv_mapping.yaml)"
+        default=str(default_schema),
+        help=f"Path to YAML schema file (default: {default_schema})"
     )
     parser.add_argument(
         "--with-metadata",
@@ -238,9 +285,9 @@ Examples:
     print("OpenDV-HCI: DV Standardization Tool")
     print("=" * 60)
 
-    # Load CSV
+    # Load input file
     print(f"Loading input file: {args.input}")
-    df = pd.read_csv(args.input)
+    df = load_input_file(args.input)
     print(f"  ✓ Loaded {len(df)} rows, {len(df.columns)} columns")
 
     # Load schema and build mapping
@@ -263,7 +310,7 @@ Examples:
     else:
         print("Standardizing columns (metadata inference disabled)...")
         df_standardized = standardize_columns(df, mapping)
-        df_standardized.to_csv(args.output, index=False)
+        save_output_file(df_standardized, args.output)
         print(f"✓ Standardized file saved to: {args.output}")
 
     print("=" * 60)
