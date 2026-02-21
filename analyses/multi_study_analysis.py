@@ -120,18 +120,62 @@ def add_derived_scale_scores(df: pd.DataFrame) -> pd.DataFrame:
     return out
 
 
+def _read_file(path: Path) -> pd.DataFrame:
+    if path.suffix.lower() == ".csv":
+        return pd.read_csv(path)
+    return pd.read_excel(path)
+
+
 def load_studies(input_dir: Path) -> Dict[str, pd.DataFrame]:
-    files = sorted(list(input_dir.rglob("*.csv")) + list(input_dir.glob("*.xlsx")))
+    """Load studies, combining all files that share the same subdirectory.
+
+    Directory layout
+    ----------------
+    input_dir/
+        study_a/
+            part1.csv       ← combined into study "study_a"
+            part2.csv
+        study_b/
+            results.xlsx    ← single-file study "study_b"
+        lone_file.csv       ← files at the root are combined into "__root__"
+
+    Each subdirectory becomes one study key; files are concatenated row-wise
+    before derived scale scores are computed so that scoring operates on the
+    full, combined dataset.
+    """
+    files = sorted(list(input_dir.rglob("*.csv")) + list(input_dir.rglob("*.xlsx")))
+
+    print(f"Found {len(files)} file(s):")
+    for f in files:
+        print(f"  {f}")
+
     if not files:
         raise FileNotFoundError(f"No CSV/XLSX files found in {input_dir}")
 
-    studies: Dict[str, pd.DataFrame] = {}
+    # Group files by their immediate parent directory relative to input_dir.
+    # Files sitting directly in input_dir are collected under "__root__".
+    groups: Dict[str, List[Path]] = {}
     for path in files:
-        if path.suffix.lower() == ".csv":
-            df = pd.read_csv(path)
-        else:
-            df = pd.read_excel(path)
-        studies[path.stem] = add_derived_scale_scores(df)
+        rel_parent = path.parent.relative_to(input_dir)
+        key = str(rel_parent) if str(rel_parent) != "." else "__root__"
+        groups.setdefault(key, []).append(path)
+
+    studies: Dict[str, pd.DataFrame] = {}
+    for project_key, paths in sorted(groups.items()):
+        frames = []
+        for path in paths:
+            df = _read_file(path)
+            df["_source_file"] = path.name  # traceability column
+            frames.append(df)
+            print(f"  [{project_key}] loaded {path.name} ({len(df)} rows)")
+
+        combined = pd.concat(frames, ignore_index=True)
+        print(
+            f"  → project '{project_key}': {len(combined)} total rows "
+            f"from {len(paths)} file(s)"
+        )
+        studies[project_key] = add_derived_scale_scores(combined)
+
     return studies
 
 
@@ -139,6 +183,10 @@ def numeric_dvs(df: pd.DataFrame) -> List[str]:
     cols = []
     for col in df.columns:
         if col.lower() in ID_LIKE_COLUMNS:
+            continue
+        if col == "_source_file":
+            continue
+        if pd.api.types.is_bool_dtype(df[col]):
             continue
         if pd.api.types.is_numeric_dtype(df[col]):
             cols.append(col)
@@ -197,6 +245,8 @@ def build_composite_index(studies: Dict[str, pd.DataFrame]) -> pd.DataFrame:
     standardized = []
     for study, sub in long.groupby("study", sort=False):
         x = sub[common_cols].copy()
+        x = x.apply(pd.to_numeric, errors="coerce")
+        x = x.dropna(axis=1, how="all")
         x = x.fillna(x.median())
         x = (x - x.mean()) / x.std(ddof=0).replace(0, np.nan)
         x = x.fillna(0.0)
@@ -273,6 +323,8 @@ def save_composite_plot(studies: Dict[str, pd.DataFrame], output_dir: Path) -> N
     standardized = []
     for study, sub in long.groupby("study", sort=False):
         x = sub[common_cols].copy()
+        x = x.apply(pd.to_numeric, errors="coerce")
+        x = x.dropna(axis=1, how="all")
         x = x.fillna(x.median())
         x = (x - x.mean()) / x.std(ddof=0).replace(0, np.nan)
         x = x.fillna(0.0)
@@ -311,7 +363,6 @@ def main() -> None:
     overlap = compute_overlap(studies)
     summary = harmonized_summary(studies)
 
-
     output_dir.mkdir(parents=True, exist_ok=True)
     overlap.to_csv(output_dir / "dv_overlap_matrix.csv")
     summary.to_csv(output_dir / "harmonized_dv_summary.csv", index=False)
@@ -320,7 +371,7 @@ def main() -> None:
     print("Loaded studies:", ", ".join(studies.keys()))
     print("\nDV overlap matrix:\n", overlap.round(2).to_string())
     print("\nTop harmonized summaries:\n", summary.head(12).round(3).to_string(index=False))
-    
+
     try:
         composite = build_composite_index(studies)
         composite.to_csv(output_dir / "cross_study_composite_summary.csv", index=False)
@@ -328,7 +379,6 @@ def main() -> None:
         print("\nComposite index by study:\n", composite.round(3).to_string(index=False))
     except ValueError as e:
         print(f"\n[WARNING] Skipping composite index: {e}")
-
 
 
 if __name__ == "__main__":
