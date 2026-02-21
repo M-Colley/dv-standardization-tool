@@ -121,7 +121,9 @@ def load_input_file(input_path: str) -> pd.DataFrame:
                 "Install it with: pip install openpyxl"
             ) from exc
     if suffix == ".csv":
-        return pd.read_csv(input_file)
+        # Support both comma-separated and semicolon-separated CSV exports,
+        # which are common in cross-locale datasets.
+        return pd.read_csv(input_file, sep=None, engine="python")
 
     raise ValueError(
         f"Unsupported input format: '{suffix or 'no extension'}'. "

@@ -8,6 +8,7 @@ from pathlib import Path
 import pandas as pd
 import yaml
 
+
 from scripts.convert_dv import (
     build_original_column_lookup,
     detect_single_file,
@@ -18,6 +19,7 @@ from scripts.convert_dv import (
     load_schema,
     resolve_io_paths,
     standardize_columns,
+    load_input_file,
 )
 
 
@@ -26,6 +28,16 @@ SCHEMA_PATH = REPO_ROOT / "schemas" / "standard_dv_mapping.yaml"
 
 
 class ConvertDVTests(unittest.TestCase):
+    def test_load_input_file_detects_semicolon_delimited_csv(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            csv_path = Path(tmpdir) / "observations.csv"
+            csv_path.write_text("User_ID;MentalLoad\n1;2.5\n", encoding="utf-8")
+
+            df = load_input_file(str(csv_path))
+
+            self.assertEqual(df.columns.tolist(), ["User_ID", "MentalLoad"])
+            self.assertEqual(df.loc[0, "MentalLoad"], 2.5)
+
     def test_case_insensitive_mapping_works(self):
         schema_data = load_schema(str(SCHEMA_PATH))
         mapping = schema_data["mapping"]
