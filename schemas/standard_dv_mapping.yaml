@@ -125,10 +125,30 @@ dvs:
       - session_duration
     instruments: []
     units: [ "s", "min" ]
+    
+    
+- id: TLX_SCORE
+    label: "NASA-TLX Composite Score"
+    cluster: cognitive_load
+    measurement:
+      category: Score
+      primary_unit: "weighted composite"
+      allowed_units: ["weighted composite", "unweighted composite"]
+      scale_type: ratio
+      direction: lower_is_better
+    aliases:
+      - tlxScore
+      - TLXScore
+      - tlx_score
+      - NASA_TLX_SCORE
+      - nasa_tlx_score
+    instruments:
+      - "NASA-TLX"
+    units: ["weighted composite", "unweighted composite"]
+    notes: "Derived summary score. Lower is better; report central tendency + dispersion."
 
-  # ---------------- Cognitive Load ----------------
-  - id: mental_effort
-    label: "Mental Effort"
+  - id: mental_demand
+    label: "Mental Demand"
     cluster: cognitive_load
     measurement:
       category: Likert
@@ -142,11 +162,171 @@ dvs:
       - workload_rating
       - tlx_mental_demand
       - nasa_tlx_mental
+      - NASA-TLX1
+      - TLX1
+      - tlx1
+      - NASA_TLX1
+      - nasa_tlx1
+      - MentalLoad
+      - mental_load
+      - ML
     instruments:
       - "NASA-TLX (Global or Subscales)"
       - "Paas Scale"
       - "RSME"
     units: [ "Likert", "VAS" ]
+
+  - id: physical_demand
+    label: "Physical Demand"
+    cluster: cognitive_load
+    measurement:
+      category: Likert
+      primary_unit: "21-point (0–20)"
+      allowed_units: ["21-point", "Likert", "VAS"]
+      scale_type: ordinal
+      direction: lower_is_better
+    aliases:
+      - TLX2
+      - tlx2
+      - NASA_TLX2
+      - nasa_tlx2
+      - physical_demand
+    instruments:
+      - "NASA-TLX"
+    units: ["Likert", "VAS"]
+
+  - id: temporal_demand
+    label: "Temporal Demand"
+    cluster: cognitive_load
+    measurement:
+      category: Likert
+      primary_unit: "21-point (0–20)"
+      allowed_units: ["21-point", "Likert", "VAS"]
+      scale_type: ordinal
+      direction: lower_is_better
+    aliases:
+      - TLX3
+      - tlx3
+      - NASA_TLX3
+      - nasa_tlx3
+      - temporal_demand
+    instruments:
+      - "NASA-TLX"
+    units: ["Likert", "VAS"]
+
+  - id: performance
+    label: "Performance"
+    cluster: cognitive_load
+    measurement:
+      category: Likert
+      primary_unit: "21-point (0–20)"
+      allowed_units: ["21-point", "Likert", "VAS"]
+      scale_type: ordinal
+      direction: lower_is_better
+    aliases:
+      - TLX4
+      - tlx4
+      - NASA_TLX4
+      - nasa_tlx4
+      - performance
+    instruments:
+      - "NASA-TLX"
+    units: ["Likert", "VAS"]
+    notes: "Note: scale direction is inverted for this subscale in raw NASA-TLX scoring."
+
+  - id: effort
+    label: "Effort"
+    cluster: cognitive_load
+    measurement:
+      category: Likert
+      primary_unit: "21-point (0–20)"
+      allowed_units: ["21-point", "Likert", "VAS"]
+      scale_type: ordinal
+      direction: lower_is_better
+    aliases:
+      - TLX5
+      - tlx5
+      - NASA_TLX5
+      - nasa_tlx5
+      - effort
+    instruments:
+      - "NASA-TLX"
+    units: ["Likert", "VAS"]
+
+  - id: frustration
+    label: "Frustration"
+    cluster: cognitive_load
+    measurement:
+      category: Likert
+      primary_unit: "21-point (0–20)"
+      allowed_units: ["21-point", "Likert", "VAS"]
+      scale_type: ordinal
+      direction: lower_is_better
+    aliases:
+      - TLX6
+      - tlx6
+      - NASA_TLX6
+      - nasa_tlx6
+      - frustration
+    instruments:
+      - "NASA-TLX"
+    units: ["Likert", "VAS"]    
+
+
+  - id: perceived_safety
+    label: "Perceived Safety"
+    cluster: affective_emotion
+    measurement:
+      category: Likert
+      primary_unit: score
+      allowed_units: [Likert, score]
+      scale_type: ordinal
+      direction: higher_is_better
+    aliases: [PerceivedSafety, PS]
+
+  - id: trust_rating
+    label: "Trust in eHMI"
+    cluster: ux_satisfaction
+    measurement:
+      category: Likert
+      primary_unit: score
+      allowed_units: [Likert, score]
+      scale_type: ordinal
+      direction: higher_is_better
+    aliases: [Trust]
+
+  - id: understanding_rating
+    label: "Understanding / Comprehension"
+    cluster: cognitive_load
+    measurement:
+      category: Likert
+      primary_unit: score
+      allowed_units: [Likert, score]
+      scale_type: ordinal
+      direction: higher_is_better
+    aliases: [Understanding]
+
+  - id: aesthetics_rating
+    label: "Aesthetic Evaluation"
+    cluster: ux_satisfaction
+    measurement:
+      category: Likert
+      primary_unit: score
+      allowed_units: [Likert, score]
+      scale_type: ordinal
+      direction: higher_is_better
+    aliases: [Aesthetics]
+
+  - id: acceptance_rating
+    label: "Acceptance"
+    cluster: ux_satisfaction
+    measurement:
+      category: Likert
+      primary_unit: score
+      allowed_units: [Likert, score]
+      scale_type: ordinal
+      direction: higher_is_better
+    aliases: [Acceptance]
 
   - id: situational_awareness
     label: "Situational Awareness"
@@ -188,6 +368,26 @@ dvs:
       - "NPS"
     units: [ "SUS (0–100)", "UEQ scale", "Likert", "NPS" ]
 
+  - id: usability
+    label: "Usability"
+    cluster: ux_satisfaction
+    measurement:
+      category: Likert
+      primary_unit: "7-point"
+      allowed_units: ["100-point", "Likert"]
+      scale_type: ordinal
+      direction: higher_is_better
+    aliases:
+      - sus_score
+      - system_usability_scale
+      - SUSScore
+      - susScore
+      - SYSTEM_USABILITY_SCORE
+      - system_usability_score
+    instruments:
+      - "SUS"
+    units: ["SUS (0–100)"]
+
   - id: usability_problems
     label: "Usability Problems"
     cluster: ux_satisfaction
@@ -203,6 +403,45 @@ dvs:
     instruments: []
     units: [ "count" ]
     notes: "If severity is rated, include scale."
+
+  - id: AOA_USEFULNESS
+    label: "van der Laan Acceptance — Usefulness Subscale"
+    cluster: affective_emotion
+    measurement:
+      category: Score
+      primary_unit: "5-point (-2 to +2)"
+      allowed_units: ["5-point", "Likert"]
+      scale_type: ordinal
+      direction: higher_is_better
+    aliases:
+      - AOAUsefulness
+      - aoa_usefulness
+      - van_der_laan_usefulness
+      - acceptance_usefulness
+    instruments:
+      - "van der Laan Acceptance Scale"
+    units: ["Likert"]
+    notes: "Derived subscale score; mean of AOA usefulness items."
+
+  - id: AOA_SATISFYING
+    label: "van der Laan Acceptance — Satisfying Subscale"
+    cluster: affective_emotion
+    measurement:
+      category: Score
+      primary_unit: "5-point (-2 to +2)"
+      allowed_units: ["5-point", "Likert"]
+      scale_type: ordinal
+      direction: higher_is_better
+    aliases:
+      - AOASatisfying
+      - aoa_satisfying
+      - van_der_laan_satisfying
+      - acceptance_satisfying
+    instruments:
+      - "van der Laan Acceptance Scale"
+    units: ["Likert"]
+    notes: "Derived subscale score; mean of AOA satisfying items."
+
 
   # ---------------- Affective & Emotional ----------------
   - id: engagement_level
