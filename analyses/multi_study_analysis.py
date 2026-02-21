@@ -121,7 +121,7 @@ def add_derived_scale_scores(df: pd.DataFrame) -> pd.DataFrame:
 
 
 def load_studies(input_dir: Path) -> Dict[str, pd.DataFrame]:
-    files = sorted(list(input_dir.glob("*.csv")) + list(input_dir.glob("*.xlsx")))
+    files = sorted(list(input_dir.rglob("*.csv")) + list(input_dir.glob("*.xlsx")))
     if not files:
         raise FileNotFoundError(f"No CSV/XLSX files found in {input_dir}")
 
