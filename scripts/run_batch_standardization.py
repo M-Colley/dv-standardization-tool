@@ -35,6 +35,7 @@ from scripts.convert_dv import (
     save_output_file,
     standardize_columns,
 )
+from scripts.llm_utils import deduce_standard_name_with_local_llm
 
 SUPPORTED_SOURCE_TYPES = {"local_path", "github_repo"}
 TABULAR_SUFFIXES = {".csv", ".xlsx", ".xls", ".tsv"}
@@ -240,6 +241,35 @@ def _summarize_dataset(
     return records, quality
 
 
+def _augment_mapping_with_llm_deductions(
+    mapping: dict[str, str],
+    columns: list[str],
+    source_root: Path,
+) -> dict[str, str]:
+    """Attempt local-LLM alias deduction for unknown columns.
+
+    This is especially useful for repositories that do not provide a custom
+    mapping YAML file.
+    """
+    augmented = dict(mapping)
+    canonical_candidates = sorted({value for value in mapping.values() if isinstance(value, str)})
+    if not canonical_candidates:
+        return augmented
+
+    unknown = identify_unmapped_columns(columns, augmented)
+    for alias in unknown:
+        inferred = deduce_standard_name_with_local_llm(
+            raw_column_name=str(alias),
+            canonical_candidates=canonical_candidates,
+            source_root=source_root,
+        )
+        if inferred:
+            augmented[str(alias)] = inferred
+            augmented[str(alias).lower()] = inferred
+
+    return augmented
+
+
 def run_batch(manifest_path: Path, output_dir: Path, schema_path: Path) -> dict[str, Any]:
     schema_data = load_schema(str(schema_path))
     standard_mapping = schema_data["mapping"]
@@ -306,7 +336,15 @@ def run_batch(manifest_path: Path, output_dir: Path, schema_path: Path) -> dict[
 
                 try:
                     original_df = _load_any_table(file_path)
-                    standardized_df = standardize_columns(original_df.copy(), source_mapping)
+                    dataset_mapping = source_mapping
+                    if source_mapping_path is None:
+                        dataset_mapping = _augment_mapping_with_llm_deductions(
+                            source_mapping,
+                            [str(column) for column in original_df.columns],
+                            base_dir,
+                        )
+
+                    standardized_df = standardize_columns(original_df.copy(), dataset_mapping)
                     if destination.suffix.lower() == ".tsv":
                         standardized_df.to_csv(destination, sep="\t", index=False)
                     else:
@@ -325,7 +363,7 @@ def run_batch(manifest_path: Path, output_dir: Path, schema_path: Path) -> dict[
                         dataset_id,
                         original_df,
                         standardized_df,
-                        source_mapping,
+                        dataset_mapping,
                         provenance,
                     )
                     total_unknown += quality["unknown_columns"]

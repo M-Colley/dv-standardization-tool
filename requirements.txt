@@ -19,9 +19,10 @@ notebook>=7.5.3
 ipykernel>=7.2.0
 
 # Optional LLM utilities
-openai>=1.0.0
+openai==2.21.0
 sentence-transformers>=5.2.3
-transformers>=5.2.0
+transformers==5.2.0
+pypdf>=5.2.0
 
 # Fuzzy matching for schema expansion
 rapidfuzz>=2.13
