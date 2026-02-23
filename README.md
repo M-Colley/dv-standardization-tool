@@ -49,6 +49,130 @@ Despite ongoing advocacy for open methods (Koelle et al., 2024; Goodman et al., 
 
 ---
 
+## Easy Start (for total beginners)
+
+If this is your first time using the project, follow these exact steps.
+
+### 1) Install dependencies
+
+```bash
+python -m venv .venv
+source .venv/bin/activate
+python -m pip install --upgrade pip
+pip install -r requirements.txt
+```
+
+### 2) Put your dataset somewhere simple
+
+For example:
+
+- `data/raw/my_study.csv` **or**
+- `data/raw/my_study.xlsx`
+
+### 3) (Recommended) Add your own small YAML alias file
+
+This is the most beginner-friendly way to help the tool understand your study-specific column names.
+
+Create a file like `data/raw/my_mapping.yaml`:
+
+```yaml
+# canonical DV id: aliases used in your dataset
+task_completion_time:
+  - taskTime
+  - completion_time
+  - time_to_finish
+
+user_satisfaction:
+  - sus_score
+  - subjective_rating
+  - ux_satisfaction
+```
+
+> Tip: Canonical IDs (left side) should come from the project schema in `schemas/standard_dv_mapping.yaml`; aliases (right side) are the names your dataset currently uses.
+
+### 4) Run standardization
+
+```bash
+python scripts/convert_dv.py \
+  --input data/raw/my_study.csv \
+  --schema data/raw/my_mapping.yaml \
+  --output data/processed/my_study-standardized.csv
+```
+
+What this does:
+- applies your YAML aliases,
+- keeps canonical OpenDV names from the standard schema as the default authority,
+- writes a standardized output file.
+
+### 5) Optional: also generate metadata + suggestions
+
+```bash
+python scripts/convert_dv.py \
+  --input data/raw/my_study.csv \
+  --schema data/raw/my_mapping.yaml \
+  --output data/processed/my_study-standardized.csv \
+  --with-metadata
+```
+
+This creates sidecar files to help you iterate:
+- `*_metadata.json` (measurement metadata + review flags)
+- `*_schema_suggestions.yaml` (unknown aliases you may want to add to your mapping)
+
+### 6) How to let the local LLM "do its thing"
+
+LLM-assisted alias deduction is integrated in **batch mode** (`scripts/run_batch_standardization.py`) and runs when a source does **not** already provide a repository mapping YAML.
+
+Use the provided manifest example as a template:
+
+```bash
+python scripts/run_batch_standardization.py \
+  --manifest sources_manifest_example.yaml \
+  --output-dir data/processed/batch_runs/latest \
+  --snapshot-manifest
+```
+
+Or create your own **beginner local batch manifest** (example: `data/raw/my_sources_manifest.yaml`):
+
+```yaml
+sources:
+  - source_id: my_local_study_folder
+    source_type: local_path
+    location: data/raw/my_batch_folder
+    include_globs:
+      - "**/*.csv"
+      - "**/*.xlsx"
+      - "**/*.xls"
+      - "**/*.tsv"
+    # Optional: skip files you do not want standardized
+    exclude_globs:
+      - "**/pilot/**"
+```
+
+Run it like this:
+
+```bash
+python scripts/run_batch_standardization.py \
+  --manifest data/raw/my_sources_manifest.yaml \
+  --output-dir data/processed/batch_runs/my_first_batch \
+  --snapshot-manifest
+```
+
+You should then see:
+- `data/processed/batch_runs/my_first_batch/meta_view.csv`
+- `data/processed/batch_runs/my_first_batch/meta_view.json`
+- `data/processed/batch_runs/my_first_batch/run_summary.json`
+- `data/processed/batch_runs/my_first_batch/standardized/<source_id>/...`
+
+To improve local LLM inference quality in practice:
+- include a clear `README` in your source folder/repo (the tool reads it as context),
+- keep meaningful column names,
+- optionally include PDFs/manuscripts in the source root (or one level deep) for richer context extraction.
+
+If you want deterministic behavior (no model downloads/inference), provide a repository mapping YAML in the source so the pipeline uses explicit aliases instead.
+
+
+---
+
 ## Tool Description
 The core functionality is a **conversion pipeline** for standardizing column names in `.csv` files using a YAML-based DV mapping schema. The tool allows researchers to rapidly harmonize datasets, reducing manual effort and promoting reproducibility.
 
