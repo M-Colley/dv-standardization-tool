@@ -2,6 +2,80 @@
 
 This guide walks you through practical ways to run the DV Standardization Tool using scripts, folders, notebooks, and the UI components.
 
+
+## Easy Start (Beginner Path)
+
+If you are completely new, use this minimal path first:
+
+1. Put a single dataset file in `data/raw/` (for example `my_study.csv`).
+2. Create a small YAML mapping file (for example `data/raw/my_mapping.yaml`) with canonical IDs mapped to your local aliases:
+
+```yaml
+task_completion_time:
+  - completion_time
+  - taskTime
+
+user_satisfaction:
+  - sus_score
+  - subjective_rating
+```
+
+3. Run the converter:
+
+```bash
+python scripts/convert_dv.py \
+  --input data/raw/my_study.csv \
+  --schema data/raw/my_mapping.yaml \
+  --output data/processed/my_study-standardized.csv
+```
+
+4. If you want guidance for unmapped columns, rerun with metadata output:
+
+```bash
+python scripts/convert_dv.py \
+  --input data/raw/my_study.csv \
+  --schema data/raw/my_mapping.yaml \
+  --output data/processed/my_study-standardized.csv \
+  --with-metadata
+```
+
+This produces sidecars like `*_metadata.json` and `*_schema_suggestions.yaml` so you can quickly improve your YAML aliases.
+
+### Where LLM inference is used
+
+LLM-assisted alias deduction is used in `scripts/run_batch_standardization.py` when a source does not include its own mapping YAML. In that case, the pipeline attempts to infer likely canonical IDs for unknown aliases using local model candidates and repository context (README/PDF text).
+
+### Easy batch processing example (beginner)
+
+Create a manifest file `data/raw/my_sources_manifest.yaml`:
+
+```yaml
+sources:
+  - source_id: my_local_study_folder
+    source_type: local_path
+    location: data/raw/my_batch_folder
+    include_globs:
+      - "**/*.csv"
+      - "**/*.xlsx"
+      - "**/*.xls"
+      - "**/*.tsv"
+```
+
+Then run:
+
+```bash
+python scripts/run_batch_standardization.py \
+  --manifest data/raw/my_sources_manifest.yaml \
+  --output-dir data/processed/batch_runs/my_first_batch \
+  --snapshot-manifest
+```
+
+Expected outputs:
+- `meta_view.csv` and `meta_view.json` (combined harmonized summary)
+- `run_summary.json` (run-level status/provenance)
+- `standardized/my_local_study_folder/*-standardized.*`
+- per-dataset quality sidecars (`*-quality.json`)
+
 ## General Workflow
 
 1. Upload or locate a dataset (`ui/components/uploader.py` for UI mode, local files for CLI mode).
