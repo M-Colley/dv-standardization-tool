@@ -8,6 +8,7 @@ When studies share standardized dependent variable (DV) names, you can still do 
 1. **Coverage/compatibility analysis**: quantify how much the studies can be compared (DV overlap).
 2. **Outcome benchmarking**: compare study-level performance on shared outcomes.
 3. **Cross-study latent construct extraction**: build a pooled composite score from common DVs.
+4. **Random-effects DV meta-analysis**: estimate pooled means and heterogeneity for shared DVs.
 
 ## Included reproducible example datasets
 Three synthetic standardized datasets are included in:
@@ -54,6 +55,7 @@ bash analyses/run_latest_multi_study_analysis.sh analyses/output_python_latest_s
 ### Outputs
 - `analyses/output_python/dv_overlap_matrix.csv`
 - `analyses/output_python/harmonized_dv_summary.csv`
+- `analyses/output_python/meta_analysis_summary.csv`
 - `analyses/output_python/cross_study_composite_summary.csv`
 - `analyses/output_python/dv_overlap_heatmap.png`
 - `analyses/output_python/dv_mean_shift.png`
