@@ -137,11 +137,11 @@ def load_studies(input_dir: Path) -> Dict[str, pd.DataFrame]:
             part2.csv
         study_b/
             results.xlsx    ← single-file study "study_b"
-        lone_file.csv       ← files at the root are combined into "__root__"
+        study_c.csv         ← files at root are treated as individual studies
 
-    Each subdirectory becomes one study key; files are concatenated row-wise
-    before derived scale scores are computed so that scoring operates on the
-    full, combined dataset.
+    Each subdirectory becomes one study key (with row-wise concatenation).
+    Files directly in input_dir are treated as separate studies by file stem.
+    Derived scale scores are computed after grouping.
     """
     files = sorted(list(input_dir.rglob("*.csv")) + list(input_dir.rglob("*.xlsx")))
 
@@ -153,11 +153,11 @@ def load_studies(input_dir: Path) -> Dict[str, pd.DataFrame]:
         raise FileNotFoundError(f"No CSV/XLSX files found in {input_dir}")
 
     # Group files by their immediate parent directory relative to input_dir.
-    # Files sitting directly in input_dir are collected under "__root__".
+    # Files sitting directly in input_dir are treated as separate studies.
     groups: Dict[str, List[Path]] = {}
     for path in files:
         rel_parent = path.parent.relative_to(input_dir)
-        key = str(rel_parent) if str(rel_parent) != "." else "__root__"
+        key = path.stem if str(rel_parent) == "." else str(rel_parent)
         groups.setdefault(key, []).append(path)
 
     studies: Dict[str, pd.DataFrame] = {}
@@ -223,6 +223,40 @@ def harmonized_summary(studies: Dict[str, pd.DataFrame]) -> pd.DataFrame:
     pooled_sd = summary.groupby("dv")["sd"].transform(lambda x: np.sqrt(np.nanmean(np.square(x))))
     summary["mean_z_vs_global"] = (summary["mean"] - global_mean) / pooled_sd.replace(0, np.nan)
     return summary.sort_values(["dv", "study"])
+
+
+def meta_analysis_summary(summary: pd.DataFrame) -> pd.DataFrame:
+    rows = []
+    for dv, sub in summary.groupby("dv"):
+        sub = sub[(sub["n"] > 1) & (sub["sd"] > 0)].copy()
+        if len(sub) < 2:
+            continue
+        var = (sub["sd"] ** 2) / sub["n"]
+        if (var <= 0).any():
+            continue
+        w_fixed = 1.0 / var
+        fixed_mean = np.sum(w_fixed * sub["mean"]) / np.sum(w_fixed)
+        q = np.sum(w_fixed * np.square(sub["mean"] - fixed_mean))
+        df_q = len(sub) - 1
+        c = np.sum(w_fixed) - (np.sum(np.square(w_fixed)) / np.sum(w_fixed))
+        tau2 = max(0.0, (q - df_q) / c) if c > 0 else 0.0
+        w_random = 1.0 / (var + tau2)
+        random_mean = np.sum(w_random * sub["mean"]) / np.sum(w_random)
+        random_se = np.sqrt(1.0 / np.sum(w_random))
+        rows.append(
+            {
+                "dv": dv,
+                "k_studies": len(sub),
+                "random_effects_mean": random_mean,
+                "random_effects_se": random_se,
+                "ci95_low": random_mean - 1.96 * random_se,
+                "ci95_high": random_mean + 1.96 * random_se,
+                "heterogeneity_q": q,
+                "heterogeneity_i2_pct": max(0.0, (q - df_q) / q) * 100 if q > 0 else 0.0,
+                "tau2": tau2,
+            }
+        )
+    return pd.DataFrame(rows).sort_values("dv").reset_index(drop=True)
 
 
 def build_composite_index(studies: Dict[str, pd.DataFrame]) -> pd.DataFrame:
@@ -362,15 +396,19 @@ def main() -> None:
     studies = load_studies(input_dir)
     overlap = compute_overlap(studies)
     summary = harmonized_summary(studies)
+    meta_summary = meta_analysis_summary(summary)
 
     output_dir.mkdir(parents=True, exist_ok=True)
     overlap.to_csv(output_dir / "dv_overlap_matrix.csv")
     summary.to_csv(output_dir / "harmonized_dv_summary.csv", index=False)
+    meta_summary.to_csv(output_dir / "meta_analysis_summary.csv", index=False)
     save_plots(overlap, summary, output_dir)
 
     print("Loaded studies:", ", ".join(studies.keys()))
     print("\nDV overlap matrix:\n", overlap.round(2).to_string())
     print("\nTop harmonized summaries:\n", summary.head(12).round(3).to_string(index=False))
+    if not meta_summary.empty:
+        print("\nMeta-analysis summaries:\n", meta_summary.round(3).to_string(index=False))
 
     try:
         composite = build_composite_index(studies)
