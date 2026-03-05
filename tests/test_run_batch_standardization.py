@@ -643,17 +643,25 @@ class BatchStandardizationTests(unittest.TestCase):
 
             self.assertEqual(rows["Trust"]["mapped_column"], "trust_rating")
             self.assertEqual(rows["Trust"]["mapping_origin"], "schema")
+            self.assertEqual(rows["Trust"]["mapping_method"], "mapping")
+            self.assertEqual(rows["Trust"]["mapping_source"], str(SCHEMA_PATH))
 
             self.assertEqual(rows["DurationX"]["mapped_column"], "task_completion_time")
             self.assertEqual(rows["DurationX"]["mapping_origin"], "llm")
+            self.assertEqual(rows["DurationX"]["mapping_method"], "llm")
+            self.assertEqual(rows["DurationX"]["mapping_source"], "llm_deduction")
 
             self.assertEqual(rows["UserID"]["mapped_column"], "UserID")
             self.assertEqual(rows["UserID"]["mapping_origin"], "blocked_never_map")
             self.assertEqual(rows["UserID"]["mapping_status"], "blocked")
+            self.assertEqual(rows["UserID"]["mapping_method"], "blocked")
+            self.assertEqual(rows["UserID"]["mapping_source"], "never_map_blocklist")
 
             self.assertEqual(rows["Unknown Alias"]["mapped_column"], "Unknown Alias")
             self.assertEqual(rows["Unknown Alias"]["mapping_origin"], "none")
             self.assertEqual(rows["Unknown Alias"]["mapping_status"], "unmapped")
+            self.assertEqual(rows["Unknown Alias"]["mapping_method"], "unmapped")
+            self.assertIsNone(rows["Unknown Alias"]["mapping_source"])
 
     def test_run_batch_uses_relative_path_prefix_to_avoid_filename_collisions(self):
         with tempfile.TemporaryDirectory() as tmpdir:

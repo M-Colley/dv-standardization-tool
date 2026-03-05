@@ -748,6 +748,9 @@ def _build_dataset_mapping_debug_records(
     dataset_mapping: dict[str, str],
     original_columns: list[str],
     unknown_before_llm: list[str],
+    source_custom_aliases_ci: set[str],
+    source_mapping_path: str | None,
+    standard_schema_path: str,
 ) -> list[dict[str, Any]]:
     unknown_before_llm_ci = {str(col).lower() for col in unknown_before_llm}
     debug_records: list[dict[str, Any]] = []
@@ -774,18 +777,31 @@ def _build_dataset_mapping_debug_records(
         if was_blocked:
             mapping_origin = "blocked_never_map"
             mapping_status = "blocked"
+            mapping_method = "blocked"
+            mapping_source = "never_map_blocklist"
         elif inferred_by_llm:
             mapping_origin = "llm"
             mapping_status = "mapped"
+            mapping_method = "llm"
+            mapping_source = "llm_deduction"
         elif in_source_mapping and mapped is not None:
             mapping_origin = "schema"
             mapping_status = "mapped"
+            mapping_method = "mapping"
+            if source_mapping_path and column_name.lower() in source_custom_aliases_ci:
+                mapping_source = source_mapping_path
+            else:
+                mapping_source = standard_schema_path
         elif mapped is not None:
             mapping_origin = "mapping"
             mapping_status = "mapped"
+            mapping_method = "mapping"
+            mapping_source = "in_memory_mapping"
         else:
             mapping_origin = "none"
             mapping_status = "unmapped"
+            mapping_method = "unmapped"
+            mapping_source = None
 
         debug_records.append(
             {
@@ -794,6 +810,8 @@ def _build_dataset_mapping_debug_records(
                 "mapped_column": mapped_column,
                 "mapping_origin": mapping_origin,
                 "mapping_status": mapping_status,
+                "mapping_method": mapping_method,
+                "mapping_source": mapping_source,
             }
         )
 
@@ -912,6 +930,17 @@ def run_batch(
                 source_mapping = _merge_with_standard_precedence(source_specific_mapping, standard_mapping)
                 source_mapping_path = detected_mapping_path
             source_mapping = _remove_never_map_aliases(source_mapping)
+            source_custom_aliases_ci: set[str] = set()
+            if source_mapping_path:
+                try:
+                    custom_schema_data = load_schema(str(source_mapping_path))
+                    source_custom_aliases_ci = {
+                        str(alias).lower()
+                        for alias in custom_schema_data["mapping"].keys()
+                        if isinstance(alias, str)
+                    }
+                except Exception:
+                    source_custom_aliases_ci = set()
 
             dataset_progress = tqdm(
                 files,
@@ -966,6 +995,9 @@ def run_batch(
                             dataset_mapping=dataset_mapping,
                             original_columns=raw_columns,
                             unknown_before_llm=unknown_before_llm,
+                            source_custom_aliases_ci=source_custom_aliases_ci,
+                            source_mapping_path=source_mapping_path,
+                            standard_schema_path=str(schema_path),
                         )
                         debug_path = source_output_dir / f"{artifact_prefix}-mapping-debug.json"
                         with open(debug_path, "w", encoding="utf-8") as f:
@@ -983,7 +1015,7 @@ def run_batch(
                         for row in mapping_debug_records:
                             print(
                                 f"[DEBUG]   {row['original_column']} -> {row['mapped_column']} "
-                                f"({row['mapping_origin']})"
+                                f"({row['mapping_method']} from {row['mapping_source']})"
                             )
 
                     standardized_df = standardize_columns(original_df.copy(), dataset_mapping)
