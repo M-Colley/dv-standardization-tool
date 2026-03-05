@@ -15,6 +15,7 @@ Usage:
 """
 
 import argparse
+import csv
 import json
 import re
 import warnings
@@ -208,9 +209,19 @@ def load_input_file(input_path: str) -> pd.DataFrame:
                 "Install it with: pip install openpyxl"
             ) from exc
     if suffix == ".csv":
-        # Support both comma-separated and semicolon-separated CSV exports,
-        # which are common in cross-locale datasets.
-        return pd.read_csv(input_file, sep=None, engine="python")
+        # Use a constrained delimiter sniff so alphabetic headers are never
+        # misdetected as delimiters (e.g., splitting "DurationX" on "u").
+        with open(input_file, "r", encoding="utf-8", errors="ignore", newline="") as f:
+            sample = f.read(8192)
+
+        delimiter = ","
+        try:
+            dialect = csv.Sniffer().sniff(sample, delimiters=[",", ";", "\t", "|"])
+            delimiter = dialect.delimiter
+        except csv.Error:
+            delimiter = ","
+
+        return pd.read_csv(input_file, sep=delimiter)
 
     raise ValueError(
         f"Unsupported input format: '{suffix or 'no extension'}'. "
@@ -703,3 +714,4 @@ Examples:
 
 if __name__ == "__main__":
     main()
+

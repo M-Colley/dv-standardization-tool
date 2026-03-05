@@ -38,6 +38,17 @@ class ConvertDVTests(unittest.TestCase):
             self.assertEqual(df.columns.tolist(), ["User_ID", "MentalLoad"])
             self.assertEqual(df.loc[0, "MentalLoad"], 2.5)
 
+    def test_load_input_file_does_not_misdetect_alpha_delimiter(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            csv_path = Path(tmpdir) / "single_column.csv"
+            csv_path.write_text("DurationX\n1.0\n2.0\n", encoding="utf-8")
+
+            df = load_input_file(str(csv_path))
+
+            self.assertEqual(df.columns.tolist(), ["DurationX"])
+            self.assertEqual(df.shape[1], 1)
+
+
     def test_case_insensitive_mapping_works(self):
         schema_data = load_schema(str(SCHEMA_PATH))
         mapping = schema_data["mapping"]
@@ -277,3 +288,4 @@ dvs:
 
 if __name__ == "__main__":
     unittest.main()
+
