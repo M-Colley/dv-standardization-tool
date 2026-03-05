@@ -359,12 +359,26 @@ class BatchStandardizationTests(unittest.TestCase):
             )
 
             output_dir = tmp / "output"
-            summary = run_batch(manifest_path, output_dir, SCHEMA_PATH)
+            summary = run_batch(
+                manifest_path,
+                output_dir,
+                SCHEMA_PATH,
+                llm_deduction_enabled=False,
+            )
 
             self.assertEqual(summary["total_sources"], 1)
             self.assertEqual(summary["successful_sources"], 1)
             self.assertIn("mapped_ratio", summary["results"][0])
             self.assertGreaterEqual(summary["results"][0]["mapped_ratio"], 0.0)
+            self.assertIn("mapping_metrics", summary)
+            self.assertIn("mapping_metrics_by_source", summary)
+            self.assertEqual(
+                summary["mapping_metrics"]["total_columns_seen"],
+                summary["mapping_metrics"]["mapping"]
+                + summary["mapping_metrics"]["llm"]
+                + summary["mapping_metrics"]["blocked"]
+                + summary["mapping_metrics"]["unmapped"],
+            )
 
             meta_view_path = output_dir / "meta_view.csv"
             run_summary_path = output_dir / "run_summary.json"
@@ -662,6 +676,77 @@ class BatchStandardizationTests(unittest.TestCase):
             self.assertEqual(rows["Unknown Alias"]["mapping_status"], "unmapped")
             self.assertEqual(rows["Unknown Alias"]["mapping_method"], "unmapped")
             self.assertIsNone(rows["Unknown Alias"]["mapping_source"])
+
+    def test_run_batch_maps_sensor_stream_columns_with_sensor_schema(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            tmp = Path(tmpdir)
+            input_dir = tmp / "input"
+            input_dir.mkdir()
+
+            pd.DataFrame(
+                {
+                    "gaze.forward": [0.1, 0.2],
+                    "leftPupilDiameterInMM": [3.4, 3.5],
+                    "rightIrisDiameterInMM": [11.1, 11.0],
+                    "focusDistance": [2.2, 2.3],
+                    "ArduinoData1": [12, 13],
+                    "PixelX": [640, 641],
+                }
+            ).to_csv(input_dir / "study.csv", index=False)
+
+            manifest_path = tmp / "manifest.yaml"
+            manifest_path.write_text(
+                yaml.safe_dump(
+                    {
+                        "sources": [
+                            {
+                                "source_id": "study_source",
+                                "source_type": "local_path",
+                                "location": str(input_dir),
+                                "include_globs": ["*.csv"],
+                            }
+                        ]
+                    }
+                ),
+                encoding="utf-8",
+            )
+
+            output_dir = tmp / "output"
+            sensor_schema_path = str(REPO_ROOT / "schemas" / "standard_sensor_mapping.yaml")
+            with mock.patch(
+                "scripts.run_batch_standardization.deduce_standard_name_with_local_llm",
+                return_value="task_completion_time",
+            ) as mocked:
+                summary = run_batch(
+                    manifest_path,
+                    output_dir,
+                    SCHEMA_PATH,
+                    llm_deduction_enabled=False,
+                    debug_mappings=True,
+                )
+
+            mocked.assert_not_called()
+            self.assertEqual(summary["sensor_schema"], sensor_schema_path)
+            self.assertGreater(summary["sensor_mapping_aliases"], 0)
+            self.assertEqual(summary["results"][0]["unknown_columns"], 0)
+            self.assertEqual(summary["mapping_metrics"]["llm"], 0)
+
+            standardized_path = output_dir / "standardized" / "study_source" / "study_csv-standardized.csv"
+            standardized_df = pd.read_csv(standardized_path)
+            self.assertIn("eye_gaze_forward", standardized_df.columns)
+            self.assertIn("eye_left_pupil_diameter_mm", standardized_df.columns)
+            self.assertIn("eye_right_iris_diameter_mm", standardized_df.columns)
+            self.assertIn("eye_focus_distance", standardized_df.columns)
+            self.assertIn("sensor_arduino_data_1", standardized_df.columns)
+            self.assertIn("sensor_pixel_x", standardized_df.columns)
+
+            debug_path = output_dir / "standardized" / "study_source" / "study_csv-mapping-debug.json"
+            payload = json.loads(debug_path.read_text(encoding="utf-8"))
+            rows = {row["original_column"]: row for row in payload["debug_mappings"]}
+            self.assertEqual(rows["gaze.forward"]["mapping_method"], "mapping")
+            self.assertEqual(rows["gaze.forward"]["mapping_source"], sensor_schema_path)
+            self.assertEqual(rows["ArduinoData1"]["mapping_method"], "mapping")
+            self.assertEqual(rows["ArduinoData1"]["mapping_source"], sensor_schema_path)
 
     def test_run_batch_uses_relative_path_prefix_to_avoid_filename_collisions(self):
         with tempfile.TemporaryDirectory() as tmpdir:

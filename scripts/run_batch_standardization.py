@@ -51,6 +51,7 @@ ARCHIVE_SUFFIXES = {".zip"}
 MAPPING_SUFFIXES = {".yaml", ".yml"}
 OSF_API_BASE = "https://api.osf.io/v2"
 DEFAULT_ARCHIVE_MAX_DEPTH = 3
+DEFAULT_SENSOR_SCHEMA_PATH = REPO_ROOT / "schemas" / "standard_sensor_mapping.yaml"
 # Survey/admin/identifier fields that should never be mapped to DVs.
 NEVER_MAP_NORMALIZED_COLUMNS = {
     "id",
@@ -375,6 +376,20 @@ def _remove_never_map_aliases(mapping: dict[str, str]) -> dict[str, str]:
             continue
         filtered[alias] = canonical
     return filtered
+
+def _load_sensor_mapping(sensor_schema_path: Path | None = None) -> tuple[dict[str, str], set[str], str | None]:
+    path = sensor_schema_path or DEFAULT_SENSOR_SCHEMA_PATH
+    if not path.exists():
+        return {}, set(), None
+
+    sensor_schema_data = load_schema(str(path))
+    sensor_mapping = sensor_schema_data["mapping"]
+    sensor_aliases_ci = {
+        str(alias).lower()
+        for alias in sensor_mapping.keys()
+        if isinstance(alias, str)
+    }
+    return sensor_mapping, sensor_aliases_ci, str(path)
 
 
 def _should_skip_archive_member(member_path: Path) -> bool:
@@ -750,7 +765,10 @@ def _build_dataset_mapping_debug_records(
     unknown_before_llm: list[str],
     source_custom_aliases_ci: set[str],
     source_mapping_path: str | None,
-    standard_schema_path: str,
+    standard_dv_aliases_ci: set[str],
+    sensor_aliases_ci: set[str],
+    standard_dv_schema_path: str,
+    sensor_schema_path: str | None,
 ) -> list[dict[str, Any]]:
     unknown_before_llm_ci = {str(col).lower() for col in unknown_before_llm}
     debug_records: list[dict[str, Any]] = []
@@ -790,8 +808,12 @@ def _build_dataset_mapping_debug_records(
             mapping_method = "mapping"
             if source_mapping_path and column_name.lower() in source_custom_aliases_ci:
                 mapping_source = source_mapping_path
+            elif sensor_schema_path and column_name.lower() in sensor_aliases_ci:
+                mapping_source = sensor_schema_path
+            elif column_name.lower() in standard_dv_aliases_ci:
+                mapping_source = standard_dv_schema_path
             else:
-                mapping_source = standard_schema_path
+                mapping_source = "in_memory_mapping"
         elif mapped is not None:
             mapping_origin = "mapping"
             mapping_status = "mapped"
@@ -802,6 +824,14 @@ def _build_dataset_mapping_debug_records(
             mapping_status = "unmapped"
             mapping_method = "unmapped"
             mapping_source = None
+
+        # Safety net: if a renamed output slipped through as "unmapped",
+        # force it to a generic mapping classification.
+        if mapping_method == "unmapped" and mapped_column != column_name:
+            mapping_origin = "mapping"
+            mapping_status = "mapped"
+            mapping_method = "mapping"
+            mapping_source = "in_memory_mapping"
 
         debug_records.append(
             {
@@ -866,7 +896,14 @@ def run_batch(
     debug_mappings: bool = False,
 ) -> dict[str, Any]:
     schema_data = load_schema(str(schema_path))
-    standard_mapping = schema_data["mapping"]
+    standard_dv_mapping = schema_data["mapping"]
+    standard_dv_aliases_ci = {
+        str(alias).lower()
+        for alias in standard_dv_mapping.keys()
+        if isinstance(alias, str)
+    }
+    sensor_mapping, sensor_aliases_ci, sensor_schema_path = _load_sensor_mapping()
+    standard_mapping = {**sensor_mapping, **standard_dv_mapping}
 
     output_dir.mkdir(parents=True, exist_ok=True)
     standardized_root = output_dir / "standardized"
@@ -878,6 +915,14 @@ def run_batch(
     run_results: list[SourceRunResult] = []
     meta_rows: list[dict[str, Any]] = []
     llm_deductions_by_key: dict[tuple[str, str], dict[str, Any]] = {}
+    global_mapping_metrics = {
+        "mapping": 0,
+        "llm": 0,
+        "blocked": 0,
+        "unmapped": 0,
+        "total_columns_seen": 0,
+    }
+    source_mapping_metrics: dict[str, dict[str, int]] = {}
 
     with TemporaryDirectory(prefix="opendv_batch_") as temp_dir:
         checkout_root = Path(temp_dir)
@@ -924,6 +969,13 @@ def run_batch(
             source_llm_enabled = bool(source.get("use_llm_deduction", llm_deduction_enabled))
             source_preferred_models = source.get("llm_models") if isinstance(source.get("llm_models"), list) else preferred_models
             source_llm_cache: dict[str, str | None] = {}
+            source_metrics = {
+                "mapping": 0,
+                "llm": 0,
+                "blocked": 0,
+                "unmapped": 0,
+                "total_columns_seen": 0,
+            }
 
             source_specific_mapping, detected_mapping_path = _load_repository_mapping(base_dir)
             if source_specific_mapping:
@@ -989,16 +1041,28 @@ def run_batch(
                                     canonical_dv=str(inferred),
                                 )
 
+                    mapping_debug_records = _build_dataset_mapping_debug_records(
+                        source_mapping=source_mapping,
+                        dataset_mapping=dataset_mapping,
+                        original_columns=raw_columns,
+                        unknown_before_llm=unknown_before_llm,
+                        source_custom_aliases_ci=source_custom_aliases_ci,
+                        source_mapping_path=source_mapping_path,
+                        standard_dv_aliases_ci=standard_dv_aliases_ci,
+                        sensor_aliases_ci=sensor_aliases_ci,
+                        standard_dv_schema_path=str(schema_path),
+                        sensor_schema_path=sensor_schema_path,
+                    )
+                    for row in mapping_debug_records:
+                        method = str(row.get("mapping_method", "unmapped"))
+                        if method not in source_metrics:
+                            method = "unmapped"
+                        source_metrics[method] += 1
+                        source_metrics["total_columns_seen"] += 1
+                        global_mapping_metrics[method] += 1
+                        global_mapping_metrics["total_columns_seen"] += 1
+
                     if debug_mappings:
-                        mapping_debug_records = _build_dataset_mapping_debug_records(
-                            source_mapping=source_mapping,
-                            dataset_mapping=dataset_mapping,
-                            original_columns=raw_columns,
-                            unknown_before_llm=unknown_before_llm,
-                            source_custom_aliases_ci=source_custom_aliases_ci,
-                            source_mapping_path=source_mapping_path,
-                            standard_schema_path=str(schema_path),
-                        )
                         debug_path = source_output_dir / f"{artifact_prefix}-mapping-debug.json"
                         with open(debug_path, "w", encoding="utf-8") as f:
                             json.dump(
@@ -1013,9 +1077,12 @@ def run_batch(
                             )
                         print(f"[DEBUG] Mapping trace ({source_id}/{dataset_id}) -> {debug_path}")
                         for row in mapping_debug_records:
+                            mapping_source_label = (
+                                row["mapping_source"] if row["mapping_source"] is not None else "n/a"
+                            )
                             print(
                                 f"[DEBUG]   {row['original_column']} -> {row['mapped_column']} "
-                                f"({row['mapping_method']} from {row['mapping_source']})"
+                                f"({row['mapping_method']} from {mapping_source_label})"
                             )
 
                     standardized_df = standardize_columns(original_df.copy(), dataset_mapping)
@@ -1054,6 +1121,7 @@ def run_batch(
                     with open(source_output_dir / f"{artifact_prefix}-error.log", "w", encoding="utf-8") as f:
                         f.write(str(exc))
 
+            source_mapping_metrics[source_id] = source_metrics
             status = "completed" if failed == 0 else ("partial" if processed else "failed")
             run_results.append(
                 SourceRunResult(
@@ -1085,6 +1153,20 @@ def run_batch(
     llm_json_path = output_dir / "llm_deductions.json"
     with open(llm_json_path, "w", encoding="utf-8") as f:
         json.dump(llm_deductions, f, indent=2)
+    mapped_total = int(global_mapping_metrics["mapping"] + global_mapping_metrics["llm"])
+    mappable_total = int(global_mapping_metrics["total_columns_seen"] - global_mapping_metrics["blocked"])
+    global_mapping_metrics["mapped_total"] = mapped_total
+    global_mapping_metrics["mappable_total"] = mappable_total
+    global_mapping_metrics["mapped_rate_all_columns"] = (
+        (mapped_total / global_mapping_metrics["total_columns_seen"])
+        if global_mapping_metrics["total_columns_seen"]
+        else 0.0
+    )
+    global_mapping_metrics["mapped_rate_excluding_blocked"] = (
+        (mapped_total / mappable_total)
+        if mappable_total
+        else 0.0
+    )
 
     summary = {
         "manifest": str(manifest_path),
@@ -1097,6 +1179,10 @@ def run_batch(
         "llm_deductions_count": len(llm_deductions),
         "llm_deductions_log": str(llm_log_path),
         "llm_deductions_json": str(llm_json_path),
+        "sensor_schema": sensor_schema_path,
+        "sensor_mapping_aliases": len(sensor_mapping),
+        "mapping_metrics": global_mapping_metrics,
+        "mapping_metrics_by_source": source_mapping_metrics,
         "debug_mappings_enabled": debug_mappings,
         "cache_root": str(resolved_cache_root),
         "results": [r.__dict__ for r in run_results],
