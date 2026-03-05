@@ -16,17 +16,19 @@ from typing import Iterable
 from urllib import request
 
 DEFAULT_LOCAL_MODEL_CANDIDATES = [
-    "Qwen/Qwen2.5-3B-Instruct",
+    "Qwen/Qwen3.5-4B",
+    "microsoft/Phi-4-mini-instruct",
     "meta-llama/Llama-3.2-3B-Instruct",
-    "microsoft/Phi-3.5-mini-instruct",
+    "Qwen/Qwen2.5-3B-Instruct",
     "Qwen/Qwen2.5-1.5B-Instruct",
 ]
 
 # Approximate memory recommendations (FP16-ish inference envelope, incl. headroom).
 MODEL_MIN_MEMORY_GB = {
-    "Qwen/Qwen2.5-3B-Instruct": 8.0,
+    "Qwen/Qwen3.5-4B": 10.0,
+    "microsoft/Phi-4-mini-instruct": 8.0,
     "meta-llama/Llama-3.2-3B-Instruct": 8.0,
-    "microsoft/Phi-3.5-mini-instruct": 6.0,
+    "Qwen/Qwen2.5-3B-Instruct": 8.0,
     "Qwen/Qwen2.5-1.5B-Instruct": 4.0,
 }
 
@@ -302,3 +304,4 @@ def deduce_standard_name_with_local_llm(
                 return original
 
     return None
+
