@@ -313,6 +313,18 @@ def _resolve_archive_max_depth(source: dict[str, Any]) -> int:
     return depth
 
 
+def _should_skip_archive_member(member_path: Path) -> bool:
+    normalized_parts = [part for part in member_path.parts if part not in {"", "."}]
+    if any(part == "__MACOSX" for part in normalized_parts):
+        return True
+
+    filename = member_path.name
+    if filename == ".DS_Store" or filename.startswith("._"):
+        return True
+
+    return False
+
+
 def _extract_zip_files_recursive(zip_path: Path, source_root: Path, depth: int, max_depth: int) -> None:
     if depth > max_depth:
         return
@@ -336,6 +348,9 @@ def _extract_zip_files_recursive(zip_path: Path, source_root: Path, depth: int, 
                 continue
 
             member_path = Path(member.filename)
+            if _should_skip_archive_member(member_path):
+                continue
+
             suffix = member_path.suffix.lower()
             if suffix not in TABULAR_SUFFIXES and suffix not in ARCHIVE_SUFFIXES:
                 continue
@@ -611,6 +626,7 @@ def _augment_mapping_with_llm_deductions(
     columns: list[str],
     source_root: Path,
     preferred_models: list[str] | None = None,
+    inference_cache: dict[str, str | None] | None = None,
 ) -> dict[str, str]:
     """Attempt local-LLM alias deduction for unknown columns.
 
@@ -624,12 +640,19 @@ def _augment_mapping_with_llm_deductions(
 
     unknown = identify_unmapped_columns(columns, augmented)
     for alias in unknown:
-        inferred = deduce_standard_name_with_local_llm(
-            raw_column_name=str(alias),
-            canonical_candidates=canonical_candidates,
-            source_root=source_root,
-            preferred_models=preferred_models,
-        )
+        alias_key = str(alias).strip().lower()
+        inferred: str | None
+        if inference_cache is not None and alias_key in inference_cache:
+            inferred = inference_cache[alias_key]
+        else:
+            inferred = deduce_standard_name_with_local_llm(
+                raw_column_name=str(alias),
+                canonical_candidates=canonical_candidates,
+                source_root=source_root,
+                preferred_models=preferred_models,
+            )
+            if inference_cache is not None:
+                inference_cache[alias_key] = inferred
         if inferred:
             augmented[str(alias)] = inferred
             augmented[str(alias).lower()] = inferred
@@ -702,6 +725,7 @@ def run_batch(
             source_mapping_path = None
             source_llm_enabled = bool(source.get("use_llm_deduction", llm_deduction_enabled))
             source_preferred_models = source.get("llm_models") if isinstance(source.get("llm_models"), list) else preferred_models
+            source_llm_cache: dict[str, str | None] = {}
 
             if source["source_type"] in {"local_path", "github_repo"}:
                 source_specific_mapping, detected_mapping_path = _load_repository_mapping(base_dir)
@@ -735,6 +759,7 @@ def run_batch(
                             [str(column) for column in original_df.columns],
                             base_dir,
                             preferred_models=source_preferred_models,
+                            inference_cache=source_llm_cache,
                         )
 
                     standardized_df = standardize_columns(original_df.copy(), dataset_mapping)

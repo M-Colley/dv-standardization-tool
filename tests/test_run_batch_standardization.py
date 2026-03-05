@@ -150,6 +150,30 @@ class BatchStandardizationTests(unittest.TestCase):
         self.assertEqual(augmented["novelduration"], "task_completion_time")
         mocked.assert_called_once()
 
+    def test_augment_mapping_with_llm_deductions_reuses_inference_cache(self):
+        mapping = {"task_time": "task_completion_time", "task_completion_time": "task_completion_time"}
+        inference_cache: dict[str, str | None] = {}
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            with mock.patch(
+                "scripts.run_batch_standardization.deduce_standard_name_with_local_llm",
+                return_value="task_completion_time",
+            ) as mocked:
+                _augment_mapping_with_llm_deductions(
+                    mapping,
+                    ["NovelDuration"],
+                    Path(tmpdir),
+                    inference_cache=inference_cache,
+                )
+                _augment_mapping_with_llm_deductions(
+                    mapping,
+                    ["NovelDuration"],
+                    Path(tmpdir),
+                    inference_cache=inference_cache,
+                )
+
+        self.assertEqual(mocked.call_count, 1)
+
     def test_run_batch_uses_llm_deduction_when_repo_has_no_yaml(self):
         with tempfile.TemporaryDirectory() as tmpdir:
             tmp = Path(tmpdir)
@@ -465,6 +489,30 @@ class BatchStandardizationTests(unittest.TestCase):
             self.assertEqual(len(files), 1)
             self.assertIn("Car_Critical_1.csv", files[0].name)
             self.assertIn("__extracted_archives", files[0].parts)
+
+    def test_discover_source_files_local_path_skips_macos_resource_forks_in_zip(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            tmp = Path(tmpdir)
+            input_dir = tmp / "input"
+            input_dir.mkdir(parents=True, exist_ok=True)
+            archive_path = input_dir / "study_data.zip"
+
+            with zipfile.ZipFile(archive_path, "w") as zf:
+                zf.writestr("__MACOSX/Study/._Car_Critical_1.csv", "macos metadata")
+                zf.writestr("Study/.DS_Store", "finder metadata")
+                zf.writestr("Study/Car_Critical_1.csv", "a,b\n1,2\n")
+
+            source = {
+                "source_id": "local_zip_source_filtered",
+                "source_type": "local_path",
+                "location": str(input_dir),
+                "include_globs": ["**/*.csv"],
+            }
+
+            _, files, _ = discover_source_files(source, tmp / "work")
+
+            self.assertEqual(len(files), 1)
+            self.assertEqual(files[0].name, "Car_Critical_1.csv")
 
     def test_discover_source_files_local_path_respects_archive_max_depth(self):
         with tempfile.TemporaryDirectory() as tmpdir:
