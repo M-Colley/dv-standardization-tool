@@ -579,6 +579,58 @@ def _merge_with_standard_precedence(
 
     return merged
 
+def _collect_llm_deduction(
+    deductions_by_key: dict[tuple[str, str], dict[str, Any]],
+    source_id: str,
+    dataset_id: str,
+    alias: str,
+    canonical_dv: str,
+) -> None:
+    alias_text = str(alias).strip()
+    if not alias_text:
+        return
+
+    key = (source_id, alias_text.lower())
+    entry = deductions_by_key.get(key)
+    if entry is None:
+        entry = {
+            "source_id": source_id,
+            "alias": alias_text,
+            "canonical_dv": canonical_dv,
+            "datasets": [],
+        }
+        deductions_by_key[key] = entry
+
+    datasets = entry["datasets"]
+    if dataset_id not in datasets:
+        datasets.append(dataset_id)
+
+def _finalize_llm_deductions(
+    deductions_by_key: dict[tuple[str, str], dict[str, Any]],
+) -> list[dict[str, Any]]:
+    finalized: list[dict[str, Any]] = []
+    for entry in deductions_by_key.values():
+        finalized.append(
+            {
+                **entry,
+                "datasets": sorted(entry["datasets"]),
+            }
+        )
+    return sorted(finalized, key=lambda item: (item["source_id"], item["alias"].lower()))
+
+def _build_llm_deduction_log_lines(llm_deductions: list[dict[str, Any]]) -> list[str]:
+    if not llm_deductions:
+        return ["No LLM-derived mappings were applied in this run."]
+
+    lines = ["LLM-derived mappings applied:"]
+    for item in llm_deductions:
+        datasets = item.get("datasets", [])
+        datasets_text = ", ".join(datasets) if datasets else "n/a"
+        lines.append(
+            f"[{item['source_id']}] {item['alias']} -> {item['canonical_dv']} (datasets: {datasets_text})"
+        )
+    return lines
+
 def _summarize_dataset(
     source_id: str,
     dataset_id: str,
@@ -685,6 +737,7 @@ def run_batch(
     sources = load_manifest(manifest_path)
     run_results: list[SourceRunResult] = []
     meta_rows: list[dict[str, Any]] = []
+    llm_deductions_by_key: dict[tuple[str, str], dict[str, Any]] = {}
 
     with TemporaryDirectory(prefix="opendv_batch_") as temp_dir:
         checkout_root = Path(temp_dir)
@@ -767,6 +820,19 @@ def run_batch(
                             preferred_models=source_preferred_models,
                             inference_cache=source_llm_cache,
                         )
+                        for alias in unknown_before_llm:
+                            alias_text = str(alias)
+                            inferred = dataset_mapping.get(alias_text)
+                            if not inferred:
+                                inferred = dataset_mapping.get(alias_text.lower())
+                            if inferred:
+                                _collect_llm_deduction(
+                                    llm_deductions_by_key,
+                                    source_id=source_id,
+                                    dataset_id=dataset_id,
+                                    alias=alias_text,
+                                    canonical_dv=str(inferred),
+                                )
 
                     standardized_df = standardize_columns(original_df.copy(), dataset_mapping)
                     if destination.suffix.lower() == ".tsv":
@@ -826,6 +892,15 @@ def run_batch(
     meta_json = output_dir / "meta_view.json"
     meta_df.to_csv(meta_csv, index=False)
     meta_df.to_json(meta_json, orient="records", indent=2)
+    llm_deductions = _finalize_llm_deductions(llm_deductions_by_key)
+    llm_log_path = output_dir / "llm_deductions.log"
+    llm_log_path.write_text(
+        "\n".join(_build_llm_deduction_log_lines(llm_deductions)) + "\n",
+        encoding="utf-8",
+    )
+    llm_json_path = output_dir / "llm_deductions.json"
+    with open(llm_json_path, "w", encoding="utf-8") as f:
+        json.dump(llm_deductions, f, indent=2)
 
     summary = {
         "manifest": str(manifest_path),
@@ -835,6 +910,9 @@ def run_batch(
         "successful_sources": sum(1 for r in run_results if r.status in {"completed", "partial"}),
         "meta_view_rows": int(meta_df.shape[0]),
         "llm_deduction_enabled": llm_deduction_enabled,
+        "llm_deductions_count": len(llm_deductions),
+        "llm_deductions_log": str(llm_log_path),
+        "llm_deductions_json": str(llm_json_path),
         "cache_root": str(resolved_cache_root),
         "results": [r.__dict__ for r in run_results],
     }
@@ -907,6 +985,14 @@ def main() -> None:
         shutil.copy2(manifest_path, output_dir / "manifest_snapshot.yaml")
 
     print(json.dumps(summary, indent=2))
+    if summary.get("llm_deductions_count", 0):
+        llm_log_path = Path(str(summary["llm_deductions_log"]))
+        try:
+            print(llm_log_path.read_text(encoding="utf-8").rstrip())
+        except OSError:
+            print(
+                f"LLM-derived mappings were applied. See log: {summary['llm_deductions_log']}"
+            )
 
 if __name__ == "__main__":
     main()

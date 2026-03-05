@@ -227,11 +227,21 @@ class BatchStandardizationTests(unittest.TestCase):
                 "scripts.run_batch_standardization.deduce_standard_name_with_local_llm",
                 return_value="task_completion_time",
             ):
-                run_batch(manifest_path, output_dir, SCHEMA_PATH)
+                summary = run_batch(manifest_path, output_dir, SCHEMA_PATH)
 
             standardized_path = output_dir / "standardized" / "study_source" / "study_csv-standardized.csv"
             standardized_df = pd.read_csv(standardized_path)
             self.assertIn("task_completion_time", standardized_df.columns)
+            self.assertEqual(summary["llm_deductions_count"], 1)
+            llm_log_path = Path(summary["llm_deductions_log"])
+            llm_json_path = Path(summary["llm_deductions_json"])
+            self.assertTrue(llm_log_path.exists())
+            self.assertTrue(llm_json_path.exists())
+            self.assertIn("DurationX -> task_completion_time", llm_log_path.read_text(encoding="utf-8"))
+            llm_records = json.loads(llm_json_path.read_text(encoding="utf-8"))
+            self.assertEqual(len(llm_records), 1)
+            self.assertEqual(llm_records[0]["alias"], "DurationX")
+            self.assertEqual(llm_records[0]["canonical_dv"], "task_completion_time")
 
     def test_load_manifest_rejects_duplicate_source_ids(self):
         with tempfile.TemporaryDirectory() as tmpdir:
@@ -895,7 +905,7 @@ class BatchStandardizationTests(unittest.TestCase):
                 "scripts.run_batch_standardization.deduce_standard_name_with_local_llm",
                 return_value="task_completion_time",
             ) as mocked:
-                run_batch(
+                summary = run_batch(
                     manifest_path,
                     output_dir,
                     SCHEMA_PATH,
@@ -903,6 +913,11 @@ class BatchStandardizationTests(unittest.TestCase):
                 )
 
             mocked.assert_not_called()
+            self.assertEqual(summary["llm_deductions_count"], 0)
+            self.assertIn(
+                "No LLM-derived mappings were applied",
+                Path(summary["llm_deductions_log"]).read_text(encoding="utf-8"),
+            )
             standardized_path = output_dir / "standardized" / "study_source" / "study_csv-standardized.csv"
             standardized_df = pd.read_csv(standardized_path)
             self.assertIn("DurationX", standardized_df.columns)
