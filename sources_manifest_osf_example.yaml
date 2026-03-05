@@ -7,8 +7,9 @@ sources:
       - "**/*.tsv"
       - "**/*.xlsx"
       - "**/*.xls"
+    extract_archives: true
+    archive_max_depth: 3
     use_llm_deduction: true
     llm_models:
       - Qwen/Qwen3.5-4B
       - microsoft/Phi-4-mini-instruct
-

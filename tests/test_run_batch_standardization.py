@@ -1,3 +1,4 @@
+import io
 import json
 import os
 import zipfile
@@ -371,6 +372,92 @@ class BatchStandardizationTests(unittest.TestCase):
 
             meta_df = pd.read_csv(output_dir / "meta_view.csv")
             self.assertEqual(sorted(meta_df["dataset_id"].unique().tolist()), ["wave1/results.csv", "wave2/results.csv"])
+
+    def test_discover_source_files_local_path_extracts_zip_tabular_files_in_nested_subfolders(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            tmp = Path(tmpdir)
+            input_dir = tmp / "input"
+            archive_dir = input_dir / "Study Data"
+            archive_dir.mkdir(parents=True, exist_ok=True)
+            archive_path = archive_dir / "Study_Logs_Raw_Data.zip"
+
+            with zipfile.ZipFile(archive_path, "w") as zf:
+                zf.writestr("Studie_Logs_Raw_Data/01_car/Car_Critical_1.csv", "a,b\n1,2\n")
+                zf.writestr("Studie_Logs_Raw_Data/01_car/readme.txt", "notes")
+
+            source = {
+                "source_id": "local_zip_source",
+                "source_type": "local_path",
+                "location": str(input_dir),
+                "include_globs": ["**/*.csv"],
+            }
+
+            workdir = tmp / "work"
+            workdir.mkdir(parents=True, exist_ok=True)
+            base_dir, files, commit = discover_source_files(source, workdir)
+
+            self.assertIsNone(commit)
+            self.assertEqual(base_dir, input_dir.resolve())
+            self.assertEqual(len(files), 1)
+            self.assertIn("Car_Critical_1.csv", files[0].name)
+            self.assertIn("__extracted_archives", files[0].parts)
+
+    def test_discover_source_files_local_path_respects_archive_max_depth(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            tmp = Path(tmpdir)
+            input_dir = tmp / "input"
+            input_dir.mkdir(parents=True, exist_ok=True)
+            archive_path = input_dir / "outer.zip"
+
+            inner_buffer = io.BytesIO()
+            with zipfile.ZipFile(inner_buffer, "w") as inner_zip:
+                inner_zip.writestr("nested/deep.csv", "a,b\n1,2\n")
+
+            with zipfile.ZipFile(archive_path, "w") as outer_zip:
+                outer_zip.writestr("nested/inner.zip", inner_buffer.getvalue())
+
+            source_depth_1 = {
+                "source_id": "local_nested_zip_depth1",
+                "source_type": "local_path",
+                "location": str(input_dir),
+                "include_globs": ["**/*.csv"],
+                "archive_max_depth": 1,
+            }
+            source_depth_2 = {
+                "source_id": "local_nested_zip_depth2",
+                "source_type": "local_path",
+                "location": str(input_dir),
+                "include_globs": ["**/*.csv"],
+                "archive_max_depth": 2,
+            }
+
+            workdir = tmp / "work"
+            workdir.mkdir(parents=True, exist_ok=True)
+
+            _, files_depth_1, _ = discover_source_files(source_depth_1, workdir)
+            self.assertEqual(files_depth_1, [])
+
+            _, files_depth_2, _ = discover_source_files(source_depth_2, workdir)
+            self.assertEqual(len(files_depth_2), 1)
+            self.assertIn("deep.csv", files_depth_2[0].name)
+
+    def test_discover_source_files_rejects_invalid_archive_max_depth(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            tmp = Path(tmpdir)
+            input_dir = tmp / "input"
+            input_dir.mkdir(parents=True, exist_ok=True)
+            (input_dir / "study.csv").write_text("a,b\n1,2\n", encoding="utf-8")
+
+            source = {
+                "source_id": "invalid_archive_depth",
+                "source_type": "local_path",
+                "location": str(input_dir),
+                "archive_max_depth": 0,
+            }
+
+            with self.assertRaises(ValueError):
+                discover_source_files(source, tmp / "work")
+
     @unittest.skipUnless(
         os.environ.get("RUN_GITHUB_BATCH_INTEGRATION") == "1",
         "Set RUN_GITHUB_BATCH_INTEGRATION=1 to run live GitHub discovery checks.",
@@ -445,14 +532,18 @@ class BatchStandardizationTests(unittest.TestCase):
                 downloaded.append(destination)
 
             with mock.patch(
-                "scripts.run_batch_standardization._iter_osf_file_entries",
-                return_value=file_entries,
+                "scripts.run_batch_standardization._iter_osf_node_ids",
+                return_value=["cwd6h"],
             ):
                 with mock.patch(
-                    "scripts.run_batch_standardization._download_osf_file",
-                    side_effect=_fake_download,
+                    "scripts.run_batch_standardization._iter_osf_file_entries",
+                    return_value=file_entries,
                 ):
-                    base_dir, files, commit = discover_source_files(source, workdir)
+                    with mock.patch(
+                        "scripts.run_batch_standardization._download_osf_file",
+                        side_effect=_fake_download,
+                    ):
+                        base_dir, files, commit = discover_source_files(source, workdir)
 
             self.assertEqual(commit, "cwd6h")
             self.assertEqual(base_dir, workdir / "osf_no_mapping")
@@ -485,19 +576,106 @@ class BatchStandardizationTests(unittest.TestCase):
                     zf.writestr("Study_Logs/readme.txt", "notes")
 
             with mock.patch(
-                "scripts.run_batch_standardization._iter_osf_file_entries",
-                return_value=file_entries,
+                "scripts.run_batch_standardization._iter_osf_node_ids",
+                return_value=["cwd6h"],
             ):
                 with mock.patch(
-                    "scripts.run_batch_standardization._download_osf_file",
-                    side_effect=_fake_download,
+                    "scripts.run_batch_standardization._iter_osf_file_entries",
+                    return_value=file_entries,
                 ):
-                    base_dir, files, commit = discover_source_files(source, workdir)
+                    with mock.patch(
+                        "scripts.run_batch_standardization._download_osf_file",
+                        side_effect=_fake_download,
+                    ):
+                        base_dir, files, commit = discover_source_files(source, workdir)
 
             self.assertEqual(commit, "cwd6h")
             self.assertEqual(base_dir, workdir / "osf_zip_source")
             self.assertEqual(len(files), 1)
             self.assertTrue(files[0].name.endswith("Observations.csv"))
+
+    def test_discover_source_files_osf_project_reads_component_nodes(self):
+        source = {
+            "source_id": "osf_component_source",
+            "source_type": "osf_project",
+            "location": "https://osf.io/cwd6h/overview",
+            "include_globs": ["**/*.csv"],
+        }
+
+        component_entries = [
+            {
+                "attributes": {"path": "/Studie_Logs_Raw_Data/01_car/Car_Critical_1.csv", "kind": "file"},
+                "links": {"download": "https://files.osf.io/component.csv"},
+            }
+        ]
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            workdir = Path(tmpdir)
+
+            def _fake_download(url: str, destination: Path):
+                destination.parent.mkdir(parents=True, exist_ok=True)
+                destination.write_text("a,b\n1,2\n", encoding="utf-8")
+
+            with mock.patch(
+                "scripts.run_batch_standardization._iter_osf_node_ids",
+                return_value=["cwd6h", "node123"],
+            ):
+                with mock.patch(
+                    "scripts.run_batch_standardization._iter_osf_file_entries",
+                    side_effect=[[], component_entries],
+                ):
+                    with mock.patch(
+                        "scripts.run_batch_standardization._download_osf_file",
+                        side_effect=_fake_download,
+                    ):
+                        base_dir, files, commit = discover_source_files(source, workdir)
+
+            self.assertEqual(commit, "cwd6h")
+            self.assertEqual(base_dir, workdir / "osf_component_source")
+            self.assertEqual(len(files), 1)
+            self.assertIn("Car_Critical_1.csv", files[0].name)
+
+    def test_discover_source_files_osf_project_extracts_zip_from_component_node(self):
+        source = {
+            "source_id": "osf_component_zip_source",
+            "source_type": "osf_project",
+            "location": "https://osf.io/cwd6h/overview",
+            "include_globs": ["**/*.csv"],
+        }
+
+        component_entries = [
+            {
+                "attributes": {"path": "/Study Data/Study_Logs_Raw_Data.zip", "kind": "file"},
+                "links": {"download": "https://files.osf.io/component-zip"},
+            }
+        ]
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            workdir = Path(tmpdir)
+
+            def _fake_download(url: str, destination: Path):
+                destination.parent.mkdir(parents=True, exist_ok=True)
+                with zipfile.ZipFile(destination, "w") as zf:
+                    zf.writestr("Studie_Logs_Raw_Data/01_car/Car_Critical_1.csv", "a,b\n1,2\n")
+
+            with mock.patch(
+                "scripts.run_batch_standardization._iter_osf_node_ids",
+                return_value=["cwd6h", "node123"],
+            ):
+                with mock.patch(
+                    "scripts.run_batch_standardization._iter_osf_file_entries",
+                    side_effect=[[], component_entries],
+                ):
+                    with mock.patch(
+                        "scripts.run_batch_standardization._download_osf_file",
+                        side_effect=_fake_download,
+                    ):
+                        base_dir, files, commit = discover_source_files(source, workdir)
+
+            self.assertEqual(commit, "cwd6h")
+            self.assertEqual(base_dir, workdir / "osf_component_zip_source")
+            self.assertEqual(len(files), 1)
+            self.assertIn("Car_Critical_1.csv", files[0].name)
 
     def test_run_batch_disables_llm_when_flag_is_off(self):
         with tempfile.TemporaryDirectory() as tmpdir:
@@ -605,40 +783,47 @@ class BatchStandardizationTests(unittest.TestCase):
                 destination.write_text("a,b\n1,2\n", encoding="utf-8")
 
             with mock.patch(
-                "scripts.run_batch_standardization._iter_osf_file_entries",
-                return_value=file_entries,
+                "scripts.run_batch_standardization._iter_osf_node_ids",
+                return_value=["cwd6h"],
             ):
                 with mock.patch(
-                    "scripts.run_batch_standardization._download_osf_file",
-                    side_effect=_fake_download,
-                ) as mocked_download:
-                    _, files_first, commit_first = discover_source_files(
-                        source,
-                        workdir,
-                        cache_root=cache_root,
-                    )
+                    "scripts.run_batch_standardization._iter_osf_file_entries",
+                    return_value=file_entries,
+                ):
+                    with mock.patch(
+                        "scripts.run_batch_standardization._download_osf_file",
+                        side_effect=_fake_download,
+                    ) as mocked_download:
+                        _, files_first, commit_first = discover_source_files(
+                            source,
+                            workdir,
+                            cache_root=cache_root,
+                        )
 
             self.assertEqual(commit_first, "cwd6h")
             self.assertEqual(len(files_first), 1)
             self.assertEqual(mocked_download.call_count, 1)
 
             with mock.patch(
-                "scripts.run_batch_standardization._iter_osf_file_entries",
-                side_effect=AssertionError("OSF listing should not run when cache exists"),
+                "scripts.run_batch_standardization._iter_osf_node_ids",
+                side_effect=AssertionError("OSF node discovery should not run when cache exists"),
             ):
                 with mock.patch(
-                    "scripts.run_batch_standardization._download_osf_file",
-                    side_effect=AssertionError("download should not run when cache exists"),
+                    "scripts.run_batch_standardization._iter_osf_file_entries",
+                    side_effect=AssertionError("OSF listing should not run when cache exists"),
                 ):
-                    _, files_second, commit_second = discover_source_files(
-                        source,
-                        workdir,
-                        cache_root=cache_root,
-                    )
+                    with mock.patch(
+                        "scripts.run_batch_standardization._download_osf_file",
+                        side_effect=AssertionError("download should not run when cache exists"),
+                    ):
+                        _, files_second, commit_second = discover_source_files(
+                            source,
+                            workdir,
+                            cache_root=cache_root,
+                        )
 
             self.assertEqual(commit_second, "cwd6h")
             self.assertEqual(len(files_second), 1)
 
 if __name__ == "__main__":
     unittest.main()
-

@@ -44,6 +44,7 @@ SUPPORTED_SOURCE_TYPES = {"local_path", "github_repo", "osf_project"}
 TABULAR_SUFFIXES = {".csv", ".xlsx", ".xls", ".tsv"}
 ARCHIVE_SUFFIXES = {".zip"}
 OSF_API_BASE = "https://api.osf.io/v2"
+DEFAULT_ARCHIVE_MAX_DEPTH = 3
 
 @dataclass
 class SourceRunResult:
@@ -136,6 +137,42 @@ def _osf_json_get(url: str) -> dict[str, Any]:
         payload = resp.read().decode("utf-8")
     return json.loads(payload)
 
+
+def _iter_osf_child_node_ids(node_id: str) -> list[str]:
+    """List direct child component node IDs for an OSF node."""
+    child_ids: list[str] = []
+    page_url: str | None = f"{OSF_API_BASE}/nodes/{node_id}/children/"
+
+    while page_url:
+        payload = _osf_json_get(page_url)
+        for item in payload.get("data", []):
+            child_id = str(item.get("id", "")).strip()
+            if child_id:
+                child_ids.append(child_id)
+
+        next_link = payload.get("links", {}).get("next")
+        page_url = str(next_link) if next_link else None
+
+    return child_ids
+
+
+def _iter_osf_node_ids(project_id: str) -> list[str]:
+    """List root+component node IDs reachable from an OSF project."""
+    ordered: list[str] = []
+    seen: set[str] = set()
+    queue: list[str] = [project_id]
+
+    while queue:
+        node_id = queue.pop(0)
+        if node_id in seen:
+            continue
+
+        seen.add(node_id)
+        ordered.append(node_id)
+        queue.extend(_iter_osf_child_node_ids(node_id))
+
+    return ordered
+
 def _iter_osf_file_entries(project_id: str) -> list[dict[str, Any]]:
     """List file entries under a project's osfstorage provider (recursive)."""
     entries: list[dict[str, Any]] = []
@@ -174,9 +211,35 @@ def _download_osf_file(download_url: str, destination: Path) -> None:
         destination.write_bytes(resp.read())
 
 
-def _extract_zip_tabular_files(zip_path: Path, source_root: Path) -> None:
-    """Extract supported tabular files from a ZIP archive into a cache subtree."""
-    relative_zip = zip_path.relative_to(source_root)
+
+def _is_within_directory(path: Path, root: Path) -> bool:
+    try:
+        path.relative_to(root)
+        return True
+    except ValueError:
+        return False
+
+
+def _resolve_archive_max_depth(source: dict[str, Any]) -> int:
+    value = source.get("archive_max_depth", DEFAULT_ARCHIVE_MAX_DEPTH)
+    try:
+        depth = int(value)
+    except (TypeError, ValueError) as exc:
+        raise ValueError(f"archive_max_depth must be an integer, got {value!r}") from exc
+    if depth < 1:
+        raise ValueError("archive_max_depth must be >= 1.")
+    return depth
+
+
+def _extract_zip_files_recursive(zip_path: Path, source_root: Path, depth: int, max_depth: int) -> None:
+    if depth > max_depth:
+        return
+
+    try:
+        relative_zip = zip_path.relative_to(source_root)
+    except ValueError:
+        relative_zip = Path(zip_path.name)
+
     archive_id = re.sub(r"[^A-Za-z0-9._-]+", "_", str(relative_zip.with_suffix(""))).strip("_")
     if not archive_id:
         archive_id = "archive"
@@ -191,16 +254,49 @@ def _extract_zip_tabular_files(zip_path: Path, source_root: Path) -> None:
                 continue
 
             member_path = Path(member.filename)
-            if member_path.suffix.lower() not in TABULAR_SUFFIXES:
+            suffix = member_path.suffix.lower()
+            if suffix not in TABULAR_SUFFIXES and suffix not in ARCHIVE_SUFFIXES:
                 continue
 
             destination = (extract_root / member.filename).resolve()
-            if not str(destination).startswith(str(resolved_extract_root)):
+            if not _is_within_directory(destination, resolved_extract_root):
                 continue
 
             destination.parent.mkdir(parents=True, exist_ok=True)
             with zf.open(member, "r") as src, open(destination, "wb") as dst:
                 shutil.copyfileobj(src, dst)
+
+            if suffix in ARCHIVE_SUFFIXES:
+                _extract_zip_files_recursive(destination, source_root, depth + 1, max_depth)
+
+
+def _extract_archives_in_tree(source_root: Path, max_depth: int) -> None:
+    extracted_root = source_root / "__extracted_archives"
+    processed_archives: set[Path] = set()
+
+    for archive_path in sorted(source_root.rglob("*")):
+        if not archive_path.is_file() or archive_path.suffix.lower() not in ARCHIVE_SUFFIXES:
+            continue
+
+        try:
+            relative_path = archive_path.relative_to(source_root)
+        except ValueError:
+            continue
+        if relative_path.parts and relative_path.parts[0] == "__extracted_archives":
+            continue
+
+        resolved_archive = archive_path.resolve()
+        if resolved_archive in processed_archives:
+            continue
+        processed_archives.add(resolved_archive)
+        _extract_zip_files_recursive(archive_path, source_root, depth=1, max_depth=max_depth)
+
+    if not extracted_root.exists():
+        return
+
+    for path in sorted(extracted_root.rglob("*"), reverse=True):
+        if path.is_dir() and not any(path.iterdir()):
+            path.rmdir()
 
 def _source_cache_key(source: dict[str, Any]) -> str:
     source_type = str(source.get("source_type", ""))
@@ -222,11 +318,15 @@ def discover_source_files(
     refresh_remote_cache: bool = False,
 ) -> tuple[Path, list[Path], str | None]:
     source_type = source["source_type"]
+    extract_archives = bool(source.get("extract_archives", True))
+    archive_max_depth = _resolve_archive_max_depth(source) if extract_archives else DEFAULT_ARCHIVE_MAX_DEPTH
 
     if source_type == "local_path":
         base_dir = Path(source["location"]).expanduser().resolve()
         if not base_dir.exists():
             raise FileNotFoundError(f"local_path does not exist: {base_dir}")
+        if extract_archives:
+            _extract_archives_in_tree(base_dir, archive_max_depth)
         files = _match_files(
             base_dir,
             source.get("include_globs"),
@@ -241,38 +341,45 @@ def discover_source_files(
     if source_type == "osf_project":
         project_id = _extract_osf_project_id(source["location"])
         marker = target / ".source_ready"
+        expected_marker = f"{project_id}|layout=v2"
 
         if refresh_remote_cache and target.exists():
             shutil.rmtree(target)
 
-        if not marker.exists():
+        marker_text = marker.read_text(encoding="utf-8").strip() if marker.exists() else None
+        if marker_text != expected_marker:
             if target.exists():
                 shutil.rmtree(target)
             target.mkdir(parents=True, exist_ok=True)
 
-            file_entries = _iter_osf_file_entries(project_id)
-            for entry in file_entries:
-                attrs = entry.get("attributes", {}) or {}
-                path = str(attrs.get("path", "")).lstrip("/")
-                if not path:
-                    continue
+            node_ids = _iter_osf_node_ids(project_id)
+            for node_id in node_ids:
+                file_entries = _iter_osf_file_entries(node_id)
+                for entry in file_entries:
+                    attrs = entry.get("attributes", {}) or {}
+                    path = str(attrs.get("path", "")).lstrip("/")
+                    if not path:
+                        continue
 
-                suffix = Path(path).suffix.lower()
-                if suffix not in TABULAR_SUFFIXES and suffix not in ARCHIVE_SUFFIXES:
-                    continue
+                    suffix = Path(path).suffix.lower()
+                    if suffix not in TABULAR_SUFFIXES and suffix not in ARCHIVE_SUFFIXES:
+                        continue
 
-                download_url = entry.get("links", {}).get("download")
-                if not download_url:
-                    continue
+                    download_url = entry.get("links", {}).get("download")
+                    if not download_url:
+                        continue
 
-                local_path = target / Path(path)
-                _download_osf_file(str(download_url), local_path)
+                    relative_path = Path(path)
+                    if node_id != project_id:
+                        relative_path = Path(f"node_{node_id}") / relative_path
 
-                if suffix == ".zip":
-                    _extract_zip_tabular_files(local_path, target)
+                    local_path = target / relative_path
+                    _download_osf_file(str(download_url), local_path)
 
-            marker.write_text(project_id, encoding="utf-8")
+            marker.write_text(expected_marker, encoding="utf-8")
 
+        if extract_archives:
+            _extract_archives_in_tree(target, archive_max_depth)
         files = _match_files(target, include_globs, exclude_globs)
         return target, files, project_id
 
@@ -306,6 +413,9 @@ def discover_source_files(
         capture_output=True,
         text=True,
     ).stdout.strip()
+
+    if extract_archives:
+        _extract_archives_in_tree(target, archive_max_depth)
 
     files = _match_files(
         target,
@@ -682,4 +792,3 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
-
