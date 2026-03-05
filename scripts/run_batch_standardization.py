@@ -48,6 +48,7 @@ from scripts.llm_utils import deduce_standard_name_with_local_llm
 SUPPORTED_SOURCE_TYPES = {"local_path", "github_repo", "osf_project"}
 TABULAR_SUFFIXES = {".csv", ".xlsx", ".xls", ".tsv"}
 ARCHIVE_SUFFIXES = {".zip"}
+MAPPING_SUFFIXES = {".yaml", ".yml"}
 OSF_API_BASE = "https://api.osf.io/v2"
 DEFAULT_ARCHIVE_MAX_DEPTH = 3
 
@@ -352,7 +353,7 @@ def _extract_zip_files_recursive(zip_path: Path, source_root: Path, depth: int, 
                 continue
 
             suffix = member_path.suffix.lower()
-            if suffix not in TABULAR_SUFFIXES and suffix not in ARCHIVE_SUFFIXES:
+            if suffix not in TABULAR_SUFFIXES and suffix not in ARCHIVE_SUFFIXES and suffix not in MAPPING_SUFFIXES:
                 continue
 
             destination = (extract_root / member.filename).resolve()
@@ -462,7 +463,11 @@ def discover_source_files(
                         continue
 
                     suffix = Path(file_name or path).suffix.lower()
-                    if suffix not in TABULAR_SUFFIXES and suffix not in ARCHIVE_SUFFIXES:
+                    if (
+                        suffix not in TABULAR_SUFFIXES
+                        and suffix not in ARCHIVE_SUFFIXES
+                        and suffix not in MAPPING_SUFFIXES
+                    ):
                         continue
 
                     download_url = entry.get("links", {}).get("download")
@@ -538,7 +543,7 @@ def _build_artifact_prefix(relative_path: Path) -> str:
     return safe_prefix or "dataset"
 
 def _load_repository_mapping(source_root: Path) -> tuple[dict[str, str], str | None]:
-    """Load a source-local mapping YAML if one is unambiguously available."""
+    """Load a source-local mapping YAML (recursive) if one is unambiguously available."""
     mapping_patterns = [
         "*mapping*.yaml",
         "*mapping*.yml",
@@ -547,7 +552,7 @@ def _load_repository_mapping(source_root: Path) -> tuple[dict[str, str], str | N
     ]
     candidates: list[Path] = []
     for pattern in mapping_patterns:
-        candidates.extend(path for path in source_root.glob(pattern) if path.is_file())
+        candidates.extend(path for path in source_root.rglob(pattern) if path.is_file())
 
     unique_candidates = sorted(set(candidates))
     if len(unique_candidates) != 1:
@@ -727,11 +732,10 @@ def run_batch(
             source_preferred_models = source.get("llm_models") if isinstance(source.get("llm_models"), list) else preferred_models
             source_llm_cache: dict[str, str | None] = {}
 
-            if source["source_type"] in {"local_path", "github_repo"}:
-                source_specific_mapping, detected_mapping_path = _load_repository_mapping(base_dir)
-                if source_specific_mapping:
-                    source_mapping = _merge_with_standard_precedence(source_specific_mapping, standard_mapping)
-                    source_mapping_path = detected_mapping_path
+            source_specific_mapping, detected_mapping_path = _load_repository_mapping(base_dir)
+            if source_specific_mapping:
+                source_mapping = _merge_with_standard_precedence(source_specific_mapping, standard_mapping)
+                source_mapping_path = detected_mapping_path
 
             dataset_progress = tqdm(
                 files,
@@ -750,9 +754,11 @@ def run_batch(
                 try:
                     original_df = _load_any_table(file_path)
                     dataset_mapping = source_mapping
-                    should_apply_llm = source_llm_enabled and (
-                        source["source_type"] == "osf_project" or source_mapping_path is None
+                    unknown_before_llm = identify_unmapped_columns(
+                        [str(column) for column in original_df.columns],
+                        source_mapping,
                     )
+                    should_apply_llm = source_llm_enabled and bool(unknown_before_llm)
                     if should_apply_llm:
                         dataset_mapping = _augment_mapping_with_llm_deductions(
                             source_mapping,

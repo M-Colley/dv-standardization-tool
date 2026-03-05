@@ -31,6 +31,7 @@ MODEL_MIN_MEMORY_GB = {
     "Qwen/Qwen2.5-3B-Instruct": 8.0,
     "Qwen/Qwen2.5-1.5B-Instruct": 4.0,
 }
+CUDA_MEMORY_HEADROOM_FACTOR = 0.9
 
 README_PATTERNS = ("README", "README.md", "README.txt", "readme.md", "readme.txt")
 DOI_PATTERN = re.compile(r"\b10\.\d{4,9}/[-._;()/:A-Z0-9]+", re.IGNORECASE)
@@ -111,6 +112,33 @@ def _detect_available_memory_gb() -> float | None:
         return None
 
 
+def _detect_cuda_memory_gb() -> float | None:
+    """Best-effort CUDA memory detection for strict GPU-fit checks."""
+    try:
+        import torch  # type: ignore
+
+        if torch.cuda.is_available():
+            mem = torch.cuda.get_device_properties(0).total_memory / (1024 ** 3)
+            return float(mem)
+    except Exception:
+        return None
+    return None
+
+
+def _estimate_model_min_memory_gb(model_name: str) -> float:
+    """Estimate minimum memory for unknown model ids from a common `xB` pattern."""
+    known = MODEL_MIN_MEMORY_GB.get(model_name)
+    if known is not None:
+        return known
+
+    match = re.search(r"(\d+(?:\.\d+)?)\s*[bB]\b", model_name)
+    if not match:
+        return 8.0
+
+    params_in_billions = float(match.group(1))
+    return max(4.0, params_in_billions * 2.5)
+
+
 def select_local_model_candidates(
     preferred_models: list[str] | None = None,
 ) -> list[str]:
@@ -119,11 +147,20 @@ def select_local_model_candidates(
     Override with `DV_LLM_MODELS` (comma-separated model ids) for explicit control.
     """
     override = os.getenv("DV_LLM_MODELS", "").strip()
-    if override:
-        return [m.strip() for m in override.split(",") if m.strip()]
+    candidates = (
+        [m.strip() for m in override.split(",") if m.strip()]
+        if override
+        else (preferred_models or DEFAULT_LOCAL_MODEL_CANDIDATES)
+    )
+    if not candidates:
+        return []
 
-    candidates = preferred_models or DEFAULT_LOCAL_MODEL_CANDIDATES
-    available_memory = _detect_available_memory_gb()
+    cuda_memory = _detect_cuda_memory_gb()
+    available_memory = (
+        cuda_memory * CUDA_MEMORY_HEADROOM_FACTOR
+        if cuda_memory is not None
+        else _detect_available_memory_gb()
+    )
     if available_memory is None:
         # Unknown machine profile: keep full ordered fallback list.
         return list(candidates)
@@ -131,9 +168,9 @@ def select_local_model_candidates(
     filtered = [
         model_name
         for model_name in candidates
-        if available_memory >= MODEL_MIN_MEMORY_GB.get(model_name, 4.0)
+        if available_memory >= _estimate_model_min_memory_gb(model_name)
     ]
-    return filtered or [candidates[-1]]
+    return filtered
 
 
 def _extract_dois(text: str) -> list[str]:

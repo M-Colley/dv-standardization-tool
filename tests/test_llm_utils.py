@@ -80,21 +80,43 @@ class LLMUtilsTests(unittest.TestCase):
 
     def test_select_local_model_candidates_uses_env_override(self):
         with mock.patch.dict("os.environ", {"DV_LLM_MODELS": "foo/bar,baz/qux"}, clear=False):
-            selected = select_local_model_candidates()
+            with mock.patch("scripts.llm_utils._detect_cuda_memory_gb", return_value=None):
+                with mock.patch("scripts.llm_utils._detect_available_memory_gb", return_value=64.0):
+                    selected = select_local_model_candidates()
 
         self.assertEqual(selected, ["foo/bar", "baz/qux"])
 
     def test_select_local_model_candidates_filters_by_memory(self):
         with mock.patch.dict("os.environ", {"DV_LLM_MODELS": ""}, clear=False):
-            with mock.patch("scripts.llm_utils._detect_available_memory_gb", return_value=5.0):
+            with mock.patch("scripts.llm_utils._detect_cuda_memory_gb", return_value=None):
+                with mock.patch("scripts.llm_utils._detect_available_memory_gb", return_value=5.0):
+                    selected = select_local_model_candidates(
+                        preferred_models=[
+                            "Qwen/Qwen2.5-3B-Instruct",
+                            "Qwen/Qwen2.5-1.5B-Instruct",
+                        ]
+                    )
+
+        self.assertEqual(selected, ["Qwen/Qwen2.5-1.5B-Instruct"])
+
+    def test_select_local_model_candidates_returns_empty_when_models_exceed_cuda_memory(self):
+        with mock.patch.dict("os.environ", {"DV_LLM_MODELS": ""}, clear=False):
+            with mock.patch("scripts.llm_utils._detect_cuda_memory_gb", return_value=4.0):
                 selected = select_local_model_candidates(
                     preferred_models=[
+                        "Qwen/Qwen3.5-4B",
                         "Qwen/Qwen2.5-3B-Instruct",
-                        "Qwen/Qwen2.5-1.5B-Instruct",
                     ]
                 )
 
-        self.assertEqual(selected, ["Qwen/Qwen2.5-1.5B-Instruct"])
+        self.assertEqual(selected, [])
+
+    def test_select_local_model_candidates_filters_env_override_by_cuda_memory(self):
+        with mock.patch.dict("os.environ", {"DV_LLM_MODELS": "Qwen/Qwen3.5-4B"}, clear=False):
+            with mock.patch("scripts.llm_utils._detect_cuda_memory_gb", return_value=4.0):
+                selected = select_local_model_candidates()
+
+        self.assertEqual(selected, [])
 
     def test_deduce_standard_name_with_local_llm_returns_matching_candidate(self):
         def _fake_pipeline(prompt, max_new_tokens, do_sample):

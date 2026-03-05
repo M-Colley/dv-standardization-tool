@@ -51,6 +51,29 @@ class BatchStandardizationTests(unittest.TestCase):
             self.assertEqual(merged_mapping["duration"], "task_completion_time")
             self.assertEqual(merged_mapping["local_alias_only"], "custom_task_time")
 
+    def test_load_repository_mapping_detects_nested_mapping_file(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            source_root = Path(tmpdir)
+            nested = source_root / "nested" / "config"
+            nested.mkdir(parents=True, exist_ok=True)
+            mapping_file = nested / "custom_mapping.yaml"
+            mapping_file.write_text(
+                yaml.safe_dump(
+                    {
+                        "dvs": [
+                            {"id": "custom_task_time", "aliases": ["local_alias_only"]},
+                        ]
+                    }
+                ),
+                encoding="utf-8",
+            )
+
+            merged_mapping, mapping_path = _load_repository_mapping(source_root)
+
+            self.assertIsNotNone(mapping_path)
+            self.assertEqual(Path(mapping_path), mapping_file)
+            self.assertEqual(merged_mapping["local_alias_only"], "custom_task_time")
+
     def test_load_repository_mapping_tolerates_null_dvs(self):
         with tempfile.TemporaryDirectory() as tmpdir:
             source_root = Path(tmpdir)
@@ -414,6 +437,60 @@ class BatchStandardizationTests(unittest.TestCase):
                 str(input_dir / "source_mapping.yaml"),
             )
             self.assertIn("Unmapped", standardized_df.columns)
+
+    def test_run_batch_uses_llm_after_repo_mapping_for_unmapped_columns(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            tmp = Path(tmpdir)
+            input_dir = tmp / "input"
+            input_dir.mkdir()
+
+            (input_dir / "source_mapping.yaml").write_text(
+                yaml.safe_dump(
+                    {
+                        "dvs": [
+                            {
+                                "id": "trust_rating",
+                                "aliases": ["KnownAlias"],
+                            }
+                        ]
+                    }
+                ),
+                encoding="utf-8",
+            )
+            pd.DataFrame({"KnownAlias": [1.0, 2.0], "NovelDuration": [3.0, 4.0]}).to_csv(
+                input_dir / "study.csv",
+                index=False,
+            )
+
+            manifest_path = tmp / "manifest.yaml"
+            manifest_path.write_text(
+                yaml.safe_dump(
+                    {
+                        "sources": [
+                            {
+                                "source_id": "study_source",
+                                "source_type": "local_path",
+                                "location": str(input_dir),
+                                "include_globs": ["*.csv"],
+                            }
+                        ]
+                    }
+                ),
+                encoding="utf-8",
+            )
+
+            output_dir = tmp / "output"
+            with mock.patch(
+                "scripts.run_batch_standardization.deduce_standard_name_with_local_llm",
+                return_value="task_completion_time",
+            ) as mocked:
+                run_batch(manifest_path, output_dir, SCHEMA_PATH)
+
+            mocked.assert_called_once()
+            standardized_path = output_dir / "standardized" / "study_source" / "study_csv-standardized.csv"
+            standardized_df = pd.read_csv(standardized_path)
+            self.assertIn("trust_rating", standardized_df.columns)
+            self.assertIn("task_completion_time", standardized_df.columns)
 
     def test_run_batch_uses_relative_path_prefix_to_avoid_filename_collisions(self):
         with tempfile.TemporaryDirectory() as tmpdir:
@@ -869,6 +946,109 @@ class BatchStandardizationTests(unittest.TestCase):
             mocked.assert_called()
             standardized_path = output_dir / "standardized" / "osf_source" / "study_csv-standardized.csv"
             standardized_df = pd.read_csv(standardized_path)
+            self.assertIn("task_completion_time", standardized_df.columns)
+
+    def test_run_batch_osf_prefers_mapping_and_skips_llm_when_mapping_exists(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            tmp = Path(tmpdir)
+            osf_cache = tmp / "osf_source"
+            osf_cache.mkdir(parents=True, exist_ok=True)
+            study_file = osf_cache / "study.csv"
+            pd.DataFrame({"DurationX": [1.0, 2.0]}).to_csv(study_file, index=False)
+            (osf_cache / "source_mapping.yaml").write_text(
+                yaml.safe_dump(
+                    {
+                        "dvs": [
+                            {"id": "task_completion_time", "aliases": ["DurationX"]},
+                        ]
+                    }
+                ),
+                encoding="utf-8",
+            )
+
+            manifest_path = tmp / "manifest.yaml"
+            manifest_path.write_text(
+                yaml.safe_dump(
+                    {
+                        "sources": [
+                            {
+                                "source_id": "osf_source",
+                                "source_type": "osf_project",
+                                "location": "https://osf.io/cwd6h/overview",
+                                "include_globs": ["*.csv"],
+                            }
+                        ]
+                    }
+                ),
+                encoding="utf-8",
+            )
+
+            output_dir = tmp / "output"
+            with mock.patch(
+                "scripts.run_batch_standardization.discover_source_files",
+                return_value=(osf_cache, [study_file], "cwd6h"),
+            ):
+                with mock.patch(
+                    "scripts.run_batch_standardization.deduce_standard_name_with_local_llm",
+                    return_value="task_completion_time",
+                ) as mocked:
+                    run_batch(manifest_path, output_dir, SCHEMA_PATH)
+
+            mocked.assert_not_called()
+            standardized_path = output_dir / "standardized" / "osf_source" / "study_csv-standardized.csv"
+            standardized_df = pd.read_csv(standardized_path)
+            self.assertIn("task_completion_time", standardized_df.columns)
+
+    def test_run_batch_osf_uses_llm_after_mapping_for_unmapped_columns(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            tmp = Path(tmpdir)
+            osf_cache = tmp / "osf_source"
+            osf_cache.mkdir(parents=True, exist_ok=True)
+            study_file = osf_cache / "study.csv"
+            pd.DataFrame({"DurationX": [1.0, 2.0], "NovelDuration": [3.0, 4.0]}).to_csv(study_file, index=False)
+            (osf_cache / "source_mapping.yaml").write_text(
+                yaml.safe_dump(
+                    {
+                        "dvs": [
+                            {"id": "trust_rating", "aliases": ["DurationX"]},
+                        ]
+                    }
+                ),
+                encoding="utf-8",
+            )
+
+            manifest_path = tmp / "manifest.yaml"
+            manifest_path.write_text(
+                yaml.safe_dump(
+                    {
+                        "sources": [
+                            {
+                                "source_id": "osf_source",
+                                "source_type": "osf_project",
+                                "location": "https://osf.io/cwd6h/overview",
+                                "include_globs": ["*.csv"],
+                            }
+                        ]
+                    }
+                ),
+                encoding="utf-8",
+            )
+
+            output_dir = tmp / "output"
+            with mock.patch(
+                "scripts.run_batch_standardization.discover_source_files",
+                return_value=(osf_cache, [study_file], "cwd6h"),
+            ):
+                with mock.patch(
+                    "scripts.run_batch_standardization.deduce_standard_name_with_local_llm",
+                    return_value="task_completion_time",
+                ) as mocked:
+                    run_batch(manifest_path, output_dir, SCHEMA_PATH)
+
+            mocked.assert_called_once()
+            standardized_path = output_dir / "standardized" / "osf_source" / "study_csv-standardized.csv"
+            standardized_df = pd.read_csv(standardized_path)
+            self.assertIn("trust_rating", standardized_df.columns)
             self.assertIn("task_completion_time", standardized_df.columns)
 
     def test_discover_source_files_osf_project_uses_cache(self):
