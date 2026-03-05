@@ -1,5 +1,6 @@
 import json
 import os
+import zipfile
 import tempfile
 import unittest
 from unittest import mock
@@ -458,6 +459,45 @@ class BatchStandardizationTests(unittest.TestCase):
             self.assertEqual(len(files), 1)
             self.assertTrue(files[0].name.endswith("study.csv"))
             self.assertEqual(len(downloaded), 1)
+
+    def test_discover_source_files_osf_project_extracts_zip_tabular_files(self):
+        source = {
+            "source_id": "osf_zip_source",
+            "source_type": "osf_project",
+            "location": "https://osf.io/cwd6h/overview",
+            "include_globs": ["**/*.csv"],
+        }
+
+        file_entries = [
+            {
+                "attributes": {"path": "/Study_Logs_Raw_Data.zip", "kind": "file"},
+                "links": {"download": "https://files.osf.io/Study_Logs_Raw_Data.zip"},
+            }
+        ]
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            workdir = Path(tmpdir)
+
+            def _fake_download(url: str, destination: Path):
+                destination.parent.mkdir(parents=True, exist_ok=True)
+                with zipfile.ZipFile(destination, "w") as zf:
+                    zf.writestr("Study_Logs/Observations.csv", "a,b\n1,2\n")
+                    zf.writestr("Study_Logs/readme.txt", "notes")
+
+            with mock.patch(
+                "scripts.run_batch_standardization._iter_osf_file_entries",
+                return_value=file_entries,
+            ):
+                with mock.patch(
+                    "scripts.run_batch_standardization._download_osf_file",
+                    side_effect=_fake_download,
+                ):
+                    base_dir, files, commit = discover_source_files(source, workdir)
+
+            self.assertEqual(commit, "cwd6h")
+            self.assertEqual(base_dir, workdir / "osf_zip_source")
+            self.assertEqual(len(files), 1)
+            self.assertTrue(files[0].name.endswith("Observations.csv"))
 
     def test_run_batch_disables_llm_when_flag_is_off(self):
         with tempfile.TemporaryDirectory() as tmpdir:

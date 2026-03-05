@@ -14,6 +14,7 @@ import re
 import shutil
 import subprocess
 import sys
+import zipfile
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
@@ -41,6 +42,7 @@ from scripts.llm_utils import deduce_standard_name_with_local_llm
 
 SUPPORTED_SOURCE_TYPES = {"local_path", "github_repo", "osf_project"}
 TABULAR_SUFFIXES = {".csv", ".xlsx", ".xls", ".tsv"}
+ARCHIVE_SUFFIXES = {".zip"}
 OSF_API_BASE = "https://api.osf.io/v2"
 
 @dataclass
@@ -171,6 +173,35 @@ def _download_osf_file(download_url: str, destination: Path) -> None:
     with request.urlopen(download_url, timeout=60) as resp:
         destination.write_bytes(resp.read())
 
+
+def _extract_zip_tabular_files(zip_path: Path, source_root: Path) -> None:
+    """Extract supported tabular files from a ZIP archive into a cache subtree."""
+    relative_zip = zip_path.relative_to(source_root)
+    archive_id = re.sub(r"[^A-Za-z0-9._-]+", "_", str(relative_zip.with_suffix(""))).strip("_")
+    if not archive_id:
+        archive_id = "archive"
+
+    extract_root = source_root / "__extracted_archives" / archive_id
+    extract_root.mkdir(parents=True, exist_ok=True)
+    resolved_extract_root = extract_root.resolve()
+
+    with zipfile.ZipFile(zip_path, "r") as zf:
+        for member in zf.infolist():
+            if member.is_dir():
+                continue
+
+            member_path = Path(member.filename)
+            if member_path.suffix.lower() not in TABULAR_SUFFIXES:
+                continue
+
+            destination = (extract_root / member.filename).resolve()
+            if not str(destination).startswith(str(resolved_extract_root)):
+                continue
+
+            destination.parent.mkdir(parents=True, exist_ok=True)
+            with zf.open(member, "r") as src, open(destination, "wb") as dst:
+                shutil.copyfileobj(src, dst)
+
 def _source_cache_key(source: dict[str, Any]) -> str:
     source_type = str(source.get("source_type", ""))
     location = str(source.get("location", ""))
@@ -227,7 +258,7 @@ def discover_source_files(
                     continue
 
                 suffix = Path(path).suffix.lower()
-                if suffix not in TABULAR_SUFFIXES:
+                if suffix not in TABULAR_SUFFIXES and suffix not in ARCHIVE_SUFFIXES:
                     continue
 
                 download_url = entry.get("links", {}).get("download")
@@ -236,6 +267,9 @@ def discover_source_files(
 
                 local_path = target / Path(path)
                 _download_osf_file(str(download_url), local_path)
+
+                if suffix == ".zip":
+                    _extract_zip_tabular_files(local_path, target)
 
             marker.write_text(project_id, encoding="utf-8")
 
