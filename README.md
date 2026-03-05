@@ -221,6 +221,42 @@ python scripts/run_batch_standardization.py \
   --snapshot-manifest
 ```
 
+
+### OSF no-mapping sources
+
+The batch runner supports public OSF projects directly via `source_type: osf_project`.
+This is useful for datasets that do not provide a repository-local mapping YAML (for example `https://osf.io/cwd6h/overview`).
+For OSF sources, local LLM alias deduction is enabled by default unless you pass `--disable-llm-deduction`.
+
+```yaml
+sources:
+  - source_id: osf_cwd6h
+    source_type: osf_project
+    location: https://osf.io/cwd6h/overview
+    include_globs: ["**/*.csv", "**/*.tsv", "**/*.xlsx", "**/*.xls"]
+    use_llm_deduction: true
+    llm_models:
+      - Qwen/Qwen2.5-3B-Instruct
+      - meta-llama/Llama-3.2-3B-Instruct
+```
+
+Run it with caching:
+
+```bash
+python scripts/run_batch_standardization.py \
+  --manifest sources_manifest_osf_example.yaml \
+  --output-dir data/processed/batch_runs/osf_cwd6h \
+  --cache-dir data/processed/batch_runs/.cache/sources
+```
+
+Deterministic mode (no LLM deduction):
+
+```bash
+python scripts/run_batch_standardization.py \
+  --manifest sources_manifest_osf_example.yaml \
+  --output-dir data/processed/batch_runs/osf_cwd6h_deterministic \
+  --disable-llm-deduction
+```
 Outputs include:
 - `meta_view.csv` and `meta_view.json` (cross-source harmonized summary backbone)
 - per-source standardized files under `standardized/<source_id>/`
@@ -346,5 +382,3 @@ dv-standardization-tool/
 ├── README.md
 └── requirements.txt
 ```
-
----

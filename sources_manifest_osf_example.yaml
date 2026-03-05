@@ -1,0 +1,14 @@
+sources:
+  - source_id: osf_cwd6h
+    source_type: osf_project
+    location: https://osf.io/cwd6h/overview
+    include_globs:
+      - "**/*.csv"
+      - "**/*.tsv"
+      - "**/*.xlsx"
+      - "**/*.xls"
+    use_llm_deduction: true
+    llm_models:
+      - Qwen/Qwen2.5-3B-Instruct
+      - meta-llama/Llama-3.2-3B-Instruct
+

@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import hashlib
 import re
 import shutil
 import subprocess
@@ -18,6 +19,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from tempfile import TemporaryDirectory
 from typing import Any
+from urllib import request
 
 import pandas as pd
 import yaml
@@ -37,9 +39,9 @@ from scripts.convert_dv import (
 )
 from scripts.llm_utils import deduce_standard_name_with_local_llm
 
-SUPPORTED_SOURCE_TYPES = {"local_path", "github_repo"}
+SUPPORTED_SOURCE_TYPES = {"local_path", "github_repo", "osf_project"}
 TABULAR_SUFFIXES = {".csv", ".xlsx", ".xls", ".tsv"}
-
+OSF_API_BASE = "https://api.osf.io/v2"
 
 @dataclass
 class SourceRunResult:
@@ -49,9 +51,11 @@ class SourceRunResult:
     processed_files: int
     failed_files: int
     unknown_columns: int
+    total_columns: int
+    mapped_columns: int
+    mapped_ratio: float
     output_dir: str
     message: str | None = None
-
 
 def load_manifest(manifest_path: Path) -> list[dict[str, Any]]:
     with open(manifest_path, "r", encoding="utf-8") as f:
@@ -81,7 +85,6 @@ def load_manifest(manifest_path: Path) -> list[dict[str, Any]]:
 
     return sources
 
-
 def _match_files(base_dir: Path, include_globs: list[str] | None, exclude_globs: list[str] | None) -> list[Path]:
     include_globs = include_globs or ["**/*"]
     exclude_globs = exclude_globs or []
@@ -102,8 +105,91 @@ def _match_files(base_dir: Path, include_globs: list[str] | None, exclude_globs:
 
     return [path for path in unique_candidates if path not in excluded]
 
+def _extract_osf_project_id(location: str) -> str:
+    """Resolve OSF project id from a raw id or osf.io URL."""
+    location = (location or "").strip()
+    if not location:
+        raise ValueError("OSF location must be a non-empty project id or osf.io URL.")
 
-def discover_source_files(source: dict[str, Any], working_dir: Path) -> tuple[Path, list[Path], str | None]:
+    if re.fullmatch(r"[a-z0-9]{5}", location.lower()):
+        return location.lower()
+
+    match = re.search(r"osf\.io/([a-z0-9]{5})(?:/|$)", location.lower())
+    if not match:
+        raise ValueError(
+            "Invalid OSF location. Use a 5-character project id (e.g., cwd6h) "
+            "or an OSF URL such as https://osf.io/cwd6h/overview."
+        )
+    return match.group(1)
+
+def _osf_json_get(url: str) -> dict[str, Any]:
+    req = request.Request(
+        url,
+        headers={
+            "Accept": "application/vnd.api+json",
+            "User-Agent": "OpenDV-HCI/1.0",
+        },
+    )
+    with request.urlopen(req, timeout=20) as resp:
+        payload = resp.read().decode("utf-8")
+    return json.loads(payload)
+
+def _iter_osf_file_entries(project_id: str) -> list[dict[str, Any]]:
+    """List file entries under a project's osfstorage provider (recursive)."""
+    entries: list[dict[str, Any]] = []
+    queue: list[str] = [f"{OSF_API_BASE}/nodes/{project_id}/files/osfstorage/"]
+
+    while queue:
+        page_url = queue.pop(0)
+        while page_url:
+            payload = _osf_json_get(page_url)
+            data = payload.get("data", [])
+            for item in data:
+                attrs = item.get("attributes", {}) or {}
+                kind = attrs.get("kind")
+                if kind == "file":
+                    entries.append(item)
+                elif kind == "folder":
+                    related = (
+                        item.get("relationships", {})
+                        .get("files", {})
+                        .get("links", {})
+                        .get("related", {})
+                        .get("href")
+                    )
+                    if related:
+                        queue.append(str(related))
+
+            page_url = payload.get("links", {}).get("next")
+            if page_url is not None:
+                page_url = str(page_url)
+
+    return entries
+
+def _download_osf_file(download_url: str, destination: Path) -> None:
+    destination.parent.mkdir(parents=True, exist_ok=True)
+    with request.urlopen(download_url, timeout=60) as resp:
+        destination.write_bytes(resp.read())
+
+def _source_cache_key(source: dict[str, Any]) -> str:
+    source_type = str(source.get("source_type", ""))
+    location = str(source.get("location", ""))
+    ref = str(source.get("ref", "HEAD"))
+    fingerprint = f"{source_type}|{location}|{ref}"
+    return hashlib.sha1(fingerprint.encode("utf-8")).hexdigest()[:16]
+
+def _ensure_cache_dir(cache_root: Path | None, source: dict[str, Any], working_dir: Path) -> Path:
+    if cache_root is None:
+        return working_dir / source["source_id"]
+    cache_root.mkdir(parents=True, exist_ok=True)
+    return cache_root / f"{source['source_id']}_{_source_cache_key(source)}"
+
+def discover_source_files(
+    source: dict[str, Any],
+    working_dir: Path,
+    cache_root: Path | None = None,
+    refresh_remote_cache: bool = False,
+) -> tuple[Path, list[Path], str | None]:
     source_type = source["source_type"]
 
     if source_type == "local_path":
@@ -117,15 +203,69 @@ def discover_source_files(source: dict[str, Any], working_dir: Path) -> tuple[Pa
         )
         return base_dir, files, None
 
+    target = _ensure_cache_dir(cache_root, source, working_dir)
+    include_globs = source.get("include_globs")
+    exclude_globs = source.get("exclude_globs")
+
+    if source_type == "osf_project":
+        project_id = _extract_osf_project_id(source["location"])
+        marker = target / ".source_ready"
+
+        if refresh_remote_cache and target.exists():
+            shutil.rmtree(target)
+
+        if not marker.exists():
+            if target.exists():
+                shutil.rmtree(target)
+            target.mkdir(parents=True, exist_ok=True)
+
+            file_entries = _iter_osf_file_entries(project_id)
+            for entry in file_entries:
+                attrs = entry.get("attributes", {}) or {}
+                path = str(attrs.get("path", "")).lstrip("/")
+                if not path:
+                    continue
+
+                suffix = Path(path).suffix.lower()
+                if suffix not in TABULAR_SUFFIXES:
+                    continue
+
+                download_url = entry.get("links", {}).get("download")
+                if not download_url:
+                    continue
+
+                local_path = target / Path(path)
+                _download_osf_file(str(download_url), local_path)
+
+            marker.write_text(project_id, encoding="utf-8")
+
+        files = _match_files(target, include_globs, exclude_globs)
+        return target, files, project_id
+
     repo_url = source["location"]
     pinned_ref = source.get("ref", "HEAD")
-    target = working_dir / source["source_id"]
-    subprocess.run([
-        "git", "clone", "--depth", "1", repo_url, str(target)
-    ], check=True, capture_output=True, text=True)
-    subprocess.run([
-        "git", "-C", str(target), "checkout", pinned_ref
-    ], check=True, capture_output=True, text=True)
+    marker = target / ".source_ready"
+
+    if refresh_remote_cache and target.exists():
+        shutil.rmtree(target)
+
+    if not marker.exists():
+        if target.exists():
+            shutil.rmtree(target)
+        subprocess.run(
+            ["git", "clone", "--depth", "1", repo_url, str(target)],
+            check=True,
+            capture_output=True,
+            text=True,
+        )
+        subprocess.run(
+            ["git", "-C", str(target), "checkout", pinned_ref],
+            check=True,
+            capture_output=True,
+            text=True,
+        )
+        marker.write_text("ready", encoding="utf-8")
+
     commit_sha = subprocess.run(
         ["git", "-C", str(target), "rev-parse", "HEAD"],
         check=True,
@@ -135,24 +275,21 @@ def discover_source_files(source: dict[str, Any], working_dir: Path) -> tuple[Pa
 
     files = _match_files(
         target,
-        source.get("include_globs"),
-        source.get("exclude_globs"),
+        include_globs,
+        exclude_globs,
     )
     return target, files, commit_sha
-
 
 def _load_any_table(path: Path) -> pd.DataFrame:
     if path.suffix.lower() == ".tsv":
         return pd.read_csv(path, sep="\t")
     return load_input_file(str(path))
 
-
 def _build_artifact_prefix(relative_path: Path) -> str:
     """Create a collision-safe file prefix from a path relative to the source root."""
     normalized = relative_path.as_posix()
     safe_prefix = re.sub(r"[^A-Za-z0-9]+", "_", normalized).strip("_")
     return safe_prefix or "dataset"
-
 
 def _load_repository_mapping(source_root: Path) -> tuple[dict[str, str], str | None]:
     """Load a source-local mapping YAML if one is unambiguously available."""
@@ -177,7 +314,6 @@ def _load_repository_mapping(source_root: Path) -> tuple[dict[str, str], str | N
     )
     return schema_data["mapping"], str(mapping_path)
 
-
 def _merge_with_standard_precedence(
     source_mapping: dict[str, str],
     standard_mapping: dict[str, str],
@@ -191,7 +327,6 @@ def _merge_with_standard_precedence(
             merged[alias] = standard_ci.get(alias.lower(), canonical)
 
     return merged
-
 
 def _summarize_dataset(
     source_id: str,
@@ -240,11 +375,11 @@ def _summarize_dataset(
     }
     return records, quality
 
-
 def _augment_mapping_with_llm_deductions(
     mapping: dict[str, str],
     columns: list[str],
     source_root: Path,
+    preferred_models: list[str] | None = None,
 ) -> dict[str, str]:
     """Attempt local-LLM alias deduction for unknown columns.
 
@@ -262,6 +397,7 @@ def _augment_mapping_with_llm_deductions(
             raw_column_name=str(alias),
             canonical_candidates=canonical_candidates,
             source_root=source_root,
+            preferred_models=preferred_models,
         )
         if inferred:
             augmented[str(alias)] = inferred
@@ -269,14 +405,23 @@ def _augment_mapping_with_llm_deductions(
 
     return augmented
 
-
-def run_batch(manifest_path: Path, output_dir: Path, schema_path: Path) -> dict[str, Any]:
+def run_batch(
+    manifest_path: Path,
+    output_dir: Path,
+    schema_path: Path,
+    llm_deduction_enabled: bool = True,
+    cache_root: Path | None = None,
+    refresh_remote_cache: bool = False,
+    preferred_models: list[str] | None = None,
+) -> dict[str, Any]:
     schema_data = load_schema(str(schema_path))
     standard_mapping = schema_data["mapping"]
 
     output_dir.mkdir(parents=True, exist_ok=True)
     standardized_root = output_dir / "standardized"
     standardized_root.mkdir(parents=True, exist_ok=True)
+    resolved_cache_root = cache_root or (output_dir / ".cache" / "sources")
+    resolved_cache_root.mkdir(parents=True, exist_ok=True)
 
     sources = load_manifest(manifest_path)
     run_results: list[SourceRunResult] = []
@@ -293,7 +438,12 @@ def run_batch(manifest_path: Path, output_dir: Path, schema_path: Path) -> dict[
             source_output_dir.mkdir(parents=True, exist_ok=True)
 
             try:
-                base_dir, files, commit_sha = discover_source_files(source, checkout_root)
+                base_dir, files, commit_sha = discover_source_files(
+                    source,
+                    checkout_root,
+                    cache_root=resolved_cache_root,
+                    refresh_remote_cache=refresh_remote_cache,
+                )
             except Exception as exc:  # noqa: BLE001
                 run_results.append(
                     SourceRunResult(
@@ -303,6 +453,9 @@ def run_batch(manifest_path: Path, output_dir: Path, schema_path: Path) -> dict[
                         processed_files=0,
                         failed_files=0,
                         unknown_columns=0,
+                        total_columns=0,
+                        mapped_columns=0,
+                        mapped_ratio=0.0,
                         output_dir=str(source_output_dir),
                         message=str(exc),
                     )
@@ -312,8 +465,13 @@ def run_batch(manifest_path: Path, output_dir: Path, schema_path: Path) -> dict[
             processed = 0
             failed = 0
             total_unknown = 0
+            total_columns = 0
+            total_mapped_columns = 0
             source_mapping = dict(standard_mapping)
             source_mapping_path = None
+            source_llm_enabled = bool(source.get("use_llm_deduction", llm_deduction_enabled))
+            source_preferred_models = source.get("llm_models") if isinstance(source.get("llm_models"), list) else preferred_models
+
             if source["source_type"] in {"local_path", "github_repo"}:
                 source_specific_mapping, detected_mapping_path = _load_repository_mapping(base_dir)
                 if source_specific_mapping:
@@ -337,11 +495,15 @@ def run_batch(manifest_path: Path, output_dir: Path, schema_path: Path) -> dict[
                 try:
                     original_df = _load_any_table(file_path)
                     dataset_mapping = source_mapping
-                    if source_mapping_path is None:
+                    should_apply_llm = source_llm_enabled and (
+                        source["source_type"] == "osf_project" or source_mapping_path is None
+                    )
+                    if should_apply_llm:
                         dataset_mapping = _augment_mapping_with_llm_deductions(
                             source_mapping,
                             [str(column) for column in original_df.columns],
                             base_dir,
+                            preferred_models=source_preferred_models,
                         )
 
                     standardized_df = standardize_columns(original_df.copy(), dataset_mapping)
@@ -367,6 +529,8 @@ def run_batch(manifest_path: Path, output_dir: Path, schema_path: Path) -> dict[
                         provenance,
                     )
                     total_unknown += quality["unknown_columns"]
+                    total_columns += quality["total_columns"]
+                    total_mapped_columns += quality["mapped_columns"]
                     meta_rows.extend(rows)
 
                     with open(source_output_dir / f"{artifact_prefix}-quality.json", "w", encoding="utf-8") as f:
@@ -387,6 +551,9 @@ def run_batch(manifest_path: Path, output_dir: Path, schema_path: Path) -> dict[
                     processed_files=processed,
                     failed_files=failed,
                     unknown_columns=total_unknown,
+                    total_columns=total_columns,
+                    mapped_columns=total_mapped_columns,
+                    mapped_ratio=(total_mapped_columns / total_columns) if total_columns else 0.0,
                     output_dir=str(source_output_dir),
                     message=None,
                 )
@@ -405,6 +572,8 @@ def run_batch(manifest_path: Path, output_dir: Path, schema_path: Path) -> dict[
         "total_sources": len(sources),
         "successful_sources": sum(1 for r in run_results if r.status in {"completed", "partial"}),
         "meta_view_rows": int(meta_df.shape[0]),
+        "llm_deduction_enabled": llm_deduction_enabled,
+        "cache_root": str(resolved_cache_root),
         "results": [r.__dict__ for r in run_results],
     }
 
@@ -412,7 +581,6 @@ def run_batch(manifest_path: Path, output_dir: Path, schema_path: Path) -> dict[
         json.dump(summary, f, indent=2)
 
     return summary
-
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Batch DV standardization from a manifest.")
@@ -432,19 +600,52 @@ def main() -> None:
         action="store_true",
         help="Copy the input manifest into the output directory for provenance.",
     )
+    parser.add_argument(
+        "--disable-llm-deduction",
+        action="store_true",
+        help="Disable local LLM-based alias deduction for deterministic runs.",
+    )
+    parser.add_argument(
+        "--cache-dir",
+        default=None,
+        help="Optional directory for caching downloaded remote sources (OSF/GitHub).",
+    )
+    parser.add_argument(
+        "--refresh-remote-cache",
+        action="store_true",
+        help="Force refresh of cached remote sources before processing.",
+    )
+    parser.add_argument(
+        "--llm-models",
+        default=None,
+        help="Comma-separated local model ids for LLM deduction priority.",
+    )
     args = parser.parse_args()
 
     manifest_path = Path(args.manifest).resolve()
     output_dir = Path(args.output_dir).resolve()
     schema_path = Path(args.schema).resolve()
+    cache_root = Path(args.cache_dir).resolve() if args.cache_dir else None
 
-    summary = run_batch(manifest_path, output_dir, schema_path)
+    preferred_models = None
+    if args.llm_models:
+        preferred_models = [m.strip() for m in args.llm_models.split(",") if m.strip()] or None
+
+    summary = run_batch(
+        manifest_path,
+        output_dir,
+        schema_path,
+        llm_deduction_enabled=not args.disable_llm_deduction,
+        cache_root=cache_root,
+        refresh_remote_cache=args.refresh_remote_cache,
+        preferred_models=preferred_models,
+    )
 
     if args.snapshot_manifest:
         shutil.copy2(manifest_path, output_dir / "manifest_snapshot.yaml")
 
     print(json.dumps(summary, indent=2))
 
-
 if __name__ == "__main__":
     main()
+
