@@ -502,6 +502,86 @@ class BatchStandardizationTests(unittest.TestCase):
             self.assertIn("trust_rating", standardized_df.columns)
             self.assertIn("task_completion_time", standardized_df.columns)
 
+    def test_run_batch_never_maps_identifier_or_condition_columns(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            tmp = Path(tmpdir)
+            input_dir = tmp / "input"
+            input_dir.mkdir()
+
+            (input_dir / "source_mapping.yaml").write_text(
+                yaml.safe_dump(
+                    {
+                        "dvs": [
+                            {
+                                "id": "trust_rating",
+                                "aliases": ["ConditionID", "UserID"],
+                            }
+                        ]
+                    }
+                ),
+                encoding="utf-8",
+            )
+            pd.DataFrame(
+                {
+                    "ConditionID": [1, 2],
+                    "UserID": [101, 102],
+                    "id": [11, 12],
+                    "lastpage": [5, 6],
+                    "seed": [123, 456],
+                    "startlanguage": ["en", "en"],
+                    "submitdate": ["2026-03-05", "2026-03-05"],
+                    "DurationX": [3.0, 4.0],
+                }
+            ).to_csv(input_dir / "study.csv", index=False)
+
+            manifest_path = tmp / "manifest.yaml"
+            manifest_path.write_text(
+                yaml.safe_dump(
+                    {
+                        "sources": [
+                            {
+                                "source_id": "study_source",
+                                "source_type": "local_path",
+                                "location": str(input_dir),
+                                "include_globs": ["*.csv"],
+                            }
+                        ]
+                    }
+                ),
+                encoding="utf-8",
+            )
+
+            output_dir = tmp / "output"
+            with mock.patch(
+                "scripts.run_batch_standardization.deduce_standard_name_with_local_llm",
+                return_value="task_completion_time",
+            ) as mocked:
+                summary = run_batch(manifest_path, output_dir, SCHEMA_PATH)
+
+            mocked.assert_called_once()
+            standardized_path = output_dir / "standardized" / "study_source" / "study_csv-standardized.csv"
+            standardized_df = pd.read_csv(standardized_path)
+
+            self.assertIn("ConditionID", standardized_df.columns)
+            self.assertIn("UserID", standardized_df.columns)
+            self.assertIn("id", standardized_df.columns)
+            self.assertIn("lastpage", standardized_df.columns)
+            self.assertIn("seed", standardized_df.columns)
+            self.assertIn("startlanguage", standardized_df.columns)
+            self.assertIn("submitdate", standardized_df.columns)
+            self.assertNotIn("trust_rating", standardized_df.columns)
+            self.assertIn("task_completion_time", standardized_df.columns)
+
+            llm_log = Path(summary["llm_deductions_log"]).read_text(encoding="utf-8")
+            self.assertIn("DurationX -> task_completion_time", llm_log)
+            self.assertNotIn("ConditionID ->", llm_log)
+            self.assertNotIn("UserID ->", llm_log)
+            self.assertNotIn("id ->", llm_log)
+            self.assertNotIn("lastpage ->", llm_log)
+            self.assertNotIn("seed ->", llm_log)
+            self.assertNotIn("startlanguage ->", llm_log)
+            self.assertNotIn("submitdate ->", llm_log)
+
     def test_run_batch_uses_relative_path_prefix_to_avoid_filename_collisions(self):
         with tempfile.TemporaryDirectory() as tmpdir:
             tmp = Path(tmpdir)

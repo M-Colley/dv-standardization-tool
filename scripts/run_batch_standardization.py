@@ -51,6 +51,48 @@ ARCHIVE_SUFFIXES = {".zip"}
 MAPPING_SUFFIXES = {".yaml", ".yml"}
 OSF_API_BASE = "https://api.osf.io/v2"
 DEFAULT_ARCHIVE_MAX_DEPTH = 3
+# Survey/admin/identifier fields that should never be mapped to DVs.
+NEVER_MAP_NORMALIZED_COLUMNS = {
+    "id",
+    "userid",
+    "user_id",
+    "participantid",
+    "participant_id",
+    "subjectid",
+    "subject_id",
+    "prolificid",
+    "prolific_id",
+    "responseid",
+    "response_id",
+    "condition",
+    "conditionid",
+    "condition_id",
+    "group",
+    "groupid",
+    "group_id",
+    "treatment",
+    "treatmentid",
+    "treatment_id",
+    "seed",
+    "lastpage",
+    "startlanguage",
+    "submitdate",
+    "startdate",
+    "enddate",
+    "recordeddate",
+    "status",
+    "finished",
+    "durationinseconds",
+    "progress",
+    "distributionchannel",
+    "ipaddress",
+    "recipientlastname",
+    "recipientfirstname",
+    "recipientemail",
+    "externalreference",
+    "locationlatitude",
+    "locationlongitude",
+}
 
 @dataclass
 class SourceRunResult:
@@ -312,6 +354,27 @@ def _resolve_archive_max_depth(source: dict[str, Any]) -> int:
     if depth < 1:
         raise ValueError("archive_max_depth must be >= 1.")
     return depth
+
+def _normalize_column_name(value: str) -> str:
+    return re.sub(r"[^a-z0-9_]+", "", str(value).strip().lower())
+
+
+def _is_never_map_column(column_name: str) -> bool:
+    normalized = _normalize_column_name(column_name)
+    return normalized in NEVER_MAP_NORMALIZED_COLUMNS
+
+
+def _filter_never_map_columns(column_names: list[str]) -> list[str]:
+    return [column for column in column_names if not _is_never_map_column(column)]
+
+
+def _remove_never_map_aliases(mapping: dict[str, str]) -> dict[str, str]:
+    filtered: dict[str, str] = {}
+    for alias, canonical in mapping.items():
+        if isinstance(alias, str) and _is_never_map_column(alias):
+            continue
+        filtered[alias] = canonical
+    return filtered
 
 
 def _should_skip_archive_member(member_path: Path) -> bool:
@@ -640,7 +703,9 @@ def _summarize_dataset(
     provenance: dict[str, Any],
 ) -> tuple[list[dict[str, Any]], dict[str, Any]]:
     original_lookup = build_original_column_lookup(original_df.copy(), mapping)
-    unknown_columns = identify_unmapped_columns([str(c) for c in original_df.columns], mapping)
+    unknown_columns = _filter_never_map_columns(
+        identify_unmapped_columns([str(c) for c in original_df.columns], mapping)
+    )
 
     records: list[dict[str, Any]] = []
     for canonical_dv in standardized_df.columns:
@@ -789,6 +854,7 @@ def run_batch(
             if source_specific_mapping:
                 source_mapping = _merge_with_standard_precedence(source_specific_mapping, standard_mapping)
                 source_mapping_path = detected_mapping_path
+            source_mapping = _remove_never_map_aliases(source_mapping)
 
             dataset_progress = tqdm(
                 files,
@@ -807,15 +873,18 @@ def run_batch(
                 try:
                     original_df = _load_any_table(file_path)
                     dataset_mapping = source_mapping
-                    unknown_before_llm = identify_unmapped_columns(
-                        [str(column) for column in original_df.columns],
-                        source_mapping,
+                    raw_columns = [str(column) for column in original_df.columns]
+                    unknown_before_llm = _filter_never_map_columns(
+                        identify_unmapped_columns(
+                            raw_columns,
+                            source_mapping,
+                        )
                     )
                     should_apply_llm = source_llm_enabled and bool(unknown_before_llm)
                     if should_apply_llm:
                         dataset_mapping = _augment_mapping_with_llm_deductions(
                             source_mapping,
-                            [str(column) for column in original_df.columns],
+                            unknown_before_llm,
                             base_dir,
                             preferred_models=source_preferred_models,
                             inference_cache=source_llm_cache,
