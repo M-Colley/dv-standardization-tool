@@ -1,6 +1,7 @@
 import io
 import json
 import os
+import stat
 import zipfile
 import tempfile
 import unittest
@@ -13,7 +14,9 @@ import yaml
 from scripts.run_batch_standardization import (
     _augment_mapping_with_llm_deductions,
     _extract_osf_project_id,
+    _iter_osf_file_entries,
     _load_repository_mapping,
+    _safe_rmtree,
     discover_source_files,
     load_manifest,
     run_batch,
@@ -72,6 +75,62 @@ class BatchStandardizationTests(unittest.TestCase):
 
             self.assertEqual(merged_mapping, {})
             self.assertIsNone(mapping_path)
+
+    def test_safe_rmtree_handles_read_only_files(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            root = Path(tmpdir) / "readonly_tree"
+            root.mkdir(parents=True, exist_ok=True)
+            target = root / "pack.idx"
+            target.write_text("x", encoding="utf-8")
+            os.chmod(target, stat.S_IREAD)
+
+            _safe_rmtree(root)
+
+            self.assertFalse(root.exists())
+
+    def test_iter_osf_file_entries_reads_all_provider_roots(self):
+        provider_page = {
+            "data": [
+                {
+                    "relationships": {
+                        "files": {
+                            "links": {
+                                "related": {"href": "https://api.osf.io/v2/nodes/cwd6h/files/osfstorage/"}
+                            }
+                        }
+                    }
+                },
+                {"links": {"related": {"href": "https://api.osf.io/v2/nodes/cwd6h/files/dropbox/"}}},
+            ],
+            "links": {"next": None},
+        }
+        osfstorage_page = {
+            "data": [
+                {
+                    "attributes": {"kind": "file", "path": "/study_a.csv"},
+                    "links": {"download": "https://files.osf.io/study_a.csv"},
+                }
+            ],
+            "links": {"next": None},
+        }
+        dropbox_page = {
+            "data": [
+                {
+                    "attributes": {"kind": "file", "path": "/study_b.csv"},
+                    "links": {"download": "https://files.osf.io/study_b.csv"},
+                }
+            ],
+            "links": {"next": None},
+        }
+
+        with mock.patch(
+            "scripts.run_batch_standardization._osf_json_get",
+            side_effect=[provider_page, osfstorage_page, dropbox_page],
+        ) as mocked_get:
+            entries = _iter_osf_file_entries("cwd6h")
+
+        self.assertEqual(len(entries), 2)
+        self.assertEqual(mocked_get.call_count, 3)
 
     def test_augment_mapping_with_llm_deductions_adds_inferred_aliases(self):
         mapping = {"task_time": "task_completion_time", "task_completion_time": "task_completion_time"}
@@ -147,7 +206,7 @@ class BatchStandardizationTests(unittest.TestCase):
     def test_example_manifest_points_to_requested_github_repos(self):
         sources = load_manifest(EXAMPLE_MANIFEST_PATH)
 
-        self.assertEqual(len(sources), 2)
+        self.assertEqual(len(sources), 3)
         self.assertEqual(sources[0]["source_id"], "roads_chi25")
         self.assertEqual(
             sources[0]["location"],
@@ -157,6 +216,11 @@ class BatchStandardizationTests(unittest.TestCase):
         self.assertEqual(
             sources[1]["location"],
             "https://github.com/M-Colley/ehmi-optimization-chi25-data",
+        )
+        self.assertEqual(sources[2]["source_id"], "osf_cwd6h")
+        self.assertEqual(
+            sources[2]["location"],
+            "https://osf.io/cwd6h/overview",
         )
 
     def test_run_batch_maps_semicolon_csv_columns_including_mental_load(self):

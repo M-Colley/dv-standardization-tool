@@ -48,6 +48,16 @@ class ConvertDVTests(unittest.TestCase):
             self.assertEqual(df.columns.tolist(), ["DurationX"])
             self.assertEqual(df.shape[1], 1)
 
+    def test_load_input_file_falls_back_to_cp1252_for_csv(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            csv_path = Path(tmpdir) / "cp1252.csv"
+            csv_path.write_bytes("Label,Value\nCaf\xe9,1\n".encode("cp1252"))
+
+            df = load_input_file(str(csv_path))
+
+            self.assertEqual(df.columns.tolist(), ["Label", "Value"])
+            self.assertEqual(df.loc[0, "Label"], "Café")
+
 
     def test_case_insensitive_mapping_works(self):
         schema_data = load_schema(str(SCHEMA_PATH))

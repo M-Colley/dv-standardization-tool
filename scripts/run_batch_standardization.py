@@ -10,16 +10,21 @@ from __future__ import annotations
 import argparse
 import json
 import hashlib
+import os
 import re
+import socket
 import shutil
+import stat
 import subprocess
 import sys
+import time
 import zipfile
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
 from tempfile import TemporaryDirectory
 from typing import Any
+from urllib import error as urlerror
 from urllib import request
 
 import pandas as pd
@@ -88,6 +93,35 @@ def load_manifest(manifest_path: Path) -> list[dict[str, Any]]:
 
     return sources
 
+
+def _on_rmtree_error(func: Any, path: str, exc_info: tuple[type[BaseException], BaseException, Any]) -> None:
+    """Best-effort handler for Windows read-only files during recursive delete."""
+    try:
+        os.chmod(path, stat.S_IWRITE)
+        func(path)
+    except Exception:
+        _, exc, _ = exc_info
+        raise exc
+
+
+def _safe_rmtree(path: Path, max_attempts: int = 4) -> None:
+    """Recursively delete a directory with Windows-friendly retry behavior."""
+    for attempt in range(max_attempts):
+        try:
+            shutil.rmtree(path, onerror=_on_rmtree_error)
+            return
+        except FileNotFoundError:
+            return
+        except PermissionError:
+            if attempt == max_attempts - 1:
+                raise
+            time.sleep(0.25 * (attempt + 1))
+        except OSError as exc:
+            if getattr(exc, "winerror", None) == 5 and attempt < max_attempts - 1:
+                time.sleep(0.25 * (attempt + 1))
+                continue
+            raise
+
 def _match_files(base_dir: Path, include_globs: list[str] | None, exclude_globs: list[str] | None) -> list[Path]:
     include_globs = include_globs or ["**/*"]
     exclude_globs = exclude_globs or []
@@ -125,6 +159,26 @@ def _extract_osf_project_id(location: str) -> str:
         )
     return match.group(1)
 
+
+def _read_url_bytes(url_or_request: Any, timeout: int, max_attempts: int = 4) -> bytes:
+    """Read bytes from URL with retry/backoff for transient network errors."""
+    for attempt in range(max_attempts):
+        try:
+            with request.urlopen(url_or_request, timeout=timeout) as resp:
+                return resp.read()
+        except Exception as exc:  # noqa: BLE001
+            is_timeout = isinstance(exc, (TimeoutError, socket.timeout))
+            if isinstance(exc, urlerror.URLError):
+                is_timeout = is_timeout or isinstance(exc.reason, socket.timeout)
+            is_transient_http = (
+                isinstance(exc, urlerror.HTTPError)
+                and (exc.code == 429 or 500 <= exc.code < 600)
+            )
+            if attempt == max_attempts - 1 or not (is_timeout or is_transient_http):
+                raise
+            time.sleep(0.75 * (attempt + 1))
+
+
 def _osf_json_get(url: str) -> dict[str, Any]:
     req = request.Request(
         url,
@@ -133,8 +187,7 @@ def _osf_json_get(url: str) -> dict[str, Any]:
             "User-Agent": "OpenDV-HCI/1.0",
         },
     )
-    with request.urlopen(req, timeout=20) as resp:
-        payload = resp.read().decode("utf-8")
+    payload = _read_url_bytes(req, timeout=45).decode("utf-8")
     return json.loads(payload)
 
 
@@ -173,14 +226,45 @@ def _iter_osf_node_ids(project_id: str) -> list[str]:
 
     return ordered
 
-def _iter_osf_file_entries(project_id: str) -> list[dict[str, Any]]:
-    """List file entries under a project's osfstorage provider (recursive)."""
+def _iter_osf_provider_urls(node_id: str) -> list[str]:
+    """List all storage-provider listing URLs for an OSF node."""
+    provider_urls: list[str] = []
+    page_url: str | None = f"{OSF_API_BASE}/nodes/{node_id}/files/"
+
+    while page_url:
+        payload = _osf_json_get(page_url)
+        for item in payload.get("data", []):
+            related = (
+                item.get("relationships", {})
+                .get("files", {})
+                .get("links", {})
+                .get("related", {})
+                .get("href")
+            )
+            if not related:
+                related = item.get("links", {}).get("related", {}).get("href")
+            if related:
+                provider_urls.append(str(related))
+
+        next_link = payload.get("links", {}).get("next")
+        page_url = str(next_link) if next_link else None
+
+    return provider_urls
+
+
+def _iter_osf_file_entries(node_id: str) -> list[dict[str, Any]]:
+    """List file entries for all storage providers under an OSF node (recursive)."""
     entries: list[dict[str, Any]] = []
-    queue: list[str] = [f"{OSF_API_BASE}/nodes/{project_id}/files/osfstorage/"]
+    queue: list[str] = _iter_osf_provider_urls(node_id)
+    seen_pages: set[str] = set()
 
     while queue:
         page_url = queue.pop(0)
         while page_url:
+            if page_url in seen_pages:
+                break
+            seen_pages.add(page_url)
+
             payload = _osf_json_get(page_url)
             data = payload.get("data", [])
             for item in data:
@@ -199,16 +283,14 @@ def _iter_osf_file_entries(project_id: str) -> list[dict[str, Any]]:
                     if related:
                         queue.append(str(related))
 
-            page_url = payload.get("links", {}).get("next")
-            if page_url is not None:
-                page_url = str(page_url)
+            next_link = payload.get("links", {}).get("next")
+            page_url = str(next_link) if next_link else None
 
     return entries
 
 def _download_osf_file(download_url: str, destination: Path) -> None:
     destination.parent.mkdir(parents=True, exist_ok=True)
-    with request.urlopen(download_url, timeout=60) as resp:
-        destination.write_bytes(resp.read())
+    destination.write_bytes(_read_url_bytes(download_url, timeout=180))
 
 
 
@@ -344,12 +426,12 @@ def discover_source_files(
         expected_marker = f"{project_id}|layout=v2"
 
         if refresh_remote_cache and target.exists():
-            shutil.rmtree(target)
+            _safe_rmtree(target)
 
         marker_text = marker.read_text(encoding="utf-8").strip() if marker.exists() else None
         if marker_text != expected_marker:
             if target.exists():
-                shutil.rmtree(target)
+                _safe_rmtree(target)
             target.mkdir(parents=True, exist_ok=True)
 
             node_ids = _iter_osf_node_ids(project_id)
@@ -357,11 +439,14 @@ def discover_source_files(
                 file_entries = _iter_osf_file_entries(node_id)
                 for entry in file_entries:
                     attrs = entry.get("attributes", {}) or {}
-                    path = str(attrs.get("path", "")).lstrip("/")
+                    materialized_path = str(attrs.get("materialized_path", "")).lstrip("/")
+                    raw_path = str(attrs.get("path", "")).lstrip("/")
+                    file_name = str(attrs.get("name", "")).strip()
+                    path = materialized_path or raw_path or file_name
                     if not path:
                         continue
 
-                    suffix = Path(path).suffix.lower()
+                    suffix = Path(file_name or path).suffix.lower()
                     if suffix not in TABULAR_SUFFIXES and suffix not in ARCHIVE_SUFFIXES:
                         continue
 
@@ -370,6 +455,8 @@ def discover_source_files(
                         continue
 
                     relative_path = Path(path)
+                    if relative_path.name == "" and file_name:
+                        relative_path = relative_path / file_name
                     if node_id != project_id:
                         relative_path = Path(f"node_{node_id}") / relative_path
 
@@ -388,11 +475,11 @@ def discover_source_files(
     marker = target / ".source_ready"
 
     if refresh_remote_cache and target.exists():
-        shutil.rmtree(target)
+        _safe_rmtree(target)
 
     if not marker.exists():
         if target.exists():
-            shutil.rmtree(target)
+            _safe_rmtree(target)
         subprocess.run(
             ["git", "clone", "--depth", "1", repo_url, str(target)],
             check=True,

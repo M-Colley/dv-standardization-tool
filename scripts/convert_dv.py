@@ -221,6 +221,16 @@ def load_input_file(input_path: str) -> pd.DataFrame:
         except csv.Error:
             delimiter = ","
 
+        decode_errors: list[UnicodeDecodeError] = []
+        for encoding in ("utf-8", "utf-8-sig", "cp1252", "latin-1"):
+            try:
+                return pd.read_csv(input_file, sep=delimiter, encoding=encoding)
+            except UnicodeDecodeError as exc:
+                decode_errors.append(exc)
+
+        # Preserve the original exception type for callers/tests.
+        if decode_errors:
+            raise decode_errors[-1]
         return pd.read_csv(input_file, sep=delimiter)
 
     raise ValueError(
@@ -492,7 +502,7 @@ def export_with_metadata(
     """
     # Export standardized dataset with extension-aware serializer.
     save_output_file(df, output_path)
-    print(f"✓ Standardized file saved to: {output_path}")
+    print(f"[OK] Standardized file saved to: {output_path}")
 
     # Export metadata JSON
     meta_path = str(Path(output_path).with_suffix('')) + "_metadata.json"
@@ -529,23 +539,23 @@ def export_with_metadata(
     with open(meta_path, "w") as f:
         json.dump(metadata, f, indent=2)
 
-    print(f"✓ Metadata JSON saved to: {meta_path}")
+    print(f"[OK] Metadata JSON saved to: {meta_path}")
 
     # Warn if columns need review
     if metadata["summary"]["needs_review"] > 0:
-        print(f"⚠ Warning: {metadata['summary']['needs_review']} column(s) flagged for manual review (low confidence)")
+        print(f"[WARN] {metadata['summary']['needs_review']} column(s) flagged for manual review (low confidence)")
 
     if unknown_columns:
         print(
-            "⚠ Unknown columns detected: "
+            "[WARN] Unknown columns detected: "
             f"{', '.join(str(col) for col in unknown_columns)}"
         )
         print(
-            "  → Consider adding these aliases to schemas/standard_dv_mapping.yaml "
+            "  -> Consider adding these aliases to schemas/standard_dv_mapping.yaml "
             "via a pull request."
         )
         if suggestion_path is not None:
-            print(f"  → Schema suggestion template written to: {suggestion_path}")
+            print(f"  -> Schema suggestion template written to: {suggestion_path}")
 
     return {
         "metadata_path": meta_path,
@@ -637,7 +647,7 @@ Examples:
     # Load input file
     print(f"Loading input file: {resolved_input}")
     df = load_input_file(str(resolved_input))
-    print(f"  ✓ Loaded {len(df)} rows, {len(df.columns)} columns")
+    print(f"  âœ“ Loaded {len(df)} rows, {len(df.columns)} columns")
 
     # Load schema and build mapping
     print(f"Loading schema: {resolved_schema}")
@@ -648,16 +658,16 @@ Examples:
     )
     mapping = schema_data["mapping"]
     schema = schema_data["schema"]
-    print(f"  ✓ Loaded {len(mapping)} alias mappings")
+    print(f"  âœ“ Loaded {len(mapping)} alias mappings")
     if schema_data.get("standard_mappings_applied"):
         print(
-            "  ✓ Combined selected schema with standard mapping "
+            "  âœ“ Combined selected schema with standard mapping "
             f"(policy={schema_data['alias_conflict_policy']}; extensible custom aliases)."
         )
         alias_conflicts = schema_data.get("alias_conflicts", [])
         if alias_conflicts:
             print(
-                "  ⚠ Detected alias conflicts between selected and standard schema: "
+                "  âš  Detected alias conflicts between selected and standard schema: "
                 f"{len(alias_conflicts)}"
             )
             for conflict in alias_conflicts[:10]:
@@ -693,22 +703,22 @@ Examples:
         df_standardized = standardize_columns(df, mapping)
         resolved_output.parent.mkdir(parents=True, exist_ok=True)
         save_output_file(df_standardized, str(resolved_output))
-        print(f"✓ Standardized file saved to: {resolved_output}")
+        print(f"[OK] Standardized file saved to: {resolved_output}")
 
         if unknown_columns:
             print(
-                "⚠ Unknown columns detected: "
+                "[WARN] Unknown columns detected: "
                 f"{', '.join(str(col) for col in unknown_columns)}"
             )
             print(
-                "  → Consider adding these aliases to schemas/standard_dv_mapping.yaml "
+                "  -> Consider adding these aliases to schemas/standard_dv_mapping.yaml "
                 "via a pull request."
             )
             suggestion_path = write_schema_suggestion_file(str(resolved_output), unknown_columns)
-            print(f"  → Schema suggestion template written to: {suggestion_path}")
+            print(f"  -> Schema suggestion template written to: {suggestion_path}")
 
     print("=" * 60)
-    print("✓ Standardization complete!")
+    print("[OK] Standardization complete!")
     print("=" * 60)
 
 

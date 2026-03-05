@@ -133,11 +133,11 @@ def load_studies(input_dir: Path) -> Dict[str, pd.DataFrame]:
     ----------------
     input_dir/
         study_a/
-            part1.csv       ← combined into study "study_a"
+            part1.csv       â† combined into study "study_a"
             part2.csv
         study_b/
-            results.xlsx    ← single-file study "study_b"
-        study_c.csv         ← files at root are treated as individual studies
+            results.xlsx    â† single-file study "study_b"
+        study_c.csv         â† files at root are treated as individual studies
 
     Each subdirectory becomes one study key (with row-wise concatenation).
     Files directly in input_dir are treated as separate studies by file stem.
@@ -171,7 +171,7 @@ def load_studies(input_dir: Path) -> Dict[str, pd.DataFrame]:
 
         combined = pd.concat(frames, ignore_index=True)
         print(
-            f"  → project '{project_key}': {len(combined)} total rows "
+            f"  -> project '{project_key}': {len(combined)} total rows "
             f"from {len(paths)} file(s)"
         )
         studies[project_key] = add_derived_scale_scores(combined)
