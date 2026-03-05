@@ -743,6 +743,62 @@ def _summarize_dataset(
     }
     return records, quality
 
+def _build_dataset_mapping_debug_records(
+    source_mapping: dict[str, str],
+    dataset_mapping: dict[str, str],
+    original_columns: list[str],
+    unknown_before_llm: list[str],
+) -> list[dict[str, Any]]:
+    unknown_before_llm_ci = {str(col).lower() for col in unknown_before_llm}
+    debug_records: list[dict[str, Any]] = []
+
+    for original_column in original_columns:
+        column_name = str(original_column)
+        normalized = _normalize_column_name(column_name)
+        mapped = dataset_mapping.get(column_name)
+        if mapped is None:
+            mapped = dataset_mapping.get(column_name.lower())
+        mapped_column = mapped or column_name
+
+        was_blocked = _is_never_map_column(column_name)
+        in_source_mapping = (
+            column_name in source_mapping
+            or column_name.lower() in source_mapping
+        )
+        inferred_by_llm = (
+            not was_blocked
+            and (column_name.lower() in unknown_before_llm_ci)
+            and mapped is not None
+        )
+
+        if was_blocked:
+            mapping_origin = "blocked_never_map"
+            mapping_status = "blocked"
+        elif inferred_by_llm:
+            mapping_origin = "llm"
+            mapping_status = "mapped"
+        elif in_source_mapping and mapped is not None:
+            mapping_origin = "schema"
+            mapping_status = "mapped"
+        elif mapped is not None:
+            mapping_origin = "mapping"
+            mapping_status = "mapped"
+        else:
+            mapping_origin = "none"
+            mapping_status = "unmapped"
+
+        debug_records.append(
+            {
+                "original_column": column_name,
+                "normalized_column": normalized,
+                "mapped_column": mapped_column,
+                "mapping_origin": mapping_origin,
+                "mapping_status": mapping_status,
+            }
+        )
+
+    return debug_records
+
 def _augment_mapping_with_llm_deductions(
     mapping: dict[str, str],
     columns: list[str],
@@ -789,6 +845,7 @@ def run_batch(
     cache_root: Path | None = None,
     refresh_remote_cache: bool = False,
     preferred_models: list[str] | None = None,
+    debug_mappings: bool = False,
 ) -> dict[str, Any]:
     schema_data = load_schema(str(schema_path))
     standard_mapping = schema_data["mapping"]
@@ -903,6 +960,32 @@ def run_batch(
                                     canonical_dv=str(inferred),
                                 )
 
+                    if debug_mappings:
+                        mapping_debug_records = _build_dataset_mapping_debug_records(
+                            source_mapping=source_mapping,
+                            dataset_mapping=dataset_mapping,
+                            original_columns=raw_columns,
+                            unknown_before_llm=unknown_before_llm,
+                        )
+                        debug_path = source_output_dir / f"{artifact_prefix}-mapping-debug.json"
+                        with open(debug_path, "w", encoding="utf-8") as f:
+                            json.dump(
+                                {
+                                    "source_id": source_id,
+                                    "dataset_id": dataset_id,
+                                    "path": relative_path,
+                                    "debug_mappings": mapping_debug_records,
+                                },
+                                f,
+                                indent=2,
+                            )
+                        print(f"[DEBUG] Mapping trace ({source_id}/{dataset_id}) -> {debug_path}")
+                        for row in mapping_debug_records:
+                            print(
+                                f"[DEBUG]   {row['original_column']} -> {row['mapped_column']} "
+                                f"({row['mapping_origin']})"
+                            )
+
                     standardized_df = standardize_columns(original_df.copy(), dataset_mapping)
                     if destination.suffix.lower() == ".tsv":
                         standardized_df.to_csv(destination, sep="\t", index=False)
@@ -982,6 +1065,7 @@ def run_batch(
         "llm_deductions_count": len(llm_deductions),
         "llm_deductions_log": str(llm_log_path),
         "llm_deductions_json": str(llm_json_path),
+        "debug_mappings_enabled": debug_mappings,
         "cache_root": str(resolved_cache_root),
         "results": [r.__dict__ for r in run_results],
     }
@@ -1029,6 +1113,11 @@ def main() -> None:
         default=None,
         help="Comma-separated local model ids for LLM deduction priority.",
     )
+    parser.add_argument(
+        "--debug-mappings",
+        action="store_true",
+        help="Print and save per-dataset column mapping traces (can be very verbose).",
+    )
     args = parser.parse_args()
 
     manifest_path = Path(args.manifest).resolve()
@@ -1048,6 +1137,7 @@ def main() -> None:
         cache_root=cache_root,
         refresh_remote_cache=args.refresh_remote_cache,
         preferred_models=preferred_models,
+        debug_mappings=args.debug_mappings,
     )
 
     if args.snapshot_manifest:

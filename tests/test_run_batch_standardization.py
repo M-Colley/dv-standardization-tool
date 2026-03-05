@@ -582,6 +582,79 @@ class BatchStandardizationTests(unittest.TestCase):
             self.assertNotIn("startlanguage ->", llm_log)
             self.assertNotIn("submitdate ->", llm_log)
 
+    def test_run_batch_debug_mappings_writes_per_dataset_trace(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            tmp = Path(tmpdir)
+            input_dir = tmp / "input"
+            input_dir.mkdir()
+
+            pd.DataFrame(
+                {
+                    "Trust": [1.0, 2.0],
+                    "DurationX": [3.0, 4.0],
+                    "UserID": [10, 11],
+                    "Unknown Alias": [7.0, 8.0],
+                }
+            ).to_csv(input_dir / "study.csv", index=False)
+
+            manifest_path = tmp / "manifest.yaml"
+            manifest_path.write_text(
+                yaml.safe_dump(
+                    {
+                        "sources": [
+                            {
+                                "source_id": "study_source",
+                                "source_type": "local_path",
+                                "location": str(input_dir),
+                                "include_globs": ["*.csv"],
+                            }
+                        ]
+                    }
+                ),
+                encoding="utf-8",
+            )
+
+            output_dir = tmp / "output"
+            with mock.patch(
+                "scripts.run_batch_standardization.deduce_standard_name_with_local_llm",
+                side_effect=lambda raw_column_name, **_: (
+                    "task_completion_time" if raw_column_name == "DurationX" else None
+                ),
+            ) as mocked:
+                summary = run_batch(
+                    manifest_path,
+                    output_dir,
+                    SCHEMA_PATH,
+                    debug_mappings=True,
+                )
+
+            self.assertEqual(mocked.call_count, 2)
+            self.assertTrue(summary["debug_mappings_enabled"])
+
+            debug_path = (
+                output_dir
+                / "standardized"
+                / "study_source"
+                / "study_csv-mapping-debug.json"
+            )
+            self.assertTrue(debug_path.exists())
+            payload = json.loads(debug_path.read_text(encoding="utf-8"))
+            rows = {row["original_column"]: row for row in payload["debug_mappings"]}
+
+            self.assertEqual(rows["Trust"]["mapped_column"], "trust_rating")
+            self.assertEqual(rows["Trust"]["mapping_origin"], "schema")
+
+            self.assertEqual(rows["DurationX"]["mapped_column"], "task_completion_time")
+            self.assertEqual(rows["DurationX"]["mapping_origin"], "llm")
+
+            self.assertEqual(rows["UserID"]["mapped_column"], "UserID")
+            self.assertEqual(rows["UserID"]["mapping_origin"], "blocked_never_map")
+            self.assertEqual(rows["UserID"]["mapping_status"], "blocked")
+
+            self.assertEqual(rows["Unknown Alias"]["mapped_column"], "Unknown Alias")
+            self.assertEqual(rows["Unknown Alias"]["mapping_origin"], "none")
+            self.assertEqual(rows["Unknown Alias"]["mapping_status"], "unmapped")
+
     def test_run_batch_uses_relative_path_prefix_to_avoid_filename_collisions(self):
         with tempfile.TemporaryDirectory() as tmpdir:
             tmp = Path(tmpdir)
