@@ -43,7 +43,7 @@ from scripts.convert_dv import (
     save_output_file,
     standardize_columns,
 )
-from scripts.llm_utils import deduce_standard_name_with_local_llm
+from scripts.llm_utils import collect_repository_context, deduce_standard_name_with_local_llm
 
 SUPPORTED_SOURCE_TYPES = {"local_path", "github_repo", "osf_project"}
 TABULAR_SUFFIXES = {".csv", ".xlsx", ".xls", ".tsv"}
@@ -620,8 +620,8 @@ def _build_artifact_prefix(relative_path: Path) -> str:
     safe_prefix = re.sub(r"[^A-Za-z0-9]+", "_", normalized).strip("_")
     return safe_prefix or "dataset"
 
-def _load_repository_mapping(source_root: Path) -> tuple[dict[str, str], str | None]:
-    """Load a source-local mapping YAML (recursive) if one is unambiguously available."""
+
+def _find_repository_mapping_candidates(source_root: Path) -> list[Path]:
     mapping_patterns = [
         "*mapping*.yaml",
         "*mapping*.yml",
@@ -632,11 +632,73 @@ def _load_repository_mapping(source_root: Path) -> tuple[dict[str, str], str | N
     for pattern in mapping_patterns:
         candidates.extend(path for path in source_root.rglob(pattern) if path.is_file())
 
-    unique_candidates = sorted(set(candidates))
-    if len(unique_candidates) != 1:
+    return sorted(set(candidates))
+
+
+def _resolve_repository_mapping_path(
+    source_root: Path,
+    mapping_candidates: list[Path],
+    requested_mapping_path: str | None = None,
+    dataset_path: Path | None = None,
+) -> Path | None:
+    if requested_mapping_path:
+        candidate = Path(requested_mapping_path).expanduser()
+        if not candidate.is_absolute():
+            candidate = (source_root / candidate).resolve()
+        else:
+            candidate = candidate.resolve()
+        if not candidate.exists() or not candidate.is_file():
+            raise FileNotFoundError(f"Requested mapping_path does not exist: {candidate}")
+        return candidate
+
+    if len(mapping_candidates) == 1:
+        return mapping_candidates[0]
+
+    if dataset_path is not None:
+        resolved_dataset_parent = dataset_path.resolve().parent
+        scoped_candidates: list[tuple[int, Path]] = []
+        for candidate in mapping_candidates:
+            try:
+                relative = resolved_dataset_parent.relative_to(candidate.parent.resolve())
+            except ValueError:
+                continue
+            scoped_candidates.append((len(relative.parts), candidate))
+
+        if scoped_candidates:
+            nearest_depth = min(depth for depth, _ in scoped_candidates)
+            nearest_candidates = sorted(
+                {candidate for depth, candidate in scoped_candidates if depth == nearest_depth}
+            )
+            if len(nearest_candidates) == 1:
+                return nearest_candidates[0]
+
+    resolved_source_root = source_root.resolve()
+    top_level_candidates = [
+        path for path in mapping_candidates
+        if path.parent.resolve() == resolved_source_root
+    ]
+    if len(top_level_candidates) == 1:
+        return top_level_candidates[0]
+
+    return None
+
+
+def _load_repository_mapping(
+    source_root: Path,
+    requested_mapping_path: str | None = None,
+    dataset_path: Path | None = None,
+) -> tuple[dict[str, str], str | None]:
+    """Load a source-local mapping YAML when a concrete mapping path can be resolved."""
+    mapping_candidates = _find_repository_mapping_candidates(source_root)
+    mapping_path = _resolve_repository_mapping_path(
+        source_root,
+        mapping_candidates,
+        requested_mapping_path=requested_mapping_path,
+        dataset_path=dataset_path,
+    )
+    if mapping_path is None:
         return {}, None
 
-    mapping_path = unique_candidates[0]
     schema_data = load_schema(
         str(mapping_path),
         standard_schema_path=str(REPO_ROOT / "schemas" / "standard_dv_mapping.yaml"),
@@ -847,12 +909,60 @@ def _build_dataset_mapping_debug_records(
 
     return debug_records
 
+
+def _score_alias_match(raw_column_name: str, alias: str) -> float:
+    normalized_raw = re.sub(r"[^a-z0-9]+", " ", str(raw_column_name).strip().lower()).strip()
+    normalized_alias = re.sub(r"[^a-z0-9]+", " ", str(alias).strip().lower()).strip()
+    if not normalized_raw or not normalized_alias:
+        return 0.0
+
+    raw_compact = normalized_raw.replace(" ", "")
+    alias_compact = normalized_alias.replace(" ", "")
+    # Very short aliases (e.g. "u1", "sa", "eda") create noisy fuzzy matches.
+    if len(alias_compact) < 4 and alias_compact not in raw_compact:
+        return 0.0
+
+    try:
+        from rapidfuzz import fuzz  # type: ignore
+
+        return float(
+            max(
+                fuzz.ratio(normalized_raw, normalized_alias),
+                fuzz.WRatio(normalized_raw, normalized_alias),
+                fuzz.token_sort_ratio(normalized_raw, normalized_alias),
+            )
+        )
+    except Exception:
+        from difflib import SequenceMatcher
+
+        return SequenceMatcher(None, normalized_raw, normalized_alias).ratio() * 100.0
+
+
+def _select_llm_candidate_shortlist(
+    mapping: dict[str, str],
+    raw_column_name: str,
+    max_candidates: int = 8,
+) -> tuple[list[str], float]:
+    candidate_scores: dict[str, float] = {}
+    for alias, canonical in mapping.items():
+        if not isinstance(alias, str) or not isinstance(canonical, str):
+            continue
+        score = _score_alias_match(raw_column_name, alias)
+        if score <= candidate_scores.get(canonical, 0.0):
+            continue
+        candidate_scores[canonical] = score
+
+    ranked = sorted(candidate_scores.items(), key=lambda item: (-item[1], item[0]))
+    return [canonical for canonical, _ in ranked[:max_candidates]], (ranked[0][1] if ranked else 0.0)
+
 def _augment_mapping_with_llm_deductions(
     mapping: dict[str, str],
     columns: list[str],
     source_root: Path,
     preferred_models: list[str] | None = None,
     inference_cache: dict[str, str | None] | None = None,
+    repository_context: str | None = None,
+    min_attempt_score: float = 65.0,
 ) -> dict[str, str]:
     """Attempt local-LLM alias deduction for unknown columns.
 
@@ -860,9 +970,6 @@ def _augment_mapping_with_llm_deductions(
     mapping YAML file.
     """
     augmented = dict(mapping)
-    canonical_candidates = sorted({value for value in mapping.values() if isinstance(value, str)})
-    if not canonical_candidates:
-        return augmented
 
     unknown = identify_unmapped_columns(columns, augmented)
     for alias in unknown:
@@ -871,11 +978,18 @@ def _augment_mapping_with_llm_deductions(
         if inference_cache is not None and alias_key in inference_cache:
             inferred = inference_cache[alias_key]
         else:
+            candidate_shortlist, top_score = _select_llm_candidate_shortlist(mapping, str(alias))
+            if not candidate_shortlist or top_score < min_attempt_score:
+                inferred = None
+                if inference_cache is not None:
+                    inference_cache[alias_key] = inferred
+                continue
             inferred = deduce_standard_name_with_local_llm(
                 raw_column_name=str(alias),
-                canonical_candidates=canonical_candidates,
+                canonical_candidates=candidate_shortlist,
                 source_root=source_root,
                 preferred_models=preferred_models,
+                repository_context=repository_context,
             )
             if inference_cache is not None:
                 inference_cache[alias_key] = inferred
@@ -964,11 +1078,10 @@ def run_batch(
             total_unknown = 0
             total_columns = 0
             total_mapped_columns = 0
-            source_mapping = dict(standard_mapping)
-            source_mapping_path = None
             source_llm_enabled = bool(source.get("use_llm_deduction", llm_deduction_enabled))
             source_preferred_models = source.get("llm_models") if isinstance(source.get("llm_models"), list) else preferred_models
             source_llm_cache: dict[str, str | None] = {}
+            source_repository_context: str | None = None
             source_metrics = {
                 "mapping": 0,
                 "llm": 0,
@@ -976,23 +1089,38 @@ def run_batch(
                 "unmapped": 0,
                 "total_columns_seen": 0,
             }
-
-            source_specific_mapping, detected_mapping_path = _load_repository_mapping(base_dir)
-            if source_specific_mapping:
-                source_mapping = _merge_with_standard_precedence(source_specific_mapping, standard_mapping)
-                source_mapping_path = detected_mapping_path
-            source_mapping = _remove_never_map_aliases(source_mapping)
-            source_custom_aliases_ci: set[str] = set()
-            if source_mapping_path:
+            dataset_errors: list[str] = []
+            requested_mapping_path = (
+                str(source.get("mapping_path")).strip()
+                if source.get("mapping_path")
+                else None
+            )
+            mapping_candidates = _find_repository_mapping_candidates(base_dir)
+            mapping_cache: dict[str, tuple[dict[str, str], set[str]]] = {}
+            if requested_mapping_path:
                 try:
-                    custom_schema_data = load_schema(str(source_mapping_path))
-                    source_custom_aliases_ci = {
-                        str(alias).lower()
-                        for alias in custom_schema_data["mapping"].keys()
-                        if isinstance(alias, str)
-                    }
-                except Exception:
-                    source_custom_aliases_ci = set()
+                    _resolve_repository_mapping_path(
+                        base_dir,
+                        mapping_candidates,
+                        requested_mapping_path=requested_mapping_path,
+                    )
+                except Exception as exc:  # noqa: BLE001
+                    run_results.append(
+                        SourceRunResult(
+                            source_id=source_id,
+                            status="failed",
+                            discovered_files=len(files),
+                            processed_files=0,
+                            failed_files=0,
+                            unknown_columns=0,
+                            total_columns=0,
+                            mapped_columns=0,
+                            mapped_ratio=0.0,
+                            output_dir=str(source_output_dir),
+                            message=str(exc),
+                        )
+                    )
+                    continue
 
             dataset_progress = tqdm(
                 files,
@@ -1010,6 +1138,43 @@ def run_batch(
 
                 try:
                     original_df = _load_any_table(file_path)
+                    source_mapping = dict(standard_mapping)
+                    source_mapping_path = None
+                    source_custom_aliases_ci: set[str] = set()
+                    resolved_mapping_path = _resolve_repository_mapping_path(
+                        base_dir,
+                        mapping_candidates,
+                        requested_mapping_path=requested_mapping_path,
+                        dataset_path=file_path,
+                    )
+                    if resolved_mapping_path is not None:
+                        cache_key = str(resolved_mapping_path)
+                        cached_mapping = mapping_cache.get(cache_key)
+                        if cached_mapping is None:
+                            source_specific_mapping, source_mapping_path = _load_repository_mapping(
+                                base_dir,
+                                requested_mapping_path=requested_mapping_path,
+                                dataset_path=file_path,
+                            )
+                            custom_schema_data = load_schema(str(resolved_mapping_path))
+                            source_custom_aliases_ci = {
+                                str(alias).lower()
+                                for alias in custom_schema_data["mapping"].keys()
+                                if isinstance(alias, str)
+                            }
+                            cached_mapping = (source_specific_mapping, source_custom_aliases_ci)
+                            mapping_cache[cache_key] = cached_mapping
+                        else:
+                            source_mapping_path = cache_key
+                            source_specific_mapping, source_custom_aliases_ci = cached_mapping
+
+                        if source_specific_mapping:
+                            source_mapping = _merge_with_standard_precedence(
+                                source_specific_mapping,
+                                standard_mapping,
+                            )
+                            source_mapping_path = cache_key
+                    source_mapping = _remove_never_map_aliases(source_mapping)
                     dataset_mapping = source_mapping
                     raw_columns = [str(column) for column in original_df.columns]
                     unknown_before_llm = _filter_never_map_columns(
@@ -1020,12 +1185,15 @@ def run_batch(
                     )
                     should_apply_llm = source_llm_enabled and bool(unknown_before_llm)
                     if should_apply_llm:
+                        if source_repository_context is None:
+                            source_repository_context = collect_repository_context(base_dir)
                         dataset_mapping = _augment_mapping_with_llm_deductions(
                             source_mapping,
                             unknown_before_llm,
                             base_dir,
                             preferred_models=source_preferred_models,
                             inference_cache=source_llm_cache,
+                            repository_context=source_repository_context,
                         )
                         for alias in unknown_before_llm:
                             alias_text = str(alias)
@@ -1118,11 +1286,18 @@ def run_batch(
                     processed += 1
                 except Exception as exc:  # noqa: BLE001
                     failed += 1
+                    dataset_errors.append(f"{dataset_id}: {exc}")
                     with open(source_output_dir / f"{artifact_prefix}-error.log", "w", encoding="utf-8") as f:
                         f.write(str(exc))
 
             source_mapping_metrics[source_id] = source_metrics
             status = "completed" if failed == 0 else ("partial" if processed else "failed")
+            message = None
+            if dataset_errors:
+                preview = "; ".join(dataset_errors[:3])
+                if len(dataset_errors) > 3:
+                    preview += f"; ... and {len(dataset_errors) - 3} more"
+                message = preview
             run_results.append(
                 SourceRunResult(
                     source_id=source_id,
@@ -1135,7 +1310,7 @@ def run_batch(
                     mapped_columns=total_mapped_columns,
                     mapped_ratio=(total_mapped_columns / total_columns) if total_columns else 0.0,
                     output_dir=str(source_output_dir),
-                    message=None,
+                    message=message,
                 )
             )
 

@@ -167,7 +167,6 @@ dvs:
       - NASA_TLX1
       - nasa_tlx1
       - MentalLoad
-      - mental_load
       - ML
     instruments:
       - "NASA-TLX (Global or Subscales)"
@@ -357,8 +356,6 @@ dvs:
       - satisfaction_rating
       - user_feedback
       - perceived_quality
-      - sus_score
-      - system_usability_scale
     instruments:
       - "UEQ"
       - "UMUX / UMUX-Lite"
@@ -777,45 +774,6 @@ dvs:
     units: [ "count" ]
     notes: "If severity is rated, include scale."
 
-  - id: AOA_USEFULNESS
-    label: "van der Laan Acceptance — Usefulness Subscale"
-    cluster: affective_emotion
-    measurement:
-      category: Score
-      primary_unit: "5-point (-2 to +2)"
-      allowed_units: ["5-point", "Likert"]
-      scale_type: ordinal
-      direction: higher_is_better
-    aliases:
-      - AOAUsefulness
-      - aoa_usefulness
-      - van_der_laan_usefulness
-      - acceptance_usefulness
-    instruments:
-      - "van der Laan Acceptance Scale"
-    units: ["Likert"]
-    notes: "Derived subscale score; mean of AOA usefulness items."
-
-  - id: AOA_SATISFYING
-    label: "van der Laan Acceptance — Satisfying Subscale"
-    cluster: affective_emotion
-    measurement:
-      category: Score
-      primary_unit: "5-point (-2 to +2)"
-      allowed_units: ["5-point", "Likert"]
-      scale_type: ordinal
-      direction: higher_is_better
-    aliases:
-      - AOASatisfying
-      - aoa_satisfying
-      - van_der_laan_satisfying
-      - acceptance_satisfying
-    instruments:
-      - "van der Laan Acceptance Scale"
-    units: ["Likert"]
-    notes: "Derived subscale score; mean of AOA satisfying items."
-
-
   # ---------------- Affective & Emotional ----------------
   - id: engagement_level
     label: "Engagement"
@@ -847,7 +805,6 @@ dvs:
     aliases:
       - perceived_stress
       - strain
-      - frustration
     instruments:
       - "PSS"
       - "NASA-TLX (Frustration)"

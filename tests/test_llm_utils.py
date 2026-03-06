@@ -130,6 +130,22 @@ class LLMUtilsTests(unittest.TestCase):
 
         self.assertEqual(inferred, "task_completion_time")
 
+    def test_deduce_standard_name_with_local_llm_uses_precomputed_context(self):
+        def _fake_pipeline(prompt, max_new_tokens, do_sample):
+            self.assertIn("cached context", prompt)
+            return [{"generated_text": prompt + "task_completion_time"}]
+
+        with mock.patch("scripts.llm_utils.collect_repository_context") as mocked_context:
+            with mock.patch("scripts.llm_utils._get_text_generation_pipeline", return_value=_fake_pipeline):
+                inferred = deduce_standard_name_with_local_llm(
+                    raw_column_name="Duration",
+                    canonical_candidates=["task_completion_time", "trust_rating"],
+                    repository_context="cached context",
+                )
+
+        mocked_context.assert_not_called()
+        self.assertEqual(inferred, "task_completion_time")
+
 
 if __name__ == "__main__":
     unittest.main()

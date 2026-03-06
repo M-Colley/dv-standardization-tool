@@ -99,6 +99,52 @@ class BatchStandardizationTests(unittest.TestCase):
             self.assertEqual(merged_mapping, {})
             self.assertIsNone(mapping_path)
 
+    def test_load_repository_mapping_uses_nearest_dataset_mapping_when_multiple_candidates_exist(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            source_root = Path(tmpdir)
+            dataset_dir = source_root / "study_a"
+            other_dir = source_root / "study_b"
+            dataset_dir.mkdir(parents=True, exist_ok=True)
+            other_dir.mkdir(parents=True, exist_ok=True)
+            dataset_path = dataset_dir / "results.csv"
+            dataset_path.write_text("a,b\n1,2\n", encoding="utf-8")
+            (dataset_dir / "source_mapping.yaml").write_text(
+                yaml.safe_dump({"dvs": [{"id": "trust_rating", "aliases": ["TrustA"]}]}),
+                encoding="utf-8",
+            )
+            (other_dir / "source_mapping.yaml").write_text(
+                yaml.safe_dump({"dvs": [{"id": "mental_demand", "aliases": ["TrustA"]}]}),
+                encoding="utf-8",
+            )
+
+            merged_mapping, mapping_path = _load_repository_mapping(
+                source_root,
+                dataset_path=dataset_path,
+            )
+
+            self.assertEqual(Path(mapping_path), dataset_dir / "source_mapping.yaml")
+            self.assertEqual(merged_mapping["TrustA"], "trust_rating")
+
+    def test_load_repository_mapping_uses_requested_mapping_path(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            source_root = Path(tmpdir)
+            nested = source_root / "config"
+            nested.mkdir(parents=True, exist_ok=True)
+            (source_root / "a_mapping.yaml").write_text("dvs: []", encoding="utf-8")
+            requested_path = nested / "custom_mapping.yaml"
+            requested_path.write_text(
+                yaml.safe_dump({"dvs": [{"id": "trust_rating", "aliases": ["TrustA"]}]}),
+                encoding="utf-8",
+            )
+
+            merged_mapping, mapping_path = _load_repository_mapping(
+                source_root,
+                requested_mapping_path="config/custom_mapping.yaml",
+            )
+
+            self.assertEqual(Path(mapping_path), requested_path)
+            self.assertEqual(merged_mapping["TrustA"], "trust_rating")
+
     def test_safe_rmtree_handles_read_only_files(self):
         with tempfile.TemporaryDirectory() as tmpdir:
             root = Path(tmpdir) / "readonly_tree"
@@ -156,7 +202,11 @@ class BatchStandardizationTests(unittest.TestCase):
         self.assertEqual(mocked_get.call_count, 3)
 
     def test_augment_mapping_with_llm_deductions_adds_inferred_aliases(self):
-        mapping = {"task_time": "task_completion_time", "task_completion_time": "task_completion_time"}
+        mapping = {
+            "task_time": "task_completion_time",
+            "duration": "task_completion_time",
+            "task_completion_time": "task_completion_time",
+        }
 
         with tempfile.TemporaryDirectory() as tmpdir:
             with mock.patch(
@@ -174,7 +224,11 @@ class BatchStandardizationTests(unittest.TestCase):
         mocked.assert_called_once()
 
     def test_augment_mapping_with_llm_deductions_reuses_inference_cache(self):
-        mapping = {"task_time": "task_completion_time", "task_completion_time": "task_completion_time"}
+        mapping = {
+            "task_time": "task_completion_time",
+            "duration": "task_completion_time",
+            "task_completion_time": "task_completion_time",
+        }
         inference_cache: dict[str, str | None] = {}
 
         with tempfile.TemporaryDirectory() as tmpdir:
@@ -196,6 +250,23 @@ class BatchStandardizationTests(unittest.TestCase):
                 )
 
         self.assertEqual(mocked.call_count, 1)
+
+    def test_augment_mapping_with_llm_deductions_skips_low_similarity_aliases(self):
+        mapping = {"task_time": "task_completion_time", "trust": "trust_rating"}
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            with mock.patch(
+                "scripts.run_batch_standardization.deduce_standard_name_with_local_llm",
+                return_value="task_completion_time",
+            ) as mocked:
+                augmented = _augment_mapping_with_llm_deductions(
+                    mapping,
+                    ["TotallyNovelSensorBlob"],
+                    Path(tmpdir),
+                )
+
+        mocked.assert_not_called()
+        self.assertNotIn("TotallyNovelSensorBlob", augmented)
 
     def test_run_batch_uses_llm_deduction_when_repo_has_no_yaml(self):
         with tempfile.TemporaryDirectory() as tmpdir:
@@ -642,7 +713,7 @@ class BatchStandardizationTests(unittest.TestCase):
                     debug_mappings=True,
                 )
 
-            self.assertEqual(mocked.call_count, 2)
+            self.assertEqual(mocked.call_count, 1)
             self.assertTrue(summary["debug_mappings_enabled"])
 
             debug_path = (
@@ -676,6 +747,40 @@ class BatchStandardizationTests(unittest.TestCase):
             self.assertEqual(rows["Unknown Alias"]["mapping_status"], "unmapped")
             self.assertEqual(rows["Unknown Alias"]["mapping_method"], "unmapped")
             self.assertIsNone(rows["Unknown Alias"]["mapping_source"])
+
+    def test_run_batch_surfaces_dataset_errors_in_source_message(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            tmp = Path(tmpdir)
+            input_dir = tmp / "input"
+            input_dir.mkdir()
+            (input_dir / "study.csv").write_text("a,b\n1,2\n", encoding="utf-8")
+
+            manifest_path = tmp / "manifest.yaml"
+            manifest_path.write_text(
+                yaml.safe_dump(
+                    {
+                        "sources": [
+                            {
+                                "source_id": "study_source",
+                                "source_type": "local_path",
+                                "location": str(input_dir),
+                                "include_globs": ["*.csv"],
+                            }
+                        ]
+                    }
+                ),
+                encoding="utf-8",
+            )
+
+            output_dir = tmp / "output"
+            with mock.patch(
+                "scripts.run_batch_standardization._load_any_table",
+                side_effect=ValueError("broken dataset"),
+            ):
+                summary = run_batch(manifest_path, output_dir, SCHEMA_PATH)
+
+            self.assertEqual(summary["results"][0]["status"], "failed")
+            self.assertIn("study.csv: broken dataset", summary["results"][0]["message"])
 
     def test_run_batch_maps_sensor_stream_columns_with_sensor_schema(self):
         with tempfile.TemporaryDirectory() as tmpdir:

@@ -298,6 +298,7 @@ def deduce_standard_name_with_local_llm(
     canonical_candidates: Iterable[str],
     source_root: str | Path | None = None,
     preferred_models: list[str] | None = None,
+    repository_context: str | None = None,
 ) -> str | None:
     """Infer the most appropriate canonical DV id from a local LLM.
 
@@ -308,7 +309,9 @@ def deduce_standard_name_with_local_llm(
         return None
 
     model_list = select_local_model_candidates(preferred_models=preferred_models)
-    context = collect_repository_context(source_root) if source_root else ""
+    context = repository_context
+    if context is None:
+        context = collect_repository_context(source_root) if source_root else ""
 
     prompt = (
         "You standardize dependent variable names for HCI datasets. "
