@@ -95,6 +95,38 @@ NEVER_MAP_NORMALIZED_COLUMNS = {
     "locationlongitude",
 }
 
+# Technical/admin columns that should never be inferred by the LLM unless an
+# explicit schema mapping exists. This keeps metadata streams out of the DV path.
+LLM_EXCLUDED_NORMALIZED_COLUMNS = {
+    "timestamp",
+    "time_stamp",
+    "datetime",
+    "date",
+    "logtime",
+    "capturetime",
+    "videoframe",
+    "framenumber",
+    "frame",
+    "video",
+    "objectid",
+    "object_id",
+    "class",
+    "bboxclass",
+    "confidence",
+    "phase",
+    "run",
+    "trialindex",
+    "sessionindex",
+    "blockindex",
+    "ispareto",
+    "pareto",
+    "x",
+    "y",
+    "z",
+    "width",
+    "height",
+}
+
 @dataclass
 class SourceRunResult:
     source_id: str
@@ -367,6 +399,19 @@ def _is_never_map_column(column_name: str) -> bool:
 
 def _filter_never_map_columns(column_names: list[str]) -> list[str]:
     return [column for column in column_names if not _is_never_map_column(column)]
+
+
+def _is_llm_excluded_column(column_name: str) -> bool:
+    normalized = _normalize_column_name(column_name)
+    return normalized in LLM_EXCLUDED_NORMALIZED_COLUMNS
+
+
+def _filter_llm_eligible_columns(column_names: list[str]) -> list[str]:
+    return [
+        column
+        for column in column_names
+        if not _is_never_map_column(column) and not _is_llm_excluded_column(column)
+    ]
 
 
 def _remove_never_map_aliases(mapping: dict[str, str]) -> dict[str, str]:
@@ -1177,7 +1222,7 @@ def run_batch(
                     source_mapping = _remove_never_map_aliases(source_mapping)
                     dataset_mapping = source_mapping
                     raw_columns = [str(column) for column in original_df.columns]
-                    unknown_before_llm = _filter_never_map_columns(
+                    unknown_before_llm = _filter_llm_eligible_columns(
                         identify_unmapped_columns(
                             raw_columns,
                             source_mapping,

@@ -667,6 +667,62 @@ class BatchStandardizationTests(unittest.TestCase):
             self.assertNotIn("startlanguage ->", llm_log)
             self.assertNotIn("submitdate ->", llm_log)
 
+    def test_run_batch_does_not_send_metadata_columns_to_llm(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            tmp = Path(tmpdir)
+            input_dir = tmp / "input"
+            input_dir.mkdir()
+
+            pd.DataFrame(
+                {
+                    "Timestamp": [1.0, 2.0],
+                    "Phase": ["intro", "main"],
+                    "Run": [1, 1],
+                    "IsPareto": [True, False],
+                    "DurationX": [3.0, 4.0],
+                }
+            ).to_csv(input_dir / "study.csv", index=False)
+
+            manifest_path = tmp / "manifest.yaml"
+            manifest_path.write_text(
+                yaml.safe_dump(
+                    {
+                        "sources": [
+                            {
+                                "source_id": "study_source",
+                                "source_type": "local_path",
+                                "location": str(input_dir),
+                                "include_globs": ["*.csv"],
+                            }
+                        ]
+                    }
+                ),
+                encoding="utf-8",
+            )
+
+            output_dir = tmp / "output"
+            with mock.patch(
+                "scripts.run_batch_standardization.deduce_standard_name_with_local_llm",
+                return_value="task_completion_time",
+            ) as mocked:
+                summary = run_batch(manifest_path, output_dir, SCHEMA_PATH)
+
+            mocked.assert_called_once()
+            llm_log = Path(summary["llm_deductions_log"]).read_text(encoding="utf-8")
+            self.assertIn("DurationX -> task_completion_time", llm_log)
+            self.assertNotIn("Timestamp ->", llm_log)
+            self.assertNotIn("Phase ->", llm_log)
+            self.assertNotIn("Run ->", llm_log)
+            self.assertNotIn("IsPareto ->", llm_log)
+
+            standardized_path = output_dir / "standardized" / "study_source" / "study_csv-standardized.csv"
+            standardized_df = pd.read_csv(standardized_path)
+            self.assertIn("Timestamp", standardized_df.columns)
+            self.assertIn("Phase", standardized_df.columns)
+            self.assertIn("Run", standardized_df.columns)
+            self.assertIn("IsPareto", standardized_df.columns)
+            self.assertIn("task_completion_time", standardized_df.columns)
+
     def test_run_batch_debug_mappings_writes_per_dataset_trace(self):
         with tempfile.TemporaryDirectory() as tmpdir:
             tmp = Path(tmpdir)
