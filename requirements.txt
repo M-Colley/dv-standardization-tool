@@ -1,39 +1,10 @@
-# OpenDV-HCI: Required Python packages
-# Install via: pip install -r requirements.txt
+# Full environment.
+# For lighter installs use one of:
+#   pip install -r requirements-core.txt
+#   pip install -r requirements-core.txt -r requirements-llm.txt
+#   pip install -r requirements-core.txt -r requirements-ui.txt
 
-# Core dependencies
-pandas>=2.3.3
-numpy>=2.4.2
-pyyaml>=6.0.3
-tqdm>=4.67.3
-openpyxl>=3.1.5
-
-# Visualization & schema debugging
-matplotlib>=3.10.8
-seaborn>=0.13.2
-plotly>=6.5.2
-
-# Notebook & prototyping
-jupyterlab>=4.5.4
-notebook>=7.5.3
-ipykernel>=7.2.0
-
-# Optional LLM utilities
-openai>=2.21.0
-sentence-transformers>=5.2.3
-transformers>=5.3.0
-pypdf>=6.7.1
-
-# Fuzzy matching for schema expansion
-rapidfuzz>=2.13
-
-# Streamlit UI (optional)
-streamlit>=1.54
-watchdog>=2.1.9
-
-# YAML schema validation (optional)
-cerberus>=1.3.8
-
-# Others (misc utils)
-scikit-learn>=1.8.0
-
+-r requirements-core.txt
+-r requirements-llm.txt
+-r requirements-ui.txt
+-r requirements-dev.txt

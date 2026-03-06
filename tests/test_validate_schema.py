@@ -4,6 +4,22 @@ from scripts.validate_schema import validate_new_format
 
 
 class ValidateSchemaTests(unittest.TestCase):
+    def test_validate_new_format_allows_auxiliary_schema_without_label_cluster(self):
+        schema = {
+            "version": "1.0",
+            "schema_type": "sensor",
+            "dvs": [
+                {
+                    "id": "eye_gaze_forward",
+                    "aliases": ["gaze.forward"],
+                }
+            ],
+        }
+
+        issues = validate_new_format(schema)
+
+        self.assertEqual(issues, [])
+
     def test_validate_new_format_rejects_ambiguous_case_insensitive_aliases(self):
         schema = {
             "version": "2.1",

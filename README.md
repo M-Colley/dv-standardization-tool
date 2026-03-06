@@ -40,9 +40,12 @@ Despite ongoing advocacy for open methods (Koelle et al., 2024; Goodman et al., 
 
 - Schema-driven conversion of raw DV columns into standardized formats
 - Built-in sensor-stream canonicalization for common telemetry channels (eye-tracking, Arduino/device feeds)
+- Built-in object-detection canonicalization for YOLO-style bounding-box exports
+- Built-in metadata/process canonicalization for fields such as `Timestamp`, `Phase`, `Run`, and OSF/VR telemetry indices
+- Per-dataset type classification (`results_table`, `questionnaire`, `sensor_stream`, `object_detection`, `process_log`) so the runner applies the right schema family instead of one global alias table
 - YAML-based mapping logic for extensibility and transparency
-- Visualization of schema coverage and alignment across datasets
-- Optional LLM-based inference for alias suggestion (prototype stage)
+- Run-level reporting for unknown aliases, blocked aliases, and mapping provenance
+- Optional LLM-based inference for unresolved DV aliases after explicit mappings have already been checked
 - Reproducible prototyping via Jupyter notebooks
 - Optional lightweight UI layer for upload-to-export interaction
 - Cross-study synthesis examples in Python and R for standardized multi-dataset analysis (`docs/multi_study_analysis_guide.md`)
@@ -60,8 +63,13 @@ If this is your first time using the project, follow these exact steps.
 python -m venv .venv
 source .venv/bin/activate
 python -m pip install --upgrade pip
-pip install -r requirements.txt
+pip install -r requirements-core.txt
 ```
+
+Optional extras:
+- `pip install -r requirements-core.txt -r requirements-llm.txt` for local LLM deduction
+- `pip install -r requirements-core.txt -r requirements-ui.txt` for the Streamlit UI
+- `pip install -r requirements.txt` for the full environment
 
 ### 2) Put your dataset somewhere simple
 
@@ -119,9 +127,17 @@ This creates sidecar files to help you iterate:
 - `*_metadata.json` (measurement metadata + review flags)
 - `*_schema_suggestions.yaml` (unknown aliases you may want to add to your mapping)
 
-### 6) How to let the local LLM "do its thing"
+### 6) How the local LLM is used
 
-LLM-assisted alias deduction is integrated in **batch mode** (`scripts/run_batch_standardization.py`) and runs when a source does **not** already provide a repository mapping YAML.
+LLM-assisted alias deduction is integrated in **batch mode** (`scripts/run_batch_standardization.py`), but it is now a fallback rather than the first step.
+
+Per dataset, the runner does this in order:
+- classifies the dataset type,
+- checks for an explicit repository mapping YAML (requested `mapping_path` first, then the nearest matching YAML),
+- applies the relevant built-in schema family (`dv`, `sensor`, `detection`, `metadata`),
+- only then asks the local LLM about remaining eligible DV-style aliases.
+
+The LLM is not used for blocked admin fields such as `UserID` or `ConditionID`, and it is also skipped for metadata/process columns and non-DV dataset types such as object-detection files.
 
 Use the provided manifest example as a template:
 
@@ -211,10 +227,15 @@ The included `sources_manifest_example.yaml` is preconfigured for:
 
 1. The runner validates the manifest and iterates through each source with a `tqdm` progress tracker.
 2. For each source, tabular datasets (`.csv`, `.tsv`, `.xls`, `.xlsx`) are discovered and processed with a per-dataset progress tracker.
-3. If a source/repository includes a single mapping YAML file matching `*mapping*.y*ml` or `*dv*.y*ml`, that mapping is merged with the standard schema so local aliases are recognized.
-4. Built-in sensor aliases from `schemas/standard_sensor_mapping.yaml` are merged automatically so telemetry columns can be standardized without LLM fallback.
-5. Alias collisions are handled with an explicit policy (`--alias-conflict-policy`): default is `prefer_standard` (canonical OpenDV IDs stay authoritative), with optional `prefer_custom` and `error` modes for stricter local workflows.
-6. Outputs include standardized files, quality sidecars, and an aggregated meta-view with provenance fields (including the detected source mapping path when used).
+3. Each dataset is classified into `results_table`, `questionnaire`, `sensor_stream`, `object_detection`, or `process_log`.
+4. If a source/repository includes a mapping YAML, the runner first uses the requested `mapping_path` or the nearest matching mapping file for that dataset.
+5. Built-in schema families are then applied as appropriate:
+   - `schemas/standard_dv_mapping.yaml`
+   - `schemas/standard_sensor_mapping.yaml`
+   - `schemas/standard_detection_mapping.yaml`
+   - `schemas/standard_metadata_mapping.yaml`
+6. Local LLM deduction is only used for still-unmapped DV-style aliases in `results_table` and `questionnaire` datasets.
+7. Outputs include standardized files, quality sidecars, an aggregated meta-view, `unknown_alias_summary.json`, and `mapping_debug_summary.json`.
 
 ```bash
 python scripts/run_batch_standardization.py \
@@ -224,11 +245,13 @@ python scripts/run_batch_standardization.py \
 ```
 
 
-### OSF no-mapping sources
+### OSF sources
 
 The batch runner supports public OSF projects directly via `source_type: osf_project`.
 This is useful for datasets that do not provide a repository-local mapping YAML (for example `https://osf.io/cwd6h/overview`).
-For OSF sources, local LLM alias deduction is enabled by default unless you pass `--disable-llm-deduction`.
+OSF sources can include raw tabular files directly, or archives such as `.zip` files containing tabular data in nested subfolders. The runner extracts supported archives recursively and then classifies each discovered dataset before mapping.
+
+For OSF sources, local LLM alias deduction is enabled by default unless you pass `--disable-llm-deduction`, but the same fallback rule still applies: mapping YAML first, built-in schemas second, LLM last.
 
 ```yaml
 sources:
@@ -238,7 +261,8 @@ sources:
     include_globs: ["**/*.csv", "**/*.tsv", "**/*.xlsx", "**/*.xls"]
     use_llm_deduction: true
     llm_models:
-      - Qwen/Qwen2.5-3B-Instruct
+      - Qwen/Qwen3.5-4B
+      - microsoft/Phi-4-mini-instruct
       - meta-llama/Llama-3.2-3B-Instruct
 ```
 
@@ -263,6 +287,8 @@ Outputs include:
 - `meta_view.csv` and `meta_view.json` (cross-source harmonized summary backbone)
 - per-source standardized files under `standardized/<source_id>/`
 - per-dataset quality sidecars (`*-quality.json`)
+- run-level unknown-alias aggregation (`unknown_alias_summary.json`)
+- run-level condensed mapping debug summary (`mapping_debug_summary.json`)
 - run-level provenance/status log (`run_summary.json`)
 
 

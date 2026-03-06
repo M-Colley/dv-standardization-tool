@@ -90,6 +90,8 @@ def validate_new_format(schema: dict) -> list[str]:
     errors: list[str] = []
     alias_to_ids: dict[str, set[str]] = defaultdict(set)
     id_set: set[str] = set()
+    schema_type = str(schema.get("schema_type", "dv")).strip().lower()
+    requires_dv_fields = schema_type in {"", "dv", "dependent_variable", "dependent_variables"}
 
     reserved_keywords = ["null", "none", "nan", "undefined", "n/a"]
 
@@ -108,11 +110,12 @@ def validate_new_format(schema: dict) -> list[str]:
             errors.append(f"DV at index {idx} missing required field: 'id'")
             continue
 
-        if "label" not in dv:
-            errors.append(f"DV '{dv_id}' missing required field: 'label'")
+        if requires_dv_fields:
+            if "label" not in dv:
+                errors.append(f"DV '{dv_id}' missing required field: 'label'")
 
-        if "cluster" not in dv:
-            errors.append(f"DV '{dv_id}' missing required field: 'cluster'")
+            if "cluster" not in dv:
+                errors.append(f"DV '{dv_id}' missing required field: 'cluster'")
 
         if "aliases" not in dv:
             errors.append(f"DV '{dv_id}' missing required field: 'aliases'")
@@ -142,7 +145,7 @@ def validate_new_format(schema: dict) -> list[str]:
 
                 alias_to_ids[normalized_alias].add(dv_id)
 
-        if "measurement" in dv:
+        if requires_dv_fields and "measurement" in dv:
             measurement_errors = validate_measurement_metadata(dv["measurement"])
             for error in measurement_errors:
                 errors.append(f"DV '{dv_id}' measurement metadata: {error}")
@@ -199,7 +202,13 @@ if __name__ == "__main__":
         schema = load_schema(schema_path)
 
         version = schema.get("version", "legacy") if isinstance(schema, dict) else "unknown"
-        format_type = "New format (v2.1+)" if isinstance(schema, dict) and "dvs" in schema else "Legacy format"
+        if isinstance(schema, dict) and "dvs" in schema:
+            schema_type = str(schema.get("schema_type", "dv")).strip().lower()
+            format_type = (
+                f"New format ({schema_type})" if schema_type else "New format (dv)"
+            )
+        else:
+            format_type = "Legacy format"
         print(f"Schema version: {version}")
         print(f"Format: {format_type}")
         print()

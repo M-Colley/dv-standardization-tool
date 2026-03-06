@@ -443,6 +443,9 @@ class BatchStandardizationTests(unittest.TestCase):
             self.assertGreaterEqual(summary["results"][0]["mapped_ratio"], 0.0)
             self.assertIn("mapping_metrics", summary)
             self.assertIn("mapping_metrics_by_source", summary)
+            self.assertIn("mapping_metrics_by_domain", summary)
+            self.assertIn("unknown_alias_summary", summary)
+            self.assertIn("mapping_debug_summary", summary)
             self.assertEqual(
                 summary["mapping_metrics"]["total_columns_seen"],
                 summary["mapping_metrics"]["mapping"]
@@ -460,15 +463,24 @@ class BatchStandardizationTests(unittest.TestCase):
             self.assertTrue(run_summary_path.exists())
             self.assertTrue(standardized_path.exists())
             self.assertTrue(quality_path.exists())
+            self.assertTrue(Path(summary["unknown_alias_summary"]).exists())
+            self.assertTrue(Path(summary["mapping_debug_summary"]).exists())
 
             meta_df = pd.read_csv(meta_view_path)
             self.assertIn("canonical_dv", meta_df.columns)
             self.assertIn("source_id", meta_df.columns)
+            self.assertIn("dataset_type", meta_df.columns)
+            self.assertIn("mapping_domain", meta_df.columns)
             self.assertIn("task_completion_time", meta_df["canonical_dv"].values)
+            self.assertEqual(meta_df.loc[meta_df["canonical_dv"] == "task_completion_time", "dataset_type"].iat[0], "results_table")
+            self.assertEqual(meta_df.loc[meta_df["canonical_dv"] == "task_completion_time", "mapping_domain"].iat[0], "dv")
 
             quality = json.loads(quality_path.read_text())
             self.assertEqual(quality["unknown_columns"], 1)
             self.assertIn("Unknown Alias", quality["unknown_aliases"])
+            unknown_summary = json.loads(Path(summary["unknown_alias_summary"]).read_text(encoding="utf-8"))
+            self.assertEqual(unknown_summary["total_unknown_alias_events"], 1)
+            self.assertEqual(unknown_summary["top_unknown_aliases"][0]["alias"], "Unknown Alias")
 
     def test_run_batch_applies_repo_mapping_without_overriding_standard_aliases(self):
         with tempfile.TemporaryDirectory() as tmpdir:
@@ -638,10 +650,14 @@ class BatchStandardizationTests(unittest.TestCase):
 
             output_dir = tmp / "output"
             with mock.patch(
-                "scripts.run_batch_standardization.deduce_standard_name_with_local_llm",
-                return_value="task_completion_time",
-            ) as mocked:
-                summary = run_batch(manifest_path, output_dir, SCHEMA_PATH)
+                "scripts.run_batch_standardization._select_llm_candidate_shortlist",
+                return_value=(["task_completion_time"], 90.0),
+            ):
+                with mock.patch(
+                    "scripts.run_batch_standardization.deduce_standard_name_with_local_llm",
+                    return_value="task_completion_time",
+                ) as mocked:
+                    summary = run_batch(manifest_path, output_dir, SCHEMA_PATH)
 
             mocked.assert_called_once()
             standardized_path = output_dir / "standardized" / "study_source" / "study_csv-standardized.csv"
@@ -677,8 +693,7 @@ class BatchStandardizationTests(unittest.TestCase):
                 {
                     "Timestamp": [1.0, 2.0],
                     "Phase": ["intro", "main"],
-                    "Run": [1, 1],
-                    "IsPareto": [True, False],
+                    "Trust": [4.0, 5.0],
                     "DurationX": [3.0, 4.0],
                 }
             ).to_csv(input_dir / "study.csv", index=False)
@@ -712,16 +727,19 @@ class BatchStandardizationTests(unittest.TestCase):
             self.assertIn("DurationX -> task_completion_time", llm_log)
             self.assertNotIn("Timestamp ->", llm_log)
             self.assertNotIn("Phase ->", llm_log)
-            self.assertNotIn("Run ->", llm_log)
-            self.assertNotIn("IsPareto ->", llm_log)
+            self.assertNotIn("Trust ->", llm_log)
 
             standardized_path = output_dir / "standardized" / "study_source" / "study_csv-standardized.csv"
             standardized_df = pd.read_csv(standardized_path)
-            self.assertIn("Timestamp", standardized_df.columns)
-            self.assertIn("Phase", standardized_df.columns)
-            self.assertIn("Run", standardized_df.columns)
-            self.assertIn("IsPareto", standardized_df.columns)
+            self.assertIn("meta_timestamp", standardized_df.columns)
+            self.assertIn("meta_phase", standardized_df.columns)
+            self.assertIn("trust_rating", standardized_df.columns)
             self.assertIn("task_completion_time", standardized_df.columns)
+
+            meta_df = pd.read_csv(output_dir / "meta_view.csv")
+            metadata_rows = meta_df[meta_df["mapping_domain"] == "metadata"]
+            self.assertGreaterEqual(len(metadata_rows), 2)
+            self.assertTrue((metadata_rows["dataset_type"] == "results_table").all())
 
     def test_run_batch_debug_mappings_writes_per_dataset_trace(self):
         with tempfile.TemporaryDirectory() as tmpdir:
@@ -780,29 +798,34 @@ class BatchStandardizationTests(unittest.TestCase):
             )
             self.assertTrue(debug_path.exists())
             payload = json.loads(debug_path.read_text(encoding="utf-8"))
+            self.assertEqual(payload["dataset_type"], "results_table")
             rows = {row["original_column"]: row for row in payload["debug_mappings"]}
 
             self.assertEqual(rows["Trust"]["mapped_column"], "trust_rating")
             self.assertEqual(rows["Trust"]["mapping_origin"], "schema")
             self.assertEqual(rows["Trust"]["mapping_method"], "mapping")
             self.assertEqual(rows["Trust"]["mapping_source"], str(SCHEMA_PATH))
+            self.assertEqual(rows["Trust"]["mapping_domain"], "dv")
 
             self.assertEqual(rows["DurationX"]["mapped_column"], "task_completion_time")
             self.assertEqual(rows["DurationX"]["mapping_origin"], "llm")
             self.assertEqual(rows["DurationX"]["mapping_method"], "llm")
             self.assertEqual(rows["DurationX"]["mapping_source"], "llm_deduction")
+            self.assertEqual(rows["DurationX"]["mapping_domain"], "dv")
 
             self.assertEqual(rows["UserID"]["mapped_column"], "UserID")
             self.assertEqual(rows["UserID"]["mapping_origin"], "blocked_never_map")
             self.assertEqual(rows["UserID"]["mapping_status"], "blocked")
             self.assertEqual(rows["UserID"]["mapping_method"], "blocked")
             self.assertEqual(rows["UserID"]["mapping_source"], "never_map_blocklist")
+            self.assertEqual(rows["UserID"]["mapping_domain"], "blocked")
 
             self.assertEqual(rows["Unknown Alias"]["mapped_column"], "Unknown Alias")
             self.assertEqual(rows["Unknown Alias"]["mapping_origin"], "none")
             self.assertEqual(rows["Unknown Alias"]["mapping_status"], "unmapped")
             self.assertEqual(rows["Unknown Alias"]["mapping_method"], "unmapped")
             self.assertIsNone(rows["Unknown Alias"]["mapping_source"])
+            self.assertEqual(rows["Unknown Alias"]["mapping_domain"], "unmapped")
 
     def test_run_batch_surfaces_dataset_errors_in_source_message(self):
         with tempfile.TemporaryDirectory() as tmpdir:
@@ -906,8 +929,79 @@ class BatchStandardizationTests(unittest.TestCase):
             rows = {row["original_column"]: row for row in payload["debug_mappings"]}
             self.assertEqual(rows["gaze.forward"]["mapping_method"], "mapping")
             self.assertEqual(rows["gaze.forward"]["mapping_source"], sensor_schema_path)
+            self.assertEqual(rows["gaze.forward"]["mapping_domain"], "sensor")
             self.assertEqual(rows["ArduinoData1"]["mapping_method"], "mapping")
             self.assertEqual(rows["ArduinoData1"]["mapping_source"], sensor_schema_path)
+            self.assertEqual(rows["ArduinoData1"]["mapping_domain"], "sensor")
+
+    def test_run_batch_maps_detection_columns_with_detection_schema(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            tmp = Path(tmpdir)
+            input_dir = tmp / "input" / "YOLO_BoundingBoxes"
+            input_dir.mkdir(parents=True, exist_ok=True)
+
+            pd.DataFrame(
+                {
+                    "video": ["a.mp4", "a.mp4"],
+                    "frame": [1, 2],
+                    "object_id": [1, 2],
+                    "class": ["car", "pedestrian"],
+                    "x": [10, 12],
+                    "y": [20, 21],
+                    "width": [40, 41],
+                    "height": [30, 31],
+                    "confidence": [0.9, 0.8],
+                }
+            ).to_csv(input_dir / "bounding_boxes.csv", index=False)
+
+            manifest_path = tmp / "manifest.yaml"
+            manifest_path.write_text(
+                yaml.safe_dump(
+                    {
+                        "sources": [
+                            {
+                                "source_id": "study_source",
+                                "source_type": "local_path",
+                                "location": str(tmp / "input"),
+                                "include_globs": ["**/*.csv"],
+                            }
+                        ]
+                    }
+                ),
+                encoding="utf-8",
+            )
+
+            output_dir = tmp / "output"
+            summary = run_batch(
+                manifest_path,
+                output_dir,
+                SCHEMA_PATH,
+                llm_deduction_enabled=False,
+                debug_mappings=True,
+            )
+
+            detection_schema_path = str(REPO_ROOT / "schemas" / "standard_detection_mapping.yaml")
+            self.assertEqual(summary["detection_schema"], detection_schema_path)
+            self.assertGreater(summary["detection_mapping_aliases"], 0)
+
+            standardized_path = (
+                output_dir / "standardized" / "study_source" / "YOLO_BoundingBoxes_bounding_boxes_csv-standardized.csv"
+            )
+            standardized_df = pd.read_csv(standardized_path)
+            self.assertIn("detection_video_id", standardized_df.columns)
+            self.assertIn("detection_frame_index", standardized_df.columns)
+            self.assertIn("detection_bbox_width", standardized_df.columns)
+            self.assertIn("detection_confidence", standardized_df.columns)
+
+            debug_path = (
+                output_dir / "standardized" / "study_source" / "YOLO_BoundingBoxes_bounding_boxes_csv-mapping-debug.json"
+            )
+            payload = json.loads(debug_path.read_text(encoding="utf-8"))
+            rows = {row["original_column"]: row for row in payload["debug_mappings"]}
+            self.assertEqual(payload["dataset_type"], "object_detection")
+            self.assertEqual(rows["video"]["mapping_domain"], "detection")
+            self.assertEqual(rows["video"]["mapping_source"], detection_schema_path)
+            self.assertEqual(rows["confidence"]["mapping_domain"], "detection")
 
     def test_run_batch_uses_relative_path_prefix_to_avoid_filename_collisions(self):
         with tempfile.TemporaryDirectory() as tmpdir:
