@@ -259,7 +259,7 @@ def meta_analysis_summary(summary: pd.DataFrame) -> pd.DataFrame:
     return pd.DataFrame(rows).sort_values("dv").reset_index(drop=True)
 
 
-def build_composite_index(studies: Dict[str, pd.DataFrame]) -> pd.DataFrame:
+def _prepare_composite_matrix(studies: Dict[str, pd.DataFrame]) -> tuple[pd.DataFrame, List[str]]:
     counts = {}
     for df in studies.values():
         for dv in set(numeric_dvs(df)):
@@ -280,16 +280,26 @@ def build_composite_index(studies: Dict[str, pd.DataFrame]) -> pd.DataFrame:
     for study, sub in long.groupby("study", sort=False):
         x = sub[common_cols].copy()
         x = x.apply(pd.to_numeric, errors="coerce")
-        x = x.dropna(axis=1, how="all")
         x = x.fillna(x.median())
         x = (x - x.mean()) / x.std(ddof=0).replace(0, np.nan)
+        x = x.reindex(columns=common_cols)
         x = x.fillna(0.0)
         x["study"] = study
         standardized.append(x)
     z = pd.concat(standardized, ignore_index=True)
 
+    feature_matrix = z[common_cols].apply(pd.to_numeric, errors="coerce").fillna(0.0)
+    usable_cols = [col for col in common_cols if feature_matrix[col].nunique(dropna=True) > 1]
+    if len(usable_cols) < 2:
+        raise ValueError("Need at least two shared DVs with non-zero variance for PCA composite index.")
+    return z, usable_cols
+
+
+def build_composite_index(studies: Dict[str, pd.DataFrame]) -> pd.DataFrame:
+    z, usable_cols = _prepare_composite_matrix(studies)
+
     pca = PCA(n_components=1)
-    z["cross_study_composite"] = pca.fit_transform(z[common_cols])
+    z["cross_study_composite"] = pca.fit_transform(z[usable_cols])
 
     summary = (
         z.groupby("study")["cross_study_composite"]
@@ -298,6 +308,7 @@ def build_composite_index(studies: Dict[str, pd.DataFrame]) -> pd.DataFrame:
         .reset_index()
     )
     summary["explained_variance_ratio"] = pca.explained_variance_ratio_[0]
+    summary["n_shared_dvs_used"] = len(usable_cols)
     return summary
 
 
@@ -339,35 +350,13 @@ def save_plots(overlap: pd.DataFrame, summary: pd.DataFrame, output_dir: Path) -
 
 
 def save_composite_plot(studies: Dict[str, pd.DataFrame], output_dir: Path) -> None:
-    counts = {}
-    for df in studies.values():
-        for dv in set(numeric_dvs(df)):
-            counts[dv] = counts.get(dv, 0) + 1
-    common_cols = sorted([dv for dv, k in counts.items() if k >= 2])
-    if len(common_cols) < 2:
+    try:
+        z, usable_cols = _prepare_composite_matrix(studies)
+    except ValueError:
         return
 
-    stacked = []
-    for study, df in studies.items():
-        block = df.reindex(columns=common_cols).copy()
-        block["study"] = study
-        stacked.append(block)
-    long = pd.concat(stacked, ignore_index=True)
-
-    standardized = []
-    for study, sub in long.groupby("study", sort=False):
-        x = sub[common_cols].copy()
-        x = x.apply(pd.to_numeric, errors="coerce")
-        x = x.dropna(axis=1, how="all")
-        x = x.fillna(x.median())
-        x = (x - x.mean()) / x.std(ddof=0).replace(0, np.nan)
-        x = x.fillna(0.0)
-        x["study"] = study
-        standardized.append(x)
-    z = pd.concat(standardized, ignore_index=True)
-
     pca = PCA(n_components=1)
-    z["cross_study_composite"] = pca.fit_transform(z[common_cols])
+    z["cross_study_composite"] = pca.fit_transform(z[usable_cols])
 
     plt.figure(figsize=(8, 5))
     sns.violinplot(data=z, x="study", y="cross_study_composite", inner="quartile", hue="study", legend=False)

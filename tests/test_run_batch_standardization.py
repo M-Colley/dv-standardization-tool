@@ -16,6 +16,7 @@ from scripts.run_batch_standardization import (
     _extract_osf_project_id,
     _iter_osf_file_entries,
     _load_repository_mapping,
+    _match_files,
     _safe_rmtree,
     discover_source_files,
     load_manifest,
@@ -156,6 +157,19 @@ class BatchStandardizationTests(unittest.TestCase):
             _safe_rmtree(root)
 
             self.assertFalse(root.exists())
+
+    def test_match_files_skips_macos_metadata_artifacts(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            root = Path(tmpdir)
+            (root / "usable.csv").write_text("a\n1\n", encoding="utf-8")
+            macosx_dir = root / "__MACOSX" / "nested"
+            macosx_dir.mkdir(parents=True, exist_ok=True)
+            (macosx_dir / "ignored.csv").write_text("a\n1\n", encoding="utf-8")
+            (root / "._ignored.csv").write_text("a\n1\n", encoding="utf-8")
+
+            matched = _match_files(root, ["**/*.csv"], None)
+
+        self.assertEqual([path.name for path in matched], ["usable.csv"])
 
     def test_iter_osf_file_entries_reads_all_provider_roots(self):
         provider_page = {

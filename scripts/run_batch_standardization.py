@@ -222,8 +222,11 @@ def _match_files(base_dir: Path, include_globs: list[str] | None, exclude_globs:
     candidates: list[Path] = []
     for pattern in include_globs:
         for path in base_dir.glob(pattern):
-            if path.is_file() and path.suffix.lower() in TABULAR_SUFFIXES:
-                candidates.append(path)
+            if not path.is_file() or path.suffix.lower() not in TABULAR_SUFFIXES:
+                continue
+            if _should_skip_archive_member(path.relative_to(base_dir)):
+                continue
+            candidates.append(path)
 
     unique_candidates = sorted(set(candidates))
     if not exclude_globs:
