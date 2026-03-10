@@ -48,6 +48,7 @@ Despite ongoing advocacy for open methods (Koelle et al., 2024; Goodman et al., 
 - Optional LLM-based inference for unresolved DV aliases after explicit mappings have already been checked
 - Reproducible prototyping via Jupyter notebooks
 - Optional lightweight UI layer for upload-to-export interaction
+- Interactive Streamlit UI for single-file standardization and catalog-driven overlap/meta-analysis exploration
 - Cross-study synthesis examples in Python and R for standardized multi-dataset analysis (`docs/multi_study_analysis_guide.md`)
 
 
