@@ -6,6 +6,7 @@ from unittest import mock
 from scripts.llm_utils import (
     _extract_dois,
     _fetch_pdf_text_from_doi,
+    _select_pdf_context_excerpt,
     collect_repository_context,
     select_local_model_candidates,
     deduce_standard_name_with_local_llm,
@@ -43,6 +44,34 @@ class LLMUtilsTests(unittest.TestCase):
             self.assertIn("PDF:paper.pdf", context)
             self.assertIn("response time", context)
 
+    def test_select_pdf_context_excerpt_prefers_measurement_relevant_blocks(self):
+        pdf_text = """
+        Title of Paper
+
+        Abstract
+        We study trust and workload in automated driving.
+
+        Measures
+        Participants completed a trust rating questionnaire and the NASA-TLX workload scale.
+        We also recorded response time and task completion time.
+
+        References
+        Smith et al. 2020; Doe et al. 2021; Roe et al. 2022; Poe et al. 2023.
+        """
+
+        excerpt = _select_pdf_context_excerpt(pdf_text, max_chars=500)
+
+        self.assertIn("trust rating questionnaire", excerpt)
+        self.assertIn("NASA-TLX", excerpt)
+        self.assertNotIn("Smith et al. 2020", excerpt)
+
+    def test_select_pdf_context_excerpt_falls_back_to_full_text(self):
+        pdf_text = "Alpha Beta Gamma Delta Epsilon"
+
+        excerpt = _select_pdf_context_excerpt(pdf_text, max_chars=500)
+
+        self.assertEqual(excerpt, "Alpha Beta Gamma Delta Epsilon")
+
     def test_collect_repository_context_fetches_doi_pdf_context(self):
         with tempfile.TemporaryDirectory() as tmpdir:
             root = Path(tmpdir)
@@ -60,6 +89,35 @@ class LLMUtilsTests(unittest.TestCase):
             mocked.assert_called_once_with("10.1145/3706598.3713762")
             self.assertIn("DOI_PDF:10.1145/3706598.3713762", context)
             self.assertIn("user trust", context)
+
+    def test_collect_repository_context_surfaces_explicit_doi_pdf_and_notes(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            root = Path(tmpdir)
+
+            with mock.patch(
+                "scripts.llm_utils._fetch_pdf_text_from_doi",
+                return_value="DOI manuscript text about trust.",
+            ):
+                with mock.patch(
+                    "scripts.llm_utils._fetch_pdf_text_from_url",
+                    return_value="Direct PDF appendix text about workload.",
+                ):
+                    context = collect_repository_context(
+                        root,
+                        explicit_dois=["10.1145/3706598.3713762"],
+                        explicit_pdf_urls=["https://example.com/paper.pdf"],
+                        extra_context=["Study context: trust and workload ratings."],
+                    )
+
+        self.assertIn("[CONTEXT_SUMMARY]", context)
+        self.assertIn("Source notes: Study context: trust and workload ratings.", context)
+        self.assertIn("Detected DOIs: 10.1145/3706598.3713762", context)
+        self.assertIn("Fetched DOI PDFs: 10.1145/3706598.3713762", context)
+        self.assertIn("Explicit PDF URLs: https://example.com/paper.pdf", context)
+        self.assertIn("Fetched explicit PDFs: https://example.com/paper.pdf", context)
+        self.assertIn("SOURCE_CONTEXT", context)
+        self.assertIn("DOI manuscript text about trust.", context)
+        self.assertIn("Direct PDF appendix text about workload.", context)
 
     def test_fetch_pdf_text_from_doi_follows_html_pdf_link(self):
         html = b'<html><body><a href="/paper.pdf">PDF</a></body></html>'

@@ -37,6 +37,65 @@ README_PATTERNS = ("README", "README.md", "README.txt", "readme.md", "readme.txt
 DOI_PATTERN = re.compile(r"\b10\.\d{4,9}/[-._;()/:A-Z0-9]+", re.IGNORECASE)
 PDF_LINK_PATTERN = re.compile(r'href=["\']([^"\']+\.pdf(?:\?[^"\']*)?)["\']', re.IGNORECASE)
 DEFAULT_HTTP_TIMEOUT_S = 12
+PDF_SECTION_HINTS = (
+    "abstract",
+    "introduction",
+    "background",
+    "method",
+    "methods",
+    "methodology",
+    "study",
+    "experiment",
+    "participants",
+    "materials",
+    "measures",
+    "measurements",
+    "dependent variable",
+    "dependent variables",
+    "outcome",
+    "outcomes",
+    "results",
+    "discussion",
+    "questionnaire",
+    "survey",
+    "procedure",
+    "evaluation",
+)
+PDF_MEASUREMENT_HINTS = (
+    "measure",
+    "metric",
+    "variable",
+    "rating",
+    "score",
+    "scale",
+    "likert",
+    "questionnaire",
+    "survey",
+    "response time",
+    "completion time",
+    "reaction time",
+    "duration",
+    "accuracy",
+    "performance",
+    "trust",
+    "workload",
+    "usability",
+    "satisfaction",
+    "acceptance",
+    "mental demand",
+    "effort",
+    "comfort",
+    "preference",
+    "confidence",
+    "nasa-tlx",
+    "sus",
+)
+PDF_LOW_VALUE_HINTS = (
+    "references",
+    "bibliography",
+    "acknowledgment",
+    "acknowledgement",
+)
 
 
 def _safe_read_text(path: Path) -> str:
@@ -91,6 +150,167 @@ def _truncate_text(text: str, max_chars: int) -> str:
     if len(text) <= max_chars:
         return text
     return text[: max_chars - 3] + "..."
+
+
+def _normalize_multiline_text(text: str) -> str:
+    normalized = (text or "").replace("\r\n", "\n").replace("\r", "\n")
+    normalized = re.sub(r"[ \t]+\n", "\n", normalized)
+    normalized = re.sub(r"\n{3,}", "\n\n", normalized)
+    return normalized.strip()
+
+
+def _split_long_block(block: str, target_chars: int = 900) -> list[str]:
+    sentences = [
+        sentence.strip()
+        for sentence in re.split(r"(?<=[.!?])\s+", re.sub(r"\s+", " ", block).strip())
+        if sentence.strip()
+    ]
+    if not sentences:
+        return []
+
+    if len(sentences) == 1:
+        words = sentences[0].split()
+        chunks: list[str] = []
+        current_words: list[str] = []
+        current_len = 0
+        for word in words:
+            word_len = len(word) + (1 if current_words else 0)
+            if current_words and current_len + word_len > target_chars:
+                chunks.append(" ".join(current_words))
+                current_words = [word]
+                current_len = len(word)
+            else:
+                current_words.append(word)
+                current_len += word_len
+        if current_words:
+            chunks.append(" ".join(current_words))
+        return chunks
+
+    chunks = []
+    current: list[str] = []
+    current_len = 0
+    for sentence in sentences:
+        sentence_len = len(sentence) + (1 if current else 0)
+        if current and current_len + sentence_len > target_chars:
+            chunks.append(" ".join(current))
+            current = [sentence]
+            current_len = len(sentence)
+        else:
+            current.append(sentence)
+            current_len += sentence_len
+    if current:
+        chunks.append(" ".join(current))
+    return chunks
+
+
+def _split_text_into_blocks(text: str, target_chars: int = 900) -> list[str]:
+    normalized = _normalize_multiline_text(text)
+    if not normalized:
+        return []
+
+    raw_blocks = [block.strip() for block in re.split(r"\n\s*\n", normalized) if block.strip()]
+    if not raw_blocks:
+        return []
+
+    blocks: list[str] = []
+    max_block_chars = int(target_chars * 1.35)
+    for block in raw_blocks:
+        compact = re.sub(r"\s+", " ", block).strip()
+        if not compact:
+            continue
+        if len(compact) <= max_block_chars:
+            blocks.append(compact)
+            continue
+        blocks.extend(_split_long_block(compact, target_chars=target_chars))
+    return blocks
+
+
+def _score_pdf_block(block: str, index: int) -> int:
+    lower = block.lower()
+    score = 0
+
+    if index == 0:
+        score += 1
+
+    if len(block) <= 140 and any(hint in lower for hint in PDF_SECTION_HINTS):
+        score += 4
+
+    score += sum(3 for hint in PDF_SECTION_HINTS if hint in lower)
+    score += sum(1 for hint in PDF_MEASUREMENT_HINTS if hint in lower)
+
+    if re.search(r"\b(n\s*=\s*\d+|participants?|questionnaire|survey|likert|scale|measures?)\b", lower):
+        score += 3
+    if re.search(r"\b(dependent variable|outcome|metric|score|rating|time|duration|accuracy)\b", lower):
+        score += 2
+
+    if any(hint in lower for hint in PDF_LOW_VALUE_HINTS):
+        score -= 4
+    if re.search(r"\bet al\.\b", lower) and lower.count(";") >= 3:
+        score -= 2
+
+    return score
+
+
+def _select_pdf_context_excerpt(text: str, max_chars: int = 3000) -> str:
+    """Prefer measurement-relevant PDF sections, else fall back to full text."""
+    normalized = _normalize_multiline_text(text)
+    if not normalized:
+        return ""
+
+    blocks = _split_text_into_blocks(normalized)
+    if not blocks:
+        return _truncate_text(normalized, max_chars)
+
+    ranked = sorted(
+        ((_score_pdf_block(block, index), index, block) for index, block in enumerate(blocks)),
+        key=lambda item: (-item[0], item[1]),
+    )
+    positive = [item for item in ranked if item[0] > 0]
+    if not positive:
+        return _truncate_text(normalized, max_chars)
+
+    selected: list[tuple[int, str]] = []
+    used_chars = 0
+    for _, index, block in positive:
+        separator_len = 2 if selected else 0
+        projected_len = used_chars + separator_len + len(block)
+        if selected and projected_len > max_chars:
+            continue
+        selected.append((index, block))
+        used_chars = projected_len
+        if used_chars >= max_chars or len(selected) >= 4:
+            break
+
+    if not selected:
+        return _truncate_text(normalized, max_chars)
+
+    selected.sort(key=lambda item: item[0])
+    return _truncate_text("\n\n".join(block for _, block in selected), max_chars)
+
+
+def _dedupe_case_insensitive(values: Iterable[str]) -> list[str]:
+    seen: set[str] = set()
+    ordered: list[str] = []
+    for value in values:
+        text = str(value).strip()
+        if not text:
+            continue
+        lowered = text.lower()
+        if lowered in seen:
+            continue
+        seen.add(lowered)
+        ordered.append(text)
+    return ordered
+
+
+def _summarize_items(label: str, values: Iterable[str], max_items: int = 4) -> str | None:
+    items = _dedupe_case_insensitive(values)
+    if not items:
+        return None
+
+    preview = items[:max_items]
+    suffix = f", +{len(items) - max_items} more" if len(items) > max_items else ""
+    return f"{label}: {', '.join(preview)}{suffix}"
 
 
 def _detect_available_memory_gb() -> float | None:
@@ -208,22 +428,23 @@ def _resolve_pdf_url(base_url: str, href: str) -> str:
     return request.urljoin(base_url, href)
 
 
-def _fetch_pdf_text_from_doi(doi: str, max_chars: int = 3000) -> str:
-    doi_url = f"https://doi.org/{doi}"
-
+def _fetch_pdf_text_from_url(url: str, max_chars: int = 3000) -> str:
     try:
-        landing_payload, landing_content_type = _http_get(doi_url)
+        landing_payload, landing_content_type = _http_get(url)
     except Exception:
         return ""
 
     if "application/pdf" in landing_content_type.lower():
-        return _truncate_text(_extract_text_from_pdf_bytes(landing_payload), max_chars)
+        return _select_pdf_context_excerpt(
+            _extract_text_from_pdf_bytes(landing_payload),
+            max_chars=max_chars,
+        )
 
     landing_text = landing_payload.decode("utf-8", errors="ignore")
     candidates = PDF_LINK_PATTERN.findall(landing_text)
 
     for href in candidates[:5]:
-        pdf_url = _resolve_pdf_url(doi_url, href)
+        pdf_url = _resolve_pdf_url(url, href)
         try:
             pdf_payload, pdf_content_type = _http_get(pdf_url)
         except Exception:
@@ -232,12 +453,22 @@ def _fetch_pdf_text_from_doi(doi: str, max_chars: int = 3000) -> str:
             continue
         text = _extract_text_from_pdf_bytes(pdf_payload)
         if text:
-            return _truncate_text(text, max_chars)
+            return _select_pdf_context_excerpt(text, max_chars=max_chars)
 
     return ""
 
 
-def collect_repository_context(source_root: str | Path, max_chars: int = 6000) -> str:
+def _fetch_pdf_text_from_doi(doi: str, max_chars: int = 3000) -> str:
+    return _fetch_pdf_text_from_url(f"https://doi.org/{doi}", max_chars=max_chars)
+
+
+def collect_repository_context(
+    source_root: str | Path,
+    max_chars: int = 6000,
+    explicit_dois: Iterable[str] | None = None,
+    explicit_pdf_urls: Iterable[str] | None = None,
+    extra_context: Iterable[str] | None = None,
+) -> str:
     """Collect textual context from README + PDFs in a folder tree.
 
     Also attempts DOI-based online PDF retrieval when a DOI appears in local
@@ -246,39 +477,85 @@ def collect_repository_context(source_root: str | Path, max_chars: int = 6000) -
     Args:
         source_root: Folder to scan.
         max_chars: Maximum total characters returned.
+        explicit_dois: DOI values supplied externally (e.g., manifest metadata).
+        explicit_pdf_urls: PDF URLs supplied externally.
+        extra_context: Additional free-text context to pass to the prompt.
     """
     root = Path(source_root)
-    if not root.exists() or not root.is_dir():
-        return ""
-
     snippets: list[str] = []
+    readme_names: list[str] = []
+    local_pdf_names: list[str] = []
+    fetched_doi_pdfs: list[str] = []
+    fetched_explicit_pdfs: list[str] = []
+    supplied_notes = _dedupe_case_insensitive(extra_context or [])
 
-    # Prefer top-level README variants first for concise project context.
-    for name in README_PATTERNS:
-        candidate = root / name
-        if candidate.is_file():
-            content = _safe_read_text(candidate)
+    if supplied_notes:
+        snippets.append("[SOURCE_CONTEXT]\n" + "\n".join(supplied_notes))
+
+    if root.exists() and root.is_dir():
+        # Prefer top-level README variants first for concise project context.
+        for name in README_PATTERNS:
+            candidate = root / name
+            if candidate.is_file():
+                content = _safe_read_text(candidate)
+                if content:
+                    readme_names.append(candidate.name)
+                    snippets.append(f"[README:{candidate.name}]\n{content}")
+                break
+
+        # Include PDFs from top-level and one level deep (common artifact layout).
+        pdf_files = sorted({*root.glob("*.pdf"), *root.glob("*/*.pdf")})
+        for pdf in pdf_files:
+            content = _select_pdf_context_excerpt(_extract_text_from_pdf(pdf))
             if content:
-                snippets.append(f"[README:{candidate.name}]\n{content}")
-            break
+                local_pdf_names.append(str(pdf.relative_to(root).as_posix()))
+                snippets.append(f"[PDF:{pdf.name}]\n{content}")
 
-    # Include PDFs from top-level and one level deep (common artifact layout).
-    pdf_files = sorted({*root.glob("*.pdf"), *root.glob("*/*.pdf")})
-    for pdf in pdf_files:
-        content = _extract_text_from_pdf(pdf)
-        if content:
-            snippets.append(f"[PDF:{pdf.name}]\n{content}")
+    discovered_dois: list[str] = []
+    for candidate in explicit_dois or []:
+        discovered_dois.extend(_extract_dois(str(candidate)))
+    discovered_dois.extend(_extract_dois("\n\n".join(snippets)))
+    discovered_dois = _dedupe_case_insensitive(discovered_dois)
 
-    doi_search_text = "\n\n".join(snippets)
-    for doi in _extract_dois(doi_search_text)[:3]:
+    for doi in discovered_dois[:3]:
         remote_pdf_text = _fetch_pdf_text_from_doi(doi)
         if remote_pdf_text:
+            fetched_doi_pdfs.append(doi)
             snippets.append(f"[DOI_PDF:{doi}]\n{remote_pdf_text}")
 
-    if not snippets:
+    explicit_pdf_urls = _dedupe_case_insensitive(explicit_pdf_urls or [])
+    for pdf_url in explicit_pdf_urls[:3]:
+        remote_pdf_text = _fetch_pdf_text_from_url(pdf_url)
+        if remote_pdf_text:
+            fetched_explicit_pdfs.append(pdf_url)
+            snippets.append(f"[REMOTE_PDF:{pdf_url}]\n{remote_pdf_text}")
+
+    summary_lines = ["[CONTEXT_SUMMARY]"]
+    for line in (
+        _summarize_items("Source notes", supplied_notes, max_items=2),
+        _summarize_items("README files", readme_names),
+        _summarize_items("Local PDFs", local_pdf_names),
+        _summarize_items("Detected DOIs", discovered_dois),
+        _summarize_items("Fetched DOI PDFs", fetched_doi_pdfs),
+        _summarize_items("Explicit PDF URLs", explicit_pdf_urls, max_items=2),
+        _summarize_items("Fetched explicit PDFs", fetched_explicit_pdfs, max_items=2),
+    ):
+        if line:
+            summary_lines.append(line)
+
+    if len(summary_lines) == 1 and not snippets:
         return ""
 
-    return _truncate_text("\n\n".join(snippets), max_chars=max_chars)
+    summary_text = "\n".join(summary_lines)
+    if not snippets:
+        return _truncate_text(summary_text, max_chars=max_chars)
+
+    remaining_chars = max_chars - len(summary_text) - 2
+    if remaining_chars <= 0:
+        return _truncate_text(summary_text, max_chars=max_chars)
+
+    body_text = _truncate_text("\n\n".join(snippets), max_chars=remaining_chars)
+    return f"{summary_text}\n\n{body_text}"
 
 
 @lru_cache(maxsize=4)
@@ -320,7 +597,12 @@ def deduce_standard_name_with_local_llm(
         f"Canonical identifiers: {', '.join(candidates)}\n"
     )
     if context:
-        prompt += f"\nRepository context (README/PDF excerpts):\n{context}\n"
+        prompt += (
+            "\nUse the source context below as semantic evidence. "
+            "Pay special attention to DOI, PDF, manuscript, and README signals when "
+            "they clarify what construct the raw column measures.\n"
+            f"\nRepository context:\n{context}\n"
+        )
     prompt += "\nRespond with only one canonical identifier from the list."
 
     for model_name in model_list:

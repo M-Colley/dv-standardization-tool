@@ -158,6 +158,7 @@ class SourceRunResult:
     output_dir: str
     message: str | None = None
 
+
 def load_manifest(manifest_path: Path) -> list[dict[str, Any]]:
     with open(manifest_path, "r", encoding="utf-8") as f:
         manifest = yaml.safe_load(f)
@@ -185,6 +186,22 @@ def load_manifest(manifest_path: Path) -> list[dict[str, Any]]:
         seen_source_ids.add(source["source_id"])
 
     return sources
+
+
+def _coerce_manifest_text_list(value: Any) -> list[str]:
+    if value is None:
+        return []
+    if isinstance(value, str):
+        text = value.strip()
+        return [text] if text else []
+    if isinstance(value, (list, tuple, set)):
+        values: list[str] = []
+        for item in value:
+            text = str(item).strip()
+            if text:
+                values.append(text)
+        return values
+    return []
 
 
 def _on_rmtree_error(func: Any, path: str, exc_info: tuple[type[BaseException], BaseException, Any]) -> None:
@@ -1320,7 +1337,22 @@ def run_batch(
                     )
                     if should_apply_llm:
                         if source_repository_context is None:
-                            source_repository_context = collect_repository_context(base_dir)
+                            extra_context = _coerce_manifest_text_list(source.get("llm_context"))
+                            extra_context.extend(
+                                _coerce_manifest_text_list(source.get("publication_context"))
+                            )
+                            source_repository_context = collect_repository_context(
+                                base_dir,
+                                explicit_dois=(
+                                    _coerce_manifest_text_list(source.get("publication_doi"))
+                                    + _coerce_manifest_text_list(source.get("doi"))
+                                ),
+                                explicit_pdf_urls=(
+                                    _coerce_manifest_text_list(source.get("publication_pdf_url"))
+                                    + _coerce_manifest_text_list(source.get("pdf_url"))
+                                ),
+                                extra_context=extra_context,
+                            )
                         dataset_mapping = _augment_mapping_with_llm_deductions(
                             source_mapping,
                             unknown_before_llm,

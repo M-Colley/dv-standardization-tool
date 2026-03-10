@@ -8,6 +8,7 @@ variables are unknown or inconsistent across studies.
 from __future__ import annotations
 
 import argparse
+from itertools import combinations
 from pathlib import Path
 from typing import Dict, Iterable, List, Optional
 
@@ -193,8 +194,12 @@ def numeric_dvs(df: pd.DataFrame) -> List[str]:
     return cols
 
 
+def study_numeric_dv_sets(studies: Dict[str, pd.DataFrame]) -> Dict[str, set[str]]:
+    return {name: set(numeric_dvs(df)) for name, df in studies.items()}
+
+
 def compute_overlap(studies: Dict[str, pd.DataFrame]) -> pd.DataFrame:
-    dv_sets = {name: set(numeric_dvs(df)) for name, df in studies.items()}
+    dv_sets = study_numeric_dv_sets(studies)
     index = list(studies.keys())
     overlap = pd.DataFrame(index=index, columns=index, dtype=float)
     for a in index:
@@ -202,6 +207,37 @@ def compute_overlap(studies: Dict[str, pd.DataFrame]) -> pd.DataFrame:
             union = dv_sets[a] | dv_sets[b]
             overlap.loc[a, b] = len(dv_sets[a] & dv_sets[b]) / len(union) if union else np.nan
     return overlap
+
+
+def compute_dv_presence_matrix(studies: Dict[str, pd.DataFrame]) -> pd.DataFrame:
+    dv_sets = study_numeric_dv_sets(studies)
+    all_dvs = sorted({dv for dvs in dv_sets.values() for dv in dvs})
+    presence = pd.DataFrame(0, index=sorted(studies.keys()), columns=all_dvs, dtype=int)
+    for study, dvs in dv_sets.items():
+        for dv in dvs:
+            presence.loc[study, dv] = 1
+    return presence
+
+
+def compute_overlap_details(studies: Dict[str, pd.DataFrame]) -> pd.DataFrame:
+    dv_sets = study_numeric_dv_sets(studies)
+    rows = []
+    for study_a, study_b in combinations(sorted(dv_sets.keys()), 2):
+        shared = sorted(dv_sets[study_a] & dv_sets[study_b])
+        union = sorted(dv_sets[study_a] | dv_sets[study_b])
+        rows.append(
+            {
+                "study_a": study_a,
+                "study_b": study_b,
+                "shared_dv_count": len(shared),
+                "union_dv_count": len(union),
+                "jaccard_overlap": (len(shared) / len(union)) if union else np.nan,
+                "shared_dvs": "; ".join(shared),
+                "study_a_only_dvs": "; ".join(sorted(dv_sets[study_a] - dv_sets[study_b])),
+                "study_b_only_dvs": "; ".join(sorted(dv_sets[study_b] - dv_sets[study_a])),
+            }
+        )
+    return pd.DataFrame(rows)
 
 
 def harmonized_summary(studies: Dict[str, pd.DataFrame]) -> pd.DataFrame:
@@ -225,7 +261,7 @@ def harmonized_summary(studies: Dict[str, pd.DataFrame]) -> pd.DataFrame:
     return summary.sort_values(["dv", "study"])
 
 
-def meta_analysis_summary(summary: pd.DataFrame) -> pd.DataFrame:
+def meta_analysis_summary(summary: pd.DataFrame, total_studies: int | None = None) -> pd.DataFrame:
     rows = []
     for dv, sub in summary.groupby("dv"):
         sub = sub[(sub["n"] > 1) & (sub["sd"] > 0)].copy()
@@ -247,6 +283,11 @@ def meta_analysis_summary(summary: pd.DataFrame) -> pd.DataFrame:
             {
                 "dv": dv,
                 "k_studies": len(sub),
+                "study_coverage_pct": (
+                    (len(sub) / total_studies) * 100.0
+                    if total_studies and total_studies > 0
+                    else np.nan
+                ),
                 "random_effects_mean": random_mean,
                 "random_effects_se": random_se,
                 "ci95_low": random_mean - 1.96 * random_se,
@@ -384,11 +425,15 @@ def main() -> None:
 
     studies = load_studies(input_dir)
     overlap = compute_overlap(studies)
+    presence = compute_dv_presence_matrix(studies)
+    overlap_details = compute_overlap_details(studies)
     summary = harmonized_summary(studies)
-    meta_summary = meta_analysis_summary(summary)
+    meta_summary = meta_analysis_summary(summary, total_studies=len(studies))
 
     output_dir.mkdir(parents=True, exist_ok=True)
     overlap.to_csv(output_dir / "dv_overlap_matrix.csv")
+    presence.to_csv(output_dir / "dv_presence_matrix.csv")
+    overlap_details.to_csv(output_dir / "dv_overlap_details.csv", index=False)
     summary.to_csv(output_dir / "harmonized_dv_summary.csv", index=False)
     meta_summary.to_csv(output_dir / "meta_analysis_summary.csv", index=False)
     save_plots(overlap, summary, output_dir)

@@ -183,7 +183,35 @@ You should then see:
 To improve local LLM inference quality in practice:
 - include a clear `README` in your source folder/repo (the tool reads it as context),
 - keep meaningful column names,
-- optionally include PDFs/manuscripts in the source root (or one level deep) for richer context extraction.
+- optionally include PDFs/manuscripts in the source root (or one level deep) for richer context extraction,
+- optionally add `publication_doi`, `publication_pdf_url`, or `llm_context` to a manifest source entry when the paper metadata lives outside the dataset repository.
+
+### Catalog-driven URL workflow
+
+If you already have a CSV/Excel sheet listing dataset URLs or local study folders, you can now run the full workflow from that table:
+- deduplicate the URL/path column into unique sources,
+- download or load each source,
+- standardize the datasets,
+- run cross-study meta-analysis,
+- export DV overlap artifacts such as a presence matrix and pairwise overlap table.
+
+Example:
+
+```bash
+python scripts/run_catalog_meta_analysis.py \
+  --catalog data/raw/study_catalog.xlsx \
+  --url-column dataset_url \
+  --source-id-column study_name \
+  --source-type-column source_type \
+  --context-columns domain,task \
+  --output-dir data/processed/catalog_meta_analysis
+```
+
+Outputs include:
+- `generated_sources_manifest.yaml`
+- `catalog_source_summary.csv`
+- batch standardization artifacts under `standardized/`
+- analysis files under `analysis/`, including `meta_analysis_summary.csv`, `dv_overlap_matrix.csv`, `dv_presence_matrix.csv`, and `dv_overlap_details.csv`
 
 If you want deterministic behavior (no model downloads/inference), provide a repository mapping YAML in the source so the pipeline uses explicit aliases instead.
 

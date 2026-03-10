@@ -328,6 +328,59 @@ class BatchStandardizationTests(unittest.TestCase):
             self.assertEqual(llm_records[0]["alias"], "DurationX")
             self.assertEqual(llm_records[0]["canonical_dv"], "task_completion_time")
 
+    def test_run_batch_passes_publication_hints_into_llm_context_collection(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            tmp = Path(tmpdir)
+            input_dir = tmp / "input"
+            input_dir.mkdir()
+
+            pd.DataFrame({"DurationX": [1.0, 2.0]}).to_csv(input_dir / "study.csv", index=False)
+
+            manifest_path = tmp / "manifest.yaml"
+            manifest_path.write_text(
+                yaml.safe_dump(
+                    {
+                        "sources": [
+                            {
+                                "source_id": "study_source",
+                                "source_type": "local_path",
+                                "location": str(input_dir),
+                                "include_globs": ["*.csv"],
+                                "publication_doi": "10.1145/3706598.3713762",
+                                "publication_pdf_url": "https://example.com/paper.pdf",
+                                "llm_context": "Study focuses on trust and workload.",
+                            }
+                        ]
+                    }
+                ),
+                encoding="utf-8",
+            )
+
+            output_dir = tmp / "output"
+            with mock.patch(
+                "scripts.run_batch_standardization.collect_repository_context",
+                return_value="[CONTEXT_SUMMARY]",
+            ) as mocked_context:
+                with mock.patch(
+                    "scripts.run_batch_standardization.deduce_standard_name_with_local_llm",
+                    return_value="task_completion_time",
+                ):
+                    run_batch(manifest_path, output_dir, SCHEMA_PATH)
+
+            mocked_context.assert_called_once()
+            self.assertEqual(
+                mocked_context.call_args.kwargs["explicit_dois"],
+                ["10.1145/3706598.3713762"],
+            )
+            self.assertEqual(
+                mocked_context.call_args.kwargs["explicit_pdf_urls"],
+                ["https://example.com/paper.pdf"],
+            )
+            self.assertEqual(
+                mocked_context.call_args.kwargs["extra_context"],
+                ["Study focuses on trust and workload."],
+            )
+
     def test_load_manifest_rejects_duplicate_source_ids(self):
         with tempfile.TemporaryDirectory() as tmpdir:
             manifest_path = Path(tmpdir) / "manifest.yaml"

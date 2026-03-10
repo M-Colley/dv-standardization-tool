@@ -6,6 +6,8 @@ import pandas as pd
 
 from analyses.multi_study_analysis import (
     build_composite_index,
+    compute_dv_presence_matrix,
+    compute_overlap_details,
     load_studies,
     meta_analysis_summary,
 )
@@ -68,4 +70,41 @@ class MultiStudyAnalysisTests(unittest.TestCase):
         self.assertEqual(set(composite["n_shared_dvs_used"]), {2})
         self.assertTrue(composite["mean"].notna().all())
         self.assertTrue(composite["explained_variance_ratio"].notna().all())
+
+    def test_overlap_outputs_include_presence_and_pairwise_details(self):
+        studies = {
+            "study_a": pd.DataFrame(
+                {
+                    "task_success": [0.8, 0.9],
+                    "trust_rating": [4.0, 4.5],
+                }
+            ),
+            "study_b": pd.DataFrame(
+                {
+                    "task_success": [0.7, 0.75],
+                    "sus_score": [70, 72],
+                }
+            ),
+        }
+
+        presence = compute_dv_presence_matrix(studies)
+        overlap_details = compute_overlap_details(studies)
+
+        self.assertEqual(int(presence.loc["study_a", "task_success"]), 1)
+        self.assertEqual(int(presence.loc["study_b", "trust_rating"]), 0)
+        self.assertEqual(len(overlap_details), 1)
+        self.assertEqual(int(overlap_details.loc[0, "shared_dv_count"]), 1)
+        self.assertIn("task_success", overlap_details.loc[0, "shared_dvs"])
+
+    def test_meta_analysis_summary_reports_study_coverage(self):
+        summary = pd.DataFrame(
+            [
+                {"study": "a", "dv": "task_success", "n": 100, "mean": 0.70, "sd": 0.10},
+                {"study": "b", "dv": "task_success", "n": 120, "mean": 0.80, "sd": 0.12},
+            ]
+        )
+
+        meta = meta_analysis_summary(summary, total_studies=4)
+
+        self.assertEqual(meta.loc[0, "study_coverage_pct"], 50.0)
 
