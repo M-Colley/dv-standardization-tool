@@ -8,6 +8,7 @@ variables are unknown or inconsistent across studies.
 from __future__ import annotations
 
 import argparse
+from functools import lru_cache
 from itertools import combinations
 from pathlib import Path
 from typing import Dict, Iterable, List, Optional
@@ -16,6 +17,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import seaborn as sns
+import yaml
 from sklearn.decomposition import PCA
 
 ID_LIKE_COLUMNS = {
@@ -29,6 +31,30 @@ ID_LIKE_COLUMNS = {
     "seed",
     "lastpage",
 }
+DEFAULT_DV_SCHEMA_PATH = Path(__file__).resolve().parents[1] / "schemas" / "standard_dv_mapping.yaml"
+HARMONIZED_SUMMARY_COLUMNS = ["study", "dv", "n", "mean", "sd", "mean_z_vs_global"]
+META_ANALYSIS_COLUMNS = [
+    "dv",
+    "k_studies",
+    "study_coverage_pct",
+    "random_effects_mean",
+    "random_effects_se",
+    "ci95_low",
+    "ci95_high",
+    "heterogeneity_q",
+    "heterogeneity_i2_pct",
+    "tau2",
+]
+OVERLAP_DETAIL_COLUMNS = [
+    "study_a",
+    "study_b",
+    "shared_dv_count",
+    "union_dv_count",
+    "jaccard_overlap",
+    "shared_dvs",
+    "study_a_only_dvs",
+    "study_b_only_dvs",
+]
 
 
 def _normalize_colname(name: str) -> str:
@@ -37,6 +63,38 @@ def _normalize_colname(name: str) -> str:
 
 def _column_lookup(df: pd.DataFrame) -> Dict[str, str]:
     return {_normalize_colname(col): col for col in df.columns}
+
+
+@lru_cache(maxsize=1)
+def _load_standard_dv_lookup(schema_path: str = str(DEFAULT_DV_SCHEMA_PATH)) -> Dict[str, str]:
+    path = Path(schema_path)
+    if not path.is_file():
+        return {}
+
+    try:
+        data = yaml.safe_load(path.read_text(encoding="utf-8")) or {}
+    except OSError:
+        return {}
+
+    lookup: Dict[str, str] = {}
+    for entry in data.get("dvs", []):
+        if not isinstance(entry, dict):
+            continue
+        canonical = str(entry.get("id", "")).strip()
+        if not canonical:
+            continue
+
+        candidates = [canonical, str(entry.get("label", "")).strip(), *entry.get("aliases", [])]
+        for candidate in candidates:
+            normalized = _normalize_colname(str(candidate))
+            if normalized and normalized not in lookup:
+                lookup[normalized] = canonical
+
+    return lookup
+
+
+def _canonicalize_dv_name(name: str) -> str | None:
+    return _load_standard_dv_lookup().get(_normalize_colname(str(name)))
 
 
 def _resolve_series(df: pd.DataFrame, candidates: Iterable[str]) -> Optional[pd.Series]:
@@ -180,26 +238,64 @@ def load_studies(input_dir: Path) -> Dict[str, pd.DataFrame]:
     return studies
 
 
-def numeric_dvs(df: pd.DataFrame) -> List[str]:
-    cols = []
+def _canonical_series_priority(series: pd.Series, raw_name: str, canonical_name: str) -> tuple[int, int, int]:
+    non_null = int(series.notna().sum())
+    unique = int(series.nunique(dropna=True))
+    exact_match = int(_normalize_colname(raw_name) == _normalize_colname(canonical_name))
+    return (non_null, exact_match, unique)
+
+
+def _canonical_numeric_frame(df: pd.DataFrame) -> pd.DataFrame:
+    selected: dict[str, pd.Series] = {}
+    priorities: dict[str, tuple[int, int, int]] = {}
+
     for col in df.columns:
-        if col.lower() in ID_LIKE_COLUMNS:
-            continue
-        if col == "_source_file":
+        lowered = col.lower()
+        if lowered in ID_LIKE_COLUMNS or col == "_source_file":
             continue
         if pd.api.types.is_bool_dtype(df[col]):
             continue
-        if pd.api.types.is_numeric_dtype(df[col]):
-            cols.append(col)
-    return cols
+        if not pd.api.types.is_numeric_dtype(df[col]):
+            continue
+
+        canonical = _canonicalize_dv_name(col)
+        if not canonical:
+            continue
+
+        series = pd.to_numeric(df[col], errors="coerce")
+        if series.notna().sum() == 0:
+            continue
+
+        priority = _canonical_series_priority(series, col, canonical)
+        if canonical not in selected or priority > priorities[canonical]:
+            selected[canonical] = series
+            priorities[canonical] = priority
+
+    if not selected:
+        return pd.DataFrame(index=df.index)
+
+    ordered = {canonical: selected[canonical] for canonical in sorted(selected)}
+    return pd.DataFrame(ordered, index=df.index)
+
+
+def _canonicalize_studies(studies: Dict[str, pd.DataFrame]) -> Dict[str, pd.DataFrame]:
+    return {name: _canonical_numeric_frame(df) for name, df in studies.items()}
+
+
+def numeric_dvs(df: pd.DataFrame) -> List[str]:
+    return list(_canonical_numeric_frame(df).columns)
+
+
+def _study_numeric_dv_sets_from_canonical(studies: Dict[str, pd.DataFrame]) -> Dict[str, set[str]]:
+    return {name: set(df.columns) for name, df in studies.items()}
 
 
 def study_numeric_dv_sets(studies: Dict[str, pd.DataFrame]) -> Dict[str, set[str]]:
-    return {name: set(numeric_dvs(df)) for name, df in studies.items()}
+    return _study_numeric_dv_sets_from_canonical(_canonicalize_studies(studies))
 
 
 def compute_overlap(studies: Dict[str, pd.DataFrame]) -> pd.DataFrame:
-    dv_sets = study_numeric_dv_sets(studies)
+    dv_sets = _study_numeric_dv_sets_from_canonical(_canonicalize_studies(studies))
     index = list(studies.keys())
     overlap = pd.DataFrame(index=index, columns=index, dtype=float)
     for a in index:
@@ -210,7 +306,7 @@ def compute_overlap(studies: Dict[str, pd.DataFrame]) -> pd.DataFrame:
 
 
 def compute_dv_presence_matrix(studies: Dict[str, pd.DataFrame]) -> pd.DataFrame:
-    dv_sets = study_numeric_dv_sets(studies)
+    dv_sets = _study_numeric_dv_sets_from_canonical(_canonicalize_studies(studies))
     all_dvs = sorted({dv for dvs in dv_sets.values() for dv in dvs})
     presence = pd.DataFrame(0, index=sorted(studies.keys()), columns=all_dvs, dtype=int)
     for study, dvs in dv_sets.items():
@@ -220,7 +316,7 @@ def compute_dv_presence_matrix(studies: Dict[str, pd.DataFrame]) -> pd.DataFrame
 
 
 def compute_overlap_details(studies: Dict[str, pd.DataFrame]) -> pd.DataFrame:
-    dv_sets = study_numeric_dv_sets(studies)
+    dv_sets = _study_numeric_dv_sets_from_canonical(_canonicalize_studies(studies))
     rows = []
     for study_a, study_b in combinations(sorted(dv_sets.keys()), 2):
         shared = sorted(dv_sets[study_a] & dv_sets[study_b])
@@ -237,13 +333,13 @@ def compute_overlap_details(studies: Dict[str, pd.DataFrame]) -> pd.DataFrame:
                 "study_b_only_dvs": "; ".join(sorted(dv_sets[study_b] - dv_sets[study_a])),
             }
         )
-    return pd.DataFrame(rows)
+    return pd.DataFrame(rows, columns=OVERLAP_DETAIL_COLUMNS)
 
 
 def harmonized_summary(studies: Dict[str, pd.DataFrame]) -> pd.DataFrame:
     rows = []
-    for study, df in studies.items():
-        for dv in numeric_dvs(df):
+    for study, df in _canonicalize_studies(studies).items():
+        for dv in df.columns:
             s = df[dv].dropna()
             rows.append(
                 {
@@ -254,14 +350,25 @@ def harmonized_summary(studies: Dict[str, pd.DataFrame]) -> pd.DataFrame:
                     "sd": s.std(ddof=1),
                 }
             )
-    summary = pd.DataFrame(rows)
+    summary = pd.DataFrame(rows, columns=HARMONIZED_SUMMARY_COLUMNS[:-1])
+    if summary.empty:
+        return pd.DataFrame(columns=HARMONIZED_SUMMARY_COLUMNS)
     global_mean = summary.groupby("dv")["mean"].transform("mean")
-    pooled_sd = summary.groupby("dv")["sd"].transform(lambda x: np.sqrt(np.nanmean(np.square(x))))
+    pooled_sd = summary.groupby("dv")["sd"].transform(
+        lambda x: (
+            np.sqrt(np.nanmean(np.square(x.dropna())))
+            if not x.dropna().empty
+            else np.nan
+        )
+    )
     summary["mean_z_vs_global"] = (summary["mean"] - global_mean) / pooled_sd.replace(0, np.nan)
     return summary.sort_values(["dv", "study"])
 
 
 def meta_analysis_summary(summary: pd.DataFrame, total_studies: int | None = None) -> pd.DataFrame:
+    if summary.empty:
+        return pd.DataFrame(columns=META_ANALYSIS_COLUMNS)
+
     rows = []
     for dv, sub in summary.groupby("dv"):
         sub = sub[(sub["n"] > 1) & (sub["sd"] > 0)].copy()
@@ -297,20 +404,24 @@ def meta_analysis_summary(summary: pd.DataFrame, total_studies: int | None = Non
                 "tau2": tau2,
             }
         )
-    return pd.DataFrame(rows).sort_values("dv").reset_index(drop=True)
+    meta = pd.DataFrame(rows, columns=META_ANALYSIS_COLUMNS)
+    if meta.empty:
+        return meta
+    return meta.sort_values("dv").reset_index(drop=True)
 
 
 def _prepare_composite_matrix(studies: Dict[str, pd.DataFrame]) -> tuple[pd.DataFrame, List[str]]:
+    canonical_studies = _canonicalize_studies(studies)
     counts = {}
-    for df in studies.values():
-        for dv in set(numeric_dvs(df)):
+    for df in canonical_studies.values():
+        for dv in set(df.columns):
             counts[dv] = counts.get(dv, 0) + 1
     common_cols = sorted([dv for dv, k in counts.items() if k >= 2])
     if len(common_cols) < 2:
         raise ValueError("Need at least two DVs shared by at least two studies for PCA composite index.")
 
     stacked = []
-    for study, df in studies.items():
+    for study, df in canonical_studies.items():
         block = df.reindex(columns=common_cols).copy()
         block["study"] = study
         stacked.append(block)
@@ -363,31 +474,32 @@ def save_plots(overlap: pd.DataFrame, summary: pd.DataFrame, output_dir: Path) -
     plt.savefig(output_dir / "dv_overlap_heatmap.png", dpi=150)
     plt.close()
 
-    shared = summary.groupby("dv")["study"].nunique()
-    shared = shared[shared >= 2].index
-    if len(shared):
-        plot_df = summary[summary["dv"].isin(shared)]
-        plt.figure(figsize=(9, 5))
-        sns.barplot(data=plot_df, x="dv", y="mean_z_vs_global", hue="study")
-        plt.axhline(0, color="black", linewidth=1)
-        plt.xticks(rotation=25, ha="right")
-        plt.ylabel("Study mean shift (z vs global DV mean)")
-        plt.title("Comparable DV-level differences without using IVs")
-        plt.tight_layout()
-        plt.savefig(output_dir / "dv_mean_shift.png", dpi=150)
-        plt.close()
+    if not summary.empty:
+        shared = summary.groupby("dv")["study"].nunique()
+        shared = shared[shared >= 2].index
+        if len(shared):
+            plot_df = summary[summary["dv"].isin(shared)]
+            plt.figure(figsize=(9, 5))
+            sns.barplot(data=plot_df, x="dv", y="mean_z_vs_global", hue="study")
+            plt.axhline(0, color="black", linewidth=1)
+            plt.xticks(rotation=25, ha="right")
+            plt.ylabel("Study mean shift (z vs global DV mean)")
+            plt.title("Comparable DV-level differences without using IVs")
+            plt.tight_layout()
+            plt.savefig(output_dir / "dv_mean_shift.png", dpi=150)
+            plt.close()
 
-    dv_coverage = summary.groupby("study")["dv"].nunique().reset_index(name="n_numeric_dvs")
-    plt.figure(figsize=(7, 4.5))
-    sns.barplot(data=dv_coverage, x="study", y="n_numeric_dvs", hue="study", dodge=False, legend=False)
-    for idx, row in dv_coverage.iterrows():
-        plt.text(idx, row["n_numeric_dvs"] + 0.05, f"{int(row['n_numeric_dvs'])}", ha="center", va="bottom")
-    plt.ylabel("Count of numeric standardized DVs")
-    plt.xlabel("Study")
-    plt.title("Numeric DV coverage by study")
-    plt.tight_layout()
-    plt.savefig(output_dir / "dv_coverage_by_study.png", dpi=150)
-    plt.close()
+        dv_coverage = summary.groupby("study")["dv"].nunique().reset_index(name="n_numeric_dvs")
+        plt.figure(figsize=(7, 4.5))
+        sns.barplot(data=dv_coverage, x="study", y="n_numeric_dvs", hue="study", dodge=False, legend=False)
+        for idx, row in dv_coverage.iterrows():
+            plt.text(idx, row["n_numeric_dvs"] + 0.05, f"{int(row['n_numeric_dvs'])}", ha="center", va="bottom")
+        plt.ylabel("Count of canonical numeric DVs")
+        plt.xlabel("Study")
+        plt.title("Canonical DV coverage by study")
+        plt.tight_layout()
+        plt.savefig(output_dir / "dv_coverage_by_study.png", dpi=150)
+        plt.close()
 
 
 def save_composite_plot(studies: Dict[str, pd.DataFrame], output_dir: Path) -> None:

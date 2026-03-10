@@ -28,10 +28,14 @@ import yaml
 
 # Import the new inference module
 try:
-    from dv_inference import batch_infer, get_measurement_from_schema
+    from scripts.dv_inference import batch_infer, get_measurement_from_schema
 except ImportError:
-    print("Warning: dv_inference module not found. Metadata inference will be disabled.")
-    batch_infer = None
+    try:
+        from dv_inference import batch_infer, get_measurement_from_schema
+    except ImportError:
+        print("Warning: dv_inference module not found. Metadata inference will be disabled.")
+        batch_infer = None
+        get_measurement_from_schema = lambda *_args, **_kwargs: None
 
 
 def _build_alias_mapping(schema: Dict) -> Dict[str, str]:

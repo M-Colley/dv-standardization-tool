@@ -15,7 +15,6 @@ if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
 from scripts.convert_dv import identify_unmapped_columns, standardize_columns
-from scripts.run_catalog_meta_analysis import build_sources_from_catalog, run_catalog_meta_analysis
 from ui.components.charts import (
     build_mapping_quality_chart,
     build_meta_analysis_chart,
@@ -154,6 +153,16 @@ def _render_catalog_workflow_tab() -> None:
         "Upload a catalog CSV/Excel with a URL or local-path column to run batch mapping "
         "and interactive cross-study analysis in one step."
     )
+
+    try:
+        from scripts.run_catalog_meta_analysis import build_sources_from_catalog, run_catalog_meta_analysis
+    except ImportError as exc:
+        st.error(
+            "Catalog workflow dependencies are missing. Install with "
+            "`pip install -r requirements-core.txt -r requirements-ui.txt`.\n\n"
+            f"Import error: {exc}"
+        )
+        return
 
     uploaded_catalog = upload_tabular_file(
         "Upload a catalog CSV or Excel file",

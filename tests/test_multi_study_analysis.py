@@ -10,6 +10,7 @@ from analyses.multi_study_analysis import (
     compute_overlap_details,
     load_studies,
     meta_analysis_summary,
+    numeric_dvs,
 )
 
 
@@ -46,19 +47,19 @@ class MultiStudyAnalysisTests(unittest.TestCase):
         studies = {
             "study_a": pd.DataFrame(
                 {
-                    "task_success_rate": [0.8, 0.9, 0.85],
+                    "task_success": [0.8, 0.9, 0.85],
                     "sus_score": [70, 75, 80],
                 }
             ),
             "study_b": pd.DataFrame(
                 {
-                    "task_success_rate": [0.6, 0.7, 0.65],
+                    "task_success": [0.6, 0.7, 0.65],
                     "sus_score": [60, 62, 64],
                 }
             ),
             "study_c": pd.DataFrame(
                 {
-                    "task_success_rate": [0.75, 0.78, 0.8],
+                    "task_success": [0.75, 0.78, 0.8],
                     "nasa_tlx_score": [55, 50, 52],
                 }
             ),
@@ -95,6 +96,21 @@ class MultiStudyAnalysisTests(unittest.TestCase):
         self.assertEqual(len(overlap_details), 1)
         self.assertEqual(int(overlap_details.loc[0, "shared_dv_count"]), 1)
         self.assertIn("task_success", overlap_details.loc[0, "shared_dvs"])
+
+    def test_numeric_dvs_only_returns_schema_backed_canonical_dvs(self):
+        df = pd.DataFrame(
+            {
+                "requestID": [101, 102],
+                "Unix Timestamp In Milliseconds": [1693081000000, 1693081001000],
+                "sus_score": [72.0, 74.0],
+                "nasa_tlx_score": [41.0, 43.0],
+                "trust_rating": [4.0, 4.5],
+            }
+        )
+
+        dvs = numeric_dvs(df)
+
+        self.assertEqual(set(dvs), {"TLX_SCORE", "trust_rating", "usability"})
 
     def test_meta_analysis_summary_reports_study_coverage(self):
         summary = pd.DataFrame(

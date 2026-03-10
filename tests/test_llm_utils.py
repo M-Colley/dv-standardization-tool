@@ -178,6 +178,8 @@ class LLMUtilsTests(unittest.TestCase):
 
     def test_deduce_standard_name_with_local_llm_returns_matching_candidate(self):
         def _fake_pipeline(prompt, max_new_tokens, do_sample):
+            self.assertIn("Match the measured human outcome or construct", prompt)
+            self.assertIn("task_completion_time | label=Task Completion Time", prompt)
             return [{"generated_text": prompt + "task_completion_time"}]
 
         with mock.patch("scripts.llm_utils._get_text_generation_pipeline", return_value=_fake_pipeline):

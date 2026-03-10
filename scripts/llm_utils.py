@@ -15,6 +15,8 @@ from pathlib import Path
 from typing import Iterable
 from urllib import request
 
+import yaml
+
 DEFAULT_LOCAL_MODEL_CANDIDATES = [
     "Qwen/Qwen3.5-4B",
     "microsoft/Phi-4-mini-instruct",
@@ -96,6 +98,7 @@ PDF_LOW_VALUE_HINTS = (
     "acknowledgment",
     "acknowledgement",
 )
+DEFAULT_DV_SCHEMA_PATH = Path(__file__).resolve().parents[1] / "schemas" / "standard_dv_mapping.yaml"
 
 
 def _safe_read_text(path: Path) -> str:
@@ -301,6 +304,80 @@ def _dedupe_case_insensitive(values: Iterable[str]) -> list[str]:
         seen.add(lowered)
         ordered.append(text)
     return ordered
+
+
+@lru_cache(maxsize=1)
+def _load_candidate_schema_metadata(schema_path: str = str(DEFAULT_DV_SCHEMA_PATH)) -> dict[str, dict[str, object]]:
+    path = Path(schema_path)
+    if not path.is_file():
+        return {}
+
+    try:
+        data = yaml.safe_load(path.read_text(encoding="utf-8")) or {}
+    except OSError:
+        return {}
+
+    metadata: dict[str, dict[str, object]] = {}
+    for entry in data.get("dvs", []):
+        if not isinstance(entry, dict):
+            continue
+        canonical = str(entry.get("id", "")).strip()
+        if not canonical:
+            continue
+        measurement = entry.get("measurement") if isinstance(entry.get("measurement"), dict) else {}
+        metadata[canonical] = {
+            "label": str(entry.get("label", "")).strip(),
+            "cluster": str(entry.get("cluster", "")).strip(),
+            "category": str(measurement.get("category", "")).strip(),
+            "direction": str(measurement.get("direction", "")).strip(),
+            "aliases": [str(alias).strip() for alias in entry.get("aliases", []) if str(alias).strip()],
+            "instruments": [
+                str(instrument).strip()
+                for instrument in entry.get("instruments", [])
+                if str(instrument).strip()
+            ],
+            "notes": str(entry.get("notes", "")).strip(),
+        }
+    return metadata
+
+
+def _format_candidate_reference(candidates: Iterable[str]) -> str:
+    metadata = _load_candidate_schema_metadata()
+    lines: list[str] = []
+
+    for candidate in candidates:
+        record = metadata.get(candidate)
+        if not record:
+            lines.append(f"- {candidate}")
+            continue
+
+        parts = [candidate]
+        label = str(record.get("label", "")).strip()
+        cluster = str(record.get("cluster", "")).strip()
+        category = str(record.get("category", "")).strip()
+        direction = str(record.get("direction", "")).strip()
+        aliases = [str(alias) for alias in record.get("aliases", [])][:3]
+        instruments = [str(instrument) for instrument in record.get("instruments", [])][:2]
+        notes = _truncate_text(str(record.get("notes", "")).strip(), 120) if record.get("notes") else ""
+
+        if label:
+            parts.append(f"label={label}")
+        if cluster:
+            parts.append(f"cluster={cluster}")
+        if category:
+            parts.append(f"category={category}")
+        if direction:
+            parts.append(f"direction={direction}")
+        if aliases:
+            parts.append(f"aliases={', '.join(aliases)}")
+        if instruments:
+            parts.append(f"instruments={', '.join(instruments)}")
+        if notes:
+            parts.append(f"notes={notes}")
+
+        lines.append("- " + " | ".join(parts))
+
+    return "\n".join(lines)
 
 
 def _summarize_items(label: str, values: Iterable[str], max_items: int = 4) -> str | None:
@@ -590,20 +667,30 @@ def deduce_standard_name_with_local_llm(
     if context is None:
         context = collect_repository_context(source_root) if source_root else ""
 
+    candidate_reference = _format_candidate_reference(candidates)
     prompt = (
-        "You standardize dependent variable names for HCI datasets. "
-        "Choose exactly one canonical identifier from the provided list.\n\n"
+        "You standardize HCI dependent variable columns into canonical identifiers.\n"
+        "Choose exactly one identifier from the candidate list. Do not invent new identifiers.\n\n"
+        "Decision rules:\n"
+        "1. Match the measured human outcome or construct, not superficial token overlap.\n"
+        "2. Use README, DOI, PDF, questionnaire, and instrument evidence when available.\n"
+        "3. Prefer construct-level outcomes such as trust, workload, usability, safety, time, accuracy, or acceptance.\n"
+        "4. Treat identifiers, timestamps, frame counters, coordinates, raw sensor channels, scenario codes, and logging fields as weak evidence. "
+        "Do not map them to a candidate unless the source context clearly says they operationalize that construct.\n"
+        "5. A clock timestamp is not a task duration unless the study context explicitly says it is an outcome measure.\n"
+        "6. If multiple candidates seem plausible, choose the one best supported by construct wording, instrument names, and manuscript context.\n\n"
         f"Raw column name: {raw_column_name}\n"
-        f"Canonical identifiers: {', '.join(candidates)}\n"
+        "Candidate reference:\n"
+        f"{candidate_reference}\n"
     )
     if context:
         prompt += (
-            "\nUse the source context below as semantic evidence. "
-            "Pay special attention to DOI, PDF, manuscript, and README signals when "
-            "they clarify what construct the raw column measures.\n"
+            "\nSource context:\n"
+            "Use the evidence below to infer what the column actually measures. "
+            "Pay special attention to DOI, PDF, manuscript, README, instrument, and measure descriptions.\n"
             f"\nRepository context:\n{context}\n"
         )
-    prompt += "\nRespond with only one canonical identifier from the list."
+    prompt += "\nRespond with only one canonical identifier from the candidate reference above."
 
     for model_name in model_list:
         try:

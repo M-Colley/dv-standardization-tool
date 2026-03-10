@@ -10,13 +10,22 @@ import re
 import yaml
 from pathlib import Path
 from typing import List, Optional, Tuple, Dict
-from measurement_types import (
-    MeasurementMeta,
-    MeasurementCategory,
-    ScaleType,
-    Direction,
-    CATEGORY_SCALE_TYPES
-)
+try:
+    from scripts.measurement_types import (
+        MeasurementMeta,
+        MeasurementCategory,
+        ScaleType,
+        Direction,
+        CATEGORY_SCALE_TYPES,
+    )
+except ImportError:
+    from measurement_types import (
+        MeasurementMeta,
+        MeasurementCategory,
+        ScaleType,
+        Direction,
+        CATEGORY_SCALE_TYPES,
+    )
 
 
 def load_inference_rules(
