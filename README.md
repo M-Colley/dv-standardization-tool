@@ -247,7 +247,7 @@ user_satisfaction:
 
 ## Batch standardization (manifest-driven)
 
-You can now process multiple data sources (local folders or GitHub repositories) with a single manifest and produce a consolidated meta-view.
+You can now process multiple data sources (local folders, GitHub repositories or scoped tree URLs, OSF projects, and supported web dataset landing pages such as 4TU) with a single manifest and produce a consolidated meta-view.
 The included `sources_manifest_example.yaml` is preconfigured for:
 - `https://github.com/M-Colley/roads-chi25-data`
 - `https://github.com/M-Colley/ehmi-optimization-chi25-data`
@@ -255,7 +255,7 @@ The included `sources_manifest_example.yaml` is preconfigured for:
 ### Process overview
 
 1. The runner validates the manifest and iterates through each source with a `tqdm` progress tracker.
-2. For each source, tabular datasets (`.csv`, `.tsv`, `.xls`, `.xlsx`) are discovered and processed with a per-dataset progress tracker.
+2. For each source, supported datasets (`.csv`, `.tsv`, `.xls`, `.xlsx`, `.pkl`, `.pickle`) are discovered and processed with a per-dataset progress tracker.
 3. Each dataset is classified into `results_table`, `questionnaire`, `sensor_stream`, `object_detection`, or `process_log`.
 4. If a source/repository includes a mapping YAML, the runner first uses the requested `mapping_path` or the nearest matching mapping file for that dataset.
 5. Built-in schema families are then applied as appropriate:
@@ -264,7 +264,7 @@ The included `sources_manifest_example.yaml` is preconfigured for:
    - `schemas/standard_detection_mapping.yaml`
    - `schemas/standard_metadata_mapping.yaml`
 6. Local LLM deduction is only used for still-unmapped DV-style aliases in `results_table` and `questionnaire` datasets.
-7. Outputs include standardized files, quality sidecars, an aggregated meta-view, `unknown_alias_summary.json`, and `mapping_debug_summary.json`.
+7. Outputs include standardized files, quality sidecars, an aggregated meta-view, `unknown_alias_summary.json`, `mapping_debug_summary.json`, and source-level availability statuses when a catalog URL is not publicly accessible.
 
 ```bash
 python scripts/run_batch_standardization.py \

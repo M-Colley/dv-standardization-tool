@@ -29,6 +29,18 @@ class CatalogMetaAnalysisTests(unittest.TestCase):
         self.assertEqual(sources[0]["source_type"], "github_repo")
         self.assertEqual(sources[1]["source_type"], "osf_project")
 
+    def test_build_sources_from_catalog_infers_web_dataset_sources(self):
+        catalog = pd.DataFrame(
+            [
+                {"dataset_url": "https://data.4tu.nl/articles/_/20224281"},
+                {"dataset_url": "https://ieee-dataport.org/open-access/usyd-campus-dataset"},
+            ]
+        )
+
+        sources, _ = build_sources_from_catalog(catalog, url_column="dataset_url")
+
+        self.assertEqual([source["source_type"] for source in sources], ["web_dataset", "web_dataset"])
+
     def test_run_catalog_meta_analysis_runs_mapping_and_overlap_outputs(self):
         with tempfile.TemporaryDirectory() as tmpdir:
             tmp = Path(tmpdir)
@@ -140,6 +152,53 @@ class CatalogMetaAnalysisTests(unittest.TestCase):
             analysis_summary = json.loads(analysis_summary_path.read_text(encoding="utf-8"))
             self.assertEqual(analysis_summary["n_unique_sources"], 2)
             self.assertEqual(analysis_summary["overlap_pair_count"], 1)
+
+    def test_run_catalog_meta_analysis_records_unavailable_source_statuses(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            tmp = Path(tmpdir)
+            catalog_path = tmp / "catalog.csv"
+            pd.DataFrame(
+                [
+                    {"dataset_url": "https://data.4tu.nl/articles/_/20224281"},
+                ]
+            ).to_csv(catalog_path, index=False)
+
+            output_dir = tmp / "output"
+            mocked_batch_summary = {
+                "results": [
+                    {
+                        "source_id": "data_4tu_nl_20224281",
+                        "status": "not_available",
+                        "message": "No downloadable dataset files were detected.",
+                        "discovered_files": 0,
+                        "processed_files": 0,
+                        "failed_files": 0,
+                        "unknown_columns": 0,
+                        "total_columns": 0,
+                        "mapped_columns": 0,
+                        "mapped_ratio": 0.0,
+                        "output_dir": str(output_dir / "standardized" / "data_4tu_nl_20224281"),
+                    }
+                ]
+            }
+
+            with mock.patch("scripts.run_catalog_meta_analysis.run_batch", return_value=mocked_batch_summary):
+                with mock.patch(
+                    "scripts.run_catalog_meta_analysis.load_studies",
+                    side_effect=FileNotFoundError("No CSV/XLSX/PKL files found in standardized output"),
+                ):
+                    summary = run_catalog_meta_analysis(
+                        catalog_path=catalog_path,
+                        url_column="dataset_url",
+                        output_dir=output_dir,
+                        llm_deduction_enabled=False,
+                    )
+
+            source_summary = pd.read_csv(output_dir / "catalog_source_summary.csv")
+            self.assertEqual(source_summary.loc[0, "batch_status"], "not_available")
+            self.assertIn("No downloadable dataset files were detected", source_summary.loc[0, "batch_message"])
+            self.assertEqual(summary["n_loaded_studies"], 0)
+            self.assertIn("analysis_skipped_reason", summary)
 
 
 if __name__ == "__main__":

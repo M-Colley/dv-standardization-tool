@@ -21,11 +21,14 @@ import time
 import zipfile
 from dataclasses import dataclass
 from datetime import datetime, timezone
+from html import unescape
+from html.parser import HTMLParser
 from pathlib import Path
 from tempfile import TemporaryDirectory
 from typing import Any
 from urllib import error as urlerror
 from urllib import request
+from urllib.parse import unquote, urljoin, urlparse
 
 import pandas as pd
 import yaml
@@ -60,8 +63,9 @@ from scripts.convert_dv import (
 )
 from scripts.llm_utils import collect_repository_context, deduce_standard_name_with_local_llm
 
-SUPPORTED_SOURCE_TYPES = {"local_path", "github_repo", "osf_project"}
 TABULAR_SUFFIXES = {".csv", ".xlsx", ".xls", ".tsv"}
+PICKLE_SUFFIXES = {".pkl", ".pickle"}
+DATA_FILE_SUFFIXES = TABULAR_SUFFIXES | PICKLE_SUFFIXES
 ARCHIVE_SUFFIXES = {".zip"}
 MAPPING_SUFFIXES = {".yaml", ".yml"}
 OSF_API_BASE = "https://api.osf.io/v2"
@@ -69,6 +73,45 @@ DEFAULT_ARCHIVE_MAX_DEPTH = 3
 DEFAULT_SENSOR_SCHEMA_PATH = REPO_ROOT / "schemas" / "standard_sensor_mapping.yaml"
 DEFAULT_DETECTION_SCHEMA_PATH = REPO_ROOT / "schemas" / "standard_detection_mapping.yaml"
 DEFAULT_METADATA_SCHEMA_PATH = REPO_ROOT / "schemas" / "standard_metadata_mapping.yaml"
+SUPPORTED_SOURCE_TYPES = {"local_path", "github_repo", "osf_project", "web_dataset"}
+HTTP_USER_AGENT = "OpenDV-HCI/1.0"
+GITHUB_HOSTS = {"github.com", "www.github.com"}
+WEB_DATASET_HOSTS = {
+    "data.4tu.nl",
+    "www.data.4tu.nl",
+    "ieee-dataport.org",
+    "www.ieee-dataport.org",
+    "wjx.cn",
+    "www.wjx.cn",
+}
+WEB_LOGIN_MARKERS = (
+    "login to access dataset files",
+    "create a free account",
+    "/saml_login",
+    "login required",
+    "sign in",
+)
+WEB_NO_DATA_MARKERS_ASCII = (
+    "no data",
+    "no downloadable data",
+    "\u3010\u7ed3\u675f\u3011",
+    "\u5df2\u7ed3\u675f",
+    "\u95ee\u5377\u5df2\u7ed3\u675f",
+    "\u8c03\u67e5\u5df2\u7ed3\u675f",
+    "\u6682\u65e0\u6570\u636e",
+    "\u6ca1\u6709\u6570\u636e",
+)
+WEB_NO_DATA_MARKERS = (
+    "no data",
+    "no downloadable data",
+    "【结束】",
+    "已结束",
+    "问卷已结束",
+    "调查已结束",
+    "暂无数据",
+    "没有数据",
+)
+WEB_NO_DATA_MARKERS = WEB_NO_DATA_MARKERS_ASCII
 # Survey/admin/identifier fields that should never be mapped to DVs.
 NEVER_MAP_NORMALIZED_COLUMNS = {
     "id",
@@ -159,6 +202,62 @@ class SourceRunResult:
     message: str | None = None
 
 
+@dataclass(frozen=True)
+class GitHubLocation:
+    clone_url: str
+    ref: str | None = None
+    subpath: Path | None = None
+
+
+class SourceAccessError(RuntimeError):
+    def __init__(self, status: str, message: str):
+        super().__init__(message)
+        self.status = status
+
+
+class _LandingPageParser(HTMLParser):
+    def __init__(self) -> None:
+        super().__init__()
+        self._in_title = False
+        self._capture_ldjson = False
+        self._current_ldjson: list[str] = []
+        self.title_parts: list[str] = []
+        self.links: list[str] = []
+        self.ldjson_blocks: list[str] = []
+
+    @property
+    def title(self) -> str:
+        return "".join(self.title_parts).strip()
+
+    def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
+        attr_map = dict(attrs)
+        if tag.lower() == "title":
+            self._in_title = True
+        if tag.lower() == "a":
+            href = attr_map.get("href")
+            if href:
+                self.links.append(href)
+        if tag.lower() == "script" and "ld+json" in str(attr_map.get("type", "")).lower():
+            self._capture_ldjson = True
+            self._current_ldjson = []
+
+    def handle_endtag(self, tag: str) -> None:
+        if tag.lower() == "title":
+            self._in_title = False
+        if tag.lower() == "script" and self._capture_ldjson:
+            block = "".join(self._current_ldjson).strip()
+            if block:
+                self.ldjson_blocks.append(block)
+            self._capture_ldjson = False
+            self._current_ldjson = []
+
+    def handle_data(self, data: str) -> None:
+        if self._in_title:
+            self.title_parts.append(data)
+        if self._capture_ldjson:
+            self._current_ldjson.append(data)
+
+
 def load_manifest(manifest_path: Path) -> list[dict[str, Any]]:
     with open(manifest_path, "r", encoding="utf-8") as f:
         manifest = yaml.safe_load(f)
@@ -186,6 +285,298 @@ def load_manifest(manifest_path: Path) -> list[dict[str, Any]]:
         seen_source_ids.add(source["source_id"])
 
     return sources
+
+
+def _parse_github_location(location: str) -> GitHubLocation:
+    text = str(location or "").strip()
+    if not text:
+        raise ValueError("GitHub location must be a non-empty repository URL.")
+
+    parsed = urlparse(text)
+    host = parsed.netloc.lower()
+    if host not in GITHUB_HOSTS:
+        raise ValueError(f"Unsupported GitHub host in location: {location}")
+
+    parts = [part for part in parsed.path.split("/") if part]
+    if len(parts) < 2:
+        raise ValueError(
+            "GitHub location must point to a repository like https://github.com/<owner>/<repo> "
+            "or a scoped tree URL like https://github.com/<owner>/<repo>/tree/<ref>/<path>."
+        )
+
+    owner = parts[0]
+    repo = parts[1][:-4] if parts[1].endswith(".git") else parts[1]
+    clone_url = f"https://github.com/{owner}/{repo}.git"
+    ref: str | None = None
+    subpath: Path | None = None
+
+    if len(parts) > 2:
+        if parts[2] not in {"tree", "blob"} or len(parts) < 4:
+            raise ValueError(
+                "GitHub location must be a repository root URL or a tree/blob URL with a ref."
+            )
+        ref = parts[3]
+        if len(parts) > 4:
+            subpath = Path(*parts[4:])
+
+    return GitHubLocation(clone_url=clone_url, ref=ref, subpath=subpath)
+
+
+def _extract_content_disposition_filename(disposition: str | None) -> str | None:
+    if not disposition:
+        return None
+
+    utf8_match = re.search(r"filename\*=UTF-8''([^;]+)", disposition, flags=re.IGNORECASE)
+    if utf8_match:
+        return unquote(utf8_match.group(1).strip().strip('"'))
+
+    plain_match = re.search(r'filename="?([^";]+)"?', disposition, flags=re.IGNORECASE)
+    if plain_match:
+        return plain_match.group(1).strip()
+    return None
+
+
+def _infer_extension_from_content_type(content_type: str) -> str:
+    normalized = (content_type or "").split(";", 1)[0].strip().lower()
+    return {
+        "application/zip": ".zip",
+        "text/csv": ".csv",
+        "text/tab-separated-values": ".tsv",
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": ".xlsx",
+        "application/vnd.ms-excel": ".xls",
+        "application/x-yaml": ".yaml",
+        "text/yaml": ".yaml",
+        "text/x-yaml": ".yaml",
+    }.get(normalized, "")
+
+
+def _normalize_remote_filename(
+    raw_name: str | None,
+    fallback_prefix: str,
+    final_url: str,
+    content_type: str,
+) -> str:
+    candidates = [raw_name or ""]
+    url_name = Path(unquote(urlparse(final_url).path)).name
+    if url_name:
+        candidates.append(url_name)
+
+    for candidate in candidates:
+        clean = Path(str(candidate)).name.strip().strip('"').strip("'")
+        clean = re.sub(r"[^A-Za-z0-9._-]+", "_", clean).strip("._")
+        if clean:
+            return clean
+
+    extension = _infer_extension_from_content_type(content_type)
+    return f"{fallback_prefix}{extension}"
+
+
+def _build_unique_destination(target_dir: Path, filename: str) -> Path:
+    destination = target_dir / filename
+    stem = destination.stem
+    suffix = destination.suffix
+    counter = 2
+    while destination.exists():
+        destination = target_dir / f"{stem}_{counter}{suffix}"
+        counter += 1
+    return destination
+
+
+def _looks_like_supported_download_url(url: str) -> bool:
+    parsed = urlparse(url)
+    suffix = Path(unquote(parsed.path)).suffix.lower()
+    return (
+        suffix in DATA_FILE_SUFFIXES
+        or suffix in ARCHIVE_SUFFIXES
+        or suffix in MAPPING_SUFFIXES
+        or "/ndownloader/" in parsed.path
+    )
+
+
+def _is_supported_download_response(final_url: str, headers: Any) -> bool:
+    suffixes = {Path(unquote(urlparse(final_url).path)).suffix.lower()}
+    disposition = headers.get("Content-Disposition") or headers.get("Content-disposition")
+    disposition_name = _extract_content_disposition_filename(disposition)
+    if disposition_name:
+        suffixes.add(Path(disposition_name).suffix.lower())
+    if any(suffix in DATA_FILE_SUFFIXES or suffix in ARCHIVE_SUFFIXES or suffix in MAPPING_SUFFIXES for suffix in suffixes):
+        return True
+
+    content_type = (
+        headers.get_content_type()
+        if hasattr(headers, "get_content_type")
+        else str(headers.get("Content-Type", "")).split(";", 1)[0].strip().lower()
+    )
+    return content_type in {
+        "application/zip",
+        "text/csv",
+        "text/tab-separated-values",
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        "application/vnd.ms-excel",
+    }
+
+
+def _read_url_response(
+    url_or_request: Any,
+    timeout: int,
+    max_attempts: int = 4,
+) -> tuple[bytes, Any, str]:
+    for attempt in range(max_attempts):
+        try:
+            with request.urlopen(url_or_request, timeout=timeout) as resp:
+                return resp.read(), resp.headers, resp.geturl()
+        except Exception as exc:  # noqa: BLE001
+            is_timeout = isinstance(exc, (TimeoutError, socket.timeout))
+            if isinstance(exc, urlerror.URLError):
+                is_timeout = is_timeout or isinstance(exc.reason, socket.timeout)
+            is_transient_http = (
+                isinstance(exc, urlerror.HTTPError)
+                and (exc.code == 429 or 500 <= exc.code < 600)
+            )
+            if attempt == max_attempts - 1 or not (is_timeout or is_transient_http):
+                raise
+            time.sleep(0.75 * (attempt + 1))
+
+
+def _decode_http_text(payload: bytes, headers: Any) -> str:
+    charset = headers.get_content_charset() if hasattr(headers, "get_content_charset") else None
+    encoding = charset or "utf-8"
+    return payload.decode(encoding, errors="replace")
+
+
+def _iter_content_urls(payload: Any) -> list[str]:
+    urls: list[str] = []
+    if isinstance(payload, dict):
+        for key, value in payload.items():
+            if key == "contentUrl" and isinstance(value, str):
+                urls.append(value)
+            else:
+                urls.extend(_iter_content_urls(value))
+    elif isinstance(payload, list):
+        for item in payload:
+            urls.extend(_iter_content_urls(item))
+    return urls
+
+
+def _extract_html_download_urls(html_text: str, base_url: str) -> tuple[str, list[str]]:
+    parser = _LandingPageParser()
+    parser.feed(html_text)
+
+    urls: set[str] = set()
+    for block in parser.ldjson_blocks:
+        try:
+            payload = json.loads(unescape(block))
+        except json.JSONDecodeError:
+            continue
+        for content_url in _iter_content_urls(payload):
+            absolute_url = urljoin(base_url, content_url)
+            if _looks_like_supported_download_url(absolute_url):
+                urls.add(absolute_url)
+
+    for href in parser.links:
+        absolute_url = urljoin(base_url, unescape(href))
+        if _looks_like_supported_download_url(absolute_url):
+            urls.add(absolute_url)
+
+    return parser.title, sorted(urls)
+
+
+def _build_web_dataset_access_error(
+    location: str,
+    final_url: str,
+    html_text: str,
+    title: str,
+) -> SourceAccessError:
+    resolved_url = final_url or location
+    host = urlparse(resolved_url).netloc.lower()
+    normalized_html = html_text.lower()
+    normalized_title = title.lower()
+
+    if host.endswith("ieee-dataport.org") or any(marker in normalized_html for marker in WEB_LOGIN_MARKERS):
+        return SourceAccessError(
+            "login_required",
+            f"Dataset files require a login or account at {resolved_url}. No public download links were detected.",
+        )
+
+    if host.endswith("wjx.cn") or any(
+        marker in html_text or marker in title for marker in WEB_NO_DATA_MARKERS_ASCII
+    ):
+        return SourceAccessError(
+            "not_available",
+            f"Dataset is not available at {resolved_url}. The page indicates it is closed or does not expose downloadable data.",
+        )
+
+    if host.endswith("data.4tu.nl"):
+        return SourceAccessError(
+            "not_available",
+            f"No downloadable dataset files were detected on the 4TU landing page: {resolved_url}",
+        )
+
+    if any(marker in normalized_title for marker in ("closed", "ended")):
+        return SourceAccessError(
+            "not_available",
+            f"Dataset is not available at {resolved_url}. The landing page appears to be closed.",
+        )
+
+    return SourceAccessError(
+        "not_available",
+        f"No downloadable dataset files were detected for {resolved_url}",
+    )
+
+
+def _write_download_payload(
+    target_dir: Path,
+    payload: bytes,
+    final_url: str,
+    headers: Any,
+    fallback_prefix: str,
+) -> Path:
+    target_dir.mkdir(parents=True, exist_ok=True)
+    disposition = headers.get("Content-Disposition") or headers.get("Content-disposition")
+    filename = _normalize_remote_filename(
+        _extract_content_disposition_filename(disposition),
+        fallback_prefix=fallback_prefix,
+        final_url=final_url,
+        content_type=(
+            headers.get_content_type()
+            if hasattr(headers, "get_content_type")
+            else str(headers.get("Content-Type", ""))
+        ),
+    )
+    destination = _build_unique_destination(target_dir, filename)
+    destination.write_bytes(payload)
+    return destination
+
+
+def _download_remote_file(download_url: str, target_dir: Path, fallback_prefix: str) -> Path:
+    req = request.Request(download_url, headers={"User-Agent": HTTP_USER_AGENT, "Accept": "*/*"})
+    payload, headers, final_url = _read_url_response(req, timeout=180)
+    return _write_download_payload(target_dir, payload, final_url, headers, fallback_prefix=fallback_prefix)
+
+
+def _materialize_web_dataset_source(location: str, target: Path) -> str:
+    req = request.Request(
+        location,
+        headers={
+            "User-Agent": HTTP_USER_AGENT,
+            "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+        },
+    )
+    payload, headers, final_url = _read_url_response(req, timeout=60)
+
+    if _is_supported_download_response(final_url, headers):
+        _write_download_payload(target, payload, final_url, headers, fallback_prefix="dataset")
+        return final_url
+
+    html_text = _decode_http_text(payload, headers)
+    title, download_urls = _extract_html_download_urls(html_text, final_url)
+    if not download_urls:
+        raise _build_web_dataset_access_error(location, final_url, html_text, title)
+
+    for index, download_url in enumerate(download_urls, start=1):
+        _download_remote_file(download_url, target, fallback_prefix=f"download_{index}")
+
+    return final_url
 
 
 def _coerce_manifest_text_list(value: Any) -> list[str]:
@@ -239,7 +630,7 @@ def _match_files(base_dir: Path, include_globs: list[str] | None, exclude_globs:
     candidates: list[Path] = []
     for pattern in include_globs:
         for path in base_dir.glob(pattern):
-            if not path.is_file() or path.suffix.lower() not in TABULAR_SUFFIXES:
+            if not path.is_file() or path.suffix.lower() not in DATA_FILE_SUFFIXES:
                 continue
             if _should_skip_archive_member(path.relative_to(base_dir)):
                 continue
@@ -275,21 +666,8 @@ def _extract_osf_project_id(location: str) -> str:
 
 def _read_url_bytes(url_or_request: Any, timeout: int, max_attempts: int = 4) -> bytes:
     """Read bytes from URL with retry/backoff for transient network errors."""
-    for attempt in range(max_attempts):
-        try:
-            with request.urlopen(url_or_request, timeout=timeout) as resp:
-                return resp.read()
-        except Exception as exc:  # noqa: BLE001
-            is_timeout = isinstance(exc, (TimeoutError, socket.timeout))
-            if isinstance(exc, urlerror.URLError):
-                is_timeout = is_timeout or isinstance(exc.reason, socket.timeout)
-            is_transient_http = (
-                isinstance(exc, urlerror.HTTPError)
-                and (exc.code == 429 or 500 <= exc.code < 600)
-            )
-            if attempt == max_attempts - 1 or not (is_timeout or is_transient_http):
-                raise
-            time.sleep(0.75 * (attempt + 1))
+    payload, _, _ = _read_url_response(url_or_request, timeout=timeout, max_attempts=max_attempts)
+    return payload
 
 
 def _osf_json_get(url: str) -> dict[str, Any]:
@@ -297,7 +675,7 @@ def _osf_json_get(url: str) -> dict[str, Any]:
         url,
         headers={
             "Accept": "application/vnd.api+json",
-            "User-Agent": "OpenDV-HCI/1.0",
+            "User-Agent": HTTP_USER_AGENT,
         },
     )
     payload = _read_url_bytes(req, timeout=45).decode("utf-8")
@@ -517,7 +895,7 @@ def _extract_zip_files_recursive(zip_path: Path, source_root: Path, depth: int, 
                 continue
 
             suffix = member_path.suffix.lower()
-            if suffix not in TABULAR_SUFFIXES and suffix not in ARCHIVE_SUFFIXES and suffix not in MAPPING_SUFFIXES:
+            if suffix not in DATA_FILE_SUFFIXES and suffix not in ARCHIVE_SUFFIXES and suffix not in MAPPING_SUFFIXES:
                 continue
 
             destination = (extract_root / member.filename).resolve()
@@ -628,7 +1006,7 @@ def discover_source_files(
 
                     suffix = Path(file_name or path).suffix.lower()
                     if (
-                        suffix not in TABULAR_SUFFIXES
+                        suffix not in DATA_FILE_SUFFIXES
                         and suffix not in ARCHIVE_SUFFIXES
                         and suffix not in MAPPING_SUFFIXES
                     ):
@@ -654,8 +1032,29 @@ def discover_source_files(
         files = _match_files(target, include_globs, exclude_globs)
         return target, files, project_id
 
-    repo_url = source["location"]
-    pinned_ref = source.get("ref", "HEAD")
+    if source_type == "web_dataset":
+        marker = target / ".source_ready"
+        expected_marker = f"{source['location']}|layout=v1"
+
+        if refresh_remote_cache and target.exists():
+            _safe_rmtree(target)
+
+        marker_text = marker.read_text(encoding="utf-8").strip() if marker.exists() else None
+        if marker_text != expected_marker:
+            if target.exists():
+                _safe_rmtree(target)
+            target.mkdir(parents=True, exist_ok=True)
+            _materialize_web_dataset_source(str(source["location"]), target)
+            marker.write_text(expected_marker, encoding="utf-8")
+
+        if extract_archives:
+            _extract_archives_in_tree(target, archive_max_depth)
+        files = _match_files(target, include_globs, exclude_globs)
+        return target, files, str(source["location"])
+
+    github_location = _parse_github_location(str(source["location"]))
+    repo_url = github_location.clone_url
+    pinned_ref = str(source.get("ref") or github_location.ref or "HEAD")
     marker = target / ".source_ready"
 
     if refresh_remote_cache and target.exists():
@@ -664,18 +1063,18 @@ def discover_source_files(
     if not marker.exists():
         if target.exists():
             _safe_rmtree(target)
-        subprocess.run(
-            ["git", "clone", "--depth", "1", repo_url, str(target)],
-            check=True,
-            capture_output=True,
-            text=True,
-        )
-        subprocess.run(
-            ["git", "-C", str(target), "checkout", pinned_ref],
-            check=True,
-            capture_output=True,
-            text=True,
-        )
+        clone_cmd = ["git", "clone", "--depth", "1"]
+        if pinned_ref != "HEAD" and not re.fullmatch(r"[0-9a-f]{7,40}", pinned_ref):
+            clone_cmd.extend(["--branch", pinned_ref])
+        clone_cmd.extend([repo_url, str(target)])
+        subprocess.run(clone_cmd, check=True, capture_output=True, text=True)
+        if pinned_ref != "HEAD":
+            subprocess.run(
+                ["git", "-C", str(target), "checkout", pinned_ref],
+                check=True,
+                capture_output=True,
+                text=True,
+            )
         marker.write_text("ready", encoding="utf-8")
 
     commit_sha = subprocess.run(
@@ -685,15 +1084,27 @@ def discover_source_files(
         text=True,
     ).stdout.strip()
 
+    base_dir = target
+    if github_location.subpath is not None:
+        base_dir = (target / github_location.subpath).resolve()
+        if not base_dir.exists():
+            raise FileNotFoundError(
+                f"GitHub location points to a missing repository subpath: {github_location.subpath}"
+            )
+
+    if base_dir.is_file():
+        files = [base_dir] if base_dir.suffix.lower() in DATA_FILE_SUFFIXES else []
+        return base_dir.parent, files, commit_sha
+
     if extract_archives:
-        _extract_archives_in_tree(target, archive_max_depth)
+        _extract_archives_in_tree(base_dir, archive_max_depth)
 
     files = _match_files(
-        target,
+        base_dir,
         include_globs,
         exclude_globs,
     )
-    return target, files, commit_sha
+    return base_dir, files, commit_sha
 
 def _load_any_table(path: Path) -> pd.DataFrame:
     if path.suffix.lower() == ".tsv":
@@ -1193,7 +1604,26 @@ def run_batch(
                     cache_root=resolved_cache_root,
                     refresh_remote_cache=refresh_remote_cache,
                 )
+            except SourceAccessError as exc:
+                print(f"[{exc.status.upper()}] {source_id}: {exc}")
+                run_results.append(
+                    SourceRunResult(
+                        source_id=source_id,
+                        status=exc.status,
+                        discovered_files=0,
+                        processed_files=0,
+                        failed_files=0,
+                        unknown_columns=0,
+                        total_columns=0,
+                        mapped_columns=0,
+                        mapped_ratio=0.0,
+                        output_dir=str(source_output_dir),
+                        message=str(exc),
+                    )
+                )
+                continue
             except Exception as exc:  # noqa: BLE001
+                print(f"[FAILED] {source_id}: {exc}")
                 run_results.append(
                     SourceRunResult(
                         source_id=source_id,
@@ -1207,6 +1637,26 @@ def run_batch(
                         mapped_ratio=0.0,
                         output_dir=str(source_output_dir),
                         message=str(exc),
+                    )
+                )
+                continue
+
+            if not files:
+                message = "No supported dataset files were discovered for this source."
+                print(f"[NOT_AVAILABLE] {source_id}: {message}")
+                run_results.append(
+                    SourceRunResult(
+                        source_id=source_id,
+                        status="not_available",
+                        discovered_files=0,
+                        processed_files=0,
+                        failed_files=0,
+                        unknown_columns=0,
+                        total_columns=0,
+                        mapped_columns=0,
+                        mapped_ratio=0.0,
+                        output_dir=str(source_output_dir),
+                        message=message,
                     )
                 )
                 continue
@@ -1488,6 +1938,8 @@ def run_batch(
                 if len(dataset_errors) > 3:
                     preview += f"; ... and {len(dataset_errors) - 3} more"
                 message = preview
+                if status == "failed":
+                    print(f"[FAILED] {source_id}: {message}")
             run_results.append(
                 SourceRunResult(
                     source_id=source_id,
@@ -1601,7 +2053,7 @@ def main() -> None:
     parser.add_argument(
         "--cache-dir",
         default=None,
-        help="Optional directory for caching downloaded remote sources (OSF/GitHub).",
+        help="Optional directory for caching downloaded remote sources (OSF/GitHub/web datasets).",
     )
     parser.add_argument(
         "--refresh-remote-cache",

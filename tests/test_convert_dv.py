@@ -59,6 +59,16 @@ class ConvertDVTests(unittest.TestCase):
             self.assertEqual(df.loc[0, "Label"], "Café")
 
 
+    def test_load_input_file_reads_pickled_dataframe(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            pickle_path = Path(tmpdir) / "study.pkl"
+            expected = pd.DataFrame({"DurationX": [1.0, 2.0], "Trust": [4.0, 5.0]})
+            expected.to_pickle(pickle_path)
+
+            df = load_input_file(str(pickle_path))
+
+            pd.testing.assert_frame_equal(df, expected)
+
     def test_case_insensitive_mapping_works(self):
         schema_data = load_schema(str(SCHEMA_PATH))
         mapping = schema_data["mapping"]

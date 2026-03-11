@@ -182,6 +182,8 @@ def add_derived_scale_scores(df: pd.DataFrame) -> pd.DataFrame:
 def _read_file(path: Path) -> pd.DataFrame:
     if path.suffix.lower() == ".csv":
         return pd.read_csv(path)
+    if path.suffix.lower() in {".pkl", ".pickle"}:
+        return pd.read_pickle(path)
     return pd.read_excel(path)
 
 
@@ -202,14 +204,19 @@ def load_studies(input_dir: Path) -> Dict[str, pd.DataFrame]:
     Files directly in input_dir are treated as separate studies by file stem.
     Derived scale scores are computed after grouping.
     """
-    files = sorted(list(input_dir.rglob("*.csv")) + list(input_dir.rglob("*.xlsx")))
+    files = sorted(
+        list(input_dir.rglob("*.csv"))
+        + list(input_dir.rglob("*.xlsx"))
+        + list(input_dir.rglob("*.pkl"))
+        + list(input_dir.rglob("*.pickle"))
+    )
 
     print(f"Found {len(files)} file(s):")
     for f in files:
         print(f"  {f}")
 
     if not files:
-        raise FileNotFoundError(f"No CSV/XLSX files found in {input_dir}")
+        raise FileNotFoundError(f"No CSV/XLSX/PKL files found in {input_dir}")
 
     # Group files by their immediate parent directory relative to input_dir.
     # Files sitting directly in input_dir are treated as separate studies.

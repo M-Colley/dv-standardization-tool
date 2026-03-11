@@ -21,7 +21,7 @@ import re
 import warnings
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, List, Literal, Tuple
+from typing import Any, Dict, List, Literal, Tuple
 
 import pandas as pd
 import yaml
@@ -200,7 +200,7 @@ def load_schema(
 
 
 def load_input_file(input_path: str) -> pd.DataFrame:
-    """Load tabular input data from CSV or Excel files."""
+    """Load tabular input data from CSV, Excel, or pickle files."""
     input_file = Path(input_path)
     suffix = input_file.suffix.lower()
 
@@ -236,10 +236,42 @@ def load_input_file(input_path: str) -> pd.DataFrame:
         if decode_errors:
             raise decode_errors[-1]
         return pd.read_csv(input_file, sep=delimiter)
+    if suffix in {".pkl", ".pickle"}:
+        payload = pd.read_pickle(input_file)
+        return _coerce_pickled_payload_to_dataframe(payload)
 
     raise ValueError(
         f"Unsupported input format: '{suffix or 'no extension'}'. "
-        "Supported formats are .csv, .xlsx, and .xls."
+        "Supported formats are .csv, .xlsx, .xls, .pkl, and .pickle."
+    )
+
+
+def _coerce_pickled_payload_to_dataframe(payload: Any) -> pd.DataFrame:
+    """Normalize common pickle payload shapes into a DataFrame."""
+    if isinstance(payload, pd.DataFrame):
+        return payload
+    if isinstance(payload, pd.Series):
+        return payload.to_frame()
+    if isinstance(payload, dict):
+        if not payload:
+            return pd.DataFrame()
+        try:
+            return pd.DataFrame(payload)
+        except ValueError:
+            return pd.json_normalize(payload)
+    if isinstance(payload, (list, tuple)):
+        if not payload:
+            return pd.DataFrame()
+        return pd.DataFrame(payload)
+    if hasattr(payload, "shape"):
+        try:
+            return pd.DataFrame(payload)
+        except ValueError:
+            pass
+
+    raise ValueError(
+        f"Unsupported pickle payload type '{type(payload).__name__}'. "
+        "Expected a DataFrame-like object such as a pandas DataFrame, Series, dict, list, or array."
     )
 
 
@@ -333,7 +365,7 @@ def resolve_io_paths(input_arg: str, output_arg: str | None, schema_arg: str | N
 
 
 def save_output_file(df: pd.DataFrame, output_path: str) -> None:
-    """Save standardized data to CSV or Excel based on file extension."""
+    """Save standardized data to CSV, Excel, or pickle based on file extension."""
     output_file = Path(output_path)
     suffix = output_file.suffix.lower()
 
@@ -349,10 +381,13 @@ def save_output_file(df: pd.DataFrame, output_path: str) -> None:
     if suffix == ".csv":
         df.to_csv(output_file, index=False)
         return
+    if suffix in {".pkl", ".pickle"}:
+        df.to_pickle(output_file)
+        return
 
     raise ValueError(
         f"Unsupported output format: '{suffix or 'no extension'}'. "
-        "Supported formats are .csv, .xlsx, and .xls."
+        "Supported formats are .csv, .xlsx, .xls, .pkl, and .pickle."
     )
 
 

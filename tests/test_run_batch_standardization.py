@@ -7,11 +7,13 @@ import tempfile
 import unittest
 from unittest import mock
 from pathlib import Path
+from email.message import Message
 
 import pandas as pd
 import yaml
 
 from scripts.run_batch_standardization import (
+    SourceAccessError,
     _augment_mapping_with_llm_deductions,
     _extract_osf_project_id,
     _iter_osf_file_entries,
@@ -327,6 +329,106 @@ class BatchStandardizationTests(unittest.TestCase):
             self.assertEqual(len(llm_records), 1)
             self.assertEqual(llm_records[0]["alias"], "DurationX")
             self.assertEqual(llm_records[0]["canonical_dv"], "task_completion_time")
+
+    def test_run_batch_marks_sources_with_no_supported_files_as_not_available(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            tmp = Path(tmpdir)
+            input_dir = tmp / "input"
+            input_dir.mkdir()
+            (input_dir / "notes.txt").write_text("no tabular data here", encoding="utf-8")
+
+            manifest_path = tmp / "manifest.yaml"
+            manifest_path.write_text(
+                yaml.safe_dump(
+                    {
+                        "sources": [
+                            {
+                                "source_id": "empty_source",
+                                "source_type": "local_path",
+                                "location": str(input_dir),
+                                "include_globs": ["**/*.csv"],
+                            }
+                        ]
+                    }
+                ),
+                encoding="utf-8",
+            )
+
+            summary = run_batch(manifest_path, tmp / "output", SCHEMA_PATH, llm_deduction_enabled=False)
+
+        self.assertEqual(summary["results"][0]["status"], "not_available")
+        self.assertIn("No supported dataset files", summary["results"][0]["message"])
+
+    def test_run_batch_records_login_required_sources(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            tmp = Path(tmpdir)
+            manifest_path = tmp / "manifest.yaml"
+            manifest_path.write_text(
+                yaml.safe_dump(
+                    {
+                        "sources": [
+                            {
+                                "source_id": "ieee_source",
+                                "source_type": "web_dataset",
+                                "location": "https://ieee-dataport.org/open-access/usyd-campus-dataset",
+                                "include_globs": ["**/*.csv"],
+                            }
+                        ]
+                    }
+                ),
+                encoding="utf-8",
+            )
+
+            with mock.patch(
+                "scripts.run_batch_standardization.discover_source_files",
+                side_effect=SourceAccessError("login_required", "Dataset files require login."),
+            ):
+                summary = run_batch(manifest_path, tmp / "output", SCHEMA_PATH, llm_deduction_enabled=False)
+
+        self.assertEqual(summary["results"][0]["status"], "login_required")
+        self.assertEqual(summary["results"][0]["message"], "Dataset files require login.")
+
+    def test_run_batch_standardizes_pickle_datasets(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            tmp = Path(tmpdir)
+            input_dir = tmp / "input"
+            input_dir.mkdir()
+            pd.DataFrame({"DurationX": [1.0, 2.0]}).to_pickle(input_dir / "study.pkl")
+            (input_dir / "source_mapping.yaml").write_text(
+                yaml.safe_dump(
+                    {
+                        "dvs": [
+                            {"id": "task_completion_time", "aliases": ["DurationX"]},
+                        ]
+                    }
+                ),
+                encoding="utf-8",
+            )
+
+            manifest_path = tmp / "manifest.yaml"
+            manifest_path.write_text(
+                yaml.safe_dump(
+                    {
+                        "sources": [
+                            {
+                                "source_id": "pickle_source",
+                                "source_type": "local_path",
+                                "location": str(input_dir),
+                                "include_globs": ["*.pkl"],
+                            }
+                        ]
+                    }
+                ),
+                encoding="utf-8",
+            )
+
+            summary = run_batch(manifest_path, tmp / "output", SCHEMA_PATH, llm_deduction_enabled=False)
+
+            standardized_path = tmp / "output" / "standardized" / "pickle_source" / "study_pkl-standardized.pkl"
+            standardized_df = pd.read_pickle(standardized_path)
+
+        self.assertEqual(summary["results"][0]["status"], "completed")
+        self.assertIn("task_completion_time", standardized_df.columns)
 
     def test_run_batch_passes_publication_hints_into_llm_context_collection(self):
         with tempfile.TemporaryDirectory() as tmpdir:
@@ -1261,6 +1363,124 @@ class BatchStandardizationTests(unittest.TestCase):
 
             sources = load_manifest(manifest_path)
             self.assertEqual(sources[0]["source_type"], "osf_project")
+
+    def test_load_manifest_accepts_web_dataset_source_type(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            manifest_path = Path(tmpdir) / "manifest.yaml"
+            manifest_path.write_text(
+                yaml.safe_dump(
+                    {
+                        "sources": [
+                            {
+                                "source_id": "fourtu_source",
+                                "source_type": "web_dataset",
+                                "location": "https://data.4tu.nl/articles/_/20224281",
+                                "include_globs": ["**/*.csv"],
+                            }
+                        ]
+                    }
+                ),
+                encoding="utf-8",
+            )
+
+            sources = load_manifest(manifest_path)
+            self.assertEqual(sources[0]["source_type"], "web_dataset")
+
+    def test_discover_source_files_github_tree_url_scopes_to_subpath_and_pickle_files(self):
+        source = {
+            "source_id": "touch_bumps",
+            "source_type": "github_repo",
+            "location": "https://github.com/interactionlab/Touch-Interaction-with-Road-Bumps/tree/master/data",
+            "include_globs": ["**/*.csv", "**/*.pkl"],
+        }
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            workdir = Path(tmpdir)
+
+            def _fake_git_run(command, check, capture_output, text):
+                if command[:3] == ["git", "clone", "--depth"]:
+                    target = Path(command[-1])
+                    target.mkdir(parents=True, exist_ok=True)
+                    (target / "root.csv").write_text("a,b\n0,1\n", encoding="utf-8")
+                    data_dir = target / "data"
+                    data_dir.mkdir(parents=True, exist_ok=True)
+                    (data_dir / "study.csv").write_text("a,b\n1,2\n", encoding="utf-8")
+                    pd.DataFrame({"signal": [0.1, 0.2]}).to_pickle(data_dir / "sensor.pkl")
+                    return mock.Mock(stdout="")
+                if command[:4] == ["git", "-C", str(workdir / "touch_bumps"), "checkout"]:
+                    return mock.Mock(stdout="")
+                if command[:4] == ["git", "-C", str(workdir / "touch_bumps"), "rev-parse"]:
+                    return mock.Mock(stdout=("a" * 40) + "\n")
+                raise AssertionError(f"Unexpected git command: {command}")
+
+            with mock.patch("scripts.run_batch_standardization.subprocess.run", side_effect=_fake_git_run):
+                base_dir, files, commit_sha = discover_source_files(source, workdir)
+
+        self.assertEqual(base_dir, (workdir / "touch_bumps" / "data"))
+        self.assertEqual(sorted(path.name for path in files), ["sensor.pkl", "study.csv"])
+        self.assertEqual(commit_sha, "a" * 40)
+
+    def test_discover_source_files_web_dataset_downloads_4tu_style_archive(self):
+        source = {
+            "source_id": "fourtu_source",
+            "source_type": "web_dataset",
+            "location": "https://data.4tu.nl/articles/_/20224281",
+            "include_globs": ["**/*.csv"],
+        }
+
+        page_headers = Message()
+        page_headers["Content-Type"] = "text/html; charset=utf-8"
+        zip_headers = Message()
+        zip_headers["Content-Type"] = "application/zip"
+        zip_headers["Content-Disposition"] = 'attachment; filename="dataset.zip"'
+        zip_buffer = io.BytesIO()
+        with zipfile.ZipFile(zip_buffer, "w") as zf:
+            zf.writestr("Study/results.csv", "a,b\n1,2\n")
+
+        html = (
+            '<html><head><title>4TU dataset</title>'
+            '<script type="application/ld+json">'
+            '{"distribution":{"contentUrl":"https://data.4tu.nl/ndownloader/items/test/versions/2"}}'
+            "</script></head><body></body></html>"
+        )
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            workdir = Path(tmpdir)
+            with mock.patch(
+                "scripts.run_batch_standardization._read_url_response",
+                side_effect=[
+                    (html.encode("utf-8"), page_headers, source["location"]),
+                    (zip_buffer.getvalue(), zip_headers, "https://data.4tu.nl/ndownloader/items/test/versions/2"),
+                ],
+            ):
+                base_dir, files, commit_sha = discover_source_files(source, workdir)
+
+        self.assertEqual(base_dir, workdir / "fourtu_source")
+        self.assertEqual(len(files), 1)
+        self.assertEqual(files[0].name, "results.csv")
+        self.assertEqual(commit_sha, source["location"])
+
+    def test_discover_source_files_web_dataset_reports_login_required(self):
+        source = {
+            "source_id": "ieee_source",
+            "source_type": "web_dataset",
+            "location": "https://ieee-dataport.org/open-access/usyd-campus-dataset",
+            "include_globs": ["**/*.csv"],
+        }
+        page_headers = Message()
+        page_headers["Content-Type"] = "text/html; charset=utf-8"
+        html = "<html><body>LOGIN TO ACCESS DATASET FILES <a href='/saml_login'>Login</a></body></html>"
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            workdir = Path(tmpdir)
+            with mock.patch(
+                "scripts.run_batch_standardization._read_url_response",
+                return_value=(html.encode("utf-8"), page_headers, source["location"]),
+            ):
+                with self.assertRaises(SourceAccessError) as ctx:
+                    discover_source_files(source, workdir)
+
+        self.assertEqual(ctx.exception.status, "login_required")
 
     def test_extract_osf_project_id_accepts_url_and_raw_id(self):
         self.assertEqual(_extract_osf_project_id("cwd6h"), "cwd6h")

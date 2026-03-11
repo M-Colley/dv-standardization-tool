@@ -27,6 +27,16 @@ class MultiStudyAnalysisTests(unittest.TestCase):
         self.assertEqual(len(studies["study_a"]), 2)
         self.assertEqual(len(studies["study_b"]), 2)
 
+    def test_load_studies_reads_pickled_standardized_files(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            root = Path(tmpdir)
+            pd.DataFrame({"task_success": [0.8, 0.9]}).to_pickle(root / "study_a.pkl")
+
+            studies = load_studies(root)
+
+        self.assertEqual(set(studies.keys()), {"study_a"})
+        self.assertEqual(studies["study_a"]["task_success"].tolist(), [0.8, 0.9])
+
     def test_meta_analysis_summary_returns_random_effects_metrics(self):
         summary = pd.DataFrame(
             [

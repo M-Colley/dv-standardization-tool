@@ -32,6 +32,15 @@ from analyses.multi_study_analysis import (
 from scripts.run_batch_standardization import run_batch
 
 DEFAULT_SCHEMA_PATH = REPO_ROOT / "schemas" / "standard_dv_mapping.yaml"
+REMOTE_DATASET_SUFFIXES = {".csv", ".tsv", ".xlsx", ".xls", ".pkl", ".pickle", ".zip", ".yaml", ".yml"}
+WEB_DATASET_HOSTS = {
+    "data.4tu.nl",
+    "www.data.4tu.nl",
+    "ieee-dataport.org",
+    "www.ieee-dataport.org",
+    "wjx.cn",
+    "www.wjx.cn",
+}
 LIST_LIKE_FIELDS = {
     "include_globs",
     "exclude_globs",
@@ -134,10 +143,12 @@ def _infer_source_type(location: str) -> str:
             return "github_repo"
         if "osf.io" in host:
             return "osf_project"
+        if host in WEB_DATASET_HOSTS or Path(parsed.path).suffix.lower() in REMOTE_DATASET_SUFFIXES:
+            return "web_dataset"
     if Path(location).expanduser().exists():
         return "local_path"
     raise ValueError(
-        f"Could not infer source_type for '{location}'. Provide a source_type column or use a GitHub/OSF/local path."
+        f"Could not infer source_type for '{location}'. Provide a source_type column or use a GitHub/OSF/web dataset/local path."
     )
 
 
@@ -357,11 +368,11 @@ def run_catalog_meta_analysis(
     )
 
     manifest_path = output_dir / "generated_sources_manifest.yaml"
+    source_summary_path = output_dir / "catalog_source_summary.csv"
     manifest_path.write_text(
         yaml.safe_dump({"sources": sources}, sort_keys=False),
         encoding="utf-8",
     )
-    source_summary.to_csv(output_dir / "catalog_source_summary.csv", index=False)
 
     batch_summary = run_batch(
         manifest_path=manifest_path,
@@ -374,10 +385,59 @@ def run_catalog_meta_analysis(
         debug_mappings=debug_mappings,
     )
 
+    batch_results = pd.DataFrame(batch_summary.get("results", []))
+    if not batch_results.empty:
+        summary_columns = [
+            "source_id",
+            "status",
+            "message",
+            "discovered_files",
+            "processed_files",
+            "failed_files",
+        ]
+        available_columns = [column for column in summary_columns if column in batch_results.columns]
+        source_summary = source_summary.merge(
+            batch_results[available_columns].rename(
+                columns={
+                    "status": "batch_status",
+                    "message": "batch_message",
+                }
+            ),
+            on="source_id",
+            how="left",
+        )
+    source_summary.to_csv(source_summary_path, index=False)
+
     standardized_root = output_dir / "standardized"
-    studies = load_studies(standardized_root)
     analysis_dir = output_dir / "analysis"
     analysis_dir.mkdir(parents=True, exist_ok=True)
+
+    try:
+        studies = load_studies(standardized_root)
+    except FileNotFoundError as exc:
+        analysis_summary = {
+            "catalog_path": str(catalog_path),
+            "url_column": url_column,
+            "n_catalog_rows": int(len(catalog_df)),
+            "n_unique_sources": int(len(sources)),
+            "n_loaded_studies": 0,
+            "average_pairwise_jaccard": None,
+            "meta_analysis_row_count": 0,
+            "overlap_pair_count": 0,
+            "composite_index_written": False,
+            "batch_run_summary": batch_summary,
+            "source_status_counts": (
+                batch_results["status"].value_counts(dropna=False).to_dict()
+                if "status" in batch_results.columns
+                else {}
+            ),
+            "analysis_skipped_reason": str(exc),
+        }
+        (analysis_dir / "analysis_summary.json").write_text(
+            json.dumps(analysis_summary, indent=2),
+            encoding="utf-8",
+        )
+        return analysis_summary
 
     overlap = compute_overlap(studies)
     presence = compute_dv_presence_matrix(studies)
@@ -417,6 +477,11 @@ def run_catalog_meta_analysis(
         "overlap_pair_count": int(len(overlap_details)),
         "composite_index_written": composite_written,
         "batch_run_summary": batch_summary,
+        "source_status_counts": (
+            batch_results["status"].value_counts(dropna=False).to_dict()
+            if "status" in batch_results.columns
+            else {}
+        ),
     }
     (analysis_dir / "analysis_summary.json").write_text(
         json.dumps(analysis_summary, indent=2),
@@ -467,7 +532,7 @@ def main() -> None:
     parser.add_argument(
         "--cache-dir",
         default=None,
-        help="Optional directory for caching downloaded remote sources (OSF/GitHub).",
+        help="Optional directory for caching downloaded remote sources (OSF/GitHub/web datasets).",
     )
     parser.add_argument(
         "--refresh-remote-cache",
