@@ -12,7 +12,23 @@ from scripts.run_catalog_meta_analysis import (
 )
 
 
+REPO_ROOT = Path(__file__).resolve().parents[1]
+EXAMPLE_CATALOG_PATH = REPO_ROOT / "data" / "raw" / "study_catalog_example.csv"
+
+
 class CatalogMetaAnalysisTests(unittest.TestCase):
+    def test_example_catalog_includes_new_supported_sources(self):
+        catalog = pd.read_csv(EXAMPLE_CATALOG_PATH)
+
+        self.assertIn(
+            "https://github.com/interactionlab/Touch-Interaction-with-Road-Bumps/tree/master/data",
+            catalog["dataset_url"].tolist(),
+        )
+        self.assertIn(
+            "https://data.4tu.nl/articles/_/20224281",
+            catalog["dataset_url"].tolist(),
+        )
+
     def test_build_sources_from_catalog_deduplicates_locations(self):
         catalog = pd.DataFrame(
             [

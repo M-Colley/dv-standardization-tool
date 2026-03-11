@@ -1,5 +1,5 @@
 # Example source manifest for scripts/run_batch_standardization.py
-# Uses two public CHI'25 data repositories.
+# Includes public GitHub, OSF, and web-hosted dataset examples.
 sources:
   - source_id: roads_chi25
     source_type: github_repo
@@ -52,3 +52,26 @@ sources:
     llm_models:
       - Qwen/Qwen3.5-4B
       - microsoft/Phi-4-mini-instruct
+
+  - source_id: road_bumps_touch
+    source_type: github_repo
+    location: https://github.com/interactionlab/Touch-Interaction-with-Road-Bumps/tree/master/data
+    include_globs:
+      - "**/*.csv"
+      - "**/*.pkl"
+      - "**/*.pickle"
+    use_llm_deduction: false
+
+  - source_id: fourtu_critical_ehmi
+    source_type: web_dataset
+    location: https://data.4tu.nl/articles/_/20224281
+    publication_doi: 10.4121/20224281.v2
+    include_globs:
+      - "**/*.csv"
+      - "**/*.xlsx"
+      - "**/*.xls"
+      - "**/*.tsv"
+      - "**/*.pkl"
+      - "**/*.pickle"
+    extract_archives: true
+    archive_max_depth: 3

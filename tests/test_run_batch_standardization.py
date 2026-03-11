@@ -503,7 +503,7 @@ class BatchStandardizationTests(unittest.TestCase):
     def test_example_manifest_points_to_requested_github_repos(self):
         sources = load_manifest(EXAMPLE_MANIFEST_PATH)
 
-        self.assertEqual(len(sources), 3)
+        self.assertEqual(len(sources), 5)
         self.assertEqual(sources[0]["source_id"], "roads_chi25")
         self.assertEqual(
             sources[0]["location"],
@@ -518,6 +518,16 @@ class BatchStandardizationTests(unittest.TestCase):
         self.assertEqual(
             sources[2]["location"],
             "https://osf.io/cwd6h/overview",
+        )
+        self.assertEqual(sources[3]["source_id"], "road_bumps_touch")
+        self.assertEqual(
+            sources[3]["location"],
+            "https://github.com/interactionlab/Touch-Interaction-with-Road-Bumps/tree/master/data",
+        )
+        self.assertEqual(sources[4]["source_id"], "fourtu_critical_ehmi")
+        self.assertEqual(
+            sources[4]["location"],
+            "https://data.4tu.nl/articles/_/20224281",
         )
 
     def test_run_batch_maps_semicolon_csv_columns_including_mental_load(self):

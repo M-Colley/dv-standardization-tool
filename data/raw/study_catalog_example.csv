@@ -1,0 +1,6 @@
+study_name,dataset_url,source_type,domain,task,notes
+roads_chi25,https://github.com/M-Colley/roads-chi25-data,github_repo,automated-driving,road-user interaction,Existing GitHub example dataset
+ehmi_optimization_chi25,https://github.com/M-Colley/ehmi-optimization-chi25-data,github_repo,automated-driving,eHMI optimization,Existing GitHub example dataset
+osf_cwd6h,https://osf.io/cwd6h/overview,osf_project,automated-driving,pedestrian trust,Existing OSF example dataset
+road_bumps_touch,https://github.com/interactionlab/Touch-Interaction-with-Road-Bumps/tree/master/data,github_repo,haptics,touch interaction with road bumps,Scoped GitHub tree example with CSV and PKL files
+fourtu_critical_ehmi,https://data.4tu.nl/articles/_/20224281,web_dataset,automated-driving,critical driver-pedestrian encounters,4TU landing-page example that downloads a ZIP archive

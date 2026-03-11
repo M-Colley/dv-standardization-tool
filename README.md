@@ -200,13 +200,15 @@ Example:
 
 ```bash
 python scripts/run_catalog_meta_analysis.py \
-  --catalog data/raw/study_catalog.xlsx \
+  --catalog data/raw/study_catalog_example.csv \
   --url-column dataset_url \
   --source-id-column study_name \
   --source-type-column source_type \
   --context-columns domain,task \
   --output-dir data/processed/catalog_meta_analysis
 ```
+
+The repository now includes a starter catalog at `data/raw/study_catalog_example.csv` with GitHub, OSF, scoped GitHub tree, and 4TU examples.
 
 Outputs include:
 - `generated_sources_manifest.yaml`
