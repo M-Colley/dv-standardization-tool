@@ -15,6 +15,7 @@ import yaml
 from scripts.run_batch_standardization import (
     SourceAccessError,
     _augment_mapping_with_llm_deductions,
+    _build_artifact_prefix,
     _extract_osf_project_id,
     _iter_osf_file_entries,
     _load_repository_mapping,
@@ -172,6 +173,23 @@ class BatchStandardizationTests(unittest.TestCase):
             matched = _match_files(root, ["**/*.csv"], None)
 
         self.assertEqual([path.name for path in matched], ["usable.csv"])
+
+    def test_match_files_respects_directory_style_exclude_globs(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            root = Path(tmpdir)
+            keep_dir = root / "usable"
+            excluded_dir = root / "ClearedLogs" / "nested"
+            keep_dir.mkdir(parents=True, exist_ok=True)
+            excluded_dir.mkdir(parents=True, exist_ok=True)
+            (keep_dir / "results.csv").write_text("a\n1\n", encoding="utf-8")
+            (excluded_dir / "ignored.csv").write_text("a\n1\n", encoding="utf-8")
+
+            matched = _match_files(root, ["**/*.csv"], ["**/ClearedLogs/**"])
+
+        self.assertEqual(
+            [path.relative_to(root).as_posix() for path in matched],
+            ["usable/results.csv"],
+        )
 
     def test_iter_osf_file_entries_reads_all_provider_roots(self):
         provider_page = {
@@ -1227,6 +1245,73 @@ class BatchStandardizationTests(unittest.TestCase):
 
             meta_df = pd.read_csv(output_dir / "meta_view.csv")
             self.assertEqual(sorted(meta_df["dataset_id"].unique().tolist()), ["wave1/results.csv", "wave2/results.csv"])
+
+    def test_build_artifact_prefix_shortens_long_names_with_hash(self):
+        relative_path = Path(
+            "__extracted_archives/extracted_archives_Supplementary_data_for_the_paper_Get_out_of_the_way_Examining_eHMIs_in_critical_driver-pedestrian_encounters_in_a_coupled_si__2_all_data/data/Session1/World Root-HostFixedTimeLog-Pedestrian-2019_11_26_14_37_25.csv"
+        )
+        output_dir = Path("C:/tmp/output/fourtu_critical_ehmi")
+
+        raw_prefix = _build_artifact_prefix(relative_path)
+        shortened_prefix = _build_artifact_prefix(
+            relative_path,
+            output_dir=output_dir,
+            artifact_suffix_length=len("-mapping-debug.json"),
+        )
+
+        self.assertGreater(len(raw_prefix), len(shortened_prefix))
+        self.assertEqual(
+            shortened_prefix,
+            _build_artifact_prefix(
+                relative_path,
+                output_dir=output_dir,
+                artifact_suffix_length=len("-mapping-debug.json"),
+            ),
+        )
+        self.assertIn("_", shortened_prefix)
+
+    def test_run_batch_shortens_long_artifact_prefixes_for_deep_paths(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            tmp = Path(tmpdir)
+            input_dir = tmp / "input"
+            long_relative = Path(
+                "__extracted_archives/extracted_archives_Supplementary_data_for_the_paper_Get_out_of_the_way_Examining_eHMIs_in_critical_driver-pedestrian_encounters_in_a_coupled_si__2_all_data/data/Session1/World Root-HostFixedTimeLog-Pedestrian-2019_11_26_14_37_25.csv"
+            )
+            dataset_path = input_dir / long_relative
+            dataset_path.parent.mkdir(parents=True, exist_ok=True)
+            pd.DataFrame({"Trust": [1.0, 2.0]}).to_csv(dataset_path, index=False)
+
+            manifest_path = tmp / "manifest.yaml"
+            manifest_path.write_text(
+                yaml.safe_dump(
+                    {
+                        "sources": [
+                            {
+                                "source_id": "study_source",
+                                "source_type": "local_path",
+                                "location": str(input_dir),
+                                "include_globs": ["**/*.csv"],
+                            }
+                        ]
+                    }
+                ),
+                encoding="utf-8",
+            )
+
+            output_dir = tmp / "output"
+            summary = run_batch(manifest_path, output_dir, SCHEMA_PATH, llm_deduction_enabled=False)
+
+            source_output = output_dir / "standardized" / "study_source"
+            standardized_files = list(source_output.glob("*-standardized.csv"))
+            quality_files = list(source_output.glob("*-quality.json"))
+            raw_prefix = _build_artifact_prefix(long_relative)
+
+            self.assertEqual(summary["results"][0]["status"], "completed")
+            self.assertEqual(summary["results"][0]["processed_files"], 1)
+            self.assertEqual(len(standardized_files), 1)
+            self.assertEqual(len(quality_files), 1)
+            self.assertLess(len(standardized_files[0].name), len(f"{raw_prefix}-standardized.csv"))
+            self.assertIn(long_relative.as_posix(), pd.read_csv(output_dir / "meta_view.csv")["dataset_id"].tolist())
 
     def test_discover_source_files_local_path_extracts_zip_tabular_files_in_nested_subfolders(self):
         with tempfile.TemporaryDirectory() as tmpdir:

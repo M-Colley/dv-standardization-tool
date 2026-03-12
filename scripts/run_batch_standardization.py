@@ -8,6 +8,7 @@ standardizes columns, and emits a consolidated meta-view artifact.
 from __future__ import annotations
 
 import argparse
+import fnmatch
 import json
 import hashlib
 import os
@@ -112,6 +113,9 @@ WEB_NO_DATA_MARKERS = (
     "没有数据",
 )
 WEB_NO_DATA_MARKERS = WEB_NO_DATA_MARKERS_ASCII
+WINDOWS_PATH_SOFT_LIMIT = 240
+MIN_ARTIFACT_PREFIX_LENGTH = 48
+ARTIFACT_HASH_LENGTH = 12
 # Survey/admin/identifier fields that should never be mapped to DVs.
 NEVER_MAP_NORMALIZED_COLUMNS = {
     "id",
@@ -640,11 +644,20 @@ def _match_files(base_dir: Path, include_globs: list[str] | None, exclude_globs:
     if not exclude_globs:
         return unique_candidates
 
-    excluded: set[Path] = set()
-    for pattern in exclude_globs:
-        excluded.update(path for path in base_dir.glob(pattern) if path.is_file())
+    def _is_excluded(path: Path) -> bool:
+        relative_posix = path.relative_to(base_dir).as_posix()
+        for pattern in exclude_globs:
+            normalized_pattern = str(pattern).replace("\\", "/")
+            candidate_patterns = {normalized_pattern}
+            trimmed_pattern = normalized_pattern
+            while trimmed_pattern.startswith("**/"):
+                trimmed_pattern = trimmed_pattern[3:]
+                candidate_patterns.add(trimmed_pattern)
+            if any(fnmatch.fnmatch(relative_posix, candidate) for candidate in candidate_patterns):
+                return True
+        return False
 
-    return [path for path in unique_candidates if path not in excluded]
+    return [path for path in unique_candidates if not _is_excluded(path)]
 
 def _extract_osf_project_id(location: str) -> str:
     """Resolve OSF project id from a raw id or osf.io URL."""
@@ -1111,11 +1124,40 @@ def _load_any_table(path: Path) -> pd.DataFrame:
         return pd.read_csv(path, sep="\t")
     return load_input_file(str(path))
 
-def _build_artifact_prefix(relative_path: Path) -> str:
+def _shorten_artifact_prefix(prefix: str, max_length: int) -> str:
+    if len(prefix) <= max_length:
+        return prefix
+
+    digest = hashlib.sha1(prefix.encode("utf-8")).hexdigest()[:ARTIFACT_HASH_LENGTH]
+    if max_length <= len(digest):
+        return digest[:max_length]
+
+    if max_length <= len(digest) + 2:
+        return f"{prefix[:1]}_{digest[: max_length - 2]}"
+
+    remaining = max_length - len(digest) - 2
+    head_length = max(remaining // 2, 1)
+    tail_length = max(remaining - head_length, 1)
+    shortened = f"{prefix[:head_length]}_{digest}_{prefix[-tail_length:]}"
+    shortened = shortened[:max_length].strip("_")
+    return shortened or digest[:max_length]
+
+
+def _build_artifact_prefix(
+    relative_path: Path,
+    output_dir: Path | None = None,
+    artifact_suffix_length: int = 0,
+) -> str:
     """Create a collision-safe file prefix from a path relative to the source root."""
     normalized = relative_path.as_posix()
     safe_prefix = re.sub(r"[^A-Za-z0-9]+", "_", normalized).strip("_")
-    return safe_prefix or "dataset"
+    prefix = safe_prefix or "dataset"
+    if output_dir is None:
+        return prefix
+
+    max_prefix_length = WINDOWS_PATH_SOFT_LIMIT - len(str(output_dir)) - 1 - max(artifact_suffix_length, 0)
+    max_prefix_length = max(max_prefix_length, MIN_ARTIFACT_PREFIX_LENGTH)
+    return _shorten_artifact_prefix(prefix, max_prefix_length)
 
 
 def _find_repository_mapping_candidates(source_root: Path) -> list[Path]:
@@ -1720,7 +1762,17 @@ def run_batch(
             for file_path in dataset_progress:
                 relative_file = file_path.relative_to(base_dir)
                 dataset_id = relative_file.as_posix()
-                artifact_prefix = _build_artifact_prefix(relative_file)
+                artifact_suffix_length = max(
+                    len(f"-standardized{file_path.suffix}"),
+                    len("-mapping-debug.json"),
+                    len("-quality.json"),
+                    len("-error.log"),
+                )
+                artifact_prefix = _build_artifact_prefix(
+                    relative_file,
+                    output_dir=source_output_dir,
+                    artifact_suffix_length=artifact_suffix_length,
+                )
                 dataset_progress.set_postfix(dataset=dataset_id)
                 destination = source_output_dir / f"{artifact_prefix}-standardized{file_path.suffix}"
                 relative_path = str(relative_file)
