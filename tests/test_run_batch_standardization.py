@@ -30,6 +30,16 @@ REPO_ROOT = Path(__file__).resolve().parents[1]
 SCHEMA_PATH = REPO_ROOT / "schemas" / "standard_dv_mapping.yaml"
 EXAMPLE_MANIFEST_PATH = REPO_ROOT / "sources_manifest_example.yaml"
 
+
+def _paths_equal(left: str | os.PathLike[str], right: str | os.PathLike[str]) -> bool:
+    try:
+        return os.path.samefile(left, right)
+    except OSError:
+        return os.path.normcase(os.path.realpath(os.fspath(left))) == os.path.normcase(
+            os.path.realpath(os.fspath(right))
+        )
+
+
 class BatchStandardizationTests(unittest.TestCase):
     def test_load_repository_mapping_uses_standard_schema_precedence(self):
         with tempfile.TemporaryDirectory() as tmpdir:
@@ -75,7 +85,7 @@ class BatchStandardizationTests(unittest.TestCase):
             merged_mapping, mapping_path = _load_repository_mapping(source_root)
 
             self.assertIsNotNone(mapping_path)
-            self.assertEqual(Path(mapping_path), mapping_file)
+            self.assertTrue(_paths_equal(mapping_path, mapping_file))
             self.assertEqual(merged_mapping["local_alias_only"], "custom_task_time")
 
     def test_load_repository_mapping_tolerates_null_dvs(self):
@@ -126,7 +136,7 @@ class BatchStandardizationTests(unittest.TestCase):
                 dataset_path=dataset_path,
             )
 
-            self.assertEqual(Path(mapping_path), dataset_dir / "source_mapping.yaml")
+            self.assertTrue(_paths_equal(mapping_path, dataset_dir / "source_mapping.yaml"))
             self.assertEqual(merged_mapping["TrustA"], "trust_rating")
 
     def test_load_repository_mapping_uses_requested_mapping_path(self):
@@ -146,7 +156,7 @@ class BatchStandardizationTests(unittest.TestCase):
                 requested_mapping_path="config/custom_mapping.yaml",
             )
 
-            self.assertEqual(Path(mapping_path), requested_path)
+            self.assertTrue(_paths_equal(mapping_path, requested_path))
             self.assertEqual(merged_mapping["TrustA"], "trust_rating")
 
     def test_safe_rmtree_handles_read_only_files(self):
@@ -736,9 +746,11 @@ class BatchStandardizationTests(unittest.TestCase):
             self.assertIn("task_completion_time", standardized_df.columns)
             self.assertIn("custom_task_time", standardized_df.columns)
             self.assertNotIn("duration", standardized_df.columns)
-            self.assertEqual(
-                meta_df.loc[meta_df["canonical_dv"] == "task_completion_time", "source_mapping"].iat[0],
-                str(input_dir / "source_mapping.yaml"),
+            self.assertTrue(
+                _paths_equal(
+                    meta_df.loc[meta_df["canonical_dv"] == "task_completion_time", "source_mapping"].iat[0],
+                    input_dir / "source_mapping.yaml",
+                )
             )
             self.assertIn("Unmapped", standardized_df.columns)
 
@@ -1337,7 +1349,7 @@ class BatchStandardizationTests(unittest.TestCase):
             base_dir, files, commit = discover_source_files(source, workdir)
 
             self.assertIsNone(commit)
-            self.assertEqual(base_dir, input_dir.resolve())
+            self.assertTrue(_paths_equal(base_dir, input_dir.resolve()))
             self.assertEqual(len(files), 1)
             self.assertIn("Car_Critical_1.csv", files[0].name)
             self.assertIn("__extracted_archives", files[0].parts)
@@ -1511,7 +1523,7 @@ class BatchStandardizationTests(unittest.TestCase):
             with mock.patch("scripts.run_batch_standardization.subprocess.run", side_effect=_fake_git_run):
                 base_dir, files, commit_sha = discover_source_files(source, workdir)
 
-        self.assertEqual(base_dir, (workdir / "touch_bumps" / "data"))
+        self.assertTrue(_paths_equal(base_dir, workdir / "touch_bumps" / "data"))
         self.assertEqual(sorted(path.name for path in files), ["sensor.pkl", "study.csv"])
         self.assertEqual(commit_sha, "a" * 40)
 
@@ -1550,7 +1562,7 @@ class BatchStandardizationTests(unittest.TestCase):
             ):
                 base_dir, files, commit_sha = discover_source_files(source, workdir)
 
-        self.assertEqual(base_dir, workdir / "fourtu_source")
+        self.assertTrue(_paths_equal(base_dir, workdir / "fourtu_source"))
         self.assertEqual(len(files), 1)
         self.assertEqual(files[0].name, "results.csv")
         self.assertEqual(commit_sha, source["location"])
@@ -1628,7 +1640,7 @@ class BatchStandardizationTests(unittest.TestCase):
                         base_dir, files, commit = discover_source_files(source, workdir)
 
             self.assertEqual(commit, "cwd6h")
-            self.assertEqual(base_dir, workdir / "osf_no_mapping")
+            self.assertTrue(_paths_equal(base_dir, workdir / "osf_no_mapping"))
             self.assertEqual(len(files), 1)
             self.assertTrue(files[0].name.endswith("study.csv"))
             self.assertEqual(len(downloaded), 1)
@@ -1672,7 +1684,7 @@ class BatchStandardizationTests(unittest.TestCase):
                         base_dir, files, commit = discover_source_files(source, workdir)
 
             self.assertEqual(commit, "cwd6h")
-            self.assertEqual(base_dir, workdir / "osf_zip_source")
+            self.assertTrue(_paths_equal(base_dir, workdir / "osf_zip_source"))
             self.assertEqual(len(files), 1)
             self.assertTrue(files[0].name.endswith("Observations.csv"))
 
@@ -1713,7 +1725,7 @@ class BatchStandardizationTests(unittest.TestCase):
                         base_dir, files, commit = discover_source_files(source, workdir)
 
             self.assertEqual(commit, "cwd6h")
-            self.assertEqual(base_dir, workdir / "osf_component_source")
+            self.assertTrue(_paths_equal(base_dir, workdir / "osf_component_source"))
             self.assertEqual(len(files), 1)
             self.assertIn("Car_Critical_1.csv", files[0].name)
 
@@ -1755,7 +1767,7 @@ class BatchStandardizationTests(unittest.TestCase):
                         base_dir, files, commit = discover_source_files(source, workdir)
 
             self.assertEqual(commit, "cwd6h")
-            self.assertEqual(base_dir, workdir / "osf_component_zip_source")
+            self.assertTrue(_paths_equal(base_dir, workdir / "osf_component_zip_source"))
             self.assertEqual(len(files), 1)
             self.assertIn("Car_Critical_1.csv", files[0].name)
 
