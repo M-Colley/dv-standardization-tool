@@ -46,13 +46,17 @@ def _inject_css() -> None:
 
 def _build_mapping(schema: dict) -> dict[str, str]:
     mapping: dict[str, str] = {}
-    for dv in schema.get("dvs", []):
+    for dv in schema.get("dvs", []) or []:
+        if not isinstance(dv, dict):
+            continue
         canonical = dv.get("id")
         if not canonical:
             continue
         mapping[canonical] = canonical
         mapping[canonical.lower()] = canonical
-        for alias in dv.get("aliases", []):
+        for alias in dv.get("aliases") or []:
+            if not isinstance(alias, str):
+                continue
             mapping[alias] = canonical
             mapping[alias.lower()] = canonical
     return mapping
@@ -109,7 +113,16 @@ def _render_single_dataset_tab() -> None:
     if uploaded_file is None:
         return
 
-    df_raw = load_uploaded_table(uploaded_file)
+    try:
+        df_raw = load_uploaded_table(uploaded_file)
+    except Exception as exc:
+        st.error(f"Failed to load file: {exc}")
+        return
+
+    if df_raw.empty:
+        st.warning("The uploaded file is empty or contains no data.")
+        return
+
     schema = _load_schema(str(DEFAULT_SCHEMA_PATH))
     mapping = _build_mapping(schema)
     df_clean = standardize_columns(df_raw.copy(), mapping)

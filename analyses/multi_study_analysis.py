@@ -65,7 +65,7 @@ def _column_lookup(df: pd.DataFrame) -> Dict[str, str]:
     return {_normalize_colname(col): col for col in df.columns}
 
 
-@lru_cache(maxsize=1)
+@lru_cache(maxsize=4)
 def _load_standard_dv_lookup(schema_path: str = str(DEFAULT_DV_SCHEMA_PATH)) -> Dict[str, str]:
     path = Path(schema_path)
     if not path.is_file():
@@ -84,7 +84,7 @@ def _load_standard_dv_lookup(schema_path: str = str(DEFAULT_DV_SCHEMA_PATH)) -> 
         if not canonical:
             continue
 
-        candidates = [canonical, str(entry.get("label", "")).strip(), *entry.get("aliases", [])]
+        candidates = [canonical, str(entry.get("label", "")).strip(), *(entry.get("aliases") or [])]
         for candidate in candidates:
             normalized = _normalize_colname(str(candidate))
             if normalized and normalized not in lookup:

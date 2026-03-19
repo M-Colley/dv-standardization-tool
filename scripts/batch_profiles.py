@@ -2,9 +2,12 @@
 
 from __future__ import annotations
 
+import logging
 import re
 from pathlib import Path
 from typing import Iterable
+
+logger = logging.getLogger(__name__)
 
 DATASET_TYPE_RESULTS = "results_table"
 DATASET_TYPE_QUESTIONNAIRE = "questionnaire"
@@ -70,6 +73,7 @@ def classify_dataset_type(relative_path: Path, column_names: Iterable[str]) -> s
     path_text = relative_path.as_posix().lower()
     raw_columns = [str(column) for column in column_names]
     normalized_columns = {normalize_column_name(column) for column in raw_columns}
+    total_columns = max(len(raw_columns), 1)
 
     detection_hits = len(normalized_columns & DETECTION_COLUMN_MARKERS)
     sensor_hits = len(normalized_columns & SENSOR_COLUMN_MARKERS)
@@ -82,13 +86,22 @@ def classify_dataset_type(relative_path: Path, column_names: Iterable[str]) -> s
         or column.strip().lower().startswith(("what ", "which ", "how ", "i "))
     )
 
-    if "yolo" in path_text or detection_hits >= 5:
+    # Use both absolute threshold and proportion of total columns to reduce
+    # misclassification when datasets have overlapping marker columns.
+    detection_ratio = detection_hits / total_columns
+    sensor_ratio = sensor_hits / total_columns
+    process_ratio = process_hits / total_columns
+
+    if "yolo" in path_text or (detection_hits >= 5 and detection_ratio >= 0.3):
         return DATASET_TYPE_DETECTION
-    if sensor_hits >= 4:
+    if sensor_hits >= 4 and sensor_ratio >= 0.2:
         return DATASET_TYPE_SENSOR
     if question_hits >= max(3, len(raw_columns) // 2):
         return DATASET_TYPE_QUESTIONNAIRE
-    if process_hits >= max(3, len(raw_columns) // 3):
+    # Only classify as process_log when process columns dominate the dataset
+    # to prevent misclassifying sensor/results tables that happen to have
+    # a timestamp + phase column.
+    if process_hits >= max(3, len(raw_columns) // 3) and process_ratio >= 0.3:
         return DATASET_TYPE_PROCESS
     return DATASET_TYPE_RESULTS
 

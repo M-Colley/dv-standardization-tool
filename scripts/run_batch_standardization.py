@@ -11,6 +11,7 @@ import argparse
 import fnmatch
 import json
 import hashlib
+import logging
 import os
 import re
 import socket
@@ -34,6 +35,8 @@ from urllib.parse import unquote, urljoin, urlparse
 import pandas as pd
 import yaml
 from tqdm import tqdm
+
+logger = logging.getLogger(__name__)
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 if str(REPO_ROOT) not in sys.path:
@@ -263,8 +266,13 @@ class _LandingPageParser(HTMLParser):
 
 
 def load_manifest(manifest_path: Path) -> list[dict[str, Any]]:
-    with open(manifest_path, "r", encoding="utf-8") as f:
-        manifest = yaml.safe_load(f)
+    try:
+        with open(manifest_path, "r", encoding="utf-8") as f:
+            manifest = yaml.safe_load(f)
+    except yaml.YAMLError as exc:
+        raise ValueError(
+            f"Failed to parse manifest YAML at '{manifest_path}': {exc}"
+        ) from exc
 
     if not isinstance(manifest, dict) or "sources" not in manifest:
         raise ValueError("Manifest must be a YAML object with a top-level 'sources' list.")
@@ -668,10 +676,15 @@ def _extract_osf_project_id(location: str) -> str:
     if re.fullmatch(r"[a-z0-9]{5}", location.lower()):
         return location.lower()
 
+    # Accept 5-char alphanumeric IDs with mixed case
+    if re.fullmatch(r"[A-Za-z0-9]{5}", location):
+        return location.lower()
+
     match = re.search(r"osf\.io/([a-z0-9]{5})(?:/|$)", location.lower())
     if not match:
         raise ValueError(
-            "Invalid OSF location. Use a 5-character project id (e.g., cwd6h) "
+            f"Invalid OSF location: '{location}'. "
+            "Use a 5-character alphanumeric project id (e.g., cwd6h) "
             "or an OSF URL such as https://osf.io/cwd6h/overview."
         )
     return match.group(1)
@@ -859,7 +872,12 @@ def _load_optional_schema_mapping(
     if not path.exists():
         return {}, set(), None
 
-    schema_data = load_schema(str(path))
+    try:
+        schema_data = load_schema(str(path))
+    except (yaml.YAMLError, ValueError) as exc:
+        logger.warning("Failed to load optional schema '%s': %s", path, exc)
+        return {}, set(), None
+
     mapping = schema_data["mapping"]
     aliases_ci = {
         str(alias).lower()
@@ -1805,20 +1823,29 @@ def run_batch(
                         cache_key = str(resolved_mapping_path)
                         cached_mapping = mapping_cache.get(cache_key)
                         if cached_mapping is None:
-                            custom_schema_data = load_schema(str(resolved_mapping_path))
-                            source_specific_mapping = custom_schema_data["mapping"]
-                            source_custom_aliases_ci = {
-                                str(alias).lower()
-                                for alias in custom_schema_data["mapping"].keys()
-                                if isinstance(alias, str)
-                            }
-                            cached_mapping = (source_specific_mapping, source_custom_aliases_ci)
-                            mapping_cache[cache_key] = cached_mapping
+                            try:
+                                custom_schema_data = load_schema(str(resolved_mapping_path))
+                            except (yaml.YAMLError, ValueError) as exc:
+                                logger.warning(
+                                    "Skipping malformed mapping YAML '%s' for dataset '%s': %s",
+                                    resolved_mapping_path, dataset_id, exc,
+                                )
+                                resolved_mapping_path = None
+                                custom_schema_data = None
+                            if custom_schema_data is not None:
+                                source_specific_mapping = custom_schema_data["mapping"]
+                                source_custom_aliases_ci = {
+                                    str(alias).lower()
+                                    for alias in custom_schema_data["mapping"].keys()
+                                    if isinstance(alias, str)
+                                }
+                                cached_mapping = (source_specific_mapping, source_custom_aliases_ci)
+                                mapping_cache[cache_key] = cached_mapping
                         else:
                             source_mapping_path = cache_key
                             source_specific_mapping, source_custom_aliases_ci = cached_mapping
 
-                        if source_specific_mapping:
+                        if resolved_mapping_path is not None and source_specific_mapping:
                             source_mapping = _merge_with_standard_precedence(
                                 source_specific_mapping,
                                 standard_mapping,
@@ -2045,12 +2072,23 @@ def run_batch(
         else 0.0
     )
 
+    failed_sources = [r.source_id for r in run_results if r.status == "failed"]
+    partial_sources = [r.source_id for r in run_results if r.status == "partial"]
+    unavailable_sources = [
+        r.source_id for r in run_results
+        if r.status in {"not_available", "login_required"}
+    ]
+
     summary = {
         "manifest": str(manifest_path),
         "schema": str(schema_path),
         "run_timestamp": datetime.now(timezone.utc).isoformat(),
         "total_sources": len(sources),
         "successful_sources": sum(1 for r in run_results if r.status in {"completed", "partial"}),
+        "failed_sources": failed_sources,
+        "partial_sources": partial_sources,
+        "unavailable_sources": unavailable_sources,
+        "run_complete": len(failed_sources) == 0 and len(partial_sources) == 0,
         "meta_view_rows": int(meta_df.shape[0]),
         "llm_deduction_enabled": llm_deduction_enabled,
         "llm_deductions_count": len(llm_deductions),

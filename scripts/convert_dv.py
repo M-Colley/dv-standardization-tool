@@ -17,6 +17,7 @@ Usage:
 import argparse
 import csv
 import json
+import logging
 import re
 import warnings
 from datetime import datetime
@@ -26,6 +27,8 @@ from typing import Any, Dict, List, Literal, Tuple
 import pandas as pd
 import yaml
 
+logger = logging.getLogger(__name__)
+
 # Import the new inference module
 try:
     from scripts.dv_inference import batch_infer, get_measurement_from_schema
@@ -33,7 +36,7 @@ except ImportError:
     try:
         from dv_inference import batch_infer, get_measurement_from_schema
     except ImportError:
-        print("Warning: dv_inference module not found. Metadata inference will be disabled.")
+        logger.warning("dv_inference module not found. Metadata inference will be disabled.")
         batch_infer = None
         get_measurement_from_schema = lambda *_args, **_kwargs: None
 
@@ -190,6 +193,19 @@ def load_schema(
                 "alias_conflict_policy": alias_conflict_policy,
             }
 
+    schema_version = schema.get("version")
+    if schema_version is not None:
+        try:
+            major = int(str(schema_version).split(".")[0])
+            if major > 3:
+                logger.warning(
+                    "Schema version %s may be newer than this tool supports. "
+                    "Consider updating the tool if mappings behave unexpectedly.",
+                    schema_version,
+                )
+        except (ValueError, IndexError):
+            pass
+
     return {
         "mapping": _build_alias_mapping(schema),
         "schema": schema,
@@ -231,6 +247,15 @@ def load_input_file(input_path: str) -> pd.DataFrame:
                 return pd.read_csv(input_file, sep=delimiter, encoding=encoding)
             except UnicodeDecodeError as exc:
                 decode_errors.append(exc)
+            except pd.errors.ParserError as exc:
+                raise ValueError(
+                    f"Failed to parse CSV file '{input_file}': {exc}. "
+                    "The file may be malformed or use an unsupported format."
+                ) from exc
+            except pd.errors.EmptyDataError as exc:
+                raise ValueError(
+                    f"CSV file '{input_file}' is empty or contains no parseable data."
+                ) from exc
 
         # Preserve the original exception type for callers/tests.
         if decode_errors:
@@ -428,11 +453,12 @@ def identify_unmapped_columns(column_names: List[str], mapping: Dict[str, str]) 
     """Return input columns that do not resolve to a known standard DV mapping."""
     unknown_columns: List[str] = []
     for col in column_names:
-        mapped_col = mapping.get(col)
-        if mapped_col is None and isinstance(col, str):
-            mapped_col = mapping.get(col.lower())
+        col_str = str(col)
+        mapped_col = mapping.get(col_str)
         if mapped_col is None:
-            unknown_columns.append(col)
+            mapped_col = mapping.get(col_str.lower())
+        if mapped_col is None:
+            unknown_columns.append(col_str)
     return unknown_columns
 
 
@@ -494,11 +520,22 @@ def standardize_with_metadata(
     column_meta = {}
 
     if batch_infer is None:
-        # If inference module not available, return basic metadata
+        # If inference module not available, return basic metadata with
+        # all expected fields so downstream JSON serialization succeeds.
+        logger.warning("Metadata inference unavailable; emitting placeholder metadata for all columns.")
         for col in standardized_df.columns:
             column_meta[col] = {
+                "category": "Unknown",
+                "primary_unit": "unknown",
+                "allowed_units": [],
+                "scale_type": "ratio",
+                "direction": "neutral",
+                "confidence": 0.0,
+                "inferred": False,
+                "matched_rules": [],
+                "needs_review": True,
                 "original_name": original_names.get(col, [col]),
-                "inference_available": False
+                "inference_available": False,
             }
         return standardized_df, column_meta
 

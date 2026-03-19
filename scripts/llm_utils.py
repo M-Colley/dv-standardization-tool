@@ -8,6 +8,7 @@ context extracted from README files and PDFs found in a source folder.
 from __future__ import annotations
 
 import io
+import logging
 import os
 import re
 from functools import lru_cache
@@ -16,6 +17,8 @@ from typing import Iterable
 from urllib import request
 
 import yaml
+
+logger = logging.getLogger(__name__)
 
 DEFAULT_LOCAL_MODEL_CANDIDATES = [
     "Qwen/Qwen3.5-4B",
@@ -112,11 +115,13 @@ def _extract_text_from_pdf(path: Path) -> str:
     try:
         from pypdf import PdfReader  # type: ignore
     except Exception:
+        logger.debug("pypdf not available; skipping PDF extraction for %s", path)
         return ""
 
     try:
         reader = PdfReader(str(path))
-    except Exception:
+    except Exception as exc:
+        logger.warning("Failed to read PDF '%s': %s", path, exc)
         return ""
 
     pages: list[str] = []
@@ -152,6 +157,11 @@ def _truncate_text(text: str, max_chars: int) -> str:
     text = re.sub(r"\s+", " ", text).strip()
     if len(text) <= max_chars:
         return text
+    dropped_chars = len(text) - max_chars + 3
+    logger.info(
+        "Truncating context text from %d to %d chars (%d chars dropped).",
+        len(text), max_chars, dropped_chars,
+    )
     return text[: max_chars - 3] + "..."
 
 
@@ -273,16 +283,25 @@ def _select_pdf_context_excerpt(text: str, max_chars: int = 3000) -> str:
         return _truncate_text(normalized, max_chars)
 
     selected: list[tuple[int, str]] = []
+    skipped_blocks = 0
     used_chars = 0
     for _, index, block in positive:
         separator_len = 2 if selected else 0
         projected_len = used_chars + separator_len + len(block)
         if selected and projected_len > max_chars:
+            skipped_blocks += 1
             continue
         selected.append((index, block))
         used_chars = projected_len
         if used_chars >= max_chars or len(selected) >= 4:
+            skipped_blocks += len(positive) - len(selected) - skipped_blocks
             break
+
+    if skipped_blocks > 0:
+        logger.info(
+            "PDF context selection: used %d of %d relevant blocks (%d skipped due to size limit).",
+            len(selected), len(positive), skipped_blocks,
+        )
 
     if not selected:
         return _truncate_text(normalized, max_chars)
@@ -330,7 +349,7 @@ def _load_candidate_schema_metadata(schema_path: str = str(DEFAULT_DV_SCHEMA_PAT
             "cluster": str(entry.get("cluster", "")).strip(),
             "category": str(measurement.get("category", "")).strip(),
             "direction": str(measurement.get("direction", "")).strip(),
-            "aliases": [str(alias).strip() for alias in entry.get("aliases", []) if str(alias).strip()],
+            "aliases": [str(alias).strip() for alias in (entry.get("aliases") or []) if str(alias).strip()],
             "instruments": [
                 str(instrument).strip()
                 for instrument in entry.get("instruments", [])
