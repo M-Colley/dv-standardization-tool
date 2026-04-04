@@ -1,5 +1,4 @@
-# Example source manifest for scripts/run_batch_standardization.py
-# Includes public GitHub, OSF, and web-hosted dataset examples.
+# Source manifest without fourtu_critical_ehmi (stalls on download)
 sources:
   - source_id: roads_chi25
     source_type: github_repo
@@ -10,7 +9,6 @@ sources:
       - "**/*.xlsx"
       - "**/*.xls"
       - "**/*.tsv"
-    # Exclude selected files and folder trees from ingestion.
     exclude_globs:
       - "**/results-roads-final-chi25.xlsx"
       - "**/ClearedLogs/**"
@@ -24,7 +22,6 @@ sources:
       - "**/*.xlsx"
       - "**/*.xls"
       - "**/*.tsv"
-    # Exclude selected files and folder trees from ingestion.
     exclude_globs:
       - "**/ExecutionTimes.csv"
       - "**/HypervolumePerEvaluation.csv"
@@ -36,11 +33,7 @@ sources:
   - source_id: osf_cwd6h
     source_type: osf_project
     location: https://osf.io/cwd6h/overview
-    # Optional LLM context hints for sources whose publication metadata is not
-    # clearly exposed inside the downloaded repository itself.
     publication_doi: 10.1145/3706598.3713762
-    # publication_pdf_url: https://example.com/paper.pdf
-    # llm_context: "Study investigates pedestrian trust and acceptance of eHMIs."
     include_globs:
       - "**/*.csv"
       - "**/*.xlsx"
@@ -61,20 +54,6 @@ sources:
       - "**/*.pkl"
       - "**/*.pickle"
     use_llm_deduction: false
-
-  - source_id: fourtu_critical_ehmi
-    source_type: web_dataset
-    location: https://data.4tu.nl/articles/_/20224281
-    publication_doi: 10.4121/20224281.v2
-    include_globs:
-      - "**/*.csv"
-      - "**/*.xlsx"
-      - "**/*.xls"
-      - "**/*.tsv"
-      - "**/*.pkl"
-      - "**/*.pickle"
-    extract_archives: true
-    archive_max_depth: 3
 
   - source_id: 3d_display_comp_vehicle
     source_type: github_repo
