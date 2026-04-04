@@ -12,4 +12,3 @@ sources:
     use_llm_deduction: true
     llm_models:
       - Qwen/Qwen3.5-4B
-      - microsoft/Phi-4-mini-instruct

@@ -10,7 +10,6 @@ sources:
       - "**/*.xls"
       - "**/*.tsv"
     exclude_globs:
-      - "**/results-roads-final-chi25.xlsx"
       - "**/ClearedLogs/**"
 
   - source_id: ehmi_optimization_chi25
@@ -25,7 +24,6 @@ sources:
     exclude_globs:
       - "**/ExecutionTimes.csv"
       - "**/HypervolumePerEvaluation.csv"
-      - "**/QuestionnaireResponses.csv"
       - "**/first upload/**"
       - "**/last year/**"
       - "**/ehmi-optimization-chi25-demographic-data.csv"
@@ -80,7 +78,6 @@ sources:
       - "**/position_all*"
       - "**/DemoData*"
       - "**/temp_dataframe*"
-      - "**/results-survey*.csv"
     llm_context: "Longitudinal USA/Germany eHMI comparison. DVs: TLX1 (mental demand), Trust (TiA), Understanding, UEQ-S, Perceived Safety."
 
   - source_id: ehmi_for_all_chi26
