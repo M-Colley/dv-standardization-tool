@@ -1,0 +1,41 @@
+# Just the sources missing from v3 standardized output
+sources:
+  - source_id: longitudinal_usa_germany_ehmi
+    source_type: github_repo
+    location: https://github.com/M-Colley/longitudinal_usa_germany_eHMI_comparison
+    ref: main
+    include_globs:
+      - "**/*.csv"
+      - "**/*.xlsx"
+      - "**/*.xls"
+    exclude_globs:
+      - "**/LoggingEyeTracking*"
+      - "**/LoggingPosition*"
+      - "**/LoggingTotal*"
+      - "**/position_all*"
+      - "**/DemoData*"
+      - "**/temp_dataframe*"
+      - "**/results-survey*.csv"
+    llm_context: "Longitudinal USA/Germany eHMI comparison. DVs: TLX1 (mental demand), Trust (TiA), Understanding, UEQ-S, Perceived Safety."
+
+  - source_id: ehmi_for_all_chi26
+    source_type: github_repo
+    location: https://github.com/M-Colley/ehmi-for-all-chi26-data
+    ref: main
+    include_globs:
+      - "**/*.csv"
+      - "**/*.xlsx"
+      - "**/*.xls"
+    exclude_globs:
+      - "**/plots/**"
+    llm_context: "eHMI effects on pedestrians, drivers, cyclists in VR (CHI 2026). DVs: TLX1, SUS, AOA Usefulness/Satisfying, Trust, Perceived Safety."
+
+  - source_id: fact_av
+    source_type: github_repo
+    location: https://github.com/M-Colley/FACT-AV
+    ref: main
+    include_globs:
+      - "**/*.csv"
+      - "**/*.xlsx"
+      - "**/*.xls"
+    llm_context: "FACT-AV study on trust and acceptance factors for automated vehicles."
