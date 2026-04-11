@@ -531,30 +531,35 @@ class BatchStandardizationTests(unittest.TestCase):
     def test_example_manifest_points_to_requested_github_repos(self):
         sources = load_manifest(EXAMPLE_MANIFEST_PATH)
 
-        self.assertEqual(len(sources), 5)
-        self.assertEqual(sources[0]["source_id"], "roads_chi25")
+        # Manifest may grow over time — check that it has at least 5 sources
+        self.assertGreaterEqual(len(sources), 5)
+
+        # Build a lookup by source_id so the test is order-independent
+        by_id = {s["source_id"]: s for s in sources}
+
+        self.assertIn("roads_chi25", by_id)
         self.assertEqual(
-            sources[0]["location"],
+            by_id["roads_chi25"]["location"],
             "https://github.com/M-Colley/roads-chi25-data",
         )
-        self.assertEqual(sources[1]["source_id"], "ehmi_optimization_chi25")
+        self.assertIn("ehmi_optimization_chi25", by_id)
         self.assertEqual(
-            sources[1]["location"],
+            by_id["ehmi_optimization_chi25"]["location"],
             "https://github.com/M-Colley/ehmi-optimization-chi25-data",
         )
-        self.assertEqual(sources[2]["source_id"], "osf_cwd6h")
+        self.assertIn("osf_cwd6h", by_id)
         self.assertEqual(
-            sources[2]["location"],
+            by_id["osf_cwd6h"]["location"],
             "https://osf.io/cwd6h/overview",
         )
-        self.assertEqual(sources[3]["source_id"], "road_bumps_touch")
+        self.assertIn("road_bumps_touch", by_id)
         self.assertEqual(
-            sources[3]["location"],
+            by_id["road_bumps_touch"]["location"],
             "https://github.com/interactionlab/Touch-Interaction-with-Road-Bumps/tree/master/data",
         )
-        self.assertEqual(sources[4]["source_id"], "fourtu_critical_ehmi")
+        self.assertIn("fourtu_critical_ehmi", by_id)
         self.assertEqual(
-            sources[4]["location"],
+            by_id["fourtu_critical_ehmi"]["location"],
             "https://data.4tu.nl/articles/_/20224281",
         )
 

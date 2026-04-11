@@ -21,6 +21,8 @@ import yaml
 logger = logging.getLogger(__name__)
 
 DEFAULT_LOCAL_MODEL_CANDIDATES = [
+    "google/gemma-4-31B-it",
+    "google/gemma-4-26B-A4B-it",
     "google/gemma-4-E4B-it",
     "Qwen/Qwen3.5-4B",
     "microsoft/Phi-4-mini-instruct",
@@ -32,6 +34,8 @@ DEFAULT_LOCAL_MODEL_CANDIDATES = [
 
 # Approximate memory recommendations (FP16-ish inference envelope, incl. headroom).
 MODEL_MIN_MEMORY_GB = {
+    "google/gemma-4-31B-it": 62.0,
+    "google/gemma-4-26B-A4B-it": 52.0,
     "google/gemma-4-E4B-it": 10.0,
     "Qwen/Qwen3.5-4B": 10.0,
     "microsoft/Phi-4-mini-instruct": 8.0,
