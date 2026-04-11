@@ -38,6 +38,75 @@ from tqdm import tqdm
 
 logger = logging.getLogger(__name__)
 
+# ---------------------------------------------------------------------------
+# Optional Pydantic v2 manifest validation
+# ---------------------------------------------------------------------------
+try:
+    from pydantic import BaseModel, field_validator, model_validator
+    _PYDANTIC_AVAILABLE = True
+except ImportError:
+    _PYDANTIC_AVAILABLE = False
+
+if _PYDANTIC_AVAILABLE:
+    class SourceManifestEntry(BaseModel):
+        model_config = {"extra": "allow"}  # unknown fields are warnings, not errors
+
+        source_id: str
+        source_type: str  # local_path | github_repo | osf_project | web_dataset
+        location: str
+        ref: str | None = None
+        include_globs: list[str] = []
+        exclude_globs: list[str] = []
+        mapping_path: str | None = None
+        publication_doi: str | None = None
+        llm_context: str | list[str] | None = None  # str, list of strings, or None
+        use_llm_deduction: bool = False
+        extract_archives: bool = True
+        archive_max_depth: int = 3
+        repeated_measures: bool = False
+        llm_models: list[str] | None = None
+
+        @field_validator("source_type")
+        @classmethod
+        def check_source_type(cls, v: str) -> str:
+            valid = {"local_path", "github_repo", "osf_project", "web_dataset"}
+            if v not in valid:
+                raise ValueError(f"source_type must be one of {valid}, got '{v}'")
+            return v
+
+        @field_validator("source_id")
+        @classmethod
+        def check_source_id(cls, v: str) -> str:
+            import re as _re
+            if not _re.match(r'^[a-zA-Z0-9_\-]+$', v):
+                raise ValueError(
+                    f"source_id '{v}' contains invalid characters. "
+                    "Use only letters, digits, underscores, hyphens."
+                )
+            return v
+
+    class SourcesManifest(BaseModel):
+        sources: list[SourceManifestEntry]
+
+
+def _validate_manifest(raw: dict) -> list[str]:
+    """Validate manifest structure using Pydantic v2. Returns list of error strings."""
+    errors: list[str] = []
+    if not _PYDANTIC_AVAILABLE:
+        logger.warning("pydantic not installed — manifest validation skipped")
+        return errors
+    try:
+        SourcesManifest(**raw)
+        logger.info(
+            "Manifest validation passed (%d sources)",
+            len(raw.get("sources", [])),
+        )
+    except Exception as exc:  # noqa: BLE001
+        for err in getattr(exc, "errors", lambda: [{"msg": str(exc)}])():
+            loc = " -> ".join(str(l) for l in err.get("loc", []))
+            errors.append(f"Manifest error at [{loc}]: {err['msg']}")
+    return errors
+
 REPO_ROOT = Path(__file__).resolve().parents[1]
 if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
@@ -54,10 +123,12 @@ from scripts.batch_profiles import (
     MAPPING_DOMAIN_METADATA,
     MAPPING_DOMAIN_SENSOR,
     classify_dataset_type,
+    get_schema_for_dataset_type,
     infer_mapping_domain,
 )
 from scripts.batch_reporting import build_mapping_debug_summary, build_unknown_alias_summary
 from scripts.convert_dv import (
+    _FORMAT_REGISTRY as _CDV_FORMAT_REGISTRY,
     build_original_column_lookup,
     identify_unmapped_columns,
     load_input_file,
@@ -67,9 +138,25 @@ from scripts.convert_dv import (
 )
 from scripts.llm_utils import collect_repository_context, deduce_standard_name_with_local_llm
 
-TABULAR_SUFFIXES = {".csv", ".xlsx", ".xls", ".tsv"}
+# TABULAR_SUFFIXES: extensions used for *batch discovery* — must be unambiguous
+# data files (no README.txt, notes.dat false positives).
+# .txt and .dat are loadable but excluded from auto-discovery.
+_AMBIGUOUS_SUFFIXES = {".txt", ".dat"}
+try:
+    TABULAR_SUFFIXES = set(_CDV_FORMAT_REGISTRY.keys()) - _AMBIGUOUS_SUFFIXES
+except Exception:  # noqa: BLE001
+    TABULAR_SUFFIXES = {
+        ".csv", ".tsv",
+        ".xlsx", ".xls", ".xlsm", ".ods",
+        ".pkl", ".pickle",
+        ".parquet",
+        ".sav", ".zsav",
+        ".dta",
+        ".feather", ".arrow",
+        ".json", ".jsonl", ".ndjson",
+    }
 PICKLE_SUFFIXES = {".pkl", ".pickle"}
-DATA_FILE_SUFFIXES = TABULAR_SUFFIXES | PICKLE_SUFFIXES
+DATA_FILE_SUFFIXES = TABULAR_SUFFIXES
 ARCHIVE_SUFFIXES = {".zip"}
 MAPPING_SUFFIXES = {".yaml", ".yml"}
 OSF_API_BASE = "https://api.osf.io/v2"
@@ -276,6 +363,13 @@ def load_manifest(manifest_path: Path) -> list[dict[str, Any]]:
 
     if not isinstance(manifest, dict) or "sources" not in manifest:
         raise ValueError("Manifest must be a YAML object with a top-level 'sources' list.")
+
+    # Pydantic v2 validation (if available).
+    validation_errors = _validate_manifest(manifest)
+    if validation_errors:
+        for err_msg in validation_errors:
+            print(f"[ERROR] {err_msg}", file=sys.stderr)
+        raise SystemExit(1)
 
     sources = manifest["sources"]
     if not isinstance(sources, list) or not sources:
@@ -1614,6 +1708,16 @@ def run_batch(
         "sensor": sensor_schema_path,
         "dv": str(schema_path),
     }
+    # Mapping from schema filename (as returned by get_schema_for_dataset_type)
+    # to the pre-loaded domain-specific mapping dict.  This lets the YAML-driven
+    # profiles drive schema selection without re-loading schemas on every file.
+    _schema_filename_to_mapping: dict[str, dict[str, str]] = {
+        "standard_dv_mapping.yaml": standard_dv_mapping,
+        "standard_sensor_mapping.yaml": sensor_mapping,
+        "standard_detection_mapping.yaml": detection_mapping,
+        "standard_metadata_mapping.yaml": metadata_mapping,
+    }
+
     canonical_domain_lookup: dict[str, str] = {}
     for canonical_name in metadata_mapping.values():
         canonical_domain_lookup[str(canonical_name)] = MAPPING_DOMAIN_METADATA
@@ -1729,6 +1833,7 @@ def run_batch(
             source_llm_enabled = bool(source.get("use_llm_deduction", llm_deduction_enabled))
             source_preferred_models = source.get("llm_models") if isinstance(source.get("llm_models"), list) else preferred_models
             source_llm_cache: dict[str, str | None] = {}
+            source_column_sig_cache: dict[tuple[str, ...], dict[str, str]] = {}
             source_repository_context: str | None = None
             source_metrics = {
                 "mapping": 0,
@@ -1865,31 +1970,45 @@ def run_batch(
                         and bool(unknown_before_llm)
                     )
                     if should_apply_llm:
-                        if source_repository_context is None:
-                            extra_context = _coerce_manifest_text_list(source.get("llm_context"))
-                            extra_context.extend(
-                                _coerce_manifest_text_list(source.get("publication_context"))
+                        # Column-signature dedup: reuse mapping from a
+                        # prior file with the exact same column set and
+                        # dataset type to avoid redundant LLM calls.
+                        col_sig = tuple(sorted(str(c).lower() for c in raw_columns)) + (dataset_type,)
+                        cached_augmented = source_column_sig_cache.get(col_sig)
+                        if cached_augmented is not None:
+                            dataset_mapping = cached_augmented
+                            logger.info(
+                                "Reusing cached column-signature mapping for '%s' "
+                                "(%d columns, type=%s) — skipping LLM.",
+                                dataset_id, len(raw_columns), dataset_type,
                             )
-                            source_repository_context = collect_repository_context(
+                        else:
+                            if source_repository_context is None:
+                                extra_context = _coerce_manifest_text_list(source.get("llm_context"))
+                                extra_context.extend(
+                                    _coerce_manifest_text_list(source.get("publication_context"))
+                                )
+                                source_repository_context = collect_repository_context(
+                                    base_dir,
+                                    explicit_dois=(
+                                        _coerce_manifest_text_list(source.get("publication_doi"))
+                                        + _coerce_manifest_text_list(source.get("doi"))
+                                    ),
+                                    explicit_pdf_urls=(
+                                        _coerce_manifest_text_list(source.get("publication_pdf_url"))
+                                        + _coerce_manifest_text_list(source.get("pdf_url"))
+                                    ),
+                                    extra_context=extra_context,
+                                )
+                            dataset_mapping = _augment_mapping_with_llm_deductions(
+                                source_mapping,
+                                unknown_before_llm,
                                 base_dir,
-                                explicit_dois=(
-                                    _coerce_manifest_text_list(source.get("publication_doi"))
-                                    + _coerce_manifest_text_list(source.get("doi"))
-                                ),
-                                explicit_pdf_urls=(
-                                    _coerce_manifest_text_list(source.get("publication_pdf_url"))
-                                    + _coerce_manifest_text_list(source.get("pdf_url"))
-                                ),
-                                extra_context=extra_context,
+                                preferred_models=source_preferred_models,
+                                inference_cache=source_llm_cache,
+                                repository_context=source_repository_context,
                             )
-                        dataset_mapping = _augment_mapping_with_llm_deductions(
-                            source_mapping,
-                            unknown_before_llm,
-                            base_dir,
-                            preferred_models=source_preferred_models,
-                            inference_cache=source_llm_cache,
-                            repository_context=source_repository_context,
-                        )
+                            source_column_sig_cache[col_sig] = dataset_mapping
                         for alias in unknown_before_llm:
                             alias_text = str(alias)
                             inferred = dataset_mapping.get(alias_text)

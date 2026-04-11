@@ -22,12 +22,26 @@ import re
 import warnings
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, List, Literal, Tuple
+from typing import Any, Callable, Dict, List, Literal, Tuple
 
 import pandas as pd
 import yaml
 
 logger = logging.getLogger(__name__)
+
+# ---------------------------------------------------------------------------
+# Optional rapidfuzz import for fuzzy column matching
+# ---------------------------------------------------------------------------
+try:
+    from rapidfuzz import fuzz as _fuzz
+    from rapidfuzz import process as _fuzz_process
+    _RAPIDFUZZ_AVAILABLE = True
+except ImportError:  # pragma: no cover
+    _RAPIDFUZZ_AVAILABLE = False
+    logger.warning(
+        "rapidfuzz not installed — fuzzy column matching will be disabled. "
+        "Install it with: pip install rapidfuzz"
+    )
 
 # Import the new inference module
 try:
@@ -39,6 +53,36 @@ except ImportError:
         logger.warning("dv_inference module not found. Metadata inference will be disabled.")
         batch_infer = None
         get_measurement_from_schema = lambda *_args, **_kwargs: None
+
+
+def _normalize_colname(raw: str) -> str:
+    """Normalise a column name to lowercase alphanumeric + underscores for fuzzy comparison."""
+    return re.sub(r"[^a-z0-9_]+", "", str(raw).strip().lower())
+
+
+def _fuzzy_match_column(
+    raw_col: str,
+    alias_lookup: dict[str, str],
+    threshold: float = 85.0,
+) -> tuple[str | None, float]:
+    """Return (canonical_dv_id, score) if fuzzy match exceeds threshold, else (None, 0).
+
+    Uses rapidfuzz token_sort_ratio so that column name tokens can be matched
+    regardless of ordering (e.g. "DurationTask" vs "TaskDuration").
+    """
+    if not _RAPIDFUZZ_AVAILABLE or not alias_lookup:
+        return None, 0.0
+    normalized = _normalize_colname(raw_col)
+    match = _fuzz_process.extractOne(
+        normalized,
+        alias_lookup.keys(),
+        scorer=_fuzz.token_sort_ratio,
+        score_cutoff=threshold,
+    )
+    if match:
+        matched_alias, score, _ = match
+        return alias_lookup[matched_alias], float(score)
+    return None, 0.0
 
 
 def _build_alias_mapping(schema: Dict) -> Dict[str, str]:
@@ -215,60 +259,273 @@ def load_schema(
     }
 
 
-def load_input_file(input_path: str) -> pd.DataFrame:
-    """Load tabular input data from CSV, Excel, or pickle files."""
-    input_file = Path(input_path)
-    suffix = input_file.suffix.lower()
+# ---------------------------------------------------------------------------
+# Format registry — extension → loader function
+# ---------------------------------------------------------------------------
 
-    if suffix in {".xlsx", ".xls"}:
+_FORMAT_REGISTRY: dict[str, Callable[[Path], pd.DataFrame]] = {}
+
+
+def _register_format(*extensions: str):
+    """Decorator to register a file format loader."""
+    def decorator(fn: Callable[[Path], pd.DataFrame]) -> Callable[[Path], pd.DataFrame]:
+        for ext in extensions:
+            _FORMAT_REGISTRY[ext.lower()] = fn
+        return fn
+    return decorator
+
+
+# Magic-byte → canonical extension mapping for content-based sniffing.
+_MAGIC_BYTES: list[tuple[bytes, str | None]] = [
+    (b"PAR1", ".parquet"),       # Parquet magic
+    (b"\x7fELF", None),          # binary ELF, skip
+    (b"$FL2", ".sav"),           # SPSS .sav
+    (b"\xef\xbb\xbf", ".csv"),   # UTF-8 BOM → treat as CSV
+    (b"<", ".xml"),              # XML
+    (b"{", ".json"),             # JSON object
+    (b"[", ".json"),             # JSON array
+]
+
+
+def _sniff_format(path: Path) -> str | None:
+    """Return a canonical extension by inspecting the first bytes of *path*, or None."""
+    try:
+        raw = path.read_bytes()[:8]
+    except OSError:
+        return None
+    for magic, ext in _MAGIC_BYTES:
+        if raw.startswith(magic):
+            return ext
+    return None
+
+
+def _detect_encoding(path: Path) -> str:
+    """Detect file encoding, trying chardet then common fallbacks."""
+    raw = path.read_bytes()[:32768]
+
+    # BOM detection first
+    if raw.startswith(b"\xef\xbb\xbf"):
+        return "utf-8-sig"
+    if raw.startswith(b"\xff\xfe"):
+        return "utf-16-le"
+    if raw.startswith(b"\xfe\xff"):
+        return "utf-16-be"
+
+    # Try chardet
+    try:
+        import chardet
+        result = chardet.detect(raw)
+        if result and result.get("confidence", 0) > 0.75:
+            return result["encoding"] or "utf-8"
+    except ImportError:
+        pass
+
+    # Fallback chain
+    for enc in ("utf-8", "utf-8-sig", "cp1252", "latin-1"):
         try:
-            return pd.read_excel(input_file)
-        except ImportError as exc:
-            raise ImportError(
-                "Reading Excel files requires the optional dependency 'openpyxl'. "
-                "Install it with: pip install openpyxl"
-            ) from exc
-    if suffix == ".csv":
-        # Use a constrained delimiter sniff so alphabetic headers are never
-        # misdetected as delimiters (e.g., splitting "DurationX" on "u").
-        with open(input_file, "r", encoding="utf-8", errors="ignore", newline="") as f:
-            sample = f.read(8192)
+            raw.decode(enc)
+            return enc
+        except (UnicodeDecodeError, LookupError):
+            continue
+    return "latin-1"
 
-        delimiter = ","
-        try:
-            dialect = csv.Sniffer().sniff(sample, delimiters=[",", ";", "\t", "|"])
-            delimiter = dialect.delimiter
-        except csv.Error:
-            delimiter = ","
 
-        decode_errors: list[UnicodeDecodeError] = []
-        for encoding in ("utf-8", "utf-8-sig", "cp1252", "latin-1"):
-            try:
-                return pd.read_csv(input_file, sep=delimiter, encoding=encoding)
-            except UnicodeDecodeError as exc:
-                decode_errors.append(exc)
-            except pd.errors.ParserError as exc:
-                raise ValueError(
-                    f"Failed to parse CSV file '{input_file}': {exc}. "
-                    "The file may be malformed or use an unsupported format."
-                ) from exc
-            except pd.errors.EmptyDataError as exc:
-                raise ValueError(
-                    f"CSV file '{input_file}' is empty or contains no parseable data."
-                ) from exc
+def _detect_delimiter(sample: str, prefer: str | None = None) -> str:
+    """Detect delimiter by counting consistent occurrences across rows.
 
-        # Preserve the original exception type for callers/tests.
-        if decode_errors:
-            raise decode_errors[-1]
-        return pd.read_csv(input_file, sep=delimiter)
-    if suffix in {".pkl", ".pickle"}:
-        payload = pd.read_pickle(input_file)
-        return _coerce_pickled_payload_to_dataframe(payload)
+    More robust than csv.Sniffer: counts each candidate delimiter in each of
+    the first N rows, then picks the one with the lowest coefficient of
+    variation (most consistent counts = most likely the real delimiter).
+    """
+    candidates = [",", ";", "\t", "|", " "]
+    if prefer:
+        candidates = [prefer] + [c for c in candidates if c != prefer]
 
-    raise ValueError(
-        f"Unsupported input format: '{suffix or 'no extension'}'. "
-        "Supported formats are .csv, .xlsx, .xls, .pkl, and .pickle."
+    rows = [r for r in sample.splitlines() if r.strip()][:15]
+    if not rows:
+        return prefer or ","
+
+    best_delim = prefer or ","
+    best_score = float("inf")
+
+    for delim in candidates:
+        counts = [row.count(delim) for row in rows]
+        if max(counts) == 0:
+            continue
+        mean = sum(counts) / len(counts)
+        if mean == 0:
+            continue
+        variance = sum((c - mean) ** 2 for c in counts) / len(counts)
+        cv = (variance ** 0.5) / mean  # coefficient of variation
+        if cv < best_score:
+            best_score = cv
+            best_delim = delim
+
+    return best_delim
+
+
+@_register_format(".csv", ".tsv", ".txt", ".dat")
+def _load_text_table(path: Path) -> pd.DataFrame:
+    """Load a delimited text file with robust encoding and delimiter auto-detection."""
+    # For .tsv/.dat/.txt prefer tab first; for .csv prefer comma first.
+    suffix = path.suffix.lower()
+    prefer_delim: str | None = "\t" if suffix in {".tsv", ".dat", ".txt"} else ","
+
+    encoding = _detect_encoding(path)
+    try:
+        sample = path.read_text(encoding=encoding, errors="replace")[:16384]
+    except OSError:
+        sample = ""
+
+    delimiter = _detect_delimiter(sample, prefer=prefer_delim)
+
+    try:
+        return pd.read_csv(
+            path,
+            sep=delimiter,
+            encoding=encoding,
+            engine="python",
+            on_bad_lines="warn",
+        )
+    except pd.errors.EmptyDataError as exc:
+        raise ValueError(
+            f"File '{path}' is empty or contains no parseable data."
+        ) from exc
+    except pd.errors.ParserError as exc:
+        raise ValueError(
+            f"Failed to parse '{path}': {exc}. The file may be malformed."
+        ) from exc
+
+
+@_register_format(".xlsx", ".xls", ".xlsm", ".ods")
+def _load_excel(path: Path) -> pd.DataFrame:
+    """Load an Excel workbook, auto-selecting the most data-rich sheet."""
+    try:
+        xl = pd.ExcelFile(path)
+    except ImportError as exc:
+        raise ImportError(
+            "Reading Excel files requires openpyxl: pip install openpyxl"
+        ) from exc
+
+    if len(xl.sheet_names) == 1:
+        return xl.parse(xl.sheet_names[0])
+
+    # Multiple sheets: pick the one with the most non-empty cells
+    best_sheet: str | None = None
+    best_count = -1
+    for name in xl.sheet_names:
+        df = xl.parse(name)
+        count = int(df.notna().sum().sum())
+        if count > best_count:
+            best_count = count
+            best_sheet = name
+
+    logger.info(
+        "Multi-sheet workbook '%s': selected sheet '%s' (%d non-empty cells). "
+        "Other sheets: %s",
+        path.name,
+        best_sheet,
+        best_count,
+        [n for n in xl.sheet_names if n != best_sheet],
     )
+    return xl.parse(best_sheet)
+
+
+@_register_format(".pkl", ".pickle")
+def _load_pickle(path: Path) -> pd.DataFrame:
+    """Load a pickle file and coerce its payload to a DataFrame."""
+    payload = pd.read_pickle(path)
+    return _coerce_pickled_payload_to_dataframe(payload)
+
+
+@_register_format(".parquet")
+def _load_parquet(path: Path) -> pd.DataFrame:
+    """Load a Parquet file using pyarrow or fastparquet."""
+    try:
+        import pyarrow.parquet as _pq  # noqa: F401
+        return pd.read_parquet(path)
+    except ImportError:
+        try:
+            return pd.read_parquet(path, engine="fastparquet")
+        except ImportError:
+            raise ImportError(
+                "Reading Parquet requires pyarrow or fastparquet: pip install pyarrow"
+            )
+
+
+@_register_format(".sav", ".zsav")
+def _load_spss(path: Path) -> pd.DataFrame:
+    """Load an SPSS .sav / .zsav file via pandas.read_spss."""
+    try:
+        return pd.read_spss(path)
+    except Exception as exc:
+        raise ValueError(f"Failed to read SPSS file '{path}': {exc}") from exc
+
+
+@_register_format(".dta")
+def _load_stata(path: Path) -> pd.DataFrame:
+    """Load a Stata .dta file."""
+    return pd.read_stata(path, convert_categoricals=False)
+
+
+@_register_format(".feather", ".arrow")
+def _load_feather(path: Path) -> pd.DataFrame:
+    """Load a Feather/Arrow file via pyarrow."""
+    try:
+        return pd.read_feather(path)
+    except ImportError:
+        raise ImportError(
+            "Reading Feather/Arrow requires pyarrow: pip install pyarrow"
+        )
+
+
+@_register_format(".json")
+def _load_json(path: Path) -> pd.DataFrame:
+    """Load a JSON file — supports records array, JSON Lines, and nested JSON."""
+    text = path.read_text(encoding="utf-8", errors="replace")
+    lines = [line.strip() for line in text.splitlines() if line.strip()]
+    # JSON Lines: first non-empty line starts with '{'
+    if lines and lines[0].startswith("{"):
+        try:
+            records = [json.loads(line) for line in lines]
+            return pd.json_normalize(records)
+        except json.JSONDecodeError:
+            pass
+    return pd.read_json(path)
+
+
+@_register_format(".jsonl", ".ndjson")
+def _load_jsonlines(path: Path) -> pd.DataFrame:
+    """Load a JSON Lines / NDJSON file."""
+    return pd.read_json(path, lines=True)
+
+
+def load_input_file(input_path: str) -> pd.DataFrame:
+    """Load tabular input data using the format registry.
+
+    Format is determined first by file extension (registry lookup), then by
+    content-based magic-byte sniffing if the extension is unrecognised.
+    """
+    path = Path(input_path)
+    suffix = path.suffix.lower()
+
+    # Try registry by extension first
+    loader = _FORMAT_REGISTRY.get(suffix)
+    if loader is None:
+        # Fall back to content sniffing
+        sniffed = _sniff_format(path)
+        if sniffed is not None:
+            suffix = sniffed
+        loader = _FORMAT_REGISTRY.get(suffix)
+
+    if loader is None:
+        supported = ", ".join(sorted(_FORMAT_REGISTRY.keys()))
+        raise ValueError(
+            f"Unsupported input format: '{path.suffix or 'no extension'}'. "
+            f"Supported formats: {supported}"
+        )
+
+    return loader(path)
 
 
 def _coerce_pickled_payload_to_dataframe(payload: Any) -> pd.DataFrame:
@@ -339,7 +596,7 @@ def resolve_io_paths(input_arg: str, output_arg: str | None, schema_arg: str | N
     elif input_path.is_dir():
         data_candidates = [
             path for path in sorted(input_path.iterdir())
-            if path.is_file() and path.suffix.lower() in {".csv", ".xlsx", ".xls"}
+            if path.is_file() and path.suffix.lower() in _FORMAT_REGISTRY
         ]
         if len(data_candidates) > 1:
             warnings.warn(
@@ -350,12 +607,14 @@ def resolve_io_paths(input_arg: str, output_arg: str | None, schema_arg: str | N
                 stacklevel=2,
             )
             raise ValueError(
-                "Multiple input files found. Please provide --input with a specific CSV/Excel file."
+                "Multiple input files found. Please provide --input with a specific file path."
             )
         if not data_candidates:
+            supported = ", ".join(sorted(_FORMAT_REGISTRY.keys()))
             raise ValueError(
-                "No CSV/Excel file found in the provided folder. "
-                "Provide --input with a valid file or add a single input file to the folder."
+                f"No supported data file found in the provided folder "
+                f"(supported formats: {supported}). "
+                "Provide --input with a specific file or add a single input file to the folder."
             )
         resolved_input = data_candidates[0]
 
@@ -414,6 +673,66 @@ def save_output_file(df: pd.DataFrame, output_path: str) -> None:
         f"Unsupported output format: '{suffix or 'no extension'}'. "
         "Supported formats are .csv, .xlsx, .xls, .pkl, and .pickle."
     )
+
+
+def _augment_mapping_with_fuzzy(
+    raw_columns: List[str],
+    alias_lookup: Dict[str, str],
+    threshold: float = 85.0,
+    fuzzy_metadata: Dict[str, Dict] | None = None,
+) -> Dict[str, str]:
+    """Return a copy of alias_lookup extended with fuzzy matches for unresolved columns.
+
+    For each raw column that has no exact match in alias_lookup, try
+    _fuzzy_match_column. Successful fuzzy matches are added to the returned
+    mapping and, when fuzzy_metadata is not None, their match info is stored
+    there for downstream JSON sidecar output.
+
+    Args:
+        raw_columns: Column names as they appear in the input file.
+        alias_lookup: The canonical alias→standard-id mapping.
+        threshold: rapidfuzz score threshold (0–100).
+        fuzzy_metadata: Optional dict updated in-place with fuzzy match info
+                        keyed by raw column name.
+
+    Returns:
+        A new mapping dict that includes the fuzzy-derived entries.
+    """
+    if not _RAPIDFUZZ_AVAILABLE:
+        return dict(alias_lookup)
+
+    augmented = dict(alias_lookup)
+    # Build a normalised-key version of the alias lookup for fuzzy search so
+    # that _fuzzy_match_column can compare against normalised forms.
+    norm_lookup: Dict[str, str] = {
+        _normalize_colname(k): v
+        for k, v in alias_lookup.items()
+    }
+
+    for col in raw_columns:
+        # Skip columns that already resolve exactly.
+        if alias_lookup.get(col) is not None:
+            continue
+        if isinstance(col, str) and alias_lookup.get(col.lower()) is not None:
+            continue
+
+        canonical, score = _fuzzy_match_column(col, norm_lookup, threshold=threshold)
+        if canonical is not None:
+            augmented[col] = canonical
+            logger.debug(
+                "Fuzzy match: '%s' → '%s' (score=%.0f%%)",
+                col,
+                canonical,
+                score,
+            )
+            if fuzzy_metadata is not None:
+                fuzzy_metadata[col] = {
+                    "match_type": "fuzzy",
+                    "fuzzy_score": score,
+                    "needs_review": True,
+                    "canonical_dv": canonical,
+                }
+    return augmented
 
 
 def standardize_columns(df: pd.DataFrame, mapping: Dict) -> pd.DataFrame:
@@ -704,6 +1023,25 @@ Examples:
             "prefer_custom keeps custom IDs, and error aborts on the first conflict set."
         ),
     )
+    parser.add_argument(
+        "--fuzzy-threshold",
+        type=float,
+        default=85.0,
+        metavar="SCORE",
+        help=(
+            "Minimum rapidfuzz token_sort_ratio score (0–100) required for a fuzzy column "
+            "match to be accepted (default: 85.0). Ignored when --no-fuzzy is set."
+        ),
+    )
+    parser.add_argument(
+        "--no-fuzzy",
+        action="store_true",
+        default=False,
+        help=(
+            "Disable fuzzy column matching entirely. "
+            "Only exact alias lookups will be performed (strict/reproducible mode)."
+        ),
+    )
 
     args = parser.parse_args()
 
@@ -723,7 +1061,26 @@ Examples:
     # Load input file
     print(f"Loading input file: {resolved_input}")
     df = load_input_file(str(resolved_input))
-    print(f"  âœ“ Loaded {len(df)} rows, {len(df.columns)} columns")
+    print(f"  Loaded {len(df)} rows, {len(df.columns)} columns")
+
+    # Auto-detect and reshape long-format data to wide format
+    try:
+        from scripts.reshape_utils import detect_data_shape, auto_reshape_to_wide
+    except ImportError:
+        try:
+            from reshape_utils import detect_data_shape, auto_reshape_to_wide
+        except ImportError:
+            detect_data_shape = None
+            auto_reshape_to_wide = None
+
+    if detect_data_shape is not None:
+        shape = detect_data_shape(df)
+        if shape == "long":
+            print("  [INFO] Detected long-format data -- reshaping to wide format...")
+            df = auto_reshape_to_wide(df)
+            print(f"  Reshaped to {len(df)} rows, {len(df.columns)} columns")
+        elif shape == "ambiguous":
+            print("  [INFO] Data shape is ambiguous (could be long or wide). Proceeding as-is.")
 
     # Load schema and build mapping
     print(f"Loading schema: {resolved_schema}")
@@ -734,10 +1091,10 @@ Examples:
     )
     mapping = schema_data["mapping"]
     schema = schema_data["schema"]
-    print(f"  âœ“ Loaded {len(mapping)} alias mappings")
+    print(f"  [OK] Loaded {len(mapping)} alias mappings")
     if schema_data.get("standard_mappings_applied"):
         print(
-            "  âœ“ Combined selected schema with standard mapping "
+            "  [OK] Combined selected schema with standard mapping "
             f"(policy={schema_data['alias_conflict_policy']}; extensible custom aliases)."
         )
         alias_conflicts = schema_data.get("alias_conflicts", [])
@@ -755,6 +1112,32 @@ Examples:
             if len(alias_conflicts) > 10:
                 print(f"    ... and {len(alias_conflicts) - 10} more conflicts")
 
+    # Optionally augment mapping with fuzzy matches for unresolved columns.
+    fuzzy_match_metadata: Dict[str, Dict] = {}
+    if not args.no_fuzzy:
+        if not _RAPIDFUZZ_AVAILABLE:
+            print(
+                "  [WARN] --fuzzy-threshold set but rapidfuzz is not installed; "
+                "fuzzy matching skipped."
+            )
+        else:
+            raw_col_names = [str(col) for col in df.columns]
+            mapping = _augment_mapping_with_fuzzy(
+                raw_col_names,
+                mapping,
+                threshold=args.fuzzy_threshold,
+                fuzzy_metadata=fuzzy_match_metadata,
+            )
+            if fuzzy_match_metadata:
+                print(
+                    f"  ~ Fuzzy matched {len(fuzzy_match_metadata)} column(s) "
+                    f"(threshold={args.fuzzy_threshold:.0f}%): "
+                    + ", ".join(
+                        f"'{c}' -> '{m['canonical_dv']}' ({m['fuzzy_score']:.0f}%)"
+                        for c, m in fuzzy_match_metadata.items()
+                    )
+                )
+
     unknown_columns = identify_unmapped_columns([str(col) for col in df.columns], mapping)
 
     # Apply standardization
@@ -766,6 +1149,16 @@ Examples:
             schema,
             args.confidence_threshold
         )
+        # Merge fuzzy-match flags into column_meta for sidecar JSON output.
+        # The canonical column name after renaming is the target key.
+        for raw_col, fmeta in fuzzy_match_metadata.items():
+            canonical = mapping.get(raw_col, raw_col)
+            if canonical in column_meta:
+                column_meta[canonical].update({
+                    "match_type": fmeta["match_type"],
+                    "fuzzy_score": fmeta["fuzzy_score"],
+                    "needs_review": True,
+                })
         resolved_output.parent.mkdir(parents=True, exist_ok=True)
         _ = export_with_metadata(
             df_standardized,
