@@ -121,3 +121,26 @@ sources:
       - "**/*.xlsx"
       - "**/*.xls"
     llm_context: "FACT-AV study on trust and acceptance factors for automated vehicles."
+
+  # ACM DL supplemental material for CHI 2026 paper (DOI 10.1145/3772318.3790738).
+  # NOTE: ACM Digital Library serves supplemental files behind a Cloudflare
+  # challenge, so automated downloads via urllib will be blocked. The batch
+  # runner now detects this and records the source as status `access_restricted`
+  # rather than `failed`. To actually ingest the dataset, download the archive
+  # manually from https://dl.acm.org/doi/10.1145/3772318.3790738 and replace
+  # this entry with a `source_type: local_path` pointing at the extracted
+  # directory.
+  - source_id: acm_chi26_3790738
+    source_type: web_dataset
+    location: https://dl.acm.org/doi/suppl/10.1145/3772318.3790738/suppl_file/3772318.3790738-supplemental-material-1.zip
+    publication_doi: 10.1145/3772318.3790738
+    include_globs:
+      - "**/*.csv"
+      - "**/*.xlsx"
+      - "**/*.xls"
+      - "**/*.tsv"
+      - "**/*.pkl"
+      - "**/*.pickle"
+    extract_archives: true
+    archive_max_depth: 3
+    llm_context: "CHI 2026 paper supplemental material (ACM DOI 10.1145/3772318.3790738)."

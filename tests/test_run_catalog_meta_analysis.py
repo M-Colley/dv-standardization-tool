@@ -28,6 +28,11 @@ class CatalogMetaAnalysisTests(unittest.TestCase):
             "https://data.4tu.nl/articles/_/20224281",
             catalog["dataset_url"].tolist(),
         )
+        self.assertIn(
+            "https://dl.acm.org/doi/suppl/10.1145/3772318.3790738/suppl_file/"
+            "3772318.3790738-supplemental-material-1.zip",
+            catalog["dataset_url"].tolist(),
+        )
 
     def test_build_sources_from_catalog_deduplicates_locations(self):
         catalog = pd.DataFrame(

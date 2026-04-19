@@ -203,6 +203,24 @@ WEB_NO_DATA_MARKERS = (
     "没有数据",
 )
 WEB_NO_DATA_MARKERS = WEB_NO_DATA_MARKERS_ASCII
+# Hosts that are known to gate content behind interactive challenges (Cloudflare,
+# bot-management) and therefore cannot be fetched with a plain HTTP client.
+WEB_CHALLENGE_HOSTS = {
+    "dl.acm.org",
+    "www.dl.acm.org",
+}
+WEB_CHALLENGE_TITLE_MARKERS = (
+    "just a moment",
+    "attention required",
+    "access denied",
+    "checking your browser",
+)
+WEB_CHALLENGE_BODY_MARKERS = (
+    "challenges.cloudflare.com",
+    "cf_chl_",
+    "cf-mitigated",
+    "enable javascript and cookies to continue",
+)
 WINDOWS_PATH_SOFT_LIMIT = 240
 MIN_ARTIFACT_PREFIX_LENGTH = 48
 ARTIFACT_HASH_LENGTH = 12
@@ -587,6 +605,21 @@ def _extract_html_download_urls(html_text: str, base_url: str) -> tuple[str, lis
     return parser.title, sorted(urls)
 
 
+def _looks_like_challenge_response(
+    host: str,
+    title: str,
+    html_text: str,
+) -> bool:
+    normalized_host = host.lower()
+    if normalized_host in WEB_CHALLENGE_HOSTS:
+        return True
+    normalized_title = title.lower()
+    if any(marker in normalized_title for marker in WEB_CHALLENGE_TITLE_MARKERS):
+        return True
+    normalized_html = html_text.lower()
+    return any(marker in normalized_html for marker in WEB_CHALLENGE_BODY_MARKERS)
+
+
 def _build_web_dataset_access_error(
     location: str,
     final_url: str,
@@ -597,6 +630,16 @@ def _build_web_dataset_access_error(
     host = urlparse(resolved_url).netloc.lower()
     normalized_html = html_text.lower()
     normalized_title = title.lower()
+
+    if _looks_like_challenge_response(host, title, html_text):
+        return SourceAccessError(
+            "access_restricted",
+            (
+                f"Dataset host {host or resolved_url} returned a browser/CAPTCHA challenge "
+                f"(Cloudflare-style) for {resolved_url}. Automated download is not possible; "
+                "download the file manually and re-ingest it with source_type: local_path."
+            ),
+        )
 
     if host.endswith("ieee-dataport.org") or any(marker in normalized_html for marker in WEB_LOGIN_MARKERS):
         return SourceAccessError(
@@ -668,7 +711,28 @@ def _materialize_web_dataset_source(location: str, target: Path) -> str:
             "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
         },
     )
-    payload, headers, final_url = _read_url_response(req, timeout=60)
+    try:
+        payload, headers, final_url = _read_url_response(req, timeout=60)
+    except urlerror.HTTPError as exc:
+        if exc.code in (401, 403, 503):
+            try:
+                error_payload = exc.read() or b""
+            except Exception:
+                error_payload = b""
+            try:
+                error_html = error_payload.decode("utf-8", errors="replace")
+            except Exception:
+                error_html = ""
+            parser = _LandingPageParser()
+            try:
+                parser.feed(error_html)
+            except Exception:
+                pass
+            error_title = parser.title
+            host = urlparse(location).netloc.lower()
+            if _looks_like_challenge_response(host, error_title, error_html):
+                raise _build_web_dataset_access_error(location, location, error_html, error_title)
+        raise
 
     if _is_supported_download_response(final_url, headers):
         _write_download_payload(target, payload, final_url, headers, fallback_prefix="dataset")
@@ -676,7 +740,9 @@ def _materialize_web_dataset_source(location: str, target: Path) -> str:
 
     html_text = _decode_http_text(payload, headers)
     title, download_urls = _extract_html_download_urls(html_text, final_url)
-    if not download_urls:
+    if not download_urls or _looks_like_challenge_response(
+        urlparse(final_url).netloc.lower(), title, html_text
+    ):
         raise _build_web_dataset_access_error(location, final_url, html_text, title)
 
     for index, download_url in enumerate(download_urls, start=1):

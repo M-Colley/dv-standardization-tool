@@ -214,7 +214,8 @@ Outputs include:
 - `generated_sources_manifest.yaml`
 - `catalog_source_summary.csv`
 - batch standardization artifacts under `standardized/`
-- analysis files under `analysis/`, including `meta_analysis_summary.csv`, `dv_overlap_matrix.csv`, `dv_presence_matrix.csv`, and `dv_overlap_details.csv`
+- `meta_view.csv` (per-(source_id, canonical_dv) mapping provenance used by meta-analysis)
+- analysis files under `analysis/`, including `meta_analysis_summary.csv`, `study_vs_pool_standardized_deviation.csv`, `dv_overlap_matrix.csv`, `dv_presence_matrix.csv`, and `dv_overlap_details.csv`. When any LLM-deduced mappings are present, sensitivity copies are also written as `*_llm_excluded.csv`.
 
 If you want deterministic behavior (no model downloads/inference), provide a repository mapping YAML in the source so the pipeline uses explicit aliases instead.
 
@@ -378,28 +379,38 @@ This repository functions as a testbed to evaluate the viability of a canonical 
 ```bash
 dv-standardization-tool/
 ├── data/
-│   ├── raw/                      # Original datasets (e.g., CHI open datasets)
-│   └── processed/                # Datasets after DV standardization
+│   ├── raw/                      # Original datasets + starter catalog
+│   │   └── study_catalog_example.csv
+│   └── processed/                # Standardized outputs (gitignored)
 │
 ├── schemas/
 │   ├── standard_dv_mapping.yaml         # Canonical DV naming scheme
+│   ├── standard_sensor_mapping.yaml     # Sensor/telemetry canonicalization
+│   ├── standard_detection_mapping.yaml  # YOLO-style detection fields
+│   ├── standard_metadata_mapping.yaml   # Metadata / process columns
 │   ├── schema_meta.yaml                 # Schema metadata (versioning, authorship)
 │   ├── schema_validation_rules.yaml     # Optional constraint rules
 │   ├── example_alias_submissions.yaml   # Sample community submissions
 │   └── schema_changelog.yaml            # Manual schema evolution tracking
 │
 ├── scripts/
-│   ├── convert_dv.py            # Core logic for DV transformation
-│   ├── schema_utils.py          # Flattening, validation, and schema helpers
-│   ├── visual_helpers.py        # Comparison visualizations
-│   ├── validate_schema.py       # Schema sanity check
-│   └── llm_utils.py             # Optional LLM inference logic
+│   ├── convert_dv.py                        # Single-file standardization
+│   ├── run_batch_standardization.py         # Manifest-driven batch runner
+│   ├── run_catalog_meta_analysis.py         # Catalog → batch → meta-analysis orchestrator
+│   ├── schema_utils.py                      # Flattening, validation, and schema helpers
+│   ├── visual_helpers.py                    # Comparison visualizations
+│   ├── validate_schema.py                   # Schema sanity check
+│   └── llm_utils.py                         # Optional LLM inference logic
+│
+├── analyses/
+│   ├── multi_study_analysis.py              # Cross-study overlap & meta-analysis
+│   └── run_latest_multi_study_analysis.sh   # Convenience runner against latest batch output
 │
 ├── notebooks/
-│   ├── prototype_notebook.ipynb         # Main schema validation/testing
-│   ├── schema_builder.ipynb             # Manual YAML construction notebook
-│   ├── visual_validation.ipynb          # Schema alignment visualization
-│   └── llm_inference_prototype.ipynb    # Optional LLM-based prototype
+│   ├── prototype_notebook.ipynb             # Main schema validation/testing
+│   ├── schema_builder.ipynb                 # Manual YAML construction notebook
+│   ├── visual_validation.ipynb              # Schema alignment visualization
+│   └── llm_inference_prototype.ipynb        # Optional LLM-based prototype
 │
 ├── ui/
 │   ├── app.py                   # Streamlit app entry point
@@ -410,6 +421,8 @@ dv-standardization-tool/
 │   │   └── style.css            # Minimal styling
 │   └── components/              # Optional modular UI elements
 │
+├── tests/                       # Pytest suite covering pipeline + analyses
+│
 ├── .github/
 │   └── ISSUE_TEMPLATE/
 │       └── contribution-suggestion.md
@@ -419,6 +432,7 @@ dv-standardization-tool/
 │   ├── overview.md
 │   ├── architecture.md
 │   ├── usage_workflows.md
+│   ├── multi_study_analysis_guide.md
 │   ├── schema_design.md
 │   ├── dataset_guidelines.md
 │   ├── future_plans.md
@@ -430,14 +444,17 @@ dv-standardization-tool/
 │   ├── known_issues.md
 │   ├── schema_mismatches.md
 │   ├── notebook_dependency_notes.md
-│   ├── log_2024-07-01_streamlit_example.txt
 │   ├── llm_prompt_failures.md
 │   ├── trace_convert_dv.txt
 │   ├── notebook_kernel_error.txt
 │   └── broken_schema_preview_example.png
 │
+├── sources_manifest_example.yaml   # Example batch manifest
 ├── LICENSE
 ├── .gitignore
 ├── README.md
+├── requirements-core.txt
+├── requirements-llm.txt
+├── requirements-ui.txt
 └── requirements.txt
 ```
