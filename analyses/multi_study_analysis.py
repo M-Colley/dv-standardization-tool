@@ -40,6 +40,7 @@ ID_LIKE_COLUMNS = {
 DEFAULT_DV_SCHEMA_PATH = Path(__file__).resolve().parents[1] / "schemas" / "standard_dv_mapping.yaml"
 HARMONIZED_SUMMARY_COLUMNS = [
     "study", "dv", "n", "mean", "sd", "mean_z_vs_global", "scale_note",
+    "mapping_source",
 ]
 META_ANALYSIS_COLUMNS = [
     "dv",
@@ -58,10 +59,90 @@ META_ANALYSIS_COLUMNS = [
     "tau",
     "h2",
     "estimator",
+    "mapping_source_categories",
+    "k_llm_deduced",
+    "includes_llm_deduced",
 ]
 STANDARDIZED_EFFECTS_COLUMNS = [
-    "study", "dv", "cohens_d", "hedges_g", "var_g", "se_g",
+    "study", "dv", "cohens_d", "hedges_g", "var_g", "se_g", "mapping_source",
 ]
+
+# ── Mapping-source provenance ───────────────────────────────────────────────
+# Categories assigned to each (study, canonical_dv) pair based on how the DV
+# alias was resolved during batch standardization.  Used to distinguish
+# explicit-schema alignments from uncertain LLM-deduced ones so the meta-
+# analysis can quarantine or down-weight the latter.
+_MAPPING_SOURCE_PRIORITY = {
+    "llm_deduced": 3,
+    "repo_mapping": 2,
+    "schema": 1,
+    "blocked": 0,
+    "unknown": -1,
+}
+
+
+def _categorize_mapping_source(raw: object) -> str:
+    """Map a raw mapping_source string from meta_view.csv to a coarse category."""
+    if raw is None:
+        return "unknown"
+    try:
+        if pd.isna(raw):
+            return "unknown"
+    except (TypeError, ValueError):
+        pass
+    text = str(raw).strip().lower()
+    if not text or text == "n/a":
+        return "unknown"
+    if text == "llm_deduction":
+        return "llm_deduced"
+    if text in {"never_map_blocklist", "blocked"}:
+        return "blocked"
+    if text == "in_memory_mapping":
+        return "schema"
+    schema_markers = (
+        "standard_dv_mapping",
+        "standard_dv_metadata",
+        "standard_detection",
+        "standard_sensor_mapping",
+        "schemas/",
+        "schemas\\",
+    )
+    if any(marker in text for marker in schema_markers):
+        return "schema"
+    return "repo_mapping"
+
+
+def load_mapping_provenance(meta_view_path: Path) -> Dict[tuple, str]:
+    """Build a ``{(source_id, canonical_dv): category}`` index from meta_view.csv.
+
+    ``meta_view.csv`` is emitted by ``scripts/run_batch_standardization.py``
+    and records the raw ``mapping_source`` per dataset/column.  When a pair
+    has multiple rows with conflicting categories, the most cautious (highest
+    priority) category wins, so any LLM-deduced appearance flags the DV.
+
+    Returns an empty dict when the file is absent or malformed so callers can
+    safely fall back to ``mapping_source == "unknown"``.
+    """
+    if not meta_view_path.is_file():
+        return {}
+    try:
+        df = pd.read_csv(meta_view_path)
+    except Exception:
+        return {}
+    if "source_id" not in df.columns or "canonical_dv" not in df.columns:
+        return {}
+    provenance: Dict[tuple, str] = {}
+    for _, row in df.iterrows():
+        source_id = str(row["source_id"])
+        canonical_dv = str(row["canonical_dv"])
+        if canonical_dv in {"", "nan", "None"}:
+            continue
+        key = (source_id, canonical_dv)
+        new_cat = _categorize_mapping_source(row.get("mapping_source"))
+        existing = provenance.get(key)
+        if existing is None or _MAPPING_SOURCE_PRIORITY.get(new_cat, -1) > _MAPPING_SOURCE_PRIORITY.get(existing, -1):
+            provenance[key] = new_cat
+    return provenance
 OVERLAP_DETAIL_COLUMNS = [
     "study_a",
     "study_b",
@@ -668,6 +749,7 @@ def compute_overlap_details(studies: Dict[str, pd.DataFrame]) -> pd.DataFrame:
 def harmonized_summary(
     studies: Dict[str, pd.DataFrame],
     harmonize_scales: bool = False,
+    mapping_provenance: Dict[tuple, str] | None = None,
 ) -> pd.DataFrame:
     metadata = _load_dv_measurement_metadata() if harmonize_scales else {}
     rows = []
@@ -685,6 +767,11 @@ def harmonized_summary(
                         s = _rescale_to_canonical(s, detected, canonical_range)
                         scale_note = f"rescaled {detected[0]}-{detected[1]} -> {canonical_range[0]}-{canonical_range[1]}"
 
+            mapping_source = (
+                mapping_provenance.get((study, dv), "unknown")
+                if mapping_provenance
+                else "unknown"
+            )
             rows.append(
                 {
                     "study": study,
@@ -693,6 +780,7 @@ def harmonized_summary(
                     "mean": s.mean(),
                     "sd": s.std(ddof=1),
                     "scale_note": scale_note,
+                    "mapping_source": mapping_source,
                 }
             )
     summary = pd.DataFrame(rows, columns=HARMONIZED_SUMMARY_COLUMNS)
@@ -713,10 +801,16 @@ def harmonized_summary(
 # ── Standardized effect sizes ────────────────────────────────────────────────
 
 def compute_standardized_effects(summary: pd.DataFrame) -> pd.DataFrame:
-    """Compute Hedges' g for each study relative to the grand mean per DV.
+    """Compute the study-vs-pool standardized deviation (Hedges' g) per DV.
 
-    For one-group descriptive meta-analysis (no shared control group), we
-    standardize each study's mean relative to the pooled cross-study mean.
+    IMPORTANT: this is a *descriptive* one-group effect size, **not** a
+    contrast-based effect (there is no IV, no control group, no paired
+    condition).  Each row expresses how far one study's mean sits from the
+    cross-study grand mean, in pooled-SD units, with Hedges' small-sample
+    correction.  Do not interpret these as evidence of an intervention
+    effect — treat them as a normalized view of between-study location shifts.
+    The values are also written to ``study_vs_pool_standardized_deviation.csv``
+    under that clearer name.
     """
     rows = []
     for dv, sub in summary.groupby("dv"):
@@ -745,8 +839,13 @@ def compute_standardized_effects(summary: pd.DataFrame) -> pd.DataFrame:
                 "hedges_g": g,
                 "var_g": var_g,
                 "se_g": np.sqrt(var_g),
+                "mapping_source": row.get("mapping_source", "unknown"),
             })
     return pd.DataFrame(rows, columns=STANDARDIZED_EFFECTS_COLUMNS)
+
+
+# Clearer public alias — preferred name for new callers.
+compute_study_vs_pool_standardized_deviation = compute_standardized_effects
 
 
 # ── Tau-squared estimators ───────────────────────────────────────────────────
@@ -851,6 +950,16 @@ def _run_meta_for_dv(
         pi_low = np.nan
         pi_high = np.nan
 
+    # Aggregate mapping-source provenance across contributing studies so
+    # readers can see whether a pooled estimate rests on uncertain
+    # LLM-deduced alignments or schema-backed ones.
+    if "mapping_source" in sub.columns:
+        source_values = [str(v) for v in sub["mapping_source"].tolist()]
+    else:
+        source_values = ["unknown"] * k
+    k_llm_deduced = int(sum(1 for s in source_values if s == "llm_deduced"))
+    categories_joined = "; ".join(sorted(set(source_values))) if source_values else "unknown"
+
     return {
         "dv": dv,
         "k_studies": k,
@@ -872,6 +981,9 @@ def _run_meta_for_dv(
         "tau": tau,
         "h2": h2,
         "estimator": estimator,
+        "mapping_source_categories": categories_joined,
+        "k_llm_deduced": k_llm_deduced,
+        "includes_llm_deduced": k_llm_deduced > 0,
     }
 
 
@@ -1841,12 +1953,20 @@ def discover_causal_structure(
     studies: Dict[str, pd.DataFrame],
     min_shared_studies: int = 2,
     min_rows: int = 30,
+    refuse_synthetic: bool = False,
 ) -> dict | None:
     """Discover causal ordering among shared DVs using DirectLiNGAM.
 
     Pools standardized (within-study z-scored) data across studies for DVs
     shared by at least *min_shared_studies* studies. Applies DirectLiNGAM to
     the pooled matrix and returns the adjacency matrix + causal order.
+
+    The result dict includes ``used_method`` (``complete_case`` |
+    ``clique_complete_case`` | ``synthetic_cholesky``), ``synthetic_fallback``
+    (bool), and ``n_complete_rows`` (complete-case row count before any
+    fallback).  When ``refuse_synthetic=True``, the function returns None
+    instead of running LiNGAM on Cholesky-synthesized rows — recommended when
+    you do not want fabricated observations driving causal claims.
 
     Returns None if fewer than 2 shared DVs have sufficient data.
     """
@@ -1911,7 +2031,9 @@ def discover_causal_structure(
 
     # Try the simple path first: rows complete on ALL usable DVs
     X_complete = sub_pooled.dropna()
-    _lingam_logger.info("Complete-case rows: %d (need %d)", len(X_complete), min_rows)
+    n_complete_rows = int(len(X_complete))
+    _lingam_logger.info("Complete-case rows: %d (need %d)", n_complete_rows, min_rows)
+    used_method = "complete_case"
     if len(X_complete) >= min_rows:
         X = X_complete
         _lingam_logger.info("Using complete-case path with %d rows × %d DVs",
@@ -1944,11 +2066,20 @@ def discover_causal_structure(
 
         # Try complete-case on the reduced DV set
         X_clique = sub_pooled[usable_dvs].dropna()
+        n_complete_rows = int(len(X_clique))
         if len(X_clique) >= min_rows:
             X = X_clique
+            used_method = "clique_complete_case"
             _lingam_logger.info("Using complete-case on clique: %d rows × %d DVs",
                                 len(X), len(usable_dvs))
         else:
+            if refuse_synthetic:
+                _lingam_logger.warning(
+                    "Refusing synthetic-Cholesky fallback (refuse_synthetic=True); "
+                    "clique complete rows %d < min_rows %d",
+                    len(X_clique), min_rows,
+                )
+                return None
             # Pairwise correlation → synthetic observations via Cholesky
             corr = sub_pooled[usable_dvs].corr(min_periods=min_periods)
             if corr.isna().any().any():
@@ -1969,8 +2100,13 @@ def discover_causal_structure(
             n_synth = max(n_obs_pairwise, min_rows * 2, 200)
             Z = rng.standard_normal((n_synth, len(usable_dvs)))
             X = pd.DataFrame(Z @ L.T, columns=usable_dvs)
-            _lingam_logger.info("Using pairwise-correlation path: %d synthetic rows × %d DVs",
-                                n_synth, len(usable_dvs))
+            used_method = "synthetic_cholesky"
+            _lingam_logger.warning(
+                "LiNGAM: using Cholesky-synthesized rows (%d synthetic × %d DVs) — "
+                "edges are read off a correlation matrix, NOT observed data; "
+                "results marked synthetic_fallback=True",
+                n_synth, len(usable_dvs),
+            )
 
     if len(X) < min_rows:
         return None
@@ -2005,6 +2141,9 @@ def discover_causal_structure(
         "n_observations": len(X),
         "n_dvs": len(usable_dvs),
         "dvs_used": usable_dvs,
+        "used_method": used_method,
+        "synthetic_fallback": used_method == "synthetic_cholesky",
+        "n_complete_rows": n_complete_rows,
     }
 
 
@@ -2395,6 +2534,32 @@ def main() -> None:
             "before analysis (e.g., ehmi_for_all_chi26,roads_chi25)."
         ),
     )
+    parser.add_argument(
+        "--exclude-llm-deduced",
+        action="store_true",
+        help=(
+            "Run a sensitivity meta-analysis that drops study×DV rows whose alias "
+            "was resolved via LLM deduction. Writes *_llm_excluded.csv companion "
+            "files so you can compare against the full pooling."
+        ),
+    )
+    parser.add_argument(
+        "--meta-view",
+        default=None,
+        help=(
+            "Optional path to meta_view.csv from run_batch_standardization. "
+            "Defaults to '<input-dir>/../meta_view.csv' when present."
+        ),
+    )
+    parser.add_argument(
+        "--refuse-synthetic-causal",
+        action="store_true",
+        help=(
+            "Refuse the Cholesky-synthesized fallback in LiNGAM causal "
+            "discovery. Edges are only emitted when complete-case rows are "
+            "sufficient; otherwise the pass is skipped."
+        ),
+    )
     args = parser.parse_args()
 
     input_dir = Path(args.input_dir)
@@ -2406,11 +2571,32 @@ def main() -> None:
         else set()
     )
 
+    # Locate the batch runner's meta_view.csv (or user-supplied path) to build
+    # per-(study, DV) mapping provenance.  When absent, every row is stamped
+    # "unknown" and the exclude-llm-deduced flag becomes a no-op.
+    if args.meta_view:
+        meta_view_path = Path(args.meta_view)
+    else:
+        meta_view_path = input_dir.parent / "meta_view.csv"
+    mapping_provenance = load_mapping_provenance(meta_view_path)
+    if mapping_provenance:
+        print(f"Loaded mapping provenance for {len(mapping_provenance)} (study, DV) pairs "
+              f"from {meta_view_path}")
+    elif args.exclude_llm_deduced:
+        print(
+            f"[WARNING] --exclude-llm-deduced set but no mapping_source provenance was "
+            f"found at {meta_view_path}. Nothing will be excluded."
+        )
+
     studies = load_studies(input_dir, repeated_measures_studies=repeated_measures or None)
     overlap = compute_overlap(studies)
     presence = compute_dv_presence_matrix(studies)
     overlap_details = compute_overlap_details(studies)
-    summary = harmonized_summary(studies, harmonize_scales=args.harmonize_scales)
+    summary = harmonized_summary(
+        studies,
+        harmonize_scales=args.harmonize_scales,
+        mapping_provenance=mapping_provenance,
+    )
     meta_summary_df = meta_analysis_summary(summary, total_studies=len(studies), estimator=args.estimator)
     effects = compute_standardized_effects(summary)
 
@@ -2421,6 +2607,30 @@ def main() -> None:
     summary.to_csv(output_dir / "harmonized_dv_summary.csv", index=False)
     meta_summary_df.to_csv(output_dir / "meta_analysis_summary.csv", index=False)
     save_plots(overlap, summary, output_dir)
+
+    # Sensitivity pass: rerun the pooling after dropping any study×DV whose
+    # alias was resolved by the local LLM rather than an explicit schema.
+    # Always safe to run — a no-op when no provenance is present.
+    if args.exclude_llm_deduced:
+        summary_clean = summary[summary["mapping_source"] != "llm_deduced"].copy()
+        dropped_rows = int(len(summary) - len(summary_clean))
+        clean_meta = meta_analysis_summary(
+            summary_clean,
+            total_studies=len(studies),
+            estimator=args.estimator,
+        )
+        clean_effects = compute_standardized_effects(summary_clean)
+        summary_clean.to_csv(output_dir / "harmonized_dv_summary_llm_excluded.csv", index=False)
+        clean_meta.to_csv(output_dir / "meta_analysis_summary_llm_excluded.csv", index=False)
+        if not clean_effects.empty:
+            clean_effects.to_csv(
+                output_dir / "study_vs_pool_standardized_deviation_llm_excluded.csv",
+                index=False,
+            )
+        print(
+            f"\nSensitivity (LLM-deduced rows excluded): dropped {dropped_rows} rows; "
+            f"{len(clean_meta)} DV(s) remain in meta_analysis_summary_llm_excluded.csv"
+        )
 
     # Build JSON results dict incrementally
     results_json: dict = {
@@ -2443,10 +2653,17 @@ def main() -> None:
     if not meta_summary_df.empty:
         print("\nMeta-analysis summaries:\n", meta_summary_df.round(3).to_string(index=False))
 
-    # Standardized effects
+    # Standardized effects — this is a DESCRIPTIVE one-group effect (study
+    # mean vs cross-study grand mean in pooled-SD units), not a contrast-based
+    # intervention effect.  The preferred filename reflects that; a legacy
+    # alias is retained for existing downstream consumers.
     if not effects.empty:
+        effects.to_csv(output_dir / "study_vs_pool_standardized_deviation.csv", index=False)
         effects.to_csv(output_dir / "standardized_effects.csv", index=False)
-        print("\nStandardized effects (Hedges' g):\n", effects.round(3).to_string(index=False))
+        print(
+            "\nStudy-vs-pool standardized deviation (one-group Hedges' g, descriptive):\n",
+            effects.round(3).to_string(index=False),
+        )
 
     # Subgroup analysis
     subgroup = subgroup_meta_analysis(effects)
@@ -2559,13 +2776,28 @@ def main() -> None:
     # LiNGAM causal discovery
     causal_result = None
     try:
-        causal_result = discover_causal_structure(studies)
+        causal_result = discover_causal_structure(
+            studies,
+            refuse_synthetic=args.refuse_synthetic_causal,
+        )
         if causal_result is not None:
             causal_result["adjacency_matrix"].to_csv(output_dir / "causal_adjacency_matrix.csv")
             causal_result["edges"].to_csv(output_dir / "causal_edges.csv", index=False)
             save_causal_dag_plot(causal_result, output_dir)
-            print(f"\nLiNGAM causal discovery ({causal_result['n_observations']} obs, "
-                  f"{causal_result['n_dvs']} DVs):")
+            method = causal_result.get("used_method", "complete_case")
+            synthetic = bool(causal_result.get("synthetic_fallback", False))
+            n_complete = int(causal_result.get("n_complete_rows", 0))
+            print(
+                f"\nLiNGAM causal discovery ({causal_result['n_observations']} obs, "
+                f"{causal_result['n_dvs']} DVs, method={method}, complete_case_rows={n_complete}):"
+            )
+            if synthetic:
+                print(
+                    "  [WARNING] synthetic_fallback=True — edges were fit on "
+                    "Cholesky-synthesized rows, not observed data. Do not treat "
+                    "these as causal claims. Re-run with --refuse-synthetic-causal "
+                    "to suppress this fallback."
+                )
             print("  Causal order:", " -> ".join(causal_result["causal_order"]))
             if not causal_result["edges"].empty:
                 print("  Significant edges:")
@@ -2574,7 +2806,8 @@ def main() -> None:
             else:
                 print("  No significant causal edges detected (all |b| < 0.1)")
         else:
-            print("\n[WARNING] Skipping LiNGAM: fewer than 2 DVs shared across 2+ studies")
+            print("\n[WARNING] Skipping LiNGAM: insufficient shared DVs or complete-case rows "
+                  "(synthetic fallback may be refused).")
     except Exception as e:
         print(f"\n[WARNING] Skipping LiNGAM causal discovery: {e}")
 
@@ -2590,6 +2823,9 @@ def main() -> None:
             "n_observations": causal_result["n_observations"],
             "causal_order": causal_result["causal_order"],
             "edges": edges_list,
+            "used_method": causal_result.get("used_method"),
+            "synthetic_fallback": bool(causal_result.get("synthetic_fallback", False)),
+            "n_complete_rows": int(causal_result.get("n_complete_rows", 0)),
         }
 
     # Bootstrap causal edge stability

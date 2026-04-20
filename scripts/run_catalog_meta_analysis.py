@@ -23,7 +23,9 @@ from analyses.multi_study_analysis import (
     compute_dv_presence_matrix,
     compute_overlap,
     compute_overlap_details,
+    compute_standardized_effects,
     harmonized_summary,
+    load_mapping_provenance,
     load_studies,
     meta_analysis_summary,
     save_composite_plot,
@@ -442,7 +444,8 @@ def run_catalog_meta_analysis(
     overlap = compute_overlap(studies)
     presence = compute_dv_presence_matrix(studies)
     overlap_details = compute_overlap_details(studies)
-    summary = harmonized_summary(studies)
+    mapping_provenance = load_mapping_provenance(output_dir / "meta_view.csv")
+    summary = harmonized_summary(studies, mapping_provenance=mapping_provenance)
     meta_summary = meta_analysis_summary(summary, total_studies=len(studies))
 
     overlap.to_csv(analysis_dir / "dv_overlap_matrix.csv")
@@ -451,6 +454,26 @@ def run_catalog_meta_analysis(
     summary.to_csv(analysis_dir / "harmonized_dv_summary.csv", index=False)
     meta_summary.to_csv(analysis_dir / "meta_analysis_summary.csv", index=False)
     save_plots(overlap, summary, analysis_dir)
+
+    # Sensitivity companion: drop LLM-deduced rows and re-pool.  No-op when
+    # provenance is unavailable; always safe to write so downstream consumers
+    # can compare pooled estimates against a provenance-filtered reference.
+    summary_clean = summary[summary["mapping_source"] != "llm_deduced"].copy()
+    if len(summary_clean) < len(summary):
+        meta_clean = meta_analysis_summary(
+            summary_clean,
+            total_studies=len(studies),
+        )
+        meta_clean.to_csv(
+            analysis_dir / "meta_analysis_summary_llm_excluded.csv",
+            index=False,
+        )
+        effects_clean = compute_standardized_effects(summary_clean)
+        if not effects_clean.empty:
+            effects_clean.to_csv(
+                analysis_dir / "study_vs_pool_standardized_deviation_llm_excluded.csv",
+                index=False,
+            )
 
     composite_written = False
     try:

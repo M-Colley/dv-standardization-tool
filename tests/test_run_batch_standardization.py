@@ -1476,6 +1476,21 @@ class BatchStandardizationTests(unittest.TestCase):
             sources = load_manifest(manifest_path)
             self.assertEqual(sources[0]["source_type"], "osf_project")
 
+    def test_example_manifest_contains_acm_chi26_supplemental_entry(self):
+        with open(EXAMPLE_MANIFEST_PATH, "r", encoding="utf-8") as f:
+            manifest = yaml.safe_load(f)
+        source_ids = [entry["source_id"] for entry in manifest["sources"]]
+        self.assertIn("acm_chi26_3790738", source_ids)
+        entry = next(
+            e for e in manifest["sources"] if e["source_id"] == "acm_chi26_3790738"
+        )
+        self.assertEqual(entry["source_type"], "web_dataset")
+        self.assertEqual(entry["publication_doi"], "10.1145/3772318.3790738")
+        self.assertTrue(
+            entry["location"].startswith("https://dl.acm.org/doi/suppl/10.1145/3772318.3790738/")
+        )
+        self.assertTrue(entry["location"].endswith(".zip"))
+
     def test_load_manifest_accepts_web_dataset_source_type(self):
         with tempfile.TemporaryDirectory() as tmpdir:
             manifest_path = Path(tmpdir) / "manifest.yaml"
@@ -1571,6 +1586,45 @@ class BatchStandardizationTests(unittest.TestCase):
         self.assertEqual(len(files), 1)
         self.assertEqual(files[0].name, "results.csv")
         self.assertEqual(commit_sha, source["location"])
+
+    def test_discover_source_files_web_dataset_reports_cloudflare_challenge(self):
+        source = {
+            "source_id": "acm_chi26_3790738",
+            "source_type": "web_dataset",
+            "location": (
+                "https://dl.acm.org/doi/suppl/10.1145/3772318.3790738/"
+                "suppl_file/3772318.3790738-supplemental-material-1.zip"
+            ),
+            "include_globs": ["**/*.csv"],
+        }
+        import urllib.error as urlerror
+
+        challenge_html = (
+            b"<!DOCTYPE html><html><head><title>Just a moment...</title>"
+            b"</head><body>Enable JavaScript and cookies to continue. "
+            b"cf-mitigated: challenge</body></html>"
+        )
+
+        def _raise_challenge(*_args, **_kwargs):
+            raise urlerror.HTTPError(
+                source["location"],
+                403,
+                "Forbidden",
+                Message(),
+                io.BytesIO(challenge_html),
+            )
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            workdir = Path(tmpdir)
+            with mock.patch(
+                "scripts.run_batch_standardization._read_url_response",
+                side_effect=_raise_challenge,
+            ):
+                with self.assertRaises(SourceAccessError) as ctx:
+                    discover_source_files(source, workdir)
+
+        self.assertEqual(ctx.exception.status, "access_restricted")
+        self.assertIn("dl.acm.org", str(ctx.exception))
 
     def test_discover_source_files_web_dataset_reports_login_required(self):
         source = {

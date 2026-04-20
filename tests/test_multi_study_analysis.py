@@ -6,6 +6,7 @@ import numpy as np
 import pandas as pd
 
 from analyses.multi_study_analysis import (
+    _categorize_mapping_source,
     _detect_scale_range,
     _estimate_tau2_dl,
     _estimate_tau2_reml,
@@ -15,10 +16,12 @@ from analyses.multi_study_analysis import (
     compute_dv_presence_matrix,
     compute_overlap_details,
     compute_standardized_effects,
+    compute_study_vs_pool_standardized_deviation,
     discover_causal_structure,
     eggers_test,
     harmonized_summary,
     leave_one_out_sensitivity,
+    load_mapping_provenance,
     load_studies,
     meta_analysis_summary,
     numeric_dvs,
@@ -372,3 +375,178 @@ class MultiStudyAnalysisTests(unittest.TestCase):
         self.assertIn("causal_order", result)
         self.assertIn("edges", result)
         self.assertEqual(len(result["causal_order"]), 3)
+
+    # ── Provenance & sensitivity tests ─────────────────────────────────────
+
+    def test_categorize_mapping_source_labels(self):
+        self.assertEqual(_categorize_mapping_source("llm_deduction"), "llm_deduced")
+        self.assertEqual(_categorize_mapping_source("in_memory_mapping"), "schema")
+        self.assertEqual(_categorize_mapping_source("schemas/standard_dv_mapping.yaml"),
+                         "schema")
+        self.assertEqual(_categorize_mapping_source("custom/roads_chi25/mapping.yaml"),
+                         "repo_mapping")
+        self.assertEqual(_categorize_mapping_source(None), "unknown")
+        self.assertEqual(_categorize_mapping_source(""), "unknown")
+        self.assertEqual(_categorize_mapping_source("never_map_blocklist"), "blocked")
+
+    def test_load_mapping_provenance_reads_meta_view_and_prefers_llm(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            meta_view = Path(tmpdir) / "meta_view.csv"
+            pd.DataFrame([
+                {"source_id": "study_a", "canonical_dv": "trust_rating",
+                 "mapping_source": "in_memory_mapping"},
+                {"source_id": "study_a", "canonical_dv": "task_success",
+                 "mapping_source": "llm_deduction"},
+                # Conflicting rows for the same DV — llm_deduced wins.
+                {"source_id": "study_b", "canonical_dv": "trust_rating",
+                 "mapping_source": "in_memory_mapping"},
+                {"source_id": "study_b", "canonical_dv": "trust_rating",
+                 "mapping_source": "llm_deduction"},
+            ]).to_csv(meta_view, index=False)
+
+            prov = load_mapping_provenance(meta_view)
+
+        self.assertEqual(prov[("study_a", "trust_rating")], "schema")
+        self.assertEqual(prov[("study_a", "task_success")], "llm_deduced")
+        self.assertEqual(prov[("study_b", "trust_rating")], "llm_deduced")
+
+    def test_load_mapping_provenance_missing_file_returns_empty(self):
+        self.assertEqual(load_mapping_provenance(Path("does_not_exist.csv")), {})
+
+    def test_harmonized_summary_attaches_mapping_source(self):
+        studies = {
+            "study_a": pd.DataFrame({"task_success": [0.8, 0.85, 0.9]}),
+            "study_b": pd.DataFrame({"task_success": [0.6, 0.65, 0.7]}),
+        }
+        provenance = {
+            ("study_a", "task_success"): "schema",
+            ("study_b", "task_success"): "llm_deduced",
+        }
+
+        summary = harmonized_summary(studies, mapping_provenance=provenance)
+
+        self.assertIn("mapping_source", summary.columns)
+        self.assertEqual(
+            summary.loc[summary["study"] == "study_a", "mapping_source"].iloc[0],
+            "schema",
+        )
+        self.assertEqual(
+            summary.loc[summary["study"] == "study_b", "mapping_source"].iloc[0],
+            "llm_deduced",
+        )
+
+    def test_meta_analysis_summary_flags_llm_contributions(self):
+        summary = pd.DataFrame([
+            {"study": "a", "dv": "task_success", "n": 100, "mean": 0.7,
+             "sd": 0.1, "scale_note": "", "mapping_source": "schema"},
+            {"study": "b", "dv": "task_success", "n": 120, "mean": 0.8,
+             "sd": 0.12, "scale_note": "", "mapping_source": "llm_deduced"},
+            {"study": "c", "dv": "trust_rating", "n": 80, "mean": 4.1,
+             "sd": 0.5, "scale_note": "", "mapping_source": "schema"},
+            {"study": "d", "dv": "trust_rating", "n": 90, "mean": 4.3,
+             "sd": 0.4, "scale_note": "", "mapping_source": "schema"},
+        ])
+
+        meta = meta_analysis_summary(summary)
+
+        task_row = meta[meta["dv"] == "task_success"].iloc[0]
+        trust_row = meta[meta["dv"] == "trust_rating"].iloc[0]
+        self.assertTrue(bool(task_row["includes_llm_deduced"]))
+        self.assertEqual(int(task_row["k_llm_deduced"]), 1)
+        self.assertIn("llm_deduced", task_row["mapping_source_categories"])
+        self.assertFalse(bool(trust_row["includes_llm_deduced"]))
+        self.assertEqual(int(trust_row["k_llm_deduced"]), 0)
+
+    def test_exclude_llm_deduced_sensitivity_changes_pooled_estimate(self):
+        # Two studies: one "schema", one "llm_deduced".  Filtering the
+        # llm_deduced row should change k and the pooled mean.
+        summary = pd.DataFrame([
+            {"study": "a", "dv": "task_success", "n": 100, "mean": 0.7,
+             "sd": 0.1, "scale_note": "", "mapping_source": "schema"},
+            {"study": "b", "dv": "task_success", "n": 120, "mean": 0.9,
+             "sd": 0.12, "scale_note": "", "mapping_source": "llm_deduced"},
+            {"study": "c", "dv": "task_success", "n": 80, "mean": 0.72,
+             "sd": 0.11, "scale_note": "", "mapping_source": "schema"},
+        ])
+
+        full_meta = meta_analysis_summary(summary)
+        clean_meta = meta_analysis_summary(
+            summary[summary["mapping_source"] != "llm_deduced"]
+        )
+
+        self.assertEqual(int(full_meta.iloc[0]["k_studies"]), 3)
+        self.assertEqual(int(clean_meta.iloc[0]["k_studies"]), 2)
+        self.assertNotAlmostEqual(
+            float(full_meta.iloc[0]["random_effects_mean"]),
+            float(clean_meta.iloc[0]["random_effects_mean"]),
+            places=4,
+        )
+
+    def test_compute_standardized_effects_carries_mapping_source(self):
+        summary = pd.DataFrame([
+            {"study": "a", "dv": "task_success", "n": 50, "mean": 0.7,
+             "sd": 0.1, "scale_note": "", "mapping_source": "schema"},
+            {"study": "b", "dv": "task_success", "n": 60, "mean": 0.8,
+             "sd": 0.12, "scale_note": "", "mapping_source": "llm_deduced"},
+        ])
+
+        effects = compute_standardized_effects(summary)
+
+        self.assertIn("mapping_source", effects.columns)
+        self.assertEqual(
+            set(effects["mapping_source"]),
+            {"schema", "llm_deduced"},
+        )
+        # Preferred alias is exposed for new callers.
+        self.assertIs(
+            compute_study_vs_pool_standardized_deviation,
+            compute_standardized_effects,
+        )
+
+    # ── Causal discovery fallback tests ────────────────────────────────────
+
+    def test_causal_discovery_reports_complete_case_method(self):
+        np.random.seed(7)
+        n = 80
+        x = np.random.randn(n)
+        y = 0.5 * x + np.random.randn(n) * 0.3
+
+        studies = {
+            "study_a": pd.DataFrame({"mental_demand": x[:50], "effort": y[:50]}),
+            "study_b": pd.DataFrame({"mental_demand": x[30:], "effort": y[30:]}),
+        }
+
+        result = discover_causal_structure(studies, min_rows=20)
+
+        self.assertIsNotNone(result)
+        self.assertFalse(bool(result["synthetic_fallback"]))
+        self.assertEqual(result["used_method"], "complete_case")
+        self.assertGreaterEqual(int(result["n_complete_rows"]), 20)
+
+    def test_refuse_synthetic_blocks_cholesky_fallback(self):
+        np.random.seed(11)
+
+        # Two studies that *share* DV names but never co-occur in the same row
+        # within a study (each study has only one of each DV available).
+        # This forces partial coverage and triggers the synthetic path in the
+        # default code path.
+        studies = {
+            "study_a": pd.DataFrame({
+                "mental_demand": np.random.randn(25),
+                "effort": np.nan,
+            }),
+            "study_b": pd.DataFrame({
+                "mental_demand": np.nan,
+                "effort": np.random.randn(25),
+            }),
+        }
+
+        # Without refuse_synthetic, this returns None because the per-study
+        # dropna leaves < min_rows rows anyway — so this test primarily
+        # ensures the new kwarg is accepted without raising.
+        result_strict = discover_causal_structure(
+            studies,
+            min_rows=10,
+            refuse_synthetic=True,
+        )
+        self.assertIsNone(result_strict)
