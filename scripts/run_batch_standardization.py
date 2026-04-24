@@ -1896,7 +1896,12 @@ def run_batch(
             total_unknown = 0
             total_columns = 0
             total_mapped_columns = 0
-            source_llm_enabled = bool(source.get("use_llm_deduction", llm_deduction_enabled))
+            # CLI --disable-llm-deduction is a hard off-switch: when LLM deduction is
+            # disabled at the run level, no per-source manifest flag can re-enable it.
+            # When enabled at run level, the per-source flag still controls opt-in.
+            source_llm_enabled = llm_deduction_enabled and bool(
+                source.get("use_llm_deduction", llm_deduction_enabled)
+            )
             source_preferred_models = source.get("llm_models") if isinstance(source.get("llm_models"), list) else preferred_models
             source_llm_cache: dict[str, str | None] = {}
             source_column_sig_cache: dict[tuple[str, ...], dict[str, str]] = {}

@@ -162,7 +162,7 @@ class LLMUtilsTests(unittest.TestCase):
             with mock.patch("scripts.llm_utils._detect_cuda_memory_gb", return_value=4.0):
                 selected = select_local_model_candidates(
                     preferred_models=[
-                        "Qwen/Qwen3.5-4B",
+                        "google/gemma-4-E4B-it",
                         "Qwen/Qwen2.5-3B-Instruct",
                     ]
                 )
@@ -170,7 +170,7 @@ class LLMUtilsTests(unittest.TestCase):
         self.assertEqual(selected, [])
 
     def test_select_local_model_candidates_filters_env_override_by_cuda_memory(self):
-        with mock.patch.dict("os.environ", {"DV_LLM_MODELS": "Qwen/Qwen3.5-4B"}, clear=False):
+        with mock.patch.dict("os.environ", {"DV_LLM_MODELS": "google/gemma-4-E4B-it"}, clear=False):
             with mock.patch("scripts.llm_utils._detect_cuda_memory_gb", return_value=4.0):
                 selected = select_local_model_candidates()
 

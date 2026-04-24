@@ -293,8 +293,8 @@ sources:
     include_globs: ["**/*.csv", "**/*.tsv", "**/*.xlsx", "**/*.xls"]
     use_llm_deduction: true
     llm_models:
-      - Qwen/Qwen3.5-4B
-      - microsoft/Phi-4-mini-instruct
+      - google/gemma-4-E4B-it
+      - google/gemma-4-E2B-it
       - meta-llama/Llama-3.2-3B-Instruct
 ```
 
