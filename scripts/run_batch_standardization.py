@@ -20,7 +20,6 @@ import stat
 import subprocess
 import sys
 import time
-import zipfile
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from html import unescape
@@ -137,30 +136,27 @@ from scripts.convert_dv import (
     standardize_columns,
 )
 from scripts.llm_utils import collect_repository_context, deduce_standard_name_with_local_llm
+# archive_utils owns the suffix sets and the recursive zip extraction helpers.
+# We re-export them so existing test imports
+# (e.g. ``from scripts.run_batch_standardization import _extract_zip_files_recursive``)
+# continue to work after the Wave C extraction.
+from scripts.archive_utils import (
+    ARCHIVE_SUFFIXES,
+    DATA_FILE_SUFFIXES,
+    DEFAULT_ARCHIVE_MAX_DEPTH,
+    MAPPING_SUFFIXES,
+    _extract_archives_in_tree,
+    _extract_zip_files_recursive,
+    _is_within_directory,
+    _resolve_archive_max_depth,
+    _should_skip_archive_member,
+)
 
-# TABULAR_SUFFIXES: extensions used for *batch discovery* — must be unambiguous
-# data files (no README.txt, notes.dat false positives).
-# .txt and .dat are loadable but excluded from auto-discovery.
-_AMBIGUOUS_SUFFIXES = {".txt", ".dat"}
-try:
-    TABULAR_SUFFIXES = set(_CDV_FORMAT_REGISTRY.keys()) - _AMBIGUOUS_SUFFIXES
-except Exception:  # noqa: BLE001
-    TABULAR_SUFFIXES = {
-        ".csv", ".tsv",
-        ".xlsx", ".xls", ".xlsm", ".ods",
-        ".pkl", ".pickle",
-        ".parquet",
-        ".sav", ".zsav",
-        ".dta",
-        ".feather", ".arrow",
-        ".json", ".jsonl", ".ndjson",
-    }
+# TABULAR_SUFFIXES is the historical alias for DATA_FILE_SUFFIXES used by
+# discovery code in this module. Kept as a re-export for backwards compat.
+TABULAR_SUFFIXES = DATA_FILE_SUFFIXES
 PICKLE_SUFFIXES = {".pkl", ".pickle"}
-DATA_FILE_SUFFIXES = TABULAR_SUFFIXES
-ARCHIVE_SUFFIXES = {".zip"}
-MAPPING_SUFFIXES = {".yaml", ".yml"}
 OSF_API_BASE = "https://api.osf.io/v2"
-DEFAULT_ARCHIVE_MAX_DEPTH = 3
 DEFAULT_SENSOR_SCHEMA_PATH = REPO_ROOT / "schemas" / "standard_sensor_mapping.yaml"
 DEFAULT_DETECTION_SCHEMA_PATH = REPO_ROOT / "schemas" / "standard_detection_mapping.yaml"
 DEFAULT_METADATA_SCHEMA_PATH = REPO_ROOT / "schemas" / "standard_metadata_mapping.yaml"
@@ -1020,24 +1016,6 @@ def _download_osf_file(download_url: str, destination: Path) -> None:
 
 
 
-def _is_within_directory(path: Path, root: Path) -> bool:
-    try:
-        path.relative_to(root)
-        return True
-    except ValueError:
-        return False
-
-
-def _resolve_archive_max_depth(source: dict[str, Any]) -> int:
-    value = source.get("archive_max_depth", DEFAULT_ARCHIVE_MAX_DEPTH)
-    try:
-        depth = int(value)
-    except (TypeError, ValueError) as exc:
-        raise ValueError(f"archive_max_depth must be an integer, got {value!r}") from exc
-    if depth < 1:
-        raise ValueError("archive_max_depth must be >= 1.")
-    return depth
-
 def _normalize_column_name(value: str) -> str:
     return re.sub(r"[^a-z0-9_]+", "", str(value).strip().lower())
 
@@ -1095,88 +1073,6 @@ def _load_optional_schema_mapping(
     }
     return mapping, aliases_ci, str(path)
 
-
-def _should_skip_archive_member(member_path: Path) -> bool:
-    normalized_parts = [part for part in member_path.parts if part not in {"", "."}]
-    if any(part == "__MACOSX" for part in normalized_parts):
-        return True
-
-    filename = member_path.name
-    if filename == ".DS_Store" or filename.startswith("._"):
-        return True
-
-    return False
-
-
-def _extract_zip_files_recursive(zip_path: Path, source_root: Path, depth: int, max_depth: int) -> None:
-    if depth > max_depth:
-        return
-
-    try:
-        relative_zip = zip_path.relative_to(source_root)
-    except ValueError:
-        relative_zip = Path(zip_path.name)
-
-    archive_id = re.sub(r"[^A-Za-z0-9._-]+", "_", str(relative_zip.with_suffix(""))).strip("_")
-    if not archive_id:
-        archive_id = "archive"
-
-    extract_root = source_root / "__extracted_archives" / archive_id
-    extract_root.mkdir(parents=True, exist_ok=True)
-    resolved_extract_root = extract_root.resolve()
-
-    with zipfile.ZipFile(zip_path, "r") as zf:
-        for member in zf.infolist():
-            if member.is_dir():
-                continue
-
-            member_path = Path(member.filename)
-            if _should_skip_archive_member(member_path):
-                continue
-
-            suffix = member_path.suffix.lower()
-            if suffix not in DATA_FILE_SUFFIXES and suffix not in ARCHIVE_SUFFIXES and suffix not in MAPPING_SUFFIXES:
-                continue
-
-            destination = (extract_root / member.filename).resolve()
-            if not _is_within_directory(destination, resolved_extract_root):
-                continue
-
-            destination.parent.mkdir(parents=True, exist_ok=True)
-            with zf.open(member, "r") as src, open(destination, "wb") as dst:
-                shutil.copyfileobj(src, dst)
-
-            if suffix in ARCHIVE_SUFFIXES:
-                _extract_zip_files_recursive(destination, source_root, depth + 1, max_depth)
-
-
-def _extract_archives_in_tree(source_root: Path, max_depth: int) -> None:
-    extracted_root = source_root / "__extracted_archives"
-    processed_archives: set[Path] = set()
-
-    for archive_path in sorted(source_root.rglob("*")):
-        if not archive_path.is_file() or archive_path.suffix.lower() not in ARCHIVE_SUFFIXES:
-            continue
-
-        try:
-            relative_path = archive_path.relative_to(source_root)
-        except ValueError:
-            continue
-        if relative_path.parts and relative_path.parts[0] == "__extracted_archives":
-            continue
-
-        resolved_archive = archive_path.resolve()
-        if resolved_archive in processed_archives:
-            continue
-        processed_archives.add(resolved_archive)
-        _extract_zip_files_recursive(archive_path, source_root, depth=1, max_depth=max_depth)
-
-    if not extracted_root.exists():
-        return
-
-    for path in sorted(extracted_root.rglob("*"), reverse=True):
-        if path.is_dir() and not any(path.iterdir()):
-            path.rmdir()
 
 def _source_cache_key(source: dict[str, Any]) -> str:
     source_type = str(source.get("source_type", ""))
