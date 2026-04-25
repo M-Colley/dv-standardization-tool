@@ -6,10 +6,13 @@ units, and scale types from DV labels. It uses pattern matching, keyword
 detection, and instrument recognition to automatically classify DVs.
 """
 
+import logging
 import re
 import yaml
 from pathlib import Path
 from typing import List, Optional, Tuple, Dict
+
+logger = logging.getLogger(__name__)
 try:
     from scripts.measurement_types import (
         MeasurementMeta,

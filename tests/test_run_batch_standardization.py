@@ -1,6 +1,7 @@
 import io
 import json
 import os
+import socket
 import stat
 import zipfile
 import tempfile
@@ -8,6 +9,7 @@ import unittest
 from unittest import mock
 from pathlib import Path
 from email.message import Message
+from urllib import error as urlerror
 
 import pandas as pd
 import yaml
@@ -740,7 +742,17 @@ class BatchStandardizationTests(unittest.TestCase):
             )
 
             output_dir = tmp / "output"
-            run_batch(manifest_path, output_dir, SCHEMA_PATH)
+            # The "Unmapped" column triggers _augment_mapping_with_llm_deductions
+            # for any candidate above the heuristic similarity threshold, which
+            # otherwise loads a real local LLM (gemma-4) and segfaults on RAM-
+            # constrained CI. The intent of *this* test is to verify that
+            # standard-schema aliases beat repo-mapping aliases — not LLM
+            # inference behaviour — so we stub the LLM out entirely.
+            with mock.patch(
+                "scripts.run_batch_standardization.deduce_standard_name_with_local_llm",
+                return_value=None,
+            ):
+                run_batch(manifest_path, output_dir, SCHEMA_PATH)
 
             standardized_path = output_dir / "standardized" / "study_source" / "study_csv-standardized.csv"
             meta_view_path = output_dir / "meta_view.csv"
@@ -1001,7 +1013,15 @@ class BatchStandardizationTests(unittest.TestCase):
                     debug_mappings=True,
                 )
 
-            self.assertEqual(mocked.call_count, 1)
+            # Both "DurationX" and "Unknown Alias" pass the heuristic shortlist
+            # threshold and reach the LLM stub; only "DurationX" gets a non-None
+            # mapping. Verify both calls happened so future regressions in the
+            # candidate-shortlisting code path get caught.
+            self.assertEqual(mocked.call_count, 2)
+            llm_called_columns = sorted(
+                call.kwargs["raw_column_name"] for call in mocked.call_args_list
+            )
+            self.assertEqual(llm_called_columns, ["DurationX", "Unknown Alias"])
             self.assertTrue(summary["debug_mappings_enabled"])
 
             debug_path = (
@@ -2085,6 +2105,406 @@ class BatchStandardizationTests(unittest.TestCase):
 
             self.assertEqual(commit_second, "cwd6h")
             self.assertEqual(len(files_second), 1)
+
+class ArchiveExtractionTests(unittest.TestCase):
+    """Cover the zip extraction helpers — zip-slip protection, depth limits,
+    nested archives, and skip rules. These wrap _extract_zip_files_recursive
+    and _extract_archives_in_tree, which previously lacked unit coverage."""
+
+    def _make_zip(self, zip_path: Path, members: dict[str, bytes]) -> None:
+        zip_path.parent.mkdir(parents=True, exist_ok=True)
+        with zipfile.ZipFile(zip_path, "w", zipfile.ZIP_DEFLATED) as zf:
+            for name, content in members.items():
+                zf.writestr(name, content)
+
+    def test_extract_zip_skips_zip_slip_paths(self):
+        from scripts.run_batch_standardization import _extract_zip_files_recursive
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            root = Path(tmpdir)
+            zip_path = root / "evil.zip"
+            # The "../escape.csv" entry would land outside the extract root if
+            # the helper did not guard against zip-slip. The harmless sibling
+            # entry confirms extraction still succeeds for legitimate members.
+            self._make_zip(
+                zip_path,
+                {
+                    "../escape.csv": b"col\nval",
+                    "data.csv": b"col\nval",
+                },
+            )
+
+            _extract_zip_files_recursive(zip_path, root, depth=1, max_depth=3)
+
+            extracted_root = root / "__extracted_archives" / "evil"
+            self.assertTrue((extracted_root / "data.csv").is_file())
+            # The escape attempt must not produce a file outside the root
+            # (which is what `..` would resolve to relative to extract_root).
+            self.assertFalse((root / "escape.csv").exists())
+            self.assertFalse(zip_path.parent.parent.joinpath("escape.csv").exists())
+
+    def test_extract_zip_respects_max_depth_for_nested_archives(self):
+        from scripts.run_batch_standardization import _extract_zip_files_recursive
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            root = Path(tmpdir)
+            inner_zip_bytes = io.BytesIO()
+            with zipfile.ZipFile(inner_zip_bytes, "w", zipfile.ZIP_DEFLATED) as zf:
+                zf.writestr("deep.csv", b"deep,col\n1,2")
+            inner_payload = inner_zip_bytes.getvalue()
+
+            outer_zip = root / "outer.zip"
+            self._make_zip(
+                outer_zip,
+                {
+                    "shallow.csv": b"shallow,col\n1,2",
+                    "inner.zip": inner_payload,
+                },
+            )
+
+            # max_depth=1 means the outer archive is processed but inner.zip
+            # must not be recursively extracted (only copied as a file).
+            _extract_zip_files_recursive(outer_zip, root, depth=1, max_depth=1)
+
+            extracted = root / "__extracted_archives" / "outer"
+            self.assertTrue((extracted / "shallow.csv").is_file())
+            # inner.zip is a recognized archive suffix, so it gets copied out;
+            # the depth limit prevents further recursion into deep.csv.
+            self.assertTrue((extracted / "inner.zip").is_file())
+            self.assertFalse(
+                (root / "__extracted_archives" / "inner" / "deep.csv").exists(),
+                "Inner archive should not have been recursed into at max_depth=1.",
+            )
+
+    def test_extract_zip_recurses_into_nested_archives_when_depth_allows(self):
+        from scripts.run_batch_standardization import _extract_zip_files_recursive
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            root = Path(tmpdir)
+            inner_zip_bytes = io.BytesIO()
+            with zipfile.ZipFile(inner_zip_bytes, "w", zipfile.ZIP_DEFLATED) as zf:
+                zf.writestr("deep.csv", b"deep,col\n1,2")
+            inner_payload = inner_zip_bytes.getvalue()
+
+            outer_zip = root / "outer.zip"
+            self._make_zip(outer_zip, {"inner.zip": inner_payload})
+
+            _extract_zip_files_recursive(outer_zip, root, depth=1, max_depth=3)
+
+            # The inner archive id is derived from the relative path
+            # __extracted_archives/outer/inner.zip → that path becomes the
+            # archive id (slashes/dots normalised to underscores).
+            candidates = list(
+                (root / "__extracted_archives").glob("*/deep.csv")
+            )
+            self.assertEqual(
+                len(candidates), 1,
+                f"Expected exactly one extracted deep.csv, found: {candidates}",
+            )
+
+    def test_extract_zip_skips_macosx_metadata_and_hidden_files(self):
+        from scripts.run_batch_standardization import _extract_zip_files_recursive
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            root = Path(tmpdir)
+            zip_path = root / "with_macos.zip"
+            self._make_zip(
+                zip_path,
+                {
+                    "data.csv": b"col\nval",
+                    "__MACOSX/._data.csv": b"junk",
+                    ".DS_Store": b"junk",
+                    "subdir/._junkfile.csv": b"junk",
+                },
+            )
+
+            _extract_zip_files_recursive(zip_path, root, depth=1, max_depth=3)
+
+            extracted = root / "__extracted_archives" / "with_macos"
+            self.assertTrue((extracted / "data.csv").is_file())
+            self.assertFalse((extracted / "__MACOSX" / "._data.csv").exists())
+            self.assertFalse((extracted / ".DS_Store").exists())
+            self.assertFalse((extracted / "subdir" / "._junkfile.csv").exists())
+
+    def test_extract_zip_ignores_unsupported_suffixes(self):
+        from scripts.run_batch_standardization import _extract_zip_files_recursive
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            root = Path(tmpdir)
+            zip_path = root / "mixed.zip"
+            self._make_zip(
+                zip_path,
+                {
+                    "kept.csv": b"col\nval",
+                    "ignored.exe": b"\x4d\x5a",
+                    "ignored.txt": b"text only",
+                },
+            )
+
+            _extract_zip_files_recursive(zip_path, root, depth=1, max_depth=3)
+
+            extracted = root / "__extracted_archives" / "mixed"
+            self.assertTrue((extracted / "kept.csv").is_file())
+            self.assertFalse((extracted / "ignored.exe").exists())
+            self.assertFalse((extracted / "ignored.txt").exists())
+
+    def test_extract_archives_in_tree_skips_extracted_root(self):
+        """The helper must not recursively re-process the __extracted_archives
+        folder it just created, otherwise nested zips would loop."""
+        from scripts.run_batch_standardization import _extract_archives_in_tree
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            root = Path(tmpdir)
+            self._make_zip(
+                root / "outer.zip",
+                {"data.csv": b"col\nval"},
+            )
+
+            _extract_archives_in_tree(root, max_depth=3)
+            # Drop a synthetic re-archive into the extracted tree to simulate
+            # what would happen if the helper accidentally re-processed it.
+            sentinel_zip = root / "__extracted_archives" / "outer" / "duplicate.zip"
+            self._make_zip(sentinel_zip, {"never_seen.csv": b"col\nval"})
+
+            _extract_archives_in_tree(root, max_depth=3)
+
+            self.assertFalse(
+                (root / "__extracted_archives" / "duplicate" / "never_seen.csv").exists(),
+                "duplicate.zip inside __extracted_archives must not be reprocessed.",
+            )
+
+
+class ReadUrlResponseTests(unittest.TestCase):
+    """Cover the retry/backoff behaviour of _read_url_response. The function
+    used to silently swallow the difference between transient and permanent
+    failures; these tests pin the retry contract so future refactors do not
+    regress it."""
+
+    def _make_http_error(self, code: int) -> "Exception":
+        msg = Message()
+        return urlerror.HTTPError(
+            url="https://example.com",
+            code=code,
+            msg="boom",
+            hdrs=msg,
+            fp=io.BytesIO(b""),
+        )
+
+    def test_retries_on_transient_5xx_and_eventually_succeeds(self):
+        from scripts.run_batch_standardization import _read_url_response
+
+        responses = [
+            self._make_http_error(503),
+            self._make_http_error(502),
+            mock.MagicMock(),  # success on third attempt
+        ]
+        # The success response needs to behave like urlopen()'s context manager.
+        success_resp = responses[2]
+        success_resp.__enter__ = mock.MagicMock(return_value=success_resp)
+        success_resp.__exit__ = mock.MagicMock(return_value=False)
+        success_resp.read.return_value = b"ok"
+        success_resp.headers = {"X": "y"}
+        success_resp.geturl.return_value = "https://example.com/final"
+
+        call_args: list = []
+
+        def _fake_urlopen(req, timeout):
+            call_args.append((req, timeout))
+            outcome = responses[len(call_args) - 1]
+            if isinstance(outcome, Exception):
+                raise outcome
+            return outcome
+
+        with mock.patch("scripts.run_batch_standardization.request.urlopen", side_effect=_fake_urlopen):
+            with mock.patch("scripts.run_batch_standardization.time.sleep") as sleep_mock:
+                payload, headers, final_url = _read_url_response(
+                    "https://example.com", timeout=10, max_attempts=4,
+                )
+
+        self.assertEqual(payload, b"ok")
+        self.assertEqual(final_url, "https://example.com/final")
+        self.assertEqual(len(call_args), 3)
+        # Backoff schedule is 0.75 * (attempt + 1) — two sleeps between the
+        # three attempts.
+        self.assertEqual(sleep_mock.call_count, 2)
+
+    def test_retries_on_timeout_then_raises_after_max_attempts(self):
+        from scripts.run_batch_standardization import _read_url_response
+
+        with mock.patch(
+            "scripts.run_batch_standardization.request.urlopen",
+            side_effect=socket.timeout("slow"),
+        ):
+            with mock.patch("scripts.run_batch_standardization.time.sleep"):
+                with self.assertRaises(socket.timeout):
+                    _read_url_response("https://example.com", timeout=1, max_attempts=2)
+
+    def test_does_not_retry_on_permanent_404(self):
+        from scripts.run_batch_standardization import _read_url_response
+
+        permanent_error = self._make_http_error(404)
+        with mock.patch(
+            "scripts.run_batch_standardization.request.urlopen",
+            side_effect=permanent_error,
+        ) as urlopen_mock:
+            with mock.patch("scripts.run_batch_standardization.time.sleep") as sleep_mock:
+                with self.assertRaises(urlerror.HTTPError) as ctx:
+                    _read_url_response("https://example.com", timeout=1, max_attempts=4)
+
+        self.assertEqual(ctx.exception.code, 404)
+        # No retry: 4xx responses (other than 429) are permanent errors.
+        self.assertEqual(urlopen_mock.call_count, 1)
+        sleep_mock.assert_not_called()
+
+    def test_retries_on_429_throttle(self):
+        from scripts.run_batch_standardization import _read_url_response
+
+        responses = [self._make_http_error(429), self._make_http_error(429)]
+        with mock.patch(
+            "scripts.run_batch_standardization.request.urlopen",
+            side_effect=responses,
+        ) as urlopen_mock:
+            with mock.patch("scripts.run_batch_standardization.time.sleep"):
+                with self.assertRaises(urlerror.HTTPError) as ctx:
+                    _read_url_response("https://example.com", timeout=1, max_attempts=2)
+
+        self.assertEqual(ctx.exception.code, 429)
+        self.assertEqual(urlopen_mock.call_count, 2)
+
+    def test_max_attempts_defaults_to_network_timeouts_setting(self):
+        from scripts.run_batch_standardization import (
+            NETWORK_TIMEOUTS,
+            _read_url_response,
+        )
+
+        # When the caller does not pass max_attempts, we fall back to the
+        # NETWORK_TIMEOUTS["max_retry_attempts"] value so all callers benefit
+        # from the central tuning knob.
+        original = NETWORK_TIMEOUTS["max_retry_attempts"]
+        try:
+            NETWORK_TIMEOUTS["max_retry_attempts"] = 2
+            with mock.patch(
+                "scripts.run_batch_standardization.request.urlopen",
+                side_effect=socket.timeout("slow"),
+            ) as urlopen_mock:
+                with mock.patch("scripts.run_batch_standardization.time.sleep"):
+                    with self.assertRaises(socket.timeout):
+                        _read_url_response("https://example.com", timeout=1)
+            self.assertEqual(urlopen_mock.call_count, 2)
+        finally:
+            NETWORK_TIMEOUTS["max_retry_attempts"] = original
+
+
+class WebDatasetChallengeTests(unittest.TestCase):
+    """Ensure that the Cloudflare/CAPTCHA detection path correctly rejects
+    challenge responses with `access_restricted` rather than treating them as
+    successful HTML landing pages or generic failures."""
+
+    def test_looks_like_challenge_response_detects_cloudflare_host(self):
+        from scripts.run_batch_standardization import _looks_like_challenge_response
+
+        self.assertTrue(_looks_like_challenge_response("dl.acm.org", "", ""))
+        self.assertTrue(_looks_like_challenge_response("WWW.DL.ACM.ORG".lower(), "", ""))
+
+    def test_looks_like_challenge_response_detects_title_marker(self):
+        from scripts.run_batch_standardization import _looks_like_challenge_response
+
+        self.assertTrue(
+            _looks_like_challenge_response(
+                "example.com", "Just a moment...", "<html></html>",
+            )
+        )
+
+    def test_looks_like_challenge_response_detects_body_marker(self):
+        from scripts.run_batch_standardization import _looks_like_challenge_response
+
+        body = "<html><body>Please enable javascript and cookies to continue</body></html>"
+        self.assertTrue(_looks_like_challenge_response("example.com", "OK", body))
+
+    def test_looks_like_challenge_response_negative_case(self):
+        from scripts.run_batch_standardization import _looks_like_challenge_response
+
+        self.assertFalse(
+            _looks_like_challenge_response(
+                "data.example.org", "Dataset", "<html><body><a href='/file.csv'>get</a></body></html>",
+            )
+        )
+
+    def test_build_web_dataset_access_error_returns_access_restricted_for_challenge(self):
+        from scripts.run_batch_standardization import _build_web_dataset_access_error
+
+        err = _build_web_dataset_access_error(
+            location="https://dl.acm.org/doi/10.1145/x",
+            final_url="https://dl.acm.org/doi/10.1145/x",
+            html_text="<html><title>Just a moment...</title></html>",
+            title="Just a moment...",
+        )
+        self.assertEqual(err.status, "access_restricted")
+        self.assertIn("Cloudflare", str(err))
+
+    def test_materialize_web_dataset_raises_access_restricted_on_challenge_403(self):
+        """End-to-end: when a 4xx with Cloudflare markers comes back, the
+        helper must classify the source as access_restricted instead of
+        failed, so the run loop reports it cleanly without a traceback."""
+        from scripts.run_batch_standardization import (
+            SourceAccessError,
+            _materialize_web_dataset_source,
+        )
+
+        challenge_html = (
+            b"<html><head><title>Just a moment...</title></head>"
+            b"<body>cf-mitigated</body></html>"
+        )
+        http_error = urlerror.HTTPError(
+            url="https://dl.acm.org/doi/10.1145/x",
+            code=403,
+            msg="Forbidden",
+            hdrs=Message(),
+            fp=io.BytesIO(challenge_html),
+        )
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            target = Path(tmpdir)
+            with mock.patch(
+                "scripts.run_batch_standardization._read_url_response",
+                side_effect=http_error,
+            ):
+                with self.assertRaises(SourceAccessError) as ctx:
+                    _materialize_web_dataset_source(
+                        "https://dl.acm.org/doi/10.1145/x", target,
+                    )
+
+        self.assertEqual(ctx.exception.status, "access_restricted")
+
+    def test_materialize_web_dataset_raises_login_required_for_ieee_dataport(self):
+        from scripts.run_batch_standardization import (
+            SourceAccessError,
+            _materialize_web_dataset_source,
+        )
+
+        # Page contains a login-required marker but exposes NO downloadable
+        # links — that combination must surface as `login_required` rather
+        # than producing a generic failure or attempting blind download.
+        html = (
+            b"<html><head><title>IEEE DataPort</title></head>"
+            b"<body>Login to access dataset files. Sign in to download.</body></html>"
+        )
+        headers = Message()
+        headers["Content-Type"] = "text/html"
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            target = Path(tmpdir)
+            with mock.patch(
+                "scripts.run_batch_standardization._read_url_response",
+                return_value=(html, headers, "https://ieee-dataport.org/datasets/example/"),
+            ):
+                with self.assertRaises(SourceAccessError) as ctx:
+                    _materialize_web_dataset_source(
+                        "https://ieee-dataport.org/datasets/example/", target,
+                    )
+
+        self.assertEqual(ctx.exception.status, "login_required")
+
 
 if __name__ == "__main__":
     unittest.main()

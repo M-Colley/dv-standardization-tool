@@ -166,6 +166,20 @@ DEFAULT_DETECTION_SCHEMA_PATH = REPO_ROOT / "schemas" / "standard_detection_mapp
 DEFAULT_METADATA_SCHEMA_PATH = REPO_ROOT / "schemas" / "standard_metadata_mapping.yaml"
 SUPPORTED_SOURCE_TYPES = {"local_path", "github_repo", "osf_project", "web_dataset"}
 HTTP_USER_AGENT = "OpenDV-HCI/1.0"
+# Centralised network tunables. Previously these magic numbers were sprinkled
+# across _read_url_response, _read_url_bytes, and the OSF/web download helpers,
+# which made it hard to reason about retry/timeout behaviour in tests or to
+# adjust caps for slow corporate networks. Edit values here to retune.
+NETWORK_TIMEOUTS = {
+    # Long-lived bulk downloads (OSF blobs, archive payloads).
+    "download_seconds": 180,
+    # Web-dataset landing-page fetches (HTML or small JSON).
+    "landing_seconds": 60,
+    # Lightweight JSON API calls (OSF metadata).
+    "api_seconds": 45,
+    # Number of attempts for transient network failures (timeouts, 429, 5xx).
+    "max_retry_attempts": 4,
+}
 GITHUB_HOSTS = {"github.com", "www.github.com"}
 WEB_DATASET_HOSTS = {
     "data.4tu.nl",
@@ -543,8 +557,10 @@ def _is_supported_download_response(final_url: str, headers: Any) -> bool:
 def _read_url_response(
     url_or_request: Any,
     timeout: int,
-    max_attempts: int = 4,
+    max_attempts: int | None = None,
 ) -> tuple[bytes, Any, str]:
+    if max_attempts is None:
+        max_attempts = int(NETWORK_TIMEOUTS["max_retry_attempts"])
     for attempt in range(max_attempts):
         try:
             with request.urlopen(url_or_request, timeout=timeout) as resp:
@@ -558,7 +574,15 @@ def _read_url_response(
                 and (exc.code == 429 or 500 <= exc.code < 600)
             )
             if attempt == max_attempts - 1 or not (is_timeout or is_transient_http):
+                logger.debug(
+                    "URL request failed permanently after %d attempt(s): %s",
+                    attempt + 1, exc,
+                )
                 raise
+            logger.debug(
+                "URL request transient failure on attempt %d/%d: %s",
+                attempt + 1, max_attempts, exc,
+            )
             time.sleep(0.75 * (attempt + 1))
 
 
@@ -699,7 +723,9 @@ def _write_download_payload(
 
 def _download_remote_file(download_url: str, target_dir: Path, fallback_prefix: str) -> Path:
     req = request.Request(download_url, headers={"User-Agent": HTTP_USER_AGENT, "Accept": "*/*"})
-    payload, headers, final_url = _read_url_response(req, timeout=180)
+    payload, headers, final_url = _read_url_response(
+        req, timeout=NETWORK_TIMEOUTS["download_seconds"]
+    )
     return _write_download_payload(target_dir, payload, final_url, headers, fallback_prefix=fallback_prefix)
 
 
@@ -712,22 +738,35 @@ def _materialize_web_dataset_source(location: str, target: Path) -> str:
         },
     )
     try:
-        payload, headers, final_url = _read_url_response(req, timeout=60)
+        payload, headers, final_url = _read_url_response(
+            req, timeout=NETWORK_TIMEOUTS["landing_seconds"]
+        )
     except urlerror.HTTPError as exc:
         if exc.code in (401, 403, 503):
             try:
                 error_payload = exc.read() or b""
-            except Exception:
+            except Exception as read_exc:  # noqa: BLE001
+                logger.debug(
+                    "Failed to read challenge response body for %s: %s",
+                    location, read_exc,
+                )
                 error_payload = b""
             try:
                 error_html = error_payload.decode("utf-8", errors="replace")
-            except Exception:
+            except Exception as decode_exc:  # noqa: BLE001
+                logger.debug(
+                    "Failed to decode challenge response body for %s: %s",
+                    location, decode_exc,
+                )
                 error_html = ""
             parser = _LandingPageParser()
             try:
                 parser.feed(error_html)
-            except Exception:
-                pass
+            except Exception as parse_exc:  # noqa: BLE001
+                logger.debug(
+                    "Failed to parse challenge response HTML for %s: %s",
+                    location, parse_exc,
+                )
             error_title = parser.title
             host = urlparse(location).netloc.lower()
             if _looks_like_challenge_response(host, error_title, error_html):
@@ -772,7 +811,11 @@ def _on_rmtree_error(func: Any, path: str, exc_info: tuple[type[BaseException], 
     try:
         os.chmod(path, stat.S_IWRITE)
         func(path)
-    except Exception:
+    except Exception as chmod_exc:  # noqa: BLE001
+        logger.debug(
+            "rmtree retry failed for %s after chmod: %s; re-raising original error.",
+            path, chmod_exc,
+        )
         _, exc, _ = exc_info
         raise exc
 
@@ -850,7 +893,11 @@ def _extract_osf_project_id(location: str) -> str:
     return match.group(1)
 
 
-def _read_url_bytes(url_or_request: Any, timeout: int, max_attempts: int = 4) -> bytes:
+def _read_url_bytes(
+    url_or_request: Any,
+    timeout: int,
+    max_attempts: int | None = None,
+) -> bytes:
     """Read bytes from URL with retry/backoff for transient network errors."""
     payload, _, _ = _read_url_response(url_or_request, timeout=timeout, max_attempts=max_attempts)
     return payload
@@ -864,7 +911,7 @@ def _osf_json_get(url: str) -> dict[str, Any]:
             "User-Agent": HTTP_USER_AGENT,
         },
     )
-    payload = _read_url_bytes(req, timeout=45).decode("utf-8")
+    payload = _read_url_bytes(req, timeout=NETWORK_TIMEOUTS["api_seconds"]).decode("utf-8")
     return json.loads(payload)
 
 
@@ -967,7 +1014,9 @@ def _iter_osf_file_entries(node_id: str) -> list[dict[str, Any]]:
 
 def _download_osf_file(download_url: str, destination: Path) -> None:
     destination.parent.mkdir(parents=True, exist_ok=True)
-    destination.write_bytes(_read_url_bytes(download_url, timeout=180))
+    destination.write_bytes(
+        _read_url_bytes(download_url, timeout=NETWORK_TIMEOUTS["download_seconds"])
+    )
 
 
 
@@ -1670,7 +1719,11 @@ def _score_alias_match(raw_column_name: str, alias: str) -> float:
                 fuzz.token_sort_ratio(normalized_raw, normalized_alias),
             )
         )
-    except Exception:
+    except Exception as exc:  # noqa: BLE001
+        logger.debug(
+            "rapidfuzz unavailable or scoring failed (%s); falling back to difflib.",
+            exc,
+        )
         from difflib import SequenceMatcher
 
         return SequenceMatcher(None, normalized_raw, normalized_alias).ratio() * 100.0
@@ -1835,7 +1888,7 @@ def run_batch(
                     refresh_remote_cache=refresh_remote_cache,
                 )
             except SourceAccessError as exc:
-                print(f"[{exc.status.upper()}] {source_id}: {exc}")
+                logger.warning("[%s] %s: %s", exc.status.upper(), source_id, exc)
                 run_results.append(
                     SourceRunResult(
                         source_id=source_id,
@@ -1853,7 +1906,10 @@ def run_batch(
                 )
                 continue
             except Exception as exc:  # noqa: BLE001
-                print(f"[FAILED] {source_id}: {exc}")
+                # logger.exception preserves traceback so post-mortem debugging
+                # can recover the original failure point even though we keep
+                # the loop running across remaining sources.
+                logger.exception("[FAILED] %s: %s", source_id, exc)
                 run_results.append(
                     SourceRunResult(
                         source_id=source_id,
@@ -1873,7 +1929,7 @@ def run_batch(
 
             if not files:
                 message = "No supported dataset files were discovered for this source."
-                print(f"[NOT_AVAILABLE] {source_id}: {message}")
+                logger.warning("[NOT_AVAILABLE] %s: %s", source_id, message)
                 run_results.append(
                     SourceRunResult(
                         source_id=source_id,
@@ -1930,6 +1986,13 @@ def run_batch(
                         requested_mapping_path=requested_mapping_path,
                     )
                 except Exception as exc:  # noqa: BLE001
+                    # The mapping path resolution failure is the actual cause
+                    # we want surfaced; logger.exception keeps the traceback
+                    # in the run log even though we recover and continue.
+                    logger.exception(
+                        "[FAILED] %s: requested mapping_path '%s' could not be resolved: %s",
+                        source_id, requested_mapping_path, exc,
+                    )
                     run_results.append(
                         SourceRunResult(
                             source_id=source_id,
@@ -2149,14 +2212,24 @@ def run_batch(
                                 f,
                                 indent=2,
                             )
-                        print(f"[DEBUG] Mapping trace ({source_id}/{dataset_id}) -> {debug_path}")
+                        # --debug-mappings deliberately routes these traces
+                        # through logger.info so they survive in run logs even
+                        # when the user is not watching the terminal live.
+                        logger.info(
+                            "[DEBUG] Mapping trace (%s/%s) -> %s",
+                            source_id, dataset_id, debug_path,
+                        )
                         for row in mapping_debug_records:
                             mapping_source_label = (
                                 row["mapping_source"] if row["mapping_source"] is not None else "n/a"
                             )
-                            print(
-                                f"[DEBUG]   {row['original_column']} -> {row['mapped_column']} "
-                                f"({row['mapping_method']} / {row['mapping_domain']} from {mapping_source_label})"
+                            logger.info(
+                                "[DEBUG]   %s -> %s (%s / %s from %s)",
+                                row["original_column"],
+                                row["mapped_column"],
+                                row["mapping_method"],
+                                row["mapping_domain"],
+                                mapping_source_label,
                             )
 
                     standardized_df = standardize_columns(original_df.copy(), dataset_mapping)
@@ -2195,6 +2268,13 @@ def run_batch(
                 except Exception as exc:  # noqa: BLE001
                     failed += 1
                     dataset_errors.append(f"{dataset_id}: {exc}")
+                    # Persist the full traceback alongside the per-dataset
+                    # error log so post-run triage doesn't lose the stack frame
+                    # information when many sources fail in the same batch.
+                    logger.exception(
+                        "Dataset processing failed for %s/%s: %s",
+                        source_id, dataset_id, exc,
+                    )
                     with open(source_output_dir / f"{artifact_prefix}-error.log", "w", encoding="utf-8") as f:
                         f.write(str(exc))
 
@@ -2208,7 +2288,7 @@ def run_batch(
                     preview += f"; ... and {len(dataset_errors) - 3} more"
                 message = preview
                 if status == "failed":
-                    print(f"[FAILED] {source_id}: {message}")
+                    logger.error("[FAILED] %s: %s", source_id, message)
             run_results.append(
                 SourceRunResult(
                     source_id=source_id,
@@ -2308,6 +2388,14 @@ def run_batch(
     return summary
 
 def main() -> None:
+    # Ensure runtime status messages and warnings actually surface when the
+    # script is invoked from the CLI. Library callers can override this by
+    # calling logging.basicConfig themselves before importing this module.
+    if not logging.getLogger().handlers:
+        logging.basicConfig(
+            level=logging.INFO,
+            format="%(asctime)s %(levelname)s %(name)s: %(message)s",
+        )
     parser = argparse.ArgumentParser(description="Batch DV standardization from a manifest.")
     parser.add_argument("--manifest", required=True, help="Path to source manifest YAML.")
     parser.add_argument(

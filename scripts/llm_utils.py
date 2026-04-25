@@ -7,13 +7,14 @@ context extracted from README files and PDFs found in a source folder.
 
 from __future__ import annotations
 
+import gc
 import io
 import logging
 import os
 import re
 from functools import lru_cache
 from pathlib import Path
-from typing import Iterable
+from typing import Any, Iterable
 from urllib import request
 
 import yaml
@@ -658,16 +659,72 @@ def collect_repository_context(
     return f"{summary_text}\n\n{body_text}"
 
 
-@lru_cache(maxsize=4)
+# Single-slot pipeline cache. We deliberately do NOT use lru_cache(maxsize>1)
+# here: each cached transformers pipeline pins gigabytes of model weights in
+# RAM/VRAM and never releases them. On a 32 GB host, holding two candidate
+# models simultaneously (e.g. two gemma-4 variants tried in fallback order)
+# is enough to OOM. Instead we keep at most one pipeline live and explicitly
+# release the previous one when a different model is requested.
+_PIPELINE_CACHE: dict[str, Any] = {}
+
+
+def _release_torch_memory() -> None:
+    """Best-effort release of CUDA memory held by torch tensors.
+
+    No-op when torch or CUDA is unavailable.
+    """
+    try:
+        import torch  # type: ignore
+
+        if hasattr(torch, "cuda") and torch.cuda.is_available():
+            torch.cuda.empty_cache()
+    except Exception:  # noqa: BLE001 - cleanup must never raise
+        pass
+
+
+def _clear_pipeline_cache() -> None:
+    """Drop the cached generation pipeline and reclaim its memory.
+
+    Public for callers that finish a batch run and want to free model RAM
+    before kicking off subsequent work. Safe to call when nothing is cached.
+    """
+    if not _PIPELINE_CACHE:
+        _release_torch_memory()
+        return
+    _PIPELINE_CACHE.clear()
+    gc.collect()
+    _release_torch_memory()
+
+
 def _get_text_generation_pipeline(model_name: str):
+    """Return a (single-slot cached) text-generation pipeline for `model_name`.
+
+    Loading a new model evicts and frees the previously cached pipeline
+    before instantiating the next one — see `_PIPELINE_CACHE` comment for
+    rationale. The cache key is the model id; the function signature is
+    preserved for backwards-compatible mocking in tests.
+    """
+    cached = _PIPELINE_CACHE.get(model_name)
+    if cached is not None:
+        return cached
+
+    # Different model requested — drop the previous pipeline first so its
+    # weights are eligible for GC before we allocate the next one.
+    if _PIPELINE_CACHE:
+        _PIPELINE_CACHE.clear()
+        gc.collect()
+        _release_torch_memory()
+
     from transformers import pipeline  # type: ignore
 
-    return pipeline(
+    new_pipeline = pipeline(
         "text-generation",
         model=model_name,
         tokenizer=model_name,
         device_map="auto",
     )
+    _PIPELINE_CACHE[model_name] = new_pipeline
+    return new_pipeline
 
 
 def deduce_standard_name_with_local_llm(

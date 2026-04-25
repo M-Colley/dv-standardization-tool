@@ -24,7 +24,7 @@ import logging
 import re
 from abc import ABC, abstractmethod
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Sequence, Tuple, Union
+from typing import Any, Dict, List, Optional, Sequence, Tuple
 
 import pandas as pd
 
@@ -133,7 +133,7 @@ class SurveyParser(ABC):
     """
 
     @abstractmethod
-    def parse(self, file_path: Union[str, Path], **kwargs: Any) -> pd.DataFrame:
+    def parse(self, file_path: str | Path, **kwargs: Any) -> pd.DataFrame:
         """Parse a survey export file.
 
         Parameters
@@ -184,7 +184,7 @@ class QualtricsParser(SurveyParser):
 
     def parse(
         self,
-        file_path: Union[str, Path],
+        file_path: str | Path,
         *,
         use_descriptions: bool = True,
         keep_metadata: bool = True,
@@ -337,9 +337,9 @@ class LimeSurveyParser(SurveyParser):
 
     def parse(
         self,
-        file_path: Union[str, Path],
+        file_path: str | Path,
         *,
-        structure_file: Optional[Union[str, Path]] = None,
+        structure_file: Optional[str | Path] = None,
         expand_multichoice: bool = True,
         delimiter_hint: Optional[str] = None,
     ) -> pd.DataFrame:
@@ -588,9 +588,9 @@ class REDCapParser(SurveyParser):
 
     def parse(
         self,
-        file_path: Union[str, Path],
+        file_path: str | Path,
         *,
-        data_dictionary: Optional[Union[str, Path]] = None,
+        data_dictionary: Optional[str | Path] = None,
         collapse_checkboxes: bool = True,
         strip_instrument_prefix: bool = False,
     ) -> pd.DataFrame:
@@ -908,7 +908,7 @@ def _sniff_limesurvey(file_path: Path) -> bool:
 
 
 def detect_and_parse(
-    file_path: Union[str, Path],
+    file_path: str | Path,
     *,
     format_hint: Optional[str] = None,
     **kwargs: Any,

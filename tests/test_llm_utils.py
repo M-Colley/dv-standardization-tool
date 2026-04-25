@@ -207,5 +207,124 @@ class LLMUtilsTests(unittest.TestCase):
         self.assertEqual(inferred, "task_completion_time")
 
 
+class PipelineCacheTests(unittest.TestCase):
+    """Cover the single-slot pipeline cache and its helpers.
+
+    Holding two transformers pipelines simultaneously can pin tens of GB of
+    model weights in RAM/VRAM and trigger OOM, so the cache is intentionally
+    sized to one entry. These tests verify that:
+
+    * The same model id returns the cached pipeline (no re-load).
+    * Switching to a different model id evicts the previous pipeline first.
+    * The public _clear_pipeline_cache helper drops cached state and is safe
+      to call when nothing is cached (no AttributeError or KeyError).
+    """
+
+    def setUp(self):
+        # Each test starts with an empty cache so failures cannot leak across
+        # tests via the module-level dict.
+        from scripts import llm_utils
+        llm_utils._PIPELINE_CACHE.clear()
+
+    def tearDown(self):
+        from scripts import llm_utils
+        llm_utils._PIPELINE_CACHE.clear()
+
+    def test_get_text_generation_pipeline_returns_cached_entry_without_reload(self):
+        """Cache hit on the same model id must return the same pipeline
+        object without invoking transformers.pipeline a second time.
+
+        We pre-populate the cache so the test does not require the real
+        transformers import to be patchable from here (the function uses a
+        lazy `from transformers import pipeline` import, which is awkward
+        to intercept reliably across Python versions/platforms)."""
+        from scripts import llm_utils
+
+        sentinel_pipeline = mock.MagicMock(name="cached-pipeline")
+        llm_utils._PIPELINE_CACHE["model-A"] = sentinel_pipeline
+
+        # Sanity guard: if we accidentally fell through to importing
+        # transformers, this fake import would explode.
+        import sys
+        fake_transformers = mock.MagicMock(name="should-not-be-called")
+        fake_transformers.pipeline.side_effect = AssertionError(
+            "transformers.pipeline must not be called on a cache hit",
+        )
+        with mock.patch.dict(sys.modules, {"transformers": fake_transformers}):
+            result = llm_utils._get_text_generation_pipeline("model-A")
+
+        self.assertIs(result, sentinel_pipeline)
+        # Cache must still hold exactly the one entry we seeded.
+        self.assertEqual(set(llm_utils._PIPELINE_CACHE.keys()), {"model-A"})
+
+    def test_get_text_generation_pipeline_evicts_previous_model_on_miss(self):
+        """Loading a different model id must evict the previously cached
+        pipeline and call _release_torch_memory before allocating the new
+        one — that is the whole point of the single-slot cache pattern."""
+        from scripts import llm_utils
+
+        prior_pipeline = mock.MagicMock(name="prior-pipeline")
+        new_pipeline = mock.MagicMock(name="new-pipeline")
+        llm_utils._PIPELINE_CACHE["model-A"] = prior_pipeline
+
+        # Stub the lazy `from transformers import pipeline` import by
+        # injecting a fake module into sys.modules.
+        import sys
+        fake_transformers = mock.MagicMock(name="transformers-stub")
+        fake_transformers.pipeline.return_value = new_pipeline
+
+        with mock.patch.dict(sys.modules, {"transformers": fake_transformers}):
+            with mock.patch.object(llm_utils, "_release_torch_memory") as release_mock:
+                result = llm_utils._get_text_generation_pipeline("model-B")
+
+        self.assertIs(result, new_pipeline)
+        self.assertEqual(set(llm_utils._PIPELINE_CACHE.keys()), {"model-B"})
+        # The torch cleanup helper must run during eviction so VRAM held by
+        # the prior pipeline becomes recoverable.
+        release_mock.assert_called_once()
+        fake_transformers.pipeline.assert_called_once()
+
+    def test_clear_pipeline_cache_drops_cached_pipeline(self):
+        from scripts import llm_utils
+
+        llm_utils._PIPELINE_CACHE["model-A"] = mock.MagicMock(name="cached")
+
+        with mock.patch.object(llm_utils, "_release_torch_memory") as release_mock:
+            llm_utils._clear_pipeline_cache()
+
+        self.assertEqual(llm_utils._PIPELINE_CACHE, {})
+        release_mock.assert_called_once()
+
+    def test_clear_pipeline_cache_is_safe_when_empty(self):
+        from scripts import llm_utils
+
+        # Calling clear on an empty cache must not raise; it should still ask
+        # torch to release any lingering CUDA blocks (cheap best-effort op).
+        with mock.patch.object(llm_utils, "_release_torch_memory") as release_mock:
+            llm_utils._clear_pipeline_cache()
+
+        self.assertEqual(llm_utils._PIPELINE_CACHE, {})
+        release_mock.assert_called_once()
+
+    def test_release_torch_memory_is_no_op_without_torch(self):
+        from scripts import llm_utils
+
+        # When torch is not importable the helper must swallow the ImportError
+        # silently — it is a best-effort cleanup, not a hard requirement.
+        import builtins
+        original_import = builtins.__import__
+
+        def _raising_import(name, *args, **kwargs):
+            if name == "torch":
+                raise ImportError("torch unavailable")
+            return original_import(name, *args, **kwargs)
+
+        with mock.patch("builtins.__import__", side_effect=_raising_import):
+            try:
+                llm_utils._release_torch_memory()
+            except Exception as exc:  # pragma: no cover - safety net
+                self.fail(f"_release_torch_memory raised unexpectedly: {exc}")
+
+
 if __name__ == "__main__":
     unittest.main()
