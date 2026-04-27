@@ -34,11 +34,14 @@ from typing import Any
 # because they create too many false positives (README.txt, notes.dat, etc.).
 _AMBIGUOUS_SUFFIXES: set[str] = {".txt", ".dat"}
 
-try:  # pragma: no cover - exercised indirectly via convert_dv import
-    from scripts.convert_dv import _FORMAT_REGISTRY as _CDV_FORMAT_REGISTRY
+try:  # pragma: no cover - exercised indirectly via data_loaders import
+    # Pull from data_loaders directly (not via convert_dv) to avoid dragging
+    # in the column-mapping + metadata-inference modules just to read a set
+    # of file extensions.
+    from scripts.data_loaders import _FORMAT_REGISTRY as _CDV_FORMAT_REGISTRY
 
     DATA_FILE_SUFFIXES: set[str] = set(_CDV_FORMAT_REGISTRY.keys()) - _AMBIGUOUS_SUFFIXES
-except Exception:  # noqa: BLE001 - convert_dv may fail to import in minimal envs
+except Exception:  # noqa: BLE001 - data_loaders may fail to import in minimal envs
     DATA_FILE_SUFFIXES = {
         ".csv", ".tsv",
         ".xlsx", ".xls", ".xlsm", ".ods",
