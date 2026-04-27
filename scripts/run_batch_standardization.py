@@ -145,6 +145,20 @@ from scripts.llm_coordinator import (
     _score_alias_match,
     _select_llm_candidate_shortlist,
 )
+# scripts.sources owns the per-source-type loaders (currently github URL
+# parsing + OSF JSON-API traversal). Re-exported here so existing imports
+# continue to work.
+from scripts.sources.github import GITHUB_HOSTS, GitHubLocation, _parse_github_location
+from scripts.sources.osf import (
+    OSF_API_BASE,
+    _download_osf_file,
+    _extract_osf_project_id,
+    _iter_osf_child_node_ids,
+    _iter_osf_file_entries,
+    _iter_osf_node_ids,
+    _iter_osf_provider_urls,
+    _osf_json_get,
+)
 # archive_utils owns the suffix sets and the recursive zip extraction helpers.
 # We re-export them so existing test imports
 # (e.g. ``from scripts.run_batch_standardization import _extract_zip_files_recursive``)
@@ -195,12 +209,10 @@ from scripts.http_utils import (
 # discovery code in this module. Kept as a re-export for backwards compat.
 TABULAR_SUFFIXES = DATA_FILE_SUFFIXES
 PICKLE_SUFFIXES = {".pkl", ".pickle"}
-OSF_API_BASE = "https://api.osf.io/v2"
 DEFAULT_SENSOR_SCHEMA_PATH = REPO_ROOT / "schemas" / "standard_sensor_mapping.yaml"
 DEFAULT_DETECTION_SCHEMA_PATH = REPO_ROOT / "schemas" / "standard_detection_mapping.yaml"
 DEFAULT_METADATA_SCHEMA_PATH = REPO_ROOT / "schemas" / "standard_metadata_mapping.yaml"
 SUPPORTED_SOURCE_TYPES = {"local_path", "github_repo", "osf_project", "web_dataset"}
-GITHUB_HOSTS = {"github.com", "www.github.com"}
 WEB_DATASET_HOSTS = {
     "data.4tu.nl",
     "www.data.4tu.nl",
@@ -302,13 +314,6 @@ class SourceRunResult:
     message: str | None = None
 
 
-@dataclass(frozen=True)
-class GitHubLocation:
-    clone_url: str
-    ref: str | None = None
-    subpath: Path | None = None
-
-
 def load_manifest(manifest_path: Path) -> list[dict[str, Any]]:
     try:
         with open(manifest_path, "r", encoding="utf-8") as f:
@@ -348,41 +353,6 @@ def load_manifest(manifest_path: Path) -> list[dict[str, Any]]:
         seen_source_ids.add(source["source_id"])
 
     return sources
-
-
-def _parse_github_location(location: str) -> GitHubLocation:
-    text = str(location or "").strip()
-    if not text:
-        raise ValueError("GitHub location must be a non-empty repository URL.")
-
-    parsed = urlparse(text)
-    host = parsed.netloc.lower()
-    if host not in GITHUB_HOSTS:
-        raise ValueError(f"Unsupported GitHub host in location: {location}")
-
-    parts = [part for part in parsed.path.split("/") if part]
-    if len(parts) < 2:
-        raise ValueError(
-            "GitHub location must point to a repository like https://github.com/<owner>/<repo> "
-            "or a scoped tree URL like https://github.com/<owner>/<repo>/tree/<ref>/<path>."
-        )
-
-    owner = parts[0]
-    repo = parts[1][:-4] if parts[1].endswith(".git") else parts[1]
-    clone_url = f"https://github.com/{owner}/{repo}.git"
-    ref: str | None = None
-    subpath: Path | None = None
-
-    if len(parts) > 2:
-        if parts[2] not in {"tree", "blob"} or len(parts) < 4:
-            raise ValueError(
-                "GitHub location must be a repository root URL or a tree/blob URL with a ref."
-            )
-        ref = parts[3]
-        if len(parts) > 4:
-            subpath = Path(*parts[4:])
-
-    return GitHubLocation(clone_url=clone_url, ref=ref, subpath=subpath)
 
 
 def _download_remote_file(download_url: str, target_dir: Path, fallback_prefix: str) -> Path:
@@ -533,146 +503,6 @@ def _match_files(base_dir: Path, include_globs: list[str] | None, exclude_globs:
         return False
 
     return [path for path in unique_candidates if not _is_excluded(path)]
-
-def _extract_osf_project_id(location: str) -> str:
-    """Resolve OSF project id from a raw id or osf.io URL."""
-    location = (location or "").strip()
-    if not location:
-        raise ValueError("OSF location must be a non-empty project id or osf.io URL.")
-
-    if re.fullmatch(r"[a-z0-9]{5}", location.lower()):
-        return location.lower()
-
-    # Accept 5-char alphanumeric IDs with mixed case
-    if re.fullmatch(r"[A-Za-z0-9]{5}", location):
-        return location.lower()
-
-    match = re.search(r"osf\.io/([a-z0-9]{5})(?:/|$)", location.lower())
-    if not match:
-        raise ValueError(
-            f"Invalid OSF location: '{location}'. "
-            "Use a 5-character alphanumeric project id (e.g., cwd6h) "
-            "or an OSF URL such as https://osf.io/cwd6h/overview."
-        )
-    return match.group(1)
-
-
-def _osf_json_get(url: str) -> dict[str, Any]:
-    req = request.Request(
-        url,
-        headers={
-            "Accept": "application/vnd.api+json",
-            "User-Agent": HTTP_USER_AGENT,
-        },
-    )
-    payload = _read_url_bytes(req, timeout=NETWORK_TIMEOUTS["api_seconds"]).decode("utf-8")
-    return json.loads(payload)
-
-
-def _iter_osf_child_node_ids(node_id: str) -> list[str]:
-    """List direct child component node IDs for an OSF node."""
-    child_ids: list[str] = []
-    page_url: str | None = f"{OSF_API_BASE}/nodes/{node_id}/children/"
-
-    while page_url:
-        payload = _osf_json_get(page_url)
-        for item in payload.get("data", []):
-            child_id = str(item.get("id", "")).strip()
-            if child_id:
-                child_ids.append(child_id)
-
-        next_link = payload.get("links", {}).get("next")
-        page_url = str(next_link) if next_link else None
-
-    return child_ids
-
-
-def _iter_osf_node_ids(project_id: str) -> list[str]:
-    """List root+component node IDs reachable from an OSF project."""
-    ordered: list[str] = []
-    seen: set[str] = set()
-    queue: list[str] = [project_id]
-
-    while queue:
-        node_id = queue.pop(0)
-        if node_id in seen:
-            continue
-
-        seen.add(node_id)
-        ordered.append(node_id)
-        queue.extend(_iter_osf_child_node_ids(node_id))
-
-    return ordered
-
-def _iter_osf_provider_urls(node_id: str) -> list[str]:
-    """List all storage-provider listing URLs for an OSF node."""
-    provider_urls: list[str] = []
-    page_url: str | None = f"{OSF_API_BASE}/nodes/{node_id}/files/"
-
-    while page_url:
-        payload = _osf_json_get(page_url)
-        for item in payload.get("data", []):
-            related = (
-                item.get("relationships", {})
-                .get("files", {})
-                .get("links", {})
-                .get("related", {})
-                .get("href")
-            )
-            if not related:
-                related = item.get("links", {}).get("related", {}).get("href")
-            if related:
-                provider_urls.append(str(related))
-
-        next_link = payload.get("links", {}).get("next")
-        page_url = str(next_link) if next_link else None
-
-    return provider_urls
-
-
-def _iter_osf_file_entries(node_id: str) -> list[dict[str, Any]]:
-    """List file entries for all storage providers under an OSF node (recursive)."""
-    entries: list[dict[str, Any]] = []
-    queue: list[str] = _iter_osf_provider_urls(node_id)
-    seen_pages: set[str] = set()
-
-    while queue:
-        page_url = queue.pop(0)
-        while page_url:
-            if page_url in seen_pages:
-                break
-            seen_pages.add(page_url)
-
-            payload = _osf_json_get(page_url)
-            data = payload.get("data", [])
-            for item in data:
-                attrs = item.get("attributes", {}) or {}
-                kind = attrs.get("kind")
-                if kind == "file":
-                    entries.append(item)
-                elif kind == "folder":
-                    related = (
-                        item.get("relationships", {})
-                        .get("files", {})
-                        .get("links", {})
-                        .get("related", {})
-                        .get("href")
-                    )
-                    if related:
-                        queue.append(str(related))
-
-            next_link = payload.get("links", {}).get("next")
-            page_url = str(next_link) if next_link else None
-
-    return entries
-
-def _download_osf_file(download_url: str, destination: Path) -> None:
-    destination.parent.mkdir(parents=True, exist_ok=True)
-    destination.write_bytes(
-        _read_url_bytes(download_url, timeout=NETWORK_TIMEOUTS["download_seconds"])
-    )
-
-
 
 def _normalize_column_name(value: str) -> str:
     return re.sub(r"[^a-z0-9_]+", "", str(value).strip().lower())

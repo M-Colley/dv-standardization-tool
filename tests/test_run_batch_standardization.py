@@ -239,7 +239,7 @@ class BatchStandardizationTests(unittest.TestCase):
         }
 
         with mock.patch(
-            "scripts.run_batch_standardization._osf_json_get",
+            "scripts.sources.osf._osf_json_get",
             side_effect=[provider_page, osfstorage_page, dropbox_page],
         ) as mocked_get:
             entries = _iter_osf_file_entries("cwd6h")
