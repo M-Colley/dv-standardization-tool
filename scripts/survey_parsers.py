@@ -22,134 +22,25 @@ import csv
 import io
 import logging
 import re
-from abc import ABC, abstractmethod
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Sequence, Tuple
+from typing import Any, Dict, List, Optional, Tuple
 
 import pandas as pd
 
+# survey_parser_base owns the encoding / delimiter sniffer, slug helpers,
+# and the SurveyParser ABC. Re-exported here so existing imports
+# (``from scripts.survey_parsers import SurveyParser`` etc.) continue to
+# work after the Wave C extraction.
+from scripts.survey_parser_base import (
+    SurveyParser,
+    _detect_delimiter,
+    _detect_encoding,
+    _ensure_unique_columns,
+    _read_file_bytes,
+    _slugify,
+)
+
 logger = logging.getLogger(__name__)
-
-
-# ---------------------------------------------------------------------------
-# Helpers
-# ---------------------------------------------------------------------------
-
-def _read_file_bytes(file_path: Path, max_bytes: int = 65536) -> bytes:
-    """Read up to *max_bytes* from the beginning of a file for sniffing."""
-    with open(file_path, "rb") as fh:
-        return fh.read(max_bytes)
-
-
-def _detect_encoding(file_path: Path) -> str:
-    """Best-effort encoding detection mirroring convert_dv.py behaviour."""
-    raw = _read_file_bytes(file_path, max_bytes=32768)
-
-    # BOM detection
-    if raw.startswith(b"\xef\xbb\xbf"):
-        return "utf-8-sig"
-    if raw.startswith(b"\xff\xfe"):
-        return "utf-16-le"
-    if raw.startswith(b"\xfe\xff"):
-        return "utf-16-be"
-
-    try:
-        import chardet  # type: ignore
-        result = chardet.detect(raw)
-        if result and result.get("confidence", 0) > 0.75:
-            return result["encoding"] or "utf-8"
-    except ImportError:
-        pass
-
-    for enc in ("utf-8", "utf-8-sig", "cp1252", "latin-1"):
-        try:
-            raw.decode(enc)
-            return enc
-        except (UnicodeDecodeError, LookupError):
-            continue
-    return "latin-1"
-
-
-def _detect_delimiter(sample: str, prefer: str | None = None) -> str:
-    """Pick the most consistent delimiter from the first lines of *sample*."""
-    candidates = [",", ";", "\t", "|"]
-    if prefer:
-        candidates = [prefer] + [c for c in candidates if c != prefer]
-
-    rows = [r for r in sample.splitlines() if r.strip()][:15]
-    if not rows:
-        return prefer or ","
-
-    best_delim = prefer or ","
-    best_score = float("inf")
-
-    for delim in candidates:
-        counts = [row.count(delim) for row in rows]
-        if max(counts) == 0:
-            continue
-        mean = sum(counts) / len(counts)
-        if mean == 0:
-            continue
-        variance = sum((c - mean) ** 2 for c in counts) / len(counts)
-        cv = (variance ** 0.5) / mean
-        if cv < best_score:
-            best_score = cv
-            best_delim = delim
-
-    return best_delim
-
-
-def _slugify(text: str, max_len: int = 80) -> str:
-    """Turn arbitrary text into a short, filesystem/column-safe slug."""
-    slug = re.sub(r"[^a-zA-Z0-9]+", "_", text.strip())
-    slug = re.sub(r"_+", "_", slug).strip("_")
-    return slug[:max_len] if slug else "unnamed"
-
-
-def _ensure_unique_columns(columns: Sequence[str]) -> list[str]:
-    """Deduplicate column names by appending ``_2``, ``_3``, etc."""
-    seen: dict[str, int] = {}
-    result: list[str] = []
-    for col in columns:
-        if col in seen:
-            seen[col] += 1
-            result.append(f"{col}_{seen[col]}")
-        else:
-            seen[col] = 1
-            result.append(col)
-    return result
-
-
-# ---------------------------------------------------------------------------
-# Abstract base
-# ---------------------------------------------------------------------------
-
-class SurveyParser(ABC):
-    """Base class for survey platform parsers.
-
-    Subclasses must implement :meth:`parse` which reads a file exported by a
-    survey platform and returns a clean :class:`pandas.DataFrame` in wide
-    format (one row per participant, one column per variable).
-    """
-
-    @abstractmethod
-    def parse(self, file_path: str | Path, **kwargs: Any) -> pd.DataFrame:
-        """Parse a survey export file.
-
-        Parameters
-        ----------
-        file_path:
-            Path to the exported file.
-        **kwargs:
-            Parser-specific options.
-
-        Returns
-        -------
-        pd.DataFrame
-            Wide-format DataFrame with one row per participant and
-            descriptive column names.
-        """
-        ...
 
 
 # ---------------------------------------------------------------------------
