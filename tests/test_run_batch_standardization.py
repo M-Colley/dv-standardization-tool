@@ -256,7 +256,7 @@ class BatchStandardizationTests(unittest.TestCase):
 
         with tempfile.TemporaryDirectory() as tmpdir:
             with mock.patch(
-                "scripts.run_batch_standardization.deduce_standard_name_with_local_llm",
+                "scripts.llm_coordinator.deduce_standard_name_with_local_llm",
                 return_value="task_completion_time",
             ) as mocked:
                 augmented = _augment_mapping_with_llm_deductions(
@@ -279,7 +279,7 @@ class BatchStandardizationTests(unittest.TestCase):
 
         with tempfile.TemporaryDirectory() as tmpdir:
             with mock.patch(
-                "scripts.run_batch_standardization.deduce_standard_name_with_local_llm",
+                "scripts.llm_coordinator.deduce_standard_name_with_local_llm",
                 return_value="task_completion_time",
             ) as mocked:
                 _augment_mapping_with_llm_deductions(
@@ -302,7 +302,7 @@ class BatchStandardizationTests(unittest.TestCase):
 
         with tempfile.TemporaryDirectory() as tmpdir:
             with mock.patch(
-                "scripts.run_batch_standardization.deduce_standard_name_with_local_llm",
+                "scripts.llm_coordinator.deduce_standard_name_with_local_llm",
                 return_value="task_completion_time",
             ) as mocked:
                 augmented = _augment_mapping_with_llm_deductions(
@@ -341,7 +341,7 @@ class BatchStandardizationTests(unittest.TestCase):
 
             output_dir = tmp / "output"
             with mock.patch(
-                "scripts.run_batch_standardization.deduce_standard_name_with_local_llm",
+                "scripts.llm_coordinator.deduce_standard_name_with_local_llm",
                 return_value="task_completion_time",
             ):
                 summary = run_batch(manifest_path, output_dir, SCHEMA_PATH)
@@ -494,7 +494,7 @@ class BatchStandardizationTests(unittest.TestCase):
                 return_value="[CONTEXT_SUMMARY]",
             ) as mocked_context:
                 with mock.patch(
-                    "scripts.run_batch_standardization.deduce_standard_name_with_local_llm",
+                    "scripts.llm_coordinator.deduce_standard_name_with_local_llm",
                     return_value="task_completion_time",
                 ):
                     run_batch(manifest_path, output_dir, SCHEMA_PATH)
@@ -749,7 +749,7 @@ class BatchStandardizationTests(unittest.TestCase):
             # standard-schema aliases beat repo-mapping aliases — not LLM
             # inference behaviour — so we stub the LLM out entirely.
             with mock.patch(
-                "scripts.run_batch_standardization.deduce_standard_name_with_local_llm",
+                "scripts.llm_coordinator.deduce_standard_name_with_local_llm",
                 return_value=None,
             ):
                 run_batch(manifest_path, output_dir, SCHEMA_PATH)
@@ -814,7 +814,7 @@ class BatchStandardizationTests(unittest.TestCase):
 
             output_dir = tmp / "output"
             with mock.patch(
-                "scripts.run_batch_standardization.deduce_standard_name_with_local_llm",
+                "scripts.llm_coordinator.deduce_standard_name_with_local_llm",
                 return_value="task_completion_time",
             ) as mocked:
                 run_batch(manifest_path, output_dir, SCHEMA_PATH)
@@ -880,7 +880,7 @@ class BatchStandardizationTests(unittest.TestCase):
                 return_value=(["task_completion_time"], 90.0),
             ):
                 with mock.patch(
-                    "scripts.run_batch_standardization.deduce_standard_name_with_local_llm",
+                    "scripts.llm_coordinator.deduce_standard_name_with_local_llm",
                     return_value="task_completion_time",
                 ) as mocked:
                     summary = run_batch(manifest_path, output_dir, SCHEMA_PATH)
@@ -943,7 +943,7 @@ class BatchStandardizationTests(unittest.TestCase):
 
             output_dir = tmp / "output"
             with mock.patch(
-                "scripts.run_batch_standardization.deduce_standard_name_with_local_llm",
+                "scripts.llm_coordinator.deduce_standard_name_with_local_llm",
                 return_value="task_completion_time",
             ) as mocked:
                 summary = run_batch(manifest_path, output_dir, SCHEMA_PATH)
@@ -1001,7 +1001,7 @@ class BatchStandardizationTests(unittest.TestCase):
 
             output_dir = tmp / "output"
             with mock.patch(
-                "scripts.run_batch_standardization.deduce_standard_name_with_local_llm",
+                "scripts.llm_coordinator.deduce_standard_name_with_local_llm",
                 side_effect=lambda raw_column_name, **_: (
                     "task_completion_time" if raw_column_name == "DurationX" else None
                 ),
@@ -1132,7 +1132,7 @@ class BatchStandardizationTests(unittest.TestCase):
             output_dir = tmp / "output"
             sensor_schema_path = str(REPO_ROOT / "schemas" / "standard_sensor_mapping.yaml")
             with mock.patch(
-                "scripts.run_batch_standardization.deduce_standard_name_with_local_llm",
+                "scripts.llm_coordinator.deduce_standard_name_with_local_llm",
                 return_value="task_completion_time",
             ) as mocked:
                 summary = run_batch(
@@ -1876,7 +1876,7 @@ class BatchStandardizationTests(unittest.TestCase):
 
             output_dir = tmp / "output"
             with mock.patch(
-                "scripts.run_batch_standardization.deduce_standard_name_with_local_llm",
+                "scripts.llm_coordinator.deduce_standard_name_with_local_llm",
                 return_value="task_completion_time",
             ) as mocked:
                 summary = run_batch(
@@ -1927,7 +1927,7 @@ class BatchStandardizationTests(unittest.TestCase):
                 return_value=(osf_cache, [study_file], "cwd6h"),
             ):
                 with mock.patch(
-                    "scripts.run_batch_standardization.deduce_standard_name_with_local_llm",
+                    "scripts.llm_coordinator.deduce_standard_name_with_local_llm",
                     return_value="task_completion_time",
                 ) as mocked:
                     run_batch(manifest_path, output_dir, SCHEMA_PATH)
@@ -1978,7 +1978,7 @@ class BatchStandardizationTests(unittest.TestCase):
                 return_value=(osf_cache, [study_file], "cwd6h"),
             ):
                 with mock.patch(
-                    "scripts.run_batch_standardization.deduce_standard_name_with_local_llm",
+                    "scripts.llm_coordinator.deduce_standard_name_with_local_llm",
                     return_value="task_completion_time",
                 ) as mocked:
                     run_batch(manifest_path, output_dir, SCHEMA_PATH)
@@ -2029,7 +2029,7 @@ class BatchStandardizationTests(unittest.TestCase):
                 return_value=(osf_cache, [study_file], "cwd6h"),
             ):
                 with mock.patch(
-                    "scripts.run_batch_standardization.deduce_standard_name_with_local_llm",
+                    "scripts.llm_coordinator.deduce_standard_name_with_local_llm",
                     return_value="task_completion_time",
                 ) as mocked:
                     run_batch(manifest_path, output_dir, SCHEMA_PATH)

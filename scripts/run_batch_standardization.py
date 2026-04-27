@@ -133,6 +133,18 @@ from scripts.convert_dv import (
     standardize_columns,
 )
 from scripts.llm_utils import collect_repository_context, deduce_standard_name_with_local_llm
+# llm_coordinator owns the alias-scoring, candidate-shortlisting, and
+# LLM-deduction aggregation helpers. Re-exported here so existing tests
+# (e.g. ``from scripts.run_batch_standardization import _augment_mapping_with_llm_deductions``)
+# keep working after the Wave C extraction.
+from scripts.llm_coordinator import (
+    _augment_mapping_with_llm_deductions,
+    _build_llm_deduction_log_lines,
+    _collect_llm_deduction,
+    _finalize_llm_deductions,
+    _score_alias_match,
+    _select_llm_candidate_shortlist,
+)
 # archive_utils owns the suffix sets and the recursive zip extraction helpers.
 # We re-export them so existing test imports
 # (e.g. ``from scripts.run_batch_standardization import _extract_zip_files_recursive``)
@@ -1027,58 +1039,6 @@ def _merge_with_standard_precedence(
 
     return merged
 
-def _collect_llm_deduction(
-    deductions_by_key: dict[tuple[str, str], dict[str, Any]],
-    source_id: str,
-    dataset_id: str,
-    alias: str,
-    canonical_dv: str,
-) -> None:
-    alias_text = str(alias).strip()
-    if not alias_text:
-        return
-
-    key = (source_id, alias_text.lower())
-    entry = deductions_by_key.get(key)
-    if entry is None:
-        entry = {
-            "source_id": source_id,
-            "alias": alias_text,
-            "canonical_dv": canonical_dv,
-            "datasets": [],
-        }
-        deductions_by_key[key] = entry
-
-    datasets = entry["datasets"]
-    if dataset_id not in datasets:
-        datasets.append(dataset_id)
-
-def _finalize_llm_deductions(
-    deductions_by_key: dict[tuple[str, str], dict[str, Any]],
-) -> list[dict[str, Any]]:
-    finalized: list[dict[str, Any]] = []
-    for entry in deductions_by_key.values():
-        finalized.append(
-            {
-                **entry,
-                "datasets": sorted(entry["datasets"]),
-            }
-        )
-    return sorted(finalized, key=lambda item: (item["source_id"], item["alias"].lower()))
-
-def _build_llm_deduction_log_lines(llm_deductions: list[dict[str, Any]]) -> list[str]:
-    if not llm_deductions:
-        return ["No LLM-derived mappings were applied in this run."]
-
-    lines = ["LLM-derived mappings applied:"]
-    for item in llm_deductions:
-        datasets = item.get("datasets", [])
-        datasets_text = ", ".join(datasets) if datasets else "n/a"
-        lines.append(
-            f"[{item['source_id']}] {item['alias']} -> {item['canonical_dv']} (datasets: {datasets_text})"
-        )
-    return lines
-
 def _summarize_dataset(
     source_id: str,
     dataset_id: str,
@@ -1238,99 +1198,6 @@ def _build_dataset_mapping_debug_records(
 
     return debug_records
 
-
-def _score_alias_match(raw_column_name: str, alias: str) -> float:
-    normalized_raw = re.sub(r"[^a-z0-9]+", " ", str(raw_column_name).strip().lower()).strip()
-    normalized_alias = re.sub(r"[^a-z0-9]+", " ", str(alias).strip().lower()).strip()
-    if not normalized_raw or not normalized_alias:
-        return 0.0
-
-    raw_compact = normalized_raw.replace(" ", "")
-    alias_compact = normalized_alias.replace(" ", "")
-    # Very short aliases (e.g. "u1", "sa", "eda") create noisy fuzzy matches.
-    if len(alias_compact) < 4 and alias_compact not in raw_compact:
-        return 0.0
-
-    try:
-        from rapidfuzz import fuzz  # type: ignore
-
-        return float(
-            max(
-                fuzz.ratio(normalized_raw, normalized_alias),
-                fuzz.WRatio(normalized_raw, normalized_alias),
-                fuzz.token_sort_ratio(normalized_raw, normalized_alias),
-            )
-        )
-    except Exception as exc:  # noqa: BLE001
-        logger.debug(
-            "rapidfuzz unavailable or scoring failed (%s); falling back to difflib.",
-            exc,
-        )
-        from difflib import SequenceMatcher
-
-        return SequenceMatcher(None, normalized_raw, normalized_alias).ratio() * 100.0
-
-
-def _select_llm_candidate_shortlist(
-    mapping: dict[str, str],
-    raw_column_name: str,
-    max_candidates: int = 8,
-) -> tuple[list[str], float]:
-    candidate_scores: dict[str, float] = {}
-    for alias, canonical in mapping.items():
-        if not isinstance(alias, str) or not isinstance(canonical, str):
-            continue
-        score = _score_alias_match(raw_column_name, alias)
-        if score <= candidate_scores.get(canonical, 0.0):
-            continue
-        candidate_scores[canonical] = score
-
-    ranked = sorted(candidate_scores.items(), key=lambda item: (-item[1], item[0]))
-    return [canonical for canonical, _ in ranked[:max_candidates]], (ranked[0][1] if ranked else 0.0)
-
-def _augment_mapping_with_llm_deductions(
-    mapping: dict[str, str],
-    columns: list[str],
-    source_root: Path,
-    preferred_models: list[str] | None = None,
-    inference_cache: dict[str, str | None] | None = None,
-    repository_context: str | None = None,
-    min_attempt_score: float = 65.0,
-) -> dict[str, str]:
-    """Attempt local-LLM alias deduction for unknown columns.
-
-    This is especially useful for repositories that do not provide a custom
-    mapping YAML file.
-    """
-    augmented = dict(mapping)
-
-    unknown = identify_unmapped_columns(columns, augmented)
-    for alias in unknown:
-        alias_key = str(alias).strip().lower()
-        inferred: str | None
-        if inference_cache is not None and alias_key in inference_cache:
-            inferred = inference_cache[alias_key]
-        else:
-            candidate_shortlist, top_score = _select_llm_candidate_shortlist(mapping, str(alias))
-            if not candidate_shortlist or top_score < min_attempt_score:
-                inferred = None
-                if inference_cache is not None:
-                    inference_cache[alias_key] = inferred
-                continue
-            inferred = deduce_standard_name_with_local_llm(
-                raw_column_name=str(alias),
-                canonical_candidates=candidate_shortlist,
-                source_root=source_root,
-                preferred_models=preferred_models,
-                repository_context=repository_context,
-            )
-            if inference_cache is not None:
-                inference_cache[alias_key] = inferred
-        if inferred:
-            augmented[str(alias)] = inferred
-            augmented[str(alias).lower()] = inferred
-
-    return augmented
 
 def run_batch(
     manifest_path: Path,
