@@ -208,3 +208,9 @@ __marimo__/
 /analyses/output_python_latest_standardized
 /data/processed
 /.claude
+
+# Batch standardization pipeline outputs
+# Contains the standardized CSVs, run_summary.json, meta_view artefacts, and
+# the .cache/ subtree of cloned upstream source repos (multi-GB). Regenerated
+# any time the pipeline is re-run, so it does not belong in version control.
+/batch_outputs/
