@@ -574,7 +574,7 @@ def _fetch_pdf_text_from_url(url: str, max_chars: int = 3000) -> str:
             anchor.get("href")
             for anchor in soup.find_all("a", href=True)
         )
-        if href and ".pdf" in href.lower()
+        if ".pdf" in href.lower()
     ]
 
     for href in candidates[:5]:

@@ -19,10 +19,7 @@ def detect_text_encoding(raw: bytes) -> str:
         return "utf-16-be"
 
     if raw:
-        try:
-            best_match = from_bytes(raw).best()
-        except Exception:  # pragma: no cover - defensive fallback
-            best_match = None
+        best_match = from_bytes(raw).best()
         if best_match and best_match.encoding:
             return best_match.encoding
 

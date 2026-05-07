@@ -1002,6 +1002,8 @@ class BatchStandardizationTests(unittest.TestCase):
                     debug_mappings=True,
                 )
 
+            # Both LLM-eligible unknown columns are evaluated: one is deduced and
+            # the other remains unmapped after the mock returns ``None``.
             self.assertEqual(mocked.call_count, 2)
             self.assertTrue(summary["debug_mappings_enabled"])
 

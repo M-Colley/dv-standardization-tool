@@ -530,14 +530,11 @@ def _is_supported_download_response(final_url: str, headers: Any) -> bool:
 
 
 def _read_url_response(
-    url_or_request: Any,
+    url: str,
     timeout: int,
     max_attempts: int = 4,
+    headers: dict[str, str] | None = None,
 ) -> tuple[bytes, Any, str]:
-    url = getattr(url_or_request, "url", None)
-    if url is None:
-        url = getattr(url_or_request, "full_url", None) or str(url_or_request)
-    headers = dict(getattr(url_or_request, "header_items", lambda: [])())
     response = _send_http_request(str(url), timeout=timeout, headers=headers or None, max_attempts=max_attempts)
     return response.content, response.headers, str(response.url)
 
@@ -683,8 +680,11 @@ def _write_download_payload(
 
 
 def _download_remote_file(download_url: str, target_dir: Path, fallback_prefix: str) -> Path:
-    req = httpx.Request("GET", download_url, headers={"User-Agent": HTTP_USER_AGENT, "Accept": "*/*"})
-    payload, headers, final_url = _read_url_response(req, timeout=180)
+    payload, headers, final_url = _read_url_response(
+        download_url,
+        timeout=180,
+        headers={"User-Agent": HTTP_USER_AGENT, "Accept": "*/*"},
+    )
     return _write_download_payload(target_dir, payload, final_url, headers, fallback_prefix=fallback_prefix)
 
 
@@ -830,20 +830,32 @@ def _extract_osf_project_id(location: str) -> str:
 
 def _read_url_bytes(url_or_request: Any, timeout: int, max_attempts: int = 4) -> bytes:
     """Read bytes from URL with retry/backoff for transient network errors."""
-    payload, _, _ = _read_url_response(url_or_request, timeout=timeout, max_attempts=max_attempts)
+    if isinstance(url_or_request, str):
+        url = url_or_request
+        headers = None
+    else:
+        url = getattr(url_or_request, "url", None)
+        if url is None:
+            url = getattr(url_or_request, "full_url", None) or str(url_or_request)
+        headers = dict(getattr(url_or_request, "header_items", lambda: [])())
+    payload, _, _ = _read_url_response(
+        str(url),
+        timeout=timeout,
+        max_attempts=max_attempts,
+        headers=headers or None,
+    )
     return payload
 
 
 def _osf_json_get(url: str) -> dict[str, Any]:
-    req = httpx.Request(
-        "GET",
+    payload = _read_url_response(
         url,
+        timeout=45,
         headers={
             "Accept": "application/vnd.api+json",
             "User-Agent": HTTP_USER_AGENT,
         },
-    )
-    payload = _read_url_bytes(req, timeout=45).decode("utf-8")
+    )[0].decode("utf-8")
     return json.loads(payload)
 
 
