@@ -21,6 +21,8 @@ import yaml
 from bs4 import BeautifulSoup
 from tenacity import Retrying, retry_if_exception, stop_after_attempt, wait_exponential
 
+from scripts.http_utils import TRANSIENT_HTTP_STATUS_CODES, is_retryable_http_exception
+
 logger = logging.getLogger(__name__)
 
 DEFAULT_LOCAL_MODEL_CANDIDATES = [
@@ -52,7 +54,6 @@ CUDA_MEMORY_HEADROOM_FACTOR = 0.9
 README_PATTERNS = ("README", "README.md", "README.txt", "readme.md", "readme.txt")
 DOI_PATTERN = re.compile(r"\b10\.\d{4,9}/[-._;()/:A-Z0-9]+", re.IGNORECASE)
 DEFAULT_HTTP_TIMEOUT_S = 12
-_TRANSIENT_HTTP_STATUS_CODES = {429, 500, 502, 503, 504}
 PDF_SECTION_HINTS = (
     "abstract",
     "introduction",
@@ -113,12 +114,6 @@ PDF_LOW_VALUE_HINTS = (
     "acknowledgement",
 )
 DEFAULT_DV_SCHEMA_PATH = Path(__file__).resolve().parents[1] / "schemas" / "standard_dv_mapping.yaml"
-
-
-def _is_retryable_http_exception(exc: BaseException) -> bool:
-    if isinstance(exc, (httpx.TimeoutException, httpx.NetworkError)):
-        return True
-    return isinstance(exc, httpx.HTTPStatusError) and exc.response.status_code in _TRANSIENT_HTTP_STATUS_CODES
 
 
 def _safe_read_text(path: Path) -> str:
@@ -530,12 +525,12 @@ def _http_get(url: str, timeout_s: int = DEFAULT_HTTP_TIMEOUT_S) -> tuple[bytes,
             timeout=timeout_s,
         ) as client:
             response = client.get(url)
-            if response.status_code in _TRANSIENT_HTTP_STATUS_CODES:
+            if response.status_code in TRANSIENT_HTTP_STATUS_CODES:
                 response.raise_for_status()
             return response.content, response.headers.get("Content-Type", "")
 
     for attempt in Retrying(
-        retry=retry_if_exception(_is_retryable_http_exception),
+        retry=retry_if_exception(is_retryable_http_exception),
         stop=stop_after_attempt(4),
         wait=wait_exponential(multiplier=0.75, min=0.75, max=4),
         reraise=True,

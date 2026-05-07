@@ -35,6 +35,8 @@ from bs4 import BeautifulSoup
 from tenacity import Retrying, retry_if_exception, stop_after_attempt, wait_exponential
 from tqdm import tqdm
 
+from scripts.http_utils import TRANSIENT_HTTP_STATUS_CODES, is_retryable_http_exception
+
 logger = logging.getLogger(__name__)
 
 # ---------------------------------------------------------------------------
@@ -165,7 +167,6 @@ DEFAULT_DETECTION_SCHEMA_PATH = REPO_ROOT / "schemas" / "standard_detection_mapp
 DEFAULT_METADATA_SCHEMA_PATH = REPO_ROOT / "schemas" / "standard_metadata_mapping.yaml"
 SUPPORTED_SOURCE_TYPES = {"local_path", "github_repo", "osf_project", "web_dataset"}
 HTTP_USER_AGENT = "OpenDV-HCI/1.0"
-_TRANSIENT_HTTP_STATUS_CODES = {429, 500, 502, 503, 504}
 GITHUB_HOSTS = {"github.com", "www.github.com"}
 WEB_DATASET_HOSTS = {
     "data.4tu.nl",
@@ -327,12 +328,6 @@ class SourceAccessError(RuntimeError):
         self.status = status
 
 
-def _is_retryable_http_exception(exc: BaseException) -> bool:
-    if isinstance(exc, (httpx.TimeoutException, httpx.NetworkError)):
-        return True
-    return isinstance(exc, httpx.HTTPStatusError) and exc.response.status_code in _TRANSIENT_HTTP_STATUS_CODES
-
-
 def _send_http_request(
     url: str,
     *,
@@ -347,12 +342,12 @@ def _send_http_request(
             timeout=timeout,
         ) as client:
             response = client.get(url)
-            if response.status_code in _TRANSIENT_HTTP_STATUS_CODES:
+            if response.status_code in TRANSIENT_HTTP_STATUS_CODES:
                 response.raise_for_status()
             return response
 
     for attempt in Retrying(
-        retry=retry_if_exception(_is_retryable_http_exception),
+        retry=retry_if_exception(is_retryable_http_exception),
         stop=stop_after_attempt(max_attempts),
         wait=wait_exponential(multiplier=0.75, min=0.75, max=4),
         reraise=True,
@@ -707,7 +702,7 @@ def _materialize_web_dataset_source(location: str, target: Path) -> str:
             raise _build_web_dataset_access_error(location, location, error_html, error_title)
         raise SourceAccessError(
             "access_restricted",
-            f"Dataset host {host or location} returned HTTP {response.status_code} for {location}.",
+            f"Dataset host {host or 'unknown host'} returned HTTP {response.status_code} for {location}.",
         )
 
     if _is_supported_download_response(final_url, headers):
@@ -850,14 +845,15 @@ def _read_url_bytes(url_or_request: Any, timeout: int, max_attempts: int = 4) ->
 
 
 def _osf_json_get(url: str) -> dict[str, Any]:
-    payload = _read_url_response(
+    payload, _, _ = _read_url_response(
         url,
         timeout=45,
         headers={
             "Accept": "application/vnd.api+json",
             "User-Agent": HTTP_USER_AGENT,
         },
-    )[0].decode("utf-8")
+    )
+    payload = payload.decode("utf-8")
     return json.loads(payload)
 
 
