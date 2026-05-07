@@ -566,11 +566,11 @@ def _fetch_pdf_text_from_url(url: str, max_chars: int = 3000) -> str:
 
     landing_text = landing_payload.decode("utf-8", errors="ignore")
     soup = BeautifulSoup(landing_text, "html.parser")
-    candidates = [
-        href
-        for anchor in soup.find_all("a", href=True)
-        if isinstance((href := anchor.get("href")), str) and ".pdf" in href.lower()
-    ]
+    candidates: list[str] = []
+    for anchor in soup.find_all("a", href=True):
+        href = anchor.get("href")
+        if isinstance(href, str) and ".pdf" in href.lower():
+            candidates.append(href)
 
     for href in candidates[:5]:
         pdf_url = _resolve_pdf_url(url, href)

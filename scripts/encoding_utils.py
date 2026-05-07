@@ -21,6 +21,8 @@ def detect_text_encoding(raw: bytes) -> str:
         return "utf-16-be"
 
     if sample:
+        # ``charset-normalizer`` already ranks candidates internally; ``best()``
+        # returns the highest-confidence match (or ``None``) for the sampled bytes.
         best_match = from_bytes(sample).best()
         if best_match and best_match.encoding:
             return best_match.encoding

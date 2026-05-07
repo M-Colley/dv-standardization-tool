@@ -583,7 +583,9 @@ def _extract_html_download_urls(html_text: str, base_url: str) -> tuple[str, lis
         if _looks_like_supported_download_url(absolute_url):
             urls.add(absolute_url)
 
-    title = soup.title.get_text(strip=True) if soup.title else ""
+    title = ""
+    if soup.title is not None:
+        title = soup.title.get_text(strip=True)
     return title, sorted(urls)
 
 
@@ -830,10 +832,14 @@ def _read_url_bytes(url_or_request: Any, timeout: int, max_attempts: int = 4) ->
         url = url_or_request
         headers = None
     else:
-        url = getattr(url_or_request, "url", None)
-        if url is None:
-            url = getattr(url_or_request, "full_url", None) or str(url_or_request)
-        headers = dict(getattr(url_or_request, "header_items", lambda: [])())
+        url = getattr(url_or_request, "url", None) or getattr(url_or_request, "full_url", None)
+        header_items = getattr(url_or_request, "header_items", None)
+        if url is None or header_items is None:
+            raise TypeError(
+                "url_or_request must be a URL string or a request-like object with "
+                "'url'/'full_url' and 'header_items()'."
+            )
+        headers = dict(header_items())
     payload, _, _ = _read_url_response(
         str(url),
         timeout=timeout,
