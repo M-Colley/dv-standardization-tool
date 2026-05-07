@@ -28,6 +28,8 @@ from typing import Any, Dict, List, Optional, Sequence, Tuple, Union
 
 import pandas as pd
 
+from scripts.encoding_utils import detect_file_encoding
+
 logger = logging.getLogger(__name__)
 
 
@@ -43,31 +45,7 @@ def _read_file_bytes(file_path: Path, max_bytes: int = 65536) -> bytes:
 
 def _detect_encoding(file_path: Path) -> str:
     """Best-effort encoding detection mirroring convert_dv.py behaviour."""
-    raw = _read_file_bytes(file_path, max_bytes=32768)
-
-    # BOM detection
-    if raw.startswith(b"\xef\xbb\xbf"):
-        return "utf-8-sig"
-    if raw.startswith(b"\xff\xfe"):
-        return "utf-16-le"
-    if raw.startswith(b"\xfe\xff"):
-        return "utf-16-be"
-
-    try:
-        import chardet  # type: ignore
-        result = chardet.detect(raw)
-        if result and result.get("confidence", 0) > 0.75:
-            return result["encoding"] or "utf-8"
-    except ImportError:
-        pass
-
-    for enc in ("utf-8", "utf-8-sig", "cp1252", "latin-1"):
-        try:
-            raw.decode(enc)
-            return enc
-        except (UnicodeDecodeError, LookupError):
-            continue
-    return "latin-1"
+    return detect_file_encoding(file_path)
 
 
 def _detect_delimiter(sample: str, prefer: str | None = None) -> str:

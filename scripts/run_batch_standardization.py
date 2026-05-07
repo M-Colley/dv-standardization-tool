@@ -14,7 +14,6 @@ import hashlib
 import logging
 import os
 import re
-import socket
 import shutil
 import stat
 import subprocess
@@ -24,16 +23,16 @@ import zipfile
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from html import unescape
-from html.parser import HTMLParser
 from pathlib import Path
 from tempfile import TemporaryDirectory
 from typing import Any
-from urllib import error as urlerror
-from urllib import request
 from urllib.parse import unquote, urljoin, urlparse
 
+import httpx
 import pandas as pd
 import yaml
+from bs4 import BeautifulSoup
+from tenacity import Retrying, retry_if_exception, stop_after_attempt, wait_exponential
 from tqdm import tqdm
 
 logger = logging.getLogger(__name__)
@@ -166,6 +165,7 @@ DEFAULT_DETECTION_SCHEMA_PATH = REPO_ROOT / "schemas" / "standard_detection_mapp
 DEFAULT_METADATA_SCHEMA_PATH = REPO_ROOT / "schemas" / "standard_metadata_mapping.yaml"
 SUPPORTED_SOURCE_TYPES = {"local_path", "github_repo", "osf_project", "web_dataset"}
 HTTP_USER_AGENT = "OpenDV-HCI/1.0"
+_TRANSIENT_HTTP_STATUS_CODES = {429, 500, 502, 503, 504}
 GITHUB_HOSTS = {"github.com", "www.github.com"}
 WEB_DATASET_HOSTS = {
     "data.4tu.nl",
@@ -327,47 +327,40 @@ class SourceAccessError(RuntimeError):
         self.status = status
 
 
-class _LandingPageParser(HTMLParser):
-    def __init__(self) -> None:
-        super().__init__()
-        self._in_title = False
-        self._capture_ldjson = False
-        self._current_ldjson: list[str] = []
-        self.title_parts: list[str] = []
-        self.links: list[str] = []
-        self.ldjson_blocks: list[str] = []
+def _is_retryable_http_exception(exc: BaseException) -> bool:
+    if isinstance(exc, (httpx.TimeoutException, httpx.NetworkError)):
+        return True
+    return isinstance(exc, httpx.HTTPStatusError) and exc.response.status_code in _TRANSIENT_HTTP_STATUS_CODES
 
-    @property
-    def title(self) -> str:
-        return "".join(self.title_parts).strip()
 
-    def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
-        attr_map = dict(attrs)
-        if tag.lower() == "title":
-            self._in_title = True
-        if tag.lower() == "a":
-            href = attr_map.get("href")
-            if href:
-                self.links.append(href)
-        if tag.lower() == "script" and "ld+json" in str(attr_map.get("type", "")).lower():
-            self._capture_ldjson = True
-            self._current_ldjson = []
+def _send_http_request(
+    url: str,
+    *,
+    timeout: int,
+    headers: dict[str, str] | None = None,
+    max_attempts: int = 4,
+) -> httpx.Response:
+    def _request_once() -> httpx.Response:
+        with httpx.Client(
+            follow_redirects=True,
+            headers=headers,
+            timeout=timeout,
+        ) as client:
+            response = client.get(url)
+            if response.status_code in _TRANSIENT_HTTP_STATUS_CODES:
+                response.raise_for_status()
+            return response
 
-    def handle_endtag(self, tag: str) -> None:
-        if tag.lower() == "title":
-            self._in_title = False
-        if tag.lower() == "script" and self._capture_ldjson:
-            block = "".join(self._current_ldjson).strip()
-            if block:
-                self.ldjson_blocks.append(block)
-            self._capture_ldjson = False
-            self._current_ldjson = []
+    for attempt in Retrying(
+        retry=retry_if_exception(_is_retryable_http_exception),
+        stop=stop_after_attempt(max_attempts),
+        wait=wait_exponential(multiplier=0.75, min=0.75, max=4),
+        reraise=True,
+    ):
+        with attempt:
+            return _request_once()
 
-    def handle_data(self, data: str) -> None:
-        if self._in_title:
-            self.title_parts.append(data)
-        if self._capture_ldjson:
-            self._current_ldjson.append(data)
+    raise RuntimeError("unreachable")
 
 
 def load_manifest(manifest_path: Path) -> list[dict[str, Any]]:
@@ -526,11 +519,7 @@ def _is_supported_download_response(final_url: str, headers: Any) -> bool:
     if any(suffix in DATA_FILE_SUFFIXES or suffix in ARCHIVE_SUFFIXES or suffix in MAPPING_SUFFIXES for suffix in suffixes):
         return True
 
-    content_type = (
-        headers.get_content_type()
-        if hasattr(headers, "get_content_type")
-        else str(headers.get("Content-Type", "")).split(";", 1)[0].strip().lower()
-    )
+    content_type = str(headers.get("Content-Type", "")).split(";", 1)[0].strip().lower()
     return content_type in {
         "application/zip",
         "text/csv",
@@ -545,25 +534,18 @@ def _read_url_response(
     timeout: int,
     max_attempts: int = 4,
 ) -> tuple[bytes, Any, str]:
-    for attempt in range(max_attempts):
-        try:
-            with request.urlopen(url_or_request, timeout=timeout) as resp:
-                return resp.read(), resp.headers, resp.geturl()
-        except Exception as exc:  # noqa: BLE001
-            is_timeout = isinstance(exc, (TimeoutError, socket.timeout))
-            if isinstance(exc, urlerror.URLError):
-                is_timeout = is_timeout or isinstance(exc.reason, socket.timeout)
-            is_transient_http = (
-                isinstance(exc, urlerror.HTTPError)
-                and (exc.code == 429 or 500 <= exc.code < 600)
-            )
-            if attempt == max_attempts - 1 or not (is_timeout or is_transient_http):
-                raise
-            time.sleep(0.75 * (attempt + 1))
+    url = getattr(url_or_request, "url", None)
+    if url is None:
+        url = getattr(url_or_request, "full_url", None) or str(url_or_request)
+    headers = dict(getattr(url_or_request, "header_items", lambda: [])())
+    response = _send_http_request(str(url), timeout=timeout, headers=headers or None, max_attempts=max_attempts)
+    return response.content, response.headers, str(response.url)
 
 
 def _decode_http_text(payload: bytes, headers: Any) -> str:
-    charset = headers.get_content_charset() if hasattr(headers, "get_content_charset") else None
+    content_type = str(headers.get("Content-Type", ""))
+    match = re.search(r"charset=([^\s;]+)", content_type, flags=re.IGNORECASE)
+    charset = match.group(1).strip("'\"") if match else None
     encoding = charset or "utf-8"
     return payload.decode(encoding, errors="replace")
 
@@ -583,11 +565,14 @@ def _iter_content_urls(payload: Any) -> list[str]:
 
 
 def _extract_html_download_urls(html_text: str, base_url: str) -> tuple[str, list[str]]:
-    parser = _LandingPageParser()
-    parser.feed(html_text)
+    soup = BeautifulSoup(html_text, "html.parser")
 
     urls: set[str] = set()
-    for block in parser.ldjson_blocks:
+    for script in soup.find_all(
+        "script",
+        attrs={"type": lambda value: isinstance(value, str) and "ld+json" in value.lower()},
+    ):
+        block = script.string or script.get_text() or ""
         try:
             payload = json.loads(unescape(block))
         except json.JSONDecodeError:
@@ -597,12 +582,16 @@ def _extract_html_download_urls(html_text: str, base_url: str) -> tuple[str, lis
             if _looks_like_supported_download_url(absolute_url):
                 urls.add(absolute_url)
 
-    for href in parser.links:
+    for anchor in soup.find_all("a", href=True):
+        href = anchor.get("href")
+        if not href:
+            continue
         absolute_url = urljoin(base_url, unescape(href))
         if _looks_like_supported_download_url(absolute_url):
             urls.add(absolute_url)
 
-    return parser.title, sorted(urls)
+    title = soup.title.get_text(strip=True) if soup.title else ""
+    return title, sorted(urls)
 
 
 def _looks_like_challenge_response(
@@ -686,11 +675,7 @@ def _write_download_payload(
         _extract_content_disposition_filename(disposition),
         fallback_prefix=fallback_prefix,
         final_url=final_url,
-        content_type=(
-            headers.get_content_type()
-            if hasattr(headers, "get_content_type")
-            else str(headers.get("Content-Type", ""))
-        ),
+        content_type=str(headers.get("Content-Type", "")),
     )
     destination = _build_unique_destination(target_dir, filename)
     destination.write_bytes(payload)
@@ -698,41 +683,34 @@ def _write_download_payload(
 
 
 def _download_remote_file(download_url: str, target_dir: Path, fallback_prefix: str) -> Path:
-    req = request.Request(download_url, headers={"User-Agent": HTTP_USER_AGENT, "Accept": "*/*"})
+    req = httpx.Request("GET", download_url, headers={"User-Agent": HTTP_USER_AGENT, "Accept": "*/*"})
     payload, headers, final_url = _read_url_response(req, timeout=180)
     return _write_download_payload(target_dir, payload, final_url, headers, fallback_prefix=fallback_prefix)
 
 
 def _materialize_web_dataset_source(location: str, target: Path) -> str:
-    req = request.Request(
+    response = _send_http_request(
         location,
+        timeout=60,
         headers={
             "User-Agent": HTTP_USER_AGENT,
             "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
         },
     )
-    try:
-        payload, headers, final_url = _read_url_response(req, timeout=60)
-    except urlerror.HTTPError as exc:
-        if exc.code in (401, 403, 503):
-            try:
-                error_payload = exc.read() or b""
-            except Exception:
-                error_payload = b""
-            try:
-                error_html = error_payload.decode("utf-8", errors="replace")
-            except Exception:
-                error_html = ""
-            parser = _LandingPageParser()
-            try:
-                parser.feed(error_html)
-            except Exception:
-                pass
-            error_title = parser.title
-            host = urlparse(location).netloc.lower()
-            if _looks_like_challenge_response(host, error_title, error_html):
-                raise _build_web_dataset_access_error(location, location, error_html, error_title)
-        raise
+    payload = response.content
+    headers = response.headers
+    final_url = str(response.url)
+
+    if response.status_code in (401, 403, 503):
+        error_html = _decode_http_text(payload, headers)
+        error_title, _ = _extract_html_download_urls(error_html, final_url)
+        host = urlparse(location).netloc.lower()
+        if _looks_like_challenge_response(host, error_title, error_html):
+            raise _build_web_dataset_access_error(location, location, error_html, error_title)
+        raise SourceAccessError(
+            "access_restricted",
+            f"Dataset host {host or location} returned HTTP {response.status_code} for {location}.",
+        )
 
     if _is_supported_download_response(final_url, headers):
         _write_download_payload(target, payload, final_url, headers, fallback_prefix="dataset")
@@ -857,7 +835,8 @@ def _read_url_bytes(url_or_request: Any, timeout: int, max_attempts: int = 4) ->
 
 
 def _osf_json_get(url: str) -> dict[str, Any]:
-    req = request.Request(
+    req = httpx.Request(
+        "GET",
         url,
         headers={
             "Accept": "application/vnd.api+json",
