@@ -9,6 +9,7 @@ from unittest import mock
 from pathlib import Path
 from email.message import Message
 
+import httpx
 import pandas as pd
 import yaml
 
@@ -1001,7 +1002,9 @@ class BatchStandardizationTests(unittest.TestCase):
                     debug_mappings=True,
                 )
 
-            self.assertEqual(mocked.call_count, 1)
+            # Both LLM-eligible unknown columns are evaluated: one is deduced and
+            # the other remains unmapped after the mock returns ``None``.
+            self.assertEqual(mocked.call_count, 2)
             self.assertTrue(summary["debug_mappings_enabled"])
 
             debug_path = (
@@ -1555,8 +1558,6 @@ class BatchStandardizationTests(unittest.TestCase):
             "include_globs": ["**/*.csv"],
         }
 
-        page_headers = Message()
-        page_headers["Content-Type"] = "text/html; charset=utf-8"
         zip_headers = Message()
         zip_headers["Content-Type"] = "application/zip"
         zip_headers["Content-Disposition"] = 'attachment; filename="dataset.zip"'
@@ -1573,14 +1574,25 @@ class BatchStandardizationTests(unittest.TestCase):
 
         with tempfile.TemporaryDirectory() as tmpdir:
             workdir = Path(tmpdir)
+            page_response = httpx.Response(
+                200,
+                headers={"Content-Type": "text/html; charset=utf-8"},
+                content=html.encode("utf-8"),
+                request=httpx.Request("GET", source["location"]),
+            )
             with mock.patch(
-                "scripts.run_batch_standardization._read_url_response",
-                side_effect=[
-                    (html.encode("utf-8"), page_headers, source["location"]),
-                    (zip_buffer.getvalue(), zip_headers, "https://data.4tu.nl/ndownloader/items/test/versions/2"),
-                ],
+                "scripts.run_batch_standardization._send_http_request",
+                return_value=page_response,
             ):
-                base_dir, files, commit_sha = discover_source_files(source, workdir)
+                with mock.patch(
+                    "scripts.run_batch_standardization._read_url_response",
+                    return_value=(
+                        zip_buffer.getvalue(),
+                        zip_headers,
+                        "https://data.4tu.nl/ndownloader/items/test/versions/2",
+                    ),
+                ):
+                    base_dir, files, commit_sha = discover_source_files(source, workdir)
 
         self.assertTrue(_paths_equal(base_dir, workdir / "fourtu_source"))
         self.assertEqual(len(files), 1)
@@ -1597,28 +1609,24 @@ class BatchStandardizationTests(unittest.TestCase):
             ),
             "include_globs": ["**/*.csv"],
         }
-        import urllib.error as urlerror
 
         challenge_html = (
             b"<!DOCTYPE html><html><head><title>Just a moment...</title>"
             b"</head><body>Enable JavaScript and cookies to continue. "
             b"cf-mitigated: challenge</body></html>"
         )
-
-        def _raise_challenge(*_args, **_kwargs):
-            raise urlerror.HTTPError(
-                source["location"],
-                403,
-                "Forbidden",
-                Message(),
-                io.BytesIO(challenge_html),
-            )
+        challenge_response = httpx.Response(
+            403,
+            headers={"Content-Type": "text/html; charset=utf-8"},
+            content=challenge_html,
+            request=httpx.Request("GET", source["location"]),
+        )
 
         with tempfile.TemporaryDirectory() as tmpdir:
             workdir = Path(tmpdir)
             with mock.patch(
-                "scripts.run_batch_standardization._read_url_response",
-                side_effect=_raise_challenge,
+                "scripts.run_batch_standardization._send_http_request",
+                return_value=challenge_response,
             ):
                 with self.assertRaises(SourceAccessError) as ctx:
                     discover_source_files(source, workdir)
@@ -1633,15 +1641,19 @@ class BatchStandardizationTests(unittest.TestCase):
             "location": "https://ieee-dataport.org/open-access/usyd-campus-dataset",
             "include_globs": ["**/*.csv"],
         }
-        page_headers = Message()
-        page_headers["Content-Type"] = "text/html; charset=utf-8"
         html = "<html><body>LOGIN TO ACCESS DATASET FILES <a href='/saml_login'>Login</a></body></html>"
+        login_response = httpx.Response(
+            200,
+            headers={"Content-Type": "text/html; charset=utf-8"},
+            content=html.encode("utf-8"),
+            request=httpx.Request("GET", source["location"]),
+        )
 
         with tempfile.TemporaryDirectory() as tmpdir:
             workdir = Path(tmpdir)
             with mock.patch(
-                "scripts.run_batch_standardization._read_url_response",
-                return_value=(html.encode("utf-8"), page_headers, source["location"]),
+                "scripts.run_batch_standardization._send_http_request",
+                return_value=login_response,
             ):
                 with self.assertRaises(SourceAccessError) as ctx:
                     discover_source_files(source, workdir)

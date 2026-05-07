@@ -14,9 +14,14 @@ import re
 from functools import lru_cache
 from pathlib import Path
 from typing import Iterable
-from urllib import request
+from urllib.parse import urljoin
 
+import httpx
 import yaml
+from bs4 import BeautifulSoup
+from tenacity import Retrying, retry_if_exception, stop_after_attempt, wait_exponential
+
+from scripts.http_utils import TRANSIENT_HTTP_STATUS_CODES, is_retryable_http_exception
 
 logger = logging.getLogger(__name__)
 
@@ -48,7 +53,6 @@ CUDA_MEMORY_HEADROOM_FACTOR = 0.9
 
 README_PATTERNS = ("README", "README.md", "README.txt", "readme.md", "readme.txt")
 DOI_PATTERN = re.compile(r"\b10\.\d{4,9}/[-._;()/:A-Z0-9]+", re.IGNORECASE)
-PDF_LINK_PATTERN = re.compile(r'href=["\']([^"\']+\.pdf(?:\?[^"\']*)?)["\']', re.IGNORECASE)
 DEFAULT_HTTP_TIMEOUT_S = 12
 PDF_SECTION_HINTS = (
     "abstract",
@@ -511,17 +515,28 @@ def _extract_dois(text: str) -> list[str]:
 
 
 def _http_get(url: str, timeout_s: int = DEFAULT_HTTP_TIMEOUT_S) -> tuple[bytes, str]:
-    req = request.Request(
-        url,
-        headers={
-            "User-Agent": "OpenDV-HCI/1.0 (+https://github.com)",
-            "Accept": "text/html,application/pdf;q=0.9,*/*;q=0.8",
-        },
-    )
-    with request.urlopen(req, timeout=timeout_s) as resp:
-        content_type = resp.headers.get("Content-Type", "")
-        payload = resp.read()
-    return payload, content_type
+    def _request_once() -> tuple[bytes, str]:
+        with httpx.Client(
+            follow_redirects=True,
+            headers={
+                "User-Agent": "OpenDV-HCI/1.0 (+https://github.com)",
+                "Accept": "text/html,application/pdf;q=0.9,*/*;q=0.8",
+            },
+            timeout=timeout_s,
+        ) as client:
+            response = client.get(url)
+            if response.status_code in TRANSIENT_HTTP_STATUS_CODES:
+                response.raise_for_status()
+            return response.content, response.headers.get("Content-Type", "")
+
+    for attempt in Retrying(
+        retry=retry_if_exception(is_retryable_http_exception),
+        stop=stop_after_attempt(4),
+        wait=wait_exponential(multiplier=0.75, min=0.75, max=4),
+        reraise=True,
+    ):
+        with attempt:
+            return _request_once()
 
 
 def _resolve_pdf_url(base_url: str, href: str) -> str:
@@ -529,7 +544,7 @@ def _resolve_pdf_url(base_url: str, href: str) -> str:
         return href
     if href.startswith("//"):
         return f"https:{href}"
-    return request.urljoin(base_url, href)
+    return urljoin(base_url, href)
 
 
 def _fetch_pdf_text_from_url(url: str, max_chars: int = 3000) -> str:
@@ -545,7 +560,12 @@ def _fetch_pdf_text_from_url(url: str, max_chars: int = 3000) -> str:
         )
 
     landing_text = landing_payload.decode("utf-8", errors="ignore")
-    candidates = PDF_LINK_PATTERN.findall(landing_text)
+    soup = BeautifulSoup(landing_text, "html.parser")
+    candidates: list[str] = []
+    for anchor in soup.find_all("a", href=True):
+        href = anchor.get("href")
+        if isinstance(href, str) and ".pdf" in href.lower():
+            candidates.append(href)
 
     for href in candidates[:5]:
         pdf_url = _resolve_pdf_url(url, href)
@@ -740,4 +760,3 @@ def deduce_standard_name_with_local_llm(
                 return original
 
     return None
-

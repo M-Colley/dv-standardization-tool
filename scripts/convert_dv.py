@@ -27,6 +27,8 @@ from typing import Any, Callable, Dict, List, Literal, Tuple
 import pandas as pd
 import yaml
 
+from scripts.encoding_utils import detect_file_encoding
+
 logger = logging.getLogger(__name__)
 
 # ---------------------------------------------------------------------------
@@ -300,34 +302,8 @@ def _sniff_format(path: Path) -> str | None:
 
 
 def _detect_encoding(path: Path) -> str:
-    """Detect file encoding, trying chardet then common fallbacks."""
-    raw = path.read_bytes()[:32768]
-
-    # BOM detection first
-    if raw.startswith(b"\xef\xbb\xbf"):
-        return "utf-8-sig"
-    if raw.startswith(b"\xff\xfe"):
-        return "utf-16-le"
-    if raw.startswith(b"\xfe\xff"):
-        return "utf-16-be"
-
-    # Try chardet
-    try:
-        import chardet
-        result = chardet.detect(raw)
-        if result and result.get("confidence", 0) > 0.75:
-            return result["encoding"] or "utf-8"
-    except ImportError:
-        pass
-
-    # Fallback chain
-    for enc in ("utf-8", "utf-8-sig", "cp1252", "latin-1"):
-        try:
-            raw.decode(enc)
-            return enc
-        except (UnicodeDecodeError, LookupError):
-            continue
-    return "latin-1"
+    """Detect file encoding via shared charset-normalizer-backed helpers."""
+    return detect_file_encoding(path)
 
 
 def _detect_delimiter(sample: str, prefer: str | None = None) -> str:
@@ -1193,4 +1169,3 @@ Examples:
 
 if __name__ == "__main__":
     main()
-
