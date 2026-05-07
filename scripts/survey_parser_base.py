@@ -65,7 +65,10 @@ def _detect_encoding(file_path: Path) -> str:
         import chardet  # type: ignore
         result = chardet.detect(raw)
         if result and result.get("confidence", 0) > 0.75:
-            return result["encoding"] or "utf-8"
+            encoding = (result.get("encoding") or "utf-8").lower()
+            if encoding == "ascii":
+                return "utf-8"
+            return encoding
     except ImportError:
         pass
 
