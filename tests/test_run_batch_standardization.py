@@ -1002,7 +1002,7 @@ class BatchStandardizationTests(unittest.TestCase):
                     debug_mappings=True,
                 )
 
-            self.assertEqual(mocked.call_count, 1)
+            self.assertEqual(mocked.call_count, 2)
             self.assertTrue(summary["debug_mappings_enabled"])
 
             debug_path = (
