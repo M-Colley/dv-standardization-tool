@@ -543,8 +543,6 @@ def _http_get(url: str, timeout_s: int = DEFAULT_HTTP_TIMEOUT_S) -> tuple[bytes,
         with attempt:
             return _request_once()
 
-    raise RuntimeError("unreachable")
-
 
 def _resolve_pdf_url(base_url: str, href: str) -> str:
     if href.startswith("http://") or href.startswith("https://"):
@@ -570,11 +568,8 @@ def _fetch_pdf_text_from_url(url: str, max_chars: int = 3000) -> str:
     soup = BeautifulSoup(landing_text, "html.parser")
     candidates = [
         href
-        for href in (
-            anchor.get("href")
-            for anchor in soup.find_all("a", href=True)
-        )
-        if isinstance(href, str) and ".pdf" in href.lower()
+        for anchor in soup.find_all("a", href=True)
+        if isinstance((href := anchor.get("href")), str) and ".pdf" in href.lower()
     ]
 
     for href in candidates[:5]:

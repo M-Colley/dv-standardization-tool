@@ -360,8 +360,6 @@ def _send_http_request(
         with attempt:
             return _request_once()
 
-    raise RuntimeError("unreachable")
-
 
 def load_manifest(manifest_path: Path) -> list[dict[str, Any]]:
     try:

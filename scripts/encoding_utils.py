@@ -7,25 +7,27 @@ from pathlib import Path
 from charset_normalizer import from_bytes
 
 _COMMON_TEXT_ENCODINGS = ("utf-8", "utf-8-sig", "cp1252", "latin-1")
+_CHARSET_SAMPLE_BYTES = 32768
 
 
 def detect_text_encoding(raw: bytes) -> str:
     """Best-effort text encoding detection for tabular text inputs."""
-    if raw.startswith(b"\xef\xbb\xbf"):
+    sample = raw[:_CHARSET_SAMPLE_BYTES]
+    if sample.startswith(b"\xef\xbb\xbf"):
         return "utf-8-sig"
-    if raw.startswith(b"\xff\xfe"):
+    if sample.startswith(b"\xff\xfe"):
         return "utf-16-le"
-    if raw.startswith(b"\xfe\xff"):
+    if sample.startswith(b"\xfe\xff"):
         return "utf-16-be"
 
-    if raw:
-        best_match = from_bytes(raw).best()
+    if sample:
+        best_match = from_bytes(sample).best()
         if best_match and best_match.encoding:
             return best_match.encoding
 
     for encoding in _COMMON_TEXT_ENCODINGS:
         try:
-            raw.decode(encoding)
+            sample.decode(encoding)
             return encoding
         except (UnicodeDecodeError, LookupError):
             continue
