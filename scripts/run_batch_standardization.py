@@ -581,8 +581,6 @@ def _extract_html_download_urls(html_text: str, base_url: str) -> tuple[str, lis
 
     for anchor in soup.find_all("a", href=True):
         href = anchor.get("href")
-        if not href:
-            continue
         absolute_url = urljoin(base_url, unescape(href))
         if _looks_like_supported_download_url(absolute_url):
             urls.add(absolute_url)
