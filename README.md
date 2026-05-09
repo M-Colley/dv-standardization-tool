@@ -60,17 +60,30 @@ If this is your first time using the project, follow these exact steps.
 
 ### 1) Install dependencies
 
+The simplest path uses the requirements files:
+
 ```bash
 python -m venv .venv
-source .venv/bin/activate
+source .venv/bin/activate                  # Windows: .venv\Scripts\activate
 python -m pip install --upgrade pip
 pip install -r requirements-core.txt
 ```
 
-Optional extras:
+Optional extras (still via the requirements files):
 - `pip install -r requirements-core.txt -r requirements-llm.txt` for local LLM deduction
 - `pip install -r requirements-core.txt -r requirements-ui.txt` for the Streamlit UI
 - `pip install -r requirements.txt` for the full environment
+
+**Or** install as a package from the project's `pyproject.toml`. This is
+the preferred path on a fresh machine because it also wires the console
+scripts (`opendv-standardize`, `opendv-batch`, `opendv-analyze`):
+
+```bash
+pip install -e .                  # core only
+pip install -e .[llm]             # + local-LLM alias deduction (transformers, pypdf, ...)
+pip install -e .[ui]              # + Streamlit UI
+pip install -e .[llm,ui,dev]      # everything, including pytest + ruff
+```
 
 ### 2) Put your dataset somewhere simple
 
@@ -186,6 +199,51 @@ To improve local LLM inference quality in practice:
 - keep meaningful column names,
 - optionally include PDFs/manuscripts in the source root (or one level deep) for richer context extraction,
 - optionally add `publication_doi`, `publication_pdf_url`, or `llm_context` to a manifest source entry when the paper metadata lives outside the dataset repository.
+
+### 7) Running on a powerful machine (GPU recommended for LLM mode)
+
+LLM-assisted alias deduction is the heaviest step in the pipeline:
+the first source with unmapped columns triggers a download of the
+preferred local model into `~/.cache/huggingface/hub/`
+(Gemma-4-E4B is ~8 GB on disk). For models in that class, run the
+batch on a Linux/macOS host with a CUDA-capable GPU — the Windows
++ Gemma-4 weight loader is known to segfault during tensor
+materialization.
+
+```bash
+# 1. Clone and install (editable, with LLM extras)
+git clone https://github.com/M-Colley/dv-standardization-tool
+cd dv-standardization-tool
+python -m venv .venv && source .venv/bin/activate
+pip install -e .[llm]
+
+# 2. Authenticate with HuggingFace (Gemma is gated — accept the
+#    license once at https://huggingface.co/google/gemma-4-E4B-it)
+huggingface-cli login
+
+# 3. GPU sanity check
+python -c "import torch; print('CUDA:', torch.cuda.is_available(), '| Device:', torch.cuda.get_device_name(0) if torch.cuda.is_available() else 'CPU')"
+
+# 4. Run the batch with LLM enabled (default)
+python -m scripts.run_batch_standardization \
+  --manifest sources_manifest_no4tu.yaml \
+  --output-dir batch_outputs/llm_run \
+  --snapshot-manifest \
+  --cache-dir batch_outputs/.cache
+```
+
+First-run notes:
+- The model download happens lazily — the runner only loads a model
+  when an unmapped column actually reaches the LLM step.
+- LLM deduction is automatically skipped for `id` / `Timestamp` /
+  YOLO bbox / other admin fields. See
+  `scripts/run_batch_standardization.py:LLM_EXCLUDED_NORMALIZED_COLUMNS`.
+- Override the model priority list per run:
+  `--llm-models google/gemma-2-2b-it,google/gemma-4-E4B-it`
+- For a deterministic schema-only run (no model download, no
+  inference): `--disable-llm-deduction`.
+- `--cache-dir` materializes upstream GitHub/OSF/web sources to disk
+  so subsequent runs reuse the local copy instead of re-cloning.
 
 ### Catalog-driven URL workflow
 

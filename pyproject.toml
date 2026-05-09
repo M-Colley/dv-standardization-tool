@@ -1,6 +1,6 @@
 [build-system]
 requires = ["setuptools>=68.0", "wheel"]
-build-backend = "setuptools.backends._legacy:_Backend"
+build-backend = "setuptools.build_meta"
 
 [project]
 name = "opendv-hci"
@@ -41,8 +41,22 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-llm = ["openai>=1.0", "sentence-transformers>=2.2"]
-ui = ["streamlit>=1.30", "plotly>=5.18"]
+# Aligned with requirements-llm.txt. transformers and pypdf are required by
+# scripts/llm_utils.py (local-LLM alias deduction + PDF context extraction);
+# scikit-learn is already in core deps so it is omitted here.
+llm = [
+    "openai>=2.21",
+    "sentence-transformers>=5.2",
+    "transformers>=5.5",
+    "pypdf>=6.7",
+]
+# Aligned with requirements-ui.txt. matplotlib / seaborn / scikit-learn live
+# in core deps already so they are omitted from this extra.
+ui = [
+    "streamlit>=1.55",
+    "plotly>=6.6",
+    "watchdog>=2.1",
+]
 dev = ["pytest>=8.0", "ruff>=0.4"]
 all = ["opendv-hci[llm,ui,dev]"]
 
