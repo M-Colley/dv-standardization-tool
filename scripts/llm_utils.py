@@ -23,24 +23,14 @@ import yaml
 logger = logging.getLogger(__name__)
 
 DEFAULT_LOCAL_MODEL_CANDIDATES = [
-    "google/gemma-4-31B-it",
-    "google/gemma-4-26B-A4B-it",
     "google/gemma-4-E4B-it",
     "google/gemma-4-E2B-it",
-    "meta-llama/Llama-3.2-3B-Instruct",
-    "Qwen/Qwen2.5-3B-Instruct",
-    "Qwen/Qwen2.5-1.5B-Instruct",
 ]
 
 # Approximate memory recommendations (FP16-ish inference envelope, incl. headroom).
 MODEL_MIN_MEMORY_GB = {
-    "google/gemma-4-31B-it": 62.0,
-    "google/gemma-4-26B-A4B-it": 52.0,
     "google/gemma-4-E4B-it": 18.0,
-    "google/gemma-4-E2B-it": 10.0,
-    "meta-llama/Llama-3.2-3B-Instruct": 8.0,
-    "Qwen/Qwen2.5-3B-Instruct": 8.0,
-    "Qwen/Qwen2.5-1.5B-Instruct": 4.0,
+    "google/gemma-4-E2B-it": 10.0
 }
 CUDA_MEMORY_HEADROOM_FACTOR = 0.9
 
