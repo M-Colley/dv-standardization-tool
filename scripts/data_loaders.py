@@ -75,10 +75,26 @@ def _sniff_format(path: Path) -> str | None:
 # ---------------------------------------------------------------------------
 
 def _detect_encoding(path: Path) -> str:
-    """Detect file encoding, trying chardet then common fallbacks."""
+    """Detect file encoding using charset-normalizer with a BOM fast path.
+
+    The BOM short-circuit returns the canonical ``utf-8-sig`` /
+    ``utf-16-le`` / ``utf-16-be`` labels — charset-normalizer would also
+    detect them, but the labels can vary slightly between releases and
+    pandas treats the explicit ``-sig`` variant specially when reading
+    CSVs (it strips the BOM from the first column header). Keeping the
+    short-circuit guarantees that behaviour.
+
+    For everything else we delegate to ``charset_normalizer.from_bytes``
+    — the actively-maintained successor to ``chardet`` and an existing
+    pandas dependency. ``best()`` returns the highest-confidence match
+    over a sample of the file (32 KiB is enough for almost all real-
+    world CSVs); we coerce ``ascii`` to ``utf-8`` so downstream pandas
+    reads do not surprise us when the file later contains non-ASCII
+    bytes.
+    """
     raw = path.read_bytes()[:32768]
 
-    # BOM detection first
+    # BOM detection first — keep canonical utf-8-sig / utf-16-* labels.
     if raw.startswith(b"\xef\xbb\xbf"):
         return "utf-8-sig"
     if raw.startswith(b"\xff\xfe"):
@@ -86,26 +102,20 @@ def _detect_encoding(path: Path) -> str:
     if raw.startswith(b"\xfe\xff"):
         return "utf-16-be"
 
-    # Try chardet
-    try:
-        import chardet
-        result = chardet.detect(raw)
-        if result and result.get("confidence", 0) > 0.75:
-            encoding = (result.get("encoding") or "utf-8").lower()
-            if encoding == "ascii":
-                return "utf-8"
-            return encoding
-    except ImportError:
-        pass
+    if not raw:
+        return "utf-8"
 
-    # Fallback chain
-    for enc in ("utf-8", "utf-8-sig", "cp1252", "latin-1"):
-        try:
-            raw.decode(enc)
-            return enc
-        except (UnicodeDecodeError, LookupError):
-            continue
-    return "latin-1"
+    from charset_normalizer import from_bytes
+
+    matches = from_bytes(raw)
+    best = matches.best()
+    if best is None:
+        return "utf-8"
+
+    encoding = (best.encoding or "utf-8").lower()
+    if encoding == "ascii":
+        return "utf-8"
+    return encoding
 
 
 def _detect_delimiter(sample: str, prefer: str | None = None) -> str:
