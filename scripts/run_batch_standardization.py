@@ -24,10 +24,10 @@ from datetime import datetime, timezone
 from pathlib import Path
 from tempfile import TemporaryDirectory
 from typing import Any
-from urllib import error as urlerror
 from urllib import request
 from urllib.parse import urlparse
 
+import httpx
 import pandas as pd
 import yaml
 from tqdm import tqdm
@@ -375,16 +375,13 @@ def _materialize_web_dataset_source(location: str, target: Path) -> str:
         payload, headers, final_url = _read_url_response(
             req, timeout=NETWORK_TIMEOUTS["landing_seconds"]
         )
-    except urlerror.HTTPError as exc:
-        if exc.code in (401, 403, 503):
-            try:
-                error_payload = exc.read() or b""
-            except Exception as read_exc:  # noqa: BLE001
-                logger.debug(
-                    "Failed to read challenge response body for %s: %s",
-                    location, read_exc,
-                )
-                error_payload = b""
+    except httpx.HTTPStatusError as exc:
+        if exc.response.status_code in (401, 403, 503):
+            # Some hosts (Cloudflare, IEEE login walls) return the challenge
+            # / login page in the body of a 4xx. Read it through the same
+            # parser/marker pipeline we use for 200-OK landing pages so we
+            # can classify the access failure cleanly.
+            error_payload = exc.response.content or b""
             try:
                 error_html = error_payload.decode("utf-8", errors="replace")
             except Exception as decode_exc:  # noqa: BLE001

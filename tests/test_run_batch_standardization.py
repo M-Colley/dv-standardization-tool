@@ -9,8 +9,8 @@ import unittest
 from unittest import mock
 from pathlib import Path
 from email.message import Message
-from urllib import error as urlerror
 
+import httpx
 import pandas as pd
 import yaml
 
@@ -1617,8 +1617,6 @@ class BatchStandardizationTests(unittest.TestCase):
             ),
             "include_globs": ["**/*.csv"],
         }
-        import urllib.error as urlerror
-
         challenge_html = (
             b"<!DOCTYPE html><html><head><title>Just a moment...</title>"
             b"</head><body>Enable JavaScript and cookies to continue. "
@@ -1626,13 +1624,9 @@ class BatchStandardizationTests(unittest.TestCase):
         )
 
         def _raise_challenge(*_args, **_kwargs):
-            raise urlerror.HTTPError(
-                source["location"],
-                403,
-                "Forbidden",
-                Message(),
-                io.BytesIO(challenge_html),
-            )
+            request = httpx.Request("GET", source["location"])
+            response = httpx.Response(403, content=challenge_html, request=request)
+            raise httpx.HTTPStatusError("Forbidden", request=request, response=response)
 
         with tempfile.TemporaryDirectory() as tmpdir:
             workdir = Path(tmpdir)
@@ -2278,98 +2272,96 @@ class ReadUrlResponseTests(unittest.TestCase):
     """Cover the retry/backoff behaviour of _read_url_response. The function
     used to silently swallow the difference between transient and permanent
     failures; these tests pin the retry contract so future refactors do not
-    regress it."""
+    regress it.
 
-    def _make_http_error(self, code: int) -> "Exception":
-        msg = Message()
-        return urlerror.HTTPError(
-            url="https://example.com",
-            code=code,
-            msg="boom",
-            hdrs=msg,
-            fp=io.BytesIO(b""),
-        )
+    Mocks the ``_execute_http_request`` seam in ``scripts.http_utils`` so
+    they exercise the real tenacity retry controller without going to the
+    network. The same seam is used regardless of which module re-imports
+    ``_read_url_response`` (run_batch_standardization, http_utils direct).
+    """
+
+    def _make_status_error(self, code: int, body: bytes = b"") -> httpx.HTTPStatusError:
+        request = httpx.Request("GET", "https://example.com")
+        response = httpx.Response(code, content=body, request=request)
+        return httpx.HTTPStatusError("boom", request=request, response=response)
+
+    def _make_success(self, content: bytes, final_url: str, **headers: str) -> httpx.Response:
+        request = httpx.Request("GET", final_url)
+        return httpx.Response(200, content=content, headers=headers, request=request)
 
     def test_retries_on_transient_5xx_and_eventually_succeeds(self):
         from scripts.run_batch_standardization import _read_url_response
 
-        responses = [
-            self._make_http_error(503),
-            self._make_http_error(502),
-            mock.MagicMock(),  # success on third attempt
+        outcomes = [
+            self._make_status_error(503),
+            self._make_status_error(502),
+            self._make_success(b"ok", "https://example.com/final", X="y"),
         ]
-        # The success response needs to behave like urlopen()'s context manager.
-        success_resp = responses[2]
-        success_resp.__enter__ = mock.MagicMock(return_value=success_resp)
-        success_resp.__exit__ = mock.MagicMock(return_value=False)
-        success_resp.read.return_value = b"ok"
-        success_resp.headers = {"X": "y"}
-        success_resp.geturl.return_value = "https://example.com/final"
+        call_count = {"n": 0}
 
-        call_args: list = []
-
-        def _fake_urlopen(req, timeout):
-            call_args.append((req, timeout))
-            outcome = responses[len(call_args) - 1]
+        def _fake_execute(*args, **kwargs):
+            outcome = outcomes[call_count["n"]]
+            call_count["n"] += 1
             if isinstance(outcome, Exception):
                 raise outcome
             return outcome
 
-        with mock.patch("scripts.run_batch_standardization.request.urlopen", side_effect=_fake_urlopen):
-            with mock.patch("scripts.run_batch_standardization.time.sleep") as sleep_mock:
+        with mock.patch(
+            "scripts.http_utils._execute_http_request", side_effect=_fake_execute,
+        ):
+            with mock.patch("scripts.http_utils.tenacity.nap.time.sleep") as sleep_mock:
                 payload, headers, final_url = _read_url_response(
                     "https://example.com", timeout=10, max_attempts=4,
                 )
 
         self.assertEqual(payload, b"ok")
         self.assertEqual(final_url, "https://example.com/final")
-        self.assertEqual(len(call_args), 3)
-        # Backoff schedule is 0.75 * (attempt + 1) — two sleeps between the
-        # three attempts.
+        self.assertEqual(call_count["n"], 3)
+        # wait_incrementing schedule: 0.75s before attempt 2, 1.5s before attempt 3.
         self.assertEqual(sleep_mock.call_count, 2)
 
     def test_retries_on_timeout_then_raises_after_max_attempts(self):
         from scripts.run_batch_standardization import _read_url_response
 
         with mock.patch(
-            "scripts.run_batch_standardization.request.urlopen",
-            side_effect=socket.timeout("slow"),
+            "scripts.http_utils._execute_http_request",
+            side_effect=httpx.ConnectTimeout("slow"),
         ):
-            with mock.patch("scripts.run_batch_standardization.time.sleep"):
-                with self.assertRaises(socket.timeout):
+            with mock.patch("scripts.http_utils.tenacity.nap.time.sleep"):
+                with self.assertRaises(httpx.ConnectTimeout):
                     _read_url_response("https://example.com", timeout=1, max_attempts=2)
 
     def test_does_not_retry_on_permanent_404(self):
         from scripts.run_batch_standardization import _read_url_response
 
-        permanent_error = self._make_http_error(404)
+        permanent_error = self._make_status_error(404)
         with mock.patch(
-            "scripts.run_batch_standardization.request.urlopen",
+            "scripts.http_utils._execute_http_request",
             side_effect=permanent_error,
-        ) as urlopen_mock:
-            with mock.patch("scripts.run_batch_standardization.time.sleep") as sleep_mock:
-                with self.assertRaises(urlerror.HTTPError) as ctx:
+        ) as execute_mock:
+            with mock.patch("scripts.http_utils.tenacity.nap.time.sleep") as sleep_mock:
+                with self.assertRaises(httpx.HTTPStatusError) as ctx:
                     _read_url_response("https://example.com", timeout=1, max_attempts=4)
 
-        self.assertEqual(ctx.exception.code, 404)
+        self.assertEqual(ctx.exception.response.status_code, 404)
         # No retry: 4xx responses (other than 429) are permanent errors.
-        self.assertEqual(urlopen_mock.call_count, 1)
+        self.assertEqual(execute_mock.call_count, 1)
         sleep_mock.assert_not_called()
 
     def test_retries_on_429_throttle(self):
         from scripts.run_batch_standardization import _read_url_response
 
-        responses = [self._make_http_error(429), self._make_http_error(429)]
+        outcomes = [self._make_status_error(429), self._make_status_error(429)]
         with mock.patch(
-            "scripts.run_batch_standardization.request.urlopen",
-            side_effect=responses,
-        ) as urlopen_mock:
-            with mock.patch("scripts.run_batch_standardization.time.sleep"):
-                with self.assertRaises(urlerror.HTTPError) as ctx:
+            "scripts.http_utils._execute_http_request",
+            side_effect=outcomes,
+        ) as execute_mock:
+            with mock.patch("scripts.http_utils.tenacity.nap.time.sleep"):
+                with self.assertRaises(httpx.HTTPStatusError) as ctx:
                     _read_url_response("https://example.com", timeout=1, max_attempts=2)
 
-        self.assertEqual(ctx.exception.code, 429)
-        self.assertEqual(urlopen_mock.call_count, 2)
+        self.assertEqual(ctx.exception.response.status_code, 429)
+        self.assertEqual(execute_mock.call_count, 2)
 
     def test_max_attempts_defaults_to_network_timeouts_setting(self):
         from scripts.run_batch_standardization import (
@@ -2384,13 +2376,13 @@ class ReadUrlResponseTests(unittest.TestCase):
         try:
             NETWORK_TIMEOUTS["max_retry_attempts"] = 2
             with mock.patch(
-                "scripts.run_batch_standardization.request.urlopen",
-                side_effect=socket.timeout("slow"),
-            ) as urlopen_mock:
-                with mock.patch("scripts.run_batch_standardization.time.sleep"):
-                    with self.assertRaises(socket.timeout):
+                "scripts.http_utils._execute_http_request",
+                side_effect=httpx.ConnectTimeout("slow"),
+            ) as execute_mock:
+                with mock.patch("scripts.http_utils.tenacity.nap.time.sleep"):
+                    with self.assertRaises(httpx.ConnectTimeout):
                         _read_url_response("https://example.com", timeout=1)
-            self.assertEqual(urlopen_mock.call_count, 2)
+            self.assertEqual(execute_mock.call_count, 2)
         finally:
             NETWORK_TIMEOUTS["max_retry_attempts"] = original
 
@@ -2455,13 +2447,9 @@ class WebDatasetChallengeTests(unittest.TestCase):
             b"<html><head><title>Just a moment...</title></head>"
             b"<body>cf-mitigated</body></html>"
         )
-        http_error = urlerror.HTTPError(
-            url="https://dl.acm.org/doi/10.1145/x",
-            code=403,
-            msg="Forbidden",
-            hdrs=Message(),
-            fp=io.BytesIO(challenge_html),
-        )
+        request = httpx.Request("GET", "https://dl.acm.org/doi/10.1145/x")
+        response = httpx.Response(403, content=challenge_html, request=request)
+        http_error = httpx.HTTPStatusError("Forbidden", request=request, response=response)
 
         with tempfile.TemporaryDirectory() as tmpdir:
             target = Path(tmpdir)

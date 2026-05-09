@@ -15,8 +15,9 @@ import re
 from functools import lru_cache
 from pathlib import Path
 from typing import Any, Iterable
-from urllib import request
+from urllib.parse import urljoin
 
+import httpx
 import yaml
 
 logger = logging.getLogger(__name__)
@@ -508,17 +509,15 @@ def _extract_dois(text: str) -> list[str]:
 
 
 def _http_get(url: str, timeout_s: int = DEFAULT_HTTP_TIMEOUT_S) -> tuple[bytes, str]:
-    req = request.Request(
-        url,
-        headers={
-            "User-Agent": "OpenDV-HCI/1.0 (+https://github.com)",
-            "Accept": "text/html,application/pdf;q=0.9,*/*;q=0.8",
-        },
-    )
-    with request.urlopen(req, timeout=timeout_s) as resp:
-        content_type = resp.headers.get("Content-Type", "")
-        payload = resp.read()
-    return payload, content_type
+    headers = {
+        "User-Agent": "OpenDV-HCI/1.0 (+https://github.com)",
+        "Accept": "text/html,application/pdf;q=0.9,*/*;q=0.8",
+    }
+    with httpx.Client(timeout=timeout_s, follow_redirects=True) as client:
+        response = client.get(url, headers=headers)
+        response.raise_for_status()
+        content_type = response.headers.get("Content-Type", "")
+        return response.content, content_type
 
 
 def _resolve_pdf_url(base_url: str, href: str) -> str:
@@ -526,7 +525,7 @@ def _resolve_pdf_url(base_url: str, href: str) -> str:
         return href
     if href.startswith("//"):
         return f"https:{href}"
-    return request.urljoin(base_url, href)
+    return urljoin(base_url, href)
 
 
 def _fetch_pdf_text_from_url(url: str, max_chars: int = 3000) -> str:

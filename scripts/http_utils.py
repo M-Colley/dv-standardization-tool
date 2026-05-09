@@ -5,16 +5,18 @@ parser used to scrape dataset download links, the Cloudflare/login
 challenge detector, and the small bag of constants (timeouts, hosts,
 markers) that drive them.
 
-Like ``scripts.archive_utils`` this module is deliberately stdlib-only so
-it can be imported and unit-tested without paying the cost of
-``run_batch_standardization``'s pandas/transformers initialisation.
+Built on httpx (HTTP client + async-friendly headers/Response API),
+tenacity (retry decorator), and BeautifulSoup (lenient HTML parsing) —
+all of which are already declared in ``pyproject.toml``. The module
+deliberately avoids pandas / transformers so it can be imported and
+unit-tested without paying their initialisation cost.
 ``run_batch_standardization`` re-exports every public name (constants,
 classes, helpers) so existing tests and callers continue to work.
 
 Security / robustness notes:
 
-* ``_read_url_response`` retries timeouts, 429s, and 5xx errors with a
-  linear-backoff sleep, but never retries 4xx (other than 429). The
+* ``_read_url_response`` retries timeouts, network errors, 429s, and
+  5xx with a linear-backoff sleep, but never retries other 4xx. The
   retry count and per-call timeout default to ``NETWORK_TIMEOUTS`` —
   centralised here so corporate-network operators have a single dial.
 * ``_normalize_remote_filename`` strips path components and forbids any
@@ -28,18 +30,18 @@ Security / robustness notes:
 
 from __future__ import annotations
 
+import email.message
 import json
 import logging
 import re
-import socket
-import time
 from html import unescape
-from html.parser import HTMLParser
 from pathlib import Path
 from typing import Any
-from urllib import error as urlerror
-from urllib import request
 from urllib.parse import unquote, urljoin, urlparse
+
+import httpx
+import tenacity
+from bs4 import BeautifulSoup
 
 from scripts.archive_utils import ARCHIVE_SUFFIXES, DATA_FILE_SUFFIXES, MAPPING_SUFFIXES
 
@@ -131,17 +133,22 @@ class SourceAccessError(RuntimeError):
 # Landing page HTML parser
 # ---------------------------------------------------------------------------
 
-class _LandingPageParser(HTMLParser):
-    """Minimal HTML parser that captures ``<title>``, ``<a href=...>``, and
+class _LandingPageParser:
+    """Lenient HTML scraper that captures ``<title>``, ``<a href=...>``, and
     ``<script type="application/ld+json">`` payloads from a dataset landing
-    page. Stateful — instantiate one per page.
+    page.
+
+    Backed by BeautifulSoup so malformed pages (mismatched tags, comment-
+    soup landing pages from old CMS templates) parse without crashing the
+    runner. Stateful — instantiate one per page, then call ``feed(html)``
+    to populate ``title_parts`` / ``links`` / ``ldjson_blocks``.
+
+    The ``feed()`` interface is preserved from the previous
+    ``html.parser.HTMLParser`` subclass so existing call-sites do not need
+    to change.
     """
 
     def __init__(self) -> None:
-        super().__init__()
-        self._in_title = False
-        self._capture_ldjson = False
-        self._current_ldjson: list[str] = []
         self.title_parts: list[str] = []
         self.links: list[str] = []
         self.ldjson_blocks: list[str] = []
@@ -150,33 +157,29 @@ class _LandingPageParser(HTMLParser):
     def title(self) -> str:
         return "".join(self.title_parts).strip()
 
-    def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
-        attr_map = dict(attrs)
-        if tag.lower() == "title":
-            self._in_title = True
-        if tag.lower() == "a":
-            href = attr_map.get("href")
-            if href:
-                self.links.append(href)
-        if tag.lower() == "script" and "ld+json" in str(attr_map.get("type", "")).lower():
-            self._capture_ldjson = True
-            self._current_ldjson = []
+    def feed(self, html_text: str) -> None:
+        # ``html.parser`` is the stdlib backend — no extra system deps. lxml
+        # would be faster but pulls in a C extension we do not need here.
+        soup = BeautifulSoup(html_text, "html.parser")
 
-    def handle_endtag(self, tag: str) -> None:
-        if tag.lower() == "title":
-            self._in_title = False
-        if tag.lower() == "script" and self._capture_ldjson:
-            block = "".join(self._current_ldjson).strip()
+        title_tag = soup.find("title")
+        if title_tag is not None:
+            text = title_tag.get_text()
+            if text:
+                self.title_parts.append(text)
+
+        for anchor in soup.find_all("a", href=True):
+            href = anchor.get("href")
+            if href:
+                self.links.append(str(href))
+
+        for script in soup.find_all("script"):
+            type_attr = str(script.get("type") or "").lower()
+            if "ld+json" not in type_attr:
+                continue
+            block = (script.string or script.get_text() or "").strip()
             if block:
                 self.ldjson_blocks.append(block)
-            self._capture_ldjson = False
-            self._current_ldjson = []
-
-    def handle_data(self, data: str) -> None:
-        if self._in_title:
-            self.title_parts.append(data)
-        if self._capture_ldjson:
-            self._current_ldjson.append(data)
 
 
 # ---------------------------------------------------------------------------
@@ -281,43 +284,115 @@ def _is_supported_download_response(final_url: str, headers: Any) -> bool:
 # URL fetch with retry/backoff
 # ---------------------------------------------------------------------------
 
+def _is_transient_error(exc: BaseException) -> bool:
+    """Predicate used by tenacity to decide whether to retry an HTTP failure.
+
+    Retries:
+        * httpx timeouts (connect/read/write/pool)
+        * httpx network / protocol errors (DNS failure, connection drop)
+        * HTTP 429 (rate-limit) and 5xx server errors
+    Does NOT retry:
+        * 4xx other than 429 (permanent — auth, missing resource, bad URL)
+        * Non-HTTP exceptions (programmer error, signal, etc.)
+    """
+    if isinstance(exc, (httpx.TimeoutException, httpx.NetworkError, httpx.RemoteProtocolError)):
+        return True
+    if isinstance(exc, httpx.HTTPStatusError):
+        code = exc.response.status_code
+        return code == 429 or 500 <= code < 600
+    return False
+
+
+def _coerce_to_httpx_request(url_or_request: Any) -> tuple[str, dict[str, str], bytes | None, str]:
+    """Translate a string URL or stdlib ``urllib.request.Request`` into the
+    primitives ``httpx.Client.request`` needs.
+
+    Kept for backwards compatibility with callers that still pass a
+    ``urllib.request.Request`` (they do so to inject custom User-Agent /
+    Accept headers). Newer call-sites can pass a plain string URL.
+    """
+    from urllib.request import Request as _UrllibRequest  # local import — old API only
+    if isinstance(url_or_request, _UrllibRequest):
+        method = url_or_request.get_method() or "GET"
+        return (
+            url_or_request.full_url,
+            dict(url_or_request.header_items()),
+            url_or_request.data,
+            method,
+        )
+    return str(url_or_request), {}, None, "GET"
+
+
+def _httpx_headers_to_message(headers: httpx.Headers) -> email.message.Message:
+    """Wrap httpx headers in an ``email.message.Message`` so callers using
+    ``.get_content_type()`` / ``.get_content_charset()`` / ``["X"]`` keep
+    working. Cheaper than building a dedicated adapter and exactly matches
+    the stdlib API the original urllib-based code returned."""
+    msg = email.message.Message()
+    for key, value in headers.items():
+        msg[key] = value
+    return msg
+
+
+def _execute_http_request(
+    url: str,
+    headers: dict[str, str],
+    body: bytes | None,
+    method: str,
+    timeout: float,
+) -> httpx.Response:
+    """Single seam for tests to patch. Performs ONE HTTP call without retry.
+
+    Tests can monkey-patch ``scripts.http_utils._execute_http_request`` to
+    inject canned ``httpx.Response`` objects or raise httpx exceptions
+    without having to mock the underlying transport stack.
+    """
+    with httpx.Client(timeout=timeout, follow_redirects=True) as client:
+        response = client.request(method, url, headers=headers, content=body)
+        # Convert 4xx/5xx into HTTPStatusError so the retry predicate can see
+        # them; consumers that want the raw response on error catch
+        # HTTPStatusError and read .response.
+        response.raise_for_status()
+        return response
+
+
 def _read_url_response(
     url_or_request: Any,
     timeout: int,
     max_attempts: int | None = None,
-) -> tuple[bytes, Any, str]:
+) -> tuple[bytes, email.message.Message, str]:
     """Fetch a URL with linear-backoff retry on transient failures.
 
-    Returns ``(body_bytes, headers, final_url)``. Retries timeouts, 429,
-    and 5xx; never retries other 4xx. ``max_attempts`` defaults to
-    ``NETWORK_TIMEOUTS["max_retry_attempts"]`` so callers can override per
-    request without leaking the constant.
+    Returns ``(body_bytes, headers, final_url)``. ``headers`` is an
+    ``email.message.Message`` for parity with the previous urllib-based
+    contract — callers may use ``.get("X")``, ``.get_content_type()``, and
+    ``.get_content_charset()``. Raises ``httpx.HTTPStatusError`` on
+    permanent HTTP errors (4xx other than 429).
+
+    ``max_attempts`` defaults to ``NETWORK_TIMEOUTS["max_retry_attempts"]``
+    so the central tuning knob applies to every caller.
     """
     if max_attempts is None:
         max_attempts = int(NETWORK_TIMEOUTS["max_retry_attempts"])
-    for attempt in range(max_attempts):
-        try:
-            with request.urlopen(url_or_request, timeout=timeout) as resp:
-                return resp.read(), resp.headers, resp.geturl()
-        except Exception as exc:  # noqa: BLE001
-            is_timeout = isinstance(exc, (TimeoutError, socket.timeout))
-            if isinstance(exc, urlerror.URLError):
-                is_timeout = is_timeout or isinstance(exc.reason, socket.timeout)
-            is_transient_http = (
-                isinstance(exc, urlerror.HTTPError)
-                and (exc.code == 429 or 500 <= exc.code < 600)
-            )
-            if attempt == max_attempts - 1 or not (is_timeout or is_transient_http):
-                logger.debug(
-                    "URL request failed permanently after %d attempt(s): %s",
-                    attempt + 1, exc,
-                )
-                raise
-            logger.debug(
-                "URL request transient failure on attempt %d/%d: %s",
-                attempt + 1, max_attempts, exc,
-            )
-            time.sleep(0.75 * (attempt + 1))
+
+    url, headers, body, method = _coerce_to_httpx_request(url_or_request)
+
+    # Build the Retrying controller per call so it picks up the runtime
+    # max_attempts. wait_incrementing(start=0.75, increment=0.75) reproduces
+    # the previous schedule exactly: sleep 0.75s before attempt 2, 1.5s
+    # before attempt 3, etc.
+    retrying = tenacity.Retrying(
+        stop=tenacity.stop_after_attempt(max_attempts),
+        wait=tenacity.wait_incrementing(start=0.75, increment=0.75),
+        retry=tenacity.retry_if_exception(_is_transient_error),
+        before_sleep=tenacity.before_sleep_log(logger, logging.DEBUG),
+        reraise=True,
+    )
+
+    response: httpx.Response = retrying(
+        _execute_http_request, url, headers, body, method, timeout,
+    )
+    return response.content, _httpx_headers_to_message(response.headers), str(response.url)
 
 
 def _read_url_bytes(
@@ -501,4 +576,7 @@ __all__ = [
     "_looks_like_challenge_response",
     "_build_web_dataset_access_error",
     "_write_download_payload",
+    # internal seams (exported for tests)
+    "_execute_http_request",
+    "_is_transient_error",
 ]

@@ -12,13 +12,13 @@ orchestrator.
 
 from __future__ import annotations
 
-import socket
 import unittest
 from email.message import Message
 from pathlib import Path
 from tempfile import TemporaryDirectory
 from unittest import mock
-from urllib import error as urlerror
+
+import httpx
 
 from scripts.http_utils import (
     HTTP_USER_AGENT,
@@ -237,11 +237,13 @@ class ReadUrlResponseDirectImportTests(unittest.TestCase):
 
         def boom(*args, **kwargs):
             attempts.append(1)
-            raise socket.timeout("simulated")
+            raise httpx.ConnectTimeout("simulated")
 
-        with mock.patch("scripts.http_utils.request.urlopen", side_effect=boom):
-            with self.assertRaises(socket.timeout):
-                _read_url_response("https://x", timeout=1, max_attempts=None)
+        with mock.patch("scripts.http_utils._execute_http_request", side_effect=boom):
+            # Suppress the actual sleep between retries so the test runs fast.
+            with mock.patch("scripts.http_utils.tenacity.nap.time.sleep"):
+                with self.assertRaises(httpx.ConnectTimeout):
+                    _read_url_response("https://x", timeout=1, max_attempts=None)
 
         self.assertEqual(len(attempts), int(NETWORK_TIMEOUTS["max_retry_attempts"]))
 
