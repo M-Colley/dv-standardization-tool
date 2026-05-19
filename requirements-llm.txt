@@ -1,5 +1,6 @@
-openai>=2.21.0
+openai>=2.37.0
 sentence-transformers>=5.4.1
-transformers>=5.8.0
+transformers>=5.8.1
+accelerate>=1.0.0
 pypdf>=6.11.0
 scikit-learn>=1.8.0

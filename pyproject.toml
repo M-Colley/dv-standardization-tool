@@ -8,7 +8,7 @@ version = "3.0.0"
 description = "Schema-driven standardization and meta-analysis of dependent variables in HCI research"
 readme = "README.md"
 license = {text = "MIT"}
-requires-python = ">=3.11"
+requires-python = ">=3.12"
 authors = [
     {name = "Mark Colley"},
 ]
@@ -17,14 +17,13 @@ classifiers = [
     "Development Status :: 4 - Beta",
     "Intended Audience :: Science/Research",
     "Topic :: Scientific/Engineering",
-    "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
 ]
 dependencies = [
-    "pandas>=2.1",
-    "numpy>=1.26",
-    "scipy>=1.12",
+    "pandas>=2.3",
+    "numpy>=2.4",
+    "scipy>=1.14",
     "pyyaml>=6.0",
     "tqdm>=4.66",
     "openpyxl>=3.1",
@@ -34,10 +33,10 @@ dependencies = [
     "tenacity>=9.1",
     "beautifulsoup4>=4.13",
     "charset-normalizer>=3.4",
-    "matplotlib>=3.8",
+    "matplotlib>=3.10",
     "seaborn>=0.13",
-    "scikit-learn>=1.4",
-    "lingam>=1.8",
+    "scikit-learn>=1.7",
+    "lingam>=1.12",
 ]
 
 [project.optional-dependencies]
@@ -45,9 +44,10 @@ dependencies = [
 # scripts/llm_utils.py (local-LLM alias deduction + PDF context extraction);
 # scikit-learn is already in core deps so it is omitted here.
 llm = [
-    "openai>=2.21",
+    "openai>=2.31",
     "sentence-transformers>=5.2",
-    "transformers>=5.5",
+    "transformers>=5.8",
+    "accelerate>=1.0",
     "pypdf>=6.7",
 ]
 # Aligned with requirements-ui.txt. matplotlib / seaborn / scikit-learn live
@@ -57,7 +57,7 @@ ui = [
     "plotly>=6.6",
     "watchdog>=2.1",
 ]
-dev = ["pytest>=8.0", "ruff>=0.4"]
+dev = ["pytest>=9.0", "ruff>=0.4"]
 all = ["opendv-hci[llm,ui,dev]"]
 
 [project.urls]

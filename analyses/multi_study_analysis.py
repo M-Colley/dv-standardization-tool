@@ -46,6 +46,7 @@ META_ANALYSIS_COLUMNS = [
     "dv",
     "k_studies",
     "study_coverage_pct",
+    "pooling_method",
     "random_effects_mean",
     "random_effects_se",
     "ci95_low",
@@ -55,6 +56,7 @@ META_ANALYSIS_COLUMNS = [
     "heterogeneity_q",
     "q_pvalue",
     "heterogeneity_i2_pct",
+    "heterogeneity_warning",
     "tau2",
     "tau",
     "h2",
@@ -63,6 +65,11 @@ META_ANALYSIS_COLUMNS = [
     "k_llm_deduced",
     "includes_llm_deduced",
 ]
+# DerSimonian-Laird tau² is unstable at k=2 — fall back to a fixed-effects
+# estimate so the pooled mean is at least well-defined. The result is still
+# emitted (so the DV doesn't silently vanish), just flagged.
+MIN_K_FOR_RANDOM_EFFECTS = 3
+HIGH_HETEROGENEITY_I2_THRESHOLD = 75.0
 STANDARDIZED_EFFECTS_COLUMNS = [
     "study", "dv", "cohens_d", "hedges_g", "var_g", "se_g", "mapping_source",
 ]
@@ -922,26 +929,39 @@ def _run_meta_for_dv(
     q = float(np.sum(w_fixed * np.square(means - fixed_mean)))
     df_q = k - 1
 
-    # Tau-squared
-    if estimator == "REML":
-        tau2 = _estimate_tau2_reml(means, variances)
+    # Tau-squared and pooling. At k < MIN_K_FOR_RANDOM_EFFECTS, DL/REML are
+    # unstable, so we report a fixed-effects pooled estimate and flag the
+    # method explicitly. The DV is still kept so downstream readers see the
+    # coverage; they can filter on pooling_method if they want only RE rows.
+    if k < MIN_K_FOR_RANDOM_EFFECTS:
+        tau2 = 0.0
+        pooling_method = f"fixed_effects_k_lt_{MIN_K_FOR_RANDOM_EFFECTS}"
+        random_mean = float(fixed_mean)
+        random_se = float(np.sqrt(1.0 / np.sum(w_fixed)))
     else:
-        c = np.sum(w_fixed) - (np.sum(np.square(w_fixed)) / np.sum(w_fixed))
-        tau2 = max(0.0, (q - df_q) / c) if c > 0 else 0.0
-
-    # Random-effects pooling
-    w_random = 1.0 / (variances + tau2)
-    random_mean = float(np.sum(w_random * means) / np.sum(w_random))
-    random_se = float(np.sqrt(1.0 / np.sum(w_random)))
+        if estimator == "REML":
+            tau2 = _estimate_tau2_reml(means, variances)
+        else:
+            c = np.sum(w_fixed) - (np.sum(np.square(w_fixed)) / np.sum(w_fixed))
+            tau2 = max(0.0, (q - df_q) / c) if c > 0 else 0.0
+        pooling_method = "random_effects"
+        w_random = 1.0 / (variances + tau2)
+        random_mean = float(np.sum(w_random * means) / np.sum(w_random))
+        random_se = float(np.sqrt(1.0 / np.sum(w_random)))
 
     # Heterogeneity
     i2 = max(0.0, (q - df_q) / q) * 100 if q > 0 else 0.0
     q_pvalue = float(stats.chi2.sf(q, df_q)) if df_q > 0 else np.nan
     h2 = q / df_q if df_q > 0 else np.nan
     tau = np.sqrt(tau2)
+    heterogeneity_warning = (
+        f"i2_exceeds_{HIGH_HETEROGENEITY_I2_THRESHOLD:g}pct"
+        if i2 > HIGH_HETEROGENEITY_I2_THRESHOLD
+        else ""
+    )
 
-    # Prediction interval (requires k >= 3)
-    if k >= 3:
+    # Prediction interval (requires k >= 3 and random-effects pooling)
+    if k >= 3 and pooling_method == "random_effects":
         t_crit = float(stats.t.ppf(0.975, k - 2))
         pi_half = t_crit * np.sqrt(tau2 + random_se ** 2)
         pi_low = random_mean - pi_half
@@ -968,6 +988,7 @@ def _run_meta_for_dv(
             if total_studies and total_studies > 0
             else np.nan
         ),
+        "pooling_method": pooling_method,
         "random_effects_mean": random_mean,
         "random_effects_se": random_se,
         "ci95_low": random_mean - 1.96 * random_se,
@@ -977,6 +998,7 @@ def _run_meta_for_dv(
         "heterogeneity_q": q,
         "q_pvalue": q_pvalue,
         "heterogeneity_i2_pct": i2,
+        "heterogeneity_warning": heterogeneity_warning,
         "tau2": tau2,
         "tau": tau,
         "h2": h2,
@@ -1952,7 +1974,7 @@ _lingam_logger = logging.getLogger(__name__ + ".lingam")
 def discover_causal_structure(
     studies: Dict[str, pd.DataFrame],
     min_shared_studies: int = 2,
-    min_rows: int = 30,
+    min_rows: int = 200,
     refuse_synthetic: bool = False,
 ) -> dict | None:
     """Discover causal ordering among shared DVs using DirectLiNGAM.
@@ -2560,6 +2582,15 @@ def main() -> None:
             "sufficient; otherwise the pass is skipped."
         ),
     )
+    parser.add_argument(
+        "--causal-min-rows",
+        type=int,
+        default=200,
+        help=(
+            "Minimum complete-case rows required to run LiNGAM. Defaults to "
+            "200; lower values produce noisier edges and should be justified."
+        ),
+    )
     args = parser.parse_args()
 
     input_dir = Path(args.input_dir)
@@ -2778,6 +2809,7 @@ def main() -> None:
     try:
         causal_result = discover_causal_structure(
             studies,
+            min_rows=args.causal_min_rows,
             refuse_synthetic=args.refuse_synthetic_causal,
         )
         if causal_result is not None:

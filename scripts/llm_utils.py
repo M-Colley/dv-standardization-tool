@@ -764,22 +764,80 @@ def deduce_standard_name_with_local_llm(
     for model_name in model_list:
         try:
             generator = _get_text_generation_pipeline(model_name)
-            output = generator(prompt, max_new_tokens=24, do_sample=False)
+            tokenizer = getattr(generator, "tokenizer", None)
+            chat_template = getattr(tokenizer, "chat_template", None) if tokenizer else None
+            if chat_template:
+                model_input = tokenizer.apply_chat_template(
+                    [{"role": "user", "content": prompt}],
+                    add_generation_prompt=True,
+                    tokenize=False,
+                )
+            else:
+                model_input = prompt
+            output = generator(
+                model_input,
+                max_new_tokens=64,
+                do_sample=False,
+                return_full_text=False,
+            )
             text = output[0].get("generated_text", "")
-        except Exception:
+        except Exception as exc:  # noqa: BLE001
+            logger.debug("LLM deduction failed for model '%s': %s", model_name, exc)
             continue
 
-        tail = text[len(prompt):].strip() if text.startswith(prompt) else text.strip()
-        answer = tail.splitlines()[0].strip().strip("` ")
-
-        if answer in candidates:
+        answer = _extract_candidate_from_llm_output(text, candidates)
+        if answer:
+            logger.debug(
+                "LLM deduction: '%s' -> '%s' (model=%s, raw=%r)",
+                raw_column_name, answer, model_name, text[:120],
+            )
             return answer
+        logger.debug(
+            "LLM deduction produced no matching candidate for '%s' (model=%s, raw=%r)",
+            raw_column_name, model_name, text[:160],
+        )
 
-        lowered_map = {c.lower(): c for c in candidates}
-        normalized = re.sub(r"[^a-z0-9_]+", "", answer.lower())
-        for key, original in lowered_map.items():
-            if normalized == re.sub(r"[^a-z0-9_]+", "", key):
-                return original
+    return None
+
+
+def _extract_candidate_from_llm_output(text: str, candidates: list[str]) -> str | None:
+    """Find the best candidate ID inside an LLM response.
+
+    Models often wrap the answer ("Best match: `trust_rating`", "The answer is
+    trust_rating because..."), so substring search beats first-line equality.
+    When several candidates appear, prefer the longest match — it is the most
+    specific and least likely to be a token-overlap artefact (e.g. ``trust`` vs
+    ``trust_rating``).
+    """
+    if not text:
+        return None
+
+    body = text.strip()
+    if not body:
+        return None
+
+    body_lower = body.lower()
+    matches: list[tuple[int, str]] = []
+    for candidate in candidates:
+        needle = candidate.lower()
+        if not needle:
+            continue
+        position = body_lower.find(needle)
+        if position != -1:
+            matches.append((len(candidate), candidate))
+
+    if matches:
+        matches.sort(key=lambda item: (-item[0], item[1]))
+        return matches[0][1]
+
+    first_line = body.splitlines()[0].strip().strip("` ")
+    if first_line in candidates:
+        return first_line
+
+    normalized_answer = re.sub(r"[^a-z0-9_]+", "", first_line.lower())
+    for candidate in candidates:
+        if normalized_answer == re.sub(r"[^a-z0-9_]+", "", candidate.lower()):
+            return candidate
 
     return None
 

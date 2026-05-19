@@ -131,6 +131,7 @@ from scripts.convert_dv import (
     load_schema,
     save_output_file,
     standardize_columns,
+    strip_duplicate_suffix,
 )
 from scripts.llm_utils import collect_repository_context, deduce_standard_name_with_local_llm
 # llm_coordinator owns the alias-scoring, candidate-shortlisting, and
@@ -729,8 +730,13 @@ def discover_source_files(
 
 def _load_any_table(path: Path) -> pd.DataFrame:
     if path.suffix.lower() == ".tsv":
-        return pd.read_csv(path, sep="\t")
-    return load_input_file(str(path))
+        df = pd.read_csv(path, sep="\t")
+    else:
+        df = load_input_file(str(path))
+    # Strip whitespace from headers — many real CSVs have " scenario", "id ",
+    # etc. and the schema mapping is whitespace-sensitive.
+    df.columns = [str(col).strip() for col in df.columns]
+    return df
 
 def _shorten_artifact_prefix(prefix: str, max_length: int) -> str:
     if len(prefix) <= max_length:
@@ -791,7 +797,19 @@ def _resolve_repository_mapping_path(
     if requested_mapping_path:
         candidate = Path(requested_mapping_path).expanduser()
         if not candidate.is_absolute():
-            candidate = (source_root / candidate).resolve()
+            source_relative = (source_root / candidate).resolve()
+            if source_relative.exists() and source_relative.is_file():
+                return source_relative
+            repo_relative = (REPO_ROOT / candidate).resolve()
+            if repo_relative.exists() and repo_relative.is_file():
+                logger.debug(
+                    "mapping_path '%s' not found relative to source root; resolved via project root: %s",
+                    requested_mapping_path, repo_relative,
+                )
+                return repo_relative
+            raise FileNotFoundError(
+                f"Requested mapping_path does not exist: tried '{source_relative}' and '{repo_relative}'"
+            )
         else:
             candidate = candidate.resolve()
         if not candidate.exists() or not candidate.is_file():
@@ -886,10 +904,24 @@ def _summarize_dataset(
     }
 
     records: list[dict[str, Any]] = []
-    for canonical_dv in standardized_df.columns:
-        series = standardized_df[canonical_dv]
-        aliases = original_lookup.get(canonical_dv, [canonical_dv])
-        original_alias = aliases[0] if aliases else canonical_dv
+    # When ``standardize_columns`` suffixed duplicate canonicals (e.g.
+    # ``trust_rating__dup_2``) we still want to record the base canonical so
+    # meta-view rows pool as the same construct. We walk the columns by
+    # position because pandas indexing on a duplicate name returns a frame.
+    position_by_base: dict[str, int] = {}
+    for column_position, suffixed_canonical in enumerate(standardized_df.columns):
+        base_canonical = strip_duplicate_suffix(str(suffixed_canonical))
+        idx_in_base = position_by_base.get(base_canonical, 0)
+        position_by_base[base_canonical] = idx_in_base + 1
+
+        series = standardized_df.iloc[:, column_position]
+        aliases = original_lookup.get(base_canonical, [base_canonical])
+        if 0 <= idx_in_base < len(aliases):
+            original_alias = aliases[idx_in_base]
+        elif aliases:
+            original_alias = aliases[-1]
+        else:
+            original_alias = base_canonical
         mapping_record = debug_lookup.get(str(original_alias), {})
         numeric_series = pd.to_numeric(series, errors="coerce")
 
@@ -898,7 +930,7 @@ def _summarize_dataset(
                 "source_id": source_id,
                 "dataset_id": dataset_id,
                 "dataset_type": dataset_type,
-                "canonical_dv": canonical_dv,
+                "canonical_dv": base_canonical,
                 "original_alias": original_alias,
                 "mapping_domain": mapping_record.get("mapping_domain"),
                 "mapping_method": mapping_record.get("mapping_method"),
@@ -908,8 +940,8 @@ def _summarize_dataset(
                 "n": int(numeric_series.notna().sum()),
                 "mean": float(numeric_series.mean()) if numeric_series.notna().any() else None,
                 "sd": float(numeric_series.std(ddof=1)) if numeric_series.notna().sum() > 1 else None,
-                "review_flag": canonical_dv in unknown_columns,
-                "mapping_confidence": "high" if canonical_dv not in unknown_columns else "unknown_alias",
+                "review_flag": base_canonical in unknown_columns,
+                "mapping_confidence": "high" if base_canonical not in unknown_columns else "unknown_alias",
                 **provenance,
             }
         )
@@ -1448,25 +1480,14 @@ def run_batch(
                                 f,
                                 indent=2,
                             )
-                        # --debug-mappings deliberately routes these traces
-                        # through logger.info so they survive in run logs even
-                        # when the user is not watching the terminal live.
-                        logger.info(
+                        # Per-row traces are already persisted to the
+                        # per-dataset JSON above; only emit a single debug
+                        # breadcrumb here so stdout stays readable on large
+                        # batches.
+                        logger.debug(
                             "[DEBUG] Mapping trace (%s/%s) -> %s",
                             source_id, dataset_id, debug_path,
                         )
-                        for row in mapping_debug_records:
-                            mapping_source_label = (
-                                row["mapping_source"] if row["mapping_source"] is not None else "n/a"
-                            )
-                            logger.info(
-                                "[DEBUG]   %s -> %s (%s / %s from %s)",
-                                row["original_column"],
-                                row["mapped_column"],
-                                row["mapping_method"],
-                                row["mapping_domain"],
-                                mapping_source_label,
-                            )
 
                     standardized_df = standardize_columns(original_df.copy(), dataset_mapping)
                     if destination.suffix.lower() == ".tsv":

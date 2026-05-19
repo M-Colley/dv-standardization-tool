@@ -435,25 +435,47 @@ def _augment_mapping_with_fuzzy(
     return augmented
 
 
+DUPLICATE_COLUMN_SUFFIX = "__dup_"
+
+
 def standardize_columns(df: pd.DataFrame, mapping: Dict) -> pd.DataFrame:
-    """
-    Rename DataFrame columns using the alias mapping.
+    """Rename DataFrame columns using the alias mapping.
 
-    Args:
-        df: Input DataFrame with raw column names
-        mapping: Alias -> standard name dictionary
-
-    Returns:
-        DataFrame with standardized column names
+    When several raw columns map to the same canonical (common when LLM
+    deduction collapses item-level columns like ``Trust1``/``Trust2`` into
+    ``trust_rating``), the second and subsequent occurrences are suffixed
+    with ``__dup_N`` so the DataFrame retains unique column names. Downstream
+    summarization strips this suffix when emitting the canonical DV name so
+    pooling still treats them as the same construct.
     """
-    new_columns = []
+    new_columns: List[str] = []
+    seen_counts: Dict[str, int] = {}
     for col in df.columns:
         mapped_col = mapping.get(col)
         if mapped_col is None and isinstance(col, str):
             mapped_col = mapping.get(col.lower())
-        new_columns.append(mapped_col or col)  # Default to original if not found
+        target = mapped_col or col
+        count = seen_counts.get(target, 0)
+        if count == 0:
+            new_columns.append(target)
+        else:
+            new_columns.append(f"{target}{DUPLICATE_COLUMN_SUFFIX}{count + 1}")
+        seen_counts[target] = count + 1
     df.columns = new_columns
     return df
+
+
+def strip_duplicate_suffix(column_name: str) -> str:
+    """Remove the ``__dup_N`` suffix used by :func:`standardize_columns`."""
+    if not isinstance(column_name, str):
+        return column_name
+    idx = column_name.rfind(DUPLICATE_COLUMN_SUFFIX)
+    if idx == -1:
+        return column_name
+    tail = column_name[idx + len(DUPLICATE_COLUMN_SUFFIX):]
+    if tail.isdigit():
+        return column_name[:idx]
+    return column_name
 
 
 def build_original_column_lookup(df: pd.DataFrame, mapping: Dict) -> Dict[str, list]:
