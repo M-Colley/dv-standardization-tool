@@ -1,0 +1,77 @@
+# Source-specific column mapping for running_into_traffic (Zenodo 18344381)
+# Paper: Al-Taie, Goodge, Macdonald, Oakley, Brewster (CHI 2026).
+#   "Running into Traffic: Investigating External Human-Machine Interfaces for
+#    Automated Vehicle-Runner Interaction." DOI 10.1145/3772318.3790401
+#
+# Two CSVs are shipped:
+#   running_questionnaire.csv — per-trial Likert/NASA-TLX/UEQ-S responses
+#   running_ranking.csv       — per-participant condition rankings (separate analysis)
+#
+# This mapping handles running_questionnaire.csv. The ranking file's columns
+# encode condition rankings (e.g. "Overall - LightRing"), which are not direct
+# DV scores, so they remain unmapped on purpose.
+
+# --- NASA-TLX subscales -------------------------------------------------------
+tlx.mental: mental_demand
+tlx.physical: physical_demand
+tlx.rush: temporal_demand        # "rush" = time pressure
+tlx.success: performance         # "success" = the TLX performance subscale
+tlx.effort: effort
+tlx.stress: frustration          # "stress" = the TLX frustration subscale
+
+# --- Trust / Safety / Risk constructs -----------------------------------------
+safety: perceived_safety
+trust: trust_rating
+risk: perceived_risk
+
+# --- AV-specific perception measures ------------------------------------------
+av.intent: understanding_rating  # understanding what the AV intends to do
+
+# --- UEQ-Short pragmatic items (4 items pool into UEQ-S pragmatic quality) ----
+# Mapping each to the closest long-form UEQ subscale so item composition
+# can form construct-level scores. ease/clarity both touch perspicuity, so
+# they will compose into the perspicuity construct via __dup_N dedup.
+ueq.p.ease: ueq_perspicuity
+ueq.p.clarity: ueq_perspicuity
+ueq.p.efficiency: ueq_efficiency
+ueq.p.support: ueq_dependability
+
+# --- UEQ-Short hedonic items (4 items pool into UEQ-S hedonic quality) -------
+ueq.h.excite: ueq_stimulation
+ueq.h.interest: ueq_stimulation
+ueq.h.inventive: ueq_novelty
+ueq.h.novelty: ueq_novelty
+
+# --- UEQ-Short declared scales (Tier 2) ---------------------------------------
+# UEQ-Short has 8 bipolar 1-7 items, grouped into 4 subscales of 2 items each.
+# Auto-detect produces α=0.95 for ueq.h.excite+interest (clean), but α=-2.5
+# for ueq.p.ease+clarity and α=-2.9 for ueq.h.inventive+novelty in this
+# sample (one item is likely scored with an inverted polarity in the
+# original survey instrument). Declaring the scales here forces composition
+# regardless of α; the recorded α stays in composites.json for review.
+# reverse_aliases is intentionally empty because the survey instrument is
+# not in the Zenodo bundle — downstream consumers should treat low-α
+# composites as exploratory.
+scales:
+  - canonical: ueq_perspicuity
+    aliases: ["ueq.p.ease", "ueq.p.clarity"]
+    scale_range: [1, 7]
+  - canonical: ueq_stimulation
+    aliases: ["ueq.h.excite", "ueq.h.interest"]
+    scale_range: [1, 7]
+  - canonical: ueq_novelty
+    aliases: ["ueq.h.inventive", "ueq.h.novelty"]
+    scale_range: [1, 7]
+
+# --- Independent variables and ambiguous non-DV columns -----------------------
+# These appeared as wrong LLM targets in earlier runs (e.g. ehmi -> temporal_demand,
+# instruction -> frustration). Identity-mapping locks them in as schema-mapped
+# so the LLM never sees them. They will appear in meta_view as their own
+# canonical names — clearly not DVs — and downstream consumers can filter them.
+# participant is already auto-blocked by NEVER_MAP_NORMALIZED_COLUMNS.
+speed: meta_condition_speed
+yielding: meta_condition_yielding
+ehmi: meta_condition_ehmi
+av.aware: av_awareness
+behaviour.reliance: reliance_behaviour
+instruction: instruction_clarity

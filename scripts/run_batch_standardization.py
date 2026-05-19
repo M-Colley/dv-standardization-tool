@@ -133,6 +133,11 @@ from scripts.convert_dv import (
     standardize_columns,
     strip_duplicate_suffix,
 )
+from scripts.item_composition import (
+    compose_item_groups,
+    is_item_suffixed,
+    strip_item_suffix,
+)
 from scripts.llm_utils import collect_repository_context, deduce_standard_name_with_local_llm
 # llm_coordinator owns the alias-scoring, candidate-shortlisting, and
 # LLM-deduction aggregation helpers. Re-exported here so existing tests
@@ -873,8 +878,33 @@ def _load_repository_mapping(
 def _merge_with_standard_precedence(
     source_mapping: dict[str, str],
     standard_mapping: dict[str, str],
+    source_overrides_standard: bool = False,
 ) -> dict[str, str]:
-    """Merge mapping dictionaries while preserving standard aliases on case-insensitive conflicts."""
+    """Merge source and standard alias dicts.
+
+    Default behaviour: the standard schema wins on case-insensitive conflicts —
+    source mappings only extend coverage for aliases the standard does not
+    know about. This protects well-known canonicals from accidental
+    redefinition.
+
+    When ``source_overrides_standard=True`` (per-source manifest opt-in via
+    ``override_standard_aliases: true``), source-specific mappings win. Use
+    this for legitimate dataset-specific overrides such as fact_av's
+    ``understanding_rating -> sart_understanding`` rename where the standard's
+    self-mapping must be displaced.
+    """
+    if source_overrides_standard:
+        merged = {**standard_mapping, **source_mapping}
+        source_ci = {
+            alias.lower(): canonical
+            for alias, canonical in source_mapping.items()
+            if isinstance(alias, str)
+        }
+        for alias, canonical in list(merged.items()):
+            if isinstance(alias, str):
+                merged[alias] = source_ci.get(alias.lower(), canonical)
+        return merged
+
     merged = {**source_mapping, **standard_mapping}
     standard_ci = {alias.lower(): canonical for alias, canonical in standard_mapping.items() if isinstance(alias, str)}
 
@@ -883,6 +913,7 @@ def _merge_with_standard_precedence(
             merged[alias] = standard_ci.get(alias.lower(), canonical)
 
     return merged
+
 
 def _summarize_dataset(
     source_id: str,
@@ -908,8 +939,13 @@ def _summarize_dataset(
     # ``trust_rating__dup_2``) we still want to record the base canonical so
     # meta-view rows pool as the same construct. We walk the columns by
     # position because pandas indexing on a duplicate name returns a frame.
+    # ``__item_N`` columns are sub-items of a composite that already lives in
+    # the DataFrame under the bare canonical — skip them so meta-view treats
+    # the construct as one observation per row, not (k items × N rows).
     position_by_base: dict[str, int] = {}
     for column_position, suffixed_canonical in enumerate(standardized_df.columns):
+        if is_item_suffixed(str(suffixed_canonical)):
+            continue
         base_canonical = strip_duplicate_suffix(str(suffixed_canonical))
         idx_in_base = position_by_base.get(base_canonical, 0)
         position_by_base[base_canonical] = idx_in_base + 1
@@ -1127,6 +1163,7 @@ def run_batch(
     llm_deductions_by_key: dict[tuple[str, str], dict[str, Any]] = {}
     unknown_alias_events: list[dict[str, Any]] = []
     all_mapping_debug_records: list[dict[str, Any]] = []
+    all_composite_records: list[dict[str, Any]] = []
     global_mapping_metrics = {
         "mapping": 0,
         "llm": 0,
@@ -1227,6 +1264,7 @@ def run_batch(
                 source.get("use_llm_deduction", llm_deduction_enabled)
             )
             source_preferred_models = source.get("llm_models") if isinstance(source.get("llm_models"), list) else preferred_models
+            source_overrides_standard = bool(source.get("override_standard_aliases", False))
             source_llm_cache: dict[str, str | None] = {}
             source_column_sig_cache: dict[tuple[str, ...], dict[str, str]] = {}
             source_repository_context: str | None = None
@@ -1320,6 +1358,7 @@ def run_batch(
                     source_mapping = dict(standard_mapping)
                     source_mapping_path = None
                     source_custom_aliases_ci: set[str] = set()
+                    source_declared_scales: list[dict[str, Any]] = []
                     resolved_mapping_path = _resolve_repository_mapping_path(
                         base_dir,
                         mapping_candidates,
@@ -1346,16 +1385,28 @@ def run_batch(
                                     for alias in custom_schema_data["mapping"].keys()
                                     if isinstance(alias, str)
                                 }
-                                cached_mapping = (source_specific_mapping, source_custom_aliases_ci)
+                                source_declared_scales = list(
+                                    custom_schema_data.get("scales") or []
+                                )
+                                cached_mapping = (
+                                    source_specific_mapping,
+                                    source_custom_aliases_ci,
+                                    source_declared_scales,
+                                )
                                 mapping_cache[cache_key] = cached_mapping
                         else:
                             source_mapping_path = cache_key
-                            source_specific_mapping, source_custom_aliases_ci = cached_mapping
+                            (
+                                source_specific_mapping,
+                                source_custom_aliases_ci,
+                                source_declared_scales,
+                            ) = cached_mapping
 
                         if resolved_mapping_path is not None and source_specific_mapping:
                             source_mapping = _merge_with_standard_precedence(
                                 source_specific_mapping,
                                 standard_mapping,
+                                source_overrides_standard=source_overrides_standard,
                             )
                             source_mapping_path = cache_key
                     source_mapping = _remove_never_map_aliases(source_mapping)
@@ -1490,6 +1541,32 @@ def run_batch(
                         )
 
                     standardized_df = standardize_columns(original_df.copy(), dataset_mapping)
+                    # Build canonical -> ordered originals for declared-scale
+                    # resolution. Items match the canonical-group order (first
+                    # occurrence -> bare canonical, subsequent -> __dup_N) so
+                    # the scale's reverse_aliases can be applied by name.
+                    canonical_to_originals_ordered: dict[str, list[str]] = {}
+                    for orig_col in raw_columns:
+                        target = dataset_mapping.get(orig_col)
+                        if target is None and isinstance(orig_col, str):
+                            target = dataset_mapping.get(orig_col.lower())
+                        target = target or orig_col
+                        canonical_to_originals_ordered.setdefault(target, []).append(orig_col)
+                    standardized_df, composite_records = compose_item_groups(
+                        standardized_df,
+                        dataset_type,
+                        declared_scales=source_declared_scales,
+                        canonical_to_originals=canonical_to_originals_ordered,
+                    )
+                    for record in composite_records:
+                        all_composite_records.append(
+                            {
+                                "source_id": source_id,
+                                "dataset_id": dataset_id,
+                                "dataset_type": dataset_type,
+                                **record,
+                            }
+                        )
                     if destination.suffix.lower() == ".tsv":
                         standardized_df.to_csv(destination, sep="\t", index=False)
                     else:
@@ -1584,6 +1661,23 @@ def run_batch(
     mapping_debug_summary_path = output_dir / "mapping_debug_summary.json"
     with open(mapping_debug_summary_path, "w", encoding="utf-8") as f:
         json.dump(mapping_debug_summary, f, indent=2)
+    composites_path = output_dir / "composites.json"
+    composed_count = sum(1 for r in all_composite_records if r.get("decision") == "composed")
+    skipped_low_alpha = sum(
+        1 for r in all_composite_records if r.get("decision") == "skip_low_alpha"
+    )
+    skipped_insufficient = sum(
+        1 for r in all_composite_records if r.get("decision") == "skip_insufficient_rows"
+    )
+    composite_summary = {
+        "total_groups_evaluated": len(all_composite_records),
+        "composed": composed_count,
+        "skipped_low_alpha": skipped_low_alpha,
+        "skipped_insufficient_rows": skipped_insufficient,
+        "records": all_composite_records,
+    }
+    with open(composites_path, "w", encoding="utf-8") as f:
+        json.dump(composite_summary, f, indent=2)
     mapped_total = int(global_mapping_metrics["mapping"] + global_mapping_metrics["llm"])
     mappable_total = int(global_mapping_metrics["total_columns_seen"] - global_mapping_metrics["blocked"])
     global_mapping_metrics["mapped_total"] = mapped_total
@@ -1634,6 +1728,10 @@ def run_batch(
         "unknown_alias_summary": str(unknown_alias_summary_path),
         "unknown_alias_events": int(unknown_alias_summary["total_unknown_alias_events"]),
         "mapping_debug_summary": str(mapping_debug_summary_path),
+        "composites_path": str(composites_path),
+        "composites_composed": composed_count,
+        "composites_skipped_low_alpha": skipped_low_alpha,
+        "composites_skipped_insufficient_rows": skipped_insufficient,
         "debug_mappings_enabled": debug_mappings,
         "cache_root": str(resolved_cache_root),
         "results": [r.__dict__ for r in run_results],

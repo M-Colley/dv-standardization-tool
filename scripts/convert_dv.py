@@ -151,14 +151,33 @@ def _build_alias_mapping(schema: Dict) -> Dict[str, str]:
             alias_to_standard[standard_name] = standard_name
             alias_to_standard[standard_name.lower()] = standard_name
     else:
-        # Legacy format: flat dict {standard_name: [aliases]}
-        for standard, aliases in schema.items():
-            if isinstance(aliases, list):
-                for alias in aliases:
-                    alias_to_standard[alias] = standard
-                    alias_to_standard[alias.lower()] = standard
-                alias_to_standard[standard] = standard
-                alias_to_standard[standard.lower()] = standard
+        # Legacy formats — two flavours, both supported:
+        #   1. {canonical_id: [alias, alias, ...]}        — list of aliases
+        #   2. {alias: canonical_id}                       — single alias per line
+        #
+        # Source-specific override files (e.g. schemas/fact_av_mapping.yaml,
+        # schemas/running_into_traffic_mapping.yaml) typically use form (2)
+        # because it reads naturally as "rename this raw column to that
+        # canonical". The two flavours are distinguished by the value type.
+        #
+        # The reserved top-level key ``scales:`` declares multi-item scales
+        # and is handled separately by item composition — skip it here.
+        for key, value in schema.items():
+            if key == "scales":
+                continue
+            if isinstance(value, list):
+                # Form (1): {canonical: [aliases]}
+                for alias in value:
+                    if not isinstance(alias, str):
+                        continue
+                    alias_to_standard[alias] = key
+                    alias_to_standard[alias.lower()] = key
+                alias_to_standard[key] = key
+                alias_to_standard[key.lower()] = key
+            elif isinstance(value, str):
+                # Form (2): {alias: canonical}
+                alias_to_standard[key] = value
+                alias_to_standard[key.lower()] = value
 
     return alias_to_standard
 
@@ -255,6 +274,7 @@ def load_schema(
             return {
                 "mapping": merged_mapping,
                 "schema": schema,
+                "scales": schema.get("scales", []) if isinstance(schema, dict) else [],
                 "standard_mappings_applied": True,
                 "standard_mapping_count": len(standard_mapping),
                 "custom_mapping_count": len(custom_mapping),
@@ -278,6 +298,7 @@ def load_schema(
     return {
         "mapping": _build_alias_mapping(schema),
         "schema": schema,
+        "scales": schema.get("scales", []) if isinstance(schema, dict) else [],
         "standard_mappings_applied": False,
         "alias_conflicts": [],
         "alias_conflict_policy": alias_conflict_policy,

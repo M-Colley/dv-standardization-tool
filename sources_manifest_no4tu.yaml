@@ -108,8 +108,37 @@ sources:
     include_globs:
       - "data/all_combined_prepared.xlsx"
     mapping_path: schemas/fact_av_mapping.yaml
+    # The custom mapping renames `understanding_rating` to `sart_understanding`.
+    # That alias collides with the standard schema (where understanding_rating
+    # is a canonical) so the source-precedence flag is required.
+    override_standard_aliases: true
     llm_context: >
       FACT-AV study on trust and acceptance factors for automated vehicles.
       understanding_rating is the sART Understanding subscale (0–20), NOT an
       eHMI comprehension item — it is mapped to sart_understanding.
+    use_llm_deduction: true
+
+  - source_id: running_into_traffic_chi26
+    source_type: web_dataset
+    location: https://zenodo.org/records/18344381/files/RunIntoTraffic.zip?download=1
+    publication_doi: 10.1145/3772318.3790401
+    include_globs:
+      - "**/*.csv"
+    exclude_globs:
+      # running_ranking.csv has multi-line unquoted free-text responses that
+      # break the CSV parser. The ranking values are also per-condition ordinal
+      # rankings (not direct DV scores) so they aren't useful for meta-analysis.
+      - "**/running_ranking.csv"
+    extract_archives: true
+    archive_max_depth: 2
+    mapping_path: schemas/running_into_traffic_mapping.yaml
+    llm_context: >
+      Al-Taie et al. (CHI 2026) "Running into Traffic." Per-trial questionnaire
+      data for runner–AV interaction with eHMIs. Columns prefixed tlx.* are
+      NASA-TLX subscales (mental/physical/rush=temporal/success=performance/
+      effort/stress=frustration). safety, trust, risk are the corresponding
+      perception ratings. ueq.p.* and ueq.h.* are UEQ-Short pragmatic and
+      hedonic items respectively. running_ranking.csv encodes per-condition
+      rankings (Overall/Walking/Running × eHMI condition) which are not direct
+      DV scores and intentionally remain unmapped.
     use_llm_deduction: true
