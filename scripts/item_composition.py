@@ -94,26 +94,41 @@ def compute_cronbach_alpha(item_matrix: pd.DataFrame) -> float:
 
 
 def detect_reverse_coded_items(item_matrix: pd.DataFrame) -> list[str]:
-    """Return columns whose Pearson r with the mean of the others is < 0.
+    """Return columns that are reverse-keyed relative to the scale's common factor.
 
-    Used as a heuristic to flag reverse-keyed items before computing α and the
-    composite mean. Single-pass — if a flip would change the polarity of other
-    items, the change is not propagated. In practice this misclassifies fewer
-    than 1% of scales with a clean reverse-keying pattern.
+    Anchored heuristic: build the inter-item correlation matrix, pick the item
+    most representative of the dominant common factor (largest total absolute
+    correlation with the others), and flag every item that correlates
+    negatively with that anchor.
+
+    This replaces the earlier "correlate each item with the mean of the
+    others" approach, which was contaminated when a scale contained *two or
+    more* reverse-keyed items: the un-flipped reverse items pulled the
+    mean-of-others toward them and diluted correlations below the detection
+    threshold. Correlating against a single clean anchor avoids that coupling,
+    is deterministic, and converges by construction. The anchor's own polarity
+    is irrelevant — only internal consistency matters for α and the composite.
     """
-    reversed_cols: list[str] = []
     cols = list(item_matrix.columns)
     if len(cols) < 2:
-        return reversed_cols
+        return []
+
+    try:
+        corr = item_matrix.corr()
+    except Exception as exc:  # noqa: BLE001
+        logger.debug("Reverse-coding correlation matrix failed: %s", exc)
+        return []
+
+    abs_corr_sums = corr.abs().sum(axis=1)
+    if abs_corr_sums.empty or bool(abs_corr_sums.isna().all()):
+        return []
+    anchor = abs_corr_sums.idxmax()
+
+    reversed_cols: list[str] = []
     for col in cols:
-        others = item_matrix.drop(columns=col).mean(axis=1, skipna=True)
-        if others.notna().sum() < 2:
+        if col == anchor:
             continue
-        try:
-            r = item_matrix[col].corr(others)
-        except Exception as exc:  # noqa: BLE001
-            logger.debug("Reverse-coding correlation failed for %s: %s", col, exc)
-            continue
+        r = corr.at[col, anchor]
         if pd.notna(r) and r < REVERSE_CODING_NEGATIVE_THRESHOLD:
             reversed_cols.append(col)
     return reversed_cols

@@ -43,42 +43,17 @@ def _read_file_bytes(file_path: Path, max_bytes: int = 65536) -> bytes:
 
 
 def _detect_encoding(file_path: Path) -> str:
-    """Best-effort encoding detection mirroring convert_dv.py behaviour.
+    """Best-effort encoding detection for survey-export files.
 
-    Order:
-        1. UTF-8 / UTF-16 BOM check (deterministic).
-        2. chardet sniff if confidence > 0.75.
-        3. Trial-decode the common fallbacks (utf-8, utf-8-sig, cp1252,
-           latin-1) and return the first one that round-trips.
+    Delegates to the shared ``encoding_utils.detect_text_encoding`` helper so
+    survey exports are classified identically to the convert_dv loader. BOMs
+    are honoured (utf-8-sig / utf-16-le / utf-16-be) and plain ASCII is
+    upgraded to utf-8.
     """
+    from scripts.encoding_utils import detect_text_encoding
+
     raw = _read_file_bytes(file_path, max_bytes=32768)
-
-    # BOM detection
-    if raw.startswith(b"\xef\xbb\xbf"):
-        return "utf-8-sig"
-    if raw.startswith(b"\xff\xfe"):
-        return "utf-16-le"
-    if raw.startswith(b"\xfe\xff"):
-        return "utf-16-be"
-
-    try:
-        import chardet  # type: ignore
-        result = chardet.detect(raw)
-        if result and result.get("confidence", 0) > 0.75:
-            encoding = (result.get("encoding") or "utf-8").lower()
-            if encoding == "ascii":
-                return "utf-8"
-            return encoding
-    except ImportError:
-        pass
-
-    for enc in ("utf-8", "utf-8-sig", "cp1252", "latin-1"):
-        try:
-            raw.decode(enc)
-            return enc
-        except (UnicodeDecodeError, LookupError):
-            continue
-    return "latin-1"
+    return detect_text_encoding(raw)
 
 
 def _detect_delimiter(sample: str, prefer: str | None = None) -> str:

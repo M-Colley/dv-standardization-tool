@@ -650,6 +650,16 @@ def discover_source_files(
                         relative_path = Path(f"node_{node_id}") / relative_path
 
                     local_path = target / relative_path
+                    # Guard against server-controlled materialized_path values
+                    # containing ".." segments (lstrip("/") above only strips
+                    # leading slashes). Mirrors the zip-slip protection used by
+                    # the archive extractor.
+                    if not _is_within_directory(local_path.resolve(), target.resolve()):
+                        logger.warning(
+                            "[%s] Skipping OSF file whose path escapes the cache root: %r",
+                            project_id, path,
+                        )
+                        continue
                     _download_osf_file(str(download_url), local_path)
 
             marker.write_text(expected_marker, encoding="utf-8")
@@ -1283,7 +1293,9 @@ def run_batch(
                 else None
             )
             mapping_candidates = _find_repository_mapping_candidates(base_dir)
-            mapping_cache: dict[str, tuple[dict[str, str], set[str]]] = {}
+            mapping_cache: dict[
+                str, tuple[dict[str, str], set[str], list[dict[str, Any]]]
+            ] = {}
             if requested_mapping_path:
                 try:
                     _resolve_repository_mapping_path(
@@ -1395,13 +1407,15 @@ def run_batch(
                                 )
                                 mapping_cache[cache_key] = cached_mapping
                         else:
-                            source_mapping_path = cache_key
                             (
                                 source_specific_mapping,
                                 source_custom_aliases_ci,
                                 source_declared_scales,
                             ) = cached_mapping
 
+                        # Set source_mapping_path consistently across the cache-hit
+                        # and cache-miss paths: only once a non-empty source mapping
+                        # is actually merged in.
                         if resolved_mapping_path is not None and source_specific_mapping:
                             source_mapping = _merge_with_standard_precedence(
                                 source_specific_mapping,

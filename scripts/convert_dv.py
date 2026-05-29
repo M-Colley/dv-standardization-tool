@@ -550,7 +550,7 @@ def write_schema_suggestion_file(output_path: str, unknown_columns: List[str]) -
     suggestion_path = Path(output_path).with_suffix('')
     suggestion_path = Path(str(suggestion_path) + "_schema_suggestions.yaml")
 
-    with open(suggestion_path, "w") as f:
+    with open(suggestion_path, "w", encoding="utf-8") as f:
         yaml.safe_dump(suggestion_template, f, sort_keys=False, allow_unicode=True)
 
     return suggestion_path
@@ -601,6 +601,15 @@ def standardize_with_metadata(
             }
         return standardized_df, column_meta
 
+    # Load inference rules once for the whole batch. batch_infer would
+    # otherwise re-load (now memoized) rules per call; passing them in keeps
+    # the intent explicit and avoids even the cache lookup per column.
+    try:
+        from scripts.dv_inference import load_inference_rules
+    except ImportError:
+        from dv_inference import load_inference_rules
+    inference_rules = load_inference_rules()
+
     # Try to get metadata from schema first (ground truth)
     for col in standardized_df.columns:
         # Check if this column has schema-defined metadata
@@ -614,7 +623,7 @@ def standardize_with_metadata(
             }
         else:
             # Infer metadata for columns not in schema
-            inferences = batch_infer([col], confidence_threshold)
+            inferences = batch_infer([col], confidence_threshold, rules=inference_rules)
             _, meta, _ = inferences[0]
             column_meta[col] = {
                 **meta.to_dict(),
@@ -674,7 +683,7 @@ def export_with_metadata(
         cat = meta.get("category", "Unknown")
         metadata["summary"]["categories"][cat] = metadata["summary"]["categories"].get(cat, 0) + 1
 
-    with open(meta_path, "w") as f:
+    with open(meta_path, "w", encoding="utf-8") as f:
         json.dump(metadata, f, indent=2)
 
     print(f"[OK] Metadata JSON saved to: {meta_path}")
@@ -893,15 +902,18 @@ Examples:
             args.confidence_threshold
         )
         # Merge fuzzy-match flags into column_meta for sidecar JSON output.
-        # The canonical column name after renaming is the target key.
+        # When several raw columns collapse to one canonical, standardize_columns
+        # suffixes the 2nd+ occurrences as ``<canonical>__dup_N``; fan the flag
+        # out to every variant so duplicate items aren't left silently unflagged.
         for raw_col, fmeta in fuzzy_match_metadata.items():
             canonical = mapping.get(raw_col, raw_col)
-            if canonical in column_meta:
-                column_meta[canonical].update({
-                    "match_type": fmeta["match_type"],
-                    "fuzzy_score": fmeta["fuzzy_score"],
-                    "needs_review": True,
-                })
+            for meta_key in column_meta:
+                if strip_duplicate_suffix(meta_key) == canonical:
+                    column_meta[meta_key].update({
+                        "match_type": fmeta["match_type"],
+                        "fuzzy_score": fmeta["fuzzy_score"],
+                        "needs_review": True,
+                    })
         resolved_output.parent.mkdir(parents=True, exist_ok=True)
         _ = export_with_metadata(
             df_standardized,

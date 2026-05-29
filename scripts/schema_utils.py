@@ -21,7 +21,7 @@ def load_schema(path: str) -> Dict:
     Returns:
         Loaded schema dictionary
     """
-    with open(path, 'r') as f:
+    with open(path, 'r', encoding='utf-8') as f:
         return yaml.safe_load(f)
 
 
@@ -40,7 +40,7 @@ def load_measurement_categories(path: Optional[str] = None) -> Dict:
         current_dir = Path(__file__).parent
         path = current_dir.parent / "schemas" / "measurement_categories.yaml"
 
-    with open(path, 'r') as f:
+    with open(path, 'r', encoding='utf-8') as f:
         return yaml.safe_load(f)
 
 
@@ -149,7 +149,7 @@ def save_schema(schema: Dict, output_path: str) -> None:
         schema: Schema dictionary to save
         output_path: Path to save the YAML file
     """
-    with open(output_path, 'w') as f:
+    with open(output_path, 'w', encoding='utf-8') as f:
         yaml.dump(schema, f, sort_keys=False, allow_unicode=True)
 
 

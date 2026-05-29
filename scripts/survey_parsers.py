@@ -269,7 +269,8 @@ class LimeSurveyParser(SurveyParser):
             df = pd.read_excel(file_path)
         else:
             encoding = _detect_encoding(file_path)
-            sample = file_path.read_text(encoding=encoding, errors="replace")[:16384]
+            with file_path.open("r", encoding=encoding, errors="replace") as fh:
+                sample = fh.read(16384)
             delimiter = delimiter_hint or _detect_delimiter(sample, prefer=";")
             df = pd.read_csv(file_path, sep=delimiter, encoding=encoding, engine="python")
 
@@ -719,7 +720,8 @@ def _sniff_qualtrics(file_path: Path) -> bool:
     """Heuristic: does the file look like a Qualtrics 3-header CSV?"""
     try:
         encoding = _detect_encoding(file_path)
-        sample = file_path.read_text(encoding=encoding, errors="replace")[:32768]
+        with file_path.open("r", encoding=encoding, errors="replace") as fh:
+            sample = fh.read(32768)
     except OSError:
         return False
 
@@ -745,7 +747,8 @@ def _sniff_redcap(file_path: Path) -> bool:
     """Heuristic: does the file look like a REDCap CSV export?"""
     try:
         encoding = _detect_encoding(file_path)
-        sample = file_path.read_text(encoding=encoding, errors="replace")[:8192]
+        with file_path.open("r", encoding=encoding, errors="replace") as fh:
+            sample = fh.read(8192)
     except OSError:
         return False
 
@@ -782,7 +785,8 @@ def _sniff_limesurvey(file_path: Path) -> bool:
     """Heuristic: does the file look like a LimeSurvey export?"""
     try:
         encoding = _detect_encoding(file_path)
-        sample = file_path.read_text(encoding=encoding, errors="replace")[:8192]
+        with file_path.open("r", encoding=encoding, errors="replace") as fh:
+            sample = fh.read(8192)
     except OSError:
         return False
 

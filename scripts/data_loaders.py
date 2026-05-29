@@ -52,7 +52,6 @@ _MAGIC_BYTES: list[tuple[bytes, str | None]] = [
     (b"\x7fELF", None),          # binary ELF, skip
     (b"$FL2", ".sav"),           # SPSS .sav
     (b"\xef\xbb\xbf", ".csv"),   # UTF-8 BOM → treat as CSV
-    (b"<", ".xml"),              # XML
     (b"{", ".json"),             # JSON object
     (b"[", ".json"),             # JSON array
 ]
@@ -61,7 +60,8 @@ _MAGIC_BYTES: list[tuple[bytes, str | None]] = [
 def _sniff_format(path: Path) -> str | None:
     """Return a canonical extension by inspecting the first bytes of *path*, or None."""
     try:
-        raw = path.read_bytes()[:8]
+        with path.open("rb") as fh:
+            raw = fh.read(8)
     except OSError:
         return None
     for magic, ext in _MAGIC_BYTES:
@@ -84,38 +84,19 @@ def _detect_encoding(path: Path) -> str:
     CSVs (it strips the BOM from the first column header). Keeping the
     short-circuit guarantees that behaviour.
 
-    For everything else we delegate to ``charset_normalizer.from_bytes``
-    — the actively-maintained successor to ``chardet`` and an existing
-    pandas dependency. ``best()`` returns the highest-confidence match
-    over a sample of the file (32 KiB is enough for almost all real-
-    world CSVs); we coerce ``ascii`` to ``utf-8`` so downstream pandas
-    reads do not surprise us when the file later contains non-ASCII
-    bytes.
+    For everything else we delegate to the shared
+    ``encoding_utils.detect_text_encoding`` helper (backed by
+    ``charset_normalizer``) so a file is classified identically here and in
+    the survey parsers. ``best()`` runs over a 32 KiB sample — enough for
+    almost all real-world CSVs — and ``ascii`` is coerced to ``utf-8`` so
+    downstream pandas reads don't surprise us when the file later contains
+    non-ASCII bytes.
     """
-    raw = path.read_bytes()[:32768]
+    from scripts.encoding_utils import detect_text_encoding
 
-    # BOM detection first — keep canonical utf-8-sig / utf-16-* labels.
-    if raw.startswith(b"\xef\xbb\xbf"):
-        return "utf-8-sig"
-    if raw.startswith(b"\xff\xfe"):
-        return "utf-16-le"
-    if raw.startswith(b"\xfe\xff"):
-        return "utf-16-be"
-
-    if not raw:
-        return "utf-8"
-
-    from charset_normalizer import from_bytes
-
-    matches = from_bytes(raw)
-    best = matches.best()
-    if best is None:
-        return "utf-8"
-
-    encoding = (best.encoding or "utf-8").lower()
-    if encoding == "ascii":
-        return "utf-8"
-    return encoding
+    with path.open("rb") as fh:
+        raw = fh.read(32768)
+    return detect_text_encoding(raw)
 
 
 def _detect_delimiter(sample: str, prefer: str | None = None) -> str:
@@ -165,7 +146,8 @@ def _load_text_table(path: Path) -> pd.DataFrame:
 
     encoding = _detect_encoding(path)
     try:
-        sample = path.read_text(encoding=encoding, errors="replace")[:16384]
+        with path.open("r", encoding=encoding, errors="replace") as fh:
+            sample = fh.read(16384)
     except OSError:
         sample = ""
 

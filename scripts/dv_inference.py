@@ -9,6 +9,7 @@ detection, and instrument recognition to automatically classify DVs.
 import logging
 import re
 import yaml
+from functools import lru_cache
 from pathlib import Path
 from typing import List, Optional, Tuple, Dict
 
@@ -31,6 +32,31 @@ except ImportError:
     )
 
 
+@lru_cache(maxsize=8)
+def _load_inference_rules_cached(rules_path: str) -> Dict:
+    """Parse an inference-rules YAML once and memoize it.
+
+    Memoized because callers (e.g. ``convert_dv.standardize_with_metadata``)
+    historically invoked inference once per column, which re-parsed this file
+    O(n_columns) times. The returned dict is treated as read-only by all
+    callers, so sharing a single instance is safe.
+    """
+    try:
+        with open(rules_path, 'r', encoding='utf-8') as f:
+            rules = yaml.safe_load(f)
+    except yaml.YAMLError as exc:
+        raise ValueError(
+            f"Failed to parse inference rules YAML at '{rules_path}': {exc}"
+        ) from exc
+
+    if not isinstance(rules, dict):
+        raise ValueError(
+            f"Inference rules file '{rules_path}' must contain a YAML mapping at the top level."
+        )
+
+    return rules
+
+
 def load_inference_rules(
     rules_path: Optional[str] = None
 ) -> Dict:
@@ -48,20 +74,7 @@ def load_inference_rules(
         current_dir = Path(__file__).parent
         rules_path = current_dir.parent / "schemas" / "inference_rules.yaml"
 
-    try:
-        with open(rules_path, 'r', encoding='utf-8') as f:
-            rules = yaml.safe_load(f)
-    except yaml.YAMLError as exc:
-        raise ValueError(
-            f"Failed to parse inference rules YAML at '{rules_path}': {exc}"
-        ) from exc
-
-    if not isinstance(rules, dict):
-        raise ValueError(
-            f"Inference rules file '{rules_path}' must contain a YAML mapping at the top level."
-        )
-
-    return rules
+    return _load_inference_rules_cached(str(rules_path))
 
 
 def match_unit_marker(unit_marker: str, unit_rules: Dict) -> Optional[Tuple[str, str]]:
@@ -274,6 +287,33 @@ def validate_inference(
         return (False, f"✗ Category mismatch: expected {expected_category}, got {meta.category.value}")
 
 
+@lru_cache(maxsize=8)
+def _load_schema_measurements(schema_path: str) -> Dict[str, Dict]:
+    """Return a ``{dv_id: measurement_dict}`` index from a DV schema YAML.
+
+    Memoized: the metadata path looks this up once per column, so without
+    caching a wide dataset re-parses ``standard_dv_mapping.yaml`` once per
+    column. The returned mapping is read-only for all callers.
+    """
+    try:
+        with open(schema_path, 'r', encoding='utf-8') as f:
+            schema = yaml.safe_load(f)
+    except (yaml.YAMLError, OSError):
+        return {}
+
+    if not isinstance(schema, dict):
+        return {}
+
+    measurements: Dict[str, Dict] = {}
+    for dv in schema.get('dvs', []) or []:
+        if not isinstance(dv, dict) or not dv.get('id'):
+            continue
+        measurement = dv.get('measurement')
+        if isinstance(measurement, dict) and measurement:
+            measurements[str(dv['id'])] = measurement
+    return measurements
+
+
 def get_measurement_from_schema(
     dv_id: str,
     schema_path: Optional[str] = None
@@ -292,29 +332,18 @@ def get_measurement_from_schema(
         current_dir = Path(__file__).parent
         schema_path = current_dir.parent / "schemas" / "standard_dv_mapping.yaml"
 
-    try:
-        with open(schema_path, 'r', encoding='utf-8') as f:
-            schema = yaml.safe_load(f)
-    except (yaml.YAMLError, OSError):
+    measurement = _load_schema_measurements(str(schema_path)).get(dv_id)
+    if not measurement:
         return None
 
-    if not isinstance(schema, dict):
-        return None
-
-    for dv in schema.get('dvs', []) or []:
-        if dv.get('id') == dv_id:
-            measurement = dv.get('measurement', {})
-            if measurement:
-                return MeasurementMeta(
-                    category=MeasurementCategory[measurement['category'].upper()],
-                    primary_unit=measurement['primary_unit'],
-                    allowed_units=measurement['allowed_units'],
-                    scale_type=ScaleType[measurement['scale_type'].upper()],
-                    direction=Direction[measurement['direction'].upper()],
-                    confidence=1.0,
-                    inferred=False,
-                    matched_rules=["schema_defined"],
-                    needs_review=False
-                )
-
-    return None
+    return MeasurementMeta(
+        category=MeasurementCategory[measurement['category'].upper()],
+        primary_unit=measurement['primary_unit'],
+        allowed_units=measurement['allowed_units'],
+        scale_type=ScaleType[measurement['scale_type'].upper()],
+        direction=Direction[measurement['direction'].upper()],
+        confidence=1.0,
+        inferred=False,
+        matched_rules=["schema_defined"],
+        needs_review=False
+    )
