@@ -387,7 +387,7 @@ Outputs include:
 ## Methodology
 This project followed a structured literature review methodology. Key steps included:
 
-* Review of >100 papers across CHI (2015-2025), CHI PLAY, AutoUI, and IMWUT, etc. — using PRISMA principles.
+* Review of 300+ papers across CHI (2015-2025), CHI PLAY, AutoUI, and IMWUT, etc. — using PRISMA principles.
 * Thematic coding of DV terminology, transparency practices, and naming patterns.
 * Development of schema based on recurring inconsistencies in the literature (cf. Aeschbach et al., 2021; Putze et al., 2022).
 * Evaluation through a pilot case study using the ROADS dataset (Colley et al., 2024).
@@ -398,12 +398,11 @@ This project followed a structured literature review methodology. Key steps incl
 
 ## Future Work
 * Extend the mapping schema to cover qualitative and mixed-method dependent variables, accounting for construct diversity in mixed designs.
-* Integrate fuzzy matching capabilities (e.g., via `rapidfuzz`) to enhance robustness against minor lexical variations and human-annotated inconsistencies.
-* Build a lightweight [Streamlit](https://streamlit.io) user interface to enable upload-based DV harmonization for non-technical users and HCI practitioners.
 * Investigate interoperability with semantic frameworks and metadata standards (e.g., CEDAR, BioPortal) to facilitate alignment with existing ontology-driven research infrastructures.
-* Explore the integration of large language models (LLMs) for context-aware variable suggestion, auto-tagging, and disambiguation. This would allow the tool to provide intelligent recommendations for ambiguous or undocumented variable names based on surrounding metadata, potentially accelerating schema expansion and dataset onboarding.
-* Incorporate visual analytics to compare pre- and post-standardization states, highlight variable overlaps, and provide interpretable mappings — useful for validation, stakeholder engagement, and pedagogical use.
+* Deepen the existing LLM-assisted alias deduction with confidence scoring, retrieval-augmented suggestion from past mappings, and context-aware dataset labeling.
 * Pilot the tool across a broader range of HCI datasets and venues, and refine it into a reusable, community-adoptable research artifact supporting long-term reproducibility and responsible data practices.
+
+Already delivered (formerly listed here): fuzzy column matching via `rapidfuzz` (`scripts/convert_dv.py`), a Streamlit upload-to-export UI (`ui/app.py`), local-LLM alias deduction as a batch fallback (`scripts/llm_utils.py`), and pre/post-standardization visual analytics (`scripts/visual_helpers.py`, `notebooks/visual_validation.ipynb`).
 ---
 
 ## References
@@ -472,12 +471,13 @@ dv-standardization-tool/
 │
 ├── ui/
 │   ├── app.py                   # Streamlit app entry point
-│   ├── uploader.py              # Upload logic
-│   ├── column_preview.py        # Column-level feedback
-│   ├── download_button.py       # Download-ready output
 │   ├── assets/
 │   │   └── style.css            # Minimal styling
-│   └── components/              # Optional modular UI elements
+│   └── components/              # Modular UI elements
+│       ├── uploader.py          # Upload logic
+│       ├── column_preview.py    # Column-level feedback
+│       ├── charts.py            # Mapping/overlap charts
+│       └── download_button.py   # Download-ready output
 │
 ├── tests/                       # Pytest suite covering pipeline + analyses
 │

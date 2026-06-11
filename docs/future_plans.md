@@ -4,7 +4,7 @@ This document outlines the forward-looking roadmap for enhancing the DV Standard
 
 ## LLM Integration
 
-One promising direction involves incorporating large language models (LLMs) to support intelligent alias detection and semantic inference. Specifically, LLMs can be used to auto-suggest appropriate mappings for ambiguous or previously unseen dependent variable (DV) column names. This may be particularly useful when working with large or multilingual datasets, or when encountering domain-specific constructs not yet represented in the canonical schema. Initial utilities for LLM prompting are scaffolded in `scripts/llm_utils.py`. Additionally, the use of semantic embeddings could allow for unsupervised clustering of DV names, facilitating schema refinement and cross-study harmonization at scale.
+Local-LLM alias deduction is now implemented in `scripts/llm_utils.py` and wired into the batch runner as a fallback after explicit mappings and built-in schema families (see `scripts/run_batch_standardization.py`). Remaining directions include confidence scoring for suggested mappings, retrieval-augmented suggestion that reuses past mapping decisions, and better support for multilingual datasets or domain-specific constructs not yet represented in the canonical schema. Additionally, the use of semantic embeddings could allow for unsupervised clustering of DV names, facilitating schema refinement and cross-study harmonization at scale.
 
 ## Enhanced Visualization
 
@@ -12,7 +12,7 @@ Improved visualization capabilities are envisioned to assist with both developme
 
 ## UI Roadmap
 
-While the current project is backend-focused, an optional frontend layer is being prototyped using Streamlit. The goal is to offer a lightweight, interactive dashboard (`ui/app.py`) for research users who prefer visual or no-code interfaces. This includes support for drag-and-drop dataset uploads, downloadable output previews, and configuration of schema mappings. Styling is handled via a minimal CSS layer (`ui/assets/style.css`), and future iterations will explore themes such as dark mode. These interface features, while not core to the thesis, serve to demonstrate the extensibility and adoption potential of the tool in open research environments.
+A Streamlit frontend now ships in `ui/app.py`, covering upload-to-export standardization of single files and catalog-driven overlap/meta-analysis exploration, with modular components under `ui/components/` and styling via a minimal CSS layer (`ui/assets/style.css`). Future iterations will explore configuration of schema mappings from within the UI and themes such as dark mode. These interface features, while not core to the thesis, serve to demonstrate the extensibility and adoption potential of the tool in open research environments.
 
 ## Analysis Roadmap
 

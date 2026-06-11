@@ -177,31 +177,46 @@ class LLMUtilsTests(unittest.TestCase):
         self.assertEqual(selected, [])
 
     def test_deduce_standard_name_with_local_llm_returns_matching_candidate(self):
-        def _fake_pipeline(prompt, max_new_tokens, do_sample):
+        def _fake_pipeline(prompt, max_new_tokens, do_sample, return_full_text):
             self.assertIn("Match the measured human outcome or construct", prompt)
             self.assertIn("task_completion_time | label=Task Completion Time", prompt)
-            return [{"generated_text": prompt + "task_completion_time"}]
+            self.assertFalse(return_full_text)
+            return [{"generated_text": "task_completion_time"}]
 
-        with mock.patch("scripts.llm_utils._get_text_generation_pipeline", return_value=_fake_pipeline):
-            inferred = deduce_standard_name_with_local_llm(
-                raw_column_name="Duration",
-                canonical_candidates=["task_completion_time", "trust_rating"],
-            )
+        with mock.patch(
+            "scripts.llm_utils.select_local_model_candidates",
+            return_value=["fake/test-model"],
+        ):
+            with mock.patch(
+                "scripts.llm_utils._get_text_generation_pipeline",
+                return_value=_fake_pipeline,
+            ):
+                inferred = deduce_standard_name_with_local_llm(
+                    raw_column_name="Duration",
+                    canonical_candidates=["task_completion_time", "trust_rating"],
+                )
 
         self.assertEqual(inferred, "task_completion_time")
 
     def test_deduce_standard_name_with_local_llm_uses_precomputed_context(self):
-        def _fake_pipeline(prompt, max_new_tokens, do_sample):
+        def _fake_pipeline(prompt, max_new_tokens, do_sample, return_full_text):
             self.assertIn("cached context", prompt)
-            return [{"generated_text": prompt + "task_completion_time"}]
+            return [{"generated_text": "task_completion_time"}]
 
-        with mock.patch("scripts.llm_utils.collect_repository_context") as mocked_context:
-            with mock.patch("scripts.llm_utils._get_text_generation_pipeline", return_value=_fake_pipeline):
-                inferred = deduce_standard_name_with_local_llm(
-                    raw_column_name="Duration",
-                    canonical_candidates=["task_completion_time", "trust_rating"],
-                    repository_context="cached context",
-                )
+        with mock.patch(
+            "scripts.llm_utils.select_local_model_candidates",
+            return_value=["fake/test-model"],
+        ):
+            with mock.patch("scripts.llm_utils.collect_repository_context") as mocked_context:
+                with mock.patch(
+                    "scripts.llm_utils._get_text_generation_pipeline",
+                    return_value=_fake_pipeline,
+                ):
+                    inferred = deduce_standard_name_with_local_llm(
+                        raw_column_name="Duration",
+                        canonical_candidates=["task_completion_time", "trust_rating"],
+                        repository_context="cached context",
+                    )
 
         mocked_context.assert_not_called()
         self.assertEqual(inferred, "task_completion_time")
