@@ -97,10 +97,17 @@ def _select_llm_candidate_shortlist(
     very top score. Used by the augmenter to (a) skip LLM calls when no
     alias is even remotely close and (b) keep the prompt short.
     """
+    # The alias dict carries both original-case and lowercased variants of
+    # every alias; fuzzy scoring is case-insensitive, so score each distinct
+    # (normalized alias, canonical) pair once instead of twice.
+    unique_pairs: set[tuple[str, str]] = {
+        (alias.lower(), canonical)
+        for alias, canonical in mapping.items()
+        if isinstance(alias, str) and isinstance(canonical, str)
+    }
+
     candidate_scores: dict[str, float] = {}
-    for alias, canonical in mapping.items():
-        if not isinstance(alias, str) or not isinstance(canonical, str):
-            continue
+    for alias, canonical in unique_pairs:
         score = _score_alias_match(raw_column_name, alias)
         if score <= candidate_scores.get(canonical, 0.0):
             continue

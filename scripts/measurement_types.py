@@ -20,6 +20,7 @@ class MeasurementCategory(Enum):
     BINARY = "Binary"
     CONTINUOUS = "Continuous"
     PHYSIOLOGICAL = "Physiological"
+    SCORE = "Score"
 
 
 class ScaleType(Enum):
@@ -75,4 +76,7 @@ CATEGORY_SCALE_TYPES = {
     MeasurementCategory.BINARY: ScaleType.NOMINAL,
     MeasurementCategory.CONTINUOUS: ScaleType.RATIO,
     MeasurementCategory.PHYSIOLOGICAL: ScaleType.RATIO,
+    # Composite instrument scores (TLX, SSQ, PANAS, ...) are sums/means of
+    # ordinal items; interval is the conventional working assumption.
+    MeasurementCategory.SCORE: ScaleType.INTERVAL,
 }

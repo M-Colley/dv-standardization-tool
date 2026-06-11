@@ -297,7 +297,11 @@ def compose_item_groups(
     if dataset_type not in eligible_dataset_types:
         return df, records
 
-    df_out = df.copy()
+    # Shallow copy: composition only renames columns (rename returns a new
+    # frame) and appends composite columns — existing data blocks are never
+    # written in place, so sharing them with the caller's frame is safe and
+    # avoids duplicating large questionnaires in memory.
+    df_out = df.copy(deep=False)
     canonicals_handled_by_declared: set[str] = set()
 
     # Phase 1: process declared scales (Tier 2). These bypass the alpha gate

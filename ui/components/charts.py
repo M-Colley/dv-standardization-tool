@@ -40,6 +40,8 @@ def build_mapping_quality_chart(mapped_columns: int, unknown_columns: int):
 
 def build_overlap_heatmap(overlap_df: pd.DataFrame, title: str = "DV Overlap (Jaccard)"):
     _require_plotly()
+    if overlap_df.empty:
+        return None
     return go.Figure(
         data=go.Heatmap(
             z=overlap_df.values,
@@ -57,6 +59,8 @@ def build_overlap_heatmap(overlap_df: pd.DataFrame, title: str = "DV Overlap (Ja
 
 def build_presence_heatmap(presence_df: pd.DataFrame):
     _require_plotly()
+    if presence_df.empty:
+        return None
     return go.Figure(
         data=go.Heatmap(
             z=presence_df.values,

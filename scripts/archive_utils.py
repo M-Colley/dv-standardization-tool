@@ -127,6 +127,27 @@ def _extract_zip_files_recursive(
     extract_root.mkdir(parents=True, exist_ok=True)
     resolved_extract_root = extract_root.resolve()
 
+    # Skip archives whose extraction is already up to date (matching size +
+    # mtime fingerprint at an equal-or-deeper recursion budget). Cached remote
+    # sources are re-walked on every batch run; without this marker every zip
+    # would be fully re-extracted each time.
+    remaining_depth = max_depth - depth
+    try:
+        zip_stat = zip_path.stat()
+        content_fingerprint = f"{zip_stat.st_size}:{zip_stat.st_mtime_ns}"
+    except OSError:
+        content_fingerprint = None
+    marker = extract_root / ".archive_fingerprint"
+    if content_fingerprint is not None and marker.is_file():
+        try:
+            stored = marker.read_text(encoding="utf-8").strip()
+            stored_content, _, stored_depth_text = stored.rpartition(":depth=")
+            if stored_content == content_fingerprint and stored_depth_text:
+                if int(stored_depth_text) >= remaining_depth:
+                    return
+        except (OSError, ValueError):
+            pass
+
     with zipfile.ZipFile(zip_path, "r") as zf:
         for member in zf.infolist():
             if member.is_dir():
@@ -154,6 +175,15 @@ def _extract_zip_files_recursive(
 
             if suffix in ARCHIVE_SUFFIXES:
                 _extract_zip_files_recursive(destination, source_root, depth + 1, max_depth)
+
+    # Only mark complete after every member (and nested archive) extracted.
+    if content_fingerprint is not None:
+        try:
+            marker.write_text(
+                f"{content_fingerprint}:depth={remaining_depth}", encoding="utf-8"
+            )
+        except OSError:
+            pass
 
 
 def _extract_archives_in_tree(source_root: Path, max_depth: int) -> None:

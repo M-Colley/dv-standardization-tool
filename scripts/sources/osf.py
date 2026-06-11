@@ -27,7 +27,12 @@ from pathlib import Path
 from typing import Any
 from urllib import request
 
-from scripts.http_utils import HTTP_USER_AGENT, NETWORK_TIMEOUTS, _read_url_bytes
+from scripts.http_utils import (
+    HTTP_USER_AGENT,
+    NETWORK_TIMEOUTS,
+    _read_url_bytes,
+    _stream_url_to_path,
+)
 
 OSF_API_BASE = "https://api.osf.io/v2"
 
@@ -188,10 +193,14 @@ def _iter_osf_file_entries(node_id: str) -> list[dict[str, Any]]:
 # ---------------------------------------------------------------------------
 
 def _download_osf_file(download_url: str, destination: Path) -> None:
-    """Download an OSF file URL into ``destination`` (parents created)."""
-    destination.parent.mkdir(parents=True, exist_ok=True)
-    destination.write_bytes(
-        _read_url_bytes(download_url, timeout=NETWORK_TIMEOUTS["download_seconds"])
+    """Download an OSF file URL into ``destination`` (parents created).
+
+    Streamed to disk so multi-GB OSF blobs never have to fit in memory.
+    """
+    _stream_url_to_path(
+        download_url,
+        destination,
+        timeout=NETWORK_TIMEOUTS["download_seconds"],
     )
 
 

@@ -68,7 +68,7 @@ Documentation = "https://github.com/M-Colley/dv-standardization-tool/tree/main/d
 opendv-standardize = "scripts.convert_dv:main"
 opendv-batch = "scripts.run_batch_standardization:main"
 opendv-analyze = "analyses.multi_study_analysis:main"
-opendv = "__main__:main"
+opendv = "scripts.cli:main"
 
 [tool.setuptools.packages.find]
 include = ["scripts*", "analyses*", "schemas*", "ui*"]
@@ -78,7 +78,7 @@ schemas = ["*.yaml"]
 
 [tool.ruff]
 line-length = 120
-target-version = "py311"
+target-version = "py312"
 
 [tool.ruff.lint]
 select = ["E", "F", "W", "I", "UP", "B", "SIM"]

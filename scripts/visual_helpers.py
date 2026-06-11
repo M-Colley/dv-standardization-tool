@@ -53,7 +53,15 @@ def plot_schema_coverage(raw_df, known_aliases):
     unmatched = raw_columns - known_aliases
 
     counts = {'Matched': len(matched), 'Unmatched': len(unmatched)}
-    sns.barplot(x=list(counts.keys()), y=list(counts.values()), palette="pastel")
+    # hue + legend=False keeps per-bar colors without seaborn 0.13's
+    # "palette without hue" deprecation warning.
+    sns.barplot(
+        x=list(counts.keys()),
+        y=list(counts.values()),
+        hue=list(counts.keys()),
+        palette="pastel",
+        legend=False,
+    )
     plt.ylabel("Number of Columns")
     plt.title("Schema Coverage of Raw Dataset Columns")
     plt.tight_layout()

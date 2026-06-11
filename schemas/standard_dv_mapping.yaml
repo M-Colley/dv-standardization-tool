@@ -24,6 +24,10 @@ dvs:
       - time_spent
       - completion_duration
       - task_time
+      - taskTime
+      - completion_time
+      - completionTime
+      - time_to_complete_task
       - duration
       - time_on_task
       - response_time
@@ -318,6 +322,7 @@ dvs:
     measurement:
       category: Score
       primary_unit: "6-point (0–5)"
+      allowed_units: ["6-point (0–5)"]
       scale_type: ordinal
       direction: lower_is_better
       canonical_range: [0, 5]
@@ -336,6 +341,7 @@ dvs:
     measurement:
       category: Likert
       primary_unit: "6-point (0–5)"
+      allowed_units: ["6-point (0–5)"]
       scale_type: ordinal
       direction: lower_is_better
       canonical_range: [0, 5]
@@ -348,6 +354,7 @@ dvs:
     measurement:
       category: Likert
       primary_unit: "6-point (0–5)"
+      allowed_units: ["6-point (0–5)"]
       scale_type: ordinal
       direction: lower_is_better
       canonical_range: [0, 5]
@@ -360,6 +367,7 @@ dvs:
     measurement:
       category: Likert
       primary_unit: "6-point (0–5)"
+      allowed_units: ["6-point (0–5)"]
       scale_type: ordinal
       direction: lower_is_better
       canonical_range: [0, 5]
@@ -372,6 +380,7 @@ dvs:
     measurement:
       category: Likert
       primary_unit: "6-point (0–5)"
+      allowed_units: ["6-point (0–5)"]
       scale_type: ordinal
       direction: lower_is_better
       canonical_range: [0, 5]
@@ -384,6 +393,7 @@ dvs:
     measurement:
       category: Likert
       primary_unit: "6-point (0–5)"
+      allowed_units: ["6-point (0–5)"]
       scale_type: ordinal
       direction: lower_is_better
       canonical_range: [0, 5]
@@ -396,6 +406,7 @@ dvs:
     measurement:
       category: Likert
       primary_unit: "6-point (0–5)"
+      allowed_units: ["6-point (0–5)"]
       scale_type: ordinal
       direction: lower_is_better
       canonical_range: [0, 5]
@@ -411,6 +422,7 @@ dvs:
     measurement:
       category: Continuous
       primary_unit: "composite"
+      allowed_units: ["composite"]
       scale_type: ordinal
       direction: higher_is_better
     aliases: [SART_total, sart_score, SART, situational_awareness_rating]
@@ -423,6 +435,7 @@ dvs:
     measurement:
       category: Continuous
       primary_unit: "21-point (0–20)"
+      allowed_units: ["21-point (0–20)"]
       scale_type: ordinal
       direction: higher_is_better
       canonical_range: [0, 20]
@@ -439,6 +452,7 @@ dvs:
     measurement:
       category: Continuous
       primary_unit: "21-point (0–20)"
+      allowed_units: ["21-point (0–20)"]
       scale_type: ordinal
       direction: lower_is_better
       canonical_range: [0, 20]
@@ -451,6 +465,7 @@ dvs:
     measurement:
       category: Continuous
       primary_unit: "21-point (0–20)"
+      allowed_units: ["21-point (0–20)"]
       scale_type: ordinal
       direction: higher_is_better
       canonical_range: [0, 20]
@@ -527,6 +542,7 @@ dvs:
     measurement:
       category: Likert
       primary_unit: "5-point (1–5)"
+      allowed_units: ["5-point (1–5)"]
       scale_type: ordinal
       direction: higher_is_better
       canonical_range: [1, 5]
@@ -539,6 +555,7 @@ dvs:
     measurement:
       category: Likert
       primary_unit: "5-point (1–5)"
+      allowed_units: ["5-point (1–5)"]
       scale_type: ordinal
       direction: higher_is_better
       canonical_range: [1, 5]
@@ -551,6 +568,7 @@ dvs:
     measurement:
       category: Likert
       primary_unit: "5-point (1–5)"
+      allowed_units: ["5-point (1–5)"]
       scale_type: ordinal
       direction: higher_is_better
       canonical_range: [1, 5]
@@ -563,6 +581,7 @@ dvs:
     measurement:
       category: Likert
       primary_unit: "5-point (1–5)"
+      allowed_units: ["5-point (1–5)"]
       scale_type: ordinal
       direction: higher_is_better
       canonical_range: [1, 5]
@@ -575,6 +594,7 @@ dvs:
     measurement:
       category: Likert
       primary_unit: "5-point (1–5)"
+      allowed_units: ["5-point (1–5)"]
       scale_type: ordinal
       direction: higher_is_better
       canonical_range: [1, 5]
@@ -587,6 +607,7 @@ dvs:
     measurement:
       category: Likert
       primary_unit: "5-point (1–5)"
+      allowed_units: ["5-point (1–5)"]
       scale_type: ordinal
       direction: higher_is_better
       canonical_range: [1, 5]
@@ -601,6 +622,7 @@ dvs:
     measurement:
       category: Likert
       primary_unit: "7-point (1–7)"
+      allowed_units: ["7-point (1–7)"]
       scale_type: ordinal
       direction: higher_is_better
       canonical_range: [1, 7]
@@ -833,6 +855,7 @@ dvs:
     measurement:
       category: Likert
       primary_unit: "7-point (-3–3)"
+      allowed_units: ["7-point (-3–3)"]
       scale_type: ordinal
       direction: higher_is_better
       canonical_range: [-3, 3]
@@ -845,6 +868,7 @@ dvs:
     measurement:
       category: Likert
       primary_unit: "7-point (-3–3)"
+      allowed_units: ["7-point (-3–3)"]
       scale_type: ordinal
       direction: higher_is_better
       canonical_range: [-3, 3]
@@ -857,6 +881,7 @@ dvs:
     measurement:
       category: Likert
       primary_unit: "7-point (-3–3)"
+      allowed_units: ["7-point (-3–3)"]
       scale_type: ordinal
       direction: higher_is_better
       canonical_range: [-3, 3]
@@ -869,6 +894,7 @@ dvs:
     measurement:
       category: Likert
       primary_unit: "7-point (-3–3)"
+      allowed_units: ["7-point (-3–3)"]
       scale_type: ordinal
       direction: higher_is_better
       canonical_range: [-3, 3]
@@ -881,6 +907,7 @@ dvs:
     measurement:
       category: Likert
       primary_unit: "7-point (-3–3)"
+      allowed_units: ["7-point (-3–3)"]
       scale_type: ordinal
       direction: higher_is_better
       canonical_range: [-3, 3]
@@ -893,6 +920,7 @@ dvs:
     measurement:
       category: Likert
       primary_unit: "7-point (-3–3)"
+      allowed_units: ["7-point (-3–3)"]
       scale_type: ordinal
       direction: higher_is_better
       canonical_range: [-3, 3]
@@ -905,6 +933,7 @@ dvs:
     measurement:
       category: Likert
       primary_unit: "7-point (-3–3)"
+      allowed_units: ["7-point (-3–3)"]
       scale_type: ordinal
       direction: higher_is_better
       canonical_range: [-3, 3]
@@ -918,6 +947,7 @@ dvs:
     measurement:
       category: Likert
       primary_unit: "7-point (-3–3)"
+      allowed_units: ["7-point (-3–3)"]
       scale_type: ordinal
       direction: higher_is_better
       canonical_range: [-3, 3]
@@ -934,6 +964,7 @@ dvs:
     measurement:
       category: Likert
       primary_unit: "7-point (-3–3)"
+      allowed_units: ["7-point (-3–3)"]
       scale_type: ordinal
       direction: higher_is_better
       canonical_range: [-3, 3]
@@ -946,6 +977,7 @@ dvs:
     measurement:
       category: Likert
       primary_unit: "7-point (-3–3)"
+      allowed_units: ["7-point (-3–3)"]
       scale_type: ordinal
       direction: higher_is_better
       canonical_range: [-3, 3]
@@ -958,6 +990,7 @@ dvs:
     measurement:
       category: Likert
       primary_unit: "7-point (-3–3)"
+      allowed_units: ["7-point (-3–3)"]
       scale_type: ordinal
       direction: higher_is_better
       canonical_range: [-3, 3]
@@ -970,6 +1003,7 @@ dvs:
     measurement:
       category: Likert
       primary_unit: "7-point (-3–3)"
+      allowed_units: ["7-point (-3–3)"]
       scale_type: ordinal
       direction: higher_is_better
       canonical_range: [-3, 3]
@@ -985,6 +1019,7 @@ dvs:
     measurement:
       category: Likert
       primary_unit: "7-point (1–7)"
+      allowed_units: ["7-point (1–7)"]
       scale_type: ordinal
       direction: higher_is_better
       canonical_range: [1, 7]
@@ -997,6 +1032,7 @@ dvs:
     measurement:
       category: Likert
       primary_unit: "7-point (1–7)"
+      allowed_units: ["7-point (1–7)"]
       scale_type: ordinal
       direction: higher_is_better
       canonical_range: [1, 7]
@@ -1009,6 +1045,7 @@ dvs:
     measurement:
       category: Likert
       primary_unit: "7-point (1–7)"
+      allowed_units: ["7-point (1–7)"]
       scale_type: ordinal
       direction: higher_is_better
       canonical_range: [1, 7]
@@ -1021,6 +1058,7 @@ dvs:
     measurement:
       category: Likert
       primary_unit: "7-point (1–7)"
+      allowed_units: ["7-point (1–7)"]
       scale_type: ordinal
       direction: higher_is_better
       canonical_range: [1, 7]
@@ -1033,6 +1071,7 @@ dvs:
     measurement:
       category: Likert
       primary_unit: "7-point (1–7)"
+      allowed_units: ["7-point (1–7)"]
       scale_type: ordinal
       direction: higher_is_better
       canonical_range: [1, 7]
@@ -1045,6 +1084,7 @@ dvs:
     measurement:
       category: Likert
       primary_unit: "7-point (1–7)"
+      allowed_units: ["7-point (1–7)"]
       scale_type: ordinal
       direction: higher_is_better
       canonical_range: [1, 7]
@@ -1057,6 +1097,7 @@ dvs:
     measurement:
       category: Likert
       primary_unit: "7-point (1–7)"
+      allowed_units: ["7-point (1–7)"]
       scale_type: ordinal
       direction: higher_is_better
       canonical_range: [1, 7]
@@ -1069,6 +1110,7 @@ dvs:
     measurement:
       category: Likert
       primary_unit: "7-point (1–7)"
+      allowed_units: ["7-point (1–7)"]
       scale_type: ordinal
       direction: higher_is_better
       canonical_range: [1, 7]
@@ -1109,55 +1151,55 @@ dvs:
   - id: AOA1
     label: "van der Laan — Item 1"
     cluster: ux_satisfaction
-    measurement: { category: Likert, primary_unit: "5-point (-2 to +2)", scale_type: ordinal, direction: higher_is_better, canonical_range: [-2, 2] }
+    measurement: { category: Likert, primary_unit: "5-point (-2 to +2)", allowed_units: ["5-point (-2 to +2)"], scale_type: ordinal, direction: higher_is_better, canonical_range: [-2, 2] }
     aliases: [aoa1, acceptance_1, vdL_1]
     instruments: ["van der Laan Acceptance Scale"]
   - id: AOA2
     label: "van der Laan — Item 2"
     cluster: ux_satisfaction
-    measurement: { category: Likert, primary_unit: "5-point (-2 to +2)", scale_type: ordinal, direction: higher_is_better, canonical_range: [-2, 2] }
+    measurement: { category: Likert, primary_unit: "5-point (-2 to +2)", allowed_units: ["5-point (-2 to +2)"], scale_type: ordinal, direction: higher_is_better, canonical_range: [-2, 2] }
     aliases: [aoa2, acceptance_2, vdL_2]
     instruments: ["van der Laan Acceptance Scale"]
   - id: AOA3
     label: "van der Laan — Item 3"
     cluster: ux_satisfaction
-    measurement: { category: Likert, primary_unit: "5-point (-2 to +2)", scale_type: ordinal, direction: higher_is_better, canonical_range: [-2, 2] }
+    measurement: { category: Likert, primary_unit: "5-point (-2 to +2)", allowed_units: ["5-point (-2 to +2)"], scale_type: ordinal, direction: higher_is_better, canonical_range: [-2, 2] }
     aliases: [aoa3, acceptance_3, vdL_3]
     instruments: ["van der Laan Acceptance Scale"]
   - id: AOA4
     label: "van der Laan — Item 4"
     cluster: ux_satisfaction
-    measurement: { category: Likert, primary_unit: "5-point (-2 to +2)", scale_type: ordinal, direction: higher_is_better, canonical_range: [-2, 2] }
+    measurement: { category: Likert, primary_unit: "5-point (-2 to +2)", allowed_units: ["5-point (-2 to +2)"], scale_type: ordinal, direction: higher_is_better, canonical_range: [-2, 2] }
     aliases: [aoa4, acceptance_4, vdL_4]
     instruments: ["van der Laan Acceptance Scale"]
   - id: AOA5
     label: "van der Laan — Item 5"
     cluster: ux_satisfaction
-    measurement: { category: Likert, primary_unit: "5-point (-2 to +2)", scale_type: ordinal, direction: higher_is_better, canonical_range: [-2, 2] }
+    measurement: { category: Likert, primary_unit: "5-point (-2 to +2)", allowed_units: ["5-point (-2 to +2)"], scale_type: ordinal, direction: higher_is_better, canonical_range: [-2, 2] }
     aliases: [aoa5, acceptance_5, vdL_5]
     instruments: ["van der Laan Acceptance Scale"]
   - id: AOA6
     label: "van der Laan — Item 6"
     cluster: ux_satisfaction
-    measurement: { category: Likert, primary_unit: "5-point (-2 to +2)", scale_type: ordinal, direction: higher_is_better, canonical_range: [-2, 2] }
+    measurement: { category: Likert, primary_unit: "5-point (-2 to +2)", allowed_units: ["5-point (-2 to +2)"], scale_type: ordinal, direction: higher_is_better, canonical_range: [-2, 2] }
     aliases: [aoa6, acceptance_6, vdL_6]
     instruments: ["van der Laan Acceptance Scale"]
   - id: AOA7
     label: "van der Laan — Item 7"
     cluster: ux_satisfaction
-    measurement: { category: Likert, primary_unit: "5-point (-2 to +2)", scale_type: ordinal, direction: higher_is_better, canonical_range: [-2, 2] }
+    measurement: { category: Likert, primary_unit: "5-point (-2 to +2)", allowed_units: ["5-point (-2 to +2)"], scale_type: ordinal, direction: higher_is_better, canonical_range: [-2, 2] }
     aliases: [aoa7, acceptance_7, vdL_7]
     instruments: ["van der Laan Acceptance Scale"]
   - id: AOA8
     label: "van der Laan — Item 8"
     cluster: ux_satisfaction
-    measurement: { category: Likert, primary_unit: "5-point (-2 to +2)", scale_type: ordinal, direction: higher_is_better, canonical_range: [-2, 2] }
+    measurement: { category: Likert, primary_unit: "5-point (-2 to +2)", allowed_units: ["5-point (-2 to +2)"], scale_type: ordinal, direction: higher_is_better, canonical_range: [-2, 2] }
     aliases: [aoa8, acceptance_8, vdL_8]
     instruments: ["van der Laan Acceptance Scale"]
   - id: AOA9
     label: "van der Laan — Item 9"
     cluster: ux_satisfaction
-    measurement: { category: Likert, primary_unit: "5-point (-2 to +2)", scale_type: ordinal, direction: higher_is_better, canonical_range: [-2, 2] }
+    measurement: { category: Likert, primary_unit: "5-point (-2 to +2)", allowed_units: ["5-point (-2 to +2)"], scale_type: ordinal, direction: higher_is_better, canonical_range: [-2, 2] }
     aliases: [aoa9, acceptance_9, vdL_9]
     instruments: ["van der Laan Acceptance Scale"]
 
@@ -1170,6 +1212,7 @@ dvs:
     measurement:
       category: Score
       primary_unit: "SSQ weighted"
+      allowed_units: ["SSQ weighted"]
       scale_type: ratio
       direction: lower_is_better
       canonical_range: [0, 235.62]
@@ -1183,6 +1226,7 @@ dvs:
     measurement:
       category: Score
       primary_unit: "SSQ weighted"
+      allowed_units: ["SSQ weighted"]
       scale_type: ratio
       direction: lower_is_better
       canonical_range: [0, 200.34]
@@ -1195,6 +1239,7 @@ dvs:
     measurement:
       category: Score
       primary_unit: "SSQ weighted"
+      allowed_units: ["SSQ weighted"]
       scale_type: ratio
       direction: lower_is_better
       canonical_range: [0, 159.18]
@@ -1207,6 +1252,7 @@ dvs:
     measurement:
       category: Score
       primary_unit: "SSQ weighted"
+      allowed_units: ["SSQ weighted"]
       scale_type: ratio
       direction: lower_is_better
       canonical_range: [0, 292.32]
@@ -1219,6 +1265,7 @@ dvs:
     measurement:
       category: Score
       primary_unit: "percentage (0–100)"
+      allowed_units: ["percentage (0–100)"]
       scale_type: ratio
       direction: lower_is_better
       canonical_range: [0, 100]
@@ -1232,6 +1279,7 @@ dvs:
     measurement:
       category: Continuous
       primary_unit: "VAS (0–20)"
+      allowed_units: ["VAS (0–20)"]
       scale_type: ratio
       direction: lower_is_better
       canonical_range: [0, 20]
@@ -1247,6 +1295,7 @@ dvs:
     measurement:
       category: Likert
       primary_unit: "7-point (0–6)"
+      allowed_units: ["7-point (0–6)"]
       scale_type: ordinal
       direction: higher_is_better
       canonical_range: [0, 6]
@@ -1260,6 +1309,7 @@ dvs:
     measurement:
       category: Likert
       primary_unit: "7-point (0–6)"
+      allowed_units: ["7-point (0–6)"]
       scale_type: ordinal
       direction: higher_is_better
       canonical_range: [0, 6]
@@ -1272,6 +1322,7 @@ dvs:
     measurement:
       category: Likert
       primary_unit: "7-point (0–6)"
+      allowed_units: ["7-point (0–6)"]
       scale_type: ordinal
       direction: higher_is_better
       canonical_range: [0, 6]
@@ -1284,6 +1335,7 @@ dvs:
     measurement:
       category: Likert
       primary_unit: "7-point (0–6)"
+      allowed_units: ["7-point (0–6)"]
       scale_type: ordinal
       direction: higher_is_better
       canonical_range: [0, 6]
@@ -1299,6 +1351,7 @@ dvs:
     measurement:
       category: Likert
       primary_unit: "5-point (1–5)"
+      allowed_units: ["5-point (1–5)"]
       scale_type: ordinal
       direction: higher_is_better
       canonical_range: [1, 5]
@@ -1311,6 +1364,7 @@ dvs:
     measurement:
       category: Likert
       primary_unit: "5-point (1–5)"
+      allowed_units: ["5-point (1–5)"]
       scale_type: ordinal
       direction: higher_is_better
       canonical_range: [1, 5]
@@ -1323,6 +1377,7 @@ dvs:
     measurement:
       category: Likert
       primary_unit: "5-point (1–5)"
+      allowed_units: ["5-point (1–5)"]
       scale_type: ordinal
       direction: higher_is_better
       canonical_range: [1, 5]
@@ -1335,6 +1390,7 @@ dvs:
     measurement:
       category: Likert
       primary_unit: "5-point (1–5)"
+      allowed_units: ["5-point (1–5)"]
       scale_type: ordinal
       direction: higher_is_better
       canonical_range: [1, 5]
@@ -1347,6 +1403,7 @@ dvs:
     measurement:
       category: Likert
       primary_unit: "5-point (1–5)"
+      allowed_units: ["5-point (1–5)"]
       scale_type: ordinal
       direction: higher_is_better
       canonical_range: [1, 5]
@@ -1376,6 +1433,7 @@ dvs:
     measurement:
       category: Likert
       primary_unit: "9-point (SAM)"
+      allowed_units: ["9-point (SAM)"]
       scale_type: ordinal
       direction: neutral
       canonical_range: [1, 9]
@@ -1389,6 +1447,7 @@ dvs:
     measurement:
       category: Likert
       primary_unit: "9-point (SAM)"
+      allowed_units: ["9-point (SAM)"]
       scale_type: ordinal
       direction: higher_is_better
       canonical_range: [1, 9]
@@ -1401,6 +1460,7 @@ dvs:
     measurement:
       category: Score
       primary_unit: "5-point (1–5)"
+      allowed_units: ["5-point (1–5)"]
       scale_type: ordinal
       direction: higher_is_better
       canonical_range: [1, 5]
@@ -1414,6 +1474,7 @@ dvs:
     measurement:
       category: Score
       primary_unit: "5-point (1–5)"
+      allowed_units: ["5-point (1–5)"]
       scale_type: ordinal
       direction: lower_is_better
       canonical_range: [1, 5]
@@ -1469,6 +1530,7 @@ dvs:
     measurement:
       category: Continuous
       primary_unit: meters
+      allowed_units: ["meters"]
       scale_type: ratio
       direction: lower_is_better
     aliases: [SDLP, lane_deviation_sd, lateral_deviation, lane_keeping]
@@ -1481,6 +1543,7 @@ dvs:
     measurement:
       category: Time
       primary_unit: seconds
+      allowed_units: ["seconds"]
       scale_type: ratio
       direction: higher_is_better
     aliases: [TTC, time_to_collision, ttc_min, minimum_ttc]
@@ -1493,6 +1556,7 @@ dvs:
     measurement:
       category: Time
       primary_unit: seconds
+      allowed_units: ["seconds"]
       scale_type: ratio
       direction: lower_is_better
     aliases: [brake_rt, BRT, braking_time, brake_response_time, pedal_reaction_time]
@@ -1504,6 +1568,7 @@ dvs:
     measurement:
       category: Time
       primary_unit: seconds
+      allowed_units: ["seconds"]
       scale_type: ratio
       direction: lower_is_better
     aliases: [TOT, takeover_reaction_time, TOR_time, handover_time, transition_time]
@@ -1516,6 +1581,7 @@ dvs:
     measurement:
       category: Continuous
       primary_unit: seconds
+      allowed_units: ["seconds"]
       scale_type: ratio
       direction: higher_is_better
     aliases: [THW, time_headway, following_distance, headway_time]
@@ -1527,6 +1593,7 @@ dvs:
     measurement:
       category: Proportion
       primary_unit: percentage
+      allowed_units: ["percentage"]
       scale_type: ratio
       direction: higher_is_better
       canonical_range: [0, 100]
@@ -1539,6 +1606,7 @@ dvs:
     measurement:
       category: Continuous
       primary_unit: "m/s²"
+      allowed_units: ["m/s²"]
       scale_type: ratio
       direction: lower_is_better
     aliases: [max_lat_accel, lateral_g, swerving]
@@ -1565,6 +1633,7 @@ dvs:
     measurement:
       category: Physiological
       primary_unit: bpm
+      allowed_units: ["bpm"]
       scale_type: ratio
       direction: neutral
     aliases: [heart_rate, hr, HR, pulse, bpm]
@@ -1576,6 +1645,7 @@ dvs:
     measurement:
       category: Physiological
       primary_unit: milliseconds
+      allowed_units: ["milliseconds"]
       scale_type: ratio
       direction: neutral
     aliases: [hrv, HRV, RMSSD, rmssd, heart_rate_variability, rr_interval, SDNN]
@@ -1588,6 +1658,7 @@ dvs:
     measurement:
       category: Physiological
       primary_unit: microvolts
+      allowed_units: ["microvolts"]
       scale_type: ratio
       direction: neutral
     aliases: [EMG, emg_rms, muscle_activity, corrugator, zygomaticus]
@@ -1612,6 +1683,7 @@ dvs:
     measurement:
       category: Time
       primary_unit: milliseconds
+      allowed_units: ["milliseconds"]
       scale_type: ratio
       direction: neutral
     aliases: [fix_duration, mean_fixation_duration, avg_fixation_ms, gaze_fixation]
@@ -1623,6 +1695,7 @@ dvs:
     measurement:
       category: Count
       primary_unit: integer
+      allowed_units: ["integer"]
       scale_type: ratio
       direction: neutral
     aliases: [fix_count, number_of_fixations, n_fixations]
@@ -1634,6 +1707,7 @@ dvs:
     measurement:
       category: Continuous
       primary_unit: "saccades/s"
+      allowed_units: ["saccades/s"]
       scale_type: ratio
       direction: neutral
     aliases: [saccade_frequency, saccades_per_second, saccade_amplitude]
@@ -1645,6 +1719,7 @@ dvs:
     measurement:
       category: Time
       primary_unit: milliseconds
+      allowed_units: ["milliseconds"]
       scale_type: ratio
       direction: neutral
     aliases: [aoi_dwell, gaze_dwell, total_dwell_time, time_in_aoi]
@@ -1656,6 +1731,7 @@ dvs:
     measurement:
       category: Continuous
       primary_unit: pixels
+      allowed_units: ["pixels"]
       scale_type: ratio
       direction: neutral
     aliases: [scan_path, gaze_path_length, total_scanpath]

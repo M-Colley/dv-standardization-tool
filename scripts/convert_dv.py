@@ -794,11 +794,24 @@ Examples:
             "Only exact alias lookups will be performed (strict/reproducible mode)."
         ),
     )
+    parser.add_argument(
+        "--no-reshape",
+        action="store_true",
+        default=False,
+        help=(
+            "Disable automatic long-to-wide reshaping. By default, data detected "
+            "as long format is pivoted to wide; duplicate (id, variable) pairs — "
+            "e.g. repeated-measures trials — are aggregated by their MEAN during "
+            "that pivot. Pass this flag to keep the data exactly as loaded."
+        ),
+    )
 
     args = parser.parse_args()
 
     if not 0 <= args.confidence_threshold <= 1:
         raise ValueError("--confidence-threshold must be between 0 and 1.")
+    if not 0 <= args.fuzzy_threshold <= 100:
+        raise ValueError("--fuzzy-threshold must be between 0 and 100.")
 
     resolved_input, resolved_output, resolved_schema = resolve_io_paths(
         args.input,
@@ -825,10 +838,15 @@ Examples:
             detect_data_shape = None
             auto_reshape_to_wide = None
 
-    if detect_data_shape is not None:
+    if detect_data_shape is not None and not args.no_reshape:
         shape = detect_data_shape(df)
         if shape == "long":
             print("  [INFO] Detected long-format data -- reshaping to wide format...")
+            print(
+                "  [WARN] Long-to-wide pivoting aggregates duplicate (id, variable) "
+                "pairs by their MEAN. If this is repeated-measures data and you "
+                "need per-trial rows, rerun with --no-reshape."
+            )
             df = auto_reshape_to_wide(df)
             print(f"  Reshaped to {len(df)} rows, {len(df.columns)} columns")
         elif shape == "ambiguous":
@@ -852,7 +870,7 @@ Examples:
         alias_conflicts = schema_data.get("alias_conflicts", [])
         if alias_conflicts:
             print(
-                "  âš  Detected alias conflicts between selected and standard schema: "
+                "  [WARN] Detected alias conflicts between selected and standard schema: "
                 f"{len(alias_conflicts)}"
             )
             for conflict in alias_conflicts[:10]:
@@ -869,8 +887,8 @@ Examples:
     if not args.no_fuzzy:
         if not _RAPIDFUZZ_AVAILABLE:
             print(
-                "  [WARN] --fuzzy-threshold set but rapidfuzz is not installed; "
-                "fuzzy matching skipped."
+                "  [WARN] rapidfuzz is not installed; fuzzy column matching skipped. "
+                "Install it with: pip install rapidfuzz (or pass --no-fuzzy to silence this)."
             )
         else:
             raw_col_names = [str(col) for col in df.columns]

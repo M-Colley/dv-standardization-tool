@@ -336,12 +336,42 @@ def get_measurement_from_schema(
     if not measurement:
         return None
 
+    # Schema entries are authored by hand; tolerate missing/unknown optional
+    # fields instead of raising KeyError on an otherwise valid DV definition.
+    category_name = str(measurement.get('category', 'Continuous'))
+    try:
+        category = MeasurementCategory[category_name.upper()]
+    except KeyError:
+        try:
+            category = MeasurementCategory(category_name)
+        except ValueError:
+            logger.warning(
+                "Schema DV '%s' has unknown measurement category %r; falling back to Continuous.",
+                dv_id, category_name,
+            )
+            category = MeasurementCategory.CONTINUOUS
+
+    primary_unit = measurement.get('primary_unit') or "varies"
+    allowed_units = measurement.get('allowed_units')
+    if not isinstance(allowed_units, list) or not allowed_units:
+        allowed_units = [primary_unit] if primary_unit != "varies" else []
+
+    try:
+        scale_type = ScaleType[str(measurement.get('scale_type', '')).upper()]
+    except KeyError:
+        scale_type = CATEGORY_SCALE_TYPES.get(category, ScaleType.RATIO)
+
+    try:
+        direction = Direction[str(measurement.get('direction', 'neutral')).upper()]
+    except KeyError:
+        direction = Direction.NEUTRAL
+
     return MeasurementMeta(
-        category=MeasurementCategory[measurement['category'].upper()],
-        primary_unit=measurement['primary_unit'],
-        allowed_units=measurement['allowed_units'],
-        scale_type=ScaleType[measurement['scale_type'].upper()],
-        direction=Direction[measurement['direction'].upper()],
+        category=category,
+        primary_unit=primary_unit,
+        allowed_units=allowed_units,
+        scale_type=scale_type,
+        direction=direction,
         confidence=1.0,
         inferred=False,
         matched_rules=["schema_defined"],

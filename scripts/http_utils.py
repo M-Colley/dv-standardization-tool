@@ -334,6 +334,23 @@ def _httpx_headers_to_message(headers: httpx.Headers) -> email.message.Message:
     return msg
 
 
+_SHARED_CLIENT: httpx.Client | None = None
+
+
+def _get_shared_client() -> httpx.Client:
+    """Lazily create one process-wide httpx client.
+
+    OSF traversal issues dozens of sequential JSON-API calls; reusing a single
+    client keeps connections (and TLS sessions) alive instead of paying a new
+    handshake per request. Timeouts are passed per request, so one client
+    serves all call sites.
+    """
+    global _SHARED_CLIENT
+    if _SHARED_CLIENT is None or _SHARED_CLIENT.is_closed:
+        _SHARED_CLIENT = httpx.Client(follow_redirects=True)
+    return _SHARED_CLIENT
+
+
 def _execute_http_request(
     url: str,
     headers: dict[str, str],
@@ -347,13 +364,13 @@ def _execute_http_request(
     inject canned ``httpx.Response`` objects or raise httpx exceptions
     without having to mock the underlying transport stack.
     """
-    with httpx.Client(timeout=timeout, follow_redirects=True) as client:
-        response = client.request(method, url, headers=headers, content=body)
-        # Convert 4xx/5xx into HTTPStatusError so the retry predicate can see
-        # them; consumers that want the raw response on error catch
-        # HTTPStatusError and read .response.
-        response.raise_for_status()
-        return response
+    client = _get_shared_client()
+    response = client.request(method, url, headers=headers, content=body, timeout=timeout)
+    # Convert 4xx/5xx into HTTPStatusError so the retry predicate can see
+    # them; consumers that want the raw response on error catch
+    # HTTPStatusError and read .response.
+    response.raise_for_status()
+    return response
 
 
 def _read_url_response(
@@ -403,6 +420,54 @@ def _read_url_bytes(
     """Read bytes from URL with retry/backoff for transient network errors."""
     payload, _, _ = _read_url_response(url_or_request, timeout=timeout, max_attempts=max_attempts)
     return payload
+
+
+def _stream_url_to_path(
+    url: str,
+    destination: Path,
+    timeout: int,
+    headers: dict[str, str] | None = None,
+    max_attempts: int | None = None,
+    chunk_size: int = 1 << 20,
+) -> Path:
+    """Stream a URL's body to ``destination`` without buffering it in memory.
+
+    Retries transient failures with the same policy as ``_read_url_response``.
+    Writes to a ``.part`` sibling first so an interrupted download never
+    leaves a truncated file at the final path.
+    """
+    if max_attempts is None:
+        max_attempts = int(NETWORK_TIMEOUTS["max_retry_attempts"])
+    request_headers = {"User-Agent": HTTP_USER_AGENT, "Accept": "*/*"}
+    if headers:
+        request_headers.update(headers)
+
+    destination.parent.mkdir(parents=True, exist_ok=True)
+    partial = destination.with_suffix(destination.suffix + ".part")
+
+    def _attempt() -> None:
+        client = _get_shared_client()
+        with client.stream("GET", url, headers=request_headers, timeout=timeout) as response:
+            response.raise_for_status()
+            with open(partial, "wb") as fh:
+                for chunk in response.iter_bytes(chunk_size):
+                    fh.write(chunk)
+
+    retrying = tenacity.Retrying(
+        stop=tenacity.stop_after_attempt(max_attempts),
+        wait=tenacity.wait_incrementing(start=0.75, increment=0.75),
+        retry=tenacity.retry_if_exception(_is_transient_error),
+        before_sleep=tenacity.before_sleep_log(logger, logging.DEBUG),
+        reraise=True,
+    )
+    try:
+        retrying(_attempt)
+    except BaseException:
+        partial.unlink(missing_ok=True)
+        raise
+
+    partial.replace(destination)
+    return destination
 
 
 def _decode_http_text(payload: bytes, headers: Any) -> str:
@@ -570,6 +635,7 @@ __all__ = [
     "_is_supported_download_response",
     "_read_url_response",
     "_read_url_bytes",
+    "_stream_url_to_path",
     "_decode_http_text",
     "_iter_content_urls",
     "_extract_html_download_urls",

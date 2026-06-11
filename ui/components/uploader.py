@@ -32,10 +32,20 @@ def list_excel_sheets(uploaded_file) -> list[str]:
 
 def load_uploaded_table(uploaded_file, sheet_name: str | int = 0) -> pd.DataFrame:
     suffix = Path(uploaded_file.name).suffix.lower()
-    buffer = io.BytesIO(uploaded_file.getvalue())
+    raw = uploaded_file.getvalue()
     if suffix in {".xlsx", ".xls"}:
-        return pd.read_excel(buffer, sheet_name=sheet_name)
-    return pd.read_csv(buffer)
+        return pd.read_excel(io.BytesIO(raw), sheet_name=sheet_name)
+
+    # Mirror the CLI loader's robustness: detect encoding and delimiter so a
+    # semicolon-separated or latin-1 CSV parses the same here as in
+    # scripts/convert_dv.py instead of collapsing into a single column.
+    from scripts.data_loaders import _detect_delimiter
+    from scripts.encoding_utils import detect_text_encoding
+
+    encoding = detect_text_encoding(raw)
+    sample = raw[:16384].decode(encoding, errors="replace")
+    delimiter = _detect_delimiter(sample, prefer=",")
+    return pd.read_csv(io.BytesIO(raw), sep=delimiter, encoding=encoding)
 
 
 def upload_csv():

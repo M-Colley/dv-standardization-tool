@@ -315,6 +315,20 @@ def long_to_wide(
             n_null, n_before,
         )
 
+    # Duplicate (id, variable) pairs — typically repeated-measures trials —
+    # are collapsed by `aggfunc` during the pivot. That is silent data
+    # aggregation, so surface it loudly enough for users to notice.
+    n_duplicate = int(df.duplicated(subset=[id_col, variable_col]).sum())
+    if n_duplicate > 0:
+        warnings.warn(
+            f"long_to_wide: {n_duplicate} duplicate ({id_col}, {variable_col}) "
+            f"observations were aggregated with '{aggfunc}' during pivoting. "
+            "If these are repeated-measures trials you may want to keep the "
+            "long format instead.",
+            UserWarning,
+            stacklevel=2,
+        )
+
     # Detect whether variable_col contains multi-level keys
     # (e.g. "condition_A__trust_score") separated by a common delimiter.
     sample_values = df[variable_col].dropna().unique()

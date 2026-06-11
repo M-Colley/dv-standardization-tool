@@ -56,7 +56,9 @@ if _PYDANTIC_AVAILABLE:
         mapping_path: str | None = None
         publication_doi: str | None = None
         llm_context: str | list[str] | None = None  # str, list of strings, or None
-        use_llm_deduction: bool = False
+        # None means "inherit the run-level LLM switch"; an explicit true/false
+        # in the manifest overrides it (but --disable-llm-deduction always wins).
+        use_llm_deduction: bool | None = None
         extract_archives: bool = True
         archive_max_depth: int = 3
         repeated_measures: bool = False
@@ -335,9 +337,9 @@ def load_manifest(manifest_path: Path) -> list[dict[str, Any]]:
     # Pydantic v2 validation (if available).
     validation_errors = _validate_manifest(manifest)
     if validation_errors:
-        for err_msg in validation_errors:
-            print(f"[ERROR] {err_msg}", file=sys.stderr)
-        raise SystemExit(1)
+        raise ValueError(
+            "Manifest validation failed:\n" + "\n".join(validation_errors)
+        )
 
     sources = manifest["sources"]
     if not isinstance(sources, list) or not sources:
@@ -475,37 +477,70 @@ def _safe_rmtree(path: Path, max_attempts: int = 4) -> None:
                 continue
             raise
 
+# Directory names never worth descending into during dataset/mapping
+# discovery. Cloned GitHub sources carry a full .git object store that can
+# dwarf the actual data tree.
+_DISCOVERY_PRUNED_DIRS = {".git", "__pycache__", ".venv", "node_modules", ".hg", ".svn"}
+
+
+def _iter_discovery_files(base_dir: Path) -> list[Path]:
+    """Walk ``base_dir`` once, pruning VCS/cache directories."""
+    found: list[Path] = []
+    for current_root, dir_names, file_names in os.walk(base_dir):
+        dir_names[:] = [name for name in dir_names if name not in _DISCOVERY_PRUNED_DIRS]
+        root_path = Path(current_root)
+        for file_name in file_names:
+            found.append(root_path / file_name)
+    return found
+
+
+def _glob_pattern_variants(pattern: str) -> set[str]:
+    """Expand a pathlib-style glob into fnmatch-compatible variants.
+
+    ``fnmatch`` has no ``**`` notion (``*`` already crosses separators), but
+    pathlib's ``**/`` also matches *zero* directories. Emitting the pattern
+    both with and without each ``**/`` segment reproduces that behaviour.
+    """
+    normalized = str(pattern).replace("\\", "/")
+    variants = {normalized}
+    while True:
+        additions = {
+            variant.replace("**/", "", 1)
+            for variant in variants
+            if "**/" in variant
+        }
+        if additions <= variants:
+            break
+        variants |= additions
+    return variants
+
+
+def _matches_any_glob(relative_posix: str, patterns: list[str]) -> bool:
+    for pattern in patterns:
+        if any(fnmatch.fnmatch(relative_posix, variant) for variant in _glob_pattern_variants(pattern)):
+            return True
+    return False
+
+
 def _match_files(base_dir: Path, include_globs: list[str] | None, exclude_globs: list[str] | None) -> list[Path]:
-    include_globs = include_globs or ["**/*"]
-    exclude_globs = exclude_globs or []
+    include_globs = [str(p) for p in (include_globs or ["**/*"])]
+    exclude_globs = [str(p) for p in (exclude_globs or [])]
 
     candidates: list[Path] = []
-    for pattern in include_globs:
-        for path in base_dir.glob(pattern):
-            if not path.is_file() or path.suffix.lower() not in DATA_FILE_SUFFIXES:
-                continue
-            if _should_skip_archive_member(path.relative_to(base_dir)):
-                continue
-            candidates.append(path)
+    for path in _iter_discovery_files(base_dir):
+        if path.suffix.lower() not in DATA_FILE_SUFFIXES:
+            continue
+        relative = path.relative_to(base_dir)
+        if _should_skip_archive_member(relative):
+            continue
+        relative_posix = relative.as_posix()
+        if not _matches_any_glob(relative_posix, include_globs):
+            continue
+        if exclude_globs and _matches_any_glob(relative_posix, exclude_globs):
+            continue
+        candidates.append(path)
 
-    unique_candidates = sorted(set(candidates))
-    if not exclude_globs:
-        return unique_candidates
-
-    def _is_excluded(path: Path) -> bool:
-        relative_posix = path.relative_to(base_dir).as_posix()
-        for pattern in exclude_globs:
-            normalized_pattern = str(pattern).replace("\\", "/")
-            candidate_patterns = {normalized_pattern}
-            trimmed_pattern = normalized_pattern
-            while trimmed_pattern.startswith("**/"):
-                trimmed_pattern = trimmed_pattern[3:]
-                candidate_patterns.add(trimmed_pattern)
-            if any(fnmatch.fnmatch(relative_posix, candidate) for candidate in candidate_patterns):
-                return True
-        return False
-
-    return [path for path in unique_candidates if not _is_excluded(path)]
+    return sorted(set(candidates))
 
 def _normalize_column_name(value: str) -> str:
     return re.sub(r"[^a-z0-9_]+", "", str(value).strip().lower())
@@ -744,14 +779,29 @@ def discover_source_files(
     return base_dir, files, commit_sha
 
 def _load_any_table(path: Path) -> pd.DataFrame:
-    if path.suffix.lower() == ".tsv":
-        df = pd.read_csv(path, sep="\t")
-    else:
-        df = load_input_file(str(path))
+    # The format registry handles .tsv (with encoding + delimiter detection),
+    # so every discovered file goes through the same robust loader.
+    df = load_input_file(str(path))
     # Strip whitespace from headers — many real CSVs have " scenario", "id ",
     # etc. and the schema mapping is whitespace-sensitive.
     df.columns = [str(col).strip() for col in df.columns]
     return df
+
+
+# Output suffixes ``save_output_file`` (or the dedicated .tsv branch) can
+# actually serialize. Inputs in any other discovered format (.parquet, .json,
+# .sav, .dta, .feather, .ods, .xlsm, ...) are written back as CSV; .xls is
+# upgraded to .xlsx because pandas 2.x dropped the xlwt writer.
+_WRITABLE_OUTPUT_SUFFIXES = {".csv", ".tsv", ".xlsx", ".pkl", ".pickle"}
+
+
+def _resolve_output_suffix(input_suffix: str) -> str:
+    suffix = input_suffix.lower()
+    if suffix in _WRITABLE_OUTPUT_SUFFIXES:
+        return suffix
+    if suffix == ".xls":
+        return ".xlsx"
+    return ".csv"
 
 def _shorten_artifact_prefix(prefix: str, max_length: int) -> str:
     if len(prefix) <= max_length:
@@ -796,11 +846,14 @@ def _find_repository_mapping_candidates(source_root: Path) -> list[Path]:
         "*dv*.yaml",
         "*dv*.yml",
     ]
-    candidates: list[Path] = []
-    for pattern in mapping_patterns:
-        candidates.extend(path for path in source_root.rglob(pattern) if path.is_file())
-
-    return sorted(set(candidates))
+    # Single pruned walk instead of four full rglob passes (which would also
+    # descend into .git object stores of cloned sources).
+    candidates = {
+        path
+        for path in _iter_discovery_files(source_root)
+        if any(fnmatch.fnmatch(path.name, pattern) for pattern in mapping_patterns)
+    }
+    return sorted(candidates)
 
 
 def _resolve_repository_mapping_path(
@@ -935,7 +988,8 @@ def _summarize_dataset(
     mapping_debug_records: list[dict[str, Any]],
     dataset_type: str,
 ) -> tuple[list[dict[str, Any]], dict[str, Any]]:
-    original_lookup = build_original_column_lookup(original_df.copy(), mapping)
+    # build_original_column_lookup only reads df.columns — no copy needed.
+    original_lookup = build_original_column_lookup(original_df, mapping)
     unknown_columns = _filter_never_map_columns(
         identify_unmapped_columns([str(c) for c in original_df.columns], mapping)
     )
@@ -1269,10 +1323,12 @@ def run_batch(
             total_mapped_columns = 0
             # CLI --disable-llm-deduction is a hard off-switch: when LLM deduction is
             # disabled at the run level, no per-source manifest flag can re-enable it.
-            # When enabled at run level, the per-source flag still controls opt-in.
-            source_llm_enabled = llm_deduction_enabled and bool(
-                source.get("use_llm_deduction", llm_deduction_enabled)
-            )
+            # When enabled at run level, an absent/None per-source flag inherits the
+            # run-level setting; an explicit per-source false opts that source out.
+            source_llm_flag = source.get("use_llm_deduction")
+            if source_llm_flag is None:
+                source_llm_flag = llm_deduction_enabled
+            source_llm_enabled = llm_deduction_enabled and bool(source_llm_flag)
             source_preferred_models = source.get("llm_models") if isinstance(source.get("llm_models"), list) else preferred_models
             source_overrides_standard = bool(source.get("override_standard_aliases", False))
             source_llm_cache: dict[str, str | None] = {}
@@ -1337,8 +1393,9 @@ def run_batch(
             for file_path in dataset_progress:
                 relative_file = file_path.relative_to(base_dir)
                 dataset_id = relative_file.as_posix()
+                output_suffix = _resolve_output_suffix(file_path.suffix)
                 artifact_suffix_length = max(
-                    len(f"-standardized{file_path.suffix}"),
+                    len(f"-standardized{output_suffix}"),
                     len("-mapping-debug.json"),
                     len("-quality.json"),
                     len("-error.log"),
@@ -1349,7 +1406,7 @@ def run_batch(
                     artifact_suffix_length=artifact_suffix_length,
                 )
                 dataset_progress.set_postfix(dataset=dataset_id)
-                destination = source_output_dir / f"{artifact_prefix}-standardized{file_path.suffix}"
+                destination = source_output_dir / f"{artifact_prefix}-standardized{output_suffix}"
                 relative_path = str(relative_file)
 
                 try:
@@ -1554,7 +1611,10 @@ def run_batch(
                             source_id, dataset_id, debug_path,
                         )
 
-                    standardized_df = standardize_columns(original_df.copy(), dataset_mapping)
+                    # Shallow copy: standardize_columns only reassigns .columns,
+                    # so sharing the data blocks avoids duplicating large
+                    # sensor-stream frames in memory.
+                    standardized_df = standardize_columns(original_df.copy(deep=False), dataset_mapping)
                     # Build canonical -> ordered originals for declared-scale
                     # resolution. Items match the canonical-group order (first
                     # occurrence -> bare canonical, subsequent -> __dup_N) so

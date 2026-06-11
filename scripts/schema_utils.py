@@ -5,8 +5,10 @@ Utility functions to support schema loading, flattening, and updating
 for the DV Standardization Tool. Supports both legacy and new schema formats.
 """
 
-import yaml
+import copy
 from typing import Dict, List, Optional, Set
+
+import yaml
 
 
 def load_schema(path: str) -> Dict:
@@ -102,9 +104,11 @@ def update_schema_with_suggestions(existing_schema: Dict, suggestions: Dict) -> 
         suggestions: New suggestions as {standard_name: [aliases]}
 
     Returns:
-        Updated schema dictionary
+        Updated schema dictionary (the input schema is left unmodified)
     """
-    updated = existing_schema.copy()
+    # Deep copy: a shallow copy would share the nested 'dvs' list and alias
+    # lists, so the merge below would mutate the caller's schema in place.
+    updated = copy.deepcopy(existing_schema)
 
     # Handle new schema format
     if 'dvs' in existing_schema:

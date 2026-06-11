@@ -9,7 +9,6 @@ from pathlib import Path
 
 import pandas as pd
 import streamlit as st
-import yaml
 
 logger = logging.getLogger(__name__)
 
@@ -17,7 +16,7 @@ REPO_ROOT = Path(__file__).resolve().parents[1]
 if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
-from scripts.convert_dv import identify_unmapped_columns, standardize_columns
+from scripts.convert_dv import identify_unmapped_columns, load_schema, standardize_columns
 from ui.components.charts import (
     build_mapping_quality_chart,
     build_meta_analysis_chart,
@@ -36,33 +35,20 @@ st.set_page_config(page_title="OpenDV-HCI Tool", layout="wide")
 
 
 @st.cache_data(show_spinner=False)
-def _load_schema(schema_path: str) -> dict:
-    with open(schema_path, "r", encoding="utf-8") as handle:
-        return yaml.safe_load(handle)
+def _load_schema_mapping(schema_path: str) -> dict[str, str]:
+    """Build the alias→canonical mapping via the same loader the CLI uses.
+
+    Reusing ``scripts.convert_dv.load_schema`` keeps UI mapping behaviour
+    identical to ``convert_dv.py`` (case-insensitive aliases, legacy formats)
+    instead of maintaining a parallel implementation here.
+    """
+    return load_schema(schema_path)["mapping"]
 
 
 def _inject_css() -> None:
     css_path = Path(__file__).resolve().parent / "assets" / "style.css"
     if css_path.exists():
         st.markdown(f"<style>{css_path.read_text(encoding='utf-8')}</style>", unsafe_allow_html=True)
-
-
-def _build_mapping(schema: dict) -> dict[str, str]:
-    mapping: dict[str, str] = {}
-    for dv in schema.get("dvs", []) or []:
-        if not isinstance(dv, dict):
-            continue
-        canonical = dv.get("id")
-        if not canonical:
-            continue
-        mapping[canonical] = canonical
-        mapping[canonical.lower()] = canonical
-        for alias in dv.get("aliases") or []:
-            if not isinstance(alias, str):
-                continue
-            mapping[alias] = canonical
-            mapping[alias.lower()] = canonical
-    return mapping
 
 
 def _default_output_dir(stem: str, suffix: str) -> str:
@@ -76,21 +62,32 @@ def _save_uploaded_file(uploaded_file, destination: Path) -> Path:
     return destination
 
 
-def _load_catalog_outputs(output_dir: Path) -> dict[str, object]:
+def _read_optional_csv(path: Path, **kwargs) -> pd.DataFrame:
+    """Read a CSV artifact if present, else return an empty frame.
+
+    A catalog run that fails before the analysis stage only writes
+    ``analysis_summary.json`` — the dashboard must render (with empty
+    sections) rather than crash on the missing CSVs.
+    """
+    return pd.read_csv(path, **kwargs) if path.exists() else pd.DataFrame()
+
+
+def _load_catalog_outputs(output_dir: Path) -> dict[str, object] | None:
     analysis_dir = output_dir / "analysis"
-    result: dict[str, object] = {
-        "source_summary": pd.read_csv(output_dir / "catalog_source_summary.csv"),
-        "analysis_summary": json.loads((analysis_dir / "analysis_summary.json").read_text(encoding="utf-8")),
-        "overlap": pd.read_csv(analysis_dir / "dv_overlap_matrix.csv", index_col=0),
-        "presence": pd.read_csv(analysis_dir / "dv_presence_matrix.csv", index_col=0),
-        "overlap_details": pd.read_csv(analysis_dir / "dv_overlap_details.csv"),
-        "meta": pd.read_csv(analysis_dir / "meta_analysis_summary.csv"),
-        "harmonized": pd.read_csv(analysis_dir / "harmonized_dv_summary.csv"),
+    summary_path = analysis_dir / "analysis_summary.json"
+    if not summary_path.exists():
+        return None
+    return {
+        "source_summary": _read_optional_csv(output_dir / "catalog_source_summary.csv"),
+        "analysis_summary": json.loads(summary_path.read_text(encoding="utf-8")),
+        "overlap": _read_optional_csv(analysis_dir / "dv_overlap_matrix.csv", index_col=0),
+        "presence": _read_optional_csv(analysis_dir / "dv_presence_matrix.csv", index_col=0),
+        "overlap_details": _read_optional_csv(analysis_dir / "dv_overlap_details.csv"),
+        "meta": _read_optional_csv(analysis_dir / "meta_analysis_summary.csv"),
+        "harmonized": _read_optional_csv(analysis_dir / "harmonized_dv_summary.csv"),
+        "composite": _read_optional_csv(analysis_dir / "cross_study_composite_summary.csv"),
         "output_dir": output_dir,
     }
-    composite_path = analysis_dir / "cross_study_composite_summary.csv"
-    result["composite"] = pd.read_csv(composite_path) if composite_path.exists() else pd.DataFrame()
-    return result
 
 
 def _render_plotly_chart(builder, *args, **kwargs) -> None:
@@ -126,8 +123,7 @@ def _render_single_dataset_tab() -> None:
         st.warning("The uploaded file is empty or contains no data.")
         return
 
-    schema = _load_schema(str(DEFAULT_SCHEMA_PATH))
-    mapping = _build_mapping(schema)
+    mapping = _load_schema_mapping(str(DEFAULT_SCHEMA_PATH))
     df_clean = standardize_columns(df_raw.copy(), mapping)
 
     unknown_columns = identify_unmapped_columns([str(column) for column in df_raw.columns], mapping)
@@ -311,7 +307,16 @@ def _render_catalog_workflow_tab() -> None:
         return
 
     results = _load_catalog_outputs(output_dir)
+    if results is None:
+        st.warning(
+            "No analysis summary found in the last output directory — the run "
+            "may have failed before the analysis stage."
+        )
+        return
+
     summary = results["analysis_summary"]
+    if summary.get("analysis_skipped_reason"):
+        st.warning(f"Analysis stage was skipped: {summary['analysis_skipped_reason']}")
     metric_col1, metric_col2, metric_col3, metric_col4 = st.columns(4)
     metric_col1.metric("Unique Sources", int(summary["n_unique_sources"]))
     metric_col2.metric("Loaded Studies", int(summary["n_loaded_studies"]))

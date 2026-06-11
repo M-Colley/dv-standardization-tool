@@ -175,14 +175,20 @@ class IterOsfFileEntriesTests(unittest.TestCase):
 
 
 class DownloadOsfFileTests(unittest.TestCase):
-    def test_writes_payload_and_creates_parent(self):
+    def test_streams_payload_and_creates_parent(self):
+        def _fake_stream(url, destination, timeout, **kwargs):
+            destination.parent.mkdir(parents=True, exist_ok=True)
+            destination.write_bytes(b"a,b\n1,2\n")
+            return destination
+
         with TemporaryDirectory() as tmp:
             destination = Path(tmp) / "deeply" / "nested" / "file.csv"
             with mock.patch(
-                "scripts.sources.osf._read_url_bytes",
-                return_value=b"a,b\n1,2\n",
-            ):
+                "scripts.sources.osf._stream_url_to_path",
+                side_effect=_fake_stream,
+            ) as mocked_stream:
                 _download_osf_file("https://x/file.csv", destination)
+            mocked_stream.assert_called_once()
             self.assertTrue(destination.exists())
             self.assertEqual(destination.read_bytes(), b"a,b\n1,2\n")
 

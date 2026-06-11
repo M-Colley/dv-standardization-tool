@@ -695,6 +695,21 @@ def _canonicalize_studies(studies: Dict[str, pd.DataFrame]) -> Dict[str, pd.Data
     return {name: _canonical_numeric_frame(df) for name, df in studies.items()}
 
 
+def _resolve_canonical(
+    studies: Dict[str, pd.DataFrame],
+    canonical_studies: Dict[str, pd.DataFrame] | None,
+) -> Dict[str, pd.DataFrame]:
+    """Return precomputed canonical frames, or canonicalize on demand.
+
+    Canonicalization scans every column of every study; orchestrators
+    (``main``, ``run_catalog_meta_analysis``) compute it once and pass it to
+    every analysis function instead of paying the scan ~12 times per run.
+    """
+    if canonical_studies is not None:
+        return canonical_studies
+    return _canonicalize_studies(studies)
+
+
 def numeric_dvs(df: pd.DataFrame) -> List[str]:
     return list(_canonical_numeric_frame(df).columns)
 
@@ -703,14 +718,20 @@ def _study_numeric_dv_sets_from_canonical(studies: Dict[str, pd.DataFrame]) -> D
     return {name: set(df.columns) for name, df in studies.items()}
 
 
-def study_numeric_dv_sets(studies: Dict[str, pd.DataFrame]) -> Dict[str, set[str]]:
-    return _study_numeric_dv_sets_from_canonical(_canonicalize_studies(studies))
+def study_numeric_dv_sets(
+    studies: Dict[str, pd.DataFrame],
+    canonical_studies: Dict[str, pd.DataFrame] | None = None,
+) -> Dict[str, set[str]]:
+    return _study_numeric_dv_sets_from_canonical(_resolve_canonical(studies, canonical_studies))
 
 
 # ── Overlap analysis ─────────────────────────────────────────────────────────
 
-def compute_overlap(studies: Dict[str, pd.DataFrame]) -> pd.DataFrame:
-    dv_sets = _study_numeric_dv_sets_from_canonical(_canonicalize_studies(studies))
+def compute_overlap(
+    studies: Dict[str, pd.DataFrame],
+    canonical_studies: Dict[str, pd.DataFrame] | None = None,
+) -> pd.DataFrame:
+    dv_sets = _study_numeric_dv_sets_from_canonical(_resolve_canonical(studies, canonical_studies))
     index = list(studies.keys())
     overlap = pd.DataFrame(index=index, columns=index, dtype=float)
     for a in index:
@@ -720,8 +741,11 @@ def compute_overlap(studies: Dict[str, pd.DataFrame]) -> pd.DataFrame:
     return overlap
 
 
-def compute_dv_presence_matrix(studies: Dict[str, pd.DataFrame]) -> pd.DataFrame:
-    dv_sets = _study_numeric_dv_sets_from_canonical(_canonicalize_studies(studies))
+def compute_dv_presence_matrix(
+    studies: Dict[str, pd.DataFrame],
+    canonical_studies: Dict[str, pd.DataFrame] | None = None,
+) -> pd.DataFrame:
+    dv_sets = _study_numeric_dv_sets_from_canonical(_resolve_canonical(studies, canonical_studies))
     all_dvs = sorted({dv for dvs in dv_sets.values() for dv in dvs})
     presence = pd.DataFrame(0, index=sorted(studies.keys()), columns=all_dvs, dtype=int)
     for study, dvs in dv_sets.items():
@@ -730,8 +754,11 @@ def compute_dv_presence_matrix(studies: Dict[str, pd.DataFrame]) -> pd.DataFrame
     return presence
 
 
-def compute_overlap_details(studies: Dict[str, pd.DataFrame]) -> pd.DataFrame:
-    dv_sets = _study_numeric_dv_sets_from_canonical(_canonicalize_studies(studies))
+def compute_overlap_details(
+    studies: Dict[str, pd.DataFrame],
+    canonical_studies: Dict[str, pd.DataFrame] | None = None,
+) -> pd.DataFrame:
+    dv_sets = _study_numeric_dv_sets_from_canonical(_resolve_canonical(studies, canonical_studies))
     rows = []
     for study_a, study_b in combinations(sorted(dv_sets.keys()), 2):
         shared = sorted(dv_sets[study_a] & dv_sets[study_b])
@@ -757,10 +784,11 @@ def harmonized_summary(
     studies: Dict[str, pd.DataFrame],
     harmonize_scales: bool = False,
     mapping_provenance: Dict[tuple, str] | None = None,
+    canonical_studies: Dict[str, pd.DataFrame] | None = None,
 ) -> pd.DataFrame:
     metadata = _load_dv_measurement_metadata() if harmonize_scales else {}
     rows = []
-    for study, df in _canonicalize_studies(studies).items():
+    for study, df in _resolve_canonical(studies, canonical_studies).items():
         for dv in df.columns:
             s = df[dv].dropna()
             scale_note = ""
@@ -1094,18 +1122,21 @@ def trim_and_fill(
     k_original = len(means)
     k_imputed = 0
 
+    # Original (unadjusted) estimate — also the fallback when no studies are
+    # mirrored (e.g. perfectly symmetric or degenerate identical means), so
+    # the adjusted values are always defined.
+    w_orig = 1.0 / variances
+    pooled_orig = float(np.sum(w_orig * means) / np.sum(w_orig))
+    pooled_adj = pooled_orig
+    se_adj = float(np.sqrt(1.0 / np.sum(w_orig)))
+
     for _ in range(max_iter):
         w = 1.0 / variances
         pooled = np.sum(w * means) / np.sum(w)
 
         # Rank-based estimator (R0)
         deviations = means - pooled
-        if side == "right":
-            n_extreme = np.sum(deviations > 0)
-            signs = deviations > 0
-        else:
-            n_extreme = np.sum(deviations < 0)
-            signs = deviations < 0
+        signs = deviations > 0 if side == "right" else deviations < 0
 
         # Mirror extreme studies
         mirror_means = 2 * pooled - means[signs]
@@ -1123,14 +1154,6 @@ def trim_and_fill(
         w_all = 1.0 / all_variances
         pooled_adj = float(np.sum(w_all * all_means) / np.sum(w_all))
         se_adj = float(np.sqrt(1.0 / np.sum(w_all)))
-
-    else:
-        pooled_adj = pooled
-        se_adj = float(np.sqrt(1.0 / np.sum(w)))
-
-    # Original (unadjusted) estimate for comparison
-    w_orig = 1.0 / variances
-    pooled_orig = float(np.sum(w_orig * means) / np.sum(w_orig))
 
     return {
         "dv": dv,
@@ -1312,6 +1335,7 @@ def studies_needed_for_power(
 
 def flag_data_quality(
     studies: Dict[str, pd.DataFrame],
+    canonical_studies: Dict[str, pd.DataFrame] | None = None,
 ) -> pd.DataFrame:
     """Produce a data quality report for each study × DV.
 
@@ -1319,7 +1343,7 @@ def flag_data_quality(
     suspiciously low variance (all identical), and small sample sizes.
     """
     metadata = _load_dv_measurement_metadata()
-    canonical_studies = _canonicalize_studies(studies)
+    canonical_studies = _resolve_canonical(studies, canonical_studies)
     rows = []
     for study, df in canonical_studies.items():
         for dv in df.columns:
@@ -1373,12 +1397,13 @@ def flag_data_quality(
 def test_non_gaussianity(
     studies: Dict[str, pd.DataFrame],
     min_n: int = 8,
+    canonical_studies: Dict[str, pd.DataFrame] | None = None,
 ) -> pd.DataFrame:
     """Shapiro-Wilk normality test per study × DV.
 
     Used to validate the non-Gaussianity assumption required by LiNGAM.
     """
-    canonical_studies = _canonicalize_studies(studies)
+    canonical_studies = _resolve_canonical(studies, canonical_studies)
     rows = []
     for study, df in canonical_studies.items():
         for dv in df.columns:
@@ -1406,6 +1431,7 @@ def test_non_gaussianity(
 
 def detect_potential_reverse_coding(
     studies: Dict[str, pd.DataFrame],
+    canonical_studies: Dict[str, pd.DataFrame] | None = None,
 ) -> pd.DataFrame:
     """Flag DVs that might be reverse-coded based on inter-DV correlations.
 
@@ -1414,7 +1440,7 @@ def detect_potential_reverse_coding(
     need reverse-coding.
     """
     metadata = _load_dv_measurement_metadata()
-    canonical_studies = _canonicalize_studies(studies)
+    canonical_studies = _resolve_canonical(studies, canonical_studies)
     flags = []
 
     for study, df in canonical_studies.items():
@@ -1453,9 +1479,12 @@ def detect_potential_reverse_coding(
 
 # ── Overlap statistics ──────────────────────────────────────────────────────
 
-def compute_extended_overlap_stats(studies: Dict[str, pd.DataFrame]) -> dict:
+def compute_extended_overlap_stats(
+    studies: Dict[str, pd.DataFrame],
+    canonical_studies: Dict[str, pd.DataFrame] | None = None,
+) -> dict:
     """Compute Jaccard, Sørensen-Dice, overlap coefficient, and DV frequency table."""
-    dv_sets = _study_numeric_dv_sets_from_canonical(_canonicalize_studies(studies))
+    dv_sets = _study_numeric_dv_sets_from_canonical(_resolve_canonical(studies, canonical_studies))
     all_dvs = sorted({dv for dvs in dv_sets.values() for dv in dvs})
 
     # DV frequency table
@@ -1603,8 +1632,11 @@ def subgroup_meta_analysis(
 
 # ── PCA composite index ─────────────────────────────────────────────────────
 
-def _prepare_composite_matrix(studies: Dict[str, pd.DataFrame]) -> tuple[pd.DataFrame, List[str]]:
-    canonical_studies = _canonicalize_studies(studies)
+def _prepare_composite_matrix(
+    studies: Dict[str, pd.DataFrame],
+    canonical_studies: Dict[str, pd.DataFrame] | None = None,
+) -> tuple[pd.DataFrame, List[str]]:
+    canonical_studies = _resolve_canonical(studies, canonical_studies)
     counts = {}
     for df in canonical_studies.values():
         for dv in set(df.columns):
@@ -1640,8 +1672,11 @@ def _prepare_composite_matrix(studies: Dict[str, pd.DataFrame]) -> tuple[pd.Data
     return z, usable_cols
 
 
-def build_composite_index(studies: Dict[str, pd.DataFrame]) -> pd.DataFrame:
-    z, usable_cols = _prepare_composite_matrix(studies)
+def build_composite_index(
+    studies: Dict[str, pd.DataFrame],
+    canonical_studies: Dict[str, pd.DataFrame] | None = None,
+) -> pd.DataFrame:
+    z, usable_cols = _prepare_composite_matrix(studies, canonical_studies)
 
     pca = PCA(n_components=1)
     z["cross_study_composite"] = pca.fit_transform(z[usable_cols])
@@ -1700,9 +1735,13 @@ def save_plots(overlap: pd.DataFrame, summary: pd.DataFrame, output_dir: Path) -
         plt.close()
 
 
-def save_composite_plot(studies: Dict[str, pd.DataFrame], output_dir: Path) -> None:
+def save_composite_plot(
+    studies: Dict[str, pd.DataFrame],
+    output_dir: Path,
+    canonical_studies: Dict[str, pd.DataFrame] | None = None,
+) -> None:
     try:
-        z, usable_cols = _prepare_composite_matrix(studies)
+        z, usable_cols = _prepare_composite_matrix(studies, canonical_studies)
     except ValueError:
         return
 
@@ -1855,7 +1894,8 @@ def save_forest_plot(
         fontsize=8, fontfamily="monospace", va="top", ha="left",
     )
 
-    fig.tight_layout(rect=[0, 0.03, 1, 1])
+    # bbox_inches="tight" handles cropping; tight_layout is incompatible with
+    # the text-only annotation axis and only emitted warnings.
     plt.savefig(output_dir / f"forest_{dv}.png", dpi=150, bbox_inches="tight")
     plt.close()
 
@@ -1948,12 +1988,6 @@ def save_sensitivity_plot(
 
 CONSTRUCT_SUBITEMS: dict[str, list[str]] = _build_construct_subitems()
 
-# Validate cluster references at module import time (errors are logged as warnings only)
-try:
-    validate_schema_clusters()
-except Exception:
-    pass
-
 
 def _filter_subitems_when_construct_present(dvs: list[str]) -> list[str]:
     """Remove sub-items from *dvs* if their parent construct is also present."""
@@ -1980,6 +2014,7 @@ def discover_causal_structure(
     min_shared_studies: int = 2,
     min_rows: int = 200,
     refuse_synthetic: bool = False,
+    canonical_studies: Dict[str, pd.DataFrame] | None = None,
 ) -> dict | None:
     """Discover causal ordering among shared DVs using DirectLiNGAM.
 
@@ -1996,7 +2031,7 @@ def discover_causal_structure(
 
     Returns None if fewer than 2 shared DVs have sufficient data.
     """
-    canonical_studies = _canonicalize_studies(studies)
+    canonical_studies = _resolve_canonical(studies, canonical_studies)
 
     # Find DVs shared across enough studies
     dv_counts: Dict[str, int] = {}
@@ -2228,6 +2263,7 @@ def save_causal_dag_plot(
 def check_ordinal_rescaling_warnings(
     studies: Dict[str, pd.DataFrame],
     harmonize_scales: bool = True,
+    canonical_studies: Dict[str, pd.DataFrame] | None = None,
 ) -> pd.DataFrame:
     """Emit warnings when linear rescaling is applied to ordinal Likert data.
 
@@ -2244,7 +2280,7 @@ def check_ordinal_rescaling_warnings(
         return pd.DataFrame(columns=cols)
 
     metadata = _load_dv_measurement_metadata()
-    canonical_studies = _canonicalize_studies(studies)
+    canonical_studies = _resolve_canonical(studies, canonical_studies)
     warnings_rows: list[dict] = []
     _logger = logging.getLogger(__name__)
 
@@ -2303,6 +2339,7 @@ def bootstrap_causal_stability(
     min_rows: int = 30,
     edge_threshold: float = 0.1,
     random_seed: int = 42,
+    canonical_studies: Dict[str, pd.DataFrame] | None = None,
 ) -> pd.DataFrame:
     """Assess stability of LiNGAM causal edges via bootstrap resampling.
 
@@ -2317,7 +2354,7 @@ def bootstrap_causal_stability(
     Edges with appearance_rate > 0.5 are considered stable.
     """
     result_cols = ["from", "to", "appearance_rate", "mean_coefficient", "sd_coefficient"]
-    canonical_studies = _canonicalize_studies(studies)
+    canonical_studies = _resolve_canonical(studies, canonical_studies)
     dv_sets = _study_numeric_dv_sets_from_canonical(canonical_studies)
     if not dv_sets:
         return pd.DataFrame(columns=result_cols)
@@ -2402,6 +2439,7 @@ def discover_causal_structure_pc(
     alpha: float = 0.05,
     min_shared_studies: int = 2,
     min_rows: int = 30,
+    canonical_studies: Dict[str, pd.DataFrame] | None = None,
 ) -> dict | None:
     """Constraint-based causal discovery using the PC algorithm skeleton.
 
@@ -2417,7 +2455,7 @@ def discover_causal_structure_pc(
         dvs_used: list[str]
         removed_edges: list[dict] with from, to, conditioning_set, p_value
     """
-    canonical_studies = _canonicalize_studies(studies)
+    canonical_studies = _resolve_canonical(studies, canonical_studies)
     dv_sets = _study_numeric_dv_sets_from_canonical(canonical_studies)
     if not dv_sets:
         return None
@@ -2623,14 +2661,20 @@ def main() -> None:
             f"found at {meta_view_path}. Nothing will be excluded."
         )
 
+    validate_schema_clusters()
+
     studies = load_studies(input_dir, repeated_measures_studies=repeated_measures or None)
-    overlap = compute_overlap(studies)
-    presence = compute_dv_presence_matrix(studies)
-    overlap_details = compute_overlap_details(studies)
+    # Canonicalize once; every analysis below reuses the same frames instead
+    # of re-scanning all study columns per function call.
+    canonical = _canonicalize_studies(studies)
+    overlap = compute_overlap(studies, canonical_studies=canonical)
+    presence = compute_dv_presence_matrix(studies, canonical_studies=canonical)
+    overlap_details = compute_overlap_details(studies, canonical_studies=canonical)
     summary = harmonized_summary(
         studies,
         harmonize_scales=args.harmonize_scales,
         mapping_provenance=mapping_provenance,
+        canonical_studies=canonical,
     )
     meta_summary_df = meta_analysis_summary(summary, total_studies=len(studies), estimator=args.estimator)
     effects = compute_standardized_effects(summary)
@@ -2749,20 +2793,20 @@ def main() -> None:
         print("\nMeta-regression (moderator=n):\n", mr_df.round(3).to_string(index=False))
 
     # Data quality report
-    quality_df = flag_data_quality(studies)
+    quality_df = flag_data_quality(studies, canonical_studies=canonical)
     flagged = quality_df[quality_df["n_flags"] > 0]
     if not flagged.empty:
         quality_df.to_csv(output_dir / "data_quality_report.csv", index=False)
         print(f"\nData quality: {len(flagged)} study×DV combinations flagged")
 
     # Reverse-coding detection
-    rev_df = detect_potential_reverse_coding(studies)
+    rev_df = detect_potential_reverse_coding(studies, canonical_studies=canonical)
     if not rev_df.empty:
         rev_df.to_csv(output_dir / "reverse_coding_warnings.csv", index=False)
         print(f"\nReverse-coding warnings: {len(rev_df)} potential issues detected")
 
     # Extended overlap statistics
-    ext_overlap = compute_extended_overlap_stats(studies)
+    ext_overlap = compute_extended_overlap_stats(studies, canonical_studies=canonical)
     ext_overlap["dv_frequency"].to_csv(output_dir / "dv_frequency.csv", index=False)
     ext_overlap["pairwise_overlap"].to_csv(output_dir / "pairwise_overlap_extended.csv", index=False)
     print(f"\nDV frequency table saved ({len(ext_overlap['dv_frequency'])} DVs)")
@@ -2801,9 +2845,9 @@ def main() -> None:
 
     # Composite index
     try:
-        composite = build_composite_index(studies)
+        composite = build_composite_index(studies, canonical_studies=canonical)
         composite.to_csv(output_dir / "cross_study_composite_summary.csv", index=False)
-        save_composite_plot(studies, output_dir)
+        save_composite_plot(studies, output_dir, canonical_studies=canonical)
         print("\nComposite index by study:\n", composite.round(3).to_string(index=False))
     except ValueError as e:
         print(f"\n[WARNING] Skipping composite index: {e}")
@@ -2815,6 +2859,7 @@ def main() -> None:
             studies,
             min_rows=args.causal_min_rows,
             refuse_synthetic=args.refuse_synthetic_causal,
+            canonical_studies=canonical,
         )
         if causal_result is not None:
             causal_result["adjacency_matrix"].to_csv(output_dir / "causal_adjacency_matrix.csv")
@@ -2866,7 +2911,7 @@ def main() -> None:
 
     # Bootstrap causal edge stability
     try:
-        boot_df = bootstrap_causal_stability(studies, n_bootstrap=50)
+        boot_df = bootstrap_causal_stability(studies, n_bootstrap=50, canonical_studies=canonical)
         if not boot_df.empty:
             boot_df.to_csv(output_dir / "causal_bootstrap_stability.csv", index=False)
             stable = boot_df[boot_df["appearance_rate"] >= 0.5]
@@ -2882,7 +2927,7 @@ def main() -> None:
 
     # PC algorithm (alternative for Gaussian data)
     try:
-        pc_result = discover_causal_structure_pc(studies)
+        pc_result = discover_causal_structure_pc(studies, canonical_studies=canonical)
         if pc_result is not None:
             pc_result["skeleton"].to_csv(output_dir / "pc_skeleton_matrix.csv")
             if pc_result["removed_edges"]:
@@ -2896,7 +2941,9 @@ def main() -> None:
         print(f"\n[WARNING] Skipping PC algorithm: {e}")
 
     # IRT linking / ordinal rescaling warnings
-    irt_warnings = check_ordinal_rescaling_warnings(studies, harmonize_scales=args.harmonize_scales)
+    irt_warnings = check_ordinal_rescaling_warnings(
+        studies, harmonize_scales=args.harmonize_scales, canonical_studies=canonical
+    )
     if not irt_warnings.empty:
         irt_warnings.to_csv(output_dir / "irt_rescaling_warnings.csv", index=False)
         print(f"\nIRT/ordinal rescaling warnings: {len(irt_warnings)} DVs flagged")

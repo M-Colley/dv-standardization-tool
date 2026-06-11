@@ -154,13 +154,24 @@ def _load_text_table(path: Path) -> pd.DataFrame:
     delimiter = _detect_delimiter(sample, prefer=prefer_delim)
 
     try:
-        return pd.read_csv(
-            path,
-            sep=delimiter,
-            encoding=encoding,
-            engine="python",
-            on_bad_lines="warn",
-        )
+        # The C engine is typically an order of magnitude faster; it handles
+        # single-character separators fine. Fall back to the lenient python
+        # engine only when the C parser rejects the file.
+        try:
+            return pd.read_csv(
+                path,
+                sep=delimiter,
+                encoding=encoding,
+                on_bad_lines="warn",
+            )
+        except (pd.errors.ParserError, ValueError):
+            return pd.read_csv(
+                path,
+                sep=delimiter,
+                encoding=encoding,
+                engine="python",
+                on_bad_lines="warn",
+            )
     except pd.errors.EmptyDataError as exc:
         raise ValueError(
             f"File '{path}' is empty or contains no parseable data."
@@ -184,15 +195,18 @@ def _load_excel(path: Path) -> pd.DataFrame:
     if len(xl.sheet_names) == 1:
         return xl.parse(xl.sheet_names[0])
 
-    # Multiple sheets: pick the one with the most non-empty cells
+    # Multiple sheets: pick the one with the most non-empty cells. Keep each
+    # parsed frame so the winner is returned without a second parse pass.
     best_sheet: str | None = None
     best_count = -1
+    best_df: pd.DataFrame | None = None
     for name in xl.sheet_names:
         df = xl.parse(name)
         count = int(df.notna().sum().sum())
         if count > best_count:
             best_count = count
             best_sheet = name
+            best_df = df
 
     logger.info(
         "Multi-sheet workbook '%s': selected sheet '%s' (%d non-empty cells). "
@@ -202,7 +216,7 @@ def _load_excel(path: Path) -> pd.DataFrame:
         best_count,
         [n for n in xl.sheet_names if n != best_sheet],
     )
-    return xl.parse(best_sheet)
+    return best_df
 
 
 @_register_format(".pkl", ".pickle")
@@ -347,6 +361,12 @@ def save_output_file(df: pd.DataFrame, output_path: str) -> None:
             raise ImportError(
                 "Writing Excel files requires the optional dependency 'openpyxl'. "
                 "Install it with: pip install openpyxl"
+            ) from exc
+        except ValueError as exc:
+            # pandas 2.x removed the xlwt-based .xls writer.
+            raise ValueError(
+                f"Cannot write '{output_file.name}': pandas no longer supports the "
+                "legacy .xls format. Use a .xlsx output path instead."
             ) from exc
         return
     if suffix == ".csv":

@@ -1326,16 +1326,11 @@ class TestReshapeUtils(unittest.TestCase):
 
 
 class TestMainCLI(unittest.TestCase):
-    """Test __main__.py CLI module."""
+    """Test the CLI dispatcher (scripts.cli) and the __main__.py shim."""
 
     def _load_module(self):
-        # Use a non-__main__ name to avoid triggering the if __name__ guard
-        spec = importlib.util.spec_from_file_location(
-            "opendv_main", str(REPO_ROOT / "__main__.py")
-        )
-        mod = importlib.util.module_from_spec(spec)
-        spec.loader.exec_module(mod)
-        return mod
+        from scripts import cli
+        return cli
 
     def test_module_imports(self):
         mod = self._load_module()
@@ -1354,6 +1349,16 @@ class TestMainCLI(unittest.TestCase):
         mod = self._load_module()
         for cmd in ("standardize", "batch", "analyze", "validate"):
             self.assertIn(cmd, mod._DISPATCH, f"Missing dispatch for '{cmd}'")
+
+    def test_repo_shim_delegates_to_scripts_cli(self):
+        # __main__.py must keep delegating to scripts.cli for `python .` usage.
+        spec = importlib.util.spec_from_file_location(
+            "opendv_main_shim", str(REPO_ROOT / "__main__.py")
+        )
+        mod = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(mod)
+        from scripts.cli import main as cli_main
+        self.assertIs(mod.main, cli_main)
 
 
 if __name__ == "__main__":

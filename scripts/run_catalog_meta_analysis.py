@@ -22,6 +22,7 @@ if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
 from analyses.multi_study_analysis import (
+    _canonicalize_studies,
     build_composite_index,
     compute_dv_presence_matrix,
     compute_overlap,
@@ -444,11 +445,14 @@ def run_catalog_meta_analysis(
         )
         return analysis_summary
 
-    overlap = compute_overlap(studies)
-    presence = compute_dv_presence_matrix(studies)
-    overlap_details = compute_overlap_details(studies)
+    canonical = _canonicalize_studies(studies)
+    overlap = compute_overlap(studies, canonical_studies=canonical)
+    presence = compute_dv_presence_matrix(studies, canonical_studies=canonical)
+    overlap_details = compute_overlap_details(studies, canonical_studies=canonical)
     mapping_provenance = load_mapping_provenance(output_dir / "meta_view.csv")
-    summary = harmonized_summary(studies, mapping_provenance=mapping_provenance)
+    summary = harmonized_summary(
+        studies, mapping_provenance=mapping_provenance, canonical_studies=canonical
+    )
     meta_summary = meta_analysis_summary(summary, total_studies=len(studies))
 
     overlap.to_csv(analysis_dir / "dv_overlap_matrix.csv")
@@ -480,9 +484,9 @@ def run_catalog_meta_analysis(
 
     composite_written = False
     try:
-        composite = build_composite_index(studies)
+        composite = build_composite_index(studies, canonical_studies=canonical)
         composite.to_csv(analysis_dir / "cross_study_composite_summary.csv", index=False)
-        save_composite_plot(studies, analysis_dir)
+        save_composite_plot(studies, analysis_dir, canonical_studies=canonical)
         composite_written = True
     except ValueError:
         composite = pd.DataFrame()
