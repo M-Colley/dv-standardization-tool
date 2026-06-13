@@ -1,5 +1,5 @@
 study_a,study_b,jaccard,sorensen_dice,overlap_coefficient
-3d_display_comp_vehicle,ehmi_for_all_chi26,0.07142857142857142,0.13333333333333333,1.0
+3d_display_comp_vehicle,ehmi_for_all_chi26,0.041666666666666664,0.08,1.0
 3d_display_comp_vehicle,ehmi_optimization_chi25,0.14285714285714285,0.25,1.0
 3d_display_comp_vehicle,fact_av,0.2,0.3333333333333333,1.0
 3d_display_comp_vehicle,fourtu_critical_ehmi,0.0,0.0,
@@ -7,13 +7,13 @@ study_a,study_b,jaccard,sorensen_dice,overlap_coefficient
 3d_display_comp_vehicle,osf_cwd6h,0.0,0.0,
 3d_display_comp_vehicle,road_bumps_touch,0.0,0.0,
 3d_display_comp_vehicle,roads_chi25,0.05,0.09523809523809523,1.0
-ehmi_for_all_chi26,ehmi_optimization_chi25,0.05,0.09523809523809523,0.14285714285714285
-ehmi_for_all_chi26,fact_av,0.05555555555555555,0.10526315789473684,0.2
+ehmi_for_all_chi26,ehmi_optimization_chi25,0.03333333333333333,0.06451612903225806,0.14285714285714285
+ehmi_for_all_chi26,fact_av,0.03571428571428571,0.06896551724137931,0.2
 ehmi_for_all_chi26,fourtu_critical_ehmi,0.0,0.0,
-ehmi_for_all_chi26,longitudinal_usa_germany_ehmi,0.0625,0.11764705882352941,0.3333333333333333
+ehmi_for_all_chi26,longitudinal_usa_germany_ehmi,0.038461538461538464,0.07407407407407407,0.3333333333333333
 ehmi_for_all_chi26,osf_cwd6h,0.0,0.0,
 ehmi_for_all_chi26,road_bumps_touch,0.0,0.0,
-ehmi_for_all_chi26,roads_chi25,0.7,0.8235294117647058,1.0
+ehmi_for_all_chi26,roads_chi25,0.4666666666666667,0.6363636363636364,0.7
 ehmi_optimization_chi25,fact_av,0.5,0.6666666666666666,0.8
 ehmi_optimization_chi25,fourtu_critical_ehmi,0.0,0.0,
 ehmi_optimization_chi25,longitudinal_usa_germany_ehmi,0.1111111111111111,0.2,0.3333333333333333

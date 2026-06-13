@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-06-13T19:36:10.215148+00:00",
+  "generated_at": "2026-06-13T21:37:03.677217+00:00",
   "input_dir": "data\\processed\\catalog_meta_analysis\\standardized",
   "n_studies": 9,
   "studies": [
@@ -222,7 +222,7 @@
   "dv_overlap": {
     "3d_display_comp_vehicle": {
       "3d_display_comp_vehicle": 1.0,
-      "ehmi_for_all_chi26": 0.07142857142857142,
+      "ehmi_for_all_chi26": 0.041666666666666664,
       "ehmi_optimization_chi25": 0.14285714285714285,
       "fact_av": 0.2,
       "fourtu_critical_ehmi": 0.0,
@@ -232,19 +232,19 @@
       "roads_chi25": 0.05
     },
     "ehmi_for_all_chi26": {
-      "3d_display_comp_vehicle": 0.07142857142857142,
+      "3d_display_comp_vehicle": 0.041666666666666664,
       "ehmi_for_all_chi26": 1.0,
-      "ehmi_optimization_chi25": 0.05,
-      "fact_av": 0.05555555555555555,
+      "ehmi_optimization_chi25": 0.03333333333333333,
+      "fact_av": 0.03571428571428571,
       "fourtu_critical_ehmi": 0.0,
-      "longitudinal_usa_germany_ehmi": 0.0625,
+      "longitudinal_usa_germany_ehmi": 0.038461538461538464,
       "osf_cwd6h": 0.0,
       "road_bumps_touch": 0.0,
-      "roads_chi25": 0.7
+      "roads_chi25": 0.4666666666666667
     },
     "ehmi_optimization_chi25": {
       "3d_display_comp_vehicle": 0.14285714285714285,
-      "ehmi_for_all_chi26": 0.05,
+      "ehmi_for_all_chi26": 0.03333333333333333,
       "ehmi_optimization_chi25": 1.0,
       "fact_av": 0.5,
       "fourtu_critical_ehmi": 0.0,
@@ -255,7 +255,7 @@
     },
     "fact_av": {
       "3d_display_comp_vehicle": 0.2,
-      "ehmi_for_all_chi26": 0.05555555555555555,
+      "ehmi_for_all_chi26": 0.03571428571428571,
       "ehmi_optimization_chi25": 0.5,
       "fact_av": 1.0,
       "fourtu_critical_ehmi": 0.0,
@@ -277,7 +277,7 @@
     },
     "longitudinal_usa_germany_ehmi": {
       "3d_display_comp_vehicle": 0.3333333333333333,
-      "ehmi_for_all_chi26": 0.0625,
+      "ehmi_for_all_chi26": 0.038461538461538464,
       "ehmi_optimization_chi25": 0.1111111111111111,
       "fact_av": 0.14285714285714285,
       "fourtu_critical_ehmi": 0.0,
@@ -310,7 +310,7 @@
     },
     "roads_chi25": {
       "3d_display_comp_vehicle": 0.05,
-      "ehmi_for_all_chi26": 0.7,
+      "ehmi_for_all_chi26": 0.4666666666666667,
       "ehmi_optimization_chi25": 0.038461538461538464,
       "fact_av": 0.041666666666666664,
       "fourtu_critical_ehmi": 0.0,
@@ -637,6 +637,16 @@
       "mapping_source": "schema"
     },
     {
+      "study": "ehmi_for_all_chi26",
+      "dv": "crossing_initiation_time",
+      "n": 720,
+      "mean": 16.41415894375,
+      "sd": 7.181394399436414,
+      "mean_z_vs_global": 0.0,
+      "scale_note": "",
+      "mapping_source": "schema"
+    },
+    {
       "study": "roads_chi25",
       "dv": "effort",
       "n": 276,
@@ -717,6 +727,26 @@
       "mapping_source": "schema"
     },
     {
+      "study": "ehmi_for_all_chi26",
+      "dv": "number_of_collisions",
+      "n": 720,
+      "mean": 0.022222222222222223,
+      "sd": 0.17350371427064193,
+      "mean_z_vs_global": 0.0,
+      "scale_note": "",
+      "mapping_source": "schema"
+    },
+    {
+      "study": "ehmi_for_all_chi26",
+      "dv": "pedestrian_crossing_time",
+      "n": 720,
+      "mean": 7.1247079666666675,
+      "sd": 6.313048389101337,
+      "mean_z_vs_global": 0.0,
+      "scale_note": "",
+      "mapping_source": "schema"
+    },
+    {
       "study": "ehmi_optimization_chi25",
       "dv": "perceived_safety",
       "n": 740,
@@ -772,6 +802,76 @@
       "n": 276,
       "mean": 8.217391304347826,
       "sd": 5.628807889852839,
+      "mean_z_vs_global": 0.0,
+      "scale_note": "",
+      "mapping_source": "schema"
+    },
+    {
+      "study": "ehmi_for_all_chi26",
+      "dv": "tia_item_01",
+      "n": 720,
+      "mean": 3.3819444444444446,
+      "sd": 1.187536854140231,
+      "mean_z_vs_global": 0.0,
+      "scale_note": "",
+      "mapping_source": "schema"
+    },
+    {
+      "study": "ehmi_for_all_chi26",
+      "dv": "tia_item_02",
+      "n": 720,
+      "mean": 3.3041666666666667,
+      "sd": 1.1326409499738737,
+      "mean_z_vs_global": 0.0,
+      "scale_note": "",
+      "mapping_source": "schema"
+    },
+    {
+      "study": "ehmi_for_all_chi26",
+      "dv": "tia_item_03",
+      "n": 720,
+      "mean": 3.2222222222222223,
+      "sd": 1.3592747618586651,
+      "mean_z_vs_global": 0.0,
+      "scale_note": "",
+      "mapping_source": "schema"
+    },
+    {
+      "study": "ehmi_for_all_chi26",
+      "dv": "tia_item_04",
+      "n": 720,
+      "mean": 2.1819444444444445,
+      "sd": 1.1610060369229767,
+      "mean_z_vs_global": 0.0,
+      "scale_note": "",
+      "mapping_source": "schema"
+    },
+    {
+      "study": "ehmi_for_all_chi26",
+      "dv": "tia_item_05",
+      "n": 720,
+      "mean": 3.5708333333333333,
+      "sd": 1.1338682298777087,
+      "mean_z_vs_global": 0.0,
+      "scale_note": "",
+      "mapping_source": "schema"
+    },
+    {
+      "study": "ehmi_for_all_chi26",
+      "dv": "tia_item_06",
+      "n": 720,
+      "mean": 2.533333333333333,
+      "sd": 1.3244255059168963,
+      "mean_z_vs_global": 0.0,
+      "scale_note": "",
+      "mapping_source": "schema"
+    },
+    {
+      "study": "ehmi_for_all_chi26",
+      "dv": "time_after_crossing",
+      "n": 720,
+      "mean": 2.0965640041527775,
+      "sd": 1.9693859248589858,
       "mean_z_vs_global": 0.0,
       "scale_note": "",
       "mapping_source": "schema"

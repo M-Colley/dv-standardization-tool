@@ -106,31 +106,37 @@ def _detect_delimiter(sample: str, prefer: str | None = None) -> str:
     of the first N rows, then picks the one with the lowest coefficient
     of variation (most consistent counts = most likely the real delimiter).
     """
-    candidates = [",", ";", "\t", "|", " "]
-    if prefer:
-        candidates = [prefer] + [c for c in candidates if c != prefer]
+    # Structured delimiters are evaluated first; whitespace is only a last
+    # resort. Otherwise a "; "- or ", "-delimited file (e.g. ROADS / eHMI VR
+    # logs) can be mis-split on the space, producing broken column names like
+    # "userPositionX;", "focused", "object".
+    structured = [",", ";", "\t", "|"]
+    if prefer and prefer in structured:
+        structured = [prefer] + [c for c in structured if c != prefer]
+    whitespace_fallback = [" "]
 
     rows = [r for r in sample.splitlines() if r.strip()][:15]
     if not rows:
         return prefer or ","
 
-    best_delim = prefer or ","
-    best_score = float("inf")
+    def _best(cands: list[str]) -> str | None:
+        best_delim: str | None = None
+        best_score = float("inf")
+        for delim in cands:
+            counts = [row.count(delim) for row in rows]
+            if max(counts) == 0:
+                continue
+            mean = sum(counts) / len(counts)
+            if mean == 0:
+                continue
+            variance = sum((c - mean) ** 2 for c in counts) / len(counts)
+            cv = (variance ** 0.5) / mean  # coefficient of variation
+            if cv < best_score:
+                best_score = cv
+                best_delim = delim
+        return best_delim
 
-    for delim in candidates:
-        counts = [row.count(delim) for row in rows]
-        if max(counts) == 0:
-            continue
-        mean = sum(counts) / len(counts)
-        if mean == 0:
-            continue
-        variance = sum((c - mean) ** 2 for c in counts) / len(counts)
-        cv = (variance ** 0.5) / mean  # coefficient of variation
-        if cv < best_score:
-            best_score = cv
-            best_delim = delim
-
-    return best_delim
+    return _best(structured) or _best(whitespace_fallback) or (prefer or ",")
 
 
 # ---------------------------------------------------------------------------

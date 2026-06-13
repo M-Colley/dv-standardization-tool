@@ -260,6 +260,10 @@ NEVER_MAP_NORMALIZED_COLUMNS = {
     "requestid",
     "controlmode",
     "sideofconstructionsite",
+    # eHMI-for-All independent variables / conditions
+    "scenario",
+    "distraction",
+    "ehmi",
     "seed",
     "lastpage",
     "startlanguage",
