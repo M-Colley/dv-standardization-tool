@@ -1,0 +1,37 @@
+study_a,study_b,shared_dv_count,union_dv_count,jaccard_overlap,shared_dvs,study_a_only_dvs,study_b_only_dvs
+3d_display_comp_vehicle,ehmi_for_all_chi26,1,14,0.07142857142857142,mental_demand,,AOA_SATISFYING; AOA_USEFULNESS; SUS1; SUS10; SUS2; SUS3; SUS4; SUS5; SUS6; SUS7; SUS8; SUS9; usability
+3d_display_comp_vehicle,ehmi_optimization_chi25,1,7,0.14285714285714285,mental_demand,,AOA1; AOA2; acceptance_rating; perceived_safety; trust_rating; understanding_rating
+3d_display_comp_vehicle,fact_av,1,5,0.2,mental_demand,,perceived_safety; situational_awareness; trust_rating; understanding_rating
+3d_display_comp_vehicle,fourtu_critical_ehmi,0,1,0.0,,mental_demand,
+3d_display_comp_vehicle,longitudinal_usa_germany_ehmi,1,3,0.3333333333333333,mental_demand,,ueq_hedonic; ueq_pragmatic
+3d_display_comp_vehicle,osf_cwd6h,0,1,0.0,,mental_demand,
+3d_display_comp_vehicle,road_bumps_touch,0,1,0.0,,mental_demand,
+3d_display_comp_vehicle,roads_chi25,1,20,0.05,mental_demand,,AOA_SATISFYING; AOA_USEFULNESS; SUS1; SUS10; SUS2; SUS3; SUS4; SUS5; SUS6; SUS7; SUS8; SUS9; TLX_SCORE; effort; frustration; performance; physical_demand; temporal_demand; usability
+ehmi_for_all_chi26,ehmi_optimization_chi25,1,20,0.05,mental_demand,AOA_SATISFYING; AOA_USEFULNESS; SUS1; SUS10; SUS2; SUS3; SUS4; SUS5; SUS6; SUS7; SUS8; SUS9; usability,AOA1; AOA2; acceptance_rating; perceived_safety; trust_rating; understanding_rating
+ehmi_for_all_chi26,fact_av,1,18,0.05555555555555555,mental_demand,AOA_SATISFYING; AOA_USEFULNESS; SUS1; SUS10; SUS2; SUS3; SUS4; SUS5; SUS6; SUS7; SUS8; SUS9; usability,perceived_safety; situational_awareness; trust_rating; understanding_rating
+ehmi_for_all_chi26,fourtu_critical_ehmi,0,14,0.0,,AOA_SATISFYING; AOA_USEFULNESS; SUS1; SUS10; SUS2; SUS3; SUS4; SUS5; SUS6; SUS7; SUS8; SUS9; mental_demand; usability,
+ehmi_for_all_chi26,longitudinal_usa_germany_ehmi,1,16,0.0625,mental_demand,AOA_SATISFYING; AOA_USEFULNESS; SUS1; SUS10; SUS2; SUS3; SUS4; SUS5; SUS6; SUS7; SUS8; SUS9; usability,ueq_hedonic; ueq_pragmatic
+ehmi_for_all_chi26,osf_cwd6h,0,14,0.0,,AOA_SATISFYING; AOA_USEFULNESS; SUS1; SUS10; SUS2; SUS3; SUS4; SUS5; SUS6; SUS7; SUS8; SUS9; mental_demand; usability,
+ehmi_for_all_chi26,road_bumps_touch,0,14,0.0,,AOA_SATISFYING; AOA_USEFULNESS; SUS1; SUS10; SUS2; SUS3; SUS4; SUS5; SUS6; SUS7; SUS8; SUS9; mental_demand; usability,
+ehmi_for_all_chi26,roads_chi25,14,20,0.7,AOA_SATISFYING; AOA_USEFULNESS; SUS1; SUS10; SUS2; SUS3; SUS4; SUS5; SUS6; SUS7; SUS8; SUS9; mental_demand; usability,,TLX_SCORE; effort; frustration; performance; physical_demand; temporal_demand
+ehmi_optimization_chi25,fact_av,4,8,0.5,mental_demand; perceived_safety; trust_rating; understanding_rating,AOA1; AOA2; acceptance_rating,situational_awareness
+ehmi_optimization_chi25,fourtu_critical_ehmi,0,7,0.0,,AOA1; AOA2; acceptance_rating; mental_demand; perceived_safety; trust_rating; understanding_rating,
+ehmi_optimization_chi25,longitudinal_usa_germany_ehmi,1,9,0.1111111111111111,mental_demand,AOA1; AOA2; acceptance_rating; perceived_safety; trust_rating; understanding_rating,ueq_hedonic; ueq_pragmatic
+ehmi_optimization_chi25,osf_cwd6h,0,7,0.0,,AOA1; AOA2; acceptance_rating; mental_demand; perceived_safety; trust_rating; understanding_rating,
+ehmi_optimization_chi25,road_bumps_touch,0,7,0.0,,AOA1; AOA2; acceptance_rating; mental_demand; perceived_safety; trust_rating; understanding_rating,
+ehmi_optimization_chi25,roads_chi25,1,26,0.038461538461538464,mental_demand,AOA1; AOA2; acceptance_rating; perceived_safety; trust_rating; understanding_rating,AOA_SATISFYING; AOA_USEFULNESS; SUS1; SUS10; SUS2; SUS3; SUS4; SUS5; SUS6; SUS7; SUS8; SUS9; TLX_SCORE; effort; frustration; performance; physical_demand; temporal_demand; usability
+fact_av,fourtu_critical_ehmi,0,5,0.0,,mental_demand; perceived_safety; situational_awareness; trust_rating; understanding_rating,
+fact_av,longitudinal_usa_germany_ehmi,1,7,0.14285714285714285,mental_demand,perceived_safety; situational_awareness; trust_rating; understanding_rating,ueq_hedonic; ueq_pragmatic
+fact_av,osf_cwd6h,0,5,0.0,,mental_demand; perceived_safety; situational_awareness; trust_rating; understanding_rating,
+fact_av,road_bumps_touch,0,5,0.0,,mental_demand; perceived_safety; situational_awareness; trust_rating; understanding_rating,
+fact_av,roads_chi25,1,24,0.041666666666666664,mental_demand,perceived_safety; situational_awareness; trust_rating; understanding_rating,AOA_SATISFYING; AOA_USEFULNESS; SUS1; SUS10; SUS2; SUS3; SUS4; SUS5; SUS6; SUS7; SUS8; SUS9; TLX_SCORE; effort; frustration; performance; physical_demand; temporal_demand; usability
+fourtu_critical_ehmi,longitudinal_usa_germany_ehmi,0,3,0.0,,,mental_demand; ueq_hedonic; ueq_pragmatic
+fourtu_critical_ehmi,osf_cwd6h,0,0,,,,
+fourtu_critical_ehmi,road_bumps_touch,0,0,,,,
+fourtu_critical_ehmi,roads_chi25,0,20,0.0,,,AOA_SATISFYING; AOA_USEFULNESS; SUS1; SUS10; SUS2; SUS3; SUS4; SUS5; SUS6; SUS7; SUS8; SUS9; TLX_SCORE; effort; frustration; mental_demand; performance; physical_demand; temporal_demand; usability
+longitudinal_usa_germany_ehmi,osf_cwd6h,0,3,0.0,,mental_demand; ueq_hedonic; ueq_pragmatic,
+longitudinal_usa_germany_ehmi,road_bumps_touch,0,3,0.0,,mental_demand; ueq_hedonic; ueq_pragmatic,
+longitudinal_usa_germany_ehmi,roads_chi25,1,22,0.045454545454545456,mental_demand,ueq_hedonic; ueq_pragmatic,AOA_SATISFYING; AOA_USEFULNESS; SUS1; SUS10; SUS2; SUS3; SUS4; SUS5; SUS6; SUS7; SUS8; SUS9; TLX_SCORE; effort; frustration; performance; physical_demand; temporal_demand; usability
+osf_cwd6h,road_bumps_touch,0,0,,,,
+osf_cwd6h,roads_chi25,0,20,0.0,,,AOA_SATISFYING; AOA_USEFULNESS; SUS1; SUS10; SUS2; SUS3; SUS4; SUS5; SUS6; SUS7; SUS8; SUS9; TLX_SCORE; effort; frustration; mental_demand; performance; physical_demand; temporal_demand; usability
+road_bumps_touch,roads_chi25,0,20,0.0,,,AOA_SATISFYING; AOA_USEFULNESS; SUS1; SUS10; SUS2; SUS3; SUS4; SUS5; SUS6; SUS7; SUS8; SUS9; TLX_SCORE; effort; frustration; mental_demand; performance; physical_demand; temporal_demand; usability

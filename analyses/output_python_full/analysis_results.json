@@ -1,0 +1,860 @@
+{
+  "generated_at": "2026-06-13T13:25:44.421845+00:00",
+  "input_dir": "data\\processed\\catalog_meta_analysis\\standardized",
+  "n_studies": 9,
+  "studies": [
+    "3d_display_comp_vehicle",
+    "ehmi_for_all_chi26",
+    "ehmi_optimization_chi25",
+    "fact_av",
+    "fourtu_critical_ehmi",
+    "longitudinal_usa_germany_ehmi",
+    "osf_cwd6h",
+    "road_bumps_touch",
+    "roads_chi25"
+  ],
+  "meta_analysis": [
+    {
+      "dv": "AOA_SATISFYING",
+      "k": 2,
+      "pooled_mean": -0.02431815341588771,
+      "pooled_se": 0.023318779851941546,
+      "ci_lower": -0.07002296192569314,
+      "ci_upper": 0.021386655093917725,
+      "heterogeneity_i2": 17.57201986433544,
+      "heterogeneity_q": 1.2131802797474163,
+      "heterogeneity_p": 0.270703189037121,
+      "egger_p": null
+    },
+    {
+      "dv": "AOA_USEFULNESS",
+      "k": 2,
+      "pooled_mean": 1.380679803970358,
+      "pooled_se": 0.02496952372554479,
+      "ci_lower": 1.3317395374682903,
+      "ci_upper": 1.4296200704724258,
+      "heterogeneity_i2": 95.34060911294173,
+      "heterogeneity_q": 21.462032790113355,
+      "heterogeneity_p": 3.6090412931178204e-06,
+      "egger_p": null
+    },
+    {
+      "dv": "SUS1",
+      "k": 2,
+      "pooled_mean": 3.4987469874559696,
+      "pooled_se": 0.039370833575902486,
+      "ci_lower": 3.421580153647201,
+      "ci_upper": 3.5759138212647383,
+      "heterogeneity_i2": 82.24687370443735,
+      "heterogeneity_q": 5.632810713738614,
+      "heterogeneity_p": 0.017627345288828825,
+      "egger_p": null
+    },
+    {
+      "dv": "SUS10",
+      "k": 2,
+      "pooled_mean": 1.7881691159406252,
+      "pooled_se": 0.03018517695748301,
+      "ci_lower": 1.7290061691039584,
+      "ci_upper": 1.847332062777292,
+      "heterogeneity_i2": 98.56516575141731,
+      "heterogeneity_q": 69.69446129319726,
+      "heterogeneity_p": 6.924025922750571e-17,
+      "egger_p": null
+    },
+    {
+      "dv": "SUS2",
+      "k": 2,
+      "pooled_mean": 1.9047687181219517,
+      "pooled_se": 0.03397857160946964,
+      "ci_lower": 1.8381707177673912,
+      "ci_upper": 1.9713667184765122,
+      "heterogeneity_i2": 95.41988488064888,
+      "heterogeneity_q": 21.833512345027547,
+      "heterogeneity_p": 2.9736078973888304e-06,
+      "egger_p": null
+    },
+    {
+      "dv": "SUS3",
+      "k": 2,
+      "pooled_mean": 3.7307354055502024,
+      "pooled_se": 0.03789156817794811,
+      "ci_lower": 3.656467931921424,
+      "ci_upper": 3.8050028791789807,
+      "heterogeneity_i2": 0.0,
+      "heterogeneity_q": 0.1828380452911181,
+      "heterogeneity_p": 0.6689455289292933,
+      "egger_p": null
+    },
+    {
+      "dv": "SUS4",
+      "k": 2,
+      "pooled_mean": 1.6201695935289235,
+      "pooled_se": 0.02974479063561741,
+      "ci_lower": 1.5618698038831134,
+      "ci_upper": 1.6784693831747337,
+      "heterogeneity_i2": 98.44427429018415,
+      "heterogeneity_q": 64.27868316956531,
+      "heterogeneity_p": 1.0800802449032292e-15,
+      "egger_p": null
+    },
+    {
+      "dv": "SUS5",
+      "k": 2,
+      "pooled_mean": 3.5659221909874037,
+      "pooled_se": 0.03541885372886094,
+      "ci_lower": 3.4965012376788365,
+      "ci_upper": 3.635343144295971,
+      "heterogeneity_i2": 86.30666869584148,
+      "heterogeneity_q": 7.302824840704109,
+      "heterogeneity_p": 0.006884628803656047,
+      "egger_p": null
+    },
+    {
+      "dv": "SUS6",
+      "k": 2,
+      "pooled_mean": 1.9506993010941327,
+      "pooled_se": 0.03629734136392629,
+      "ci_lower": 1.8795565120208373,
+      "ci_upper": 2.021842090167428,
+      "heterogeneity_i2": 0.0,
+      "heterogeneity_q": 0.11786300597319088,
+      "heterogeneity_p": 0.7313638892788152,
+      "egger_p": null
+    },
+    {
+      "dv": "SUS7",
+      "k": 2,
+      "pooled_mean": 3.8338654076877052,
+      "pooled_se": 0.03520086271909062,
+      "ci_lower": 3.7648717167582877,
+      "ci_upper": 3.9028590986171228,
+      "heterogeneity_i2": 63.886214420298394,
+      "heterogeneity_q": 2.7690256890766607,
+      "heterogeneity_p": 0.09610464216460639,
+      "egger_p": null
+    },
+    {
+      "dv": "SUS8",
+      "k": 2,
+      "pooled_mean": 2.3505799084339207,
+      "pooled_se": 0.03882033595862685,
+      "ci_lower": 2.274492049955012,
+      "ci_upper": 2.4266677669128294,
+      "heterogeneity_i2": 3.733109723440939,
+      "heterogeneity_q": 1.0387787505415031,
+      "heterogeneity_p": 0.3081056723951765,
+      "egger_p": null
+    },
+    {
+      "dv": "SUS9",
+      "k": 2,
+      "pooled_mean": 3.5186580205163365,
+      "pooled_se": 0.038267281095076315,
+      "ci_lower": 3.443654149569987,
+      "ci_upper": 3.593661891462686,
+      "heterogeneity_i2": 55.211272338072014,
+      "heterogeneity_q": 2.232704638426324,
+      "heterogeneity_p": 0.13511714495029736,
+      "egger_p": null
+    },
+    {
+      "dv": "mental_demand",
+      "k": 6,
+      "pooled_mean": 7.588634951016702,
+      "pooled_se": 0.9435779945598782,
+      "ci_lower": 5.7392220816793404,
+      "ci_upper": 9.438047820354063,
+      "heterogeneity_i2": 99.6413288321344,
+      "heterogeneity_q": 1394.0345497393382,
+      "heterogeneity_p": 2.7002695779200193e-299,
+      "egger_p": 0.5259220050838911
+    },
+    {
+      "dv": "perceived_safety",
+      "k": 2,
+      "pooled_mean": 1.738714002242082,
+      "pooled_se": 0.015480334368507521,
+      "ci_lower": 1.7083725468798072,
+      "ci_upper": 1.7690554576043567,
+      "heterogeneity_i2": 99.6603830117242,
+      "heterogeneity_q": 294.4493457400115,
+      "heterogeneity_p": 5.33468913758899e-66,
+      "egger_p": null
+    },
+    {
+      "dv": "trust_rating",
+      "k": 2,
+      "pooled_mean": 4.064381853037206,
+      "pooled_se": 0.009220456389690613,
+      "ci_lower": 4.046309758513413,
+      "ci_upper": 4.0824539475609996,
+      "heterogeneity_i2": 99.1956981250208,
+      "heterogeneity_q": 124.33142718035624,
+      "heterogeneity_p": 7.128493969951539e-29,
+      "egger_p": null
+    },
+    {
+      "dv": "understanding_rating",
+      "k": 2,
+      "pooled_mean": 4.0916035022933865,
+      "pooled_se": 0.007068847420969945,
+      "ci_lower": 4.077748561348286,
+      "ci_upper": 4.105458443238487,
+      "heterogeneity_i2": 94.75072254524251,
+      "heterogeneity_q": 19.050240887794708,
+      "heterogeneity_p": 1.2732170069374095e-05,
+      "egger_p": null
+    },
+    {
+      "dv": "usability",
+      "k": 2,
+      "pooled_mean": 70.94150943806495,
+      "pooled_se": 0.6597784621265959,
+      "ci_lower": 69.64834365229683,
+      "ci_upper": 72.23467522383308,
+      "heterogeneity_i2": 74.27155248072496,
+      "heterogeneity_q": 3.886748313324494,
+      "heterogeneity_p": 0.04866856594769241,
+      "egger_p": null
+    }
+  ],
+  "dv_overlap": {
+    "3d_display_comp_vehicle": {
+      "3d_display_comp_vehicle": 1.0,
+      "ehmi_for_all_chi26": 0.07142857142857142,
+      "ehmi_optimization_chi25": 0.14285714285714285,
+      "fact_av": 0.2,
+      "fourtu_critical_ehmi": 0.0,
+      "longitudinal_usa_germany_ehmi": 0.3333333333333333,
+      "osf_cwd6h": 0.0,
+      "road_bumps_touch": 0.0,
+      "roads_chi25": 0.05
+    },
+    "ehmi_for_all_chi26": {
+      "3d_display_comp_vehicle": 0.07142857142857142,
+      "ehmi_for_all_chi26": 1.0,
+      "ehmi_optimization_chi25": 0.05,
+      "fact_av": 0.05555555555555555,
+      "fourtu_critical_ehmi": 0.0,
+      "longitudinal_usa_germany_ehmi": 0.0625,
+      "osf_cwd6h": 0.0,
+      "road_bumps_touch": 0.0,
+      "roads_chi25": 0.7
+    },
+    "ehmi_optimization_chi25": {
+      "3d_display_comp_vehicle": 0.14285714285714285,
+      "ehmi_for_all_chi26": 0.05,
+      "ehmi_optimization_chi25": 1.0,
+      "fact_av": 0.5,
+      "fourtu_critical_ehmi": 0.0,
+      "longitudinal_usa_germany_ehmi": 0.1111111111111111,
+      "osf_cwd6h": 0.0,
+      "road_bumps_touch": 0.0,
+      "roads_chi25": 0.038461538461538464
+    },
+    "fact_av": {
+      "3d_display_comp_vehicle": 0.2,
+      "ehmi_for_all_chi26": 0.05555555555555555,
+      "ehmi_optimization_chi25": 0.5,
+      "fact_av": 1.0,
+      "fourtu_critical_ehmi": 0.0,
+      "longitudinal_usa_germany_ehmi": 0.14285714285714285,
+      "osf_cwd6h": 0.0,
+      "road_bumps_touch": 0.0,
+      "roads_chi25": 0.041666666666666664
+    },
+    "fourtu_critical_ehmi": {
+      "3d_display_comp_vehicle": 0.0,
+      "ehmi_for_all_chi26": 0.0,
+      "ehmi_optimization_chi25": 0.0,
+      "fact_av": 0.0,
+      "fourtu_critical_ehmi": NaN,
+      "longitudinal_usa_germany_ehmi": 0.0,
+      "osf_cwd6h": NaN,
+      "road_bumps_touch": NaN,
+      "roads_chi25": 0.0
+    },
+    "longitudinal_usa_germany_ehmi": {
+      "3d_display_comp_vehicle": 0.3333333333333333,
+      "ehmi_for_all_chi26": 0.0625,
+      "ehmi_optimization_chi25": 0.1111111111111111,
+      "fact_av": 0.14285714285714285,
+      "fourtu_critical_ehmi": 0.0,
+      "longitudinal_usa_germany_ehmi": 1.0,
+      "osf_cwd6h": 0.0,
+      "road_bumps_touch": 0.0,
+      "roads_chi25": 0.045454545454545456
+    },
+    "osf_cwd6h": {
+      "3d_display_comp_vehicle": 0.0,
+      "ehmi_for_all_chi26": 0.0,
+      "ehmi_optimization_chi25": 0.0,
+      "fact_av": 0.0,
+      "fourtu_critical_ehmi": NaN,
+      "longitudinal_usa_germany_ehmi": 0.0,
+      "osf_cwd6h": NaN,
+      "road_bumps_touch": NaN,
+      "roads_chi25": 0.0
+    },
+    "road_bumps_touch": {
+      "3d_display_comp_vehicle": 0.0,
+      "ehmi_for_all_chi26": 0.0,
+      "ehmi_optimization_chi25": 0.0,
+      "fact_av": 0.0,
+      "fourtu_critical_ehmi": NaN,
+      "longitudinal_usa_germany_ehmi": 0.0,
+      "osf_cwd6h": NaN,
+      "road_bumps_touch": NaN,
+      "roads_chi25": 0.0
+    },
+    "roads_chi25": {
+      "3d_display_comp_vehicle": 0.05,
+      "ehmi_for_all_chi26": 0.7,
+      "ehmi_optimization_chi25": 0.038461538461538464,
+      "fact_av": 0.041666666666666664,
+      "fourtu_critical_ehmi": 0.0,
+      "longitudinal_usa_germany_ehmi": 0.045454545454545456,
+      "osf_cwd6h": 0.0,
+      "road_bumps_touch": 0.0,
+      "roads_chi25": 1.0
+    }
+  },
+  "causal_discovery": {
+    "dvs_used": [
+      "mental_demand",
+      "perceived_safety",
+      "trust_rating",
+      "understanding_rating"
+    ],
+    "n_observations": 11094,
+    "causal_order": [
+      "mental_demand",
+      "trust_rating",
+      "understanding_rating",
+      "perceived_safety"
+    ],
+    "edges": [
+      {
+        "from": "trust_rating",
+        "to": "perceived_safety",
+        "coefficient": 0.28182668311719655
+      },
+      {
+        "from": "mental_demand",
+        "to": "trust_rating",
+        "coefficient": -0.17331349312832253
+      },
+      {
+        "from": "trust_rating",
+        "to": "understanding_rating",
+        "coefficient": 0.34498350370976116
+      }
+    ],
+    "used_method": "complete_case",
+    "synthetic_fallback": false,
+    "n_complete_rows": 11094
+  },
+  "harmonized_summary": [
+    {
+      "study": "ehmi_optimization_chi25",
+      "dv": "AOA1",
+      "n": 740,
+      "mean": -0.7127027027027026,
+      "sd": 0.19658999115051867,
+      "mean_z_vs_global": 0.0,
+      "scale_note": "rescaled 0.0-20.0 -> -2.0-2.0",
+      "mapping_source": "unknown"
+    },
+    {
+      "study": "ehmi_optimization_chi25",
+      "dv": "AOA2",
+      "n": 740,
+      "mean": -0.7335135135135135,
+      "sd": 0.2162819817328293,
+      "mean_z_vs_global": 0.0,
+      "scale_note": "rescaled 0.0-20.0 -> -2.0-2.0",
+      "mapping_source": "unknown"
+    },
+    {
+      "study": "ehmi_for_all_chi26",
+      "dv": "AOA_SATISFYING",
+      "n": 151,
+      "mean": -0.018211920529801324,
+      "sd": 0.2945325926338549,
+      "mean_z_vs_global": 0.15842423561981128,
+      "scale_note": "",
+      "mapping_source": "unknown"
+    },
+    {
+      "study": "roads_chi25",
+      "dv": "AOA_SATISFYING",
+      "n": 17,
+      "mean": -0.1323529411764706,
+      "sd": 0.4156851183853697,
+      "mean_z_vs_global": -0.15842423561981125,
+      "scale_note": "",
+      "mapping_source": "unknown"
+    },
+    {
+      "study": "ehmi_for_all_chi26",
+      "dv": "AOA_USEFULNESS",
+      "n": 148,
+      "mean": 1.4405405405405405,
+      "sd": 0.34203032006224643,
+      "mean_z_vs_global": 0.4082363249373564,
+      "scale_note": "",
+      "mapping_source": "unknown"
+    },
+    {
+      "study": "roads_chi25",
+      "dv": "AOA_USEFULNESS",
+      "n": 42,
+      "mean": 1.157142857142857,
+      "sd": 0.35209675578672983,
+      "mean_z_vs_global": -0.4082363249373558,
+      "scale_note": "",
+      "mapping_source": "unknown"
+    },
+    {
+      "study": "ehmi_for_all_chi26",
+      "dv": "SUS1",
+      "n": 720,
+      "mean": 3.4375,
+      "sd": 1.2631436928843192,
+      "mean_z_vs_global": -0.08293877650600158,
+      "scale_note": "",
+      "mapping_source": "schema"
+    },
+    {
+      "study": "roads_chi25",
+      "dv": "SUS1",
+      "n": 276,
+      "mean": 3.641304347826087,
+      "sd": 1.1931457739709193,
+      "mean_z_vs_global": 0.08293877650600158,
+      "scale_note": "",
+      "mapping_source": "schema"
+    },
+    {
+      "study": "ehmi_for_all_chi26",
+      "dv": "SUS10",
+      "n": 720,
+      "mean": 1.6625,
+      "sd": 0.9050833877626384,
+      "mean_z_vs_global": -0.30922697837028573,
+      "scale_note": "",
+      "mapping_source": "schema"
+    },
+    {
+      "study": "roads_chi25",
+      "dv": "SUS10",
+      "n": 276,
+      "mean": 2.2934782608695654,
+      "sd": 1.123676208408754,
+      "mean_z_vs_global": 0.30922697837028573,
+      "scale_note": "",
+      "mapping_source": "schema"
+    },
+    {
+      "study": "ehmi_for_all_chi26",
+      "dv": "SUS2",
+      "n": 720,
+      "mean": 1.8222222222222222,
+      "sd": 1.027605372568088,
+      "mean_z_vs_global": -0.17165832241379567,
+      "scale_note": "",
+      "mapping_source": "schema"
+    },
+    {
+      "study": "roads_chi25",
+      "dv": "SUS2",
+      "n": 276,
+      "mean": 2.210144927536232,
+      "sd": 1.223722479237984,
+      "mean_z_vs_global": 0.17165832241379547,
+      "scale_note": "",
+      "mapping_source": "schema"
+    },
+    {
+      "study": "ehmi_for_all_chi26",
+      "dv": "SUS3",
+      "n": 720,
+      "mean": 3.720833333333333,
+      "sd": 1.1915835468383937,
+      "mean_z_vs_global": -0.015179768706459302,
+      "scale_note": "",
+      "mapping_source": "schema"
+    },
+    {
+      "study": "roads_chi25",
+      "dv": "SUS3",
+      "n": 276,
+      "mean": 3.7572463768115942,
+      "sd": 1.207153687957942,
+      "mean_z_vs_global": 0.015179768706459673,
+      "scale_note": "",
+      "mapping_source": "schema"
+    },
+    {
+      "study": "ehmi_for_all_chi26",
+      "dv": "SUS4",
+      "n": 720,
+      "mean": 1.5194444444444444,
+      "sd": 0.8664089699258545,
+      "mean_z_vs_global": -0.3060089706941037,
+      "scale_note": "",
+      "mapping_source": "schema"
+    },
+    {
+      "study": "roads_chi25",
+      "dv": "SUS4",
+      "n": 276,
+      "mean": 2.1847826086956523,
+      "sd": 1.2700409255489251,
+      "mean_z_vs_global": 0.3060089706941037,
+      "scale_note": "",
+      "mapping_source": "schema"
+    },
+    {
+      "study": "ehmi_for_all_chi26",
+      "dv": "SUS5",
+      "n": 720,
+      "mean": 3.4972222222222222,
+      "sd": 1.1698545755850631,
+      "mean_z_vs_global": -0.09247721125094609,
+      "scale_note": "",
+      "mapping_source": "schema"
+    },
+    {
+      "study": "roads_chi25",
+      "dv": "SUS5",
+      "n": 276,
+      "mean": 3.699275362318841,
+      "sd": 1.009121769519442,
+      "mean_z_vs_global": 0.09247721125094568,
+      "scale_note": "",
+      "mapping_source": "schema"
+    },
+    {
+      "study": "ehmi_for_all_chi26",
+      "dv": "SUS6",
+      "n": 720,
+      "mean": 1.9430555555555555,
+      "sd": 1.142591348626089,
+      "mean_z_vs_global": -0.012177762160382806,
+      "scale_note": "",
+      "mapping_source": "schema"
+    },
+    {
+      "study": "roads_chi25",
+      "dv": "SUS6",
+      "n": 276,
+      "mean": 1.9710144927536233,
+      "sd": 1.1532848200478634,
+      "mean_z_vs_global": 0.012177762160382999,
+      "scale_note": "",
+      "mapping_source": "schema"
+    },
+    {
+      "study": "ehmi_for_all_chi26",
+      "dv": "SUS7",
+      "n": 720,
+      "mean": 3.8652777777777776,
+      "sd": 1.0717850294886309,
+      "mean_z_vs_global": 0.06074845102301476,
+      "scale_note": "",
+      "mapping_source": "schema"
+    },
+    {
+      "study": "roads_chi25",
+      "dv": "SUS7",
+      "n": 276,
+      "mean": 3.7246376811594204,
+      "sd": 1.2374055905483947,
+      "mean_z_vs_global": -0.06074845102301476,
+      "scale_note": "",
+      "mapping_source": "schema"
+    },
+    {
+      "study": "ehmi_for_all_chi26",
+      "dv": "SUS8",
+      "n": 720,
+      "mean": 2.373611111111111,
+      "sd": 1.205284268728264,
+      "mean_z_vs_global": 0.03656993853318568,
+      "scale_note": "",
+      "mapping_source": "schema"
+    },
+    {
+      "study": "roads_chi25",
+      "dv": "SUS8",
+      "n": 276,
+      "mean": 2.282608695652174,
+      "sd": 1.2819821609014554,
+      "mean_z_vs_global": -0.03656993853318568,
+      "scale_note": "",
+      "mapping_source": "schema"
+    },
+    {
+      "study": "ehmi_for_all_chi26",
+      "dv": "SUS9",
+      "n": 720,
+      "mean": 3.4791666666666665,
+      "sd": 1.247912025268391,
+      "mean_z_vs_global": -0.051593068592554935,
+      "scale_note": "",
+      "mapping_source": "schema"
+    },
+    {
+      "study": "roads_chi25",
+      "dv": "SUS9",
+      "n": 276,
+      "mean": 3.601449275362319,
+      "sd": 1.118699602687879,
+      "mean_z_vs_global": 0.051593068592554935,
+      "scale_note": "",
+      "mapping_source": "schema"
+    },
+    {
+      "study": "roads_chi25",
+      "dv": "TLX_SCORE",
+      "n": 276,
+      "mean": 7.916666666666667,
+      "sd": 4.179277884558962,
+      "mean_z_vs_global": 0.0,
+      "scale_note": "",
+      "mapping_source": "unknown"
+    },
+    {
+      "study": "ehmi_optimization_chi25",
+      "dv": "acceptance_rating",
+      "n": 740,
+      "mean": 6.3844594594594595,
+      "sd": 0.9495895301424373,
+      "mean_z_vs_global": 0.0,
+      "scale_note": "",
+      "mapping_source": "schema"
+    },
+    {
+      "study": "roads_chi25",
+      "dv": "effort",
+      "n": 276,
+      "mean": 8.065217391304348,
+      "sd": 4.872492767644811,
+      "mean_z_vs_global": 0.0,
+      "scale_note": "",
+      "mapping_source": "schema"
+    },
+    {
+      "study": "roads_chi25",
+      "dv": "frustration",
+      "n": 276,
+      "mean": 7.108695652173913,
+      "sd": 5.334872966174301,
+      "mean_z_vs_global": 0.0,
+      "scale_note": "",
+      "mapping_source": "schema"
+    },
+    {
+      "study": "3d_display_comp_vehicle",
+      "dv": "mental_demand",
+      "n": 45,
+      "mean": 7.4,
+      "sd": 4.937794870366547,
+      "mean_z_vs_global": -0.03870939422193477,
+      "scale_note": "",
+      "mapping_source": "schema"
+    },
+    {
+      "study": "ehmi_for_all_chi26",
+      "dv": "mental_demand",
+      "n": 720,
+      "mean": 9.027777777777779,
+      "sd": 4.733428665615225,
+      "mean_z_vs_global": 0.30175391906011567,
+      "scale_note": "",
+      "mapping_source": "schema"
+    },
+    {
+      "study": "ehmi_optimization_chi25",
+      "dv": "mental_demand",
+      "n": 1480,
+      "mean": 5.621621621621622,
+      "sd": 3.505825163903176,
+      "mean_z_vs_global": -0.41067208055277177,
+      "scale_note": "",
+      "mapping_source": "schema"
+    },
+    {
+      "study": "fact_av",
+      "dv": "mental_demand",
+      "n": 10354,
+      "mean": 9.450164187753526,
+      "sd": 5.694030425821815,
+      "mean_z_vs_global": 0.3900995634035204,
+      "scale_note": "",
+      "mapping_source": "schema"
+    },
+    {
+      "study": "longitudinal_usa_germany_ehmi",
+      "dv": "mental_demand",
+      "n": 326,
+      "mean": 6.0,
+      "sd": 4.388095784663846,
+      "mean_z_vs_global": -0.33153108346110444,
+      "scale_note": "",
+      "mapping_source": "schema"
+    },
+    {
+      "study": "roads_chi25",
+      "dv": "mental_demand",
+      "n": 276,
+      "mean": 8.01086956521739,
+      "sd": 5.137727616299694,
+      "mean_z_vs_global": 0.08905907577217473,
+      "scale_note": "",
+      "mapping_source": "schema"
+    },
+    {
+      "study": "ehmi_optimization_chi25",
+      "dv": "perceived_safety",
+      "n": 740,
+      "mean": 2.372972972972973,
+      "sd": 1.0901108306427008,
+      "mean_z_vs_global": 0.26019117752414683,
+      "scale_note": "",
+      "mapping_source": "schema"
+    },
+    {
+      "study": "fact_av",
+      "dv": "perceived_safety",
+      "n": 10354,
+      "mean": 1.6274628163028781,
+      "sd": 1.7077641419557383,
+      "mean_z_vs_global": -0.26019117752414683,
+      "scale_note": "",
+      "mapping_source": "unknown"
+    },
+    {
+      "study": "roads_chi25",
+      "dv": "performance",
+      "n": 276,
+      "mean": 8.971014492753623,
+      "sd": 6.130035775052668,
+      "mean_z_vs_global": 0.0,
+      "scale_note": "",
+      "mapping_source": "schema"
+    },
+    {
+      "study": "roads_chi25",
+      "dv": "physical_demand",
+      "n": 276,
+      "mean": 7.1268115942028984,
+      "sd": 5.133335472169019,
+      "mean_z_vs_global": 0.0,
+      "scale_note": "",
+      "mapping_source": "schema"
+    },
+    {
+      "study": "fact_av",
+      "dv": "situational_awareness",
+      "n": 10354,
+      "mean": 20.65675101410083,
+      "sd": 6.93372256138817,
+      "mean_z_vs_global": 0.0,
+      "scale_note": "",
+      "mapping_source": "schema"
+    },
+    {
+      "study": "roads_chi25",
+      "dv": "temporal_demand",
+      "n": 276,
+      "mean": 8.217391304347826,
+      "sd": 5.628807889852839,
+      "mean_z_vs_global": 0.0,
+      "scale_note": "",
+      "mapping_source": "schema"
+    },
+    {
+      "study": "ehmi_optimization_chi25",
+      "dv": "trust_rating",
+      "n": 740,
+      "mean": 4.419594594594595,
+      "sd": 0.9021593989014483,
+      "mean_z_vs_global": 0.2047309567333344,
+      "scale_note": "",
+      "mapping_source": "schema"
+    },
+    {
+      "study": "fact_av",
+      "dv": "trust_rating",
+      "n": 10354,
+      "mean": 4.034624299787522,
+      "sd": 0.9767329535174044,
+      "mean_z_vs_global": -0.20473095673333347,
+      "scale_note": "",
+      "mapping_source": "schema"
+    },
+    {
+      "study": "longitudinal_usa_germany_ehmi",
+      "dv": "ueq_hedonic",
+      "n": 30,
+      "mean": -0.9990384615384617,
+      "sd": 2.094902270964657,
+      "mean_z_vs_global": 0.0,
+      "scale_note": "rescaled 1.0-625.0 -> -3.0-3.0",
+      "mapping_source": "schema"
+    },
+    {
+      "study": "longitudinal_usa_germany_ehmi",
+      "dv": "ueq_pragmatic",
+      "n": 30,
+      "mean": -1.4718100890207713,
+      "sd": 1.91444029050401,
+      "mean_z_vs_global": 0.0,
+      "scale_note": "rescaled 1.0-675.0 -> -3.0-3.0",
+      "mapping_source": "schema"
+    },
+    {
+      "study": "ehmi_optimization_chi25",
+      "dv": "understanding_rating",
+      "n": 740,
+      "mean": 3.950675675675676,
+      "sd": 0.8991423233701417,
+      "mean_z_vs_global": -0.089855729803989,
+      "scale_note": "",
+      "mapping_source": "schema"
+    },
+    {
+      "study": "fact_av",
+      "dv": "understanding_rating",
+      "n": 10354,
+      "mean": 4.098358122464747,
+      "sd": 0.7363236509112866,
+      "mean_z_vs_global": 0.089855729803989,
+      "scale_note": "rescaled 0.0-20.0 -> 1.0-5.0",
+      "mapping_source": "schema"
+    },
+    {
+      "study": "ehmi_for_all_chi26",
+      "dv": "usability",
+      "n": 720,
+      "mean": 71.69791666666667,
+      "sd": 20.479493691415943,
+      "mean_z_vs_global": 0.07075369592609387,
+      "scale_note": "",
+      "mapping_source": "unknown"
+    },
+    {
+      "study": "roads_chi25",
+      "dv": "usability",
+      "n": 276,
+      "mean": 68.70471014492753,
+      "sd": 21.804351848932406,
+      "mean_z_vs_global": -0.07075369592609321,
+      "scale_note": "",
+      "mapping_source": "unknown"
+    }
+  ]
+}
