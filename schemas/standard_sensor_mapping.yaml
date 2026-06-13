@@ -227,3 +227,17 @@ dvs:
     aliases: ["Unix Timestamp In Milliseconds", unix_timestamp_in_milliseconds]
   - id: eye_additional_notes
     aliases: ["Additional Notes", additional_notes]
+
+  # -- VR pedestrian trajectory stream (eHMI-for-All data/*.csv) --
+  - id: vr_user_position_x
+    aliases: [userPositionX, user_position_x]
+  - id: vr_user_position_y
+    aliases: [userPositionY, user_position_y]
+  - id: vr_user_position_z
+    aliases: [userPositionZ, user_position_z]
+  - id: vr_player_position
+    aliases: [playerPositon, playerPosition, player_position]
+  - id: vr_focused_object
+    aliases: ["focused object", focused_object]
+  - id: sensor_timestamp
+    aliases: [timestamp, Timestamp, time_stamp]

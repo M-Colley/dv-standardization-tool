@@ -60,6 +60,13 @@ dataset_types:
       - eyeaspectratioheightwidth
       - blinking
       - aoilist
+      # VR pedestrian trajectory logs (eHMI-for-All data/*.csv)
+      - userpositionx
+      - userpositiony
+      - userpositionz
+      - playerpositon
+      - playerposition
+      - focusedobject
       - gazeforward
       - gazeorigin
       - leftpupildiameterinmm
