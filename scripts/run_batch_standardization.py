@@ -254,6 +254,12 @@ NEVER_MAP_NORMALIZED_COLUMNS = {
     "treatment",
     "treatmentid",
     "treatment_id",
+    # Simulator/log admin + condition fields (e.g. ROADS driving logs): these
+    # are identifiers or independent variables, never dependent measures.
+    "scenarioid",
+    "requestid",
+    "controlmode",
+    "sideofconstructionsite",
     "seed",
     "lastpage",
     "startlanguage",
@@ -320,6 +326,12 @@ class SourceRunResult:
     mapped_ratio: float
     output_dir: str
     message: str | None = None
+    # "mapped_columns" counts every schema family (dv + sensor + metadata +
+    # detection) plus blocked admin fields, so a telemetry-heavy source can show
+    # high coverage while contributing zero dependent variables. These fields
+    # surface that distinction without digging into mapping_metrics_by_domain.
+    mapped_dv_columns: int = 0
+    mapping_domains: dict[str, int] | None = None
 
 
 def load_manifest(manifest_path: Path) -> list[dict[str, Any]]:
@@ -482,6 +494,28 @@ def _safe_rmtree(path: Path, max_attempts: int = 4) -> None:
 # dwarf the actual data tree.
 _DISCOVERY_PRUNED_DIRS = {".git", "__pycache__", ".venv", "node_modules", ".hg", ".svn"}
 
+# Non-tabular files that get discovered because their suffix (e.g. .json) is a
+# valid data format, but which are never study data: game-engine/build/IDE asset
+# trees and package/config manifests (Unity projects, Node, .NET) and ML-pipeline
+# bookkeeping. Discovering these as "datasets" inflates the column count with
+# ungappable keys and depresses the mapped ratio (see 4TU Unity ZIP, FACT-AV ML
+# artifacts). Applied in addition to any per-source exclude_globs.
+DEFAULT_EXCLUDE_GLOBS = [
+    # Engine / build / IDE asset trees
+    "**/Library/**", "**/PackageCache/**", "**/ProjectSettings/**",
+    "**/Packages/**", "**/obj/**", "**/bin/**", "**/Temp/**",
+    "**/Build/**", "**/Builds/**", "**/.vs/**", "**/.idea/**",
+    "**/.gradle/**", "**/target/**",
+    # Package / build / config manifests (descriptors, not tabular data)
+    "**/package.json", "**/package-lock.json", "**/manifest.json",
+    "**/tsconfig*.json", "**/jsconfig*.json", "**/composer.json",
+    "**/launchSettings.json", "**/appsettings*.json",
+    "**/ValidationExceptions.json", "**/*.tests.json", "**/*.sample.json",
+    # ML training / experiment bookkeeping
+    "**/catboost_info/**", "**/wandb/**", "**/mlruns/**",
+    "**/.ipynb_checkpoints/**",
+]
+
 
 def _iter_discovery_files(base_dir: Path) -> list[Path]:
     """Walk ``base_dir`` once, pruning VCS/cache directories."""
@@ -524,7 +558,8 @@ def _matches_any_glob(relative_posix: str, patterns: list[str]) -> bool:
 
 def _match_files(base_dir: Path, include_globs: list[str] | None, exclude_globs: list[str] | None) -> list[Path]:
     include_globs = [str(p) for p in (include_globs or ["**/*"])]
-    exclude_globs = [str(p) for p in (exclude_globs or [])]
+    # Per-source excludes take effect on top of the global non-tabular defaults.
+    exclude_globs = [str(p) for p in (exclude_globs or [])] + DEFAULT_EXCLUDE_GLOBS
 
     candidates: list[Path] = []
     for path in _iter_discovery_files(base_dir):
@@ -1710,6 +1745,8 @@ def run_batch(
                     mapped_ratio=(total_mapped_columns / total_columns) if total_columns else 0.0,
                     output_dir=str(source_output_dir),
                     message=message,
+                    mapped_dv_columns=int(source_domain_metrics.get("dv", 0)),
+                    mapping_domains=dict(sorted(source_domain_metrics.items())),
                 )
             )
 

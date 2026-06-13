@@ -205,10 +205,15 @@ To improve local LLM inference quality in practice:
 LLM-assisted alias deduction is the heaviest step in the pipeline:
 the first source with unmapped columns triggers a download of the
 preferred local model into `~/.cache/huggingface/hub/`
-(Gemma-4-E4B is ~8 GB on disk). For models in that class, run the
-batch on a Linux/macOS host with a CUDA-capable GPU — the Windows
-+ Gemma-4 weight loader is known to segfault during tensor
-materialization.
+(Gemma-4-E4B is ~8 GB on disk). A CUDA-capable GPU is strongly
+recommended for this step.
+
+> **Windows note (updated 2026-06):** the Gemma-4 weight loader now
+> loads and generates correctly on Windows with recent CUDA wheels
+> (verified: `google/gemma-4-E4B-it` on torch 2.12+cu130, RTX 4090).
+> Earlier toolchains could segfault during tensor materialization, so
+> if you hit a hard crash on load, upgrade `torch`/CUDA first rather
+> than assuming Windows is unsupported.
 
 ```bash
 # 1. Clone and install (editable, with LLM extras)

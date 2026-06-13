@@ -112,3 +112,118 @@ dvs:
 
   - id: sensor_pixel_y
     aliases: [PixelY, pixelY, pixel_y]
+
+  # ── Driving-simulator telemetry (ROADS log_*.csv / OverviewLog / TimestampLog) ──
+  # Continuous vehicle/task-state channels logged per tick. Non-DV streams; the
+  # admin/condition fields (UserID, ScenarioID, requestID, controlMode) are
+  # handled by the never-map blocklist, not here.
+  - id: sim_vehicle_speed
+    aliases: [vehicleSpeed, vehicle_speed]
+  - id: sim_vehicle_position
+    aliases: [vehiclePosition, vehicle_position]
+  - id: sim_lane_deviation
+    aliases: [currentLaneDeviation, current_lane_deviation, laneDeviation]
+  - id: sim_closest_lane
+    aliases: [closestLane, closest_lane]
+  - id: sim_distance_to_end
+    aliases: [distanceToEnd, distance_to_end]
+  - id: sim_distance_to_end_instructed
+    aliases: [distanceToEndOfInstructedPath, distance_to_end_of_instructed_path]
+  - id: sim_distance_travelled
+    aliases: [distanceTravelledSinceLastLog, distance_travelled_since_last_log]
+  - id: sim_path_length_instructed
+    aliases: [lengthOfCurrentInstructedPath, length_of_current_instructed_path]
+  - id: sim_path_length_input
+    aliases: [lengthOfCurrentInstructedInputPath, length_of_current_instructed_input_path]
+  - id: sim_elapsed_time_since_access
+    aliases: [elapsedTimeSinceAccess, elapsed_time_since_access]
+  - id: sim_elapsed_time
+    aliases: [elapsedTime, elapsed_time]
+  - id: sim_time_since_last_input
+    aliases: [timeSinceLastInput, time_since_last_input]
+  - id: sim_neglected_time
+    aliases: [currentlyNeglectedTime, currently_neglected_time]
+  - id: sim_blind_time_sum
+    aliases: [blindTimeSum, blind_time_sum]
+  - id: sim_collision_avoidance_time_traffic
+    aliases: [timeOfCollisionAvoidanceTraffic, time_of_collision_avoidance_traffic]
+  - id: sim_collision_avoidance_time_obstacle
+    aliases: [timeOfCollisionAvoidanceObstacle, time_of_collision_avoidance_obstacle]
+  - id: sim_collision_avoidance_time_pedestrian
+    aliases: [timeOfCollisionAvoidancePedestrian, time_of_collision_avoidance_pedestrian]
+  - id: sim_construction_site_entered
+    aliases: [constructionSiteEntered, construction_site_entered]
+  - id: sim_end_reached
+    aliases: [endReached, end_reached]
+  - id: sim_addition_input_amount
+    aliases: [amountOfAdditionInput, amount_of_addition_input]
+  - id: sim_addition_markers_amount
+    aliases: [amountOfAdditionMarkers, amount_of_addition_markers]
+  - id: sim_snap_middle_input_amount
+    aliases: [amountOfSnapToMiddleInput, amount_of_snap_to_middle_input]
+  - id: sim_snap_middle_markers_amount
+    aliases: [amountOfSnapToMiddleMarkers, amount_of_snap_to_middle_markers]
+  - id: sim_readjustment_input_amount
+    aliases: [amountOfReadjustmentInput, amount_of_readjustment_input]
+  - id: sim_request_active
+    aliases: [activeRequests, active_requests]
+  - id: sim_request_succeeded
+    aliases: [succeededRequests, succeeded_requests]
+  - id: sim_request_total
+    aliases: [totalRequestAmount, total_request_amount]
+  - id: sim_request_is_main
+    aliases: [isMainRequest, is_main_request]
+  - id: sim_request_is_secondary
+    aliases: [isSecondaryRequest, is_secondary_request]
+
+  # ── Interaction telemetry (ROADS OverviewLog_*.csv) ──
+  - id: ui_mouse_position_x
+    aliases: [mousePositionX, mouse_position_x]
+  - id: ui_mouse_position_y
+    aliases: [mousePositionY, mouse_position_y]
+  - id: ui_mouse_click_left
+    aliases: [mouseClickLeft, mouse_click_left]
+  - id: ui_mouse_click_right
+    aliases: [mouseClickRight, mouse_click_right]
+  - id: ui_using_multi_view
+    aliases: [usingMultiView, using_multi_view]
+  - id: ui_using_single_view_main
+    aliases: [usingSingleViewMain, using_single_view_main]
+  - id: ui_eye_gaze_area
+    aliases: [EyeGazeArea, eye_gaze_area]
+  - id: ui_press_left_ctrl
+    aliases: [pressLeftCtrl, press_left_ctrl]
+  - id: ui_press_shift
+    aliases: [pressShift, press_shift]
+  - id: sim_event_timestamp
+    aliases: [timeStampEvent, time_stamp_event]
+  - id: sim_additional_info
+    aliases: [additionalInfo, additional_info]
+
+  # ── Webcam eye-tracking stream (ROADS UnitEyeLog_*.csv) ──
+  - id: eye_pixel_x_filtered
+    aliases: ["X Filtered Pixel", x_filtered_pixel]
+  - id: eye_pixel_y_filtered
+    aliases: ["Y Filtered Pixel", y_filtered_pixel]
+  - id: eye_norm_x_filtered
+    aliases: ["X Filtered Normalized", x_filtered_normalized]
+  - id: eye_norm_y_filtered
+    aliases: ["Y Filtered Normalized", y_filtered_normalized]
+  - id: eye_norm_x_raw
+    aliases: ["X Raw Normalized", x_raw_normalized]
+  - id: eye_norm_y_raw
+    aliases: ["Y Raw Normalized", y_raw_normalized]
+  - id: eye_distance_to_camera_mm
+    aliases: ["Distance to Camera in mm", distance_to_camera_in_mm]
+  - id: eye_aspect_ratio
+    aliases: ["Eye Aspect Ratio (Height/Width)", eye_aspect_ratio_height_width]
+  - id: eye_blinking
+    aliases: [Blinking, blinking]
+  - id: eye_aoi_list
+    aliases: ["AOI List", aoi_list]
+  - id: eye_timestamp_ms
+    aliases: ["Timestamp With Milliseconds", timestamp_with_milliseconds]
+  - id: eye_unix_timestamp_ms
+    aliases: ["Unix Timestamp In Milliseconds", unix_timestamp_in_milliseconds]
+  - id: eye_additional_notes
+    aliases: ["Additional Notes", additional_notes]

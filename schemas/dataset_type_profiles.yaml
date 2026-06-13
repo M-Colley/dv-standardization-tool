@@ -29,9 +29,37 @@ dataset_types:
 
   - id: sensor_stream
     label: "Sensor Stream"
-    description: "Continuous sensor data: eye-tracking, physiological, motion."
-    path_hints: []
+    description: "Continuous sensor data: eye-tracking, physiological, motion, driving telemetry."
+    # Path hints catch whole telemetry log trees (e.g. ROADS ClearedLogs/LogsDayN)
+    # without touching questionnaire/results files that live elsewhere in the repo.
+    path_hints:
+      - clearedlogs
+      - logsday
+      - uniteyelog
+      - overviewlog
+      - timestamplog
     markers:
+      # Driving-simulator telemetry (ROADS log_*.csv / OverviewLog / TimestampLog)
+      - vehiclespeed
+      - vehicleposition
+      - currentlanedeviation
+      - distancetoend
+      - elapsedtimesinceaccess
+      - blindtimesum
+      - mousepositionx
+      - mousepositiony
+      - eyegazearea
+      - timestampevent
+      - controlmode
+      - scenarioid
+      # Webcam eye-tracking stream (ROADS UnitEyeLog_*.csv)
+      - xfilteredpixel
+      - yfilteredpixel
+      - xfilterednormalized
+      - distancetocamerainmm
+      - eyeaspectratioheightwidth
+      - blinking
+      - aoilist
       - gazeforward
       - gazeorigin
       - leftpupildiameterinmm

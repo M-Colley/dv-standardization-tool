@@ -12,18 +12,27 @@ end-to-end run of the example catalog (`data/raw/study_catalog_example.csv`).
    → full cross-study meta-analysis suite (`analyses/output_python_full/`)
 3. `analyses/make_chi_figures.py` → this folder (vector **PDF** + 300-dpi **PNG** per figure)
 
-> Run mode: **deterministic, no LLM** (the README warns the Gemma weight loader
-> segfaults on Windows; the repo's explicit mapping YAMLs + built-in schemas are
-> used instead). 9/10 sources retrieved — the ACM source is served behind a
-> Cloudflare challenge and is correctly reported as `access_restricted`.
+> Run mode: **deterministic, no LLM** — the repo's explicit mapping YAMLs +
+> built-in schemas are used (LLM deduction left off for reproducibility; note
+> that local Gemma-4 deduction has since been verified working on Windows/RTX
+> 4090, so it is available as an optional enrichment). 9/10 sources retrieved —
+> the ACM source is served behind a Cloudflare challenge and is correctly
+> reported as `access_restricted`.
+>
+> Mapping coverage after the classifier/exclude-glob/schema improvements:
+> **70%** of columns handled (was 19%); ROADS telemetry now routes to the sensor
+> family (87% coverage, was 4%) instead of flooding the unmapped bucket. The set
+> of canonical **dependent variables is unchanged**, so every figure below is
+> identical to the pre-improvement run — the fixes clean up mapping diagnostics
+> without touching the science.
 
 ## Headline numbers
 | quantity | value | source file |
 |---|---|---|
 | Catalog sources | 10 | `study_catalog_example.csv` |
 | Retrieved (1 ACM blocked) | 9 | `run_summary.json` |
-| Files standardized | 4,211 | `run_summary.json` (`processed_files`) |
-| Columns mapped to schema | 13,467 / 71,907 (19%) | `run_summary.json` |
+| Files standardized | 4,160 | `run_summary.json` (`processed_files`) |
+| Columns handled by schema | 50,002 / 71,627 (70%) | `run_summary.json` |
 | Canonical DVs surfaced | 29 | `dv_presence_matrix.csv` |
 | Datasets with ≥1 canonical DV | 6 of 9 | `dv_presence_matrix.csv` |
 | Meta-analyzable DVs (k ≥ 2) | 17 | `meta_analysis_summary.csv` |
