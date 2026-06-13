@@ -1,7 +1,5 @@
-matplotlib>=3.10.9
-seaborn>=0.13.2
-scikit-learn>=1.7.2
-lingam>=1.12.2
+# Runtime analysis deps (matplotlib, seaborn, scikit-learn, lingam) moved to
+# requirements-core.txt — they are imported by analyses/multi_study_analysis.py.
 plotly>=6.7.0
 jupyterlab>=4.5.4
 notebook>=7.5.3

@@ -21,21 +21,21 @@ classifiers = [
     "Programming Language :: Python :: 3.13",
 ]
 dependencies = [
-    "pandas>=2.3",
+    "pandas>=3.0",
     "numpy>=2.4",
-    "scipy>=1.14",
+    "scipy>=1.16",
     "pyyaml>=6.0",
-    "tqdm>=4.66",
+    "tqdm>=4.68",
     "openpyxl>=3.1",
     "rapidfuzz>=2.13",
-    "pydantic>=2.0",
+    "pydantic>=2.13",
     "httpx>=0.28",
     "tenacity>=9.1",
-    "beautifulsoup4>=4.13",
+    "beautifulsoup4>=4.15",
     "charset-normalizer>=3.4",
-    "matplotlib>=3.10",
+    "matplotlib>=3.11",
     "seaborn>=0.13",
-    "scikit-learn>=1.7",
+    "scikit-learn>=1.9",
     "lingam>=1.12",
 ]
 
@@ -44,18 +44,18 @@ dependencies = [
 # scripts/llm_utils.py (local-LLM alias deduction + PDF context extraction);
 # scikit-learn is already in core deps so it is omitted here.
 llm = [
-    "openai>=2.31",
-    "sentence-transformers>=5.2",
-    "transformers>=5.8",
-    "accelerate>=1.0",
+    "openai>=2.41",
+    "sentence-transformers>=5.5",
+    "transformers>=5.12",
+    "accelerate>=1.14",
     "pypdf>=6.7",
 ]
 # Aligned with requirements-ui.txt. matplotlib / seaborn / scikit-learn live
 # in core deps already so they are omitted from this extra.
 ui = [
-    "streamlit>=1.55",
-    "plotly>=6.6",
-    "watchdog>=2.1",
+    "streamlit>=1.58",
+    "plotly>=6.7",
+    "watchdog>=6.0",
 ]
 dev = ["pytest>=9.0", "ruff>=0.4"]
 all = ["opendv-hci[llm,ui,dev]"]
