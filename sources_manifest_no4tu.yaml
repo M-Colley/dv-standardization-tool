@@ -142,3 +142,45 @@ sources:
       rankings (Overall/Walking/Running × eHMI condition) which are not direct
       DV scores and intentionally remain unmapped.
     use_llm_deduction: true
+
+  - source_id: psych_conflict_handling
+    source_type: github_repo
+    location: https://github.com/as116/psychological-conflict-handling-strategies
+    ref: main
+    publication_doi: 10.1145/3678511
+    include_globs:
+      - "**/*.csv"
+      - "**/*.xlsx"
+      - "**/*.xls"
+    mapping_path: schemas/psych_conflict_handling_mapping.yaml
+    llm_context: >
+      Stampf, Colley et al. (IMWUT 2024) "Examining Psychological
+      Conflict-Handling Strategies for Highly Automated Vehicles." VR
+      driving-simulator study, 36 participants x 12 persuasion conditions.
+      StudyResults.xlsx sheet "Blatt 1": C1-C5 = perceived user-vehicle
+      conflict items (5-point), ST1-ST6 = STS-AD situational-trust items
+      (7-point; items 2/4/5 reverse-scored), A1-A2 = task-feasibility items,
+      A3 = perceived vehicle influence on the user's decision, A4 = acceptance.
+      Cells hold textual Likert labels (English for C*/ST*, German for A*), so
+      the explicit mapping is authoritative; the LLM fallback is unlikely to
+      improve on it.
+    use_llm_deduction: true
+
+  - source_id: scrolling_in_the_deep_chi25
+    source_type: github_repo
+    location: https://github.com/luca-maxim/scrollingInTheDeep
+    ref: main
+    publication_doi: 10.1145/3706598.3713187
+    include_globs:
+      - "**/*.csv"
+    mapping_path: schemas/scrolling_in_the_deep_mapping.yaml
+    llm_context: >
+      Meinhardt, Colley et al. (CHI '25) "Scrolling in the Deep." In-situ study
+      of digital-wellbeing intervention effectiveness during infinite scrolling.
+      The only study data is data_scrolling_in_the_deep.csv (the rest of the
+      repo is the Android app). DVs: Valence (SAM, 1-5), Reactance
+      (psychological reactance, 1-5), Sleepiness (KSS, 1-9), Responsiveness
+      (latency to the intervention, seconds). App_Name, At_Home,
+      Current_Activity, Multitasking, Social_Situation are contextual IVs and
+      Age/Gender are demographics — all locked as meta_* in the mapping.
+    use_llm_deduction: true

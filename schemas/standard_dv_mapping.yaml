@@ -1852,50 +1852,237 @@ dvs:
   - id: perceived_safety_item_01
     label: "Perceived Safety (item 1)"
     cluster: safety_trust
-    measurement: {category: Likert, primary_unit: "7-point (-3-3)", scale_type: ordinal, direction: higher_is_better, canonical_range: [-3, 3]}
+    measurement: {category: Likert, primary_unit: "7-point (-3-3)", allowed_units: ["7-point (-3-3)", "Likert"], scale_type: ordinal, direction: higher_is_better, canonical_range: [-3, 3]}
     aliases: [PerSafe01]
   - id: perceived_safety_item_02
     label: "Perceived Safety (item 2)"
     cluster: safety_trust
-    measurement: {category: Likert, primary_unit: "7-point (-3-3)", scale_type: ordinal, direction: higher_is_better, canonical_range: [-3, 3]}
+    measurement: {category: Likert, primary_unit: "7-point (-3-3)", allowed_units: ["7-point (-3-3)", "Likert"], scale_type: ordinal, direction: higher_is_better, canonical_range: [-3, 3]}
     aliases: [PerSafe02]
   - id: perceived_safety_item_03
     label: "Perceived Safety (item 3)"
     cluster: safety_trust
-    measurement: {category: Likert, primary_unit: "7-point (-3-3)", scale_type: ordinal, direction: higher_is_better, canonical_range: [-3, 3]}
+    measurement: {category: Likert, primary_unit: "7-point (-3-3)", allowed_units: ["7-point (-3-3)", "Likert"], scale_type: ordinal, direction: higher_is_better, canonical_range: [-3, 3]}
     aliases: [PerSafe03]
   - id: perceived_safety_item_04
     label: "Perceived Safety (item 4)"
     cluster: safety_trust
-    measurement: {category: Likert, primary_unit: "7-point (-3-3)", scale_type: ordinal, direction: higher_is_better, canonical_range: [-3, 3]}
+    measurement: {category: Likert, primary_unit: "7-point (-3-3)", allowed_units: ["7-point (-3-3)", "Likert"], scale_type: ordinal, direction: higher_is_better, canonical_range: [-3, 3]}
     aliases: [PerSafe04]
   - id: tia_item_01
     label: "TiA trust item 1"
     cluster: safety_trust
-    measurement: {category: Likert, primary_unit: "5-point (1-5)", scale_type: ordinal, direction: higher_is_better, canonical_range: [1, 5]}
+    measurement: {category: Likert, primary_unit: "5-point (1-5)", allowed_units: ["5-point (1-5)", "Likert"], scale_type: ordinal, direction: higher_is_better, canonical_range: [1, 5]}
     aliases: [TiA01]
   - id: tia_item_02
     label: "TiA trust item 2"
     cluster: safety_trust
-    measurement: {category: Likert, primary_unit: "5-point (1-5)", scale_type: ordinal, direction: higher_is_better, canonical_range: [1, 5]}
+    measurement: {category: Likert, primary_unit: "5-point (1-5)", allowed_units: ["5-point (1-5)", "Likert"], scale_type: ordinal, direction: higher_is_better, canonical_range: [1, 5]}
     aliases: [TiA02]
   - id: tia_item_03
     label: "TiA trust item 3"
     cluster: safety_trust
-    measurement: {category: Likert, primary_unit: "5-point (1-5)", scale_type: ordinal, direction: higher_is_better, canonical_range: [1, 5]}
+    measurement: {category: Likert, primary_unit: "5-point (1-5)", allowed_units: ["5-point (1-5)", "Likert"], scale_type: ordinal, direction: higher_is_better, canonical_range: [1, 5]}
     aliases: [TiA03]
   - id: tia_item_04
     label: "TiA trust item 4"
     cluster: safety_trust
-    measurement: {category: Likert, primary_unit: "5-point (1-5)", scale_type: ordinal, direction: higher_is_better, canonical_range: [1, 5]}
+    measurement: {category: Likert, primary_unit: "5-point (1-5)", allowed_units: ["5-point (1-5)", "Likert"], scale_type: ordinal, direction: higher_is_better, canonical_range: [1, 5]}
     aliases: [TiA04]
   - id: tia_item_05
     label: "TiA trust item 5"
     cluster: safety_trust
-    measurement: {category: Likert, primary_unit: "5-point (1-5)", scale_type: ordinal, direction: higher_is_better, canonical_range: [1, 5]}
+    measurement: {category: Likert, primary_unit: "5-point (1-5)", allowed_units: ["5-point (1-5)", "Likert"], scale_type: ordinal, direction: higher_is_better, canonical_range: [1, 5]}
     aliases: [TiA05]
   - id: tia_item_06
     label: "TiA trust item 6"
     cluster: safety_trust
-    measurement: {category: Likert, primary_unit: "5-point (1-5)", scale_type: ordinal, direction: higher_is_better, canonical_range: [1, 5]}
+    measurement: {category: Likert, primary_unit: "5-point (1-5)", allowed_units: ["5-point (1-5)", "Likert"], scale_type: ordinal, direction: higher_is_better, canonical_range: [1, 5]}
     aliases: [TiA06]
+
+  # ================================================================
+  #  USER–VEHICLE CONFLICT  (psych-conflict-handling, IMWUT 2024)
+  #  Stampf, Colley et al. — DOI 10.1145/3678511
+  # ================================================================
+  - id: perceived_conflict
+    label: "Perceived User–Vehicle Conflict"
+    cluster: safety_trust
+    measurement:
+      category: Score
+      primary_unit: "5-point (1–5)"
+      allowed_units: ["5-point (1–5)", "Likert"]
+      scale_type: ordinal
+      direction: lower_is_better
+      canonical_range: [1, 5]
+    aliases: [user_vehicle_conflict, perceived_conflict_score, conflict_rating]
+    notes: >
+      Subjective conflict/disagreement with the automated vehicle's decision.
+      Composite = mean of 5 items (one reverse-scored). Lower = less conflict.
+
+  - id: conflict_item_01
+    label: "Perceived Conflict (item 1)"
+    cluster: safety_trust
+    measurement: {category: Likert, primary_unit: "5-point (1–5)", allowed_units: ["5-point (1–5)", "Likert"], scale_type: ordinal, direction: lower_is_better, canonical_range: [1, 5]}
+    aliases: [perceived_conflict_item_1]
+  - id: conflict_item_02
+    label: "Perceived Conflict (item 2)"
+    cluster: safety_trust
+    measurement: {category: Likert, primary_unit: "5-point (1–5)", allowed_units: ["5-point (1–5)", "Likert"], scale_type: ordinal, direction: lower_is_better, canonical_range: [1, 5]}
+    aliases: [perceived_conflict_item_2]
+    notes: "Reverse-scored in the source analysis (C2_inv)."
+  - id: conflict_item_03
+    label: "Perceived Conflict (item 3)"
+    cluster: safety_trust
+    measurement: {category: Likert, primary_unit: "5-point (1–5)", allowed_units: ["5-point (1–5)", "Likert"], scale_type: ordinal, direction: lower_is_better, canonical_range: [1, 5]}
+    aliases: [perceived_conflict_item_3]
+  - id: conflict_item_04
+    label: "Perceived Conflict (item 4)"
+    cluster: safety_trust
+    measurement: {category: Likert, primary_unit: "5-point (1–5)", allowed_units: ["5-point (1–5)", "Likert"], scale_type: ordinal, direction: lower_is_better, canonical_range: [1, 5]}
+    aliases: [perceived_conflict_item_4]
+  - id: conflict_item_05
+    label: "Perceived Conflict (item 5)"
+    cluster: safety_trust
+    measurement: {category: Likert, primary_unit: "5-point (1–5)", allowed_units: ["5-point (1–5)", "Likert"], scale_type: ordinal, direction: lower_is_better, canonical_range: [1, 5]}
+    aliases: [perceived_conflict_item_5]
+
+  # ================================================================
+  #  STS-AD — Situational Trust Scale for Automated Driving
+  #  (Holthausen, Wintersberger & Walker 2020). Used in psych-conflict 2024.
+  # ================================================================
+  - id: sts_ad_trust
+    label: "STS-AD Situational Trust (composite)"
+    cluster: safety_trust
+    measurement:
+      category: Score
+      primary_unit: "7-point (1–7)"
+      allowed_units: ["7-point (1–7)", "Likert"]
+      scale_type: ordinal
+      direction: higher_is_better
+      canonical_range: [1, 7]
+    aliases: [sts_ad, situational_trust_ad, sts_ad_score, situational_trust_scale_ad]
+    instruments: ["STS-AD (Holthausen, Wintersberger & Walker 2020)"]
+    notes: >
+      Situational Trust Scale for Automated Driving. Composite = mean of 6
+      items (items 2/4/5 reverse-scored). Distinct from Körber TiA and Jian
+      trust — do not pool with tia_* or jian_trust.
+  - id: sts_ad_item_01
+    label: "STS-AD trust item 1"
+    cluster: safety_trust
+    measurement: {category: Likert, primary_unit: "7-point (1–7)", allowed_units: ["7-point (1–7)", "Likert"], scale_type: ordinal, direction: higher_is_better, canonical_range: [1, 7]}
+    aliases: [sts_ad_item_1]
+  - id: sts_ad_item_02
+    label: "STS-AD trust item 2"
+    cluster: safety_trust
+    measurement: {category: Likert, primary_unit: "7-point (1–7)", allowed_units: ["7-point (1–7)", "Likert"], scale_type: ordinal, direction: higher_is_better, canonical_range: [1, 7]}
+    aliases: [sts_ad_item_2]
+    notes: "Reverse-scored in the source analysis (ST2_inv)."
+  - id: sts_ad_item_03
+    label: "STS-AD trust item 3"
+    cluster: safety_trust
+    measurement: {category: Likert, primary_unit: "7-point (1–7)", allowed_units: ["7-point (1–7)", "Likert"], scale_type: ordinal, direction: higher_is_better, canonical_range: [1, 7]}
+    aliases: [sts_ad_item_3]
+  - id: sts_ad_item_04
+    label: "STS-AD trust item 4"
+    cluster: safety_trust
+    measurement: {category: Likert, primary_unit: "7-point (1–7)", allowed_units: ["7-point (1–7)", "Likert"], scale_type: ordinal, direction: higher_is_better, canonical_range: [1, 7]}
+    aliases: [sts_ad_item_4]
+    notes: "Reverse-scored in the source analysis (ST4_inv)."
+  - id: sts_ad_item_05
+    label: "STS-AD trust item 5"
+    cluster: safety_trust
+    measurement: {category: Likert, primary_unit: "7-point (1–7)", allowed_units: ["7-point (1–7)", "Likert"], scale_type: ordinal, direction: higher_is_better, canonical_range: [1, 7]}
+    aliases: [sts_ad_item_5]
+    notes: "Reverse-scored in the source analysis (ST5_inv)."
+  - id: sts_ad_item_06
+    label: "STS-AD trust item 6"
+    cluster: safety_trust
+    measurement: {category: Likert, primary_unit: "7-point (1–7)", allowed_units: ["7-point (1–7)", "Likert"], scale_type: ordinal, direction: higher_is_better, canonical_range: [1, 7]}
+    aliases: [sts_ad_item_6]
+
+  # ================================================================
+  #  TASK FEASIBILITY / VEHICLE INFLUENCE  (psych-conflict-handling 2024)
+  # ================================================================
+  - id: task_feasibility
+    label: "Perceived Task Feasibility"
+    cluster: ux_satisfaction
+    measurement:
+      category: Score
+      primary_unit: "5-point (1–5)"
+      allowed_units: ["5-point (1–5)", "Likert"]
+      scale_type: ordinal
+      direction: higher_is_better
+      canonical_range: [1, 5]
+    aliases: [perceived_task_feasibility, feasibility_rating]
+    notes: "Composite = mean of 2 items (one reverse-scored, A2_inv)."
+  - id: task_feasibility_item_01
+    label: "Task Feasibility (item 1)"
+    cluster: ux_satisfaction
+    measurement: {category: Likert, primary_unit: "5-point (1–5)", allowed_units: ["5-point (1–5)", "Likert"], scale_type: ordinal, direction: higher_is_better, canonical_range: [1, 5]}
+    aliases: [task_feasibility_item_1]
+  - id: task_feasibility_item_02
+    label: "Task Feasibility (item 2)"
+    cluster: ux_satisfaction
+    measurement: {category: Likert, primary_unit: "5-point (1–5)", allowed_units: ["5-point (1–5)", "Likert"], scale_type: ordinal, direction: higher_is_better, canonical_range: [1, 5]}
+    aliases: [task_feasibility_item_2]
+    notes: "Reverse-scored in the source analysis (A2_inv)."
+  - id: perceived_vehicle_influence
+    label: "Perceived Vehicle Influence on Decision"
+    cluster: behavioral_interaction
+    measurement:
+      category: Likert
+      primary_unit: "5-point (1–5)"
+      allowed_units: ["5-point (1–5)", "Likert"]
+      scale_type: ordinal
+      direction: neutral
+      canonical_range: [1, 5]
+    aliases: [vehicle_influence_on_decision, perceived_influence_on_decision]
+    notes: "How strongly the vehicle's behaviour influenced the user's decision."
+
+  # ================================================================
+  #  DIGITAL WELLBEING / INTERVENTION RESPONSE
+  #  (scrolling-in-the-deep, CHI '25 — DOI 10.1145/3706598.3713187)
+  # ================================================================
+  - id: psychological_reactance
+    label: "Psychological Reactance"
+    cluster: affective_emotion
+    measurement:
+      category: Score
+      primary_unit: "5-point (1–5)"
+      allowed_units: ["5-point (1–5)", "Likert"]
+      scale_type: ordinal
+      direction: lower_is_better
+      canonical_range: [1, 5]
+    aliases: [reactance, reactance_score, state_reactance, hong_reactance]
+    instruments: ["Hong Psychological Reactance Scale"]
+    notes: >
+      Motivational opposition to a perceived threat to behavioural freedom
+      (e.g. a digital-wellbeing intervention). Lower = less reactance.
+
+  - id: intervention_responsiveness
+    label: "Intervention Responsiveness (latency)"
+    cluster: behavioral_interaction
+    measurement:
+      category: Time
+      primary_unit: seconds
+      allowed_units: [s, seconds, ms]
+      scale_type: ratio
+      direction: neutral
+    aliases: [responsiveness, intervention_response_time, response_latency]
+    notes: >
+      Time taken to respond to an in-situ intervention (scrolling-in-the-deep:
+      latency in seconds). Unbounded — no canonical_range.
+
+  - id: sleepiness
+    label: "Sleepiness (KSS)"
+    cluster: affective_emotion
+    measurement:
+      category: Likert
+      primary_unit: "9-point (1–9)"
+      allowed_units: ["9-point (1–9)", "Likert"]
+      scale_type: ordinal
+      direction: neutral
+      canonical_range: [1, 9]
+    aliases: [kss, kss_score, karolinska_sleepiness, drowsiness]
+    instruments: ["KSS (Karolinska Sleepiness Scale)"]
+    notes: "1 = extremely alert, 9 = very sleepy / fighting sleep."

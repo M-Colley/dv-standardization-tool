@@ -1,0 +1,30 @@
+# Source-specific column mapping for scrollingInTheDeep ("InfiniteScape")
+# GitHub: https://github.com/luca-maxim/scrollingInTheDeep
+# Paper: Meinhardt, Elhaidary, Colley, Rietzler, Rixen, Purohit, Rukzio (CHI '25).
+#   "Scrolling in the Deep: Analysing Contextual Influences on Intervention
+#    Effectiveness during Infinite Scrolling on Social Media."
+#   DOI 10.1145/3706598.3713187
+#
+# The repository is mostly the Android intervention app; the only study data is
+# data_scrolling_in_the_deep.csv at the repo root (927 in-situ responses).
+
+# --- Dependent measures -------------------------------------------------------
+Valence: valence                              # SAM-style affective valence (1-5 in this study)
+Reactance: psychological_reactance            # averaged reactance composite (1-5)
+Sleepiness: sleepiness                        # Karolinska Sleepiness Scale (1-9)
+Responsiveness: intervention_responsiveness   # latency to the intervention (seconds, 0-4040)
+
+# --- Contextual independent variables -----------------------------------------
+# Identity-mapped to meta_* so they are locked as schema-mapped (clearly not
+# DVs) and the LLM never tries to coerce them into a dependent measure.
+App_Name: meta_context_app
+At_Home: meta_context_at_home
+Current_Activity: meta_context_activity
+Multitasking: meta_context_multitasking
+Social_Situation: meta_context_social_situation
+
+# --- Demographics -------------------------------------------------------------
+Age: meta_demographic_age
+Gender: meta_demographic_gender
+# Participant_ID is auto-blocked by NEVER_MAP_NORMALIZED_COLUMNS and Timestamp
+# is in LLM_EXCLUDED_NORMALIZED_COLUMNS, so neither needs an entry here.

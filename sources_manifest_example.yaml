@@ -144,3 +144,31 @@ sources:
     extract_archives: true
     archive_max_depth: 3
     llm_context: "CHI 2026 paper supplemental material (ACM DOI 10.1145/3772318.3790738)."
+
+  # Psychological conflict-handling strategies in highly automated vehicles
+  # (Stampf, Colley et al., IMWUT 2024). Textual-Likert questionnaire; the
+  # mapping covers perceived conflict, STS-AD trust, task feasibility, vehicle
+  # influence, and acceptance.
+  - source_id: psych_conflict_handling
+    source_type: github_repo
+    location: https://github.com/as116/psychological-conflict-handling-strategies
+    ref: main
+    publication_doi: 10.1145/3678511
+    include_globs:
+      - "**/*.csv"
+      - "**/*.xlsx"
+      - "**/*.xls"
+    mapping_path: schemas/psych_conflict_handling_mapping.yaml
+    llm_context: "Stampf, Colley et al. (IMWUT 2024). VR conflict-handling study; C1-C5 conflict, ST1-ST6 STS-AD trust, A1-A2 feasibility, A3 vehicle influence, A4 acceptance."
+
+  # Scrolling in the Deep (Meinhardt, Colley et al., CHI '25). Digital-wellbeing
+  # intervention study; only data_scrolling_in_the_deep.csv holds study data.
+  - source_id: scrolling_in_the_deep_chi25
+    source_type: github_repo
+    location: https://github.com/luca-maxim/scrollingInTheDeep
+    ref: main
+    publication_doi: 10.1145/3706598.3713187
+    include_globs:
+      - "**/*.csv"
+    mapping_path: schemas/scrolling_in_the_deep_mapping.yaml
+    llm_context: "Meinhardt, Colley et al. (CHI '25). Infinite-scrolling intervention; DVs Valence, Reactance, Sleepiness (KSS), Responsiveness (latency). App_Name/context/demographics are IVs."

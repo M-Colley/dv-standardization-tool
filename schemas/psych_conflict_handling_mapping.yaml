@@ -1,0 +1,38 @@
+# Source-specific column mapping for psychological-conflict-handling-strategies
+# GitHub: https://github.com/as116/psychological-conflict-handling-strategies
+# Paper: Stampf, Colley, Knuth, Tasci, Rukzio (2024).
+#   "Examining Psychological Conflict-Handling Strategies for Highly Automated
+#    Vehicles to Resolve Legal User-Vehicle Conflicts." IMWUT. DOI 10.1145/3678511
+#
+# StudyResults.xlsx (sheet "Blatt 1"): 36 participants x 12 persuasion
+# conditions = 432 rows. Raw cells are TEXTUAL Likert labels (English for the
+# C*/ST* items, German for the A* items), so this mapping operates at the
+# construct/name level — numeric recoding + reverse-scoring lives in the
+# authors' R script, not in the shipped spreadsheet.
+
+# --- Perceived conflict with the AV's decision (5 items, 5-point) -------------
+C1: conflict_item_01
+C2: conflict_item_02   # reverse-scored in the source analysis (C2_inv)
+C3: conflict_item_03
+C4: conflict_item_04
+C5: conflict_item_05
+
+# --- STS-AD: Situational Trust Scale for Automated Driving (6 items, 7-point) -
+ST1: sts_ad_item_01
+ST2: sts_ad_item_02    # reverse-scored (ST2_inv)
+ST3: sts_ad_item_03
+ST4: sts_ad_item_04    # reverse-scored (ST4_inv)
+ST5: sts_ad_item_05    # reverse-scored (ST5_inv)
+ST6: sts_ad_item_06
+
+# --- Study-specific items (German Likert) -------------------------------------
+A1: task_feasibility_item_01
+A2: task_feasibility_item_02   # reverse-scored (A2_inv)
+A3: perceived_vehicle_influence
+A4: acceptance_rating
+
+# --- Trial order (independent / admin) ----------------------------------------
+# Identity-mapped to a meta_* field so it is locked as schema-mapped and never
+# reaches the LLM step. ID and Condition are auto-blocked by the runner's
+# NEVER_MAP_NORMALIZED_COLUMNS set, so they need no entry here.
+Sequence: meta_trial_sequence
