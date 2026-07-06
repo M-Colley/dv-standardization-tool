@@ -26,7 +26,10 @@ import yaml
 from scipy import stats
 from sklearn.decomposition import PCA
 
-ID_LIKE_COLUMNS = {
+# Participant/session identifier column names (lowercased). The authoritative
+# list lives in schemas/never_map_columns.yaml (key: id_like), shared with the
+# batch standardizer's never-map blocklist; the literal below is the fallback.
+_ID_LIKE_FALLBACK = {
     "id",
     "participant_id",
     "userid",
@@ -37,6 +40,22 @@ ID_LIKE_COLUMNS = {
     "seed",
     "lastpage",
 }
+
+
+def _load_id_like_columns() -> set[str]:
+    path = Path(__file__).resolve().parents[1] / "schemas" / "never_map_columns.yaml"
+    try:
+        data = yaml.safe_load(path.read_text(encoding="utf-8")) or {}
+    except Exception:  # noqa: BLE001 - missing/malformed file means fallback
+        return set(_ID_LIKE_FALLBACK)
+    values = data.get("id_like")
+    if not isinstance(values, list):
+        return set(_ID_LIKE_FALLBACK)
+    loaded = {str(v).strip().lower() for v in values if str(v).strip()}
+    return loaded or set(_ID_LIKE_FALLBACK)
+
+
+ID_LIKE_COLUMNS = _load_id_like_columns()
 DEFAULT_DV_SCHEMA_PATH = Path(__file__).resolve().parents[1] / "schemas" / "standard_dv_mapping.yaml"
 HARMONIZED_SUMMARY_COLUMNS = [
     "study", "dv", "n", "mean", "sd", "mean_z_vs_global", "scale_note",
@@ -454,6 +473,32 @@ _DERIVED_SCALES: dict[str, dict] = {
         "canonical_subitems": [f"AOA{i}" for i in range(1, 10)],
         "formula": "custom",
     },
+    # Perceived-safety composite: mean of the 4 semantic-differential items
+    # used in eHMI studies (raw labels PerSafe01-04; the batch standardizer
+    # renames them to perceived_safety_item_0N). Naive mean — reverse-coded
+    # items are NOT flipped because item polarity is not derivable from the
+    # data alone; detect_potential_reverse_coding flags suspicious items.
+    "perceived_safety": {
+        "item_candidates": [
+            ["PerSafe01", "perceived_safety_item_01"],
+            ["PerSafe02", "perceived_safety_item_02"],
+            ["PerSafe03", "perceived_safety_item_03"],
+            ["PerSafe04", "perceived_safety_item_04"],
+        ],
+        "canonical_subitems": [f"perceived_safety_item_0{i}" for i in range(1, 5)],
+        "formula": "mean",
+    },
+    # Trust-in-Automation composite: mean of the 6 TiA items (raw labels
+    # TiA01-06 → tia_item_0N). Same naive-mean caveat as perceived_safety.
+    "trust_rating": {
+        "item_candidates": [
+            ["TiA01", "tia_item_01"], ["TiA02", "tia_item_02"],
+            ["TiA03", "tia_item_03"], ["TiA04", "tia_item_04"],
+            ["TiA05", "tia_item_05"], ["TiA06", "tia_item_06"],
+        ],
+        "canonical_subitems": [f"tia_item_0{i}" for i in range(1, 7)],
+        "formula": "mean",
+    },
 }
 
 
@@ -492,6 +537,10 @@ def add_derived_scale_scores(df: pd.DataFrame) -> pd.DataFrame:
     # --- Auto-compute "mean" formula scales ---
     for scale_name, spec in _DERIVED_SCALES.items():
         if spec.get("formula") != "mean":
+            continue
+        # Never overwrite a native column of the same name (e.g. a study that
+        # ships an explicit trust_rating alongside TiA items).
+        if scale_name in out.columns:
             continue
         items = [_resolve_series(out, cands) for cands in spec["item_candidates"]]
         if all(item is not None for item in items):
@@ -547,9 +596,72 @@ def _read_file(path: Path) -> pd.DataFrame:
     return pd.read_excel(path)
 
 
+# Preferred participant-identifier order for repeated-measures detection —
+# survey-response ids like plain "id" come last because they are usually
+# unique per row even in within-subject designs.
+_RM_ID_PRIORITY = ["participant_id", "user_id", "userid", "subject_id", "session_id", "id"]
+
+
+def _read_header_columns(path: Path) -> list[str] | None:
+    """Return a file's column names without loading data (None when unknown)."""
+    suffix = path.suffix.lower()
+    try:
+        if suffix == ".csv":
+            return list(pd.read_csv(path, nrows=0).columns)
+        if suffix == ".xlsx":
+            return list(pd.read_excel(path, nrows=0).columns)
+    except Exception:  # noqa: BLE001 - unreadable headers fall back to full load
+        return None
+    return None  # pickle formats require a full load
+
+
+@lru_cache(maxsize=1)
+def _candidate_column_keys() -> frozenset[str]:
+    """Normalized column names that make a file worth loading.
+
+    Union of every canonical-DV alias in the schema and every derived-scale
+    item candidate. Files whose headers contain none of these cannot
+    contribute to any canonical analysis frame.
+    """
+    keys: set[str] = set(_load_standard_dv_lookup().keys())
+    for spec in _DERIVED_SCALES.values():
+        for candidates in spec["item_candidates"]:
+            keys.update(_normalize_colname(str(c)) for c in candidates)
+    return frozenset(keys)
+
+
+def _select_repeated_measures_id(
+    df: pd.DataFrame, require_duplicates: bool
+) -> Optional[str]:
+    """Pick the participant-identifier column for repeated-measures pooling.
+
+    Candidates are ID-like columns; they are tried in `_RM_ID_PRIORITY` order.
+    With ``require_duplicates=True`` (auto-detection) a column only qualifies
+    when at least one identifier value repeats — i.e. there is actual
+    within-participant repetition to aggregate over.
+    """
+    candidates = [c for c in df.columns if str(c).lower() in ID_LIKE_COLUMNS]
+    if not candidates:
+        return None
+
+    def _rank(col: str) -> int:
+        low = str(col).lower()
+        return _RM_ID_PRIORITY.index(low) if low in _RM_ID_PRIORITY else len(_RM_ID_PRIORITY)
+
+    for col in sorted(candidates, key=_rank):
+        values = df[col].dropna()
+        if values.empty:
+            continue
+        if not require_duplicates or bool(values.duplicated().any()):
+            return col
+    return None
+
+
 def load_studies(
     input_dir: Path,
     repeated_measures_studies: set[str] | None = None,
+    auto_repeated_measures: bool = True,
+    prefilter_headers: bool = True,
 ) -> Dict[str, pd.DataFrame]:
     """Load studies, combining all files that share the same subdirectory.
 
@@ -558,7 +670,6 @@ def load_studies(
     input_dir/
         study_a/
             part1.csv       ← combined into study "study_a"
-            part2.csv
         study_b/
             results.xlsx    ← single-file study "study_b"
         study_c.csv         ← files at root are treated as individual studies
@@ -570,8 +681,19 @@ def load_studies(
     Parameters
     ----------
     repeated_measures_studies:
-        When a study key is in this set, rows are aggregated to participant-level
-        means (detected by ID_LIKE_COLUMNS) before storing in the output dict.
+        Study keys to force-aggregate to participant-level means even when no
+        duplicated identifier is detected automatically.
+    auto_repeated_measures:
+        When True (default), any study whose participant-identifier column
+        contains repeated values is aggregated to participant-level means, so
+        meta-analysis n reflects participants instead of raw rows. Disable to
+        reproduce row-level pooling.
+    prefilter_headers:
+        When True (default), CSV/XLSX files whose headers contain no canonical
+        DV alias and no derived-scale item are skipped without loading their
+        rows (telemetry/sensor exports can be orders of magnitude larger than
+        the questionnaire tables). Studies where every file is skipped are
+        kept as empty frames so study counts stay stable.
     """
     _load_logger = logging.getLogger(__name__)
     files = sorted(
@@ -581,9 +703,7 @@ def load_studies(
         + list(input_dir.rglob("*.pickle"))
     )
 
-    print(f"Found {len(files)} file(s):")
-    for f in files:
-        print(f"  {f}")
+    _load_logger.info("Found %d candidate file(s) under %s", len(files), input_dir)
 
     if not files:
         raise FileNotFoundError(f"No CSV/XLSX/PKL files found in {input_dir}")
@@ -597,47 +717,68 @@ def load_studies(
         groups.setdefault(key, []).append(path)
 
     rm_keys = repeated_measures_studies or set()
+    candidate_keys = _candidate_column_keys() if prefilter_headers else None
 
     studies: Dict[str, pd.DataFrame] = {}
     for project_key, paths in sorted(groups.items()):
         frames = []
+        skipped = 0
         for path in paths:
+            if candidate_keys is not None:
+                header = _read_header_columns(path)
+                if header is not None and not any(
+                    _normalize_colname(str(col)) in candidate_keys for col in header
+                ):
+                    skipped += 1
+                    continue
             df = _read_file(path)
             df["_source_file"] = path.name  # traceability column
             frames.append(df)
-            print(f"  [{project_key}] loaded {path.name} ({len(df)} rows)")
+            _load_logger.debug("[%s] loaded %s (%d rows)", project_key, path.name, len(df))
+
+        if skipped:
+            _load_logger.info(
+                "Study '%s': skipped %d file(s) without canonical DV columns",
+                project_key, skipped,
+            )
+        if not frames:
+            _load_logger.info(
+                "Study '%s': no files contained canonical DV columns; keeping empty frame",
+                project_key,
+            )
+            studies[project_key] = pd.DataFrame()
+            continue
 
         combined = pd.concat(frames, ignore_index=True)
-        print(
-            f"  -> project '{project_key}': {len(combined)} total rows "
-            f"from {len(paths)} file(s)"
+        _load_logger.info(
+            "Study '%s': %d rows from %d file(s)", project_key, len(combined), len(frames)
         )
         combined = add_derived_scale_scores(combined)
 
-        # Repeated-measures aggregation: collapse to participant-level means
-        if project_key in rm_keys:
-            id_col = next(
-                (col for col in combined.columns if col.lower() in ID_LIKE_COLUMNS),
-                None,
-            )
+        # Repeated-measures aggregation: collapse to participant-level means.
+        # Manual selection (rm_keys) aggregates on any ID-like column; auto
+        # detection additionally requires that identifier values actually
+        # repeat, so between-subject studies pass through untouched.
+        manual_rm = project_key in rm_keys
+        if manual_rm or auto_repeated_measures:
+            id_col = _select_repeated_measures_id(combined, require_duplicates=not manual_rm)
             if id_col is not None:
                 n_raw = len(combined)
                 numeric_cols = [
                     c for c in combined.select_dtypes(include="number").columns
                     if c != id_col
                 ]
-                agg_df = (
+                combined = (
                     combined.groupby(id_col)[numeric_cols]
                     .mean()
                     .reset_index()
                 )
-                n_agg = len(agg_df)
                 _load_logger.info(
-                    "Study '%s': aggregated %d rows -> %d participant means (repeated measures)",
-                    project_key, n_raw, n_agg,
+                    "Study '%s': aggregated %d rows -> %d participant means (%s repeated measures)",
+                    project_key, n_raw, len(combined),
+                    "requested" if manual_rm else "auto-detected",
                 )
-                combined = agg_df
-            else:
+            elif manual_rm:
                 _load_logger.warning(
                     "Study '%s': marked as repeated-measures but no participant ID column found "
                     "(checked %s); skipping aggregation",
@@ -1648,8 +1789,15 @@ def _prepare_composite_matrix(
     stacked = []
     for study, df in canonical_studies.items():
         block = df.reindex(columns=common_cols).copy()
+        # Studies that observe none of the shared DVs would enter the PCA as
+        # all-imputed zero rows and show up in the composite summary with
+        # sd = 0 — exclude them instead of fabricating flat scores.
+        if block.notna().to_numpy().sum() == 0:
+            continue
         block["study"] = study
         stacked.append(block)
+    if not stacked:
+        raise ValueError("No study observes any of the shared DVs required for the composite index.")
     long = pd.concat(stacked, ignore_index=True)
 
     # Standardize within each study to remove study-specific scaling artifacts.
@@ -2013,7 +2161,11 @@ def discover_causal_structure(
     studies: Dict[str, pd.DataFrame],
     min_shared_studies: int = 2,
     min_rows: int = 200,
-    refuse_synthetic: bool = False,
+    # Synthetic-Cholesky edges are opt-in: silently fitting "causal" structure
+    # on simulated rows is exactly the kind of default a reader will miss.
+    # Pass refuse_synthetic=False (CLI: --allow-synthetic-causal) to restore
+    # the fallback.
+    refuse_synthetic: bool = True,
     canonical_studies: Dict[str, pd.DataFrame] | None = None,
 ) -> dict | None:
     """Discover causal ordering among shared DVs using DirectLiNGAM.
@@ -2619,9 +2771,37 @@ def main() -> None:
         "--refuse-synthetic-causal",
         action="store_true",
         help=(
-            "Refuse the Cholesky-synthesized fallback in LiNGAM causal "
-            "discovery. Edges are only emitted when complete-case rows are "
-            "sufficient; otherwise the pass is skipped."
+            "Deprecated no-op: refusing the Cholesky-synthesized LiNGAM "
+            "fallback is now the default. Use --allow-synthetic-causal to "
+            "opt back in."
+        ),
+    )
+    parser.add_argument(
+        "--allow-synthetic-causal",
+        action="store_true",
+        help=(
+            "Allow the Cholesky-synthesized fallback in LiNGAM causal "
+            "discovery when complete-case rows are insufficient. Edges fitted "
+            "this way are marked synthetic_fallback=True and must not be "
+            "read as causal claims."
+        ),
+    )
+    parser.add_argument(
+        "--no-auto-repeated-measures",
+        action="store_true",
+        help=(
+            "Disable automatic participant-level aggregation for studies "
+            "whose ID column contains repeated values (restores row-level "
+            "pooling; anti-conservative for within-subject studies)."
+        ),
+    )
+    parser.add_argument(
+        "--no-header-prefilter",
+        action="store_true",
+        help=(
+            "Load every discovered file even when its header contains no "
+            "canonical DV or derived-scale item (slower; useful only for "
+            "debugging the prefilter)."
         ),
     )
     parser.add_argument(
@@ -2663,7 +2843,12 @@ def main() -> None:
 
     validate_schema_clusters()
 
-    studies = load_studies(input_dir, repeated_measures_studies=repeated_measures or None)
+    studies = load_studies(
+        input_dir,
+        repeated_measures_studies=repeated_measures or None,
+        auto_repeated_measures=not args.no_auto_repeated_measures,
+        prefilter_headers=not args.no_header_prefilter,
+    )
     # Canonicalize once; every analysis below reuses the same frames instead
     # of re-scanning all study columns per function call.
     canonical = _canonicalize_studies(studies)
@@ -2858,7 +3043,7 @@ def main() -> None:
         causal_result = discover_causal_structure(
             studies,
             min_rows=args.causal_min_rows,
-            refuse_synthetic=args.refuse_synthetic_causal,
+            refuse_synthetic=not args.allow_synthetic_causal,
             canonical_studies=canonical,
         )
         if causal_result is not None:

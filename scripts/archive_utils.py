@@ -30,9 +30,17 @@ from typing import Any
 # Suffix sets used during archive walk + member filtering
 # ---------------------------------------------------------------------------
 
-# .txt and .dat are loadable by the converter but excluded from auto-discovery
-# because they create too many false positives (README.txt, notes.dat, etc.).
-_AMBIGUOUS_SUFFIXES: set[str] = {".txt", ".dat"}
+# Loadable by the converter but excluded from auto-discovery because they
+# create too many false positives: README.txt / notes.dat, and the .json
+# family — code repos are full of package manifests, IDE/engine configs, and
+# ML bookkeeping (package.json, Unity ValidationExceptions.json, catboost
+# training logs) that parse to garbage "tables". Sources that really ship
+# record-list JSON data can opt back in with an explicit include_globs entry.
+_AMBIGUOUS_SUFFIXES: set[str] = {".txt", ".dat", ".json", ".jsonl", ".ndjson"}
+
+# Public alias used by discovery-time opt-in checks (run_batch _match_files):
+# an ambiguous suffix is only discovered when an explicit include glob names it.
+AMBIGUOUS_DISCOVERY_SUFFIXES: set[str] = set(_AMBIGUOUS_SUFFIXES)
 
 try:  # pragma: no cover - exercised indirectly via data_loaders import
     # Pull from data_loaders directly (not via convert_dv) to avoid dragging
@@ -50,7 +58,6 @@ except Exception:  # noqa: BLE001 - data_loaders may fail to import in minimal e
         ".sav", ".zsav",
         ".dta",
         ".feather", ".arrow",
-        ".json", ".jsonl", ".ndjson",
     }
 
 ARCHIVE_SUFFIXES: set[str] = {".zip"}

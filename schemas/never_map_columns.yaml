@@ -1,0 +1,108 @@
+version: "1.0"
+# Single source of truth for column blocklists, shared by the batch
+# standardizer (scripts/run_batch_standardization.py) and the cross-study
+# analysis (analyses/multi_study_analysis.py). Both modules fall back to
+# their historical hardcoded sets if this file is missing or malformed.
+#
+# Entries are matched after normalization (lowercased; characters other than
+# a-z, 0-9 and underscore stripped), so "Participant_ID" == participant_id.
+
+# Identifiers, independent variables / condition markers, and survey admin
+# fields that must never be mapped to a dependent variable.
+never_map:
+  # Participant / session identifiers
+  - id
+  - userid
+  - user_id
+  - participantid
+  - participant_id
+  - subjectid
+  - subject_id
+  - prolificid
+  - prolific_id
+  - responseid
+  - response_id
+  # Experimental design / condition markers (independent variables)
+  - condition
+  - conditionid
+  - condition_id
+  - group
+  - groupid
+  - group_id
+  - treatment
+  - treatmentid
+  - treatment_id
+  # Simulator/log admin + condition fields (e.g. ROADS driving logs)
+  - scenarioid
+  - requestid
+  - controlmode
+  - sideofconstructionsite
+  # eHMI-for-All independent variables / conditions
+  - scenario
+  - distraction
+  - ehmi
+  # Survey platform admin fields (LimeSurvey / Qualtrics exports)
+  - seed
+  - lastpage
+  - startlanguage
+  - submitdate
+  - startdate
+  - enddate
+  - recordeddate
+  - status
+  - finished
+  - durationinseconds
+  - progress
+  - distributionchannel
+  - ipaddress
+  - recipientlastname
+  - recipientfirstname
+  - recipientemail
+  - externalreference
+  - locationlatitude
+  - locationlongitude
+
+# Technical/admin columns the LLM must never map unless an explicit schema
+# mapping exists (keeps metadata streams out of the DV path).
+llm_excluded:
+  - timestamp
+  - time_stamp
+  - datetime
+  - date
+  - logtime
+  - capturetime
+  - videoframe
+  - framenumber
+  - frame
+  - video
+  - objectid
+  - object_id
+  - class
+  - bboxclass
+  - confidence
+  - phase
+  - run
+  - trialindex
+  - sessionindex
+  - blockindex
+  - ispareto
+  - pareto
+  - x
+  - y
+  - z
+  - width
+  - height
+
+# Subset of participant/session identifiers used by the analysis layer to
+# detect repeated measures and exclude ID-ish numeric columns. Matched with
+# plain col.lower() (no further normalization) for backwards compatibility.
+id_like:
+  - id
+  - participant_id
+  - userid
+  - user_id
+  - subject_id
+  - session_id
+  - submitdate
+  - seed
+  - lastpage

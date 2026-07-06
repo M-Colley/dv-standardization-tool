@@ -22,6 +22,7 @@ from __future__ import annotations
 
 import json
 import logging
+import re
 from pathlib import Path
 from typing import Any, Callable
 
@@ -143,6 +144,32 @@ def _detect_delimiter(sample: str, prefer: str | None = None) -> str:
 # Per-format loaders
 # ---------------------------------------------------------------------------
 
+_UNNAMED_COLUMN_PATTERN = re.compile(r"^Unnamed: \d+$")
+
+
+def _tidy_text_table(df: pd.DataFrame) -> pd.DataFrame:
+    """Clean up parser artifacts from delimited text files.
+
+    - Strips leading/trailing whitespace from column names ("; "-delimited
+      logs otherwise yield names like ``' Blinking'``).
+    - Drops auto-generated ``Unnamed: N`` columns that are entirely empty —
+      these come from trailing delimiters in the header (e.g. ROADS logs end
+      every line with ``;``) and would otherwise count as unmapped columns.
+      Non-empty ``Unnamed: N`` columns (real exported index columns) are kept.
+    """
+    df = df.rename(
+        columns={c: c.strip() for c in df.columns if isinstance(c, str) and c != c.strip()}
+    )
+    phantom = [
+        c
+        for c in df.columns
+        if isinstance(c, str) and _UNNAMED_COLUMN_PATTERN.match(c) and df[c].isna().all()
+    ]
+    if phantom:
+        df = df.drop(columns=phantom)
+    return df
+
+
 @_register_format(".csv", ".tsv", ".txt", ".dat")
 def _load_text_table(path: Path) -> pd.DataFrame:
     """Load a delimited text file with robust encoding and delimiter auto-detection."""
@@ -164,19 +191,25 @@ def _load_text_table(path: Path) -> pd.DataFrame:
         # single-character separators fine. Fall back to the lenient python
         # engine only when the C parser rejects the file.
         try:
-            return pd.read_csv(
-                path,
-                sep=delimiter,
-                encoding=encoding,
-                on_bad_lines="warn",
+            return _tidy_text_table(
+                pd.read_csv(
+                    path,
+                    sep=delimiter,
+                    encoding=encoding,
+                    skipinitialspace=True,
+                    on_bad_lines="warn",
+                )
             )
         except (pd.errors.ParserError, ValueError):
-            return pd.read_csv(
-                path,
-                sep=delimiter,
-                encoding=encoding,
-                engine="python",
-                on_bad_lines="warn",
+            return _tidy_text_table(
+                pd.read_csv(
+                    path,
+                    sep=delimiter,
+                    encoding=encoding,
+                    engine="python",
+                    skipinitialspace=True,
+                    on_bad_lines="warn",
+                )
             )
     except pd.errors.EmptyDataError as exc:
         raise ValueError(

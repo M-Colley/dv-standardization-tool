@@ -691,12 +691,35 @@ class TestRepeatedMeasuresAggregation(unittest.TestCase):
             self.assertAlmostEqual(p1["trust_rating"].iloc[0], 4.0, places=3)
             self.assertAlmostEqual(p1["mental_demand"].iloc[0], 10.0, places=3)
 
-    def test_no_flag_keeps_all_rows(self):
+    def test_auto_detection_aggregates_duplicated_ids_by_default(self):
+        # Deliberate contract change: repeated participant IDs are pooled to
+        # participant-level means by default so meta-analysis n reflects
+        # participants, not raw rows.
         import multi_study_analysis as m
         with tempfile.TemporaryDirectory() as tmpdir:
             input_dir = self._make_study_dir(tmpdir)
-            studies = m.load_studies(input_dir)  # no repeated_measures_studies
+            studies = m.load_studies(input_dir)  # auto detection on by default
+            self.assertEqual(len(studies["my_study"]), 2)
+
+    def test_auto_detection_can_be_disabled(self):
+        import multi_study_analysis as m
+        with tempfile.TemporaryDirectory() as tmpdir:
+            input_dir = self._make_study_dir(tmpdir)
+            studies = m.load_studies(input_dir, auto_repeated_measures=False)
             self.assertEqual(len(studies["my_study"]), 6)
+
+    def test_auto_detection_skips_between_subject_studies(self):
+        # Unique participant IDs → no repetition → no aggregation.
+        import multi_study_analysis as m
+        with tempfile.TemporaryDirectory() as tmpdir:
+            d = Path(tmpdir) / "between_study"
+            d.mkdir(parents=True)
+            pd.DataFrame({
+                "participant_id": [1, 2, 3],
+                "trust_rating": [3.0, 4.0, 5.0],
+            }).to_csv(d / "data.csv", index=False)
+            studies = m.load_studies(Path(tmpdir))
+            self.assertEqual(len(studies["between_study"]), 3)
 
     def test_other_studies_unaffected(self):
         import multi_study_analysis as m

@@ -39,6 +39,10 @@ def build_unknown_alias_summary(events: list[dict[str, Any]], top_n: int = 50) -
     return {
         "total_unknown_alias_events": sum(alias_counts.values()),
         "unique_unknown_aliases": len(alias_counts),
+        # The alias lists below are clipped to the top_n most frequent
+        # entries; the *_unique_counts companions carry the true totals so a
+        # list of exactly top_n items is recognizable as truncated.
+        "top_n": top_n,
         "top_unknown_aliases": top_aliases,
         "by_source": {
             source_id: [
@@ -47,11 +51,21 @@ def build_unknown_alias_summary(events: list[dict[str, Any]], top_n: int = 50) -
             ]
             for source_id, counter in sorted(by_source.items())
         },
+        "by_source_unique_counts": {
+            source_id: len(counter) for source_id, counter in sorted(by_source.items())
+        },
+        "by_source_truncated": sorted(
+            source_id for source_id, counter in by_source.items() if len(counter) > top_n
+        ),
         "by_dataset_type": {
             dataset_type: [
                 {"alias": alias, "count": count}
                 for alias, count in counter.most_common(top_n)
             ]
+            for dataset_type, counter in sorted(by_dataset_type.items())
+        },
+        "by_dataset_type_unique_counts": {
+            dataset_type: len(counter)
             for dataset_type, counter in sorted(by_dataset_type.items())
         },
     }
@@ -82,6 +96,13 @@ def build_mapping_debug_summary(records: list[dict[str, Any]], top_n: int = 50) 
     return {
         "counts_by_method": dict(sorted(by_method.items())),
         "counts_by_domain": dict(sorted(by_domain.items())),
+        # Lists clipped to top_n; unique_alias_counts carries the true totals.
+        "top_n": top_n,
+        "unique_alias_counts": {
+            "unmapped": len(unmapped_aliases),
+            "blocked": len(blocked_aliases),
+            "llm": len(llm_aliases),
+        },
         "top_unmapped_aliases": [
             {"alias": alias, "count": count}
             for alias, count in unmapped_aliases.most_common(top_n)

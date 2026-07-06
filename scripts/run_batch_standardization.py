@@ -172,6 +172,7 @@ from scripts.sources.osf import (
 # (e.g. ``from scripts.run_batch_standardization import _extract_zip_files_recursive``)
 # continue to work after the Wave C extraction.
 from scripts.archive_utils import (
+    AMBIGUOUS_DISCOVERY_SUFFIXES,
     ARCHIVE_SUFFIXES,
     DATA_FILE_SUFFIXES,
     DEFAULT_ARCHIVE_MAX_DEPTH,
@@ -233,7 +234,10 @@ WINDOWS_PATH_SOFT_LIMIT = 240
 MIN_ARTIFACT_PREFIX_LENGTH = 48
 ARTIFACT_HASH_LENGTH = 12
 # Survey/admin/identifier fields that should never be mapped to DVs.
-NEVER_MAP_NORMALIZED_COLUMNS = {
+# The authoritative list lives in schemas/never_map_columns.yaml (shared with
+# the analysis layer); the literals below are the fallback when that file is
+# missing or malformed.
+_FALLBACK_NEVER_MAP_NORMALIZED_COLUMNS = {
     "id",
     "userid",
     "user_id",
@@ -287,7 +291,7 @@ NEVER_MAP_NORMALIZED_COLUMNS = {
 
 # Technical/admin columns that should never be inferred by the LLM unless an
 # explicit schema mapping exists. This keeps metadata streams out of the DV path.
-LLM_EXCLUDED_NORMALIZED_COLUMNS = {
+_FALLBACK_LLM_EXCLUDED_NORMALIZED_COLUMNS = {
     "timestamp",
     "time_stamp",
     "datetime",
@@ -316,6 +320,42 @@ LLM_EXCLUDED_NORMALIZED_COLUMNS = {
     "width",
     "height",
 }
+
+_BLOCKLIST_YAML_PATH = Path(__file__).resolve().parents[1] / "schemas" / "never_map_columns.yaml"
+
+
+def _load_blocklists_from_yaml(path: Path = _BLOCKLIST_YAML_PATH) -> dict[str, set[str]]:
+    """Load shared column blocklists from schemas/never_map_columns.yaml.
+
+    Returns normalized entry sets per key; empty dict when the file is
+    missing/malformed so callers fall back to the hardcoded literals.
+    """
+    try:
+        data = yaml.safe_load(path.read_text(encoding="utf-8")) or {}
+    except Exception:  # noqa: BLE001 - any parse/IO problem means "use fallback"
+        return {}
+    loaded: dict[str, set[str]] = {}
+    for key in ("never_map", "llm_excluded"):
+        values = data.get(key)
+        if isinstance(values, list):
+            normalized = {
+                re.sub(r"[^a-z0-9_]+", "", str(value).strip().lower())
+                for value in values
+            }
+            normalized.discard("")
+            if normalized:
+                loaded[key] = normalized
+    return loaded
+
+
+_SHARED_BLOCKLISTS = _load_blocklists_from_yaml()
+NEVER_MAP_NORMALIZED_COLUMNS = (
+    _SHARED_BLOCKLISTS.get("never_map") or _FALLBACK_NEVER_MAP_NORMALIZED_COLUMNS
+)
+LLM_EXCLUDED_NORMALIZED_COLUMNS = (
+    _SHARED_BLOCKLISTS.get("llm_excluded") or _FALLBACK_LLM_EXCLUDED_NORMALIZED_COLUMNS
+)
+
 
 @dataclass
 class SourceRunResult:
@@ -561,13 +601,20 @@ def _matches_any_glob(relative_posix: str, patterns: list[str]) -> bool:
 
 
 def _match_files(base_dir: Path, include_globs: list[str] | None, exclude_globs: list[str] | None) -> list[Path]:
+    # Ambiguous suffixes (.txt/.dat/.json/...) are only discoverable when the
+    # source explicitly opted in via include_globs — auto-discovery of those
+    # formats drowns real data in package manifests and engine configs.
+    explicit_includes = bool(include_globs)
     include_globs = [str(p) for p in (include_globs or ["**/*"])]
     # Per-source excludes take effect on top of the global non-tabular defaults.
     exclude_globs = [str(p) for p in (exclude_globs or [])] + DEFAULT_EXCLUDE_GLOBS
 
     candidates: list[Path] = []
     for path in _iter_discovery_files(base_dir):
-        if path.suffix.lower() not in DATA_FILE_SUFFIXES:
+        suffix = path.suffix.lower()
+        if suffix not in DATA_FILE_SUFFIXES and not (
+            explicit_includes and suffix in AMBIGUOUS_DISCOVERY_SUFFIXES
+        ):
             continue
         relative = path.relative_to(base_dir)
         if _should_skip_archive_member(relative):
@@ -710,6 +757,16 @@ def discover_source_files(
                         suffix not in DATA_FILE_SUFFIXES
                         and suffix not in ARCHIVE_SUFFIXES
                         and suffix not in MAPPING_SUFFIXES
+                        # Keep downloading ambiguous formats only when an
+                        # explicit include glob names this file.
+                        and not (
+                            include_globs
+                            and suffix in AMBIGUOUS_DISCOVERY_SUFFIXES
+                            and _matches_any_glob(
+                                Path(path).as_posix(),
+                                [str(g) for g in include_globs],
+                            )
+                        )
                     ):
                         continue
 
@@ -804,7 +861,10 @@ def discover_source_files(
             )
 
     if base_dir.is_file():
-        files = [base_dir] if base_dir.suffix.lower() in DATA_FILE_SUFFIXES else []
+        # A source that points directly at one file is explicit by
+        # construction — ambiguous suffixes are acceptable here.
+        direct_ok = base_dir.suffix.lower() in (DATA_FILE_SUFFIXES | AMBIGUOUS_DISCOVERY_SUFFIXES)
+        files = [base_dir] if direct_ok else []
         return base_dir.parent, files, commit_sha
 
     if extract_archives:
@@ -1197,6 +1257,437 @@ def _build_dataset_mapping_debug_records(
     return debug_records
 
 
+def _process_source_datasets(
+    *,
+    source: dict[str, Any],
+    source_id: str,
+    base_dir: Path,
+    files: list[Path],
+    commit_sha: str | None,
+    source_output_dir: Path,
+    output_dir: Path,
+    llm_deduction_enabled: bool,
+    preferred_models: list[str] | None,
+    debug_mappings: bool,
+    standard_dv_mapping: dict[str, Any],
+    sensor_mapping: dict[str, Any],
+    detection_mapping: dict[str, Any],
+    metadata_mapping: dict[str, Any],
+    schema_family_aliases_ci: dict[str, set[str]],
+    schema_family_paths: dict[str, Any],
+    canonical_domain_lookup: dict[str, str],
+    meta_rows: list[dict[str, Any]],
+    llm_deductions_by_key: dict[tuple[str, str], dict[str, Any]],
+    unknown_alias_events: list[dict[str, Any]],
+    all_mapping_debug_records: list[dict[str, Any]],
+    all_composite_records: list[dict[str, Any]],
+    global_mapping_metrics: dict[str, int],
+    global_mapping_domains: dict[str, int],
+    source_mapping_metrics: dict[str, dict[str, int]],
+    source_mapping_domains: dict[str, dict[str, int]],
+) -> SourceRunResult:
+    """Standardize every discovered dataset of a single source.
+
+    Extracted from ``run_batch`` so the per-source pipeline can be exercised
+    in isolation. The shared accumulator arguments (lists/dicts) are mutated
+    in place, exactly as the original inline loop did; the returned
+    ``SourceRunResult`` is what ``run_batch`` appends to its result list.
+    """
+    processed = 0
+    failed = 0
+    total_unknown = 0
+    total_columns = 0
+    total_mapped_columns = 0
+    # CLI --disable-llm-deduction is a hard off-switch: when LLM deduction is
+    # disabled at the run level, no per-source manifest flag can re-enable it.
+    # When enabled at run level, an absent/None per-source flag inherits the
+    # run-level setting; an explicit per-source false opts that source out.
+    source_llm_flag = source.get("use_llm_deduction")
+    if source_llm_flag is None:
+        source_llm_flag = llm_deduction_enabled
+    source_llm_enabled = llm_deduction_enabled and bool(source_llm_flag)
+    source_preferred_models = source.get("llm_models") if isinstance(source.get("llm_models"), list) else preferred_models
+    source_overrides_standard = bool(source.get("override_standard_aliases", False))
+    source_llm_cache: dict[str, str | None] = {}
+    source_column_sig_cache: dict[tuple[str, ...], dict[str, str]] = {}
+    source_repository_context: str | None = None
+    source_metrics = {
+        "mapping": 0,
+        "llm": 0,
+        "blocked": 0,
+        "unmapped": 0,
+        "total_columns_seen": 0,
+    }
+    source_domain_metrics: dict[str, int] = {}
+    dataset_errors: list[str] = []
+    requested_mapping_path = (
+        str(source.get("mapping_path")).strip()
+        if source.get("mapping_path")
+        else None
+    )
+    mapping_candidates = _find_repository_mapping_candidates(base_dir)
+    mapping_cache: dict[
+        str, tuple[dict[str, str], set[str], list[dict[str, Any]]]
+    ] = {}
+    if requested_mapping_path:
+        try:
+            _resolve_repository_mapping_path(
+                base_dir,
+                mapping_candidates,
+                requested_mapping_path=requested_mapping_path,
+            )
+        except Exception as exc:  # noqa: BLE001
+            # The mapping path resolution failure is the actual cause
+            # we want surfaced; logger.exception keeps the traceback
+            # in the run log even though we recover and continue.
+            logger.exception(
+                "[FAILED] %s: requested mapping_path '%s' could not be resolved: %s",
+                source_id, requested_mapping_path, exc,
+            )
+            return SourceRunResult(
+                source_id=source_id,
+                status="failed",
+                discovered_files=len(files),
+                processed_files=0,
+                failed_files=0,
+                unknown_columns=0,
+                total_columns=0,
+                mapped_columns=0,
+                mapped_ratio=0.0,
+                output_dir=str(source_output_dir),
+                message=str(exc),
+            )
+
+    dataset_progress = tqdm(
+        files,
+        desc=f"Datasets ({source_id})",
+        unit="file",
+        leave=False,
+    )
+    for file_path in dataset_progress:
+        relative_file = file_path.relative_to(base_dir)
+        dataset_id = relative_file.as_posix()
+        output_suffix = _resolve_output_suffix(file_path.suffix)
+        artifact_suffix_length = max(
+            len(f"-standardized{output_suffix}"),
+            len("-mapping-debug.json"),
+            len("-quality.json"),
+            len("-error.log"),
+        )
+        artifact_prefix = _build_artifact_prefix(
+            relative_file,
+            output_dir=source_output_dir,
+            artifact_suffix_length=artifact_suffix_length,
+        )
+        dataset_progress.set_postfix(dataset=dataset_id)
+        destination = source_output_dir / f"{artifact_prefix}-standardized{output_suffix}"
+        relative_path = str(relative_file)
+
+        try:
+            original_df = _load_any_table(file_path)
+            raw_columns = [str(column) for column in original_df.columns]
+            dataset_type = classify_dataset_type(relative_file, raw_columns)
+            if dataset_type in {DATASET_TYPE_RESULTS, DATASET_TYPE_QUESTIONNAIRE}:
+                standard_mapping = {**metadata_mapping, **standard_dv_mapping}
+            elif dataset_type == DATASET_TYPE_SENSOR:
+                standard_mapping = {**metadata_mapping, **sensor_mapping}
+            elif dataset_type == DATASET_TYPE_DETECTION:
+                standard_mapping = {**metadata_mapping, **detection_mapping}
+            elif dataset_type == DATASET_TYPE_PROCESS:
+                standard_mapping = dict(metadata_mapping)
+            else:
+                standard_mapping = {**metadata_mapping, **standard_dv_mapping}
+
+            source_mapping = dict(standard_mapping)
+            source_mapping_path = None
+            source_custom_aliases_ci: set[str] = set()
+            source_declared_scales: list[dict[str, Any]] = []
+            resolved_mapping_path = _resolve_repository_mapping_path(
+                base_dir,
+                mapping_candidates,
+                requested_mapping_path=requested_mapping_path,
+                dataset_path=file_path,
+            )
+            if resolved_mapping_path is not None:
+                cache_key = str(resolved_mapping_path)
+                cached_mapping = mapping_cache.get(cache_key)
+                if cached_mapping is None:
+                    try:
+                        custom_schema_data = load_schema(str(resolved_mapping_path))
+                    except (yaml.YAMLError, ValueError) as exc:
+                        logger.warning(
+                            "Skipping malformed mapping YAML '%s' for dataset '%s': %s",
+                            resolved_mapping_path, dataset_id, exc,
+                        )
+                        resolved_mapping_path = None
+                        custom_schema_data = None
+                    if custom_schema_data is not None:
+                        source_specific_mapping = custom_schema_data["mapping"]
+                        source_custom_aliases_ci = {
+                            str(alias).lower()
+                            for alias in custom_schema_data["mapping"].keys()
+                            if isinstance(alias, str)
+                        }
+                        source_declared_scales = list(
+                            custom_schema_data.get("scales") or []
+                        )
+                        cached_mapping = (
+                            source_specific_mapping,
+                            source_custom_aliases_ci,
+                            source_declared_scales,
+                        )
+                        mapping_cache[cache_key] = cached_mapping
+                else:
+                    (
+                        source_specific_mapping,
+                        source_custom_aliases_ci,
+                        source_declared_scales,
+                    ) = cached_mapping
+
+                # Set source_mapping_path consistently across the cache-hit
+                # and cache-miss paths: only once a non-empty source mapping
+                # is actually merged in.
+                if resolved_mapping_path is not None and source_specific_mapping:
+                    source_mapping = _merge_with_standard_precedence(
+                        source_specific_mapping,
+                        standard_mapping,
+                        source_overrides_standard=source_overrides_standard,
+                    )
+                    source_mapping_path = cache_key
+            source_mapping = _remove_never_map_aliases(source_mapping)
+            dataset_mapping = source_mapping
+            unknown_before_llm = _filter_llm_eligible_columns(
+                identify_unmapped_columns(
+                    raw_columns,
+                    source_mapping,
+                )
+            )
+            should_apply_llm = (
+                source_llm_enabled
+                and dataset_type in {DATASET_TYPE_RESULTS, DATASET_TYPE_QUESTIONNAIRE}
+                and bool(unknown_before_llm)
+            )
+            if should_apply_llm:
+                # Column-signature dedup: reuse mapping from a
+                # prior file with the exact same column set and
+                # dataset type to avoid redundant LLM calls.
+                col_sig = tuple(sorted(str(c).lower() for c in raw_columns)) + (dataset_type,)
+                cached_augmented = source_column_sig_cache.get(col_sig)
+                if cached_augmented is not None:
+                    dataset_mapping = cached_augmented
+                    logger.info(
+                        "Reusing cached column-signature mapping for '%s' "
+                        "(%d columns, type=%s) — skipping LLM.",
+                        dataset_id, len(raw_columns), dataset_type,
+                    )
+                else:
+                    if source_repository_context is None:
+                        extra_context = _coerce_manifest_text_list(source.get("llm_context"))
+                        extra_context.extend(
+                            _coerce_manifest_text_list(source.get("publication_context"))
+                        )
+                        source_repository_context = collect_repository_context(
+                            base_dir,
+                            explicit_dois=(
+                                _coerce_manifest_text_list(source.get("publication_doi"))
+                                + _coerce_manifest_text_list(source.get("doi"))
+                            ),
+                            explicit_pdf_urls=(
+                                _coerce_manifest_text_list(source.get("publication_pdf_url"))
+                                + _coerce_manifest_text_list(source.get("pdf_url"))
+                            ),
+                            extra_context=extra_context,
+                        )
+                    dataset_mapping = _augment_mapping_with_llm_deductions(
+                        source_mapping,
+                        unknown_before_llm,
+                        base_dir,
+                        preferred_models=source_preferred_models,
+                        inference_cache=source_llm_cache,
+                        repository_context=source_repository_context,
+                    )
+                    source_column_sig_cache[col_sig] = dataset_mapping
+                for alias in unknown_before_llm:
+                    alias_text = str(alias)
+                    inferred = dataset_mapping.get(alias_text)
+                    if not inferred:
+                        inferred = dataset_mapping.get(alias_text.lower())
+                    if inferred:
+                        _collect_llm_deduction(
+                            llm_deductions_by_key,
+                            source_id=source_id,
+                            dataset_id=dataset_id,
+                            alias=alias_text,
+                            canonical_dv=str(inferred),
+                        )
+
+            mapping_debug_records = _build_dataset_mapping_debug_records(
+                source_mapping=source_mapping,
+                dataset_mapping=dataset_mapping,
+                original_columns=raw_columns,
+                unknown_before_llm=unknown_before_llm,
+                source_custom_aliases_ci=source_custom_aliases_ci,
+                source_mapping_path=source_mapping_path,
+                schema_family_aliases_ci=schema_family_aliases_ci,
+                schema_family_paths=schema_family_paths,
+                canonical_domain_lookup=canonical_domain_lookup,
+            )
+            for row in mapping_debug_records:
+                method = str(row.get("mapping_method", "unmapped"))
+                if method not in source_metrics:
+                    method = "unmapped"
+                source_metrics[method] += 1
+                source_metrics["total_columns_seen"] += 1
+                global_mapping_metrics[method] += 1
+                global_mapping_metrics["total_columns_seen"] += 1
+                domain = str(row.get("mapping_domain", "unmapped"))
+                source_domain_metrics[domain] = source_domain_metrics.get(domain, 0) + 1
+                global_mapping_domains[domain] = global_mapping_domains.get(domain, 0) + 1
+                all_mapping_debug_records.append(
+                    {
+                        "source_id": source_id,
+                        "dataset_id": dataset_id,
+                        "dataset_type": dataset_type,
+                        **row,
+                    }
+                )
+                if method == "unmapped":
+                    unknown_alias_events.append(
+                        {
+                            "source_id": source_id,
+                            "dataset_id": dataset_id,
+                            "dataset_type": dataset_type,
+                            "alias": str(row["original_column"]),
+                        }
+                    )
+
+            if debug_mappings:
+                debug_path = source_output_dir / f"{artifact_prefix}-mapping-debug.json"
+                with open(debug_path, "w", encoding="utf-8") as f:
+                    json.dump(
+                        {
+                            "source_id": source_id,
+                            "dataset_id": dataset_id,
+                            "dataset_type": dataset_type,
+                            "path": relative_path,
+                            "summary": build_mapping_debug_summary(mapping_debug_records),
+                            "debug_mappings": mapping_debug_records,
+                        },
+                        f,
+                        indent=2,
+                    )
+                # Per-row traces are already persisted to the
+                # per-dataset JSON above; only emit a single debug
+                # breadcrumb here so stdout stays readable on large
+                # batches.
+                logger.debug(
+                    "[DEBUG] Mapping trace (%s/%s) -> %s",
+                    source_id, dataset_id, debug_path,
+                )
+
+            # Shallow copy: standardize_columns only reassigns .columns,
+            # so sharing the data blocks avoids duplicating large
+            # sensor-stream frames in memory.
+            standardized_df = standardize_columns(original_df.copy(deep=False), dataset_mapping)
+            # Build canonical -> ordered originals for declared-scale
+            # resolution. Items match the canonical-group order (first
+            # occurrence -> bare canonical, subsequent -> __dup_N) so
+            # the scale's reverse_aliases can be applied by name.
+            canonical_to_originals_ordered: dict[str, list[str]] = {}
+            for orig_col in raw_columns:
+                target = dataset_mapping.get(orig_col)
+                if target is None and isinstance(orig_col, str):
+                    target = dataset_mapping.get(orig_col.lower())
+                target = target or orig_col
+                canonical_to_originals_ordered.setdefault(target, []).append(orig_col)
+            standardized_df, composite_records = compose_item_groups(
+                standardized_df,
+                dataset_type,
+                declared_scales=source_declared_scales,
+                canonical_to_originals=canonical_to_originals_ordered,
+            )
+            for record in composite_records:
+                all_composite_records.append(
+                    {
+                        "source_id": source_id,
+                        "dataset_id": dataset_id,
+                        "dataset_type": dataset_type,
+                        **record,
+                    }
+                )
+            if destination.suffix.lower() == ".tsv":
+                standardized_df.to_csv(destination, sep="\t", index=False)
+            else:
+                save_output_file(standardized_df, str(destination))
+
+            provenance = {
+                "source_type": source["source_type"],
+                "location": source["location"],
+                "path": relative_path,
+                "commit": commit_sha,
+                "source_mapping": source_mapping_path,
+                "run_timestamp": datetime.now(timezone.utc).isoformat(),
+            }
+            rows, quality = _summarize_dataset(
+                source_id,
+                dataset_id,
+                original_df,
+                standardized_df,
+                dataset_mapping,
+                provenance,
+                mapping_debug_records,
+                dataset_type,
+            )
+            total_unknown += quality["unknown_columns"]
+            total_columns += quality["total_columns"]
+            total_mapped_columns += quality["mapped_columns"]
+            meta_rows.extend(rows)
+
+            with open(source_output_dir / f"{artifact_prefix}-quality.json", "w", encoding="utf-8") as f:
+                json.dump(quality, f, indent=2)
+
+            processed += 1
+        except Exception as exc:  # noqa: BLE001
+            failed += 1
+            dataset_errors.append(f"{dataset_id}: {exc}")
+            # Persist the full traceback alongside the per-dataset
+            # error log so post-run triage doesn't lose the stack frame
+            # information when many sources fail in the same batch.
+            logger.exception(
+                "Dataset processing failed for %s/%s: %s",
+                source_id, dataset_id, exc,
+            )
+            with open(source_output_dir / f"{artifact_prefix}-error.log", "w", encoding="utf-8") as f:
+                f.write(str(exc))
+
+    source_mapping_metrics[source_id] = source_metrics
+    source_mapping_domains[source_id] = dict(sorted(source_domain_metrics.items()))
+    status = "completed" if failed == 0 else ("partial" if processed else "failed")
+    message = None
+    if dataset_errors:
+        preview = "; ".join(dataset_errors[:3])
+        if len(dataset_errors) > 3:
+            preview += f"; ... and {len(dataset_errors) - 3} more"
+        message = preview
+        if status == "failed":
+            logger.error("[FAILED] %s: %s", source_id, message)
+    return SourceRunResult(
+        source_id=source_id,
+        status=status,
+        discovered_files=len(files),
+        processed_files=processed,
+        failed_files=failed,
+        unknown_columns=total_unknown,
+        total_columns=total_columns,
+        mapped_columns=total_mapped_columns,
+        mapped_ratio=(total_mapped_columns / total_columns) if total_columns else 0.0,
+        output_dir=str(source_output_dir),
+        message=message,
+        mapped_dv_columns=int(source_domain_metrics.get("dv", 0)),
+        mapping_domains=dict(sorted(source_domain_metrics.items())),
+    )
+
+
 def run_batch(
     manifest_path: Path,
     output_dir: Path,
@@ -1355,402 +1846,34 @@ def run_batch(
                 )
                 continue
 
-            processed = 0
-            failed = 0
-            total_unknown = 0
-            total_columns = 0
-            total_mapped_columns = 0
-            # CLI --disable-llm-deduction is a hard off-switch: when LLM deduction is
-            # disabled at the run level, no per-source manifest flag can re-enable it.
-            # When enabled at run level, an absent/None per-source flag inherits the
-            # run-level setting; an explicit per-source false opts that source out.
-            source_llm_flag = source.get("use_llm_deduction")
-            if source_llm_flag is None:
-                source_llm_flag = llm_deduction_enabled
-            source_llm_enabled = llm_deduction_enabled and bool(source_llm_flag)
-            source_preferred_models = source.get("llm_models") if isinstance(source.get("llm_models"), list) else preferred_models
-            source_overrides_standard = bool(source.get("override_standard_aliases", False))
-            source_llm_cache: dict[str, str | None] = {}
-            source_column_sig_cache: dict[tuple[str, ...], dict[str, str]] = {}
-            source_repository_context: str | None = None
-            source_metrics = {
-                "mapping": 0,
-                "llm": 0,
-                "blocked": 0,
-                "unmapped": 0,
-                "total_columns_seen": 0,
-            }
-            source_domain_metrics: dict[str, int] = {}
-            dataset_errors: list[str] = []
-            requested_mapping_path = (
-                str(source.get("mapping_path")).strip()
-                if source.get("mapping_path")
-                else None
-            )
-            mapping_candidates = _find_repository_mapping_candidates(base_dir)
-            mapping_cache: dict[
-                str, tuple[dict[str, str], set[str], list[dict[str, Any]]]
-            ] = {}
-            if requested_mapping_path:
-                try:
-                    _resolve_repository_mapping_path(
-                        base_dir,
-                        mapping_candidates,
-                        requested_mapping_path=requested_mapping_path,
-                    )
-                except Exception as exc:  # noqa: BLE001
-                    # The mapping path resolution failure is the actual cause
-                    # we want surfaced; logger.exception keeps the traceback
-                    # in the run log even though we recover and continue.
-                    logger.exception(
-                        "[FAILED] %s: requested mapping_path '%s' could not be resolved: %s",
-                        source_id, requested_mapping_path, exc,
-                    )
-                    run_results.append(
-                        SourceRunResult(
-                            source_id=source_id,
-                            status="failed",
-                            discovered_files=len(files),
-                            processed_files=0,
-                            failed_files=0,
-                            unknown_columns=0,
-                            total_columns=0,
-                            mapped_columns=0,
-                            mapped_ratio=0.0,
-                            output_dir=str(source_output_dir),
-                            message=str(exc),
-                        )
-                    )
-                    continue
-
-            dataset_progress = tqdm(
-                files,
-                desc=f"Datasets ({source_id})",
-                unit="file",
-                leave=False,
-            )
-            for file_path in dataset_progress:
-                relative_file = file_path.relative_to(base_dir)
-                dataset_id = relative_file.as_posix()
-                output_suffix = _resolve_output_suffix(file_path.suffix)
-                artifact_suffix_length = max(
-                    len(f"-standardized{output_suffix}"),
-                    len("-mapping-debug.json"),
-                    len("-quality.json"),
-                    len("-error.log"),
-                )
-                artifact_prefix = _build_artifact_prefix(
-                    relative_file,
-                    output_dir=source_output_dir,
-                    artifact_suffix_length=artifact_suffix_length,
-                )
-                dataset_progress.set_postfix(dataset=dataset_id)
-                destination = source_output_dir / f"{artifact_prefix}-standardized{output_suffix}"
-                relative_path = str(relative_file)
-
-                try:
-                    original_df = _load_any_table(file_path)
-                    raw_columns = [str(column) for column in original_df.columns]
-                    dataset_type = classify_dataset_type(relative_file, raw_columns)
-                    if dataset_type in {DATASET_TYPE_RESULTS, DATASET_TYPE_QUESTIONNAIRE}:
-                        standard_mapping = {**metadata_mapping, **standard_dv_mapping}
-                    elif dataset_type == DATASET_TYPE_SENSOR:
-                        standard_mapping = {**metadata_mapping, **sensor_mapping}
-                    elif dataset_type == DATASET_TYPE_DETECTION:
-                        standard_mapping = {**metadata_mapping, **detection_mapping}
-                    elif dataset_type == DATASET_TYPE_PROCESS:
-                        standard_mapping = dict(metadata_mapping)
-                    else:
-                        standard_mapping = {**metadata_mapping, **standard_dv_mapping}
-
-                    source_mapping = dict(standard_mapping)
-                    source_mapping_path = None
-                    source_custom_aliases_ci: set[str] = set()
-                    source_declared_scales: list[dict[str, Any]] = []
-                    resolved_mapping_path = _resolve_repository_mapping_path(
-                        base_dir,
-                        mapping_candidates,
-                        requested_mapping_path=requested_mapping_path,
-                        dataset_path=file_path,
-                    )
-                    if resolved_mapping_path is not None:
-                        cache_key = str(resolved_mapping_path)
-                        cached_mapping = mapping_cache.get(cache_key)
-                        if cached_mapping is None:
-                            try:
-                                custom_schema_data = load_schema(str(resolved_mapping_path))
-                            except (yaml.YAMLError, ValueError) as exc:
-                                logger.warning(
-                                    "Skipping malformed mapping YAML '%s' for dataset '%s': %s",
-                                    resolved_mapping_path, dataset_id, exc,
-                                )
-                                resolved_mapping_path = None
-                                custom_schema_data = None
-                            if custom_schema_data is not None:
-                                source_specific_mapping = custom_schema_data["mapping"]
-                                source_custom_aliases_ci = {
-                                    str(alias).lower()
-                                    for alias in custom_schema_data["mapping"].keys()
-                                    if isinstance(alias, str)
-                                }
-                                source_declared_scales = list(
-                                    custom_schema_data.get("scales") or []
-                                )
-                                cached_mapping = (
-                                    source_specific_mapping,
-                                    source_custom_aliases_ci,
-                                    source_declared_scales,
-                                )
-                                mapping_cache[cache_key] = cached_mapping
-                        else:
-                            (
-                                source_specific_mapping,
-                                source_custom_aliases_ci,
-                                source_declared_scales,
-                            ) = cached_mapping
-
-                        # Set source_mapping_path consistently across the cache-hit
-                        # and cache-miss paths: only once a non-empty source mapping
-                        # is actually merged in.
-                        if resolved_mapping_path is not None and source_specific_mapping:
-                            source_mapping = _merge_with_standard_precedence(
-                                source_specific_mapping,
-                                standard_mapping,
-                                source_overrides_standard=source_overrides_standard,
-                            )
-                            source_mapping_path = cache_key
-                    source_mapping = _remove_never_map_aliases(source_mapping)
-                    dataset_mapping = source_mapping
-                    unknown_before_llm = _filter_llm_eligible_columns(
-                        identify_unmapped_columns(
-                            raw_columns,
-                            source_mapping,
-                        )
-                    )
-                    should_apply_llm = (
-                        source_llm_enabled
-                        and dataset_type in {DATASET_TYPE_RESULTS, DATASET_TYPE_QUESTIONNAIRE}
-                        and bool(unknown_before_llm)
-                    )
-                    if should_apply_llm:
-                        # Column-signature dedup: reuse mapping from a
-                        # prior file with the exact same column set and
-                        # dataset type to avoid redundant LLM calls.
-                        col_sig = tuple(sorted(str(c).lower() for c in raw_columns)) + (dataset_type,)
-                        cached_augmented = source_column_sig_cache.get(col_sig)
-                        if cached_augmented is not None:
-                            dataset_mapping = cached_augmented
-                            logger.info(
-                                "Reusing cached column-signature mapping for '%s' "
-                                "(%d columns, type=%s) — skipping LLM.",
-                                dataset_id, len(raw_columns), dataset_type,
-                            )
-                        else:
-                            if source_repository_context is None:
-                                extra_context = _coerce_manifest_text_list(source.get("llm_context"))
-                                extra_context.extend(
-                                    _coerce_manifest_text_list(source.get("publication_context"))
-                                )
-                                source_repository_context = collect_repository_context(
-                                    base_dir,
-                                    explicit_dois=(
-                                        _coerce_manifest_text_list(source.get("publication_doi"))
-                                        + _coerce_manifest_text_list(source.get("doi"))
-                                    ),
-                                    explicit_pdf_urls=(
-                                        _coerce_manifest_text_list(source.get("publication_pdf_url"))
-                                        + _coerce_manifest_text_list(source.get("pdf_url"))
-                                    ),
-                                    extra_context=extra_context,
-                                )
-                            dataset_mapping = _augment_mapping_with_llm_deductions(
-                                source_mapping,
-                                unknown_before_llm,
-                                base_dir,
-                                preferred_models=source_preferred_models,
-                                inference_cache=source_llm_cache,
-                                repository_context=source_repository_context,
-                            )
-                            source_column_sig_cache[col_sig] = dataset_mapping
-                        for alias in unknown_before_llm:
-                            alias_text = str(alias)
-                            inferred = dataset_mapping.get(alias_text)
-                            if not inferred:
-                                inferred = dataset_mapping.get(alias_text.lower())
-                            if inferred:
-                                _collect_llm_deduction(
-                                    llm_deductions_by_key,
-                                    source_id=source_id,
-                                    dataset_id=dataset_id,
-                                    alias=alias_text,
-                                    canonical_dv=str(inferred),
-                                )
-
-                    mapping_debug_records = _build_dataset_mapping_debug_records(
-                        source_mapping=source_mapping,
-                        dataset_mapping=dataset_mapping,
-                        original_columns=raw_columns,
-                        unknown_before_llm=unknown_before_llm,
-                        source_custom_aliases_ci=source_custom_aliases_ci,
-                        source_mapping_path=source_mapping_path,
-                        schema_family_aliases_ci=schema_family_aliases_ci,
-                        schema_family_paths=schema_family_paths,
-                        canonical_domain_lookup=canonical_domain_lookup,
-                    )
-                    for row in mapping_debug_records:
-                        method = str(row.get("mapping_method", "unmapped"))
-                        if method not in source_metrics:
-                            method = "unmapped"
-                        source_metrics[method] += 1
-                        source_metrics["total_columns_seen"] += 1
-                        global_mapping_metrics[method] += 1
-                        global_mapping_metrics["total_columns_seen"] += 1
-                        domain = str(row.get("mapping_domain", "unmapped"))
-                        source_domain_metrics[domain] = source_domain_metrics.get(domain, 0) + 1
-                        global_mapping_domains[domain] = global_mapping_domains.get(domain, 0) + 1
-                        all_mapping_debug_records.append(
-                            {
-                                "source_id": source_id,
-                                "dataset_id": dataset_id,
-                                "dataset_type": dataset_type,
-                                **row,
-                            }
-                        )
-                        if method == "unmapped":
-                            unknown_alias_events.append(
-                                {
-                                    "source_id": source_id,
-                                    "dataset_id": dataset_id,
-                                    "dataset_type": dataset_type,
-                                    "alias": str(row["original_column"]),
-                                }
-                            )
-
-                    if debug_mappings:
-                        debug_path = source_output_dir / f"{artifact_prefix}-mapping-debug.json"
-                        with open(debug_path, "w", encoding="utf-8") as f:
-                            json.dump(
-                                {
-                                    "source_id": source_id,
-                                    "dataset_id": dataset_id,
-                                    "dataset_type": dataset_type,
-                                    "path": relative_path,
-                                    "summary": build_mapping_debug_summary(mapping_debug_records),
-                                    "debug_mappings": mapping_debug_records,
-                                },
-                                f,
-                                indent=2,
-                            )
-                        # Per-row traces are already persisted to the
-                        # per-dataset JSON above; only emit a single debug
-                        # breadcrumb here so stdout stays readable on large
-                        # batches.
-                        logger.debug(
-                            "[DEBUG] Mapping trace (%s/%s) -> %s",
-                            source_id, dataset_id, debug_path,
-                        )
-
-                    # Shallow copy: standardize_columns only reassigns .columns,
-                    # so sharing the data blocks avoids duplicating large
-                    # sensor-stream frames in memory.
-                    standardized_df = standardize_columns(original_df.copy(deep=False), dataset_mapping)
-                    # Build canonical -> ordered originals for declared-scale
-                    # resolution. Items match the canonical-group order (first
-                    # occurrence -> bare canonical, subsequent -> __dup_N) so
-                    # the scale's reverse_aliases can be applied by name.
-                    canonical_to_originals_ordered: dict[str, list[str]] = {}
-                    for orig_col in raw_columns:
-                        target = dataset_mapping.get(orig_col)
-                        if target is None and isinstance(orig_col, str):
-                            target = dataset_mapping.get(orig_col.lower())
-                        target = target or orig_col
-                        canonical_to_originals_ordered.setdefault(target, []).append(orig_col)
-                    standardized_df, composite_records = compose_item_groups(
-                        standardized_df,
-                        dataset_type,
-                        declared_scales=source_declared_scales,
-                        canonical_to_originals=canonical_to_originals_ordered,
-                    )
-                    for record in composite_records:
-                        all_composite_records.append(
-                            {
-                                "source_id": source_id,
-                                "dataset_id": dataset_id,
-                                "dataset_type": dataset_type,
-                                **record,
-                            }
-                        )
-                    if destination.suffix.lower() == ".tsv":
-                        standardized_df.to_csv(destination, sep="\t", index=False)
-                    else:
-                        save_output_file(standardized_df, str(destination))
-
-                    provenance = {
-                        "source_type": source["source_type"],
-                        "location": source["location"],
-                        "path": relative_path,
-                        "commit": commit_sha,
-                        "source_mapping": source_mapping_path,
-                        "run_timestamp": datetime.now(timezone.utc).isoformat(),
-                    }
-                    rows, quality = _summarize_dataset(
-                        source_id,
-                        dataset_id,
-                        original_df,
-                        standardized_df,
-                        dataset_mapping,
-                        provenance,
-                        mapping_debug_records,
-                        dataset_type,
-                    )
-                    total_unknown += quality["unknown_columns"]
-                    total_columns += quality["total_columns"]
-                    total_mapped_columns += quality["mapped_columns"]
-                    meta_rows.extend(rows)
-
-                    with open(source_output_dir / f"{artifact_prefix}-quality.json", "w", encoding="utf-8") as f:
-                        json.dump(quality, f, indent=2)
-
-                    processed += 1
-                except Exception as exc:  # noqa: BLE001
-                    failed += 1
-                    dataset_errors.append(f"{dataset_id}: {exc}")
-                    # Persist the full traceback alongside the per-dataset
-                    # error log so post-run triage doesn't lose the stack frame
-                    # information when many sources fail in the same batch.
-                    logger.exception(
-                        "Dataset processing failed for %s/%s: %s",
-                        source_id, dataset_id, exc,
-                    )
-                    with open(source_output_dir / f"{artifact_prefix}-error.log", "w", encoding="utf-8") as f:
-                        f.write(str(exc))
-
-            source_mapping_metrics[source_id] = source_metrics
-            source_mapping_domains[source_id] = dict(sorted(source_domain_metrics.items()))
-            status = "completed" if failed == 0 else ("partial" if processed else "failed")
-            message = None
-            if dataset_errors:
-                preview = "; ".join(dataset_errors[:3])
-                if len(dataset_errors) > 3:
-                    preview += f"; ... and {len(dataset_errors) - 3} more"
-                message = preview
-                if status == "failed":
-                    logger.error("[FAILED] %s: %s", source_id, message)
             run_results.append(
-                SourceRunResult(
+                _process_source_datasets(
+                    source=source,
                     source_id=source_id,
-                    status=status,
-                    discovered_files=len(files),
-                    processed_files=processed,
-                    failed_files=failed,
-                    unknown_columns=total_unknown,
-                    total_columns=total_columns,
-                    mapped_columns=total_mapped_columns,
-                    mapped_ratio=(total_mapped_columns / total_columns) if total_columns else 0.0,
-                    output_dir=str(source_output_dir),
-                    message=message,
-                    mapped_dv_columns=int(source_domain_metrics.get("dv", 0)),
-                    mapping_domains=dict(sorted(source_domain_metrics.items())),
+                    base_dir=base_dir,
+                    files=files,
+                    commit_sha=commit_sha,
+                    source_output_dir=source_output_dir,
+                    output_dir=output_dir,
+                    llm_deduction_enabled=llm_deduction_enabled,
+                    preferred_models=preferred_models,
+                    debug_mappings=debug_mappings,
+                    standard_dv_mapping=standard_dv_mapping,
+                    sensor_mapping=sensor_mapping,
+                    detection_mapping=detection_mapping,
+                    metadata_mapping=metadata_mapping,
+                    schema_family_aliases_ci=schema_family_aliases_ci,
+                    schema_family_paths=schema_family_paths,
+                    canonical_domain_lookup=canonical_domain_lookup,
+                    meta_rows=meta_rows,
+                    llm_deductions_by_key=llm_deductions_by_key,
+                    unknown_alias_events=unknown_alias_events,
+                    all_mapping_debug_records=all_mapping_debug_records,
+                    all_composite_records=all_composite_records,
+                    global_mapping_metrics=global_mapping_metrics,
+                    global_mapping_domains=global_mapping_domains,
+                    source_mapping_metrics=source_mapping_metrics,
+                    source_mapping_domains=source_mapping_domains,
                 )
             )
 
