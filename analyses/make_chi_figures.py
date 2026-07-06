@@ -155,7 +155,7 @@ def fig_pipeline():
         ("Columns\nmapped", n_mapped, f"of {n_cols:,} ({n_mapped / n_cols * 100:.0f}%)", "#5b96c9"),
         ("Canonical\nDVs", n_dv, "harmonized", "#c77b3a"),
         ("Meta-\nanalyzable", n_meta, "DVs, k≥2", RED),
-        ("Multi-study\npooled", n_multi, "DV, k≥3", "#7a1320"),
+        ("Multi-study\npooled", n_multi, "DVs, k≥3", "#7a1320"),
     ]
 
     fig, ax = plt.subplots(figsize=(COL2, 1.95))
@@ -275,10 +275,14 @@ def fig_presence():
 
     fig.suptitle("Dependent-variable coverage across 9 open HCI datasets",
                  x=0.045, y=1.06, ha="left", fontsize=9, fontweight="bold")
+    multi = freq[freq["n_studies"] >= 3].sort_values("n_studies", ascending=False)
+    multi_txt = ", ".join(
+        f"{dv_label(r.dv)} (k={int(r.n_studies)})" for r in multi.itertuples()
+    ) or "no DV"
     fig.text(0.045, -0.20,
              f"After schema-driven standardization, mean pairwise DV overlap is only "
-             f"Jaccard = {AVG_JACCARD:.3f}. Only Mental Demand (NASA-TLX) is shared by "
-             f">2 studies;\n3 sensor/log datasets expose no canonical questionnaire DV.",
+             f"Jaccard = {AVG_JACCARD:.3f}. DVs spanning ≥3 studies: {multi_txt};\n"
+             f"3 sensor/log datasets expose no canonical questionnaire DV.",
              ha="left", va="top", fontsize=6.2, color="#666666")
     save(fig, "fig2_presence_matrix")
 
@@ -379,7 +383,7 @@ def fig_forest(dv="mental_demand", fname="fig4_forest_mental_demand"):
     cx = {"n": 0.02, "mean": 0.30, "w": 0.55, "ci": 0.74}
     hf = {"family": "monospace", "size": 6.6, "weight": "bold"}
     mf = {"family": "monospace", "size": 6.6}
-    axt.text(cx["n"], k + 0.55, "N obs", fontdict=hf)
+    axt.text(cx["n"], k + 0.55, "N", fontdict=hf)
     axt.text(cx["mean"], k + 0.55, "Mean", fontdict=hf)
     axt.text(cx["w"], k + 0.55, "Wt", fontdict=hf)
     axt.text(cx["ci"], k + 0.55, "95% CI", fontdict=hf)
@@ -405,7 +409,8 @@ def fig_forest(dv="mental_demand", fname="fig4_forest_mental_demand"):
                  x=0.045, y=1.02, ha="left", fontsize=9, fontweight="bold")
     fig.text(0.045, 0.965,
              "Pooling is only possible because heterogeneous source labels were mapped to one canonical DV. "
-             "Very high I² shows that shared names still mask scale/population differences.",
+             "N is participant-level (within-subject rows auto-pooled to participant means). "
+             "High I² shows shared names can still mask scale/population differences.",
              ha="left", va="top", fontsize=6.2, color="#777777")
     save(fig, fname)
 

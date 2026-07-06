@@ -630,31 +630,61 @@ def _candidate_column_keys() -> frozenset[str]:
     return frozenset(keys)
 
 
-def _select_repeated_measures_id(
-    df: pd.DataFrame, require_duplicates: bool
-) -> Optional[str]:
-    """Pick the participant-identifier column for repeated-measures pooling.
+def _rank_id_column(col: str) -> int:
+    low = str(col).lower()
+    return _RM_ID_PRIORITY.index(low) if low in _RM_ID_PRIORITY else len(_RM_ID_PRIORITY)
 
-    Candidates are ID-like columns; they are tried in `_RM_ID_PRIORITY` order.
-    With ``require_duplicates=True`` (auto-detection) a column only qualifies
-    when at least one identifier value repeats — i.e. there is actual
-    within-participant repetition to aggregate over.
+
+def _aggregate_repeated_measures(
+    combined: pd.DataFrame, require_duplicates: bool
+) -> tuple[pd.DataFrame, list[str]]:
+    """Pool repeated rows to participant-level means, per identifier column.
+
+    Multi-file studies often use *different* ID column names per file family
+    (e.g. crossing logs with ``user_id`` next to a survey export with
+    ``UserID``). Grouping the whole frame by a single column would silently
+    drop every row where that column is NaN, so instead each ID-like column
+    aggregates the not-yet-pooled rows in which it is present; rows matching
+    no repeated identifier pass through unchanged.
+
+    With ``require_duplicates=True`` (auto-detection) a column only pools its
+    rows when at least one identifier value actually repeats, so
+    between-subject exports pass through untouched.
+
+    Returns the (possibly) aggregated frame plus a description of the ID
+    columns used, for logging.
     """
-    candidates = [c for c in df.columns if str(c).lower() in ID_LIKE_COLUMNS]
+    candidates = sorted(
+        (c for c in combined.columns if str(c).lower() in ID_LIKE_COLUMNS),
+        key=_rank_id_column,
+    )
     if not candidates:
-        return None
+        return combined, []
 
-    def _rank(col: str) -> int:
-        low = str(col).lower()
-        return _RM_ID_PRIORITY.index(low) if low in _RM_ID_PRIORITY else len(_RM_ID_PRIORITY)
-
-    for col in sorted(candidates, key=_rank):
-        values = df[col].dropna()
-        if values.empty:
+    pieces: list[pd.DataFrame] = []
+    used_columns: list[str] = []
+    remaining = combined
+    for col in candidates:
+        if remaining.empty:
+            break
+        mask = remaining[col].notna()
+        subset = remaining[mask]
+        if subset.empty:
             continue
-        if not require_duplicates or bool(values.duplicated().any()):
-            return col
-    return None
+        if require_duplicates and not bool(subset[col].duplicated().any()):
+            continue
+        numeric_cols = [
+            c for c in subset.select_dtypes(include="number").columns if c != col
+        ]
+        pieces.append(subset.groupby(col)[numeric_cols].mean().reset_index())
+        used_columns.append(str(col))
+        remaining = remaining[~mask]
+
+    if not pieces:
+        return combined, []
+    if not remaining.empty:
+        pieces.append(remaining)
+    return pd.concat(pieces, ignore_index=True), used_columns
 
 
 def load_studies(
@@ -761,22 +791,17 @@ def load_studies(
         # repeat, so between-subject studies pass through untouched.
         manual_rm = project_key in rm_keys
         if manual_rm or auto_repeated_measures:
-            id_col = _select_repeated_measures_id(combined, require_duplicates=not manual_rm)
-            if id_col is not None:
-                n_raw = len(combined)
-                numeric_cols = [
-                    c for c in combined.select_dtypes(include="number").columns
-                    if c != id_col
-                ]
-                combined = (
-                    combined.groupby(id_col)[numeric_cols]
-                    .mean()
-                    .reset_index()
-                )
+            n_raw = len(combined)
+            combined, used_id_columns = _aggregate_repeated_measures(
+                combined, require_duplicates=not manual_rm
+            )
+            if used_id_columns:
                 _load_logger.info(
-                    "Study '%s': aggregated %d rows -> %d participant means (%s repeated measures)",
+                    "Study '%s': aggregated %d rows -> %d participant means "
+                    "(%s repeated measures; id columns: %s)",
                     project_key, n_raw, len(combined),
                     "requested" if manual_rm else "auto-detected",
+                    ", ".join(used_id_columns),
                 )
             elif manual_rm:
                 _load_logger.warning(

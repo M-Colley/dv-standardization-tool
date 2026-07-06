@@ -1,4 +1,4 @@
 from,to,coefficient
-trust_rating,perceived_safety,0.28182668311719655
-mental_demand,trust_rating,-0.17331349312832253
-trust_rating,understanding_rating,0.34498350370976116
+trust_rating,perceived_safety,0.2546864313984855
+mental_demand,trust_rating,-0.2167621769903341
+trust_rating,understanding_rating,0.3251767239628019

@@ -1,0 +1,5 @@
+from,to,appearance_rate,mean_coefficient,sd_coefficient
+mental_demand,trust_rating,1.0,-0.215281374182095,0.010024117394123193
+trust_rating,perceived_safety,1.0,0.25444615220360306,0.010604769432505705
+trust_rating,understanding_rating,1.0,0.3280515824576002,0.011243395925193982
+mental_demand,understanding_rating,0.02,0.10255848430644451,0.0
