@@ -1852,50 +1852,50 @@ dvs:
   - id: perceived_safety_item_01
     label: "Perceived Safety (item 1)"
     cluster: safety_trust
-    measurement: {category: Likert, primary_unit: "7-point (-3-3)", scale_type: ordinal, direction: higher_is_better, canonical_range: [-3, 3]}
+    measurement: {category: Likert, primary_unit: "7-point (-3-3)", allowed_units: [Likert], scale_type: ordinal, direction: higher_is_better, canonical_range: [-3, 3]}
     aliases: [PerSafe01]
   - id: perceived_safety_item_02
     label: "Perceived Safety (item 2)"
     cluster: safety_trust
-    measurement: {category: Likert, primary_unit: "7-point (-3-3)", scale_type: ordinal, direction: higher_is_better, canonical_range: [-3, 3]}
+    measurement: {category: Likert, primary_unit: "7-point (-3-3)", allowed_units: [Likert], scale_type: ordinal, direction: higher_is_better, canonical_range: [-3, 3]}
     aliases: [PerSafe02]
   - id: perceived_safety_item_03
     label: "Perceived Safety (item 3)"
     cluster: safety_trust
-    measurement: {category: Likert, primary_unit: "7-point (-3-3)", scale_type: ordinal, direction: higher_is_better, canonical_range: [-3, 3]}
+    measurement: {category: Likert, primary_unit: "7-point (-3-3)", allowed_units: [Likert], scale_type: ordinal, direction: higher_is_better, canonical_range: [-3, 3]}
     aliases: [PerSafe03]
   - id: perceived_safety_item_04
     label: "Perceived Safety (item 4)"
     cluster: safety_trust
-    measurement: {category: Likert, primary_unit: "7-point (-3-3)", scale_type: ordinal, direction: higher_is_better, canonical_range: [-3, 3]}
+    measurement: {category: Likert, primary_unit: "7-point (-3-3)", allowed_units: [Likert], scale_type: ordinal, direction: higher_is_better, canonical_range: [-3, 3]}
     aliases: [PerSafe04]
   - id: tia_item_01
     label: "TiA trust item 1"
     cluster: safety_trust
-    measurement: {category: Likert, primary_unit: "5-point (1-5)", scale_type: ordinal, direction: higher_is_better, canonical_range: [1, 5]}
+    measurement: {category: Likert, primary_unit: "5-point (1-5)", allowed_units: [Likert], scale_type: ordinal, direction: higher_is_better, canonical_range: [1, 5]}
     aliases: [TiA01]
   - id: tia_item_02
     label: "TiA trust item 2"
     cluster: safety_trust
-    measurement: {category: Likert, primary_unit: "5-point (1-5)", scale_type: ordinal, direction: higher_is_better, canonical_range: [1, 5]}
+    measurement: {category: Likert, primary_unit: "5-point (1-5)", allowed_units: [Likert], scale_type: ordinal, direction: higher_is_better, canonical_range: [1, 5]}
     aliases: [TiA02]
   - id: tia_item_03
     label: "TiA trust item 3"
     cluster: safety_trust
-    measurement: {category: Likert, primary_unit: "5-point (1-5)", scale_type: ordinal, direction: higher_is_better, canonical_range: [1, 5]}
+    measurement: {category: Likert, primary_unit: "5-point (1-5)", allowed_units: [Likert], scale_type: ordinal, direction: higher_is_better, canonical_range: [1, 5]}
     aliases: [TiA03]
   - id: tia_item_04
     label: "TiA trust item 4"
     cluster: safety_trust
-    measurement: {category: Likert, primary_unit: "5-point (1-5)", scale_type: ordinal, direction: higher_is_better, canonical_range: [1, 5]}
+    measurement: {category: Likert, primary_unit: "5-point (1-5)", allowed_units: [Likert], scale_type: ordinal, direction: higher_is_better, canonical_range: [1, 5]}
     aliases: [TiA04]
   - id: tia_item_05
     label: "TiA trust item 5"
     cluster: safety_trust
-    measurement: {category: Likert, primary_unit: "5-point (1-5)", scale_type: ordinal, direction: higher_is_better, canonical_range: [1, 5]}
+    measurement: {category: Likert, primary_unit: "5-point (1-5)", allowed_units: [Likert], scale_type: ordinal, direction: higher_is_better, canonical_range: [1, 5]}
     aliases: [TiA05]
   - id: tia_item_06
     label: "TiA trust item 6"
     cluster: safety_trust
-    measurement: {category: Likert, primary_unit: "5-point (1-5)", scale_type: ordinal, direction: higher_is_better, canonical_range: [1, 5]}
+    measurement: {category: Likert, primary_unit: "5-point (1-5)", allowed_units: [Likert], scale_type: ordinal, direction: higher_is_better, canonical_range: [1, 5]}
     aliases: [TiA06]
