@@ -13,65 +13,82 @@ end-to-end run of the example catalog (`data/raw/study_catalog_example.csv`).
 3. `analyses/make_chi_figures.py` → this folder (vector **PDF** + 300-dpi **PNG** per figure)
 
 > Run mode: **deterministic, no LLM** — the repo's explicit mapping YAMLs +
-> built-in schemas are used (LLM deduction left off for reproducibility; note
-> that local Gemma-4 deduction has since been verified working on Windows/RTX
-> 4090, so it is available as an optional enrichment). 9/10 sources retrieved —
-> the ACM source is served behind a Cloudflare challenge and is correctly
-> reported as `access_restricted`.
+> built-in schemas are used (LLM deduction left off for reproducibility; local
+> Gemma-4 deduction is verified working on Windows/RTX 4090 as an optional
+> enrichment). 9/10 sources retrieved — the ACM source sits behind a Cloudflare
+> challenge and is correctly reported as `access_restricted`.
 >
-> Mapping coverage after the classifier/exclude-glob/schema improvements:
-> **70%** of columns handled (was 19%); ROADS telemetry now routes to the sensor
-> family (87% coverage, was 4%) instead of flooding the unmapped bucket. The set
-> of canonical **dependent variables is unchanged**, so every figure below is
-> identical to the pre-improvement run — the fixes clean up mapping diagnostics
-> without touching the science.
+> **Analysis defaults (since the pipeline-hardening pass):** within-subject
+> rows are auto-pooled to participant-level means (per identifier column, so
+> mixed `user_id`/`UserID` file families both pool); files without canonical
+> DV columns are header-prefiltered; the LiNGAM synthetic fallback is refused;
+> PerSafe/TiA item batteries derive `perceived_safety` / `trust_rating`
+> composites. This makes meta-analysis n honest (participants, not rows) and
+> raises Trust and Perceived Safety to k = 3 random-effects pools.
 
 ## Headline numbers
 | quantity | value | source file |
 |---|---|---|
 | Catalog sources | 10 | `study_catalog_example.csv` |
 | Retrieved (1 ACM blocked) | 9 | `run_summary.json` |
-| Files standardized | 4,160 | `run_summary.json` (`processed_files`) |
-| Columns handled by schema | 50,002 / 71,627 (70%) | `run_summary.json` |
-| Canonical DVs surfaced | 29 | `dv_presence_matrix.csv` |
+| Files standardized | 4,157 | `run_summary.json` (`processed_files`) |
+| Columns handled by schema | 49,536 / 69,341 (71%) | `run_summary.json` |
+| Canonical DVs surfaced | 39 | `dv_presence_matrix.csv` |
 | Datasets with ≥1 canonical DV | 6 of 9 | `dv_presence_matrix.csv` |
 | Meta-analyzable DVs (k ≥ 2) | 17 | `meta_analysis_summary.csv` |
-| DV pooled across ≥ 3 studies | 1 (`mental_demand`, k=6) | `meta_analysis_summary.csv` |
-| **Mean pairwise DV overlap** | **Jaccard = 0.077** | `analysis_summary.json` |
-| NASA-TLX Mental Demand (RE) | 7.59 [5.74, 9.44], I²=99.6%, τ²=5.23 | `meta_analysis_summary.csv` |
-| Causal order (DirectLiNGAM, complete-case) | mental_demand → trust → understanding → perceived_safety | `causal_edges.csv` |
+| DVs pooled across ≥ 3 studies | 3 (`mental_demand` k=6, `trust_rating` k=3, `perceived_safety` k=3) | `meta_analysis_summary.csv` |
+| **Mean pairwise DV overlap** | **Jaccard = 0.080** | `analysis_summary.json` |
+| NASA-TLX Mental Demand (RE, participant-level) | 7.64 [4.10, 11.19], I²=99.9%, τ²=19.2 | `meta_analysis_summary.csv` |
+| Trust (RE, k=3, TiA-derived where needed) | 3.83 [3.08, 4.57] | `meta_analysis_summary.csv` |
+| Perceived Safety (RE, k=3) | 1.90 [1.56, 2.25] | `meta_analysis_summary.csv` |
+| Causal order (DirectLiNGAM, complete-case, non-synthetic) | mental_demand → trust → understanding → perceived_safety | `causal_edges.csv` |
+
+Participant-level pooling per study (auto repeated-measures): eHMI-for-All
+1,440 rows → 80 participants (40 crossing-log + 40 survey), ROADS 276 → 23,
+3D-Display 45 → 15, Longitudinal 326 → 56, eHMI-Opt 1,480 → 777 (rows without
+a participant identifier pass through unpooled).
 
 ## Figures & suggested captions
 
 - **`fig0_teaser`** — 2×2 overview combining (a)–(d) for the paper's first page.
 - **`fig1_pipeline`** — *From an open catalog to comparable evidence.* Corpus
   attrition through the OpenDV-HCI standardization pipeline; 10 catalog sources
-  collapse to a single dependent variable shared by ≥3 studies.
+  yield three DVs poolable across ≥3 studies.
 - **`fig2_presence_matrix`** — *Dependent-variable coverage across nine open HCI
   datasets.* Cells mark a canonical DV (colored by thematic cluster) present in a
   dataset; marginals show per-DV study count and per-dataset DV count. Despite
   shared sub-domains (automated driving), mean pairwise overlap is only Jaccard =
-  0.077 and three sensor/log datasets expose no canonical questionnaire DV.
+  0.080 and three sensor/log datasets expose no canonical questionnaire DV.
 - **`fig3_overlap_heatmap`** — *Pairwise DV-vocabulary overlap (Jaccard).*
   Standardization both quantifies fragmentation and surfaces the few alignment
-  pockets (ROADS ↔ eHMI-for-All = 0.70; eHMI-Opt ↔ FACT-AV = 0.50).
+  pockets (ROADS ↔ eHMI-for-All; eHMI-Opt ↔ FACT-AV).
 - **`fig4_forest_mental_demand`** — *Evidence synthesis unlocked by
   standardization.* Random-effects forest plot for NASA-TLX Mental Demand pooled
-  across six datasets whose raw labels differed. The very high I² (99.6%) is itself
-  a finding: a shared canonical name does not guarantee scale/population
-  comparability.
+  across six datasets whose raw labels differed; n is participant-level
+  (within-subject rows auto-pooled). The very high I² is itself a finding: a
+  shared canonical name does not guarantee scale/population comparability.
 - **`fig5_causal_dag`** — *Cross-study causal structure among standardized DVs.*
-  DirectLiNGAM on pooled within-study z-scores (complete-case, non-synthetic).
+  DirectLiNGAM on pooled within-study z-scores (complete-case; the synthetic
+  fallback is disabled by default).
 - **`fig6_mapping_coverage`** — *Schema coverage by dataset.* Coverage tracks data
   type: questionnaire/telemetry exports map well; raw simulator-log and
   touch-sensor dumps remain largely study-specific.
 
-## Methods caveat (please read before using fig4)
-The meta-analysis `n` is **row-level** (observations), not participant-level, so
-study weights and CIs in `fig4` are dominated by the largest raw export
-(FACT-AV, 10,354 rows) and are anti-conservative. For a participant-level
-re-run, pass e.g.
-`--repeated-measures ehmi_for_all_chi26,roads_chi25,fact_av,ehmi_optimization_chi25`
-to `analyses/multi_study_analysis.py` (aggregates to per-participant means where an
-ID column exists), then regenerate the figures. The overlap/coverage figures
-(fig2/fig3/fig6) are set-based and unaffected.
+## Methods notes & remaining caveats
+- **Participant-level n (resolved caveat).** Earlier revisions of these figures
+  used row-level n; the analysis now auto-detects repeated participant
+  identifiers and pools to participant means (`--no-auto-repeated-measures`
+  restores the old behavior).
+- **FACT-AV** ships no participant identifier, so its 10,354 rows stay
+  row-level and dominate the pooled weights (~68% for Mental Demand). Treat
+  FACT-AV-inclusive pools as weight-skewed; a leave-one-out sensitivity is in
+  `leave_one_out_sensitivity.csv`.
+- **Derived composites are naive means.** `trust_rating` (TiA01–06) and
+  `perceived_safety` (PerSafe01–04) are unweighted item means without
+  reverse-coding (item polarity is not derivable from data alone);
+  `reverse_coding_warnings.csv` flags suspicious items.
+- **Longitudinal US/DE** re-uses participant IDs across its two substudies;
+  ID-based pooling may merge two different people per ID (56 pooled IDs vs.
+  the paper's N=52).
+- **k = 2 DVs** use a fixed-effects fallback (flagged in `pooling_method`) —
+  DerSimonian–Laird τ² is unstable at k = 2.
