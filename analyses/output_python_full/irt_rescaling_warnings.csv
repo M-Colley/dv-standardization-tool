@@ -1,2 +1,6 @@
 study,dv,detected_range,canonical_range,scale_type,warning
+ehmi_optimization_chi25,AOA1,"[0.0, 20.0]","[-2.0, 2.0]",ordinal,"Linear rescaling from [0.0, 20.0] to [-2.0, 2.0] assumes equidistant category boundaries. Consider IRT linking or equipercentile equating for more accurate cross-scale comparison."
+ehmi_optimization_chi25,AOA2,"[0.0, 20.0]","[-2.0, 2.0]",ordinal,"Linear rescaling from [0.0, 20.0] to [-2.0, 2.0] assumes equidistant category boundaries. Consider IRT linking or equipercentile equating for more accurate cross-scale comparison."
 fact_av,understanding_rating,"[0.0, 20.0]","[1.0, 5.0]",ordinal,"Linear rescaling from [0.0, 20.0] to [1.0, 5.0] assumes equidistant category boundaries. Consider IRT linking or equipercentile equating for more accurate cross-scale comparison."
+longitudinal_usa_germany_ehmi,ueq_hedonic,"[1.0, 625.0]","[-3.0, 3.0]",ordinal,"Linear rescaling from [1.0, 625.0] to [-3.0, 3.0] assumes equidistant category boundaries. Consider IRT linking or equipercentile equating for more accurate cross-scale comparison."
+longitudinal_usa_germany_ehmi,ueq_pragmatic,"[1.0, 675.0]","[-3.0, 3.0]",ordinal,"Linear rescaling from [1.0, 675.0] to [-3.0, 3.0] assumes equidistant category boundaries. Consider IRT linking or equipercentile equating for more accurate cross-scale comparison."
