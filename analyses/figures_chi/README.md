@@ -37,7 +37,7 @@ end-to-end run of the example catalog (`data/raw/study_catalog_example.csv`).
 | Datasets with ≥1 canonical DV | 6 of 9 | `dv_presence_matrix.csv` |
 | Meta-analyzable DVs (k ≥ 2) | 17 | `meta_analysis_summary.csv` |
 | DVs pooled across ≥ 3 studies | 3 (`mental_demand` k=6, `trust_rating` k=3, `perceived_safety` k=3) | `meta_analysis_summary.csv` |
-| **Mean pairwise DV overlap** | **Jaccard = 0.080** | `analysis_summary.json` |
+| **Mean pairwise DV overlap** | **Jaccard = 0.070** | `analysis_summary.json` |
 | NASA-TLX Mental Demand (RE, participant-level) | 7.64 [4.10, 11.19], I²=99.9%, τ²=19.2 | `meta_analysis_summary.csv` |
 | Trust (RE, k=3, TiA-derived where needed) | 3.83 [3.08, 4.57] | `meta_analysis_summary.csv` |
 | Perceived Safety (RE, k=3) | 1.90 [1.56, 2.25] | `meta_analysis_summary.csv` |
@@ -58,7 +58,7 @@ a participant identifier pass through unpooled).
   datasets.* Cells mark a canonical DV (colored by thematic cluster) present in a
   dataset; marginals show per-DV study count and per-dataset DV count. Despite
   shared sub-domains (automated driving), mean pairwise overlap is only Jaccard =
-  0.080 and three sensor/log datasets expose no canonical questionnaire DV.
+  0.070 and three sensor/log datasets expose no canonical questionnaire DV.
 - **`fig3_overlap_heatmap`** — *Pairwise DV-vocabulary overlap (Jaccard).*
   Standardization both quantifies fragmentation and surfaces the few alignment
   pockets (ROADS ↔ eHMI-for-All; eHMI-Opt ↔ FACT-AV).
