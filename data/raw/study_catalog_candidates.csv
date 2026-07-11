@@ -1,0 +1,19 @@
+study_name,dataset_url,source_type,domain,task,notes
+opticarvis_chi25,https://github.com/M-Colley/opticarvis-data,github_repo,automated-driving,AV feedback visualization optimization,VERIFIED: per-participant QuestionnaireResults.csv per optimization iteration (trust TLX) CHI25 N=117
+ehmi_japan_germany_hitl_mobo,https://github.com/M-Colley/eHMI-Japan-Germany-HITL-MOBO-2026,github_repo,automated-driving,eHMI cross-cultural optimization,VERIFIED: QuestionnaireResponses per participant DE/JP
+bvi_auditory_hav,https://github.com/M-Colley/bvi-auditory-hav,github_repo,accessibility,auditory HAV interfaces for BVI users,VERIFIED: bvi-auditory-hav.xlsx (trust workload situation awareness)
+colley_dissertation_pooled,https://github.com/M-Colley/colley-dissertation,github_repo,automated-driving,pooled dissertation trust data,VERIFIED: combined_trust_all_core_pub.csv - CAUTION possible overlap with other Colley catalog studies; exclude from pooling or dedupe
+ehmi_survey_text_color_perspective,https://data.4tu.nl/datasets/b6bfb82b-ca75-4d20-a1fc-facf303fd5ee,web_dataset,automated-driving,eHMI text color perspective surveys,VERIFIED: Survey1/data_s1.xlsx Survey2/data_s2.xlsx
+ar_pedestrian_interfaces_online,https://data.4tu.nl/datasets/3ea11774-1ed7-44ee-84ae-48c6ed8d9e31,web_dataset,automated-driving,AR pedestrian interfaces online study,VERIFIED: raw_data.xlsx 205 cols
+ar_hud_warning_takeover_50p,https://osf.io/pmk6j/,osf_project,automated-driving,AR HUD warnings takeover,VERIFIED: Takeover.xlsx + eye-tracking.xlsx
+multimodal_tor_warning_modalities,https://osf.io/heqxn/,osf_project,automated-driving,multimodal TOR warnings,VERIFIED: data.xlsx per participant
+ehmi_activation_pedestrian_trust,https://osf.io/w9mfv/,osf_project,automated-driving,eHMI activation pedestrian trust,VERIFIED: data.csv 87 participants (trust)
+latent_hazard_notification_trust_risk,https://zenodo.org/records/21287662/files/dataset.xlsx?download=1,web_dataset,automated-driving,latent hazard notifications trust/risk,VERIFIED: dataset.xlsx raw + eyetracker sheets
+td2d_takeover_distracted_l2,https://zenodo.org/records/14185964/files/TD2D.zip?download=1,web_dataset,automated-driving,takeover while distracted L2 driving,VERIFIED: driverInformation.csv takeoverScenarioInformations.csv
+partial_automation_workload_real_traffic,https://data.4tu.nl/articles/_/12715547/1,web_dataset,automated-driving,partial automation workload on-road,VERIFIED: NASA-TLX.xlsx DSSQ.xlsx sensor logs
+ehmi_behaviour_crowdsourced_1434,https://data.4tu.nl/datasets/ec584101-ee2a-41ce-9fdf-8295f4a105cc,web_dataset,automated-driving,crowdsourced eHMI behaviour 1434 participants,VERIFIED(medium): supplementary CSV record-level
+crowdsourced_227_text_ehmis,https://data.4tu.nl/datasets/465a9a5d-116c-4e40-b7c8-c041970a8762,web_dataset,automated-driving,227 text eHMIs crowdsourced,VERIFIED(medium): appen_data.csv 1438 participants
+mimbcd_uta7_nasa_tlx,https://github.com/MIMBCD-UI/dataset-uta7-nasa-tlx,github_repo,medical-hci,clinician NASA-TLX UTA7,UNVERIFIED-likely: per-clinician TLX CSVs
+mimbcd_uta7_sus,https://github.com/MIMBCD-UI/dataset-uta7-sus,github_repo,medical-hci,clinician SUS UTA7,UNVERIFIED-likely: per-clinician SUS CSVs
+mimbcd_uta4_nasa_tlx,https://github.com/MIMBCD-UI/dataset-uta4-nasa-tlx,github_repo,medical-hci,clinician NASA-TLX UTA4,UNVERIFIED-likely: per-clinician TLX CSVs
+mimbcd_uta4_sus,https://github.com/MIMBCD-UI/dataset-uta4-sus,github_repo,medical-hci,clinician SUS UTA4,UNVERIFIED-likely: per-clinician SUS CSVs

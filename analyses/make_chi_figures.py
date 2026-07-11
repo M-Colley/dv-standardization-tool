@@ -28,9 +28,13 @@ REPO = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(REPO))
 from analyses.multi_study_analysis import _load_dv_measurement_metadata  # noqa: E402
 
-ANALYSIS_DIR = REPO / "analyses" / "output_python_full"
-BATCH_DIR = REPO / "data" / "processed" / "catalog_meta_analysis"
-OUT = REPO / "analyses" / "figures_chi"
+import os
+
+# Paths are env-overridable so the same script renders alternative corpora
+# (e.g. the expanded catalog) without clobbering the canonical figure set.
+ANALYSIS_DIR = Path(os.environ.get("CHI_ANALYSIS_DIR", REPO / "analyses" / "output_python_full"))
+BATCH_DIR = Path(os.environ.get("CHI_BATCH_DIR", REPO / "data" / "processed" / "catalog_meta_analysis"))
+OUT = Path(os.environ.get("CHI_FIGURES_DIR", REPO / "analyses" / "figures_chi"))
 OUT.mkdir(parents=True, exist_ok=True)
 
 # ── ACM column geometry (inches) ─────────────────────────────────────────────
@@ -91,6 +95,12 @@ STUDY_LABEL = {
     "fourtu_critical_ehmi": "4TU-Critical",
     "osf_cwd6h": "OSF-cwd6h",
     "road_bumps_touch": "Road-Bumps",
+    # Expanded-catalog additions
+    "opticarvis_chi25": "OptiCarVis",
+    "ehmi_japan_germany_hitl_mobo": "eHMI JP/DE",
+    "td2d_takeover_distracted_l2": "TD2D-Takeover",
+    "partial_automation_workload_real_traffic": "PartAuto-Road",
+    "mimbcd_uta7_nasa_tlx": "MIMBCD-TLX",
 }
 DV_LABEL = {
     "mental_demand": "Mental Demand", "physical_demand": "Physical Demand",
@@ -273,16 +283,19 @@ def fig_presence():
                   bbox_to_anchor=(1.46, 1.25), fontsize=6, handlelength=1.0,
                   handleheight=1.0, labelspacing=0.25, borderaxespad=0)
 
-    fig.suptitle("Dependent-variable coverage across 9 open HCI datasets",
+    n_empty = int((presence.sum(axis=1) == 0).sum())
+    fig.suptitle(f"Dependent-variable coverage across {nS} open HCI datasets",
                  x=0.045, y=1.06, ha="left", fontsize=9, fontweight="bold")
     multi = freq[freq["n_studies"] >= 3].sort_values("n_studies", ascending=False)
     multi_txt = ", ".join(
-        f"{dv_label(r.dv)} (k={int(r.n_studies)})" for r in multi.itertuples()
+        f"{dv_label(r.dv)} (k={int(r.n_studies)})" for r in multi.head(6).itertuples()
     ) or "no DV"
+    if len(multi) > 6:
+        multi_txt += f", +{len(multi) - 6} more"
     fig.text(0.045, -0.20,
              f"After schema-driven standardization, mean pairwise DV overlap is only "
              f"Jaccard = {AVG_JACCARD:.3f}. DVs spanning ≥3 studies: {multi_txt};\n"
-             f"3 sensor/log datasets expose no canonical questionnaire DV.",
+             f"{n_empty} sensor/log datasets expose no canonical questionnaire DV.",
              ha="left", va="top", fontsize=6.2, color="#666666")
     save(fig, "fig2_presence_matrix")
 
@@ -521,7 +534,7 @@ def fig_teaser():
     # Reuse standalone renders by stitching the saved PNGs into one figure.
     import matplotlib.image as mpimg
     panels = [
-        ("fig2_presence_matrix.png", "(a) DV coverage across 9 datasets"),
+        ("fig2_presence_matrix.png", f"(a) DV coverage across {presence.shape[0]} datasets"),
         ("fig3_overlap_heatmap.png", "(b) Pairwise overlap (Jaccard)"),
         ("fig4_forest_mental_demand.png", "(c) Meta-analysis: Mental Demand"),
         ("fig5_causal_dag.png", "(d) Cross-study causal structure"),

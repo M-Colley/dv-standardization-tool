@@ -1,0 +1,4 @@
+,perceived_safety,trust_rating,understanding_rating
+perceived_safety,0,1,1
+trust_rating,1,0,1
+understanding_rating,1,1,0
