@@ -137,12 +137,21 @@ summary = pd.read_csv(ANALYSIS_DIR / "harmonized_dv_summary.csv")
 meta = pd.read_csv(ANALYSIS_DIR / "meta_analysis_summary.csv")
 freq = pd.read_csv(ANALYSIS_DIR / "dv_frequency.csv")
 run_summary = json.loads((BATCH_DIR / "run_summary.json").read_text(encoding="utf-8"))
-analysis_summary = json.loads((BATCH_DIR / "analysis" / "analysis_summary.json").read_text(encoding="utf-8"))
 results = pd.DataFrame(run_summary["results"])
 causal_edges = pd.read_csv(ANALYSIS_DIR / "causal_edges.csv")
 causal = json.loads((ANALYSIS_DIR / "analysis_results.json").read_text(encoding="utf-8")).get("causal_discovery")
 
-AVG_JACCARD = analysis_summary["average_pairwise_jaccard"]
+# Recomputed from the committed stage-2 artifact rather than read from
+# analysis_summary.json, which lives under the gitignored data/processed/ tree —
+# figures must not depend on a file a clone does not have. Also report the
+# DV-bearing-only mean: the all-pairs figure averages in pairs involving
+# datasets that contributed no canonical DV, which can only ever score 0.0.
+overlap_details = pd.read_csv(ANALYSIS_DIR / "dv_overlap_details.csv")
+AVG_JACCARD = float(overlap_details["jaccard_overlap"].mean())
+_dv_bearing = overlap_details[
+    (overlap_details["study_a_dv_count"] > 0) & (overlap_details["study_b_dv_count"] > 0)
+]["jaccard_overlap"]
+AVG_JACCARD_DV_BEARING = float(_dv_bearing.mean()) if not _dv_bearing.empty else float("nan")
 
 
 # ══════════════════════════════════════════════════════════════════════════════
@@ -151,18 +160,26 @@ AVG_JACCARD = analysis_summary["average_pairwise_jaccard"]
 def fig_pipeline():
     n_sources = int(run_summary["total_sources"])
     n_retrieved = int(results[results["status"] != "access_restricted"].shape[0])
+    n_restricted = int(results[results["status"] == "access_restricted"].shape[0])
     n_files = int(results["processed_files"].sum())
     n_cols = int(results["total_columns"].sum())
-    n_mapped = int(results["mapped_columns"].sum())
+    # `results.mapped_columns` = schema-mapped + deliberately blocked, so using
+    # it here counted every blocklisted column as a mapping success (it
+    # inflated the headline from 52% to 67%). Prefer the run's own mapping
+    # metric, which separates the two, and fall back only if it is absent.
+    metrics = run_summary.get("mapping_metrics") or {}
+    n_mapped = int(metrics.get("mapping", results["mapped_columns"].sum()))
+    n_blocked = int(metrics.get("blocked", 0))
     n_dv = presence.shape[1]
     n_meta = int(meta.shape[0])
     n_multi = int((meta["k_studies"] >= 3).sum())
 
     stages = [
         ("Catalog\nsources", n_sources, "datasets", BLUE),
-        ("Retrieved", n_retrieved, "1 ACM blocked", BLUE),
+        ("Retrieved", n_retrieved, f"{n_restricted} access-restricted", BLUE),
         ("Files\nstandardized", n_files, "tables", "#3a7abd"),
-        ("Columns\nmapped", n_mapped, f"of {n_cols:,} ({n_mapped / n_cols * 100:.0f}%)", "#5b96c9"),
+        ("Columns\nmapped", n_mapped,
+         f"of {n_cols:,} ({n_mapped / n_cols * 100:.0f}%); {n_blocked:,} blocked", "#5b96c9"),
         ("Canonical\nDVs", n_dv, "harmonized", "#c77b3a"),
         ("Meta-\nanalyzable", n_meta, "DVs, k≥2", RED),
         ("Multi-study\npooled", n_multi, "DVs, k≥3", "#7a1320"),
@@ -198,9 +215,13 @@ def fig_pipeline():
     ax.text(0.02, 0.96,
             "From open catalog to comparable evidence: the OpenDV-HCI standardization pipeline",
             ha="left", va="top", fontsize=8.5, fontweight="bold", transform=ax.transAxes)
+    # Derived, not hardcoded: this caption previously read "9 datasets
+    # retrieved; 6 contribute" on every figure set, which contradicted the
+    # "Retrieved" box directly above it once the corpus grew to 14.
+    n_dv_bearing = int((presence.sum(axis=1) > 0).sum())
     ax.text(0.02, 0.06,
-            "Deterministic schema mapping (no LLM). 9 datasets retrieved; 6 contribute canonical "
-            "questionnaire DVs after harmonization.",
+            f"Deterministic schema mapping (no LLM). {n_retrieved} datasets retrieved; "
+            f"{n_dv_bearing} contribute canonical questionnaire DVs after harmonization.",
             ha="left", va="bottom", fontsize=6.3, color="#666666", transform=ax.transAxes)
     save(fig, "fig1_pipeline")
 
@@ -294,7 +315,9 @@ def fig_presence():
         multi_txt += f", +{len(multi) - 6} more"
     fig.text(0.045, -0.20,
              f"After schema-driven standardization, mean pairwise DV overlap is only "
-             f"Jaccard = {AVG_JACCARD:.3f}. DVs spanning ≥3 studies: {multi_txt};\n"
+             f"Jaccard = {AVG_JACCARD:.3f} over all pairs\n"
+             f"({AVG_JACCARD_DV_BEARING:.3f} over DV-bearing pairs only). "
+             f"DVs spanning ≥3 studies: {multi_txt};\n"
              f"{n_empty} sensor/log datasets expose no canonical questionnaire DV.",
              ha="left", va="top", fontsize=6.2, color="#666666")
     save(fig, "fig2_presence_matrix")

@@ -194,10 +194,102 @@ class MultiStudyAnalysisTests(unittest.TestCase):
         detected = _detect_scale_range(s, (0.0, 20.0))
         self.assertEqual(detected, (0.0, 100.0))
 
+    def test_detect_scale_range_prefers_narrowest_fitting_scale(self):
+        # 1-7 Likert data also "fits" 0-20 and 0-100. Picking a wider range
+        # compresses the rescaled values toward the canonical floor, which
+        # inverted the sign of AOA1/AOA2 (canonical -2..+2).
+        s = pd.Series([1.0, 4.0, 6.0, 7.0])
+        self.assertEqual(_detect_scale_range(s, (-2.0, 2.0)), (1.0, 7.0))
+
+    def test_detect_scale_range_rejects_scale_the_data_exceeds(self):
+        # A maximum of 21 is proof the source is not a 0-20 scale; the old
+        # 15% tolerance accepted it and produced values above canonical max.
+        s = pd.Series([3.0, 12.0, 21.0])
+        self.assertEqual(_detect_scale_range(s, (1.0, 5.0)), (0.0, 21.0))
+
+    def test_detect_scale_range_flags_metric_mismatch_inside_canonical(self):
+        # A 0-20 composite sits entirely inside a 0-100 canonical range, so
+        # detection cannot see the mismatch — this is why TLX_SCORE's canonical
+        # range must be [0, 20] to match how the composite is derived.
+        s = pd.Series([2.9, 7.9, 11.3])
+        self.assertEqual(_detect_scale_range(s, (0.0, 100.0)), (0.0, 100.0))
+        self.assertEqual(_detect_scale_range(s, (0.0, 20.0)), (0.0, 20.0))
+
+    def test_tlx_score_canonical_range_matches_its_subscales(self):
+        from analyses.multi_study_analysis import _load_dv_measurement_metadata
+
+        meta = _load_dv_measurement_metadata()
+        tlx = meta["TLX_SCORE"]["canonical_range"]
+        self.assertEqual(tlx, (0.0, 20.0))
+        for subscale in (
+            "mental_demand", "effort", "frustration",
+            "performance", "physical_demand", "temporal_demand",
+        ):
+            self.assertEqual(
+                meta[subscale]["canonical_range"], tlx,
+                f"{subscale} must share TLX_SCORE's canonical range",
+            )
+
     def test_rescale_to_canonical(self):
         s = pd.Series([0.0, 50.0, 100.0])
         result = _rescale_to_canonical(s, (0.0, 100.0), (0.0, 20.0))
         np.testing.assert_array_almost_equal(result.values, [0.0, 10.0, 20.0])
+
+    def test_meta_ci_contains_study_means_at_k2(self):
+        # Inverse-variance SEs collapse at large n, so a z-based CI could
+        # exclude BOTH contributing study means. Knapp-Hartung must not.
+        summary = pd.DataFrame([
+            {"study": "a", "dv": "trust_rating", "n": 740, "mean": 2.0, "sd": 0.2,
+             "mapping_source": "schema"},
+            {"study": "b", "dv": "trust_rating", "n": 97, "mean": 3.0, "sd": 0.25,
+             "mapping_source": "schema"},
+        ])
+        meta = meta_analysis_summary(summary, total_studies=2)
+        row = meta.iloc[0]
+        self.assertEqual(row["ci_method"], "knapp_hartung_t")
+        for study_mean in (2.0, 3.0):
+            self.assertGreaterEqual(study_mean, row["ci95_low"])
+            self.assertLessEqual(study_mean, row["ci95_high"])
+
+    def test_meta_summary_reports_polarity_and_dv_bearing_coverage(self):
+        summary = pd.DataFrame([
+            {"study": "a", "dv": "performance", "n": 90, "mean": 14.7, "sd": 4.3,
+             "mapping_source": "schema"},
+            {"study": "b", "dv": "performance", "n": 23, "mean": 8.9, "sd": 3.9,
+             "mapping_source": "schema"},
+        ])
+        meta = meta_analysis_summary(
+            summary,
+            total_studies=4,
+            reverse_coded_pairs={("a", "performance")},
+            dv_bearing_studies=2,
+        )
+        row = meta.iloc[0]
+        self.assertEqual(int(row["k_polarity_flagged"]), 1)
+        self.assertIn("reverse_coding", row["polarity_warning"])
+        self.assertAlmostEqual(row["study_coverage_pct"], 50.0)
+        self.assertAlmostEqual(row["dv_bearing_coverage_pct"], 100.0)
+
+    def test_eggers_test_flags_underpowered_small_k(self):
+        summary = pd.DataFrame([
+            {"study": s, "dv": "mental_demand", "n": n, "mean": m, "sd": 3.0,
+             "mapping_source": "schema"}
+            for s, n, m in [("a", 30, 5.0), ("b", 40, 7.0), ("c", 50, 9.0)]
+        ])
+        result = eggers_test(summary, "mental_demand")
+        self.assertTrue(result["underpowered_k_lt_10"])
+        self.assertFalse(result["significant_at_10pct"])
+        self.assertIn("underpowered", result["validity_note"])
+
+    def test_overlap_details_report_per_study_dv_counts(self):
+        studies = {
+            "a": pd.DataFrame({"trust_rating": [1.0, 2.0], "mental_demand": [3.0, 4.0]}),
+            "b": pd.DataFrame({"trust_rating": [2.0, 3.0]}),
+        }
+        details = compute_overlap_details(studies)
+        row = details.iloc[0]
+        self.assertEqual(int(row["study_a_dv_count"]), 2)
+        self.assertEqual(int(row["study_b_dv_count"]), 1)
 
     def test_harmonized_summary_rescales_mismatched_ranges(self):
         # mental_demand on 0-100 range should be rescaled to 0-20

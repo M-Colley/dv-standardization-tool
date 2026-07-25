@@ -1,5 +1,5 @@
-version: "3.0"
-updated: "2026-04-10"
+version: "3.1"
+updated: "2026-07-25"
 
 # all `cluster` values must match an ID in thematic_clusters.yaml
 
@@ -162,7 +162,14 @@ dvs:
       allowed_units: ["weighted composite", "unweighted composite"]
       scale_type: ratio
       direction: lower_is_better
-      canonical_range: [0, 100]
+      # 0-20, NOT the 0-100 raw-TLX convention: this tool derives TLX_SCORE as
+      # the unweighted mean of the six subscales, each of which is canonical
+      # [0, 20]. Declaring [0, 100] here made a 0-20 composite "fit" the
+      # canonical range, so studies shipping a native 0-100 TLX were pooled
+      # against 0-20 composites without rescaling. Keep this in lockstep with
+      # the mental_demand / effort / frustration / performance /
+      # physical_demand / temporal_demand canonical ranges.
+      canonical_range: [0, 20]
     aliases:
       - tlxScore
       - TLXScore

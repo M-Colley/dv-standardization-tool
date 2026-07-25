@@ -10,3 +10,12 @@ v0.2:
   - Integrated 5 new DV concepts from community suggestions
   - Refined alias naming to ensure snake_case compliance
   - Added schema metadata and validation rule files for reproducibility
+standard_dv_mapping v3.1:
+  date: '2026-07-25'
+  changes:
+  - 'BREAKING: TLX_SCORE canonical_range changed from [0, 100] to [0, 20] so it
+    matches the six NASA-TLX subscales it is derived from (the tool composes it
+    as their unweighted mean). Under [0, 100] a 0-20 composite fitted the
+    canonical range, so studies shipping a native 0-100 TLX were pooled against
+    0-20 composites with no rescaling. Any stored TLX_SCORE pooled estimate from
+    an earlier run is on a mixed metric and must be regenerated.'

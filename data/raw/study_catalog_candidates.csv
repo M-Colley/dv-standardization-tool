@@ -13,7 +13,7 @@ td2d_takeover_distracted_l2,https://zenodo.org/records/14185964/files/TD2D.zip?d
 partial_automation_workload_real_traffic,https://data.4tu.nl/articles/_/12715547/1,web_dataset,automated-driving,partial automation workload on-road,VERIFIED: NASA-TLX.xlsx DSSQ.xlsx sensor logs
 ehmi_behaviour_crowdsourced_1434,https://data.4tu.nl/datasets/ec584101-ee2a-41ce-9fdf-8295f4a105cc,web_dataset,automated-driving,crowdsourced eHMI behaviour 1434 participants,VERIFIED(medium): supplementary CSV record-level
 crowdsourced_227_text_ehmis,https://data.4tu.nl/datasets/465a9a5d-116c-4e40-b7c8-c041970a8762,web_dataset,automated-driving,227 text eHMIs crowdsourced,VERIFIED(medium): appen_data.csv 1438 participants
-mimbcd_uta7_nasa_tlx,https://github.com/MIMBCD-UI/dataset-uta7-nasa-tlx,github_repo,medical-hci,clinician NASA-TLX UTA7,UNVERIFIED-likely: per-clinician TLX CSVs
+mimbcd_uta7_nasa_tlx,https://github.com/MIMBCD-UI/dataset-uta7-nasa-tlx,github_repo,medical-hci,clinician NASA-TLX UTA7,"VERIFIED: nasatlx_assistant.csv + nasatlx_current.csv, 45 clinicians x 2 conditions = 90 rows, six TLX subscales on 0-20. CAUTION: rows are clinician x condition, not 45 independent participants; `performance` uses the inverted NASA-TLX anchor (means ~15 vs ~6-9 elsewhere)"
 mimbcd_uta7_sus,https://github.com/MIMBCD-UI/dataset-uta7-sus,github_repo,medical-hci,clinician SUS UTA7,UNVERIFIED-likely: per-clinician SUS CSVs
 mimbcd_uta4_nasa_tlx,https://github.com/MIMBCD-UI/dataset-uta4-nasa-tlx,github_repo,medical-hci,clinician NASA-TLX UTA4,UNVERIFIED-likely: per-clinician TLX CSVs
 mimbcd_uta4_sus,https://github.com/MIMBCD-UI/dataset-uta4-sus,github_repo,medical-hci,clinician SUS UTA4,UNVERIFIED-likely: per-clinician SUS CSVs

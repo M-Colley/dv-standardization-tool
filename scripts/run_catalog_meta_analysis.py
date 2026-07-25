@@ -491,11 +491,29 @@ def run_catalog_meta_analysis(
     except ValueError:
         composite = pd.DataFrame()
 
-    average_pairwise_jaccard = (
-        float(overlap_details["jaccard_overlap"].mean())
-        if not overlap_details.empty
-        else None
-    )
+    # Pairs where BOTH studies contributed zero canonical DVs have an undefined
+    # Jaccard (empty union -> NaN) and are skipped by .mean(); pairs where only
+    # one side is empty score a legitimate 0.0. Report the averaged-over count
+    # alongside the total so the denominator is never ambiguous, and also report
+    # the average restricted to DV-bearing pairs — the headline number is
+    # otherwise diluted by studies that contributed nothing to compare.
+    if not overlap_details.empty:
+        jaccard = overlap_details["jaccard_overlap"]
+        average_pairwise_jaccard = float(jaccard.mean())
+        n_jaccard_pairs = int(jaccard.notna().sum())
+        dv_bearing = overlap_details[
+            (overlap_details["study_a_dv_count"] > 0)
+            & (overlap_details["study_b_dv_count"] > 0)
+        ]["jaccard_overlap"]
+        average_jaccard_dv_bearing = (
+            float(dv_bearing.mean()) if not dv_bearing.empty else None
+        )
+        n_dv_bearing_pairs = int(dv_bearing.notna().sum())
+    else:
+        average_pairwise_jaccard = None
+        n_jaccard_pairs = 0
+        average_jaccard_dv_bearing = None
+        n_dv_bearing_pairs = 0
     analysis_summary = {
         "catalog_path": str(catalog_path),
         "url_column": url_column,
@@ -503,6 +521,9 @@ def run_catalog_meta_analysis(
         "n_unique_sources": int(len(sources)),
         "n_loaded_studies": int(len(studies)),
         "average_pairwise_jaccard": average_pairwise_jaccard,
+        "average_pairwise_jaccard_pairs_averaged": n_jaccard_pairs,
+        "average_jaccard_dv_bearing_pairs_only": average_jaccard_dv_bearing,
+        "dv_bearing_pair_count": n_dv_bearing_pairs,
         "meta_analysis_row_count": int(len(meta_summary)),
         "overlap_pair_count": int(len(overlap_details)),
         "composite_index_written": composite_written,

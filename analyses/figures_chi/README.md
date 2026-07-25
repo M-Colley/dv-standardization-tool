@@ -30,18 +30,23 @@ end-to-end run of the example catalog (`data/raw/study_catalog_example.csv`).
 | quantity | value | source file |
 |---|---|---|
 | Catalog sources | 10 | `study_catalog_example.csv` |
-| Retrieved (1 ACM blocked) | 9 | `run_summary.json` |
+| Retrieved (1 ACM access-restricted) | 9 | `run_summary.json` |
 | Files standardized | 4,157 | `run_summary.json` (`processed_files`) |
-| Columns handled by schema | 49,536 / 69,341 (71%) | `run_summary.json` |
+| Columns schema-mapped | 49,536 / 69,341 (71%), 12,616 blocked | `run_summary.json` (`mapping_metrics`) |
 | Canonical DVs surfaced | 39 | `dv_presence_matrix.csv` |
 | Datasets with ≥1 canonical DV | 6 of 9 | `dv_presence_matrix.csv` |
 | Meta-analyzable DVs (k ≥ 2) | 17 | `meta_analysis_summary.csv` |
 | DVs pooled across ≥ 3 studies | 3 (`mental_demand` k=6, `trust_rating` k=3, `perceived_safety` k=3) | `meta_analysis_summary.csv` |
-| **Mean pairwise DV overlap** | **Jaccard = 0.070** | `analysis_summary.json` |
-| NASA-TLX Mental Demand (RE, participant-level) | 7.64 [4.10, 11.19], I²=99.9%, τ²=19.2 | `meta_analysis_summary.csv` |
-| Trust (RE, k=3, TiA-derived where needed) | 3.83 [3.08, 4.57] | `meta_analysis_summary.csv` |
-| Perceived Safety (RE, k=3) | 1.90 [1.56, 2.25] | `meta_analysis_summary.csv` |
-| Causal order (DirectLiNGAM, complete-case, non-synthetic) | mental_demand → trust → understanding → perceived_safety | `causal_edges.csv` |
+| **Mean pairwise DV overlap** | **Jaccard = 0.070** (all 36 pairs; 0.155 over the 15 DV-bearing pairs) | `dv_overlap_details.csv` |
+| NASA-TLX Mental Demand (RE, participant-level) | 7.64 [3.00, 12.29], I²=99.9%, τ²=19.2 | `meta_analysis_summary.csv` |
+| Trust (RE, k=3, TiA-derived where needed) | 3.83 [2.05, 5.60] | `meta_analysis_summary.csv` |
+| Perceived Safety (RE, k=3) | 1.90 [0.95, 2.86] | `meta_analysis_summary.csv` |
+| Causal order (DirectLiNGAM, complete-case, non-synthetic) | mental_demand → trust → {perceived_safety, understanding} | `causal_edges.csv` |
+
+> Confidence intervals use **Knapp-Hartung with a t(k−1) critical value**, not a
+> normal-z interval. They are wider than in earlier revisions of this table by
+> design: inverse-variance SEs collapse toward zero at large per-study n, which
+> previously produced intervals that excluded the very study means being pooled.
 
 Participant-level pooling per study (auto repeated-measures): eHMI-for-All
 1,440 rows → 80 participants (40 crossing-log + 40 survey), ROADS 276 → 23,
@@ -91,4 +96,22 @@ a participant identifier pass through unpooled).
   ID-based pooling may merge two different people per ID (56 pooled IDs vs.
   the paper's N=52).
 - **k = 2 DVs** use a fixed-effects fallback (flagged in `pooling_method`) —
-  DerSimonian–Laird τ² is unstable at k = 2.
+  DerSimonian–Laird τ² is unstable at k = 2. Their intervals are still
+  Knapp-Hartung/t, so they are wide; that width is honest, not a defect.
+- **Pooled means are descriptive, not effect sizes.** There is no IV and no
+  control condition anywhere in this corpus, so `random_effects_mean` answers
+  "what is the average score across these datasets", and I² reflects
+  instrument/population/protocol differences rather than treatment
+  heterogeneity. Egger's test and trim-and-fill are emitted for completeness
+  but are not interpretable at k < 10 (`underpowered_k_lt_10` in
+  `eggers_test.csv`).
+- **Scale detection is inference, not metadata.** Source scales are inferred
+  from observed ranges by picking the narrowest standard scale that fully
+  contains the data (`irt_rescaling_warnings.csv` lists every rescale). A study
+  whose respondents never used the extremes of its scale can still be
+  misidentified; the only real fix is per-study source-unit metadata, which the
+  standardization stage does not yet carry.
+- **`analysis_summary.json` is a stage-1 artifact under the gitignored
+  `data/processed/`.** This table cites committed files in
+  `analyses/output_python_full/` wherever possible so the numbers stay checkable
+  from a clone.

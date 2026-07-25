@@ -65,9 +65,11 @@ META_ANALYSIS_COLUMNS = [
     "dv",
     "k_studies",
     "study_coverage_pct",
+    "dv_bearing_coverage_pct",
     "pooling_method",
     "random_effects_mean",
     "random_effects_se",
+    "ci_method",
     "ci95_low",
     "ci95_high",
     "prediction_interval_low",
@@ -83,12 +85,17 @@ META_ANALYSIS_COLUMNS = [
     "mapping_source_categories",
     "k_llm_deduced",
     "includes_llm_deduced",
+    "k_polarity_flagged",
+    "polarity_warning",
 ]
 # DerSimonian-Laird tau² is unstable at k=2 — fall back to a fixed-effects
 # estimate so the pooled mean is at least well-defined. The result is still
 # emitted (so the DV doesn't silently vanish), just flagged.
 MIN_K_FOR_RANDOM_EFFECTS = 3
 HIGH_HETEROGENEITY_I2_THRESHOLD = 75.0
+# Egger's regression test is underpowered below this many studies (Sterne et
+# al. 2011). Results below it are emitted but flagged as uninterpretable.
+MIN_K_FOR_EGGER = 10
 STANDARDIZED_EFFECTS_COLUMNS = [
     "study", "dv", "cohens_d", "hedges_g", "var_g", "se_g", "mapping_source",
 ]
@@ -172,6 +179,8 @@ def load_mapping_provenance(meta_view_path: Path) -> Dict[tuple, str]:
 OVERLAP_DETAIL_COLUMNS = [
     "study_a",
     "study_b",
+    "study_a_dv_count",
+    "study_b_dv_count",
     "shared_dv_count",
     "union_dv_count",
     "jaccard_overlap",
@@ -357,12 +366,55 @@ def _canonicalize_dv_name(name: str) -> str | None:
 
 # ── Scale harmonization ─────────────────────────────────────────────────────
 
-def _detect_scale_range(series: pd.Series, canonical_range: tuple[float, float]) -> tuple[float, float]:
-    """Heuristically detect the actual scale range of a data series.
+#: Candidate source scales, ordered **narrowest first**, and within each width
+#: the conventional base for that instrument family first (Likerts are 1-based,
+#: NASA-TLX and VAS are 0-based). The first candidate that fully contains the
+#: observed values wins.
+#:
+#: Order is load-bearing. The previous list led with (0, 20), so 1-7 Likert
+#: data — which also fits 0-20 — was rescaled from a range three times too wide,
+#: compressing it toward the canonical floor and inverting the sign of any DV
+#: whose canonical range straddles zero.
+_CANDIDATE_SCALE_RANGES: tuple[tuple[float, float], ...] = (
+    (1, 5), (0, 5),      # 5-point Likert
+    (1, 7), (0, 7),      # 7-point Likert
+    (1, 9), (0, 9),      # 9-point (SAM)
+    (0, 10), (1, 10),    # 11-point
+    (0, 20), (1, 20),    # 21-point (NASA-TLX subscales)
+    (0, 21), (1, 21),    # explicit 21-point
+    (0, 100), (1, 100),  # VAS / percentage
+)
 
-    If the observed data clearly exceeds the canonical range, infer an
-    alternative scale (e.g. a 0-20 Likert when canonical is 1-5).
-    More specific ranges are tried before broad catch-alls like 0-100.
+#: Relative slack allowed when testing whether observed values fit a candidate
+#: range. Deliberately tiny: it absorbs floating-point noise only. A value that
+#: genuinely exceeds a scale's maximum is proof the scale is *not* that scale,
+#: so a generous tolerance here silently mis-identifies scales (a 1-7 Likert
+#: "fitting" 0-20, or a max of 21 "fitting" 0-20).
+_SCALE_FIT_EPS = 1e-9
+
+
+def _fits_range(smin: float, smax: float, lo: float, hi: float) -> bool:
+    """True if [smin, smax] lies inside [lo, hi], up to float noise."""
+    eps = max(abs(hi - lo), 1.0) * _SCALE_FIT_EPS
+    return smin >= lo - eps and smax <= hi + eps
+
+
+def _detect_scale_range(series: pd.Series, canonical_range: tuple[float, float]) -> tuple[float, float]:
+    """Detect the source scale a series was measured on.
+
+    Selection rules, in order:
+
+    1. If the observed values fit inside the canonical range, the data is
+       already on the canonical scale — the schema is authoritative.
+    2. Otherwise take the **narrowest** standard scale that fully contains the
+       observed values (``_CANDIDATE_SCALE_RANGES`` is ordered for this).
+       Narrowest-first matters: 1-7 Likert data also "fits" 0-20 and 0-100,
+       and assuming a range wider than the true one compresses the rescaled
+       values toward the canonical floor.
+    3. If nothing standard contains the data, fall back to the observed range.
+
+    Containment is strict (see ``_SCALE_FIT_EPS``): observed values above a
+    candidate's maximum disqualify that candidate rather than being tolerated.
     """
     smin, smax = float(series.min()), float(series.max())
     cmin, cmax = canonical_range
@@ -370,28 +422,16 @@ def _detect_scale_range(series: pd.Series, canonical_range: tuple[float, float])
     if cspan <= 0:
         return (smin, smax)
 
-    # If data fits within canonical range (with small tolerance), keep it.
-    # PREFER canonical range — it's the authoritative definition.
-    tol = cspan * 0.15
-    if smin >= cmin - tol and smax <= cmax + tol:
+    # 1. Data already on the canonical scale — prefer the schema's definition.
+    if _fits_range(smin, smax, cmin, cmax):
         return canonical_range
 
-    # Try common alternative ranges — more specific first so a 0-20 Likert
-    # is not swallowed by the broad 0-100 VAS catch-all.
-    # Only consider alternatives that are WIDER than the canonical range.
-    for alt_lo, alt_hi in [
-        (0, 20), (1, 20),   # 21-point scales (common in psychology)
-        (0, 21), (1, 21),   # explicit 21-point
-        (0, 10), (1, 10),   # 11-point
-        (0, 9), (1, 9),     # 9-point (SAM)
-        (1, 7), (0, 7),     # 7-point
-        (1, 5), (0, 5),     # 5-point
-        (0, 100), (1, 100), # VAS / percentage (broad catch-all last)
-    ]:
-        alt_tol = (alt_hi - alt_lo) * 0.15
-        if smin >= alt_lo - alt_tol and smax <= alt_hi + alt_tol:
-            return (float(alt_lo), float(alt_hi))
+    # 2. Narrowest standard scale that fully contains the observed values.
+    for lo, hi in _CANDIDATE_SCALE_RANGES:
+        if _fits_range(smin, smax, lo, hi):
+            return (float(lo), float(hi))
 
+    # 3. Nothing standard fits — use the observed range as-is.
     return (smin, smax)
 
 
@@ -933,6 +973,12 @@ def compute_overlap_details(
             {
                 "study_a": study_a,
                 "study_b": study_b,
+                # Per-study DV counts make it possible to separate "these two
+                # studies measured different things" (a real finding) from
+                # "one of them contributed no canonical DV at all" (a mapping
+                # gap that would otherwise silently drag the mean overlap down).
+                "study_a_dv_count": len(dv_sets[study_a]),
+                "study_b_dv_count": len(dv_sets[study_b]),
                 "shared_dv_count": len(shared),
                 "union_dv_count": len(union),
                 "jaccard_overlap": (len(shared) / len(union)) if union else np.nan,
@@ -1105,6 +1151,8 @@ def _run_meta_for_dv(
     sub: pd.DataFrame,
     total_studies: int | None,
     estimator: str,
+    reverse_coded_pairs: set[tuple[str, str]] | None = None,
+    dv_bearing_studies: int | None = None,
 ) -> dict | None:
     """Core random-effects meta-analysis for a single DV group."""
     sub = sub[(sub["n"] > 1) & (sub["sd"] > 0)].copy()
@@ -1132,6 +1180,7 @@ def _run_meta_for_dv(
         pooling_method = f"fixed_effects_k_lt_{MIN_K_FOR_RANDOM_EFFECTS}"
         random_mean = float(fixed_mean)
         random_se = float(np.sqrt(1.0 / np.sum(w_fixed)))
+        w_used = w_fixed
     else:
         if estimator == "REML":
             tau2 = _estimate_tau2_reml(means, variances)
@@ -1142,6 +1191,27 @@ def _run_meta_for_dv(
         w_random = 1.0 / (variances + tau2)
         random_mean = float(np.sum(w_random * means) / np.sum(w_random))
         random_se = float(np.sqrt(1.0 / np.sum(w_random)))
+        w_used = w_random
+
+    # Confidence interval — Knapp-Hartung with a t critical value.
+    #
+    # The inverse-variance SE above is a *within-study* quantity: with per-study
+    # n in the thousands it collapses to near zero, so a z-based interval can
+    # end up excluding every contributing study mean (it did, for 8 of the 16
+    # k=2 DVs). Knapp-Hartung rescales the SE by the observed dispersion of the
+    # study means around the pool and uses t(k-1), which is what makes the
+    # interval honest at small k. The max() is the recommended ad-hoc guard so
+    # the correction can only widen, never narrow, the interval.
+    if k > 1:
+        hk_scale = float(np.sum(w_used * np.square(means - random_mean)) / (k - 1))
+        se_hk = float(np.sqrt(hk_scale / np.sum(w_used)))
+        ci_se = max(se_hk, random_se)
+        crit = float(stats.t.ppf(0.975, k - 1))
+        ci_method = "knapp_hartung_t"
+    else:  # pragma: no cover - guarded by the len(sub) < 2 check above
+        ci_se = random_se
+        crit = 1.96
+        ci_method = "normal_z"
 
     # Heterogeneity
     i2 = max(0.0, (q - df_q) / q) * 100 if q > 0 else 0.0
@@ -1174,6 +1244,28 @@ def _run_meta_for_dv(
     k_llm_deduced = int(sum(1 for s in source_values if s == "llm_deduced"))
     categories_joined = "; ".join(sorted(set(source_values))) if source_values else "unknown"
 
+    # Polarity: a DV whose anchor direction is inverted in some source
+    # instruments (NASA-TLX `performance` is the classic case) cannot be
+    # reconciled automatically — the tool has no per-study anchor metadata.
+    # Surface the count on the pooled row so a reader of this table sees the
+    # caveat without having to cross-reference reverse_coding_warnings.csv.
+    k_polarity_flagged = 0
+    if reverse_coded_pairs:
+        k_polarity_flagged = int(
+            sum(1 for s in sub["study"].tolist() if (str(s), str(dv)) in reverse_coded_pairs)
+        )
+    # Only warn when studies *disagree*. An instrument with alternating item
+    # polarity by design (SUS) trips the detector in every study that uses it;
+    # that is a property of the instrument, not a pooling hazard, because each
+    # item is still pooled against the same item elsewhere. The hazard is the
+    # mixed case — NASA-TLX `performance`, flagged in 1 of 4 studies — where
+    # one source used the inverted anchor and the others did not.
+    polarity_warning = (
+        f"{k_polarity_flagged}_of_{k}_studies_flagged_possible_reverse_coding"
+        if 0 < k_polarity_flagged < k
+        else ""
+    )
+
     return {
         "dv": dv,
         "k_studies": k,
@@ -1182,11 +1274,20 @@ def _run_meta_for_dv(
             if total_studies and total_studies > 0
             else np.nan
         ),
+        # Same numerator, but excluding studies that contributed no canonical
+        # DV at all. Those studies cannot cover any DV, so including them in
+        # the denominator deflates every coverage figure in the corpus.
+        "dv_bearing_coverage_pct": (
+            (k / dv_bearing_studies) * 100.0
+            if dv_bearing_studies and dv_bearing_studies > 0
+            else np.nan
+        ),
         "pooling_method": pooling_method,
         "random_effects_mean": random_mean,
         "random_effects_se": random_se,
-        "ci95_low": random_mean - 1.96 * random_se,
-        "ci95_high": random_mean + 1.96 * random_se,
+        "ci_method": ci_method,
+        "ci95_low": random_mean - crit * ci_se,
+        "ci95_high": random_mean + crit * ci_se,
         "prediction_interval_low": pi_low,
         "prediction_interval_high": pi_high,
         "heterogeneity_q": q,
@@ -1200,6 +1301,8 @@ def _run_meta_for_dv(
         "mapping_source_categories": categories_joined,
         "k_llm_deduced": k_llm_deduced,
         "includes_llm_deduced": k_llm_deduced > 0,
+        "k_polarity_flagged": k_polarity_flagged,
+        "polarity_warning": polarity_warning,
     }
 
 
@@ -1207,13 +1310,21 @@ def meta_analysis_summary(
     summary: pd.DataFrame,
     total_studies: int | None = None,
     estimator: str = "DL",
+    reverse_coded_pairs: set[tuple[str, str]] | None = None,
+    dv_bearing_studies: int | None = None,
 ) -> pd.DataFrame:
     if summary.empty:
         return pd.DataFrame(columns=META_ANALYSIS_COLUMNS)
 
     rows = []
     for dv, sub in summary.groupby("dv"):
-        result = _run_meta_for_dv(sub, total_studies, estimator)
+        result = _run_meta_for_dv(
+            sub,
+            total_studies,
+            estimator,
+            reverse_coded_pairs=reverse_coded_pairs,
+            dv_bearing_studies=dv_bearing_studies,
+        )
         if result is not None:
             rows.append(result)
 
@@ -1254,6 +1365,11 @@ def eggers_test(summary: pd.DataFrame, dv: str) -> dict | None:
     t_stat = intercept / se_intercept if se_intercept and se_intercept > 0 else np.nan
     p_intercept = float(2 * stats.t.sf(abs(t_stat), k - 2)) if np.isfinite(t_stat) else np.nan
 
+    # Egger's test is underpowered below ~10 studies; Sterne et al. (2011)
+    # recommend not performing it at all in that regime. We still compute it
+    # (the corpus is small by construction) but mark the row so a "significant"
+    # asymmetry at k=3-4 is not read as evidence of publication bias.
+    underpowered = k < MIN_K_FOR_EGGER
     return {
         "dv": dv,
         "k_studies": k,
@@ -1261,7 +1377,15 @@ def eggers_test(summary: pd.DataFrame, dv: str) -> dict | None:
         "se_intercept": se_intercept,
         "t_stat": t_stat,
         "p_value": p_intercept,
-        "significant_at_10pct": p_intercept < 0.10 if np.isfinite(p_intercept) else False,
+        "significant_at_10pct": (
+            (p_intercept < 0.10 and not underpowered) if np.isfinite(p_intercept) else False
+        ),
+        "underpowered_k_lt_10": underpowered,
+        "validity_note": (
+            f"k={k} < {MIN_K_FOR_EGGER}: test is underpowered, result is not interpretable"
+            if underpowered
+            else ""
+        ),
     }
 
 
@@ -2886,7 +3010,21 @@ def main() -> None:
         mapping_provenance=mapping_provenance,
         canonical_studies=canonical,
     )
-    meta_summary_df = meta_analysis_summary(summary, total_studies=len(studies), estimator=args.estimator)
+    # Reverse-coding detection runs *before* pooling so each pooled row can
+    # carry its own polarity caveat (see _run_meta_for_dv).
+    rev_df = detect_potential_reverse_coding(studies, canonical_studies=canonical)
+    reverse_coded_pairs = (
+        {(str(r.study), str(r.dv)) for r in rev_df.itertuples()} if not rev_df.empty else set()
+    )
+    n_dv_bearing = int((presence.sum(axis=1) > 0).sum()) if not presence.empty else 0
+
+    meta_summary_df = meta_analysis_summary(
+        summary,
+        total_studies=len(studies),
+        estimator=args.estimator,
+        reverse_coded_pairs=reverse_coded_pairs,
+        dv_bearing_studies=n_dv_bearing,
+    )
     effects = compute_standardized_effects(summary)
 
     output_dir.mkdir(parents=True, exist_ok=True)
@@ -3009,8 +3147,8 @@ def main() -> None:
         quality_df.to_csv(output_dir / "data_quality_report.csv", index=False)
         print(f"\nData quality: {len(flagged)} study×DV combinations flagged")
 
-    # Reverse-coding detection
-    rev_df = detect_potential_reverse_coding(studies, canonical_studies=canonical)
+    # Reverse-coding detection (computed above, before pooling, so the pooled
+    # rows can carry the polarity caveat)
     if not rev_df.empty:
         rev_df.to_csv(output_dir / "reverse_coding_warnings.csv", index=False)
         print(f"\nReverse-coding warnings: {len(rev_df)} potential issues detected")
@@ -3035,6 +3173,16 @@ def main() -> None:
             "heterogeneity_q": mrow["heterogeneity_q"],
             "heterogeneity_p": mrow["q_pvalue"],
             "egger_p": egger_p_by_dv.get(dv),
+            # Caveat fields: without these a consumer of the JSON cannot tell a
+            # k=2 fixed-effect estimate from a genuine random-effects pool.
+            "pooling_method": mrow["pooling_method"],
+            "ci_method": mrow["ci_method"],
+            "tau2": mrow["tau2"],
+            "heterogeneity_warning": mrow["heterogeneity_warning"],
+            "prediction_interval_low": mrow["prediction_interval_low"],
+            "prediction_interval_high": mrow["prediction_interval_high"],
+            "polarity_warning": mrow["polarity_warning"],
+            "includes_llm_deduced": bool(mrow["includes_llm_deduced"]),
         })
 
     # Populate dv_overlap as nested dict

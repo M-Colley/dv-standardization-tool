@@ -441,9 +441,11 @@ This repository functions as a testbed to evaluate the viability of a canonical 
 ```bash
 dv-standardization-tool/
 ├── data/
-│   ├── raw/                      # Original datasets + starter catalog
-│   │   └── study_catalog_example.csv
-│   └── processed/                # Standardized outputs (gitignored)
+│   ├── raw/                      # Original datasets + study catalogs
+│   │   ├── study_catalog_example.csv     # 10-source starter catalog (9 retrievable)
+│   │   ├── study_catalog_expanded.csv    # 15-source expanded catalog (14 retrievable)
+│   │   └── study_catalog_candidates.csv  # 18 vetted candidate datasets + status notes
+│   └── processed/                # Standardized outputs + source cache (gitignored)
 │
 ├── schemas/
 │   ├── standard_dv_mapping.yaml         # Canonical DV naming scheme
@@ -466,6 +468,11 @@ dv-standardization-tool/
 │
 ├── analyses/
 │   ├── multi_study_analysis.py              # Cross-study overlap & meta-analysis
+│   ├── make_chi_figures.py                  # CHI figure set (PDF + PNG); env-configurable paths
+│   ├── output_python_full/                  # Analysis artifacts, 9-study corpus
+│   ├── output_python_expanded/              # Analysis artifacts, 14-study corpus
+│   ├── figures_chi/                         # Figures for the 9-study corpus  (see its README)
+│   ├── figures_chi_expanded/                # Figures for the 14-study corpus (see its README)
 │   └── run_latest_multi_study_analysis.sh   # Convenience runner against latest batch output
 │
 ├── notebooks/
