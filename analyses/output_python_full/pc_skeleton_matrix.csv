@@ -1,0 +1,9 @@
+,jian_trust,perceived_safety,sart_understanding,sts_ad_trust,tia_understanding_predictability,trust_rating,ueq_dependability,understanding_rating
+jian_trust,0,0,0,1,1,1,1,0
+perceived_safety,0,0,1,0,0,1,1,0
+sart_understanding,0,1,0,0,0,0,1,1
+sts_ad_trust,1,0,0,0,0,1,0,1
+tia_understanding_predictability,1,0,0,0,0,1,0,0
+trust_rating,1,1,0,1,1,0,0,1
+ueq_dependability,1,1,1,0,0,0,0,0
+understanding_rating,0,0,1,1,0,1,0,0

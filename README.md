@@ -165,9 +165,9 @@ Every rejection, with its reason, is written to `llm_rejected_suggestions.json` 
 
 **How good is the LLM fallback?** `analyses/evaluate_llm_mapping.py` replays the LLM step with each curated mapping hidden (leave-alias-out). With the local Gemma-4-E2B model and the plausibility check on, it found on real dataset columns:
 
-- **With the old fuzzy shortlist:** 25% of accepted LLM mappings are correct.
-- **With definition retrieval:** 63% are correct.
-- **Effect of the check:** non-DV columns mapped to a DV drop from 41% to 5–29%, at about 1% cost on genuine DV names.
+- **With the old fuzzy shortlist:** 23% of accepted LLM mappings are correct.
+- **With definition retrieval:** 59% are correct.
+- **Effect of the check:** non-DV columns mapped to a DV drop sharply (54% → 7% for blocklisted columns, 74% → 35% for curated ones), without losing any true DV mapping.
 
 Treat LLM-deduced rows as provisional. `multi_study_analysis.py --exclude-llm-deduced` writes the `*_llm_excluded` sensitivity outputs that drop them. Details and further results are in [`docs/research_agenda.md`](docs/research_agenda.md).
 

@@ -1,0 +1,22 @@
+{
+  "mappings": [
+    "all",
+    "no_llm"
+  ],
+  "scales": [
+    "harmonized",
+    "raw"
+  ],
+  "unit": [
+    "observations",
+    "participants"
+  ],
+  "tau2": [
+    "DL",
+    "REML"
+  ],
+  "interval": [
+    "wald",
+    "hksj"
+  ]
+}

@@ -71,7 +71,8 @@ mappings); "E2" holds out schema aliases. Model: `google/gemma-4-E2B-it`
 
 ### 2.2 LLM mapping is weak on real columns; plausibility checks are cheap (RQ2)
 
-Pilot results (plausibility rules v1.0, before any tuning):
+Pilot results (10 studies, fuzzy shortlist, plausibility rules v1.0, before
+any tuning; superseded by the final table in §2.4):
 
 | Metric | E1 unchecked | E1 checked | E2 unchecked | E2 checked |
 |---|---|---|---|---|
@@ -94,10 +95,10 @@ Readings:
   the correct DV never reaches the model, because the fuzzy-string shortlist
   misses it. Ranking DVs by their *definitions* instead (§2.4) fixes most of
   this.
-- **A small local model is not safe as an unsupervised mapper.** On real
-  columns only about one in four of its accepted DV mappings is correct.
-  LLM-deduced rows must be quarantined (the `*_llm_excluded` outputs) or
-  human-reviewed.
+- **A small local model is not safe as an unsupervised mapper.** With the
+  fuzzy shortlist only about one in four accepted DV mappings is correct on
+  real columns. Even with definition retrieval it is 59% (§2.4). LLM-deduced
+  rows must be quarantined (the `*_llm_excluded` outputs) or human-reviewed.
 - **The plausibility layer removes the most damaging errors** (ages, seeds,
   IDs, timestamps, free text) at about 1% cost on genuine DV names. Its two
   E2 false rejections led to one rule refinement (v1.1, documented in the
@@ -108,38 +109,52 @@ Readings:
 `scripts/dv_retrieval.py` ranks DVs by character n-gram TF-IDF similarity to
 their definitions: the mean of a name similarity (id, label, aliases,
 instruments) and a full-definition similarity (adding notes, cluster and
-unit). It uses no model download, only scikit-learn.
+unit). It needs no model download, only scikit-learn.
 
-Pilot on the same held-out items (10 studies, rules v1.1, Gemma-4-E2B):
+Final evaluation (11 studies, rules v1.1, Gemma-4-E2B, check on; E1:
+106 real DV columns, 69 non-DV columns; E2: 300 schema aliases):
 
-| Metric | fuzzy shortlist | definition shortlist |
+| Metric | fuzzy shortlist | definition shortlist (default) |
 |---|---|---|
-| E1 recall@8 (gold DV among candidates) | 42% | 83% |
-| E1 accuracy on true DV columns (checked) | 16% | 39% |
-| E1 precision of accepted DV mappings (checked) | 25% | 63% |
-| E2 accuracy (checked) | 55% | 67% |
-| E2 precision (checked) | 62% | 75% |
-| E1 curated non-DVs mapped to a DV (checked) | 24% | 29% |
+| E1 recall@8 (gold DV among candidates) | 42% (44/106) | 83% (88/106) |
+| E1 accuracy on true DV columns | 18% | 49% |
+| E1 precision of accepted DV mappings | 23% (19/83) | 59% (52/88) |
+| E1 curated non-DVs mapped to a DV, unchecked → checked | 30% → 17% | 74% → 35% |
+| E1 blocklisted non-DVs mapped to a DV, unchecked → checked | 41% → 4% | 54% → 7% |
+| E2 accuracy | 55% | 67% |
+| E2 precision | 62% | 75% |
+| True mappings lost to the check (E1; E2) | 0/19; 1/166 | 0/52; 0/200 |
 
-Definition retrieval is now the pipeline default (`--llm-shortlist fuzzy`
-restores the old behaviour). Fusing the two rankings (reciprocal-rank fusion)
-is worse than definition retrieval alone. Caveat: the 50/50 blend weight was
-chosen on these items, so P1 must confirm it on a held-out split. The final
-11-study numbers are in `analyses/output_llm_evaluation/` (definition) and
-`analyses/output_llm_evaluation/shortlist_fuzzy/` (ablation).
+Rank fusion of the two retrievers is worse than definition retrieval alone
+(E1 recall@8 55%).
+
+**Trade-off.** Because a plausible-looking candidate is always available, the
+model maps non-DV columns more often with the definition shortlist (74% of
+curated non-DVs, unchecked). The plausibility check halves that rate. In the
+deployed pipeline, where the older LLM-exclusion list also applies, 3 of 23
+curated non-DV columns end up mapped: Scrolling-in-the-Deep's binary context
+variables. No true DV column is blocked.
+
+**Caveat.** The 50/50 blend weight was chosen on the 10-study pilot items, so
+P1 must confirm it on a held-out split.
 
 ### 2.3 Pooled estimates depend on harmonization choices (RQ3)
 
-The multiverse crosses five binary choices (32 specifications). In a pilot on
-10 studies:
+The multiverse crosses five binary choices (32 specifications). Results for
+the 11-study run (`analyses/output_multiverse/`):
 
-- `understanding_rating` ranges from 3.76 to 7.56 depending only on whether
-  scales are harmonized;
-- `perceived_safety` ranges from 0.69 to 2.52;
-- 95% interval widths differ by up to two orders of magnitude between Wald
-  and HKSJ at k = 2.
+- **Robust:** NASA-TLX `mental_demand` (k = 7, no LLM rows). All 32
+  estimates lie in 7.37–7.58 and every interval covers the default estimate.
+- **Fragile:**
+  - `perceived_safety` (k = 7) moves from −0.24 to 4.27 depending only on
+    scale harmonization, and cannot be pooled at all without LLM-deduced rows;
+  - `understanding_rating` ranges from 3.33 to 7.56;
+  - `performance` ranges from 8.78 to 15.01.
+- **Interval width:** 95% interval widths differ by up to two orders of
+  magnitude between Wald and HKSJ at small k (e.g. `performance`: 0.8 to 103).
 
-Final numbers for the 11-study run are in `analyses/output_multiverse/`.
+The multiverse turns "we pooled k studies" into "this estimate survives N of
+32 defensible pipelines" — a reporting standard worth proposing (P5).
 
 ---
 
@@ -158,7 +173,7 @@ string matching, embeddings, small and large LLMs, and LLM + plausibility.
 ### P2. Retrieval-augmented, definition-aware mapping *(high value — lexical version done)*
 
 The lexical definition retriever (§2.4) already lifts recall@8 on real columns
-from 42% to 83% and precision from 25% to 63%. Next steps:
+from 42% to 83% and precision from 23% to 59%. Next steps:
 
 - **Dense retrieval.** `sentence-transformers` is already a dependency; test
   dense embeddings of the same definitions, alone and fused with TF-IDF.
