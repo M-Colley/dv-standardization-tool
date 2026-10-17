@@ -51,7 +51,9 @@ if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
 from scripts import llm_utils  # noqa: E402
-from scripts.batch_profiles import classify_dataset_type  # noqa: E402
+from scripts.batch_profiles import classify_dataset_type, llm_eligible_dataset_types  # noqa: E402
+from scripts.dv_retrieval import get_retriever  # noqa: E402
+from scripts.value_labels import apply_value_labels, recode_negative_answer_codes  # noqa: E402
 from scripts.llm_coordinator import _select_llm_candidate_shortlist  # noqa: E402
 from scripts.llm_plausibility import (  # noqa: E402
     check_llm_suggestion,
@@ -95,8 +97,12 @@ def _ask_llm(
     mapping: dict[str, str],
     context: str,
     preferred_models: list[str] | None,
+    shortlist: str = "definition",
 ) -> tuple[list[str], float, str | None]:
     candidates, top_score = _select_llm_candidate_shortlist(mapping, alias)
+    if shortlist == "definition" and candidates:
+        # Leave-alias-out: the held-out alias is removed from every definition.
+        candidates = [dv for dv, _ in get_retriever().rank(alias, k=len(candidates), exclude_alias=alias)]
     if not candidates or top_score < MIN_ATTEMPT_SCORE:
         return candidates, top_score, None
     suggestion = llm_utils.deduce_standard_name_with_local_llm(
@@ -156,23 +162,29 @@ def run_e1(args, families: SchemaFamilies, dv_ids: set[str]) -> pd.DataFrame:
             candidates_paths = _find_repository_mapping_candidates(base_dir)
             resolver = _MappingResolver(families, bool(source.get("override_standard_aliases", False)))
             requested = str(source["mapping_path"]).strip() if source.get("mapping_path") else None
-            frames: dict[str, pd.DataFrame] = {}
+            frames: dict[str, tuple[pd.DataFrame, dict[str, str]]] = {}
             for item in group.itertuples(index=False):
-                if item.dataset_id not in frames:
-                    frames[item.dataset_id] = _load_any_table(base_dir / item.dataset_id)
-                df = frames[item.dataset_id]
-                columns = [str(c) for c in df.columns]
                 relative = Path(item.dataset_id)
-                dataset_type = classify_dataset_type(relative, columns)
-                mapping_path = _resolve_repository_mapping_path(
-                    base_dir, candidates_paths, requested_mapping_path=requested, dataset_path=base_dir / relative
-                )
-                mapping = resolver.resolve(dataset_type, mapping_path, item.dataset_id).mapping
+                if item.dataset_id not in frames:
+                    raw = _load_any_table(base_dir / item.dataset_id)
+                    raw_columns = [str(c) for c in raw.columns]
+                    dataset_type = classify_dataset_type(relative, raw_columns)
+                    mapping_path = _resolve_repository_mapping_path(
+                        base_dir, candidates_paths, requested_mapping_path=requested, dataset_path=base_dir / relative
+                    )
+                    resolved = resolver.resolve(dataset_type, mapping_path, item.dataset_id)
+                    # Same response recoding as the pipeline, before profiling.
+                    raw, _ = apply_value_labels(raw, resolved.value_labels)
+                    if dataset_type in llm_eligible_dataset_types():
+                        raw, _ = recode_negative_answer_codes(raw)
+                    frames[item.dataset_id] = (raw, resolved.mapping)
+                df, mapping = frames[item.dataset_id]
+                columns = [str(c) for c in df.columns]
                 alias = item.original_alias
                 profile = profile_columns(df, [alias]).get(alias)
                 t0 = time.perf_counter()
                 shortlist, top_score, suggestion = _ask_llm(
-                    alias, _without_alias(mapping, alias), context, args.models
+                    alias, _without_alias(mapping, alias), context, args.models, args.shortlist
                 )
                 pre = name_rejection_reason(alias, columns) or (data_rejection_reason(profile) if profile else None)
                 post = (
@@ -219,7 +231,9 @@ def run_e2(args, families: SchemaFamilies) -> pd.DataFrame:
     for index in sorted(picks):
         alias, gold = pairs[index]
         t0 = time.perf_counter()
-        shortlist, top_score, suggestion = _ask_llm(alias, _without_alias(base_mapping, alias), "", args.models)
+        shortlist, top_score, suggestion = _ask_llm(
+            alias, _without_alias(base_mapping, alias), "", args.models, args.shortlist
+        )
         pre = name_rejection_reason(alias)
         rows.append({
             "experiment": "E2",
@@ -293,6 +307,8 @@ def main() -> None:
     parser.add_argument("--e2-samples", type=int, default=300, help="Aliases sampled for E2 (default: %(default)s).")
     parser.add_argument("--seed", type=int, default=20261017)
     parser.add_argument("--models", default=None, help="Comma-separated model ids (default: pipeline default).")
+    parser.add_argument("--shortlist", choices=["fuzzy", "definition"], default="definition",
+                        help="Candidate retrieval for the LLM (default: %(default)s).")
     args = parser.parse_args()
     args.models = [m.strip() for m in args.models.split(",") if m.strip()] if args.models else None
 
@@ -311,6 +327,7 @@ def main() -> None:
         "generated_at": datetime.now(timezone.utc).isoformat(),
         "models": llm_utils.select_local_model_candidates(args.models),
         "plausibility_rules_version": load_rules().version,
+        "shortlist": args.shortlist,
         "seed": args.seed,
         "max_per_source": args.max_per_source,
         "e2_samples": args.e2_samples,

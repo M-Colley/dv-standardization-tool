@@ -65,6 +65,8 @@ mappings); "E2" holds out schema aliases. Model: `google/gemma-4-E2B-it`
 | Tautological causal edges | Item columns (`perceived_safety_item_0x`) entered the LiNGAM DAG next to their own scale score | DAG edges "item → scale" reported as causal structure | Construct → item hierarchy derived from the schema (`subitem_of`, `<construct>_item_NN`) |
 | Silent no-ops | Bootstrap edge stability and PC skeleton returned nothing whenever DVs only partly overlapped | No stability estimate for the reported DAG | Both now run on the exact matrix the DAG was fit on |
 | Silent data loss | `psych_conflict_handling` stores Likert answers as text labels ("Rather agree") | The study was in the committed 11-study run but contributed **0** numeric DVs | Declarative `value_labels` in mapping YAMLs; all 432 rows of each item recoded, unmatched labels counted |
+| Silent truncation of a scale | LimeSurvey exports negative AOA answers as `neg1`/`neg2`; numeric coercion turned them into missing values | eHMI-for-All and ROADS lost 30% of AOA answers (1,868/6,480 and 749/2,484 cells), all of them negative, so the AOA means were biased upward | `negN` codes recoded to −N in survey-like tables, counted in `-quality.json` |
+| Wrong scale assumption | The derived AOA usefulness/satisfying formula hard-coded the 1–5 midpoint (3) | For studies coding items −2…+2 the composite was shifted and then mis-rescaled | Each study's coding midpoint is used, so 1–5 and −2…+2 give identical scores (regression test) |
 | Anti-conservative intervals at small k | Most pooled DVs have k = 2–3 | Wald intervals far narrower than warranted | Hartung-Knapp-Sidik-Jonkman intervals reported next to Wald (validated against `metafor`, `test = "knha"`) |
 
 ### 2.2 LLM mapping is weak on real columns; plausibility checks are cheap (RQ2)
@@ -90,7 +92,8 @@ Readings:
 
 - **Retrieval, not generation, is the bottleneck.** For 58% of real columns
   the correct DV never reaches the model, because the fuzzy-string shortlist
-  misses it.
+  misses it. Ranking DVs by their *definitions* instead (§2.4) fixes most of
+  this.
 - **A small local model is not safe as an unsupervised mapper.** On real
   columns only about one in four of its accepted DV mappings is correct.
   LLM-deduced rows must be quarantined (the `*_llm_excluded` outputs) or
@@ -99,6 +102,31 @@ Readings:
   IDs, timestamps, free text) at about 1% cost on genuine DV names. Its two
   E2 false rejections led to one rule refinement (v1.1, documented in the
   YAML); `tia_id` remains a known trade-off of the identifier rule.
+
+### 2.4 Definition-aware retrieval more than doubles LLM mapping quality (RQ2)
+
+`scripts/dv_retrieval.py` ranks DVs by character n-gram TF-IDF similarity to
+their definitions: the mean of a name similarity (id, label, aliases,
+instruments) and a full-definition similarity (adding notes, cluster and
+unit). It uses no model download, only scikit-learn.
+
+Pilot on the same held-out items (10 studies, rules v1.1, Gemma-4-E2B):
+
+| Metric | fuzzy shortlist | definition shortlist |
+|---|---|---|
+| E1 recall@8 (gold DV among candidates) | 42% | 83% |
+| E1 accuracy on true DV columns (checked) | 16% | 39% |
+| E1 precision of accepted DV mappings (checked) | 25% | 63% |
+| E2 accuracy (checked) | 55% | 67% |
+| E2 precision (checked) | 62% | 75% |
+| E1 curated non-DVs mapped to a DV (checked) | 24% | 29% |
+
+Definition retrieval is now the pipeline default (`--llm-shortlist fuzzy`
+restores the old behaviour). Fusing the two rankings (reciprocal-rank fusion)
+is worse than definition retrieval alone. Caveat: the 50/50 blend weight was
+chosen on these items, so P1 must confirm it on a held-out split. The final
+11-study numbers are in `analyses/output_llm_evaluation/` (definition) and
+`analyses/output_llm_evaluation/shortlist_fuzzy/` (ablation).
 
 ### 2.3 Pooled estimates depend on harmonization choices (RQ3)
 
@@ -127,15 +155,20 @@ string matching, embeddings, small and large LLMs, and LLM + plausibility.
 **Deliverable:** benchmark + leaderboard; this alone is a strong
 *Scientific Data* / *Behavior Research Methods* paper.
 
-### P2. Retrieval-augmented, definition-aware mapping *(high value, medium effort)*
+### P2. Retrieval-augmented, definition-aware mapping *(high value — lexical version done)*
 
-Replace the fuzzy-string shortlist (42% recall on real columns) with dense
-retrieval over DV *definitions*: label, cluster, instrument, unit, scale
-range and example aliases. `sentence-transformers` is already a dependency.
-Add **value-aware features** to the retriever: observed range, number of
-distinct levels, integer-ness, and correlation with already-mapped items of
-the same instrument. Hypothesis: recall@10 > 85%, precision at 80% coverage
-> 70%. Evaluate on P1.
+The lexical definition retriever (§2.4) already lifts recall@8 on real columns
+from 42% to 83% and precision from 25% to 63%. Next steps:
+
+- **Dense retrieval.** `sentence-transformers` is already a dependency; test
+  dense embeddings of the same definitions, alone and fused with TF-IDF.
+- **Value-aware features.** Use the observed range, number of distinct levels,
+  integer-ness, and correlation with already-mapped items of the same
+  instrument.
+- **Context.** Add repository context (README, paper abstract) to the query.
+
+Hypothesis: recall@10 > 95% and precision > 80% at 80% coverage. Evaluate on
+P1's held-out split.
 
 ### P3. Conformal abstention: mappings with a precision guarantee *(high value, medium effort)*
 

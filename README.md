@@ -161,10 +161,13 @@ The LLM is not used for blocked admin fields such as `UserID` or `ConditionID`, 
 
 Every rejection, with its reason, is written to `llm_rejected_suggestions.json` and listed in `llm_deductions.log`. Use `--no-llm-plausibility-check` only for ablation.
 
-**How good is the LLM fallback?** `analyses/evaluate_llm_mapping.py` replays the LLM step with each curated mapping hidden (leave-alias-out). With the local Gemma-4-E2B model it found:
+**Candidate retrieval.** The LLM chooses from a shortlist of candidate DVs. By default (`--llm-shortlist definition`), `scripts/dv_retrieval.py` builds it by TF-IDF similarity to each DV's definition (id, label, aliases, instruments, notes, cluster, unit). The earlier alias-string matching (`--llm-shortlist fuzzy`) missed the correct DV for most real columns.
 
-- **Real dataset columns:** only about 1 in 4 accepted LLM mappings is correct.
-- **Effect of the check:** non-DV columns mapped to a DV drop from 41% to 5–24%, at about 1% cost on genuine DV names.
+**How good is the LLM fallback?** `analyses/evaluate_llm_mapping.py` replays the LLM step with each curated mapping hidden (leave-alias-out). With the local Gemma-4-E2B model and the plausibility check on, it found on real dataset columns:
+
+- **With the old fuzzy shortlist:** 25% of accepted LLM mappings are correct.
+- **With definition retrieval:** 63% are correct.
+- **Effect of the check:** non-DV columns mapped to a DV drop from 41% to 5–29%, at about 1% cost on genuine DV names.
 
 Treat LLM-deduced rows as provisional. `multi_study_analysis.py --exclude-llm-deduced` writes the `*_llm_excluded` sensitivity outputs that drop them. Details and further results are in [`docs/research_agenda.md`](docs/research_agenda.md).
 
@@ -377,6 +380,7 @@ Datasets are processed in parallel (`--workers`, see above); a run with `--worke
       ...  # download files for source["location"] into target
       return target, record_id
   ```
+- **Negative answer codes**: LimeSurvey exports negative scale points as `neg1`, `neg2`, …; in questionnaire/results tables these are recoded to −1, −2, … (counted in `-quality.json` as `negative_answer_codes_recoded`). Before this, numeric coercion silently dropped every negative answer.
 - **Text-labelled responses**: if a dataset stores Likert answers as labels ("Rather agree"), declare the codes once in its mapping YAML under `value_labels:` (columns + label → number; see `schemas/psych_conflict_handling_mapping.yaml`). Cells are recoded before standardization; labels that are not declared become missing and are counted in the dataset's `-quality.json` (`value_labels_applied`). Without this, such a dataset contributes no numeric DV.
 - **Item-level DVs**: name item DVs `<construct id>_item_NN` (e.g. `perceived_safety_item_01`) or declare `subitem_of: <construct id>` in the schema entry. The causal analysis then drops the items whenever their construct is present, so item → scale edges cannot appear in the DAG.
 

@@ -35,6 +35,15 @@ Extension points: dataset types (and their schema family, `llm_deduction`, `item
 
 Column profiles are computed in the worker that loaded the data. The parent process only sees the surviving candidate columns. Rejections are aggregated into `llm_rejected_suggestions.json`, and the rules version is recorded in `run_summary.json`. `analyses/evaluate_llm_mapping.py` measures the layer against curated mappings (leave-alias-out).
 
+## Candidate retrieval for the LLM
+`scripts/dv_retrieval.py` ranks canonical DVs for an unmapped column by TF-IDF similarity to their definitions in `standard_dv_mapping.yaml`. The LLM then chooses among the top 8. The fuzzy alias score is still used to decide whether to ask the LLM at all. `--llm-shortlist fuzzy` switches back to alias-string candidates.
+
+## Response recoding before standardization
+Before any numeric step, `_process_dataset` applies two recodings (`scripts/value_labels.py`), and every recoded cell is counted in the dataset's `-quality.json`:
+
+1. text labels declared under `value_labels` in the repository mapping;
+2. for survey-like tables, LimeSurvey `negN` answer codes.
+
 ## Validation of the statistics
 `tests/test_meta_analysis_reference.py` checks DerSimonian-Laird pooling, REML, Egger's regression test, trim-and-fill (L0/R0, FE/DL) and Hartung-Knapp-Sidik-Jonkman intervals against R's `metafor` 5.2.1. It uses two published datasets (Hackshaw 1998; Colditz et al. 1994), stored with metafor's results in `tests/fixtures/metafor_reference.json`. `analyses/multiverse_analysis.py` quantifies how much pooled estimates depend on harmonization choices.
 

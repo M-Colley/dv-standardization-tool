@@ -22,6 +22,7 @@ dataset's ``-quality.json`` rather than silently guessed.
 
 from __future__ import annotations
 
+import re
 from typing import Any, Iterable
 
 import pandas as pd
@@ -67,4 +68,42 @@ def apply_value_labels(
     return out, report
 
 
-__all__ = ["apply_value_labels"]
+# LimeSurvey answer codes cannot contain "-", so negative scale points are
+# exported as "neg1", "neg2", ... (e.g. a -2..+2 acceptance item). Coercing such
+# a column with pd.to_numeric silently drops every negative answer.
+_NEGATIVE_ANSWER_CODE = re.compile(r"^neg(\d+(?:\.\d+)?)$", re.IGNORECASE)
+MIN_NUMERIC_SHARE_AFTER_RECODING = 0.9
+
+
+def recode_negative_answer_codes(df: pd.DataFrame) -> tuple[pd.DataFrame, dict[str, int]]:
+    """Turn LimeSurvey ``negN`` answer codes into ``-N``.
+
+    Only text columns that contain at least one such code and become at least
+    90% numeric after recoding are converted, so free-text columns are left
+    alone. Returns the frame and ``{column: n_codes_recoded}``.
+    """
+    report: dict[str, int] = {}
+    out = df
+    for position, column in enumerate(df.columns):
+        series = df.iloc[:, position]
+        if not (pd.api.types.is_object_dtype(series.dtype) or pd.api.types.is_string_dtype(series.dtype)):
+            continue
+        text = series.dropna().astype(str).str.strip()
+        codes = text.str.extract(_NEGATIVE_ANSWER_CODE, expand=False)
+        n_codes = int(codes.notna().sum())
+        if not n_codes:
+            continue
+        recoded_text = text.where(codes.isna(), "-" + codes)
+        numeric = pd.to_numeric(recoded_text, errors="coerce")
+        if numeric.notna().mean() < MIN_NUMERIC_SHARE_AFTER_RECODING:
+            continue
+        if out is df:
+            out = df.copy()
+        values = pd.Series(float("nan"), index=series.index)
+        values.loc[numeric.index] = numeric
+        out.isetitem(position, values)
+        report[str(column)] = n_codes
+    return out, report
+
+
+__all__ = ["apply_value_labels", "recode_negative_answer_codes"]

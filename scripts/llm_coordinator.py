@@ -129,11 +129,14 @@ def _augment_mapping_with_llm_deductions(
     inference_cache: dict[str, str | None] | None = None,
     repository_context: str | None = None,
     min_attempt_score: float = 65.0,
+    shortlist: str = "definition",
 ) -> dict[str, str]:
     """Attempt local-LLM alias deduction for unknown columns.
 
     This is especially useful for repositories that do not provide a
-    custom mapping YAML file. ``inference_cache`` is keyed by the
+    custom mapping YAML file. ``shortlist`` selects how candidate DVs are retrieved:
+    ``"fuzzy"`` (alias-string similarity) or ``"definition"`` (TF-IDF over DV
+    definitions). ``inference_cache`` is keyed by the
     lowercased alias and is populated so subsequent datasets in the same
     source skip the LLM call.
     """
@@ -147,6 +150,12 @@ def _augment_mapping_with_llm_deductions(
             inferred = inference_cache[alias_key]
         else:
             candidate_shortlist, top_score = _select_llm_candidate_shortlist(mapping, str(alias))
+            if shortlist == "definition" and candidate_shortlist:
+                # Same attempt gate; candidates ranked by DV definitions instead
+                # of alias strings (see scripts/dv_retrieval.py).
+                from scripts.dv_retrieval import definition_shortlist
+
+                candidate_shortlist = definition_shortlist(str(alias), max_candidates=len(candidate_shortlist))
             if not candidate_shortlist or top_score < min_attempt_score:
                 inferred = None
                 if inference_cache is not None:

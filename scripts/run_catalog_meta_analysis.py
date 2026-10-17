@@ -361,6 +361,7 @@ def run_catalog_meta_analysis(
     debug_mappings: bool = False,
     workers: int = 1,
     llm_plausibility_check: bool = True,
+    llm_shortlist: str = "definition",
 ) -> dict[str, Any]:
     catalog_path = Path(catalog_path)
     output_dir = Path(output_dir)
@@ -394,6 +395,7 @@ def run_catalog_meta_analysis(
         debug_mappings=debug_mappings,
         workers=workers,
         llm_plausibility_check=llm_plausibility_check,
+        llm_shortlist=llm_shortlist,
     )
 
     batch_results = pd.DataFrame(batch_summary.get("results", []))
@@ -592,6 +594,12 @@ def main() -> None:
         action="store_false",
         help="Disable the LLM plausibility check (schemas/llm_plausibility_rules.yaml); for ablation only.",
     )
+    parser.add_argument(
+        "--llm-shortlist",
+        choices=["fuzzy", "definition"],
+        default="definition",
+        help="Candidate retrieval for the LLM (default: %(default)s).",
+    )
     args = parser.parse_args()
 
     preferred_models = [item.strip() for item in args.llm_models.split(",") if item.strip()] or None
@@ -611,6 +619,7 @@ def main() -> None:
         debug_mappings=args.debug_mappings,
         workers=args.workers,
         llm_plausibility_check=args.llm_plausibility_check,
+        llm_shortlist=args.llm_shortlist,
     )
 
     print(json.dumps(summary, indent=2))

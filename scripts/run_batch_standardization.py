@@ -156,7 +156,7 @@ from scripts.item_composition import (
 )
 from scripts.llm_utils import collect_repository_context, deduce_standard_name_with_local_llm
 from scripts.llm_plausibility import load_rules as load_plausibility_rules
-from scripts.value_labels import apply_value_labels
+from scripts.value_labels import apply_value_labels, recode_negative_answer_codes
 from scripts.llm_plausibility import (
     ColumnProfile,
     canonical_ranges_from_schema,
@@ -1558,6 +1558,11 @@ def _process_dataset(
         # Text-labelled responses declared in the repository mapping become
         # numbers before anything numeric (profiles, summaries) looks at them.
         original_df, value_label_report = apply_value_labels(original_df, resolved.value_labels)
+        answer_code_report: dict[str, int] = {}
+        if dataset_type in llm_eligible_dataset_types():
+            # Survey-like tables only: LimeSurvey exports "neg1"/"neg2" for
+            # negative scale points, which numeric coercion would drop.
+            original_df, answer_code_report = recode_negative_answer_codes(original_df)
         source_mapping = resolved.mapping
         dataset_mapping = source_mapping
         unknown_before_llm = _filter_llm_eligible_columns(
@@ -1694,6 +1699,8 @@ def _process_dataset(
         )
         if value_label_report:
             quality["value_labels_applied"] = value_label_report
+        if answer_code_report:
+            quality["negative_answer_codes_recoded"] = answer_code_report
         with open(source.output_dir / f"{artifact_prefix}-quality.json", "w", encoding="utf-8") as f:
             json.dump(quality, f, indent=2)
 
@@ -1752,8 +1759,15 @@ def default_worker_count() -> int:
 class _SourceLlmState:
     """Per-source LLM caches; lives in the parent process only."""
 
-    def __init__(self, source: dict[str, Any], base_dir: Path, preferred_models: list[str] | None) -> None:
+    def __init__(
+        self,
+        source: dict[str, Any],
+        base_dir: Path,
+        preferred_models: list[str] | None,
+        shortlist: str = "definition",
+    ) -> None:
         self._source = source
+        self._shortlist = shortlist
         self._base_dir = base_dir
         self._preferred_models = preferred_models
         self._inference_cache: dict[str, str | None] = {}
@@ -1809,6 +1823,7 @@ class _SourceLlmState:
             preferred_models=self._preferred_models,
             inference_cache=self._inference_cache,
             repository_context=self._repository_context,
+            shortlist=self._shortlist,
         )
         delta = {
             alias: canonical
@@ -1978,13 +1993,16 @@ def run_batch(
     debug_mappings: bool = False,
     workers: int = 1,
     llm_plausibility_check: bool = True,
+    llm_shortlist: str = "definition",
 ) -> dict[str, Any]:
     """Standardize every source in the manifest and write run-level artefacts.
 
     ``llm_plausibility_check`` screens LLM input and output with
     ``schemas/llm_plausibility_rules.yaml`` (see ``scripts/llm_plausibility``);
     rejections are written to ``llm_rejected_suggestions.json``. Turn it off
-    only to measure what the check changes.
+    only to measure what the check changes. ``llm_shortlist`` chooses how
+    candidate DVs are retrieved for the LLM (``"fuzzy"`` alias strings or
+    ``"definition"`` TF-IDF over DV definitions, ``scripts/dv_retrieval.py``).
 
     ``workers > 1`` processes each source's datasets in that many worker
     processes. Outputs are aggregated in file order, so they match a
@@ -2163,7 +2181,7 @@ def run_batch(
                     entry.tasks,
                     families,
                     _MappingResolver(families, entry.source_job.overrides_standard),
-                    _SourceLlmState(source, entry.source_job.base_dir, entry.preferred_models),
+                    _SourceLlmState(source, entry.source_job.base_dir, entry.preferred_models, llm_shortlist),
                     pool,
                     progress_desc=f"Datasets ({source_id})",
                     futures=entry.futures,
@@ -2359,6 +2377,7 @@ def run_batch(
         "llm_deductions_log": str(llm_log_path),
         "llm_deductions_json": str(llm_json_path),
         "llm_plausibility_check": llm_plausibility_check,
+        "llm_shortlist": llm_shortlist,
         "llm_plausibility_rules_version": load_plausibility_rules().version if llm_plausibility_check else None,
         "llm_rejected_count": len(llm_rejections),
         "llm_rejected_by_reason": dict(sorted(
@@ -2462,6 +2481,14 @@ def main() -> None:
             "(disables schemas/llm_plausibility_rules.yaml; for ablation only)."
         ),
     )
+    parser.add_argument(
+        "--llm-shortlist",
+        choices=["fuzzy", "definition"],
+        default="definition",
+        help="How candidate DVs are retrieved for the LLM: TF-IDF over DV definitions (definition; "
+             "default, more than doubles mapping precision in analyses/evaluate_llm_mapping.py) or "
+             "alias-string similarity (fuzzy, the earlier behaviour).",
+    )
     args = parser.parse_args()
     if args.workers < 1:
         parser.error("--workers must be >= 1")
@@ -2486,6 +2513,7 @@ def main() -> None:
         debug_mappings=args.debug_mappings,
         workers=args.workers,
         llm_plausibility_check=args.llm_plausibility_check,
+        llm_shortlist=args.llm_shortlist,
     )
 
     if args.snapshot_manifest:

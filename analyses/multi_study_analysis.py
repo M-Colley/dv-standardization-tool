@@ -512,6 +512,26 @@ def _build_construct_subitems() -> dict[str, list[str]]:
     return mapping
 
 
+def _aoa_scale_midpoint(items: list[pd.Series]) -> float:
+    """Midpoint of the 5-point coding used for AOA items: 0 for -2..+2, 3 for 1..5."""
+    values = pd.concat(items, ignore_index=True).dropna()
+    if values.empty:
+        return 3.0
+    lo, hi = float(values.min()), float(values.max())
+    if lo < 0:
+        return 0.0
+    if lo >= 1:
+        return 3.0
+    if hi <= 2:
+        # Only 0..2 observed: cannot tell -2..+2 (no negative answers) from
+        # 0..4; the -2..+2 export is the one seen in practice.
+        logging.getLogger(__name__).warning(
+            "AOA items span %.0f..%.0f; assuming -2..+2 coding (midpoint 0)", lo, hi
+        )
+        return 0.0
+    return 2.0  # 0..4 coding
+
+
 def add_derived_scale_scores(df: pd.DataFrame) -> pd.DataFrame:
     """Add TLX/SUS/AOA derived scores when all required mapped item columns are present.
 
@@ -551,22 +571,28 @@ def add_derived_scale_scores(df: pd.DataFrame) -> pd.DataFrame:
             + (5 - sus_items[9])
         ) * 2.5
 
-    # AOA: usefulness and satisfying subscales with reverse-coded items
+    # AOA (Van der Laan acceptance): usefulness and satisfying subscales.
+    # Items are stored as the answer *position* on a 5-point semantic
+    # differential; items 3, 6 and 8 have the positive pole on the other side.
+    # Each item is centred on the scale midpoint (mid - x, or x - mid for the
+    # mirrored items), so scores are -2..+2 whether a study codes positions
+    # 1..5 (midpoint 3) or -2..+2 (midpoint 0, e.g. LimeSurvey "neg2".."2").
     spec = _DERIVED_SCALES["aoa_usefulness"]
     aoa_items = [_resolve_series(out, cands) for cands in spec["item_candidates"]]
     if all(item is not None for item in aoa_items):
+        mid = _aoa_scale_midpoint(aoa_items)
         out["aoa_usefulness"] = (
-            (3 - aoa_items[0])
-            + (-3 + aoa_items[2])
-            + (3 - aoa_items[4])
-            + (3 - aoa_items[6])
-            + (3 - aoa_items[8])
+            (mid - aoa_items[0])
+            + (aoa_items[2] - mid)
+            + (mid - aoa_items[4])
+            + (mid - aoa_items[6])
+            + (mid - aoa_items[8])
         ) / 5.0
         out["aoa_satisfying"] = (
-            (3 - aoa_items[1])
-            + (3 - aoa_items[3])
-            + (-3 + aoa_items[5])
-            + (-3 + aoa_items[7])
+            (mid - aoa_items[1])
+            + (mid - aoa_items[3])
+            + (aoa_items[5] - mid)
+            + (aoa_items[7] - mid)
         ) / 4.0
 
     return out
@@ -2315,6 +2341,8 @@ def _pool_standardized_shared_dvs(
             continue
         _lingam_logger.info("  Study '%s': %d rows × %d DVs (%s)",
                             study_name, len(z), len(z.columns), list(z.columns))
+        # Provenance only: lets callers report which studies a fit rests on.
+        z[STUDY_COLUMN] = study_name
         pooled_blocks.append(z)
 
     if not pooled_blocks:
@@ -2331,6 +2359,9 @@ def _pool_standardized_shared_dvs(
     if len(usable_dvs) < 2:
         return None
     return pooled, usable_dvs
+
+
+STUDY_COLUMN = "_study"
 
 
 def discover_causal_structure(
@@ -2474,10 +2505,19 @@ def discover_causal_structure(
                     "coefficient": adj[i, j],
                 })
 
+    # Which studies the fitted rows come from: a "cross-study" DAG fit on a
+    # single study's rows is a within-study result and must be reported so.
+    if used_method == "synthetic_cholesky":
+        source_rows = sub_pooled[usable_dvs].notna().any(axis=1)
+        studies_used = sorted(pooled.loc[source_rows[source_rows].index, STUDY_COLUMN].unique())
+    else:
+        studies_used = sorted(pooled.loc[X.index, STUDY_COLUMN].unique())
+
     return {
         "adjacency_matrix": adjacency,
         "causal_order": causal_order,
         "edges": pd.DataFrame(edges) if edges else pd.DataFrame(columns=["from", "to", "coefficient"]),
+        "studies_used": [str(s) for s in studies_used],
         "n_observations": len(X),
         "n_dvs": len(usable_dvs),
         "dvs_used": usable_dvs,
@@ -3154,6 +3194,7 @@ def main() -> None:
             "used_method": causal_result.get("used_method"),
             "synthetic_fallback": bool(causal_result.get("synthetic_fallback", False)),
             "n_complete_rows": int(causal_result.get("n_complete_rows", 0)),
+            "studies_used": causal_result.get("studies_used", []),
         }
 
     # Stability checks run on the exact observations the DAG was fit on.

@@ -86,5 +86,51 @@ class BatchValueLabelTests(unittest.TestCase):
             self.assertEqual(quality["value_labels_applied"]["Q1"]["recoded"], 4)
 
 
+
+class NegativeAnswerCodeTests(unittest.TestCase):
+    def test_limesurvey_negative_codes_become_negative_numbers(self):
+        from scripts.value_labels import recode_negative_answer_codes
+
+        df = pd.DataFrame({
+            "aoa1": ["1", "neg2", "0", None, "NEG1"],
+            "comment": ["neg1 is bad", "fine", "ok", "x", "y"],
+        })
+        out, report = recode_negative_answer_codes(df)
+        self.assertEqual(out["aoa1"].tolist()[:3], [1.0, -2.0, 0.0])
+        self.assertEqual(out["aoa1"].iloc[4], -1.0)
+        self.assertEqual(report, {"aoa1": 2})
+        self.assertEqual(out["comment"].tolist(), df["comment"].tolist())
+
+    def test_batch_keeps_negative_answers(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            tmp = Path(tmpdir)
+            data = tmp / "src"
+            data.mkdir()
+            pd.DataFrame({"trust_rating": ["2", "neg2", "neg1", "1"]}).to_csv(data / "s.csv", index=False)
+            (tmp / "manifest.yaml").write_text(yaml.safe_dump({"sources": [{
+                "source_id": "s", "source_type": "local_path", "location": str(data), "include_globs": ["*.csv"],
+            }]}), encoding="utf-8")
+            run_batch(tmp / "manifest.yaml", tmp / "out", SCHEMA, llm_deduction_enabled=False,
+                      cache_root=tmp / "cache")
+            meta = pd.read_csv(tmp / "out" / "meta_view.csv")
+            row = meta[meta["canonical_dv"] == "trust_rating"].iloc[0]
+            self.assertEqual(row["n"], 4)
+            self.assertAlmostEqual(row["mean"], 0.0)
+
+
+class AoaCodingTests(unittest.TestCase):
+    def test_aoa_scores_do_not_depend_on_position_coding(self):
+        sys.path.insert(0, str(REPO_ROOT))
+        from analyses.multi_study_analysis import add_derived_scale_scores
+
+        positions = pd.DataFrame({f"aoa{i}": [1, 2, 3, 4, 5, 2] for i in range(1, 10)})
+        centred = positions - 3  # the same answers exported as -2..+2
+        a = add_derived_scale_scores(positions)
+        b = add_derived_scale_scores(centred)
+        pd.testing.assert_series_equal(a["aoa_usefulness"], b["aoa_usefulness"])
+        pd.testing.assert_series_equal(a["aoa_satisfying"], b["aoa_satisfying"])
+        self.assertTrue(a["aoa_usefulness"].between(-2, 2).all())
+
+
 if __name__ == "__main__":
     unittest.main()

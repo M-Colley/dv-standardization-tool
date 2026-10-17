@@ -110,6 +110,11 @@ DV_LABEL = {
     "situational_awareness": "Situational Aware.",
     "AOA_USEFULNESS": "AOA Usefulness", "AOA_SATISFYING": "AOA Satisfying",
     "ueq_hedonic": "UEQ Hedonic", "ueq_pragmatic": "UEQ Pragmatic",
+    "ueq_dependability": "UEQ Dependab.", "sts_ad_trust": "STS-AD Trust", "jian_trust": "Jian Trust",
+    "sart_understanding": "SART Underst.", "sart_total": "SART Total",
+    "tia_understanding_predictability": "TiA Underst./Pred.", "tia_trust_in_automation": "TiA Trust",
+    "tia_intention_of_developers": "TiA Intention Dev.", "tia_reliability_competence": "TiA Reliab./Comp.",
+    "acceptance_rating": "Acceptance",
 }
 
 
@@ -267,7 +272,9 @@ def fig_presence():
     ax.set_ylim(0, nS)
     ax.invert_yaxis()
     ax.set_xticks(np.arange(nD) + 0.5)
-    ax.set_xticklabels([dv_label(d) for d in dv_order], rotation=90, fontsize=5.6)
+    # Shrink labels as the DV vocabulary grows so neighbouring labels never touch.
+    label_size = max(3.4, min(5.6, 400 / max(nD, 1)))
+    ax.set_xticklabels([dv_label(d) for d in dv_order], rotation=90, fontsize=label_size)
     ax.set_yticks(np.arange(nS) + 0.5)
     ax.set_yticklabels([study_label(s) for s in study_order], fontsize=7)
     ax.set_xticks(np.arange(nD + 1), minor=True)
@@ -328,7 +335,7 @@ def fig_presence():
     else:
         no_dv_note = "."
     # Sit below the longest rotated DV label (≈0.45 em per character at 5.6 pt).
-    label_height_in = max(len(dv_label(d)) for d in dv_order) * 5.6 * 0.45 / 72
+    label_height_in = max(len(dv_label(d)) for d in dv_order) * label_size * 0.45 / 72
     caption_y = -0.04 - label_height_in / fig.get_figheight()
     fig.text(0.045, caption_y,
              f"After schema-driven standardization, mean pairwise DV overlap is only "
@@ -523,16 +530,24 @@ def fig_causal():
         Line2D([0], [0], color=RED, lw=2.4, label="negative effect"),
     ]
     ax.legend(handles=legend, loc="upper right", fontsize=6.5, bbox_to_anchor=(1.0, 1.02))
-    ax.set_title("Cross-study causal structure among standardized DVs",
+    title_scope = "Cross-study" if len(causal.get("studies_used") or []) != 1 else "Within-study"
+    ax.set_title(f"{title_scope} causal structure among standardized DVs",
                  x=0.0, ha="left", fontsize=9, loc="left", pad=2)
     method = {
         "complete_case": "complete-case",
         "clique_complete_case": "complete-case on the largest co-observed DV set",
         "synthetic_cholesky": "SYNTHETIC rows from a pairwise correlation matrix",
     }.get(causal.get("used_method"), str(causal.get("used_method")))
+    studies_used = causal.get("studies_used") or []
+    if len(studies_used) == 1:
+        scope = f"all rows from one study ({study_label(studies_used[0])}), i.e. a within-study DAG"
+    elif studies_used:
+        scope = f"{len(studies_used)} studies"
+    else:
+        scope = "studies not recorded"
     fig.text(0.045, 0.02,
-             f"DirectLiNGAM on pooled within-study z-scores ({method}; "
-             f"n = {causal['n_observations']:,} obs). Edge weights are structural coefficients.",
+             f"DirectLiNGAM on within-study z-scores ({method}; n = {causal['n_observations']:,} obs; "
+             f"{scope}). Edge weights are structural coefficients.",
              ha="left", va="bottom", fontsize=6.2, color="#777777")
     save(fig, "fig5_causal_dag")
 
