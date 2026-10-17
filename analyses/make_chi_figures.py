@@ -448,6 +448,9 @@ def fig_forest(dv="mental_demand", fname="fig4_forest_mental_demand"):
     pstr = "p < 0.001" if qp < 0.001 else f"p = {qp:.3f}"
     het = (f"Random-effects (DerSimonian–Laird), k = {k} studies.   "
            f"Heterogeneity: I² = {i2:.1f}%,  τ² = {tau2:.2f},  Q({k-1}) = {q:.0f}, {pstr}")
+    if pd.notna(mrow.get("hksj_ci95_low")):
+        het += (f"\nHartung–Knapp–Sidik–Jonkman 95% CI (t, {k - 1} df): "
+                f"[{mrow['hksj_ci95_low']:.1f}, {mrow['hksj_ci95_high']:.1f}]")
     fig.text(0.5, -0.015, het, ha="center", va="top", fontsize=6.4, color="#555555",
              family="monospace")
     fig.suptitle("Evidence synthesis unlocked by standardization: NASA-TLX Mental Demand",

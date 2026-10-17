@@ -1,5 +1,7 @@
 # Future Plans & Integration Roadmap
 
+> The research-oriented roadmap — benchmark, retrieval-augmented and conformal LLM mapping, instrument recognition, the harmonization multiverse, invariant causal prediction, and a curation user study — is in [`research_agenda.md`](research_agenda.md).
+
 This document outlines the forward-looking roadmap for enhancing the DV Standardization Tool. These potential improvements aim to broaden the tool's applicability, improve usability, and align with best practices in responsible HCI research, reproducibility, and open science infrastructure.
 
 ## LLM Integration

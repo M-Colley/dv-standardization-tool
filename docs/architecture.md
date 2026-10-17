@@ -27,8 +27,16 @@ At every boundary the pipeline records *why* each value exists:
 
 Extension points: dataset types (and their schema family, `llm_deduction`, `item_composition`) live in `schemas/dataset_type_profiles.yaml`; source types are registered with `@register_source_type("<name>")` in `scripts/run_batch_standardization.py`.
 
+## LLM plausibility layer
+`scripts/llm_plausibility.py` screens what the local LLM sees and what it may return, using the rules in `schemas/llm_plausibility_rules.yaml`.
+
+- **Before the call:** name rules (demographics, identifiers, seeds, timestamps, survey timings, coordinates, conditions, rankings) and a numeric-data rule.
+- **After the call:** a range rule that compares observed values with the canonical DV's range and standard response scales.
+
+Column profiles are computed in the worker that loaded the data. The parent process only sees the surviving candidate columns. Rejections are aggregated into `llm_rejected_suggestions.json`, and the rules version is recorded in `run_summary.json`. `analyses/evaluate_llm_mapping.py` measures the layer against curated mappings (leave-alias-out).
+
 ## Validation of the statistics
-`tests/test_meta_analysis_reference.py` checks DerSimonian-Laird pooling, REML, Egger's regression test and trim-and-fill (L0/R0, FE/DL) against R's `metafor` 5.2.1. It uses two published datasets (Hackshaw 1998; Colditz et al. 1994), stored with metafor's results in `tests/fixtures/metafor_reference.json`.
+`tests/test_meta_analysis_reference.py` checks DerSimonian-Laird pooling, REML, Egger's regression test, trim-and-fill (L0/R0, FE/DL) and Hartung-Knapp-Sidik-Jonkman intervals against R's `metafor` 5.2.1. It uses two published datasets (Hackshaw 1998; Colditz et al. 1994), stored with metafor's results in `tests/fixtures/metafor_reference.json`. `analyses/multiverse_analysis.py` quantifies how much pooled estimates depend on harmonization choices.
 
 ## Technologies Used
 - YAML for schema and manifest representation

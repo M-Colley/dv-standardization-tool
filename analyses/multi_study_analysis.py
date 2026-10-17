@@ -68,6 +68,9 @@ META_ANALYSIS_COLUMNS = [
     "random_effects_se",
     "ci95_low",
     "ci95_high",
+    "hksj_se",
+    "hksj_ci95_low",
+    "hksj_ci95_high",
     "prediction_interval_low",
     "prediction_interval_high",
     "heterogeneity_q",
@@ -1068,6 +1071,15 @@ def _run_meta_for_dv(
         random_mean = float(np.sum(w_random * means) / np.sum(w_random))
         random_se = float(np.sqrt(1.0 / np.sum(w_random)))
 
+    # Hartung-Knapp-Sidik-Jonkman small-sample interval (metafor test="knha"):
+    # the SE is rescaled by the weighted residual variance of the pooled model
+    # and the interval uses t(k-1). With the k = 2-3 studies typical here the
+    # normal-theory interval above is far too narrow (IntHout et al., 2014).
+    w_pooled = w_fixed if k < MIN_K_FOR_RANDOM_EFFECTS else w_random
+    q_hk = float(np.sum(w_pooled * np.square(means - random_mean))) / df_q
+    hksj_se = float(np.sqrt(q_hk / np.sum(w_pooled)))
+    hksj_half = float(stats.t.ppf(0.975, df_q)) * hksj_se
+
     # Heterogeneity
     i2 = max(0.0, (q - df_q) / q) * 100 if q > 0 else 0.0
     q_pvalue = float(stats.chi2.sf(q, df_q)) if df_q > 0 else np.nan
@@ -1112,6 +1124,9 @@ def _run_meta_for_dv(
         "random_effects_se": random_se,
         "ci95_low": random_mean - 1.96 * random_se,
         "ci95_high": random_mean + 1.96 * random_se,
+        "hksj_se": hksj_se,
+        "hksj_ci95_low": random_mean - hksj_half,
+        "hksj_ci95_high": random_mean + hksj_half,
         "prediction_interval_low": pi_low,
         "prediction_interval_high": pi_high,
         "heterogeneity_q": q,
@@ -2096,6 +2111,11 @@ def save_forest_plot(
         f"\u03C4\u00B2 = {tau2_val:.4f}, "
         f"Q({k - 1}) = {q_val:.2f}, {p_str}"
     )
+    if pd.notna(meta_row.get("hksj_ci95_low")):
+        het_text += (
+            f"\nHartung-Knapp-Sidik-Jonkman 95% CI: "
+            f"[{meta_row['hksj_ci95_low']:.2f}, {meta_row['hksj_ci95_high']:.2f}]"
+        )
     fig.text(
         0.02, -0.01, het_text,
         fontsize=8, fontfamily="monospace", va="top", ha="left",

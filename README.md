@@ -153,6 +153,21 @@ Per dataset, the runner does this in order:
 
 The LLM is not used for blocked admin fields such as `UserID` or `ConditionID`, and it is also skipped for metadata/process columns and non-DV dataset types such as object-detection files.
 
+**Plausibility check.** Before and after each LLM call, `scripts/llm_plausibility.py` applies the rules in `schemas/llm_plausibility_rules.yaml`:
+
+- columns whose names mark them as demographics, identifiers, random seeds, timestamps, survey timings, coordinates, experimental conditions or rankings are never sent to the model;
+- columns that are not at least 90% numeric are never sent;
+- a suggestion is rejected when the observed values fit neither the canonical DV's range nor a standard response scale.
+
+Every rejection, with its reason, is written to `llm_rejected_suggestions.json` and listed in `llm_deductions.log`. Use `--no-llm-plausibility-check` only for ablation.
+
+**How good is the LLM fallback?** `analyses/evaluate_llm_mapping.py` replays the LLM step with each curated mapping hidden (leave-alias-out). With the local Gemma-4-E2B model it found:
+
+- **Real dataset columns:** only about 1 in 4 accepted LLM mappings is correct.
+- **Effect of the check:** non-DV columns mapped to a DV drop from 41% to 5–24%, at about 1% cost on genuine DV names.
+
+Treat LLM-deduced rows as provisional. `multi_study_analysis.py --exclude-llm-deduced` writes the `*_llm_excluded` sensitivity outputs that drop them. Details and further results are in [`docs/research_agenda.md`](docs/research_agenda.md).
+
 Use the provided manifest example as a template:
 
 ```bash
@@ -338,6 +353,16 @@ The included `sources_manifest_example.yaml` is preconfigured for:
 7. Outputs include standardized files, quality sidecars, an aggregated meta-view, `unknown_alias_summary.json`, `mapping_debug_summary.json`, and source-level availability statuses when a catalog URL is not publicly accessible (`not_available`, `login_required`, `access_restricted`, or `temporarily_unavailable` for 502/503/504 outages such as OSF maintenance windows).
 
 Datasets are processed in parallel (`--workers`, see above); a run with `--workers 1` produces the same files.
+
+### Robustness analyses
+
+- `analyses/multi_study_analysis.py` reports Hartung-Knapp-Sidik-Jonkman intervals (`hksj_ci95_low/high`) next to the Wald intervals; with the k = 2–3 studies typical here, Wald intervals are far too narrow. All meta-analytic estimators (DL, REML, Egger, trim-and-fill, HKSJ) are validated against R's `metafor` in `tests/test_meta_analysis_reference.py`.
+- `analyses/multiverse_analysis.py` re-runs the meta-analysis across every combination of 5 choices (32 specifications per DV) and writes specification curves:
+  - LLM mappings included or excluded;
+  - scale harmonization on or off;
+  - observation- or participant-level n;
+  - DL or REML;
+  - Wald or HKSJ intervals.
 
 ### Extending the batch runner
 

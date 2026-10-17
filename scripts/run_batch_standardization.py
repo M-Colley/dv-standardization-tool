@@ -155,6 +155,14 @@ from scripts.item_composition import (
     strip_item_suffix,
 )
 from scripts.llm_utils import collect_repository_context, deduce_standard_name_with_local_llm
+from scripts.llm_plausibility import load_rules as load_plausibility_rules
+from scripts.llm_plausibility import (
+    ColumnProfile,
+    canonical_ranges_from_schema,
+    check_llm_suggestion,
+    profile_columns,
+    screen_llm_candidates,
+)
 # llm_coordinator owns the alias-scoring, candidate-shortlisting, and
 # LLM-deduction aggregation helpers. Re-exported here so existing tests
 # (e.g. ``from scripts.run_batch_standardization import _augment_mapping_with_llm_deductions``)
@@ -1300,6 +1308,8 @@ class SchemaFamilies:
     paths: dict[str, str | None]
     aliases_ci: dict[str, set[str]]
     canonical_domain_lookup: dict[str, str]
+    # Canonical value range per DV id; used to reject implausible LLM suggestions.
+    canonical_ranges: dict[str, tuple[float, float]] = field(default_factory=dict)
 
     @classmethod
     def load(cls, dv_schema_path: Path) -> "SchemaFamilies":
@@ -1317,7 +1327,8 @@ class SchemaFamilies:
 
         # The DV family comes from the run's --schema (which may be a custom
         # file) but is registered under the standard filename profiles use.
-        dv_mapping = load_schema(str(dv_schema_path))["mapping"]
+        dv_schema = load_schema(str(dv_schema_path))
+        dv_mapping = dv_schema["mapping"]
         mappings[DV_SCHEMA_FILENAME] = dv_mapping
         paths[MAPPING_DOMAIN_DV] = str(dv_schema_path)
         aliases_ci[MAPPING_DOMAIN_DV] = {
@@ -1325,7 +1336,10 @@ class SchemaFamilies:
         }
         for canonical_name in dv_mapping.values():
             canonical_domain_lookup[str(canonical_name)] = MAPPING_DOMAIN_DV
-        return cls(mappings, paths, aliases_ci, canonical_domain_lookup)
+        return cls(
+            mappings, paths, aliases_ci, canonical_domain_lookup,
+            canonical_ranges=canonical_ranges_from_schema(dv_schema.get("schema") or {}),
+        )
 
     def mapping_for_schema(self, schema_filename: str) -> dict[str, str]:
         mapping = self.mappings.get(schema_filename)
@@ -1443,6 +1457,7 @@ class _SourceJob:
     overrides_standard: bool
     llm_enabled: bool
     debug_mappings: bool
+    llm_plausibility_check: bool = True
 
 
 @dataclass
@@ -1470,6 +1485,7 @@ class _DatasetOutcome:
     meta_rows: list[dict[str, Any]] = field(default_factory=list)
     quality: dict[str, Any] | None = None
     composite_records: list[dict[str, Any]] = field(default_factory=list)
+    llm_rejections: list[dict[str, Any]] = field(default_factory=list)
     error: str | None = None
 
 
@@ -1539,13 +1555,22 @@ def _process_dataset(
             identify_unmapped_columns(raw_columns, source_mapping)
         )
 
+        # Columns the LLM may see. With the plausibility check on, columns whose
+        # name or values rule them out as DVs are dropped (and logged) first.
+        llm_candidates: list[str] = []
+        llm_rejections: list[dict[str, Any]] = []
+        profiles: dict[str, ColumnProfile] = {}
+        if source.llm_enabled and dataset_type in llm_eligible_dataset_types() and unknown_before_llm:
+            if source.llm_plausibility_check:
+                profiles = profile_columns(original_df, unknown_before_llm)
+                llm_candidates, llm_rejections = screen_llm_candidates(
+                    unknown_before_llm, raw_columns, profiles
+                )
+            else:
+                llm_candidates = list(unknown_before_llm)
+
         llm_delta = task.llm_delta
-        if (
-            llm_delta is None
-            and source.llm_enabled
-            and dataset_type in llm_eligible_dataset_types()
-            and unknown_before_llm
-        ):
+        if llm_delta is None and llm_candidates:
             if llm_resolver is None:
                 return _DatasetOutcome(
                     index=task.index,
@@ -1554,18 +1579,29 @@ def _process_dataset(
                     dataset_type=dataset_type,
                     mapping_path=str(repository_mapping_path) if repository_mapping_path else None,
                     raw_columns=raw_columns,
-                    unknown_before_llm=unknown_before_llm,
+                    unknown_before_llm=llm_candidates,
                 )
-            llm_delta = llm_resolver(resolved, dataset_id, dataset_type, raw_columns, unknown_before_llm)
+            llm_delta = llm_resolver(resolved, dataset_id, dataset_type, raw_columns, llm_candidates)
 
         llm_inferred: list[tuple[str, str]] = []
         if llm_delta is not None:
-            dataset_mapping = {**source_mapping, **llm_delta}
-            for alias in unknown_before_llm:
+            accepted: dict[str, str] = {}
+            for alias in llm_candidates:
                 alias_text = str(alias)
-                inferred = dataset_mapping.get(alias_text) or dataset_mapping.get(alias_text.lower())
-                if inferred:
-                    llm_inferred.append((alias_text, str(inferred)))
+                inferred = llm_delta.get(alias_text) or llm_delta.get(alias_text.lower())
+                if not inferred:
+                    continue
+                if source.llm_plausibility_check:
+                    rejection = check_llm_suggestion(
+                        alias_text, str(inferred), profiles.get(alias_text), families.canonical_ranges
+                    )
+                    if rejection is not None:
+                        llm_rejections.append(rejection)
+                        continue
+                accepted[alias_text] = str(inferred)
+                accepted[alias_text.lower()] = str(inferred)
+                llm_inferred.append((alias_text, str(inferred)))
+            dataset_mapping = {**source_mapping, **accepted}
 
         mapping_debug_records = _build_dataset_mapping_debug_records(
             source_mapping=source_mapping,
@@ -1658,6 +1694,7 @@ def _process_dataset(
             raw_columns=raw_columns,
             unknown_before_llm=unknown_before_llm,
             llm_inferred=llm_inferred,
+            llm_rejections=llm_rejections,
             mapping_debug_records=mapping_debug_records,
             meta_rows=rows,
             quality=quality,
@@ -1726,6 +1763,7 @@ class _SourceLlmState:
         # LLM calls.
         signature = (
             tuple(sorted(str(c).lower() for c in raw_columns)),
+            tuple(sorted(str(c) for c in unknown_before_llm)),
             dataset_type,
             resolved.mapping_path,
         )
@@ -1862,6 +1900,39 @@ def _run_source_datasets(
         progress.close()
 
 
+def _collect_llm_rejection(
+    rejections_by_key: dict[tuple[Any, ...], dict[str, Any]],
+    source_id: str,
+    dataset_id: str,
+    rejection: dict[str, Any],
+) -> None:
+    """Group a plausibility rejection with identical ones from other datasets."""
+    key = (source_id, rejection["alias"], rejection.get("proposed_canonical"), rejection["stage"], rejection["reason"])
+    entry = rejections_by_key.get(key)
+    if entry is None:
+        entry = rejections_by_key[key] = {"source_id": source_id, **rejection, "datasets": []}
+    if dataset_id not in entry["datasets"]:
+        entry["datasets"].append(dataset_id)
+
+
+def _finalize_llm_rejections(rejections_by_key: dict[tuple[Any, ...], dict[str, Any]]) -> list[dict[str, Any]]:
+    entries = [{**entry, "datasets": sorted(entry["datasets"])} for entry in rejections_by_key.values()]
+    return sorted(entries, key=lambda e: (e["source_id"], e["stage"], e["reason"], e["alias"].lower()))
+
+
+def _build_llm_rejection_log_lines(rejections: list[dict[str, Any]]) -> list[str]:
+    if not rejections:
+        return []
+    lines = ["", f"Rejected by the LLM plausibility check ({len(rejections)}):"]
+    for entry in rejections:
+        proposal = f" -> {entry['proposed_canonical']}" if entry.get("proposed_canonical") else ""
+        lines.append(
+            f"[{entry['source_id']}] {entry['alias']}{proposal}: {entry['reason']} "
+            f"({entry['stage']}; datasets: {', '.join(entry['datasets'])})"
+        )
+    return lines
+
+
 def _source_result(
     source_id: str,
     status: str,
@@ -1895,8 +1966,14 @@ def run_batch(
     preferred_models: list[str] | None = None,
     debug_mappings: bool = False,
     workers: int = 1,
+    llm_plausibility_check: bool = True,
 ) -> dict[str, Any]:
     """Standardize every source in the manifest and write run-level artefacts.
+
+    ``llm_plausibility_check`` screens LLM input and output with
+    ``schemas/llm_plausibility_rules.yaml`` (see ``scripts/llm_plausibility``);
+    rejections are written to ``llm_rejected_suggestions.json``. Turn it off
+    only to measure what the check changes.
 
     ``workers > 1`` processes each source's datasets in that many worker
     processes. Outputs are aggregated in file order, so they match a
@@ -1917,6 +1994,7 @@ def run_batch(
     run_results: list[SourceRunResult] = []
     meta_rows: list[dict[str, Any]] = []
     llm_deductions_by_key: dict[tuple[str, str], dict[str, Any]] = {}
+    llm_rejections_by_key: dict[tuple[Any, ...], dict[str, Any]] = {}
     unknown_alias_events: list[dict[str, Any]] = []
     all_mapping_debug_records: list[dict[str, Any]] = []
     all_composite_records: list[dict[str, Any]] = []
@@ -2039,6 +2117,7 @@ def run_batch(
                     overrides_standard=source_overrides_standard,
                     llm_enabled=source_llm_enabled,
                     debug_mappings=debug_mappings,
+                    llm_plausibility_check=llm_plausibility_check,
                 )
                 tasks = [
                     _DatasetTask(index=index, source=source_job, file_path=file_path)
@@ -2100,6 +2179,8 @@ def run_batch(
                         continue
                     dataset_id = outcome.dataset_id
                     dataset_type = outcome.dataset_type
+                    for rejection in outcome.llm_rejections:
+                        _collect_llm_rejection(llm_rejections_by_key, source_id, dataset_id, rejection)
                     for alias, canonical in outcome.llm_inferred:
                         _collect_llm_deduction(
                             llm_deductions_by_key,
@@ -2190,14 +2271,20 @@ def run_batch(
     meta_df.to_csv(meta_csv, index=False)
     meta_df.to_json(meta_json, orient="records", indent=2)
     llm_deductions = _finalize_llm_deductions(llm_deductions_by_key)
+    llm_rejections = _finalize_llm_rejections(llm_rejections_by_key)
     llm_log_path = output_dir / "llm_deductions.log"
     llm_log_path.write_text(
-        "\n".join(_build_llm_deduction_log_lines(llm_deductions)) + "\n",
+        "\n".join(
+            _build_llm_deduction_log_lines(llm_deductions) + _build_llm_rejection_log_lines(llm_rejections)
+        ) + "\n",
         encoding="utf-8",
     )
     llm_json_path = output_dir / "llm_deductions.json"
     with open(llm_json_path, "w", encoding="utf-8") as f:
         json.dump(llm_deductions, f, indent=2)
+    llm_rejections_path = output_dir / "llm_rejected_suggestions.json"
+    with open(llm_rejections_path, "w", encoding="utf-8") as f:
+        json.dump(llm_rejections, f, indent=2)
     unknown_alias_summary = build_unknown_alias_summary(unknown_alias_events)
     unknown_alias_summary_path = output_dir / "unknown_alias_summary.json"
     with open(unknown_alias_summary_path, "w", encoding="utf-8") as f:
@@ -2260,6 +2347,13 @@ def run_batch(
         "llm_deductions_count": len(llm_deductions),
         "llm_deductions_log": str(llm_log_path),
         "llm_deductions_json": str(llm_json_path),
+        "llm_plausibility_check": llm_plausibility_check,
+        "llm_plausibility_rules_version": load_plausibility_rules().version if llm_plausibility_check else None,
+        "llm_rejected_count": len(llm_rejections),
+        "llm_rejected_by_reason": dict(sorted(
+            pd.Series([r["reason"] for r in llm_rejections], dtype=object).value_counts().items()
+        )) if llm_rejections else {},
+        "llm_rejected_suggestions_json": str(llm_rejections_path),
         "metadata_schema": families.paths.get(MAPPING_DOMAIN_METADATA),
         "metadata_mapping_aliases": len(metadata_mapping),
         "sensor_schema": families.paths.get(MAPPING_DOMAIN_SENSOR),
@@ -2348,6 +2442,15 @@ def main() -> None:
             "Use 1 for a fully sequential run. LLM deduction always runs in the main process."
         ),
     )
+    parser.add_argument(
+        "--no-llm-plausibility-check",
+        dest="llm_plausibility_check",
+        action="store_false",
+        help=(
+            "Send every unmapped column to the LLM and accept every suggestion "
+            "(disables schemas/llm_plausibility_rules.yaml; for ablation only)."
+        ),
+    )
     args = parser.parse_args()
     if args.workers < 1:
         parser.error("--workers must be >= 1")
@@ -2371,6 +2474,7 @@ def main() -> None:
         preferred_models=preferred_models,
         debug_mappings=args.debug_mappings,
         workers=args.workers,
+        llm_plausibility_check=args.llm_plausibility_check,
     )
 
     if args.snapshot_manifest:

@@ -11,7 +11,8 @@
 Regenerate the fixture with ``Rscript`` + metafor if the estimators change:
 ``rma(yi, vi, method = "FE"|"DL"|"REML")``, ``trimfill(<model>)``,
 ``trimfill(<FE model>, estimator = "R0")`` and
-``regtest(<FE model>, model = "lm", predictor = "sei")``.
+``regtest(<FE model>, model = "lm", predictor = "sei")`` and
+``rma(..., test = "knha")`` for the Hartung-Knapp-Sidik-Jonkman intervals.
 """
 
 from __future__ import annotations
@@ -70,6 +71,22 @@ class MetaforReferenceTests(unittest.TestCase):
                 self.assertAlmostEqual(row["tau2"], ref["tau2"], places=10)
                 self.assertAlmostEqual(row["heterogeneity_q"], ref["q"], places=8)
                 self.assertAlmostEqual(row["heterogeneity_i2_pct"], ref["i2"], places=8)
+
+    def test_hartung_knapp_interval_matches_metafor_knha(self):
+        for name, ds in DATASETS.items():
+            with self.subTest(dataset=name, k="all"):
+                row = msa.meta_analysis_summary(_summary(ds), estimator="DL").iloc[0]
+                ref = ds["dl_knha"]
+                self.assertAlmostEqual(row["hksj_se"], ref["se"], places=10)
+                self.assertAlmostEqual(row["hksj_ci95_low"], ref["ci_lb"], places=10)
+                self.assertAlmostEqual(row["hksj_ci95_high"], ref["ci_ub"], places=10)
+            with self.subTest(dataset=name, k=2):
+                # k < 3 is pooled with fixed effects; HKSJ still applies (t with 1 df).
+                row = msa.meta_analysis_summary(_summary(ds).iloc[:2], estimator="DL").iloc[0]
+                ref = ds["fe_knha_first2"]
+                self.assertAlmostEqual(row["random_effects_mean"], ref["mu"], places=10)
+                self.assertAlmostEqual(row["hksj_ci95_low"], ref["ci_lb"], places=8)
+                self.assertAlmostEqual(row["hksj_ci95_high"], ref["ci_ub"], places=8)
 
     def test_reml_reaches_the_restricted_likelihood_maximum(self):
         for name, ds in DATASETS.items():
