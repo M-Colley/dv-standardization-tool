@@ -1,6 +1,16 @@
 # Dataset type profiles for OpenDV-HCI batch standardization
 # Each profile defines how to auto-detect a dataset type and which schema to use.
 # Add new types here without modifying Python code.
+#
+# `schema` selects the alias family applied on top of the metadata schema. A
+# file name that is not one of the built-in families is loaded from schemas/
+# on first use.
+#
+# Optional switches (both default to true when `schema` is
+# standard_dv_mapping.yaml, false otherwise):
+#   llm_deduction:    send still-unmapped columns to local-LLM alias deduction
+#   item_composition: compose repeated items (Trust1, Trust2, ...) into a
+#                     per-row scale score with a Cronbach's alpha gate
 version: "1.0"
 
 dataset_types:

@@ -173,16 +173,58 @@ def load_dataset_type_profiles() -> list[dict]:
     return sorted(profiles, key=lambda p: p.get("priority", 0), reverse=True)
 
 
+DV_SCHEMA_FILENAME = "standard_dv_mapping.yaml"
+
+
+def get_dataset_type_profile(dataset_type_id: str) -> dict | None:
+    """Return the profile dict for *dataset_type_id*, or None when unknown."""
+    for profile in load_dataset_type_profiles():
+        if profile.get("id") == dataset_type_id:
+            return profile
+    return None
+
+
 def get_schema_for_dataset_type(dataset_type_id: str) -> str:
     """Return the schema filename for a given dataset type ID.
 
     Loads from profiles YAML (or hardcoded fallback).  Returns the standard DV
     mapping schema as a safe default when the type is unknown.
     """
-    for profile in load_dataset_type_profiles():
-        if profile.get("id") == dataset_type_id:
-            return profile.get("schema", "standard_dv_mapping.yaml")
-    return "standard_dv_mapping.yaml"
+    profile = get_dataset_type_profile(dataset_type_id)
+    if profile is None:
+        return DV_SCHEMA_FILENAME
+    return profile.get("schema", DV_SCHEMA_FILENAME)
+
+
+def _profile_flag(profile: dict, key: str) -> bool:
+    """Read an optional boolean profile switch.
+
+    ``llm_deduction`` and ``item_composition`` default to "on for DV-schema
+    profiles" so a new questionnaire-like dataset type added to
+    ``dataset_type_profiles.yaml`` gets both without code changes, while
+    sensor/detection/process profiles stay off unless they opt in.
+    """
+    if key in profile:
+        return bool(profile[key])
+    return profile.get("schema", DV_SCHEMA_FILENAME) == DV_SCHEMA_FILENAME
+
+
+def llm_eligible_dataset_types() -> frozenset[str]:
+    """Dataset types whose unmapped columns may be sent to LLM deduction."""
+    return frozenset(
+        str(profile.get("id"))
+        for profile in load_dataset_type_profiles()
+        if profile.get("id") and _profile_flag(profile, "llm_deduction")
+    )
+
+
+def item_composition_dataset_types() -> tuple[str, ...]:
+    """Dataset types whose ``__dup_N`` item groups are composed into scale scores."""
+    return tuple(
+        str(profile.get("id"))
+        for profile in load_dataset_type_profiles()
+        if profile.get("id") and _profile_flag(profile, "item_composition")
+    )
 
 
 # ---------------------------------------------------------------------------

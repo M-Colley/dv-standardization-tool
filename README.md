@@ -249,6 +249,11 @@ First-run notes:
   inference): `--disable-llm-deduction`.
 - `--cache-dir` materializes upstream GitHub/OSF/web sources to disk
   so subsequent runs reuse the local copy instead of re-cloning.
+- `--workers N` standardizes datasets in N worker processes (default:
+  CPU count − 1, at most 8; `--workers 1` is fully sequential). Outputs
+  are aggregated in file order, so they are identical to a sequential
+  run. Datasets that need LLM deduction are handed back to the main
+  process, which owns the model, and are processed in file order there.
 
 ### Catalog-driven URL workflow
 
@@ -330,7 +335,24 @@ The included `sources_manifest_example.yaml` is preconfigured for:
    - `schemas/standard_detection_mapping.yaml`
    - `schemas/standard_metadata_mapping.yaml`
 6. Local LLM deduction is only used for still-unmapped DV-style aliases in `results_table` and `questionnaire` datasets.
-7. Outputs include standardized files, quality sidecars, an aggregated meta-view, `unknown_alias_summary.json`, `mapping_debug_summary.json`, and source-level availability statuses when a catalog URL is not publicly accessible.
+7. Outputs include standardized files, quality sidecars, an aggregated meta-view, `unknown_alias_summary.json`, `mapping_debug_summary.json`, and source-level availability statuses when a catalog URL is not publicly accessible (`not_available`, `login_required`, `access_restricted`, or `temporarily_unavailable` for 502/503/504 outages such as OSF maintenance windows).
+
+Datasets are processed in parallel (`--workers`, see above); a run with `--workers 1` produces the same files.
+
+### Extending the batch runner
+
+- **New dataset type**: add a profile to `schemas/dataset_type_profiles.yaml`. Its `schema` field selects the alias family; a YAML file that is not built in is loaded from `schemas/` on first use. The optional `llm_deduction` and `item_composition` switches default to on for profiles that use `standard_dv_mapping.yaml` and off otherwise.
+- **New source type**: register a materializer that fetches files into the cache directory and returns `(base_dir, provenance_id)`. Archive extraction and include/exclude matching are shared by all source types, and manifest validation accepts the new `source_type` automatically:
+
+  ```python
+  from scripts.run_batch_standardization import register_source_type
+
+  @register_source_type("zenodo_record")
+  def materialize_zenodo(source, target, refresh_remote_cache):
+      ...  # download files for source["location"] into target
+      return target, record_id
+  ```
+- **Item-level DVs**: name item DVs `<construct id>_item_NN` (e.g. `perceived_safety_item_01`) or declare `subitem_of: <construct id>` in the schema entry. The causal analysis then drops the items whenever their construct is present, so item → scale edges cannot appear in the DAG.
 
 ```bash
 python scripts/run_batch_standardization.py \

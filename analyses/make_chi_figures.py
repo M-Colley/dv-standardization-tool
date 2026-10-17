@@ -1,9 +1,11 @@
 #!/usr/bin/env python3
 """Publication-quality figures for the OpenDV-HCI cross-study analysis (CHI format).
 
-Reads the artifacts produced by ``run_catalog_meta_analysis.py`` (batch
-standardization + per-source provenance) and ``multi_study_analysis.py`` (the
-full meta-analysis suite) and renders a cohesive figure set sized for the ACM
+Reads the artifacts produced by batch standardization
+(``run_batch_standardization.py`` or ``run_catalog_meta_analysis.py``, written
+to ``data/processed/catalog_meta_analysis``) and ``multi_study_analysis.py``
+(the full meta-analysis suite, ``analyses/output_python_full``) and renders a
+cohesive figure set sized for the ACM
 CHI two-column template. Every figure is written as both a vector PDF (for
 LaTeX inclusion) and a 300-dpi PNG (for preview).
 
@@ -91,6 +93,9 @@ STUDY_LABEL = {
     "fourtu_critical_ehmi": "4TU-Critical",
     "osf_cwd6h": "OSF-cwd6h",
     "road_bumps_touch": "Road-Bumps",
+    "psych_conflict_handling": "Psych-Conflict",
+    "running_into_traffic_chi26": "Running-Traffic",
+    "scrolling_in_the_deep_chi25": "Scrolling-Deep",
 }
 DV_LABEL = {
     "mental_demand": "Mental Demand", "physical_demand": "Physical Demand",
@@ -127,12 +132,44 @@ summary = pd.read_csv(ANALYSIS_DIR / "harmonized_dv_summary.csv")
 meta = pd.read_csv(ANALYSIS_DIR / "meta_analysis_summary.csv")
 freq = pd.read_csv(ANALYSIS_DIR / "dv_frequency.csv")
 run_summary = json.loads((BATCH_DIR / "run_summary.json").read_text(encoding="utf-8"))
-analysis_summary = json.loads((BATCH_DIR / "analysis" / "analysis_summary.json").read_text(encoding="utf-8"))
 results = pd.DataFrame(run_summary["results"])
-causal_edges = pd.read_csv(ANALYSIS_DIR / "causal_edges.csv")
 causal = json.loads((ANALYSIS_DIR / "analysis_results.json").read_text(encoding="utf-8")).get("causal_discovery")
+causal_edges = (
+    pd.read_csv(ANALYSIS_DIR / "causal_edges.csv")
+    if (ANALYSIS_DIR / "causal_edges.csv").is_file()
+    else pd.DataFrame(columns=["from", "to", "coefficient"])
+)
 
-AVG_JACCARD = analysis_summary["average_pairwise_jaccard"]
+# Every number quoted in a caption below is derived from these artifacts, so
+# the figures stay correct when sources, schemas or the LLM setting change.
+# Mean pairwise Jaccard over study pairs, as in run_catalog_meta_analysis.
+AVG_JACCARD = float(pd.read_csv(ANALYSIS_DIR / "dv_overlap_details.csv")["jaccard_overlap"].mean())
+RETRIEVED = results[results["status"].isin(["completed", "partial"])]
+UNAVAILABLE = results[~results["status"].isin(["completed", "partial"])]
+N_STUDIES = int(presence.shape[0])
+N_WITH_DVS = int((presence.sum(axis=1) > 0).sum())
+N_WITHOUT_DVS = N_STUDIES - N_WITH_DVS
+DVS_MULTI = freq.loc[freq["n_studies"] >= 3, "dv"].tolist()
+N_LLM_ALIASES = int(run_summary.get("llm_deductions_count", 0))
+MAPPING_MODE = (
+    f"Schema mapping with local-LLM fallback ({N_LLM_ALIASES} aliases LLM-deduced; "
+    "see *_llm_excluded sensitivity files)"
+    if run_summary.get("llm_deduction_enabled") and N_LLM_ALIASES
+    else "Deterministic schema mapping (no LLM)"
+)
+
+
+def _unavailable_note() -> str:
+    if UNAVAILABLE.empty:
+        return "all retrieved"
+    return ", ".join(
+        f"{n} {status.replace('_', ' ')}" for status, n in UNAVAILABLE["status"].value_counts().items()
+    )
+
+
+def _list_labels(dvs: list[str]) -> str:
+    labels = [dv_label(d) for d in dvs]
+    return labels[0] if len(labels) == 1 else ", ".join(labels[:-1]) + " and " + labels[-1]
 
 
 # ══════════════════════════════════════════════════════════════════════════════
@@ -140,7 +177,7 @@ AVG_JACCARD = analysis_summary["average_pairwise_jaccard"]
 # ══════════════════════════════════════════════════════════════════════════════
 def fig_pipeline():
     n_sources = int(run_summary["total_sources"])
-    n_retrieved = int(results[results["status"] != "access_restricted"].shape[0])
+    n_retrieved = int(RETRIEVED.shape[0])
     n_files = int(results["processed_files"].sum())
     n_cols = int(results["total_columns"].sum())
     n_mapped = int(results["mapped_columns"].sum())
@@ -150,12 +187,12 @@ def fig_pipeline():
 
     stages = [
         ("Catalog\nsources", n_sources, "datasets", BLUE),
-        ("Retrieved", n_retrieved, "1 ACM blocked", BLUE),
+        ("Retrieved", n_retrieved, _unavailable_note(), BLUE),
         ("Files\nstandardized", n_files, "tables", "#3a7abd"),
         ("Columns\nmapped", n_mapped, f"of {n_cols:,} ({n_mapped / n_cols * 100:.0f}%)", "#5b96c9"),
         ("Canonical\nDVs", n_dv, "harmonized", "#c77b3a"),
         ("Meta-\nanalyzable", n_meta, "DVs, k≥2", RED),
-        ("Multi-study\npooled", n_multi, "DV, k≥3", "#7a1320"),
+        ("Multi-study\npooled", n_multi, "DVs, k≥3", "#7a1320"),
     ]
 
     fig, ax = plt.subplots(figsize=(COL2, 1.95))
@@ -189,8 +226,8 @@ def fig_pipeline():
             "From open catalog to comparable evidence: the OpenDV-HCI standardization pipeline",
             ha="left", va="top", fontsize=8.5, fontweight="bold", transform=ax.transAxes)
     ax.text(0.02, 0.06,
-            "Deterministic schema mapping (no LLM). 9 datasets retrieved; 6 contribute canonical "
-            "questionnaire DVs after harmonization.",
+            f"{MAPPING_MODE}. {n_retrieved} datasets retrieved; {N_WITH_DVS} contribute canonical "
+            "DVs after harmonization.",
             ha="left", va="bottom", fontsize=6.3, color="#666666", transform=ax.transAxes)
     save(fig, "fig1_pipeline")
 
@@ -273,12 +310,23 @@ def fig_presence():
                   bbox_to_anchor=(1.46, 1.25), fontsize=6, handlelength=1.0,
                   handleheight=1.0, labelspacing=0.25, borderaxespad=0)
 
-    fig.suptitle("Dependent-variable coverage across 9 open HCI datasets",
+    fig.suptitle(f"Dependent-variable coverage across {N_STUDIES} open HCI datasets",
                  x=0.045, y=1.06, ha="left", fontsize=9, fontweight="bold")
+    if len(DVS_MULTI) > 3:
+        shared_note = f"{len(DVS_MULTI)} DVs are shared by >2 studies"
+    elif DVS_MULTI:
+        verb = "is" if len(DVS_MULTI) == 1 else "are"
+        shared_note = f"only {_list_labels(DVS_MULTI)} {verb} shared by >2 studies"
+    else:
+        shared_note = "no DV is shared by >2 studies"
+    if N_WITHOUT_DVS:
+        plural = "s" if N_WITHOUT_DVS != 1 else ""
+        no_dv_note = f";\n{N_WITHOUT_DVS} dataset{plural} expose{'' if plural else 's'} no canonical DV."
+    else:
+        no_dv_note = "."
     fig.text(0.045, -0.20,
              f"After schema-driven standardization, mean pairwise DV overlap is only "
-             f"Jaccard = {AVG_JACCARD:.3f}. Only Mental Demand (NASA-TLX) is shared by "
-             f">2 studies;\n3 sensor/log datasets expose no canonical questionnaire DV.",
+             f"Jaccard = {AVG_JACCARD:.3f}; {shared_note}{no_dv_note}",
              ha="left", va="top", fontsize=6.2, color="#666666")
     save(fig, "fig2_presence_matrix")
 
@@ -367,7 +415,8 @@ def fig_forest(dv="mental_demand", fname="fig4_forest_mental_demand"):
     axf.set_yticklabels([study_label(s) for s in sub["study"]] + ["Random-effects pooled"], fontsize=7)
     axf.get_yticklabels()[-1].set_fontweight("bold")
     axf.set_ylim(-0.7, k + 0.7)
-    axf.set_xlabel(f"{dv_label(dv)}  —  group mean (0–20 NASA-TLX scale)", fontsize=7.5)
+    unit = DV_META.get(dv, {}).get("primary_unit", "")
+    axf.set_xlabel(f"{dv_label(dv)}  —  group mean" + (f" ({unit})" if unit else ""), fontsize=7.5)
     for sp in ("top", "right"):
         axf.spines[sp].set_visible(False)
     axf.tick_params(length=2)
@@ -467,8 +516,13 @@ def fig_causal():
     ax.legend(handles=legend, loc="upper right", fontsize=6.5, bbox_to_anchor=(1.0, 1.02))
     ax.set_title("Cross-study causal structure among standardized DVs",
                  x=0.0, ha="left", fontsize=9, loc="left", pad=2)
+    method = {
+        "complete_case": "complete-case",
+        "clique_complete_case": "complete-case on the largest co-observed DV set",
+        "synthetic_cholesky": "SYNTHETIC rows from a pairwise correlation matrix",
+    }.get(causal.get("used_method"), str(causal.get("used_method")))
     fig.text(0.045, 0.02,
-             f"DirectLiNGAM on pooled within-study z-scores (complete-case, non-synthetic; "
+             f"DirectLiNGAM on pooled within-study z-scores ({method}; "
              f"n = {causal['n_observations']:,} obs). Edge weights are structural coefficients.",
              ha="left", va="bottom", fontsize=6.2, color="#777777")
     save(fig, "fig5_causal_dag")
@@ -478,7 +532,7 @@ def fig_causal():
 # FIGURE 6 — Schema mapping coverage by source (mapped vs unknown columns)
 # ══════════════════════════════════════════════════════════════════════════════
 def fig_coverage():
-    r = results[results["status"] != "access_restricted"].copy()
+    r = RETRIEVED.copy()
     r["mapped_ratio"] = r["mapped_columns"] / r["total_columns"].replace(0, np.nan)
     r = r.sort_values("mapped_ratio", ascending=True)
     y = np.arange(len(r))
@@ -516,7 +570,7 @@ def fig_teaser():
     # Reuse standalone renders by stitching the saved PNGs into one figure.
     import matplotlib.image as mpimg
     panels = [
-        ("fig2_presence_matrix.png", "(a) DV coverage across 9 datasets"),
+        ("fig2_presence_matrix.png", f"(a) DV coverage across {N_STUDIES} datasets"),
         ("fig3_overlap_heatmap.png", "(b) Pairwise overlap (Jaccard)"),
         ("fig4_forest_mental_demand.png", "(c) Meta-analysis: Mental Demand"),
         ("fig5_causal_dag.png", "(d) Cross-study causal structure"),
@@ -541,7 +595,10 @@ if __name__ == "__main__":
     fig_presence()
     fig_overlap()
     fig_forest()
-    fig_causal()
+    if causal is not None:
+        fig_causal()
+    else:
+        print("  skipped fig5_causal_dag (no causal result in analysis_results.json)")
     fig_coverage()
     fig_teaser()
     print("Done.")

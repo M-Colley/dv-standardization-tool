@@ -18,6 +18,18 @@ At every boundary the pipeline records *why* each value exists:
 - **Meta-analysis pool membership**: `meta_analysis_summary.csv` columns `mapping_source_categories`, `k_llm_deduced`, `includes_llm_deduced` flag pooled estimates that lean on LLM inference.
 - **Causal discovery**: `discover_causal_structure` reports `used_method` ∈ {`complete_case`, `clique_complete_case`, `synthetic_cholesky`} and a `synthetic_fallback` flag.
 
+## Batch execution model
+`run_batch` materializes one source at a time; within a source, every dataset file becomes a `_DatasetTask` handled by `_process_dataset` (load → classify → map → standardize → compose → summarize).
+
+- `--workers N` fans the tasks out to a process pool. The built-in schema families (`SchemaFamilies`) are sent to each worker once, and alias mappings are memoized per (schema family, repository mapping YAML).
+- A dataset that needs LLM deduction comes back from its worker as `needs_llm`. The main process, which owns the local model and its caches, deduces the aliases in file order and resubmits the task with the deduced aliases. LLM calls therefore happen in the same order as in a sequential run.
+- Outcomes are aggregated in file order, so `meta_view.csv`, `run_summary.json` and all sidecars match `--workers 1`.
+
+Extension points: dataset types (and their schema family, `llm_deduction`, `item_composition`) live in `schemas/dataset_type_profiles.yaml`; source types are registered with `@register_source_type("<name>")` in `scripts/run_batch_standardization.py`.
+
+## Validation of the statistics
+`tests/test_meta_analysis_reference.py` checks DerSimonian-Laird pooling, REML, Egger's regression test and trim-and-fill (L0/R0, FE/DL) against R's `metafor` 5.2.1. It uses two published datasets (Hackshaw 1998; Colditz et al. 1994), stored with metafor's results in `tests/fixtures/metafor_reference.json`.
+
 ## Technologies Used
 - YAML for schema and manifest representation
 - Python (pandas, numpy, matplotlib, seaborn, pydantic) for transformation and analysis

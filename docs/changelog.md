@@ -4,6 +4,18 @@ This document logs human-readable updates to the repo's functionality, structure
 
 ---
 
+### [2026-10-17]
+
+- **Parallel batch standardization.** `run_batch_standardization.py --workers N` (also `run_catalog_meta_analysis.py`) processes datasets in worker processes. Outputs match a sequential run file for file; LLM deduction stays in the main process and runs in file order. Mappings are now built once per (schema family, repository mapping) rather than once per file, numeric columns skip a redundant `to_numeric` pass during summarization, and delimited files are opened twice instead of three times.
+- **Faster analysis loading.** `multi_study_analysis.py` reads files in a thread pool and skips files that have no canonical DV column (`load_studies(..., skip_files_without_dvs=True)`, on by default in both CLIs). Studies whose files are all skipped are kept as empty frames, so study counts and coverage percentages do not change. Schema YAML is parsed once with libyaml's C loader.
+- **Trim-and-fill fixed.** `trim_and_fill` previously mirrored every study on one side of the pooled mean instead of estimating the number of missing studies. It now implements Duval & Tweedie's iterative L0/R0 estimator, matching `metafor::trimfill` (k0, side, adjusted estimate and SE) on two published datasets (`tests/test_meta_analysis_reference.py`). It uses the main analysis model (`--estimator`, default DL), picks the side automatically, and writes a row for every evaluated DV, including those with `k_imputed = 0`.
+- **REML scoring step corrected.** The Fisher information in `_estimate_tau2_reml` was missing the `(Σw²/Σw)²` term. The converged estimate was already right, but convergence is now reliable. Estimates agree with direct maximisation of the restricted likelihood to within 1e-6.
+- **Composite index no longer imputes empty rows.** Rows with none of the shared DVs observed (e.g. telemetry rows of a study whose questionnaire lives in another file) used to be median-imputed into all-zero z-rows. That inflated `n`, shrank SDs, and dominated the PCA. Such rows are now dropped before imputation.
+- **Causal analysis.** Construct → item relationships now also come from the DV schema (`<construct>_item_NN` ids or an explicit `subitem_of`), so item → scale edges cannot enter the LiNGAM DAG. Bootstrap edge stability (via `lingam.DirectLiNGAM.bootstrap`, seeded) and the PC skeleton now run on the same observations as the reported DAG; before, they silently returned nothing whenever DVs only partly overlapped across studies.
+- **Extension points.** Dataset-type profiles drive schema-family selection, LLM eligibility and item composition. Source types are registered with `register_source_type`. HTTP 502/503/504 outages are reported as `temporarily_unavailable`.
+
+---
+
 ### [2026-04-19]
 
 - **Meta-analysis provenance tracking.** `harmonized_dv_summary.csv` now includes a `mapping_source` column (`schema` / `repo_mapping` / `llm_deduced` / `blocked` / `unknown`). `meta_analysis_summary.csv` gains `estimator`, `mapping_source_categories`, `k_llm_deduced`, and `includes_llm_deduced` to make it easy to flag pooled estimates that depend on LLM inferences.

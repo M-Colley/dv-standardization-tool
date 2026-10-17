@@ -94,9 +94,34 @@ def _detect_encoding(path: Path) -> str:
     """
     from scripts.encoding_utils import detect_text_encoding
 
+    return detect_text_encoding(_read_head(path))
+
+
+_ENCODING_SNIFF_BYTES = 32768
+_DELIMITER_SAMPLE_CHARS = 16384
+
+
+def _read_head(path: Path) -> bytes:
     with path.open("rb") as fh:
-        raw = fh.read(32768)
-    return detect_text_encoding(raw)
+        return fh.read(_ENCODING_SNIFF_BYTES)
+
+
+def _decode_text_sample(head: bytes, encoding: str, path: Path) -> str:
+    """Return the delimiter-sniffing sample without reopening *path*.
+
+    Equivalent to ``open(path, encoding=encoding, errors="replace").read(16384)``
+    (text mode, universal newlines). Opening files is surprisingly expensive on
+    Windows with real-time AV scanning, so the sample is decoded from the
+    bytes already read for encoding detection; it only falls back to a real
+    read when those bytes cannot supply a full sample (long multi-byte text).
+    """
+    text = head.decode(encoding, errors="replace").replace("\r\n", "\n").replace("\r", "\n")
+    # A head cut mid-file can end in a split multi-byte character or a "\r"
+    # whose "\n" was not read; keep a small margin so neither reaches the sample.
+    if len(head) < _ENCODING_SNIFF_BYTES or len(text) >= _DELIMITER_SAMPLE_CHARS + 4:
+        return text[:_DELIMITER_SAMPLE_CHARS]
+    with path.open("r", encoding=encoding, errors="replace") as fh:
+        return fh.read(_DELIMITER_SAMPLE_CHARS)
 
 
 def _detect_delimiter(sample: str, prefer: str | None = None) -> str:
@@ -150,11 +175,13 @@ def _load_text_table(path: Path) -> pd.DataFrame:
     suffix = path.suffix.lower()
     prefer_delim: str | None = "\t" if suffix in {".tsv", ".dat", ".txt"} else ","
 
-    encoding = _detect_encoding(path)
+    from scripts.encoding_utils import detect_text_encoding
+
+    head = _read_head(path)
+    encoding = detect_text_encoding(head)
     try:
-        with path.open("r", encoding=encoding, errors="replace") as fh:
-            sample = fh.read(16384)
-    except OSError:
+        sample = _decode_text_sample(head, encoding, path)
+    except (OSError, LookupError):
         sample = ""
 
     delimiter = _detect_delimiter(sample, prefer=prefer_delim)
