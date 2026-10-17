@@ -377,6 +377,7 @@ Datasets are processed in parallel (`--workers`, see above); a run with `--worke
       ...  # download files for source["location"] into target
       return target, record_id
   ```
+- **Text-labelled responses**: if a dataset stores Likert answers as labels ("Rather agree"), declare the codes once in its mapping YAML under `value_labels:` (columns + label → number; see `schemas/psych_conflict_handling_mapping.yaml`). Cells are recoded before standardization; labels that are not declared become missing and are counted in the dataset's `-quality.json` (`value_labels_applied`). Without this, such a dataset contributes no numeric DV.
 - **Item-level DVs**: name item DVs `<construct id>_item_NN` (e.g. `perceived_safety_item_01`) or declare `subitem_of: <construct id>` in the schema entry. The causal analysis then drops the items whenever their construct is present, so item → scale edges cannot appear in the DAG.
 
 ```bash

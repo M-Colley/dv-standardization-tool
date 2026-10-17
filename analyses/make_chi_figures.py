@@ -15,6 +15,7 @@ Run:
 from __future__ import annotations
 
 import json
+import os
 import sys
 from pathlib import Path
 
@@ -30,9 +31,11 @@ REPO = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(REPO))
 from analyses.multi_study_analysis import _load_dv_measurement_metadata  # noqa: E402
 
-ANALYSIS_DIR = REPO / "analyses" / "output_python_full"
-BATCH_DIR = REPO / "data" / "processed" / "catalog_meta_analysis"
-OUT = REPO / "analyses" / "figures_chi"
+# Overridable so alternative runs can be rendered without touching the
+# committed figure set.
+ANALYSIS_DIR = Path(os.environ.get("OPENDV_ANALYSIS_DIR", REPO / "analyses" / "output_python_full"))
+BATCH_DIR = Path(os.environ.get("OPENDV_BATCH_DIR", REPO / "data" / "processed" / "catalog_meta_analysis"))
+OUT = Path(os.environ.get("OPENDV_FIGURES_DIR", REPO / "analyses" / "figures_chi"))
 OUT.mkdir(parents=True, exist_ok=True)
 
 # ── ACM column geometry (inches) ─────────────────────────────────────────────
@@ -324,7 +327,10 @@ def fig_presence():
         no_dv_note = f";\n{N_WITHOUT_DVS} dataset{plural} expose{'' if plural else 's'} no canonical DV."
     else:
         no_dv_note = "."
-    fig.text(0.045, -0.20,
+    # Sit below the longest rotated DV label (≈0.45 em per character at 5.6 pt).
+    label_height_in = max(len(dv_label(d)) for d in dv_order) * 5.6 * 0.45 / 72
+    caption_y = -0.04 - label_height_in / fig.get_figheight()
+    fig.text(0.045, caption_y,
              f"After schema-driven standardization, mean pairwise DV overlap is only "
              f"Jaccard = {AVG_JACCARD:.3f}; {shared_note}{no_dv_note}",
              ha="left", va="top", fontsize=6.2, color="#666666")

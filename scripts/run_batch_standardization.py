@@ -156,6 +156,7 @@ from scripts.item_composition import (
 )
 from scripts.llm_utils import collect_repository_context, deduce_standard_name_with_local_llm
 from scripts.llm_plausibility import load_rules as load_plausibility_rules
+from scripts.value_labels import apply_value_labels
 from scripts.llm_plausibility import (
     ColumnProfile,
     canonical_ranges_from_schema,
@@ -1367,6 +1368,7 @@ class _ResolvedMapping:
     mapping_path: str | None  # repository mapping YAML actually merged in
     custom_aliases_ci: frozenset[str]
     declared_scales: tuple[dict[str, Any], ...]
+    value_labels: tuple[dict[str, Any], ...] = ()
 
 
 class _MappingResolver:
@@ -1381,7 +1383,7 @@ class _MappingResolver:
     def __init__(self, families: SchemaFamilies, overrides_standard: bool) -> None:
         self._families = families
         self._overrides_standard = overrides_standard
-        self._custom: dict[str, tuple[dict[str, str], frozenset[str], tuple[dict[str, Any], ...]] | None] = {}
+        self._custom: dict[str, tuple[Any, ...] | None] = {}
         self._resolved: dict[tuple[str, str | None], _ResolvedMapping] = {}
 
     def _load_custom(self, mapping_path: str, dataset_id: str):
@@ -1396,10 +1398,12 @@ class _MappingResolver:
                 self._custom[mapping_path] = None
             else:
                 custom_mapping = custom_schema_data["mapping"]
+                raw_schema = custom_schema_data.get("schema") or {}
                 self._custom[mapping_path] = (
                     custom_mapping,
                     frozenset(str(alias).lower() for alias in custom_mapping.keys() if isinstance(alias, str)),
                     tuple(custom_schema_data.get("scales") or []),
+                    tuple(raw_schema.get("value_labels") or []) if isinstance(raw_schema, dict) else (),
                 )
         return self._custom[mapping_path]
 
@@ -1416,9 +1420,10 @@ class _MappingResolver:
         merged_path: str | None = None
         custom_aliases_ci: frozenset[str] = frozenset()
         declared_scales: tuple[dict[str, Any], ...] = ()
+        value_labels: tuple[dict[str, Any], ...] = ()
         custom = self._load_custom(path_key, dataset_id) if path_key is not None else None
         if custom is not None:
-            custom_mapping, custom_aliases_ci, declared_scales = custom
+            custom_mapping, custom_aliases_ci, declared_scales, value_labels = custom
             # Only report a mapping path once a non-empty source mapping is
             # actually merged in.
             if custom_mapping:
@@ -1433,6 +1438,7 @@ class _MappingResolver:
             mapping_path=merged_path,
             custom_aliases_ci=custom_aliases_ci,
             declared_scales=declared_scales,
+            value_labels=value_labels,
         )
         self._resolved[key] = resolved
         return resolved
@@ -1549,6 +1555,9 @@ def _process_dataset(
             dataset_path=task.file_path,
         )
         resolved = resolver.resolve(dataset_type, repository_mapping_path, dataset_id)
+        # Text-labelled responses declared in the repository mapping become
+        # numbers before anything numeric (profiles, summaries) looks at them.
+        original_df, value_label_report = apply_value_labels(original_df, resolved.value_labels)
         source_mapping = resolved.mapping
         dataset_mapping = source_mapping
         unknown_before_llm = _filter_llm_eligible_columns(
@@ -1683,6 +1692,8 @@ def _process_dataset(
             mapping_debug_records,
             dataset_type,
         )
+        if value_label_report:
+            quality["value_labels_applied"] = value_label_report
         with open(source.output_dir / f"{artifact_prefix}-quality.json", "w", encoding="utf-8") as f:
             json.dump(quality, f, indent=2)
 

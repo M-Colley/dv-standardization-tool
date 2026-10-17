@@ -64,6 +64,7 @@ mappings); "E2" holds out schema aliases. Model: `google/gemma-4-E2B-it`
 | Semantically absurd LLM mappings | Participant **age** → `retention_time`; a survey's **random seed** → `trust_rating`; total survey duration → `sart_total`; participant IDs → Godspeed intelligence | Pooled `retention_time` (k = 3) in the committed results was built partly from participant ages | Plausibility layer (`schemas/llm_plausibility_rules.yaml`): name, data-type and range rules, all rejections logged |
 | Tautological causal edges | Item columns (`perceived_safety_item_0x`) entered the LiNGAM DAG next to their own scale score | DAG edges "item → scale" reported as causal structure | Construct → item hierarchy derived from the schema (`subitem_of`, `<construct>_item_NN`) |
 | Silent no-ops | Bootstrap edge stability and PC skeleton returned nothing whenever DVs only partly overlapped | No stability estimate for the reported DAG | Both now run on the exact matrix the DAG was fit on |
+| Silent data loss | `psych_conflict_handling` stores Likert answers as text labels ("Rather agree") | The study was in the committed 11-study run but contributed **0** numeric DVs | Declarative `value_labels` in mapping YAMLs; all 432 rows of each item recoded, unmatched labels counted |
 | Anti-conservative intervals at small k | Most pooled DVs have k = 2–3 | Wald intervals far narrower than warranted | Hartung-Knapp-Sidik-Jonkman intervals reported next to Wald (validated against `metafor`, `test = "knha"`) |
 
 ### 2.2 LLM mapping is weak on real columns; plausibility checks are cheap (RQ2)
@@ -81,8 +82,9 @@ Pilot results (plausibility rules v1.0, before any tuning):
 
 With rules v1.1 every other number in the table is unchanged; the model's
 answers are identical across runs (greedy decoding). The two E1 losses are
-STS-AD items stored as text labels ("strongly agree"); those need explicit
-recoding before they can be pooled numerically.
+STS-AD items stored as text labels ("strongly agree"). The `value_labels`
+recoding added afterwards makes them numeric, so the check no longer rejects
+them in a recoded run.
 
 Readings:
 

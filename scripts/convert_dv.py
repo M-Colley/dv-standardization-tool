@@ -114,6 +114,9 @@ def _fuzzy_match_column(
     return None, 0.0
 
 
+RESERVED_MAPPING_KEYS = frozenset({"scales", "value_labels"})
+
+
 def _build_alias_mapping(schema: Dict) -> Dict[str, str]:
     """Build a case-insensitive alias -> standard_name mapping for a schema dictionary."""
     alias_to_standard: Dict[str, str] = {}
@@ -164,10 +167,11 @@ def _build_alias_mapping(schema: Dict) -> Dict[str, str]:
         # because it reads naturally as "rename this raw column to that
         # canonical". The two flavours are distinguished by the value type.
         #
-        # The reserved top-level key ``scales:`` declares multi-item scales
-        # and is handled separately by item composition — skip it here.
+        # The reserved top-level keys ``scales:`` (multi-item scales, used by
+        # item composition) and ``value_labels:`` (text-label recoding, see
+        # scripts/value_labels.py) are not aliases — skip them here.
         for key, value in schema.items():
-            if key == "scales":
+            if key in RESERVED_MAPPING_KEYS:
                 continue
             if isinstance(value, list):
                 # Form (1): {canonical: [aliases]}
