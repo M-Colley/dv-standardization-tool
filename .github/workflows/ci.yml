@@ -33,6 +33,8 @@ jobs:
           python scripts/validate_schema.py schemas/standard_sensor_mapping.yaml
           python scripts/validate_schema.py schemas/standard_detection_mapping.yaml
           python scripts/validate_schema.py schemas/standard_metadata_mapping.yaml
+          python scripts/validate_schema.py schemas/instruments.yaml
+          python scripts/validate_schema.py schemas/study_designs.yaml
 
       - name: Run unit tests
         run: python -m pytest tests -q

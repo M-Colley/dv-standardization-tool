@@ -1,0 +1,262 @@
+# Instrument registry: how standard questionnaires are scored.
+#
+# A canonical DV in standard_dv_mapping.yaml is a construct-level outcome
+# (e.g. `usability`). This file records the instruments that measure them:
+# their items, response coding, keying and scoring rule, with a citation.
+# analyses/multi_study_analysis.py computes every score below whenever all of
+# its items are present in a study (scripts/instruments.py).
+#
+# Instrument entry
+#   label, citation, doi (optional)
+#   response_codings: candidate codings of the raw answers, [min, max]. When
+#                several are listed, the first one that contains every
+#                observed answer is used; a warning is logged when more than
+#                one fits (e.g. answers 0..2 fit both -2..2 and 0..4).
+#   items:       id (canonical DV id when the item is itself a schema DV),
+#                aliases (raw column names, matched case-insensitively,
+#                ignoring spaces/underscores/dashes), key: +1 or -1
+#   scores:      name -> {dv, items, centering, aggregate, multiplier, weight}
+#     dv:        canonical DV id the score is reported as
+#     column:    output column name (defaults to the score name)
+#     centering: none     -> item value as is (key must be +1)
+#                reflect  -> x for key +1, min + max - x for key -1
+#                min      -> x - min for key +1, max - x for key -1
+#                midpoint -> x - mid for key +1, mid - x for key -1
+#     aggregate: mean | sum
+#     multiplier: applied after aggregation (default 1)
+#
+# Keys are relative to the score: +1 means a higher raw answer is a higher
+# score. Only facts stated in the cited sources are recorded here.
+
+version: "1.0"
+updated: "2026-10-18"
+
+instruments:
+  sus:
+    label: System Usability Scale
+    citation: "Brooke, J. (1996). SUS: A 'quick and dirty' usability scale. In Usability Evaluation in Industry (pp. 189-194). Taylor & Francis."
+    response_codings: [[1, 5]]
+    items:
+      - {id: SUS1, aliases: [sus1, sus_1], key: 1}
+      - {id: SUS2, aliases: [sus2, sus_2], key: -1}
+      - {id: SUS3, aliases: [sus3, sus_3], key: 1}
+      - {id: SUS4, aliases: [sus4, sus_4], key: -1}
+      - {id: SUS5, aliases: [sus5, sus_5], key: 1}
+      - {id: SUS6, aliases: [sus6, sus_6], key: -1}
+      - {id: SUS7, aliases: [sus7, sus_7], key: 1}
+      - {id: SUS8, aliases: [sus8, sus_8], key: -1}
+      - {id: SUS9, aliases: [sus9, sus_9], key: 1}
+      - {id: SUS10, aliases: [sus10, sus_10], key: -1}
+    scores:
+      sus_score:
+        dv: usability
+        items: [SUS1, SUS2, SUS3, SUS4, SUS5, SUS6, SUS7, SUS8, SUS9, SUS10]
+        centering: min
+        aggregate: sum
+        multiplier: 2.5
+
+  nasa_tlx_raw:
+    label: NASA Task Load Index, raw (unweighted) score
+    citation: "Hart, S. G., & Staveland, L. E. (1988). Development of NASA-TLX (Task Load Index): Results of empirical and theoretical research. Advances in Psychology, 52, 139-183."
+    doi: 10.1016/S0166-4115(08)62386-9
+    notes: >-
+      Raw TLX: the unweighted mean of the six subscales (Hart, 2006). Higher is
+      more workload on every subscale, including performance (anchored
+      "perfect" to "failure"). Subscales may be recorded on 0-100 or as the
+      21 marks 0-20; the score keeps the coding of its items.
+    response_codings: [[0, 100]]
+    items:
+      - {id: mental_demand, aliases: [tlx1, nasa_tlx1, tlx_mental_demand, nasa_tlx_mental], key: 1}
+      - {id: physical_demand, aliases: [tlx2, nasa_tlx2], key: 1}
+      - {id: temporal_demand, aliases: [tlx3, nasa_tlx3], key: 1}
+      - {id: performance, aliases: [tlx4, nasa_tlx4], key: 1}
+      - {id: effort, aliases: [tlx5, nasa_tlx5], key: 1}
+      - {id: frustration, aliases: [tlx6, nasa_tlx6], key: 1}
+    scores:
+      nasa_tlx_score:
+        dv: TLX_SCORE
+        items: [mental_demand, physical_demand, temporal_demand, performance, effort, frustration]
+        centering: none
+        aggregate: mean
+
+  van_der_laan:
+    label: Van der Laan acceptance scale (AOA)
+    citation: "Van der Laan, J. D., Heino, A., & De Waard, D. (1997). A simple procedure for the assessment of acceptance of advanced transport telematics. Transportation Research Part C, 5(1), 1-10."
+    doi: 10.1016/S0968-090X(96)00025-3
+    notes: >-
+      Nine 5-point semantic differentials. Answers are stored as the position
+      on the differential, with the positive pole first for every item except
+      3, 6 and 8, which are mirrored. Scores are -2..+2 whatever the coding.
+    response_codings: [[-2, 2], [1, 5], [0, 4]]
+    items:
+      - {id: AOA1, aliases: [aoa1, aoa_1], key: -1}
+      - {id: AOA2, aliases: [aoa2, aoa_2], key: -1}
+      - {id: AOA3, aliases: [aoa3, aoa_3], key: 1}
+      - {id: AOA4, aliases: [aoa4, aoa_4], key: -1}
+      - {id: AOA5, aliases: [aoa5, aoa_5], key: -1}
+      - {id: AOA6, aliases: [aoa6, aoa_6], key: 1}
+      - {id: AOA7, aliases: [aoa7, aoa_7], key: -1}
+      - {id: AOA8, aliases: [aoa8, aoa_8], key: 1}
+      - {id: AOA9, aliases: [aoa9, aoa_9], key: -1}
+    scores:
+      aoa_usefulness:
+        dv: AOA_USEFULNESS
+        items: [AOA1, AOA3, AOA5, AOA7, AOA9]
+        centering: midpoint
+        aggregate: mean
+      aoa_satisfying:
+        dv: AOA_SATISFYING
+        items: [AOA2, AOA4, AOA6, AOA8]
+        centering: midpoint
+        aggregate: mean
+
+  ueq_s:
+    label: User Experience Questionnaire, short version (UEQ-S)
+    citation: "Schrepp, M., Hinderks, A., & Thomaschewski, J. (2017). Design and evaluation of a short version of the User Experience Questionnaire (UEQ-S). IJIMAI, 4(6), 103-108."
+    doi: 10.9781/ijimai.2017.09.001
+    notes: Eight 7-point items, negative pole first; answers 1..7 are scored -3..+3.
+    response_codings: [[1, 7]]
+    items:
+      - {id: ueq_s_1, aliases: [ueqs1, ueq_s1, ueqs_1], key: 1}
+      - {id: ueq_s_2, aliases: [ueqs2, ueq_s2, ueqs_2], key: 1}
+      - {id: ueq_s_3, aliases: [ueqs3, ueq_s3, ueqs_3], key: 1}
+      - {id: ueq_s_4, aliases: [ueqs4, ueq_s4, ueqs_4], key: 1}
+      - {id: ueq_s_5, aliases: [ueqs5, ueq_s5, ueqs_5], key: 1}
+      - {id: ueq_s_6, aliases: [ueqs6, ueq_s6, ueqs_6], key: 1}
+      - {id: ueq_s_7, aliases: [ueqs7, ueq_s7, ueqs_7], key: 1}
+      - {id: ueq_s_8, aliases: [ueqs8, ueq_s8, ueqs_8], key: 1}
+    scores:
+      ueq_s_pragmatic:
+        dv: ueq_pragmatic
+        items: [ueq_s_1, ueq_s_2, ueq_s_3, ueq_s_4]
+        centering: midpoint
+        aggregate: mean
+      ueq_s_hedonic:
+        dv: ueq_hedonic
+        items: [ueq_s_5, ueq_s_6, ueq_s_7, ueq_s_8]
+        centering: midpoint
+        aggregate: mean
+
+  ssq:
+    label: Simulator Sickness Questionnaire
+    citation: "Kennedy, R. S., Lane, N. E., Berbaum, K. S., & Lilienthal, M. G. (1993). Simulator Sickness Questionnaire: An enhanced method for quantifying simulator sickness. The International Journal of Aviation Psychology, 3(3), 203-220."
+    doi: 10.1207/s15327108ijap0303_3
+    notes: >-
+      16 symptoms rated 0 (none) to 3 (severe). Subscale raw sums are weighted
+      by 9.54 (nausea), 7.58 (oculomotor) and 13.92 (disorientation); the total
+      is the sum of the three raw sums times 3.74. Some symptoms load on two
+      subscales.
+    response_codings: [[0, 3]]
+    items:
+      - {id: ssq_general_discomfort, aliases: [ssq1, ssq_1], key: 1}
+      - {id: ssq_fatigue, aliases: [ssq2, ssq_2], key: 1}
+      - {id: ssq_headache, aliases: [ssq3, ssq_3], key: 1}
+      - {id: ssq_eye_strain, aliases: [ssq4, ssq_4], key: 1}
+      - {id: ssq_difficulty_focusing, aliases: [ssq5, ssq_5], key: 1}
+      - {id: ssq_increased_salivation, aliases: [ssq6, ssq_6], key: 1}
+      - {id: ssq_sweating, aliases: [ssq7, ssq_7], key: 1}
+      - {id: ssq_nausea_item, aliases: [ssq8, ssq_8], key: 1}
+      - {id: ssq_difficulty_concentrating, aliases: [ssq9, ssq_9], key: 1}
+      - {id: ssq_fullness_of_head, aliases: [ssq10, ssq_10], key: 1}
+      - {id: ssq_blurred_vision, aliases: [ssq11, ssq_11], key: 1}
+      - {id: ssq_dizzy_eyes_open, aliases: [ssq12, ssq_12], key: 1}
+      - {id: ssq_dizzy_eyes_closed, aliases: [ssq13, ssq_13], key: 1}
+      - {id: ssq_vertigo, aliases: [ssq14, ssq_14], key: 1}
+      - {id: ssq_stomach_awareness, aliases: [ssq15, ssq_15], key: 1}
+      - {id: ssq_burping, aliases: [ssq16, ssq_16], key: 1}
+    scores:
+      ssq_nausea_score:
+        dv: ssq_nausea
+        items: [ssq_general_discomfort, ssq_increased_salivation, ssq_sweating, ssq_nausea_item,
+                ssq_difficulty_concentrating, ssq_stomach_awareness, ssq_burping]
+        centering: none
+        aggregate: sum
+        multiplier: 9.54
+      ssq_oculomotor_score:
+        dv: ssq_oculomotor
+        items: [ssq_general_discomfort, ssq_fatigue, ssq_headache, ssq_eye_strain,
+                ssq_difficulty_focusing, ssq_difficulty_concentrating, ssq_blurred_vision]
+        centering: none
+        aggregate: sum
+        multiplier: 7.58
+      ssq_disorientation_score:
+        dv: ssq_disorientation
+        items: [ssq_difficulty_focusing, ssq_nausea_item, ssq_fullness_of_head, ssq_blurred_vision,
+                ssq_dizzy_eyes_open, ssq_dizzy_eyes_closed, ssq_vertigo]
+        centering: none
+        aggregate: sum
+        multiplier: 13.92
+      ssq_total_score:
+        dv: ssq_total
+        # N + O + D raw sums: items loading on two subscales count twice.
+        items: [ssq_general_discomfort, ssq_increased_salivation, ssq_sweating, ssq_nausea_item,
+                ssq_difficulty_concentrating, ssq_stomach_awareness, ssq_burping,
+                ssq_general_discomfort, ssq_fatigue, ssq_headache, ssq_eye_strain,
+                ssq_difficulty_focusing, ssq_difficulty_concentrating, ssq_blurred_vision,
+                ssq_difficulty_focusing, ssq_nausea_item, ssq_fullness_of_head, ssq_blurred_vision,
+                ssq_dizzy_eyes_open, ssq_dizzy_eyes_closed, ssq_vertigo]
+        centering: none
+        aggregate: sum
+        multiplier: 3.74
+
+  tia_koerber:
+    label: Trust in Automation questionnaire (Körber)
+    citation: "Körber, M. (2019). Theoretical considerations and development of a questionnaire to measure trust in automation. In Proceedings of the 20th Congress of the International Ergonomics Association (IEA 2018), pp. 13-30. Springer."
+    doi: 10.1007/978-3-319-96074-6_2
+    notes: >-
+      19 items, 5-point (1 strongly disagree .. 5 strongly agree); items 5, 7,
+      10, 15 and 16 are reverse-keyed. The six `tia_item_NN` DVs of the DV
+      schema come from studies whose item order is not documented, so they are
+      deliberately not linked to these item numbers.
+    response_codings: [[1, 5]]
+    items:
+      - {id: tia_k01, aliases: [tia_koerber_01, koerber_tia_01], key: 1}
+      - {id: tia_k02, aliases: [tia_koerber_02, koerber_tia_02], key: 1}
+      - {id: tia_k03, aliases: [tia_koerber_03, koerber_tia_03], key: 1}
+      - {id: tia_k04, aliases: [tia_koerber_04, koerber_tia_04], key: 1}
+      - {id: tia_k05, aliases: [tia_koerber_05, koerber_tia_05], key: -1}
+      - {id: tia_k06, aliases: [tia_koerber_06, koerber_tia_06], key: 1}
+      - {id: tia_k07, aliases: [tia_koerber_07, koerber_tia_07], key: -1}
+      - {id: tia_k08, aliases: [tia_koerber_08, koerber_tia_08], key: 1}
+      - {id: tia_k09, aliases: [tia_koerber_09, koerber_tia_09], key: 1}
+      - {id: tia_k10, aliases: [tia_koerber_10, koerber_tia_10], key: -1}
+      - {id: tia_k11, aliases: [tia_koerber_11, koerber_tia_11], key: 1}
+      - {id: tia_k12, aliases: [tia_koerber_12, koerber_tia_12], key: 1}
+      - {id: tia_k13, aliases: [tia_koerber_13, koerber_tia_13], key: 1}
+      - {id: tia_k14, aliases: [tia_koerber_14, koerber_tia_14], key: 1}
+      - {id: tia_k15, aliases: [tia_koerber_15, koerber_tia_15], key: -1}
+      - {id: tia_k16, aliases: [tia_koerber_16, koerber_tia_16], key: -1}
+      - {id: tia_k17, aliases: [tia_koerber_17, koerber_tia_17], key: 1}
+      - {id: tia_k18, aliases: [tia_koerber_18, koerber_tia_18], key: 1}
+      - {id: tia_k19, aliases: [tia_koerber_19, koerber_tia_19], key: 1}
+    scores:
+      tia_reliability_competence_score:
+        dv: tia_reliability_competence
+        items: [tia_k01, tia_k06, tia_k10, tia_k13, tia_k15, tia_k19]
+        centering: reflect
+        aggregate: mean
+      tia_understanding_predictability_score:
+        dv: tia_understanding_predictability
+        items: [tia_k02, tia_k07, tia_k11, tia_k16]
+        centering: reflect
+        aggregate: mean
+      tia_familiarity_score:
+        dv: tia_familiarity
+        items: [tia_k03, tia_k17]
+        centering: reflect
+        aggregate: mean
+      tia_intention_of_developers_score:
+        dv: tia_intention_of_developers
+        items: [tia_k04, tia_k08]
+        centering: reflect
+        aggregate: mean
+      tia_propensity_to_trust_score:
+        dv: tia_propensity_to_trust
+        items: [tia_k05, tia_k12, tia_k18]
+        centering: reflect
+        aggregate: mean
+      tia_trust_in_automation_score:
+        dv: tia_trust_in_automation
+        items: [tia_k09, tia_k14]
+        centering: reflect
+        aggregate: mean

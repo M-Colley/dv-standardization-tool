@@ -28,6 +28,14 @@ import yaml
 from scipy import stats
 from sklearn.decomposition import PCA
 
+import sys
+
+_REPO_ROOT = Path(__file__).resolve().parents[1]
+if str(_REPO_ROOT) not in sys.path:  # run as a script from analyses/
+    sys.path.insert(0, str(_REPO_ROOT))
+
+from scripts import instruments as instruments_registry  # noqa: E402
+
 # libyaml's C parser is ~7x faster on the 2k-line DV schema and yields
 # identical objects; fall back to the pure-Python loader when unavailable.
 _YAML_SAFE_LOADER = getattr(yaml, "CSafeLoader", yaml.SafeLoader)
@@ -434,167 +442,24 @@ def _resolve_series(df: pd.DataFrame, candidates: Iterable[str]) -> Optional[pd.
     return None
 
 
-# ── Derived-scale registry ─────────────────────────────────────────────────
-# Each entry maps a higher-order construct to its sub-item candidate lists.
-# `add_derived_scale_scores` and `CONSTRUCT_SUBITEMS` are BOTH derived from
-# this single registry so they never go out of sync.  To add a new derived
-# scale, just add an entry here and a scoring function below.
+# ── Derived scale scores ─────────────────────────────────────────────────────
+# Questionnaire scores (SUS, raw NASA-TLX, Van der Laan acceptance, UEQ-S,
+# SSQ, Körber TiA) are defined declaratively in schemas/instruments.yaml and
+# computed by scripts/instruments.py. `add_derived_scale_scores`, the file
+# pre-filter and `CONSTRUCT_SUBITEMS` all read that one registry, so they never
+# go out of sync. To add a scale, add an instrument there; no Python needed.
 
-_DERIVED_SCALES: dict[str, dict] = {
-    # NASA-TLX overall score
-    "nasa_tlx_score": {
-        "item_candidates": [
-            ["tlx1", "nasa_tlx1", "mental_demand", "tlx_mental_demand", "nasa_tlx_mental"],
-            ["tlx2", "nasa_tlx2", "physical_demand"],
-            ["tlx3", "nasa_tlx3", "temporal_demand"],
-            ["tlx4", "nasa_tlx4", "performance"],
-            ["tlx5", "nasa_tlx5", "effort"],
-            ["tlx6", "nasa_tlx6", "frustration"],
-        ],
-        # Canonical DV ids of the sub-items (used for DAG exclusion)
-        "canonical_subitems": [
-            "mental_demand", "physical_demand", "temporal_demand",
-            "performance", "effort", "frustration",
-        ],
-        "formula": "mean",
-    },
-    # SUS total score  (canonical id: usability)
-    "sus_score": {
-        "item_candidates": [
-            ["sus1", "sus_1"], ["sus2", "sus_2"], ["sus3", "sus_3"],
-            ["sus4", "sus_4"], ["sus5", "sus_5"], ["sus6", "sus_6"],
-            ["sus7", "sus_7"], ["sus8", "sus_8"], ["sus9", "sus_9"],
-            ["sus10", "sus_10"],
-        ],
-        "canonical_subitems": [f"SUS{i}" for i in range(1, 11)],
-        "formula": "custom",
-    },
-    # AOA usefulness subscale
-    "aoa_usefulness": {
-        "item_candidates": [
-            ["aoa1", "aoa_1"], ["aoa2", "aoa_2"], ["aoa3", "aoa_3"],
-            ["aoa4", "aoa_4"], ["aoa5", "aoa_5"], ["aoa6", "aoa_6"],
-            ["aoa7", "aoa_7"], ["aoa8", "aoa_8"], ["aoa9", "aoa_9"],
-        ],
-        "canonical_subitems": [f"AOA{i}" for i in range(1, 10)],
-        "formula": "custom",
-    },
-    # AOA satisfying subscale  (shares same items as usefulness)
-    "aoa_satisfying": {
-        "item_candidates": [
-            ["aoa1", "aoa_1"], ["aoa2", "aoa_2"], ["aoa3", "aoa_3"],
-            ["aoa4", "aoa_4"], ["aoa5", "aoa_5"], ["aoa6", "aoa_6"],
-            ["aoa7", "aoa_7"], ["aoa8", "aoa_8"], ["aoa9", "aoa_9"],
-        ],
-        "canonical_subitems": [f"AOA{i}" for i in range(1, 10)],
-        "formula": "custom",
-    },
-}
+INSTRUMENTS_PATH = instruments_registry.DEFAULT_INSTRUMENTS_PATH
 
 
 def _build_construct_subitems() -> dict[str, list[str]]:
-    """Build construct → sub-item mapping from the derived-scale registry.
-
-    The keys are the *canonical DV ids* that the derived score maps to
-    (looked up via ``_canonicalize_dv_name``), so the mapping stays correct
-    even when the schema renames things.
-    """
-    lookup = _load_standard_dv_lookup()
-    mapping: dict[str, list[str]] = {}
-    for col_name, spec in _DERIVED_SCALES.items():
-        # Resolve the column name to its canonical DV id
-        canonical = lookup.get(_normalize_colname(col_name), col_name)
-        subitems = spec.get("canonical_subitems", [])
-        if subitems:
-            existing = mapping.get(canonical, [])
-            merged = list(dict.fromkeys(existing + subitems))  # dedupe, preserve order
-            mapping[canonical] = merged
-    return mapping
-
-
-def _aoa_scale_midpoint(items: list[pd.Series]) -> float:
-    """Midpoint of the 5-point coding used for AOA items: 0 for -2..+2, 3 for 1..5."""
-    values = pd.concat(items, ignore_index=True).dropna()
-    if values.empty:
-        return 3.0
-    lo, hi = float(values.min()), float(values.max())
-    if lo < 0:
-        return 0.0
-    if lo >= 1:
-        return 3.0
-    if hi <= 2:
-        # Only 0..2 observed: cannot tell -2..+2 (no negative answers) from
-        # 0..4; the -2..+2 export is the one seen in practice.
-        logging.getLogger(__name__).warning(
-            "AOA items span %.0f..%.0f; assuming -2..+2 coding (midpoint 0)", lo, hi
-        )
-        return 0.0
-    return 2.0  # 0..4 coding
+    """Score DV -> the item ids it is computed from, per the instrument registry."""
+    return instruments_registry.construct_subitems(instruments_registry.load_instruments(INSTRUMENTS_PATH))
 
 
 def add_derived_scale_scores(df: pd.DataFrame) -> pd.DataFrame:
-    """Add TLX/SUS/AOA derived scores when all required mapped item columns are present.
-
-    Scale definitions come from ``_DERIVED_SCALES`` — add new entries there
-    so the DAG sub-item filter picks them up automatically.
-
-    Entries with ``formula: "mean"`` are computed automatically as the mean of all
-    item series.  Entries with ``formula: "custom"`` use bespoke Python code below.
-    Adding a new scale with ``formula: "mean"`` requires no additional Python code.
-    """
-    out = df.copy()
-
-    # --- Auto-compute "mean" formula scales ---
-    for scale_name, spec in _DERIVED_SCALES.items():
-        if spec.get("formula") != "mean":
-            continue
-        items = [_resolve_series(out, cands) for cands in spec["item_candidates"]]
-        if all(item is not None for item in items):
-            out[scale_name] = pd.concat(items, axis=1).mean(axis=1, skipna=False)
-
-    # --- Custom formula scales ---
-
-    # SUS: alternating forward/reverse scoring, scaled to 0-100
-    spec = _DERIVED_SCALES["sus_score"]
-    sus_items = [_resolve_series(out, cands) for cands in spec["item_candidates"]]
-    if all(item is not None for item in sus_items):
-        out["sus_score"] = (
-            (sus_items[0] - 1)
-            + (sus_items[2] - 1)
-            + (sus_items[4] - 1)
-            + (sus_items[6] - 1)
-            + (sus_items[8] - 1)
-            + (5 - sus_items[1])
-            + (5 - sus_items[3])
-            + (5 - sus_items[5])
-            + (5 - sus_items[7])
-            + (5 - sus_items[9])
-        ) * 2.5
-
-    # AOA (Van der Laan acceptance): usefulness and satisfying subscales.
-    # Items are stored as the answer *position* on a 5-point semantic
-    # differential; items 3, 6 and 8 have the positive pole on the other side.
-    # Each item is centred on the scale midpoint (mid - x, or x - mid for the
-    # mirrored items), so scores are -2..+2 whether a study codes positions
-    # 1..5 (midpoint 3) or -2..+2 (midpoint 0, e.g. LimeSurvey "neg2".."2").
-    spec = _DERIVED_SCALES["aoa_usefulness"]
-    aoa_items = [_resolve_series(out, cands) for cands in spec["item_candidates"]]
-    if all(item is not None for item in aoa_items):
-        mid = _aoa_scale_midpoint(aoa_items)
-        out["aoa_usefulness"] = (
-            (mid - aoa_items[0])
-            + (aoa_items[2] - mid)
-            + (mid - aoa_items[4])
-            + (mid - aoa_items[6])
-            + (mid - aoa_items[8])
-        ) / 5.0
-        out["aoa_satisfying"] = (
-            (mid - aoa_items[1])
-            + (mid - aoa_items[3])
-            + (aoa_items[5] - mid)
-            + (aoa_items[7] - mid)
-        ) / 4.0
-
+    """Add every registered questionnaire score whose items are all present."""
+    out, _records = instruments_registry.score_frame(df, instruments_registry.load_instruments(INSTRUMENTS_PATH))
     return out
 
 
@@ -618,12 +483,7 @@ def _read_header(path: Path) -> list[str]:
 
 
 def _derived_scale_item_names() -> frozenset[str]:
-    return frozenset(
-        _normalize_colname(candidate)
-        for spec in _DERIVED_SCALES.values()
-        for candidates in spec["item_candidates"]
-        for candidate in candidates
-    )
+    return instruments_registry.item_column_names(instruments_registry.load_instruments(INSTRUMENTS_PATH))
 
 
 def _is_analysis_column(name: str, derived_items: frozenset[str] | None = None) -> bool:
@@ -695,7 +555,7 @@ def load_studies(
 
     rm_keys = repeated_measures_studies or set()
 
-    # Computed here (not cached globally) so edits to _DERIVED_SCALES apply;
+    # Computed here (not cached globally) so edits to the instrument registry apply;
     # also warms the schema lookup cache before threads share it.
     derived_items = _derived_scale_item_names()
     _load_standard_dv_lookup()
@@ -2255,7 +2115,7 @@ def save_sensitivity_plot(
 # sub-items should be excluded from the LiNGAM DAG to avoid tautological
 # causal edges (e.g., SUS items → usability).
 #
-# Built automatically from ``_DERIVED_SCALES`` — adding a new derived scale
+# Built automatically from the instrument registry — adding a new derived scale
 # there will auto-exclude its sub-items from the DAG — and from the DV schema:
 # an entry declares its parent with ``subitem_of: <construct id>``, or is
 # recognised by the ``<construct id>_item_NN`` naming convention when that
@@ -3024,11 +2884,6 @@ def main() -> None:
     # the experimental effects, as opposed to the pooled means above.
     contrast_summary = None
     if args.study_designs and Path(args.study_designs).is_file():
-        import sys
-
-        repo_root = str(Path(__file__).resolve().parents[1])
-        if repo_root not in sys.path:  # run as a script from analyses/
-            sys.path.insert(0, repo_root)
         from analyses.contrast_meta_analysis import run_contrast_analysis
 
         contrast_summary = run_contrast_analysis(

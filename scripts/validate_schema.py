@@ -165,12 +165,50 @@ def validate_new_format(schema: dict) -> list[str]:
     return errors
 
 
-def validate(schema: dict) -> list[str]:
+def _dv_schema_ids() -> set[str]:
+    from pathlib import Path
+
+    path = Path(__file__).resolve().parents[1] / "schemas" / "standard_dv_mapping.yaml"
+    return {str(dv.get("id")) for dv in (load_schema(str(path)).get("dvs") or []) if isinstance(dv, dict)}
+
+
+def validate_instrument_registry(path: str) -> list[str]:
+    """Parse the instrument registry and check that every score maps to a schema DV."""
+    try:
+        from scripts import instruments
+    except ImportError:
+        import instruments
+    try:
+        registry = instruments.load_instruments(path)
+    except (KeyError, TypeError, ValueError) as exc:
+        return [f"Instrument registry: {exc}"]
+    return instruments.schema_errors(registry, _dv_schema_ids())
+
+
+def validate_study_designs(path: str) -> list[str]:
+    """Parse the study design declarations (analyses/contrast_meta_analysis.py)."""
+    import importlib
+    from pathlib import Path
+
+    root = str(Path(__file__).resolve().parents[1])
+    if root not in sys.path:
+        sys.path.insert(0, root)
+    cma = importlib.import_module("analyses.contrast_meta_analysis")
+    try:
+        cma.load_study_designs(Path(path))
+    except (KeyError, TypeError, ValueError) as exc:
+        return [f"Study designs: {exc}"]
+    return []
+
+
+def validate(schema: dict, path: str | None = None) -> list[str]:
     """
     Validate schema (auto-detects format).
 
     Args:
         schema: Schema dictionary
+        path: File the schema was read from (needed for the instrument
+            registry and study designs, which are validated by their loaders)
 
     Returns:
         List of error messages
@@ -178,6 +216,10 @@ def validate(schema: dict) -> list[str]:
     if not isinstance(schema, dict):
         return ["Schema root must be a dictionary"]
 
+    if "instruments" in schema and path is not None:
+        return validate_instrument_registry(path)
+    if "canonical_factors" in schema and path is not None:
+        return validate_study_designs(path)
     if "dvs" in schema:
         return validate_new_format(schema)
     return validate_legacy_format(schema)
@@ -213,7 +255,7 @@ if __name__ == "__main__":
         print(f"Format: {format_type}")
         print()
 
-        issues = validate(schema)
+        issues = validate(schema, schema_path)
 
         if issues:
             print(f"[ERROR] Schema validation FAILED with {len(issues)} issue(s):")

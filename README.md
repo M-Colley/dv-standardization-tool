@@ -367,6 +367,10 @@ Datasets are processed in parallel (`--workers`, see above); a run with `--worke
   - DL or REML;
   - Wald or HKSJ intervals.
 
+### Instruments
+
+`schemas/instruments.yaml` records how standard questionnaires are scored (items, reverse keys, response codings, scoring rule, citation): SUS, raw NASA-TLX, Van der Laan acceptance, UEQ-S, SSQ and Körber's TiA. Scores are computed from it whenever all items of a scale are present; a new questionnaire needs only a YAML entry. See `docs/schema_design.md`.
+
 ### Condition contrasts
 
 Study means alone cannot say what a manipulation did. `schemas/study_designs.yaml` declares, per study, the participant column and the manipulated factors, and maps their levels onto canonical independent variables such as `ehmi_presence` (absent / present). `analyses/contrast_meta_analysis.py`, run by `multi_study_analysis.py`, then:
