@@ -10,11 +10,15 @@ and reports recall@k with Wilson 95% CIs:
 * ``fuzzy``      — alias-string similarity (rapidfuzz), the original shortlist;
 * ``definition`` — ``scripts/dv_retrieval.py``: TF-IDF over DV definitions
   (mean of name and full-definition similarity);
-* ``hybrid``     — reciprocal-rank fusion of the two (Cormack et al., 2009).
+* ``hybrid``     — reciprocal-rank fusion of the two (Cormack et al., 2009);
+* ``dense:<model>`` and ``hybrid:<model>`` (with ``--dense-model``) — cosine
+  similarity of sentence embeddings of the same definitions
+  (``scripts.dv_retrieval.DenseRetriever``), alone and fused with the
+  definition ranking.
 
 Every item is leave-alias-out: the held-out alias is removed from the fuzzy
-mapping and from every DV definition before ranking. No model is downloaded
-and no LLM is called.
+mapping and from every DV definition before ranking. No LLM is called; a
+dense model is loaded from the Hugging Face cache (downloaded if missing).
 """
 
 from __future__ import annotations
@@ -31,7 +35,7 @@ REPO_ROOT = Path(__file__).resolve().parents[1]
 if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
-from scripts.dv_retrieval import get_retriever  # noqa: E402
+from scripts.dv_retrieval import DenseRetriever, get_retriever, load_dv_definitions  # noqa: E402
 from scripts.llm_coordinator import _select_llm_candidate_shortlist  # noqa: E402
 from scripts.llm_plausibility import normalize_name  # noqa: E402
 from scripts.run_batch_standardization import SchemaFamilies  # noqa: E402
@@ -65,9 +69,17 @@ def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument("--items", default="analyses/output_llm_evaluation/llm_mapping_evaluation_items.csv")
     parser.add_argument("--output", default="analyses/output_llm_evaluation/shortlist_retrieval_summary.json")
+    parser.add_argument("--dense-model", action="append", default=[],
+                        help="sentence-transformers model id to add as a dense retriever (repeatable)")
+    parser.add_argument("--device", default="cpu", help="Device for dense models")
     args = parser.parse_args()
 
     retriever = get_retriever()
+    definitions = load_dv_definitions()
+    dense = {
+        model: DenseRetriever.from_model(definitions, model, device=args.device)
+        for model in args.dense_model
+    }
     dv_ids = {dv for dv, _ in retriever.rank("x", k=10_000)}
     mapping = SchemaFamilies.load(REPO_ROOT / "schemas" / "standard_dv_mapping.yaml").standard_mapping_for(
         "questionnaire"
@@ -76,11 +88,17 @@ def main() -> None:
     items = items[(items["label_kind"] == "dv") & items["gold"].isin(dv_ids)]
     results: dict[str, dict] = {}
     for experiment, group in items.groupby("experiment", sort=True):
-        hits = {name: {k: 0 for k in KS} for name in ("fuzzy", "definition", "hybrid")}
+        names = ["fuzzy", "definition", "hybrid"]
+        names += [f"{kind}:{model}" for model in dense for kind in ("dense", "hybrid")]
+        hits = {name: {k: 0 for k in KS} for name in names}
         for row in group.itertuples(index=False):
             fuzzy = _fuzzy_ranking(row.alias, mapping)
             definition = [dv for dv, _ in retriever.rank(row.alias, k=max(KS) * 2, exclude_alias=row.alias)]
             rankings = {"fuzzy": fuzzy, "definition": definition, "hybrid": _rrf(fuzzy, definition)}
+            for model, dense_retriever in dense.items():
+                ranking = [dv for dv, _ in dense_retriever.rank(row.alias, k=max(KS) * 2, exclude_alias=row.alias)]
+                rankings[f"dense:{model}"] = ranking
+                rankings[f"hybrid:{model}"] = _rrf(definition, ranking)
             for name, ranking in rankings.items():
                 for k in KS:
                     hits[name][k] += int(row.gold in ranking[:k])
@@ -92,7 +110,7 @@ def main() -> None:
     for experiment, by_name in results.items():
         print(experiment)
         for name, by_k in by_name.items():
-            print(f"  {name:10s}", "  ".join(f"{key}={val['rate']:.2f}" for key, val in by_k.items()))
+            print(f"  {name:40s}", "  ".join(f"{key}={val['rate']:.2f}" for key, val in by_k.items()))
 
 
 if __name__ == "__main__":
