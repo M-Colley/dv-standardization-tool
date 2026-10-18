@@ -50,7 +50,9 @@ if _PYDANTIC_AVAILABLE:
         model_config = {"extra": "allow"}  # unknown fields are warnings, not errors
 
         source_id: str
-        source_type: str  # local_path | github_repo | osf_project | web_dataset
+        # local_path | github_repo | osf_project | web_dataset | zenodo_record |
+        # figshare_article | fourtu_dataset | dataverse_dataset (+ registered types)
+        source_type: str
         location: str
         ref: str | None = None
         include_globs: list[str] = []
@@ -65,6 +67,8 @@ if _PYDANTIC_AVAILABLE:
         archive_max_depth: int = 3
         repeated_measures: bool = False
         llm_models: list[str] | None = None
+        # Repository sources: skip files larger than this (MB).
+        max_file_mb: float | None = None
 
         @field_validator("source_type")
         @classmethod
@@ -180,6 +184,7 @@ from scripts.llm_coordinator import (
 # scripts.sources owns the per-source-type loaders (currently github URL
 # parsing + OSF JSON-API traversal). Re-exported here so existing imports
 # continue to work.
+from scripts.sources import repositories
 from scripts.sources.github import GITHUB_HOSTS, GitHubLocation, _parse_github_location
 from scripts.sources.osf import (
     OSF_API_BASE,
@@ -703,10 +708,13 @@ def _ensure_cache_dir(cache_root: Path | None, source: dict[str, Any], working_d
 # include/exclude matching are shared by every source type, so a new source
 # type only needs to fetch files:
 #
-#     @register_source_type("zenodo_record")
-#     def _materialize_zenodo(source, target, refresh_remote_cache):
+#     @register_source_type("my_repository")
+#     def _materialize_my_repository(source, target, refresh_remote_cache):
 #         ...download into target...
-#         return target, record_id
+#         return target, record_version
+#
+# Repository APIs that list files with checksums (Zenodo, figshare, 4TU,
+# Dataverse) share ``_materialize_repository_record``.
 SourceMaterializer = Callable[[dict[str, Any], Path, bool], tuple[Path, str | None]]
 _SOURCE_MATERIALIZERS: dict[str, SourceMaterializer] = {}
 
@@ -815,6 +823,84 @@ def _materialize_web_dataset(
         _materialize_web_dataset_source(str(source["location"]), target)
         (target / ".source_ready").write_text(expected_marker, encoding="utf-8")
     return target, str(source["location"])
+
+
+def _materialize_repository_record(
+    source: dict[str, Any],
+    target: Path,
+    refresh_remote_cache: bool,
+    key: str,
+    fetch: Callable[[], repositories.RemoteRecord],
+) -> tuple[Path, str | None]:
+    """Shared download/caching for repository records (Zenodo, figshare, ...).
+
+    The record's revision is stored next to the cache marker so a cached
+    source still reports which version it holds.
+    """
+    expected_marker = f"{key}|layout=v1"
+    revision_file = target / ".source_revision"
+    if _reuse_marked_cache(target, expected_marker, refresh_remote_cache):
+        revision = revision_file.read_text(encoding="utf-8").strip() if revision_file.exists() else key
+        return target, revision
+    record = fetch()
+    max_mb = source.get("max_file_mb")
+    written = repositories.download_record(
+        record,
+        target,
+        DATA_FILE_SUFFIXES | ARCHIVE_SUFFIXES | MAPPING_SUFFIXES,
+        max_file_bytes=int(float(max_mb) * 1024 * 1024) if max_mb else None,
+    )
+    if not written:
+        raise SourceAccessError("not_available", f"{key}: the record has no data, archive or mapping files")
+    revision_file.write_text(record.revision, encoding="utf-8")
+    (target / ".source_ready").write_text(expected_marker, encoding="utf-8")
+    return target, record.revision
+
+
+@register_source_type("zenodo_record")
+def _materialize_zenodo_record(
+    source: dict[str, Any], target: Path, refresh_remote_cache: bool
+) -> tuple[Path, str | None]:
+    record_id = repositories.parse_zenodo_location(str(source["location"]))
+    return _materialize_repository_record(
+        source, target, refresh_remote_cache, f"zenodo:{record_id}",
+        lambda: repositories.zenodo_record(record_id),
+    )
+
+
+@register_source_type("figshare_article")
+def _materialize_figshare_article(
+    source: dict[str, Any], target: Path, refresh_remote_cache: bool
+) -> tuple[Path, str | None]:
+    article_id, version = repositories.parse_figshare_location(str(source["location"]))
+    version = str(source.get("ref") or version or "") or None
+    return _materialize_repository_record(
+        source, target, refresh_remote_cache, f"figshare:{article_id}@{version or 'latest'}",
+        lambda: repositories.figshare_record(article_id, version),
+    )
+
+
+@register_source_type("fourtu_dataset")
+def _materialize_fourtu_dataset(
+    source: dict[str, Any], target: Path, refresh_remote_cache: bool
+) -> tuple[Path, str | None]:
+    uuid, version = repositories.parse_fourtu_location(str(source["location"]))
+    version = str(source.get("ref") or version or "") or None
+    return _materialize_repository_record(
+        source, target, refresh_remote_cache, f"4tu:{uuid}@{version or 'latest'}",
+        lambda: repositories.fourtu_record(uuid, version),
+    )
+
+
+@register_source_type("dataverse_dataset")
+def _materialize_dataverse_dataset(
+    source: dict[str, Any], target: Path, refresh_remote_cache: bool
+) -> tuple[Path, str | None]:
+    server, persistent_id = repositories.parse_dataverse_location(str(source["location"]))
+    return _materialize_repository_record(
+        source, target, refresh_remote_cache, f"dataverse:{persistent_id}",
+        lambda: repositories.dataverse_record(server, persistent_id),
+    )
 
 
 @register_source_type("github_repo")

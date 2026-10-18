@@ -59,8 +59,10 @@ sources:
       - "**/*.pickle"
     use_llm_deduction: false
 
+  # 4TU.ResearchData through its API (file list with md5 checksums). The
+  # record also holds a 230 MB data archive and an 85 MB video archive.
   - source_id: fourtu_critical_ehmi
-    source_type: web_dataset
+    source_type: fourtu_dataset
     location: https://data.4tu.nl/articles/_/20224281
     publication_doi: 10.4121/20224281.v2
     include_globs:

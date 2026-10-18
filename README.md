@@ -357,6 +357,19 @@ The included `sources_manifest_example.yaml` is preconfigured for:
 
 Datasets are processed in parallel (`--workers`, see above); a run with `--workers 1` produces the same files.
 
+### Research-data repositories
+
+Besides local folders, GitHub, OSF and web landing pages, sources can come from data repositories, through their APIs:
+
+| `source_type` | `location` |
+|---|---|
+| `zenodo_record` | `https://zenodo.org/records/<id>` or `10.5281/zenodo.<id>` |
+| `figshare_article` | `https://figshare.com/articles/<type>/<slug>/<id>[/<version>]` or `10.6084/m9.figshare.<id>` |
+| `fourtu_dataset` | `https://data.4tu.nl/datasets/<uuid>[/<version>]` or a legacy `.../articles/_/<id>` |
+| `dataverse_dataset` | `https://<server>/dataset.xhtml?persistentId=doi:...` |
+
+Only data, archive and mapping files are downloaded, and every file is checked against the size and checksum the repository publishes. Dataverse tables are fetched as originally uploaded, not as Dataverse's `.tab` conversion. The record version is recorded as the provenance id of each dataset. `max_file_mb` skips larger files. Missing or restricted records are reported as unavailable instead of failing the run. Other repositories can be added the same way (`scripts/sources/repositories.py`, `register_source_type`).
+
 ### Self-describing outputs
 
 Every run also writes standard metadata (`scripts/fair_export.py`; skip it with `--no-fair-export`):
