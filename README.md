@@ -161,7 +161,7 @@ The LLM is not used for blocked admin fields such as `UserID` or `ConditionID`, 
 
 Every rejection, with its reason, is written to `llm_rejected_suggestions.json` and listed in `llm_deductions.log`. Use `--no-llm-plausibility-check` only for ablation.
 
-**Candidate retrieval.** The LLM chooses from a shortlist of candidate DVs. By default (`--llm-shortlist definition`), `scripts/dv_retrieval.py` builds it by TF-IDF similarity to each DV's definition (id, label, aliases, instruments, notes, cluster, unit). The earlier alias-string matching (`--llm-shortlist fuzzy`) missed the correct DV for most real columns.
+**Candidate retrieval.** The LLM chooses from a shortlist of candidate DVs. By default (`--llm-shortlist definition`), `scripts/dv_retrieval.py` builds it by TF-IDF similarity to each DV's definition (id, label, aliases, instruments, notes, cluster, unit). The earlier alias-string matching (`--llm-shortlist fuzzy`) missed the correct DV for most real columns. `--llm-shortlist dense` fuses TF-IDF with sentence embeddings (`BAAI/bge-small-en-v1.5`, downloaded on first use, runs on CPU): the correct DV is among 8 candidates for 97% of held-out real columns, against 83% for TF-IDF alone. Its effect on end-to-end LLM accuracy has not been measured yet, so it is not the default.
 
 **How good is the LLM fallback?** `analyses/evaluate_llm_mapping.py` replays the LLM step with each curated mapping hidden (leave-alias-out). With the local Gemma-4-E2B model and the plausibility check on, it found on real dataset columns:
 

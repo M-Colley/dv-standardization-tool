@@ -135,8 +135,9 @@ def _augment_mapping_with_llm_deductions(
 
     This is especially useful for repositories that do not provide a
     custom mapping YAML file. ``shortlist`` selects how candidate DVs are retrieved:
-    ``"fuzzy"`` (alias-string similarity) or ``"definition"`` (TF-IDF over DV
-    definitions). ``inference_cache`` is keyed by the
+    ``"fuzzy"`` (alias-string similarity), ``"definition"`` (TF-IDF over DV
+    definitions) or ``"dense"`` (sentence embeddings of the definitions,
+    ``BAAI/bge-small-en-v1.5`` on CPU). ``inference_cache`` is keyed by the
     lowercased alias and is populated so subsequent datasets in the same
     source skip the LLM call.
     """
@@ -150,12 +151,13 @@ def _augment_mapping_with_llm_deductions(
             inferred = inference_cache[alias_key]
         else:
             candidate_shortlist, top_score = _select_llm_candidate_shortlist(mapping, str(alias))
-            if shortlist == "definition" and candidate_shortlist:
+            if shortlist in ("definition", "dense") and candidate_shortlist:
                 # Same attempt gate; candidates ranked by DV definitions instead
                 # of alias strings (see scripts/dv_retrieval.py).
-                from scripts.dv_retrieval import definition_shortlist
+                from scripts.dv_retrieval import definition_shortlist, dense_shortlist
 
-                candidate_shortlist = definition_shortlist(str(alias), max_candidates=len(candidate_shortlist))
+                retrieve = dense_shortlist if shortlist == "dense" else definition_shortlist
+                candidate_shortlist = retrieve(str(alias), max_candidates=len(candidate_shortlist))
             if not candidate_shortlist or top_score < min_attempt_score:
                 inferred = None
                 if inference_cache is not None:

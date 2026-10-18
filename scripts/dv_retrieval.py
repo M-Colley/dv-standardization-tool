@@ -216,12 +216,44 @@ def definition_shortlist(column_name: str, max_candidates: int = 8, **kwargs: An
     return [dv_id for dv_id, _ in get_retriever(**kwargs).rank(column_name, k=max_candidates)]
 
 
+# Best dense model in analyses/evaluate_shortlist_retrieval.py (real columns:
+# recall@8 103/106 vs. 88/106 for TF-IDF definitions).
+DEFAULT_DENSE_MODEL = "BAAI/bge-small-en-v1.5"
+
+
+@lru_cache(maxsize=2)
+def get_dense_retriever(model_name: str = DEFAULT_DENSE_MODEL, device: str = "cpu") -> DenseRetriever:
+    return DenseRetriever.from_model(load_dv_definitions(), model_name, device=device)
+
+
+def reciprocal_rank_fusion(*rankings: list[str], k: int = 60) -> list[str]:
+    """Fuse rankings by summed 1 / (k + rank) (Cormack et al., 2009)."""
+    scores: dict[str, float] = {}
+    for ranking in rankings:
+        for rank, item in enumerate(ranking):
+            scores[item] = scores.get(item, 0.0) + 1.0 / (k + rank + 1)
+    return [item for item, _ in sorted(scores.items(), key=lambda kv: (-kv[1], kv[0]))]
+
+
+def dense_shortlist(column_name: str, max_candidates: int = 8, **kwargs: Any) -> list[str]:
+    """Dense and TF-IDF definition rankings fused. Fusion keeps exact lexical
+    matches the embedding model can miss ("MentalDemand" -> mental_demand) and
+    gives the highest recall@8 in analyses/evaluate_shortlist_retrieval.py."""
+    depth = max(max_candidates * 2, 16)
+    dense = [dv for dv, _ in get_dense_retriever(**kwargs).rank(column_name, k=depth)]
+    lexical = [dv for dv, _ in get_retriever().rank(column_name, k=depth)]
+    return reciprocal_rank_fusion(lexical, dense)[:max_candidates]
+
+
 __all__ = [
     "DefinitionRetriever",
     "DenseRetriever",
     "DvDefinition",
     "definition_shortlist",
+    "dense_shortlist",
+    "get_dense_retriever",
     "get_retriever",
     "load_dv_definitions",
+    "reciprocal_rank_fusion",
     "sentence_transformer_encoder",
 ]

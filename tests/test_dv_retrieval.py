@@ -88,6 +88,25 @@ class DenseRetrieverTests(unittest.TestCase):
         retriever.rank("sus_score", k=3, exclude_alias="sus_score")
         self.assertEqual(calls[1:], [1, 1])  # one definition re-embedded, then the query
 
+    def test_reciprocal_rank_fusion(self):
+        fused = dv_retrieval.reciprocal_rank_fusion(["a", "b", "c"], ["b", "c", "a"])
+        self.assertEqual(fused[0], "b")
+        self.assertEqual(sorted(fused), ["a", "b", "c"])
+
+    def test_coordinator_dense_option_uses_fused_shortlist(self):
+        seen: list[list[str]] = []
+
+        def fake_llm(raw_column_name, canonical_candidates, **_kwargs):
+            seen.append(list(canonical_candidates))
+            return None
+
+        with mock.patch("scripts.llm_coordinator.deduce_standard_name_with_local_llm", side_effect=fake_llm), \
+                mock.patch("scripts.llm_coordinator._select_llm_candidate_shortlist",
+                           return_value=(["trust_rating", "mental_demand"], 90.0)), \
+                mock.patch("scripts.dv_retrieval.dense_shortlist", return_value=["usability", "trust_rating"]):
+            _augment_mapping_with_llm_deductions({"trust": "trust_rating"}, ["SUS"], REPO_ROOT, shortlist="dense")
+        self.assertEqual(seen, [["usability", "trust_rating"]])
+
     def test_model_prefixes_are_applied(self):
         seen: list[str] = []
 

@@ -2618,11 +2618,12 @@ def main() -> None:
     )
     parser.add_argument(
         "--llm-shortlist",
-        choices=["fuzzy", "definition"],
+        choices=["fuzzy", "definition", "dense"],
         default="definition",
         help="How candidate DVs are retrieved for the LLM: TF-IDF over DV definitions (definition; "
              "default, more than doubles mapping precision in analyses/evaluate_llm_mapping.py) or "
-             "alias-string similarity (fuzzy, the earlier behaviour).",
+             "alias-string similarity (fuzzy, the earlier behaviour), or definitions fused with "
+             "sentence embeddings (dense; BAAI/bge-small-en-v1.5 on CPU, downloaded on first use).",
     )
     parser.add_argument(
         "--output-format",

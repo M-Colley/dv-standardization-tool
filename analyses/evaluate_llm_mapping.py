@@ -307,7 +307,7 @@ def main() -> None:
     parser.add_argument("--e2-samples", type=int, default=300, help="Aliases sampled for E2 (default: %(default)s).")
     parser.add_argument("--seed", type=int, default=20261017)
     parser.add_argument("--models", default=None, help="Comma-separated model ids (default: pipeline default).")
-    parser.add_argument("--shortlist", choices=["fuzzy", "definition"], default="definition",
+    parser.add_argument("--shortlist", choices=["fuzzy", "definition", "dense"], default="definition",
                         help="Candidate retrieval for the LLM (default: %(default)s).")
     args = parser.parse_args()
     args.models = [m.strip() for m in args.models.split(",") if m.strip()] if args.models else None
