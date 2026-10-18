@@ -32,7 +32,7 @@ import subprocess
 from collections import defaultdict
 from collections.abc import Iterable, Mapping
 from datetime import UTC, datetime
-from pathlib import Path
+from pathlib import Path, PureWindowsPath
 from typing import Any
 
 import pandas as pd
@@ -145,7 +145,9 @@ def _field_descriptor(
         field[_ns("mappingSource")] = categories[0] if len(categories) == 1 else categories
         # Mapping files are recorded by name only: absolute local paths
         # would leak the machine layout into published metadata.
-        files = sorted({Path(r).name for r in raw_sources if r.lower().endswith((".yaml", ".yml"))})
+        # PureWindowsPath splits on both "\" and "/", so a run made on Windows
+        # and exported on Linux (or vice versa) still yields the bare name.
+        files = sorted({PureWindowsPath(r).name for r in raw_sources if r.lower().endswith((".yaml", ".yml"))})
         if files:
             field[_ns("mappingFile")] = files[0] if len(files) == 1 else files
     # Recoding reports from the quality JSON are keyed by original column name.
