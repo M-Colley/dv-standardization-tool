@@ -25,6 +25,18 @@ def test_every_score_maps_to_a_schema_dv():
     assert instruments.schema_errors(REGISTRY.values(), DV_SCHEMA) == []
 
 
+def test_every_score_column_is_recognised_as_its_dv():
+    """A score written under a name the analysis does not map would be lost."""
+    from analyses import multi_study_analysis as msa
+
+    unmapped = {
+        s.column: msa._canonicalize_dv_name(s.column)
+        for inst in REGISTRY.values() for s in inst.scores
+        if msa._canonicalize_dv_name(s.column) != s.dv
+    }
+    assert unmapped == {}
+
+
 @pytest.mark.parametrize(
     "inst_id, score_name",
     [(i.id, s.name) for i in REGISTRY.values() for s in i.scores],
@@ -72,16 +84,16 @@ def test_ssq_weights_follow_kennedy_1993():
 def test_ueq_s_midpoint_scoring():
     cols = {f"ueqs{i}": [7.0 if i <= 4 else 4.0] for i in range(1, 9)}
     out = _score(cols)
-    assert out["ueq_s_pragmatic"].iloc[0] == pytest.approx(3.0)
-    assert out["ueq_s_hedonic"].iloc[0] == pytest.approx(0.0)
+    assert out["ueq_pragmatic"].iloc[0] == pytest.approx(3.0)
+    assert out["ueq_hedonic"].iloc[0] == pytest.approx(0.0)
 
 
 def test_tia_reverse_keyed_items():
     # Agreeing fully (5) with every item: reverse-keyed items 10 and 15 count as 1.
     out = _score({f"tia_koerber_{i:02d}": [5.0] for i in range(1, 20)})
-    assert out["tia_reliability_competence_score"].iloc[0] == pytest.approx((5 * 4 + 1 * 2) / 6)
-    assert out["tia_trust_in_automation_score"].iloc[0] == pytest.approx(5.0)
-    assert out["tia_propensity_to_trust_score"].iloc[0] == pytest.approx((1 + 5 + 5) / 3)
+    assert out["tia_reliability_competence"].iloc[0] == pytest.approx((5 * 4 + 1 * 2) / 6)
+    assert out["tia_trust_in_automation"].iloc[0] == pytest.approx(5.0)
+    assert out["tia_propensity_to_trust"].iloc[0] == pytest.approx((1 + 5 + 5) / 3)
 
 
 @pytest.mark.parametrize("coding, positive, negative", [((1, 5), 1.0, 5.0), ((-2, 2), -2.0, 2.0)])

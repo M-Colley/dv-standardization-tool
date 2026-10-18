@@ -246,6 +246,18 @@ def validate_dataset_mapping(schema: dict) -> tuple[list[str], list[str]]:
                 ):
                     errors.append(f"scales[{i}]: scale_range must be [min, max] with min < max")
             continue
+        if key == "reverse_items":
+            if not isinstance(value, list):
+                errors.append("'reverse_items' must be a list of {columns, scale_range} blocks")
+                continue
+            for i, block in enumerate(value):
+                rng = block.get("scale_range") if isinstance(block, dict) else None
+                if not isinstance(block, dict) or not isinstance(block.get("columns"), list) or not block["columns"]:
+                    errors.append(f"reverse_items[{i}]: 'columns' must be a non-empty list")
+                elif not (isinstance(rng, list) and len(rng) == 2
+                          and all(isinstance(v, (int, float)) for v in rng) and rng[0] < rng[1]):
+                    errors.append(f"reverse_items[{i}]: scale_range must be [min, max] with min < max")
+            continue
         if key == "value_labels":
             if not isinstance(value, list):
                 errors.append("'value_labels' must be a list of {columns, labels} blocks")

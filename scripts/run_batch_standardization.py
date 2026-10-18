@@ -161,7 +161,7 @@ from scripts.item_composition import (
 )
 from scripts.llm_utils import collect_repository_context, deduce_standard_name_with_local_llm
 from scripts.llm_plausibility import load_rules as load_plausibility_rules
-from scripts.value_labels import apply_value_labels, recode_negative_answer_codes
+from scripts.value_labels import apply_reverse_keying, apply_value_labels, recode_negative_answer_codes
 from scripts.llm_plausibility import (
     ColumnProfile,
     canonical_ranges_from_schema,
@@ -1462,6 +1462,7 @@ class _ResolvedMapping:
     custom_aliases_ci: frozenset[str]
     declared_scales: tuple[dict[str, Any], ...]
     value_labels: tuple[dict[str, Any], ...] = ()
+    reverse_items: tuple[dict[str, Any], ...] = ()
 
 
 class _MappingResolver:
@@ -1497,6 +1498,7 @@ class _MappingResolver:
                     frozenset(str(alias).lower() for alias in custom_mapping.keys() if isinstance(alias, str)),
                     tuple(custom_schema_data.get("scales") or []),
                     tuple(raw_schema.get("value_labels") or []) if isinstance(raw_schema, dict) else (),
+                    tuple(raw_schema.get("reverse_items") or []) if isinstance(raw_schema, dict) else (),
                 )
         return self._custom[mapping_path]
 
@@ -1514,9 +1516,10 @@ class _MappingResolver:
         custom_aliases_ci: frozenset[str] = frozenset()
         declared_scales: tuple[dict[str, Any], ...] = ()
         value_labels: tuple[dict[str, Any], ...] = ()
+        reverse_items: tuple[dict[str, Any], ...] = ()
         custom = self._load_custom(path_key, dataset_id) if path_key is not None else None
         if custom is not None:
-            custom_mapping, custom_aliases_ci, declared_scales, value_labels = custom
+            custom_mapping, custom_aliases_ci, declared_scales, value_labels, reverse_items = custom
             # Only report a mapping path once a non-empty source mapping is
             # actually merged in.
             if custom_mapping:
@@ -1532,6 +1535,7 @@ class _MappingResolver:
             custom_aliases_ci=custom_aliases_ci,
             declared_scales=declared_scales,
             value_labels=value_labels,
+            reverse_items=reverse_items,
         )
         self._resolved[key] = resolved
         return resolved
@@ -1657,6 +1661,9 @@ def _process_dataset(
             # Survey-like tables only: LimeSurvey exports "neg1"/"neg2" for
             # negative scale points, which numeric coercion would drop.
             original_df, answer_code_report = recode_negative_answer_codes(original_df)
+        # Items declared reverse-keyed for this dataset (after the recodings
+        # above, so they operate on numeric codes).
+        original_df, reverse_report = apply_reverse_keying(original_df, resolved.reverse_items)
         source_mapping = resolved.mapping
         dataset_mapping = source_mapping
         unknown_before_llm = _filter_llm_eligible_columns(
@@ -1795,6 +1802,8 @@ def _process_dataset(
             quality["value_labels_applied"] = value_label_report
         if answer_code_report:
             quality["negative_answer_codes_recoded"] = answer_code_report
+        if reverse_report:
+            quality["reverse_keyed_items"] = reverse_report
         quality["dataset_id"] = dataset_id
         quality["standardized_file"] = destination.name
         # Column types and row count let the data-package export describe the

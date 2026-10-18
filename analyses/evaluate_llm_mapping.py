@@ -53,7 +53,11 @@ if str(REPO_ROOT) not in sys.path:
 from scripts import llm_utils  # noqa: E402
 from scripts.batch_profiles import classify_dataset_type, llm_eligible_dataset_types  # noqa: E402
 from scripts.dv_retrieval import get_retriever  # noqa: E402
-from scripts.value_labels import apply_value_labels, recode_negative_answer_codes  # noqa: E402
+from scripts.value_labels import (  # noqa: E402
+    apply_reverse_keying,
+    apply_value_labels,
+    recode_negative_answer_codes,
+)
 from scripts.llm_coordinator import _select_llm_candidate_shortlist  # noqa: E402
 from scripts.llm_plausibility import (  # noqa: E402
     check_llm_suggestion,
@@ -177,6 +181,7 @@ def run_e1(args, families: SchemaFamilies, dv_ids: set[str]) -> pd.DataFrame:
                     raw, _ = apply_value_labels(raw, resolved.value_labels)
                     if dataset_type in llm_eligible_dataset_types():
                         raw, _ = recode_negative_answer_codes(raw)
+                    raw, _ = apply_reverse_keying(raw, resolved.reverse_items)
                     frames[item.dataset_id] = (raw, resolved.mapping)
                 df, mapping = frames[item.dataset_id]
                 columns = [str(c) for c in df.columns]

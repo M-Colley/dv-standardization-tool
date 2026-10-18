@@ -199,6 +199,7 @@ def build_data_package(
         recoding = {
             "valueLabelsApplied": quality.get("value_labels_applied") or {},
             "negativeAnswerCodesRecoded": quality.get("negative_answer_codes_recoded") or {},
+            "reverseKeyed": quality.get("reverse_keyed_items") or {},
         }
         fields = [
             _field_descriptor(name, column_types[name], dvs, by_dataset.get(dataset_id or "", {}), recoding)
