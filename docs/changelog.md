@@ -4,6 +4,13 @@ This document logs human-readable updates to the repo's functionality, structure
 
 ---
 
+### [2026-10-18]
+
+- **Condition contrasts from declared study designs.** New `schemas/study_designs.yaml` declares the participant column and manipulated factors of each study and maps factor levels to canonical independent variables (`ehmi_presence`, `display_dimensionality`). New `analyses/contrast_meta_analysis.py` computes condition-vs-reference effects on participant means (Hedges' g between subjects, metafor `SMCRPH` within subjects), checks the declared design against the data, combines dependent contrasts by GLS and pools them across studies. All formulas match metafor 5.2.1 (`tests/test_contrast_meta_analysis.py`). `multi_study_analysis.py` runs it by default (`--study-designs`). Five of the 11 benchmark studies declare factors; eHMI-for-All's survey condition codes A–R are mapped to its eHMI × road user × distraction cells.
+- **Shared pooling code.** `multi_study_analysis.pool_effects` now holds the pooling formerly inside `_run_meta_for_dv`; existing outputs are unchanged.
+
+---
+
 ### [2026-10-17]
 
 - **Parallel batch standardization.** `run_batch_standardization.py --workers N` (also `run_catalog_meta_analysis.py`) processes datasets in worker processes. Outputs match a sequential run file for file; LLM deduction stays in the main process and runs in file order. Mappings are now built once per (schema family, repository mapping) rather than once per file, numeric columns skip a redundant `to_numeric` pass during summarization, and delimited files are opened twice instead of three times.

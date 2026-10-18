@@ -367,6 +367,15 @@ Datasets are processed in parallel (`--workers`, see above); a run with `--worke
   - DL or REML;
   - Wald or HKSJ intervals.
 
+### Condition contrasts
+
+Study means alone cannot say what a manipulation did. `schemas/study_designs.yaml` declares, per study, the participant column and the manipulated factors, and maps their levels onto canonical independent variables such as `ehmi_presence` (absent / present). `analyses/contrast_meta_analysis.py`, run by `multi_study_analysis.py`, then:
+- computes each condition's effect against its reference on participant means: Hedges' g between subjects, and the standardized mean change (metafor `SMCRPH`) within subjects, on the same d metric;
+- combines dependent contrasts of a study by GLS (`rho` = 0.5, with 0.2 and 0.8 as sensitivity) and pools studies that share a canonical factor;
+- writes `contrast_effects.csv`, `contrast_study_effects.csv` and `contrast_meta_analysis.csv` (plus an `_llm_excluded` variant).
+
+Five of the 11 benchmark studies declare factors so far. The one cross-study contrast is eHMI vs. none on mental demand (2 studies): −0.51 SD, Wald [−0.70, −0.32], HKSJ [−2.32, 1.31].
+
 ### Extending the batch runner
 
 - **New dataset type**: add a profile to `schemas/dataset_type_profiles.yaml`. Its `schema` field selects the alias family; a YAML file that is not built in is loaded from `schemas/` on first use. The optional `llm_deduction` and `item_composition` switches default to on for profiles that use `standard_dv_mapping.yaml` and off otherwise.

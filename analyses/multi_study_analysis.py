@@ -1071,6 +1071,46 @@ def _run_meta_for_dv(
     if (variances <= 0).any():
         return None
 
+    pooled = pool_effects(means, variances, estimator)
+
+    # Aggregate mapping-source provenance across contributing studies so
+    # readers can see whether a pooled estimate rests on uncertain
+    # LLM-deduced alignments or schema-backed ones.
+    if "mapping_source" in sub.columns:
+        source_values = [str(v) for v in sub["mapping_source"].tolist()]
+    else:
+        source_values = ["unknown"] * k
+    k_llm_deduced = int(sum(1 for s in source_values if s == "llm_deduced"))
+    categories_joined = "; ".join(sorted(set(source_values))) if source_values else "unknown"
+
+    return {
+        "dv": dv,
+        "k_studies": k,
+        "study_coverage_pct": (
+            (k / total_studies) * 100.0
+            if total_studies and total_studies > 0
+            else np.nan
+        ),
+        **pooled,
+        "estimator": estimator,
+        "mapping_source_categories": categories_joined,
+        "k_llm_deduced": k_llm_deduced,
+        "includes_llm_deduced": k_llm_deduced > 0,
+    }
+
+
+def pool_effects(effects: np.ndarray, variances: np.ndarray, estimator: str) -> dict:
+    """Pool k >= 2 effects with known sampling variances.
+
+    Shared by the per-DV mean pooling above and the condition-contrast
+    synthesis in :mod:`analyses.contrast_meta_analysis`. Returns the pooled
+    estimate with Wald and HKSJ intervals, the prediction interval and the
+    heterogeneity statistics (keys as in ``META_ANALYSIS_COLUMNS``).
+    """
+    means = np.asarray(effects, dtype=float)
+    variances = np.asarray(variances, dtype=float)
+    k = len(means)
+
     # Fixed-effects quantities (needed for Q regardless of estimator)
     w_fixed = 1.0 / variances
     fixed_mean = np.sum(w_fixed * means) / np.sum(w_fixed)
@@ -1127,24 +1167,7 @@ def _run_meta_for_dv(
         pi_low = np.nan
         pi_high = np.nan
 
-    # Aggregate mapping-source provenance across contributing studies so
-    # readers can see whether a pooled estimate rests on uncertain
-    # LLM-deduced alignments or schema-backed ones.
-    if "mapping_source" in sub.columns:
-        source_values = [str(v) for v in sub["mapping_source"].tolist()]
-    else:
-        source_values = ["unknown"] * k
-    k_llm_deduced = int(sum(1 for s in source_values if s == "llm_deduced"))
-    categories_joined = "; ".join(sorted(set(source_values))) if source_values else "unknown"
-
     return {
-        "dv": dv,
-        "k_studies": k,
-        "study_coverage_pct": (
-            (k / total_studies) * 100.0
-            if total_studies and total_studies > 0
-            else np.nan
-        ),
         "pooling_method": pooling_method,
         "random_effects_mean": random_mean,
         "random_effects_se": random_se,
@@ -1162,10 +1185,6 @@ def _run_meta_for_dv(
         "tau2": tau2,
         "tau": tau,
         "h2": h2,
-        "estimator": estimator,
-        "mapping_source_categories": categories_joined,
-        "k_llm_deduced": k_llm_deduced,
-        "includes_llm_deduced": k_llm_deduced > 0,
     }
 
 
@@ -2894,6 +2913,14 @@ def main() -> None:
         ),
     )
     parser.add_argument(
+        "--study-designs",
+        default=str(Path(__file__).resolve().parents[1] / "schemas" / "study_designs.yaml"),
+        help=(
+            "Study design declarations (participant and condition columns). "
+            "Used for condition-contrast effects; pass '' to skip them."
+        ),
+    )
+    parser.add_argument(
         "--refuse-synthetic-causal",
         action="store_true",
         help=(
@@ -2993,6 +3020,31 @@ def main() -> None:
             f"{len(clean_meta)} DV(s) remain in meta_analysis_summary_llm_excluded.csv"
         )
 
+    # Condition contrasts (e.g. eHMI vs. none) from the declared study designs:
+    # the experimental effects, as opposed to the pooled means above.
+    contrast_summary = None
+    if args.study_designs and Path(args.study_designs).is_file():
+        import sys
+
+        repo_root = str(Path(__file__).resolve().parents[1])
+        if repo_root not in sys.path:  # run as a script from analyses/
+            sys.path.insert(0, repo_root)
+        from analyses.contrast_meta_analysis import run_contrast_analysis
+
+        contrast_summary = run_contrast_analysis(
+            studies,
+            output_dir,
+            designs_path=Path(args.study_designs),
+            mapping_provenance=mapping_provenance,
+            estimator=args.estimator,
+            exclude_llm_deduced=args.exclude_llm_deduced,
+        )
+        print(
+            f"\nCondition contrasts: {contrast_summary['n_contrast_effects']} effect(s) in "
+            f"{contrast_summary['studies_with_contrasts']} stud(ies); "
+            f"{contrast_summary['n_pooled']} pooled across studies (contrast_meta_analysis.csv)"
+        )
+
     # Build JSON results dict incrementally
     results_json: dict = {
         "generated_at": datetime.now(timezone.utc).isoformat(),
@@ -3002,6 +3054,7 @@ def main() -> None:
         "meta_analysis": [],
         "dv_overlap": {},
         "causal_discovery": None,
+        "condition_contrasts": contrast_summary,
         "harmonized_summary": [],
     }
 
