@@ -44,8 +44,16 @@ Before any numeric step, `_process_dataset` applies two recodings (`scripts/valu
 1. text labels declared under `value_labels` in the repository mapping;
 2. for survey-like tables, LimeSurvey `negN` answer codes.
 
+## Self-describing outputs
+
+After the run summary is written, `scripts/fair_export.py` adds a Frictionless Data Package (`datapackage.json`) to every source directory and an RO-Crate (`ro-crate-metadata.json`) to the run directory, using the `frictionless` and `rocrate` libraries. Column types and row counts are recorded in each file's quality JSON when the table is written, so the export does not read the tables again (about 8 s for the 11-study run). Field metadata comes from `meta_view.csv` (raw names, mapping source), the DV schema (label, range, direction, unit) and the quality JSON (value-label and negative-code recoding). Mapping files appear by file name only, so no local paths are published. The exporter also runs on older runs, which lack the recorded types: it then reads each table.
+
 ## Validation of the statistics
 `tests/test_meta_analysis_reference.py` checks DerSimonian-Laird pooling, REML, Egger's regression test, trim-and-fill (L0/R0, FE/DL) and Hartung-Knapp-Sidik-Jonkman intervals against R's `metafor` 5.2.1. It uses two published datasets (Hackshaw 1998; Colditz et al. 1994), stored with metafor's results in `tests/fixtures/metafor_reference.json`. `analyses/multiverse_analysis.py` quantifies how much pooled estimates depend on harmonization choices.
+
+## Configuration files and their validation
+
+`scripts/validate_schema.py` validates every configuration file, and CI runs it on all of them: the four standard schemas, each dataset mapping (`schemas/*_mapping.yaml`: targets, `scales`, `value_labels`; unknown targets are warnings), the instrument registry (`schemas/instruments.yaml`) and the study designs (`schemas/study_designs.yaml`).
 
 ## Technologies Used
 - YAML for schema and manifest representation

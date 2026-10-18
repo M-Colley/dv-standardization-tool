@@ -106,10 +106,14 @@ class BatchOutputFormatTests(unittest.TestCase):
         self.assertEqual(_resolve_output_suffix(".TSV"), ".tsv")
         self.assertEqual(_resolve_output_suffix(".xlsx"), ".xlsx")
         self.assertEqual(_resolve_output_suffix(".pkl"), ".pkl")
+        self.assertEqual(_resolve_output_suffix(".parquet"), ".parquet")
         # pandas 2.x cannot write legacy .xls — upgraded to .xlsx
         self.assertEqual(_resolve_output_suffix(".xls"), ".xlsx")
-        for unwritable in (".json", ".jsonl", ".parquet", ".sav", ".dta", ".feather", ".ods", ".xlsm"):
+        for unwritable in (".json", ".jsonl", ".sav", ".dta", ".feather", ".ods", ".xlsm"):
             self.assertEqual(_resolve_output_suffix(unwritable), ".csv", unwritable)
+        # --output-format parquet writes every table as Parquet
+        for suffix in (".csv", ".xlsx", ".pkl", ".json"):
+            self.assertEqual(_resolve_output_suffix(suffix, "parquet"), ".parquet", suffix)
 
     def test_run_batch_standardizes_json_dataset_as_csv(self):
         with tempfile.TemporaryDirectory() as tmpdir:

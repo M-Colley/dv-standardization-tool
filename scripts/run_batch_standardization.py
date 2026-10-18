@@ -121,6 +121,7 @@ if str(REPO_ROOT) not in sys.path:
 
 # DATASET_TYPE_* are re-exported for callers that import them from here;
 # dataset-type behaviour itself is driven by schemas/dataset_type_profiles.yaml.
+from scripts.fair_export import frictionless_type
 from scripts.batch_profiles import (  # noqa: F401
     DATASET_TYPE_DETECTION,
     DATASET_TYPE_PROCESS,
@@ -907,10 +908,14 @@ def _load_any_table(path: Path) -> pd.DataFrame:
 # actually serialize. Inputs in any other discovered format (.parquet, .json,
 # .sav, .dta, .feather, .ods, .xlsm, ...) are written back as CSV; .xls is
 # upgraded to .xlsx because pandas 2.x dropped the xlwt writer.
-_WRITABLE_OUTPUT_SUFFIXES = {".csv", ".tsv", ".xlsx", ".pkl", ".pickle"}
+_WRITABLE_OUTPUT_SUFFIXES = {".csv", ".tsv", ".xlsx", ".pkl", ".pickle", ".parquet"}
 
 
-def _resolve_output_suffix(input_suffix: str) -> str:
+def _resolve_output_suffix(input_suffix: str, output_format: str = "native") -> str:
+    """Suffix of a standardized file: the input's own format by default, or
+    Parquet for every table with ``output_format="parquet"``."""
+    if output_format == "parquet":
+        return ".parquet"
     suffix = input_suffix.lower()
     if suffix in _WRITABLE_OUTPUT_SUFFIXES:
         return suffix
@@ -1311,6 +1316,7 @@ class SchemaFamilies:
     canonical_domain_lookup: dict[str, str]
     # Canonical value range per DV id; used to reject implausible LLM suggestions.
     canonical_ranges: dict[str, tuple[float, float]] = field(default_factory=dict)
+    schema_version: str = ""
 
     @classmethod
     def load(cls, dv_schema_path: Path) -> "SchemaFamilies":
@@ -1340,6 +1346,7 @@ class SchemaFamilies:
         return cls(
             mappings, paths, aliases_ci, canonical_domain_lookup,
             canonical_ranges=canonical_ranges_from_schema(dv_schema.get("schema") or {}),
+            schema_version=str((dv_schema.get("schema") or {}).get("version", "")),
         )
 
     def mapping_for_schema(self, schema_filename: str) -> dict[str, str]:
@@ -1464,6 +1471,7 @@ class _SourceJob:
     llm_enabled: bool
     debug_mappings: bool
     llm_plausibility_check: bool = True
+    output_format: str = "native"
 
 
 @dataclass
@@ -1501,7 +1509,7 @@ LlmResolver = Callable[[_ResolvedMapping, str, str, list[str], list[str]], dict[
 
 def _dataset_artifact_prefix(task: _DatasetTask) -> tuple[Path, str]:
     relative_file = task.file_path.relative_to(task.source.base_dir)
-    output_suffix = _resolve_output_suffix(task.file_path.suffix)
+    output_suffix = _resolve_output_suffix(task.file_path.suffix, task.source.output_format)
     artifact_suffix_length = max(
         len(f"-standardized{output_suffix}"),
         len("-mapping-debug.json"),
@@ -1541,7 +1549,7 @@ def _process_dataset(
     relative_file, artifact_prefix = _dataset_artifact_prefix(task)
     dataset_id = relative_file.as_posix()
     relative_path = str(relative_file)
-    output_suffix = _resolve_output_suffix(task.file_path.suffix)
+    output_suffix = _resolve_output_suffix(task.file_path.suffix, source.output_format)
     destination = source.output_dir / f"{artifact_prefix}-standardized{output_suffix}"
 
     try:
@@ -1701,6 +1709,15 @@ def _process_dataset(
             quality["value_labels_applied"] = value_label_report
         if answer_code_report:
             quality["negative_answer_codes_recoded"] = answer_code_report
+        quality["dataset_id"] = dataset_id
+        quality["standardized_file"] = destination.name
+        # Column types and row count let the data-package export describe the
+        # table without reading it back (scripts/fair_export.py).
+        quality["standardized_rows"] = int(len(standardized_df))
+        quality["standardized_column_types"] = {
+            str(col): frictionless_type(standardized_df.iloc[:, i])
+            for i, col in enumerate(standardized_df.columns)
+        }
         with open(source.output_dir / f"{artifact_prefix}-quality.json", "w", encoding="utf-8") as f:
             json.dump(quality, f, indent=2)
 
@@ -1994,8 +2011,15 @@ def run_batch(
     workers: int = 1,
     llm_plausibility_check: bool = True,
     llm_shortlist: str = "definition",
+    output_format: str = "native",
+    fair_export: bool = True,
 ) -> dict[str, Any]:
     """Standardize every source in the manifest and write run-level artefacts.
+
+    ``output_format="parquet"`` writes every standardized table as Parquet
+    (default: the input's own format). ``fair_export`` adds a Frictionless
+    ``datapackage.json`` per source and an RO-Crate for the run
+    (``scripts/fair_export.py``).
 
     ``llm_plausibility_check`` screens LLM input and output with
     ``schemas/llm_plausibility_rules.yaml`` (see ``scripts/llm_plausibility``);
@@ -2147,6 +2171,7 @@ def run_batch(
                     llm_enabled=source_llm_enabled,
                     debug_mappings=debug_mappings,
                     llm_plausibility_check=llm_plausibility_check,
+                    output_format=output_format,
                 )
                 tasks = [
                     _DatasetTask(index=index, source=source_job, file_path=file_path)
@@ -2403,6 +2428,9 @@ def run_batch(
         "composites_skipped_insufficient_rows": skipped_insufficient,
         "debug_mappings_enabled": debug_mappings,
         "workers": workers,
+        "output_format": output_format,
+        "schema_version": families.schema_version,
+        "llm_models_used": _llm_models_used() if llm_deduction_enabled else [],
         "cache_root": str(resolved_cache_root),
         "results": [r.__dict__ for r in run_results],
     }
@@ -2410,7 +2438,28 @@ def run_batch(
     with open(output_dir / "run_summary.json", "w", encoding="utf-8") as f:
         json.dump(summary, f, indent=2)
 
+    if fair_export:
+        # Frictionless data package per source + RO-Crate for the run.
+        try:
+            from scripts.fair_export import export_run
+
+            summary["fair_export"] = export_run(output_dir, schema_path)
+        except Exception as exc:  # noqa: BLE001 - metadata must not fail a finished run
+            logger.exception("FAIR export failed: %s", exc)
+            summary["fair_export"] = {"error": str(exc)}
+        with open(output_dir / "run_summary.json", "w", encoding="utf-8") as f:
+            json.dump(summary, f, indent=2)
+
     return summary
+
+
+def _llm_models_used() -> list[str]:
+    """Models the local LLM fallback actually loaded in this process."""
+    try:
+        from scripts.llm_utils import models_used
+    except ImportError:
+        return []
+    return models_used()
 
 def main() -> None:
     # Ensure runtime status messages and warnings actually surface when the
@@ -2489,6 +2538,17 @@ def main() -> None:
              "default, more than doubles mapping precision in analyses/evaluate_llm_mapping.py) or "
              "alias-string similarity (fuzzy, the earlier behaviour).",
     )
+    parser.add_argument(
+        "--output-format",
+        choices=["native", "parquet"],
+        default="native",
+        help="Format of standardized tables: the input's own format (native, default) or Parquet.",
+    )
+    parser.add_argument(
+        "--no-fair-export",
+        action="store_true",
+        help="Skip the Frictionless data packages and the RO-Crate written after the run.",
+    )
     args = parser.parse_args()
     if args.workers < 1:
         parser.error("--workers must be >= 1")
@@ -2514,6 +2574,8 @@ def main() -> None:
         workers=args.workers,
         llm_plausibility_check=args.llm_plausibility_check,
         llm_shortlist=args.llm_shortlist,
+        output_format=args.output_format,
+        fair_export=not args.no_fair_export,
     )
 
     if args.snapshot_manifest:

@@ -357,6 +357,14 @@ The included `sources_manifest_example.yaml` is preconfigured for:
 
 Datasets are processed in parallel (`--workers`, see above); a run with `--workers 1` produces the same files.
 
+### Self-describing outputs
+
+Every run also writes standard metadata (`scripts/fair_export.py`; skip it with `--no-fair-export`):
+- **`standardized/<source>/datapackage.json`**: a [Frictionless Data Package](https://datapackage.org/) per source. Each column records its canonical DV, label, range, direction and unit, the raw column names it came from, how it was mapped (`schema`, `repo_mapping`, `llm_deduced`, `blocked`), any recoding of text labels or negative answer codes, and the composite an `__item_N` column belongs to. Validate with `frictionless validate standardized/<source>/datapackage.json`.
+- **`ro-crate-metadata.json`**: an [RO-Crate](https://www.researchobject.org/ro-crate/) for the run, linking the sources (repository URL, publication DOI), the code version and git commit, the schema and plausibility-rule versions, the LLM model, and every output.
+
+Add both to an existing run with `python -m scripts.fair_export <output dir> [--llm-model <id>] [--validate]`. `--output-format parquet` writes standardized tables as Parquet instead of each input's own format; the analysis reads either and gives identical results.
+
 ### Robustness analyses
 
 - `analyses/multi_study_analysis.py` reports Hartung-Knapp-Sidik-Jonkman intervals (`hksj_ci95_low/high`) next to the Wald intervals; with the k = 2–3 studies typical here, Wald intervals are far too narrow. All meta-analytic estimators (DL, REML, Egger, trim-and-fill, HKSJ) are validated against R's `metafor` in `tests/test_meta_analysis_reference.py`.

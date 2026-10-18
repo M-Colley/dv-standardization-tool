@@ -35,6 +35,7 @@ if str(_REPO_ROOT) not in sys.path:  # run as a script from analyses/
     sys.path.insert(0, str(_REPO_ROOT))
 
 from scripts import instruments as instruments_registry  # noqa: E402
+from scripts.batch_reporting import categorize_mapping_source  # noqa: E402
 
 # libyaml's C parser is ~7x faster on the 2k-line DV schema and yields
 # identical objects; fall back to the pure-Python loader when unavailable.
@@ -116,35 +117,7 @@ _MAPPING_SOURCE_PRIORITY = {
 }
 
 
-def _categorize_mapping_source(raw: object) -> str:
-    """Map a raw mapping_source string from meta_view.csv to a coarse category."""
-    if raw is None:
-        return "unknown"
-    try:
-        if pd.isna(raw):
-            return "unknown"
-    except (TypeError, ValueError):
-        pass
-    text = str(raw).strip().lower()
-    if not text or text == "n/a":
-        return "unknown"
-    if text == "llm_deduction":
-        return "llm_deduced"
-    if text in {"never_map_blocklist", "blocked"}:
-        return "blocked"
-    if text == "in_memory_mapping":
-        return "schema"
-    schema_markers = (
-        "standard_dv_mapping",
-        "standard_dv_metadata",
-        "standard_detection",
-        "standard_sensor_mapping",
-        "schemas/",
-        "schemas\\",
-    )
-    if any(marker in text for marker in schema_markers):
-        return "schema"
-    return "repo_mapping"
+_categorize_mapping_source = categorize_mapping_source
 
 
 def load_mapping_provenance(meta_view_path: Path) -> Dict[tuple, str]:
@@ -473,12 +446,18 @@ def _read_file(path: Path) -> pd.DataFrame:
         return pd.read_csv(path)
     if path.suffix.lower() in _PICKLE_SUFFIXES:
         return pd.read_pickle(path)
+    if path.suffix.lower() == ".parquet":
+        return pd.read_parquet(path)
     return pd.read_excel(path)
 
 
 def _read_header(path: Path) -> list[str]:
     if path.suffix.lower() == ".csv":
         return [str(c) for c in pd.read_csv(path, nrows=0).columns]
+    if path.suffix.lower() == ".parquet":
+        import pyarrow.parquet as pq
+
+        return [str(c) for c in pq.read_schema(path).names]
     return [str(c) for c in pd.read_excel(path, nrows=0).columns]
 
 
@@ -535,6 +514,7 @@ def load_studies(
         list(input_dir.rglob("*.csv"))
         + list(input_dir.rglob("*.xlsx"))
         + list(input_dir.rglob("*.pkl"))
+        + list(input_dir.rglob("*.parquet"))
         + list(input_dir.rglob("*.pickle"))
     )
 
@@ -543,7 +523,7 @@ def load_studies(
         print(f"  {f}")
 
     if not files:
-        raise FileNotFoundError(f"No CSV/XLSX/PKL files found in {input_dir}")
+        raise FileNotFoundError(f"No CSV/XLSX/PKL/Parquet files found in {input_dir}")
 
     # Group files by their immediate parent directory relative to input_dir.
     # Files sitting directly in input_dir are treated as separate studies.

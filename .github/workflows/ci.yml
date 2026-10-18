@@ -28,13 +28,13 @@ jobs:
           pip install -r requirements-core.txt -r requirements-dev.txt
 
       - name: Validate schemas
+        # Standard schemas, every dataset mapping, the instrument registry and
+        # the study designs.
+        shell: bash
         run: |
-          python scripts/validate_schema.py schemas/standard_dv_mapping.yaml
-          python scripts/validate_schema.py schemas/standard_sensor_mapping.yaml
-          python scripts/validate_schema.py schemas/standard_detection_mapping.yaml
-          python scripts/validate_schema.py schemas/standard_metadata_mapping.yaml
-          python scripts/validate_schema.py schemas/instruments.yaml
-          python scripts/validate_schema.py schemas/study_designs.yaml
+          for f in schemas/*_mapping.yaml schemas/instruments.yaml schemas/study_designs.yaml; do
+            python scripts/validate_schema.py "$f" || exit 1
+          done
 
       - name: Run unit tests
         run: python -m pytest tests -q
