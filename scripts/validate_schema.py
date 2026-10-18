@@ -165,12 +165,123 @@ def validate_new_format(schema: dict) -> list[str]:
     return errors
 
 
-def validate(schema: dict) -> list[str]:
+def _dv_schema_ids() -> set[str]:
+    from pathlib import Path
+
+    path = Path(__file__).resolve().parents[1] / "schemas" / "standard_dv_mapping.yaml"
+    return {str(dv.get("id")) for dv in (load_schema(str(path)).get("dvs") or []) if isinstance(dv, dict)}
+
+
+def validate_instrument_registry(path: str) -> list[str]:
+    """Parse the instrument registry and check that every score maps to a schema DV."""
+    try:
+        from scripts import instruments
+    except ImportError:
+        import instruments
+    try:
+        registry = instruments.load_instruments(path)
+    except (KeyError, TypeError, ValueError) as exc:
+        return [f"Instrument registry: {exc}"]
+    return instruments.schema_errors(registry, _dv_schema_ids())
+
+
+def validate_study_designs(path: str) -> list[str]:
+    """Parse the study design declarations (analyses/contrast_meta_analysis.py)."""
+    import importlib
+    from pathlib import Path
+
+    root = str(Path(__file__).resolve().parents[1])
+    if root not in sys.path:
+        sys.path.insert(0, root)
+    cma = importlib.import_module("analyses.contrast_meta_analysis")
+    try:
+        cma.load_study_designs(Path(path))
+    except (KeyError, TypeError, ValueError) as exc:
+        return [f"Study designs: {exc}"]
+    return []
+
+
+def _all_schema_ids() -> set[str]:
+    from pathlib import Path
+
+    root = Path(__file__).resolve().parents[1] / "schemas"
+    ids: set[str] = set()
+    for name in ("standard_dv_mapping", "standard_metadata_mapping", "standard_sensor_mapping",
+                 "standard_detection_mapping"):
+        data = load_schema(str(root / f"{name}.yaml")) or {}
+        ids |= {str(dv.get("id")) for dv in data.get("dvs") or [] if isinstance(dv, dict)}
+    return ids
+
+
+def validate_dataset_mapping(schema: dict) -> tuple[list[str], list[str]]:
+    """Check a dataset-specific mapping YAML (``raw column: canonical id``).
+
+    Returns ``(errors, warnings)``. Targets outside the standard schemas are
+    allowed (study-specific columns such as ``meta_condition_speed``) but are
+    reported as warnings so typos in canonical ids are visible.
+    """
+    errors: list[str] = []
+    known = _all_schema_ids()
+    unknown_targets: set[str] = set()
+    for key, value in schema.items():
+        if key == "scales":
+            if not isinstance(value, list):
+                errors.append("'scales' must be a list")
+                continue
+            for i, scale in enumerate(value):
+                if not isinstance(scale, dict) or not scale.get("canonical"):
+                    errors.append(f"scales[{i}]: needs a 'canonical' id")
+                    continue
+                aliases = scale.get("aliases")
+                if not isinstance(aliases, list) or not aliases:
+                    errors.append(f"scales[{i}] ({scale['canonical']}): 'aliases' must be a non-empty list")
+                reverse = set(scale.get("reverse_aliases") or [])
+                stray = sorted(reverse - set(aliases or []))
+                if stray:
+                    errors.append(f"scales[{i}]: reverse_aliases {stray} are not aliases")
+                rng = scale.get("scale_range")
+                if rng is not None and (
+                    not isinstance(rng, list) or len(rng) != 2 or not all(isinstance(v, (int, float)) for v in rng)
+                    or rng[0] >= rng[1]
+                ):
+                    errors.append(f"scales[{i}]: scale_range must be [min, max] with min < max")
+            continue
+        if key == "value_labels":
+            if not isinstance(value, list):
+                errors.append("'value_labels' must be a list of {columns, labels} blocks")
+                continue
+            for i, block in enumerate(value):
+                if not isinstance(block, dict) or not isinstance(block.get("columns"), list) or not block["columns"]:
+                    errors.append(f"value_labels[{i}]: 'columns' must be a non-empty list")
+                    continue
+                labels = block.get("labels")
+                if not isinstance(labels, dict) or not labels:
+                    errors.append(f"value_labels[{i}]: 'labels' must map text to numbers")
+                elif not all(isinstance(v, (int, float)) and not isinstance(v, bool) for v in labels.values()):
+                    errors.append(f"value_labels[{i}]: every label must map to a number")
+            continue
+        if not isinstance(key, str) or not key.strip():
+            errors.append(f"Invalid raw column name: {key!r}")
+        if not isinstance(value, str) or not value.strip():
+            errors.append(f"'{key}': target must be a canonical id string, got {value!r}")
+        elif value not in known:
+            unknown_targets.add(value)
+    warnings = []
+    if unknown_targets:
+        warnings.append(
+            f"targets not in the standard schemas (kept as study-specific names): {sorted(unknown_targets)}"
+        )
+    return errors, warnings
+
+
+def validate(schema: dict, path: str | None = None) -> list[str]:
     """
     Validate schema (auto-detects format).
 
     Args:
         schema: Schema dictionary
+        path: File the schema was read from (needed for the instrument
+            registry and study designs, which are validated by their loaders)
 
     Returns:
         List of error messages
@@ -178,6 +289,16 @@ def validate(schema: dict) -> list[str]:
     if not isinstance(schema, dict):
         return ["Schema root must be a dictionary"]
 
+    if "instruments" in schema and path is not None:
+        return validate_instrument_registry(path)
+    if "canonical_factors" in schema and path is not None:
+        return validate_study_designs(path)
+    filename = path.replace("\\", "/").rsplit("/", 1)[-1] if path is not None else ""
+    if filename.endswith("_mapping.yaml") and not filename.startswith("standard_") and "dvs" not in schema:
+        errors, warnings = validate_dataset_mapping(schema)
+        for warning in warnings:
+            print(f"[WARNING] {warning}")
+        return errors
     if "dvs" in schema:
         return validate_new_format(schema)
     return validate_legacy_format(schema)
@@ -213,7 +334,7 @@ if __name__ == "__main__":
         print(f"Format: {format_type}")
         print()
 
-        issues = validate(schema)
+        issues = validate(schema, schema_path)
 
         if issues:
             print(f"[ERROR] Schema validation FAILED with {len(issues)} issue(s):")

@@ -50,7 +50,9 @@ if _PYDANTIC_AVAILABLE:
         model_config = {"extra": "allow"}  # unknown fields are warnings, not errors
 
         source_id: str
-        source_type: str  # local_path | github_repo | osf_project | web_dataset
+        # local_path | github_repo | osf_project | web_dataset | zenodo_record |
+        # figshare_article | fourtu_dataset | dataverse_dataset (+ registered types)
+        source_type: str
         location: str
         ref: str | None = None
         include_globs: list[str] = []
@@ -65,6 +67,8 @@ if _PYDANTIC_AVAILABLE:
         archive_max_depth: int = 3
         repeated_measures: bool = False
         llm_models: list[str] | None = None
+        # Repository sources: skip files larger than this (MB).
+        max_file_mb: float | None = None
 
         @field_validator("source_type")
         @classmethod
@@ -121,6 +125,7 @@ if str(REPO_ROOT) not in sys.path:
 
 # DATASET_TYPE_* are re-exported for callers that import them from here;
 # dataset-type behaviour itself is driven by schemas/dataset_type_profiles.yaml.
+from scripts.fair_export import frictionless_type
 from scripts.batch_profiles import (  # noqa: F401
     DATASET_TYPE_DETECTION,
     DATASET_TYPE_PROCESS,
@@ -179,6 +184,7 @@ from scripts.llm_coordinator import (
 # scripts.sources owns the per-source-type loaders (currently github URL
 # parsing + OSF JSON-API traversal). Re-exported here so existing imports
 # continue to work.
+from scripts.sources import repositories
 from scripts.sources.github import GITHUB_HOSTS, GitHubLocation, _parse_github_location
 from scripts.sources.osf import (
     OSF_API_BASE,
@@ -702,10 +708,13 @@ def _ensure_cache_dir(cache_root: Path | None, source: dict[str, Any], working_d
 # include/exclude matching are shared by every source type, so a new source
 # type only needs to fetch files:
 #
-#     @register_source_type("zenodo_record")
-#     def _materialize_zenodo(source, target, refresh_remote_cache):
+#     @register_source_type("my_repository")
+#     def _materialize_my_repository(source, target, refresh_remote_cache):
 #         ...download into target...
-#         return target, record_id
+#         return target, record_version
+#
+# Repository APIs that list files with checksums (Zenodo, figshare, 4TU,
+# Dataverse) share ``_materialize_repository_record``.
 SourceMaterializer = Callable[[dict[str, Any], Path, bool], tuple[Path, str | None]]
 _SOURCE_MATERIALIZERS: dict[str, SourceMaterializer] = {}
 
@@ -816,6 +825,84 @@ def _materialize_web_dataset(
     return target, str(source["location"])
 
 
+def _materialize_repository_record(
+    source: dict[str, Any],
+    target: Path,
+    refresh_remote_cache: bool,
+    key: str,
+    fetch: Callable[[], repositories.RemoteRecord],
+) -> tuple[Path, str | None]:
+    """Shared download/caching for repository records (Zenodo, figshare, ...).
+
+    The record's revision is stored next to the cache marker so a cached
+    source still reports which version it holds.
+    """
+    expected_marker = f"{key}|layout=v1"
+    revision_file = target / ".source_revision"
+    if _reuse_marked_cache(target, expected_marker, refresh_remote_cache):
+        revision = revision_file.read_text(encoding="utf-8").strip() if revision_file.exists() else key
+        return target, revision
+    record = fetch()
+    max_mb = source.get("max_file_mb")
+    written = repositories.download_record(
+        record,
+        target,
+        DATA_FILE_SUFFIXES | ARCHIVE_SUFFIXES | MAPPING_SUFFIXES,
+        max_file_bytes=int(float(max_mb) * 1024 * 1024) if max_mb else None,
+    )
+    if not written:
+        raise SourceAccessError("not_available", f"{key}: the record has no data, archive or mapping files")
+    revision_file.write_text(record.revision, encoding="utf-8")
+    (target / ".source_ready").write_text(expected_marker, encoding="utf-8")
+    return target, record.revision
+
+
+@register_source_type("zenodo_record")
+def _materialize_zenodo_record(
+    source: dict[str, Any], target: Path, refresh_remote_cache: bool
+) -> tuple[Path, str | None]:
+    record_id = repositories.parse_zenodo_location(str(source["location"]))
+    return _materialize_repository_record(
+        source, target, refresh_remote_cache, f"zenodo:{record_id}",
+        lambda: repositories.zenodo_record(record_id),
+    )
+
+
+@register_source_type("figshare_article")
+def _materialize_figshare_article(
+    source: dict[str, Any], target: Path, refresh_remote_cache: bool
+) -> tuple[Path, str | None]:
+    article_id, version = repositories.parse_figshare_location(str(source["location"]))
+    version = str(source.get("ref") or version or "") or None
+    return _materialize_repository_record(
+        source, target, refresh_remote_cache, f"figshare:{article_id}@{version or 'latest'}",
+        lambda: repositories.figshare_record(article_id, version),
+    )
+
+
+@register_source_type("fourtu_dataset")
+def _materialize_fourtu_dataset(
+    source: dict[str, Any], target: Path, refresh_remote_cache: bool
+) -> tuple[Path, str | None]:
+    uuid, version = repositories.parse_fourtu_location(str(source["location"]))
+    version = str(source.get("ref") or version or "") or None
+    return _materialize_repository_record(
+        source, target, refresh_remote_cache, f"4tu:{uuid}@{version or 'latest'}",
+        lambda: repositories.fourtu_record(uuid, version),
+    )
+
+
+@register_source_type("dataverse_dataset")
+def _materialize_dataverse_dataset(
+    source: dict[str, Any], target: Path, refresh_remote_cache: bool
+) -> tuple[Path, str | None]:
+    server, persistent_id = repositories.parse_dataverse_location(str(source["location"]))
+    return _materialize_repository_record(
+        source, target, refresh_remote_cache, f"dataverse:{persistent_id}",
+        lambda: repositories.dataverse_record(server, persistent_id),
+    )
+
+
 @register_source_type("github_repo")
 def _materialize_github_repo(
     source: dict[str, Any], target: Path, refresh_remote_cache: bool
@@ -907,10 +994,14 @@ def _load_any_table(path: Path) -> pd.DataFrame:
 # actually serialize. Inputs in any other discovered format (.parquet, .json,
 # .sav, .dta, .feather, .ods, .xlsm, ...) are written back as CSV; .xls is
 # upgraded to .xlsx because pandas 2.x dropped the xlwt writer.
-_WRITABLE_OUTPUT_SUFFIXES = {".csv", ".tsv", ".xlsx", ".pkl", ".pickle"}
+_WRITABLE_OUTPUT_SUFFIXES = {".csv", ".tsv", ".xlsx", ".pkl", ".pickle", ".parquet"}
 
 
-def _resolve_output_suffix(input_suffix: str) -> str:
+def _resolve_output_suffix(input_suffix: str, output_format: str = "native") -> str:
+    """Suffix of a standardized file: the input's own format by default, or
+    Parquet for every table with ``output_format="parquet"``."""
+    if output_format == "parquet":
+        return ".parquet"
     suffix = input_suffix.lower()
     if suffix in _WRITABLE_OUTPUT_SUFFIXES:
         return suffix
@@ -1311,6 +1402,7 @@ class SchemaFamilies:
     canonical_domain_lookup: dict[str, str]
     # Canonical value range per DV id; used to reject implausible LLM suggestions.
     canonical_ranges: dict[str, tuple[float, float]] = field(default_factory=dict)
+    schema_version: str = ""
 
     @classmethod
     def load(cls, dv_schema_path: Path) -> "SchemaFamilies":
@@ -1340,6 +1432,7 @@ class SchemaFamilies:
         return cls(
             mappings, paths, aliases_ci, canonical_domain_lookup,
             canonical_ranges=canonical_ranges_from_schema(dv_schema.get("schema") or {}),
+            schema_version=str((dv_schema.get("schema") or {}).get("version", "")),
         )
 
     def mapping_for_schema(self, schema_filename: str) -> dict[str, str]:
@@ -1464,6 +1557,7 @@ class _SourceJob:
     llm_enabled: bool
     debug_mappings: bool
     llm_plausibility_check: bool = True
+    output_format: str = "native"
 
 
 @dataclass
@@ -1501,7 +1595,7 @@ LlmResolver = Callable[[_ResolvedMapping, str, str, list[str], list[str]], dict[
 
 def _dataset_artifact_prefix(task: _DatasetTask) -> tuple[Path, str]:
     relative_file = task.file_path.relative_to(task.source.base_dir)
-    output_suffix = _resolve_output_suffix(task.file_path.suffix)
+    output_suffix = _resolve_output_suffix(task.file_path.suffix, task.source.output_format)
     artifact_suffix_length = max(
         len(f"-standardized{output_suffix}"),
         len("-mapping-debug.json"),
@@ -1541,7 +1635,7 @@ def _process_dataset(
     relative_file, artifact_prefix = _dataset_artifact_prefix(task)
     dataset_id = relative_file.as_posix()
     relative_path = str(relative_file)
-    output_suffix = _resolve_output_suffix(task.file_path.suffix)
+    output_suffix = _resolve_output_suffix(task.file_path.suffix, source.output_format)
     destination = source.output_dir / f"{artifact_prefix}-standardized{output_suffix}"
 
     try:
@@ -1701,6 +1795,15 @@ def _process_dataset(
             quality["value_labels_applied"] = value_label_report
         if answer_code_report:
             quality["negative_answer_codes_recoded"] = answer_code_report
+        quality["dataset_id"] = dataset_id
+        quality["standardized_file"] = destination.name
+        # Column types and row count let the data-package export describe the
+        # table without reading it back (scripts/fair_export.py).
+        quality["standardized_rows"] = int(len(standardized_df))
+        quality["standardized_column_types"] = {
+            str(col): frictionless_type(standardized_df.iloc[:, i])
+            for i, col in enumerate(standardized_df.columns)
+        }
         with open(source.output_dir / f"{artifact_prefix}-quality.json", "w", encoding="utf-8") as f:
             json.dump(quality, f, indent=2)
 
@@ -1994,8 +2097,15 @@ def run_batch(
     workers: int = 1,
     llm_plausibility_check: bool = True,
     llm_shortlist: str = "definition",
+    output_format: str = "native",
+    fair_export: bool = True,
 ) -> dict[str, Any]:
     """Standardize every source in the manifest and write run-level artefacts.
+
+    ``output_format="parquet"`` writes every standardized table as Parquet
+    (default: the input's own format). ``fair_export`` adds a Frictionless
+    ``datapackage.json`` per source and an RO-Crate for the run
+    (``scripts/fair_export.py``).
 
     ``llm_plausibility_check`` screens LLM input and output with
     ``schemas/llm_plausibility_rules.yaml`` (see ``scripts/llm_plausibility``);
@@ -2147,6 +2257,7 @@ def run_batch(
                     llm_enabled=source_llm_enabled,
                     debug_mappings=debug_mappings,
                     llm_plausibility_check=llm_plausibility_check,
+                    output_format=output_format,
                 )
                 tasks = [
                     _DatasetTask(index=index, source=source_job, file_path=file_path)
@@ -2403,6 +2514,9 @@ def run_batch(
         "composites_skipped_insufficient_rows": skipped_insufficient,
         "debug_mappings_enabled": debug_mappings,
         "workers": workers,
+        "output_format": output_format,
+        "schema_version": families.schema_version,
+        "llm_models_used": _llm_models_used() if llm_deduction_enabled else [],
         "cache_root": str(resolved_cache_root),
         "results": [r.__dict__ for r in run_results],
     }
@@ -2410,7 +2524,28 @@ def run_batch(
     with open(output_dir / "run_summary.json", "w", encoding="utf-8") as f:
         json.dump(summary, f, indent=2)
 
+    if fair_export:
+        # Frictionless data package per source + RO-Crate for the run.
+        try:
+            from scripts.fair_export import export_run
+
+            summary["fair_export"] = export_run(output_dir, schema_path)
+        except Exception as exc:  # noqa: BLE001 - metadata must not fail a finished run
+            logger.exception("FAIR export failed: %s", exc)
+            summary["fair_export"] = {"error": str(exc)}
+        with open(output_dir / "run_summary.json", "w", encoding="utf-8") as f:
+            json.dump(summary, f, indent=2)
+
     return summary
+
+
+def _llm_models_used() -> list[str]:
+    """Models the local LLM fallback actually loaded in this process."""
+    try:
+        from scripts.llm_utils import models_used
+    except ImportError:
+        return []
+    return models_used()
 
 def main() -> None:
     # Ensure runtime status messages and warnings actually surface when the
@@ -2483,11 +2618,23 @@ def main() -> None:
     )
     parser.add_argument(
         "--llm-shortlist",
-        choices=["fuzzy", "definition"],
+        choices=["fuzzy", "definition", "dense"],
         default="definition",
         help="How candidate DVs are retrieved for the LLM: TF-IDF over DV definitions (definition; "
              "default, more than doubles mapping precision in analyses/evaluate_llm_mapping.py) or "
-             "alias-string similarity (fuzzy, the earlier behaviour).",
+             "alias-string similarity (fuzzy, the earlier behaviour), or definitions fused with "
+             "sentence embeddings (dense; BAAI/bge-small-en-v1.5 on CPU, downloaded on first use).",
+    )
+    parser.add_argument(
+        "--output-format",
+        choices=["native", "parquet"],
+        default="native",
+        help="Format of standardized tables: the input's own format (native, default) or Parquet.",
+    )
+    parser.add_argument(
+        "--no-fair-export",
+        action="store_true",
+        help="Skip the Frictionless data packages and the RO-Crate written after the run.",
     )
     args = parser.parse_args()
     if args.workers < 1:
@@ -2514,6 +2661,8 @@ def main() -> None:
         workers=args.workers,
         llm_plausibility_check=args.llm_plausibility_check,
         llm_shortlist=args.llm_shortlist,
+        output_format=args.output_format,
+        fair_export=not args.no_fair_export,
     )
 
     if args.snapshot_manifest:

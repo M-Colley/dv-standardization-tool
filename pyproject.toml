@@ -38,6 +38,9 @@ dependencies = [
     "seaborn>=0.13.2",
     "scikit-learn>=1.9.1",
     "lingam>=1.12.2",  # 1.13.0 pins scipy<=1.13.1 (incompatible with numpy>=2.3)
+    "frictionless>=5.21.0",
+    "rocrate>=0.16.0",
+    "pyarrow>=26.0.0",
 ]
 
 [project.optional-dependencies]
@@ -64,6 +67,7 @@ dev = ["pytest>=9.1.1", "ruff>=0.17.1"]
 all = ["opendv-hci[llm,ui,dev]"]
 
 [project.urls]
+Changelog = "https://github.com/M-Colley/dv-standardization-tool/blob/main/docs/changelog.md"
 Repository = "https://github.com/M-Colley/dv-standardization-tool"
 Documentation = "https://github.com/M-Colley/dv-standardization-tool/tree/main/docs"
 

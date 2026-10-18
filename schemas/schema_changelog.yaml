@@ -15,3 +15,9 @@ v3.0.1:
   changes:
   - Optional `subitem_of` key on DV entries declares the construct an item-level DV belongs to (used to keep item -> scale edges out of the causal DAG)
   - conflict_item_01..05 declared as items of perceived_conflict; sts_ad_item_01..06 as items of sts_ad_trust
+v3.1:
+  date: '2026-10-18'
+  changes:
+  - New instrument registry (schemas/instruments.yaml) defines item keys, response codings and scoring for SUS, raw NASA-TLX, Van der Laan acceptance, UEQ-S, SSQ and Koerber TiA; derived scores are computed from it instead of hard-coded rules
+  - mental_demand is the NASA-TLX subscale only; the Paas scale (paas_mental_effort, 1-9) and RSME (rsme, 0-150) get their own DVs because their ranges differ from the 0-20 TLX range
+  - New study design declarations (schemas/study_designs.yaml) for condition-contrast effects

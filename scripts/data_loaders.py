@@ -382,6 +382,29 @@ def _coerce_pickled_payload_to_dataframe(payload: Any) -> pd.DataFrame:
     )
 
 
+def _write_parquet(df: pd.DataFrame, output_file: Path) -> None:
+    """Write Parquet with pyarrow; object columns mixing types become strings
+    (Parquet columns have one type) and are logged."""
+    try:
+        df.to_parquet(output_file, index=False)
+        return
+    except (TypeError, ValueError, ImportError) as exc:
+        if isinstance(exc, ImportError):
+            raise ImportError("Writing Parquet requires pyarrow: pip install pyarrow") from exc
+        first_error = exc
+    out = df.copy()
+    mixed = [
+        col for col in out.columns
+        if out[col].dtype == object and out[col].dropna().map(type).nunique() > 1
+    ]
+    for col in mixed:
+        out[col] = out[col].map(lambda v: v if pd.isna(v) else str(v)).astype("string")
+    if not mixed:
+        raise first_error
+    logger.info("Parquet: stored mixed-type columns %s as strings", mixed)
+    out.to_parquet(output_file, index=False)
+
+
 def save_output_file(df: pd.DataFrame, output_path: str) -> None:
     """Save standardized data to CSV, Excel, or pickle based on file extension."""
     output_file = Path(output_path)
@@ -407,6 +430,9 @@ def save_output_file(df: pd.DataFrame, output_path: str) -> None:
         return
     if suffix in {".pkl", ".pickle"}:
         df.to_pickle(output_file)
+        return
+    if suffix == ".parquet":
+        _write_parquet(df, output_file)
         return
 
     raise ValueError(

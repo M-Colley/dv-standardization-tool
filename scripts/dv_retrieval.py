@@ -16,11 +16,13 @@ blend weight was chosen on those items, so confirm on new data).
 
 from __future__ import annotations
 
+from collections.abc import Callable
 from dataclasses import dataclass
 from functools import lru_cache
 from pathlib import Path
 from typing import Any
 
+import numpy as np
 import yaml
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import linear_kernel
@@ -128,6 +130,83 @@ class DefinitionRetriever:
         return [(self._ids[i], float(scores[i])) for i in order]
 
 
+# Query/document prefixes that some embedding models are trained with.
+MODEL_PREFIXES: dict[str, tuple[str, str]] = {
+    "intfloat/multilingual-e5-small": ("query: ", "passage: "),
+    "intfloat/multilingual-e5-base": ("query: ", "passage: "),
+    "intfloat/e5-small-v2": ("query: ", "passage: "),
+    "BAAI/bge-small-en-v1.5": ("Represent this sentence for searching relevant passages: ", ""),
+    "BAAI/bge-base-en-v1.5": ("Represent this sentence for searching relevant passages: ", ""),
+}
+
+Encoder = Callable[[list[str]], np.ndarray]
+
+
+def sentence_transformer_encoder(model_name: str, device: str | None = None) -> Encoder:
+    """Encoder backed by a sentence-transformers model (normalized embeddings).
+
+    Loads only from the local Hugging Face cache when ``HF_HUB_OFFLINE=1``;
+    otherwise the model is downloaded on first use.
+    """
+    from sentence_transformers import SentenceTransformer
+
+    model = SentenceTransformer(model_name, device=device)
+
+    def encode(texts: list[str]) -> np.ndarray:
+        return np.asarray(model.encode(texts, normalize_embeddings=True, batch_size=64, show_progress_bar=False))
+
+    return encode
+
+
+class DenseRetriever:
+    """Rank canonical DVs by cosine similarity of text embeddings.
+
+    Same definitions and leave-alias-out protocol as :class:`DefinitionRetriever`;
+    documents are the full definitions, queries the tokenized column name.
+    """
+
+    def __init__(
+        self,
+        definitions: list[DvDefinition],
+        encoder: Encoder,
+        query_prefix: str = "",
+        document_prefix: str = "",
+    ) -> None:
+        self._definitions = definitions
+        self._ids = [d.dv_id for d in definitions]
+        self._encode = encoder
+        self._query_prefix = query_prefix
+        self._document_prefix = document_prefix
+        self._matrix = self._encode_documents(None)
+
+    @classmethod
+    def from_model(cls, definitions: list[DvDefinition], model_name: str, **kwargs: Any) -> DenseRetriever:
+        query_prefix, document_prefix = MODEL_PREFIXES.get(model_name, ("", ""))
+        return cls(definitions, sentence_transformer_encoder(model_name, **kwargs), query_prefix, document_prefix)
+
+    def _encode_documents(self, exclude_alias: str | None, only: list[int] | None = None) -> np.ndarray:
+        indices = range(len(self._definitions)) if only is None else only
+        texts = [self._document_prefix + self._definitions[i].full_text(exclude_alias) for i in indices]
+        return self._encode(texts)
+
+    def rank(self, column_name: str, k: int = 8, exclude_alias: str | None = None) -> list[tuple[str, float]]:
+        matrix = self._matrix
+        if exclude_alias is not None:
+            # Re-embed only the definitions that list the held-out alias.
+            held_out = normalize_name(exclude_alias)
+            affected = [
+                i for i, d in enumerate(self._definitions)
+                if any(normalize_name(alias) == held_out for alias in d.aliases)
+            ]
+            if affected:
+                matrix = matrix.copy()
+                matrix[affected] = self._encode_documents(exclude_alias, affected)
+        query = self._encode([self._query_prefix + " ".join(name_tokens(column_name))])[0]
+        scores = matrix @ query
+        order = scores.argsort(kind="stable")[::-1][:k]
+        return [(self._ids[i], float(scores[i])) for i in order]
+
+
 @lru_cache(maxsize=4)
 def get_retriever(schema_path: str = str(DEFAULT_DV_SCHEMA_PATH)) -> DefinitionRetriever:
     return DefinitionRetriever(load_dv_definitions(Path(schema_path)))
@@ -137,4 +216,44 @@ def definition_shortlist(column_name: str, max_candidates: int = 8, **kwargs: An
     return [dv_id for dv_id, _ in get_retriever(**kwargs).rank(column_name, k=max_candidates)]
 
 
-__all__ = ["DefinitionRetriever", "DvDefinition", "definition_shortlist", "get_retriever", "load_dv_definitions"]
+# Best dense model in analyses/evaluate_shortlist_retrieval.py (real columns:
+# recall@8 103/106 vs. 88/106 for TF-IDF definitions).
+DEFAULT_DENSE_MODEL = "BAAI/bge-small-en-v1.5"
+
+
+@lru_cache(maxsize=2)
+def get_dense_retriever(model_name: str = DEFAULT_DENSE_MODEL, device: str = "cpu") -> DenseRetriever:
+    return DenseRetriever.from_model(load_dv_definitions(), model_name, device=device)
+
+
+def reciprocal_rank_fusion(*rankings: list[str], k: int = 60) -> list[str]:
+    """Fuse rankings by summed 1 / (k + rank) (Cormack et al., 2009)."""
+    scores: dict[str, float] = {}
+    for ranking in rankings:
+        for rank, item in enumerate(ranking):
+            scores[item] = scores.get(item, 0.0) + 1.0 / (k + rank + 1)
+    return [item for item, _ in sorted(scores.items(), key=lambda kv: (-kv[1], kv[0]))]
+
+
+def dense_shortlist(column_name: str, max_candidates: int = 8, **kwargs: Any) -> list[str]:
+    """Dense and TF-IDF definition rankings fused. Fusion keeps exact lexical
+    matches the embedding model can miss ("MentalDemand" -> mental_demand) and
+    gives the highest recall@8 in analyses/evaluate_shortlist_retrieval.py."""
+    depth = max(max_candidates * 2, 16)
+    dense = [dv for dv, _ in get_dense_retriever(**kwargs).rank(column_name, k=depth)]
+    lexical = [dv for dv, _ in get_retriever().rank(column_name, k=depth)]
+    return reciprocal_rank_fusion(lexical, dense)[:max_candidates]
+
+
+__all__ = [
+    "DefinitionRetriever",
+    "DenseRetriever",
+    "DvDefinition",
+    "definition_shortlist",
+    "dense_shortlist",
+    "get_dense_retriever",
+    "get_retriever",
+    "load_dv_definitions",
+    "reciprocal_rank_fusion",
+    "sentence_transformer_encoder",
+]

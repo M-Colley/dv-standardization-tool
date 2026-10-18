@@ -21,10 +21,12 @@ This module implements Tier 1 of that strategy:
 * a list of composition records that the orchestrator can persist alongside
   the run artefacts.
 
-Schema-declared scale definitions (Tier 2 — explicit ``items``,
-``reverse_items``, and ``score_transform``) are intentionally out of scope here;
-this module handles the unannotated common case and emits the metadata
-downstream tooling needs to flag low-reliability composites.
+Declared scales take precedence over this heuristic: a dataset's mapping YAML
+can list ``scales`` (items, ``reverse_items``, ``scale_range``; Tier 2, applied
+first by :func:`compose_item_groups`), and standard questionnaires are scored
+from ``schemas/instruments.yaml`` by :mod:`scripts.instruments`. The heuristic
+covers the remaining unannotated groups and emits the metadata downstream
+tooling needs to flag low-reliability composites.
 """
 
 from __future__ import annotations

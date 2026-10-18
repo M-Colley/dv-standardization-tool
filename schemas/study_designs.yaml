@@ -1,0 +1,163 @@
+# Study designs: which columns identify participants and experimental
+# conditions in each standardized study, and how condition levels map onto
+# canonical independent variables (IVs).
+#
+# Read by analyses/contrast_meta_analysis.py. Keys under `studies` are the
+# study keys of the standardized output (the manifest `source_id`).
+#
+# Study entry
+#   participant: column with the participant identifier (one or more names;
+#                the first present column wins, so a study whose files use
+#                different spellings can list them all)
+#   trial / timepoint: optional columns, recorded for provenance
+#   factors: list of manipulated IVs
+#     name:      study-level name of the factor
+#     canonical: optional id from `canonical_factors`; only factors with a
+#                canonical id are pooled across studies
+#     design:    within | between (verified against the data; a mismatch is
+#                reported in contrast_effects.csv as design_observed)
+#     columns:   {column: {raw value: study level}} or {column: null} to use
+#                the stripped raw value as the level. When several columns
+#                are listed, the first non-missing one gives a row's level
+#                (e.g. survey files that only carry a condition code).
+#     levels:    {study level: canonical level}; required with `canonical`
+#     reference: study level that every other level is contrasted against;
+#                defaults to the level(s) mapped to the canonical reference
+#   source:      where the design information comes from
+#
+# Effects are condition contrasts (level minus reference) computed on
+# participant means: Hedges' g for between-subjects factors, and the
+# standardized mean change with raw-score (pooled) standardization for
+# within-subjects factors (metafor measure "SMCRPH"), so both are on the
+# same d metric and can be pooled.
+
+version: "1.0"
+updated: "2026-10-18"
+
+canonical_factors:
+  ehmi_presence:
+    label: External HMI present vs. absent
+    levels: [absent, present]
+    reference: absent
+    notes: >-
+      Any external communication of the automated vehicle (light band, light
+      ring, text or intention display) against the same vehicle without one.
+  display_dimensionality:
+    label: 3D vs. 2D in-vehicle display
+    levels: [2d, 3d]
+    reference: 2d
+
+studies:
+  running_into_traffic_chi26:
+    participant: participant
+    source: running_questionnaire.csv column names; every participant saw all 12 cells
+    factors:
+      - name: ehmi
+        canonical: ehmi_presence
+        design: within
+        columns: {ehmi: null}
+        levels: {Nothing: absent, LightRing: present, CyanBand: present}
+      - name: pedestrian_speed
+        design: within
+        columns: {meta_condition_speed: null}
+        reference: Walking
+      - name: av_yielding
+        design: within
+        columns: {meta_condition_yielding: null}
+        reference: Yielding
+
+  ehmi_for_all_chi26:
+    participant: [UserID, user_id]
+    source: >-
+      Log files carry scenario/distraction/ehmi columns; survey rows only carry
+      ConditionID (A-R). The letter-to-cell mapping was derived from the log
+      file names (data_Log_<user>_<letter>_time.csv) and is identical for all
+      40 participants.
+    factors:
+      - name: ehmi
+        canonical: ehmi_presence
+        design: within
+        columns:
+          ehmi: null
+          ConditionID: {A: None, C: None, E: None, G: None, I: None, K: None, M: None, O: None, Q: None,
+                        B: Intention, D: Intention, F: Intention, H: Intention, J: Intention, L: Intention,
+                        N: Intention, P: Intention, R: Intention}
+        levels: {None: absent, Intention: present}
+      - name: road_user
+        design: within
+        columns:
+          scenario: null
+          ConditionID: {A: Pedestrian, B: Pedestrian, C: Pedestrian, D: Pedestrian, E: Pedestrian, F: Pedestrian,
+                        G: Driver, H: Driver, I: Driver, J: Driver, K: Driver, L: Driver,
+                        M: Bicycle, N: Bicycle, O: Bicycle, P: Bicycle, Q: Bicycle, R: Bicycle}
+        reference: Pedestrian
+      - name: distraction
+        design: within
+        columns:
+          distraction: null
+          ConditionID: {A: None, B: None, G: None, H: None, M: None, N: None,
+                        C: Noise, D: Noise, I: Noise, J: Noise, O: Noise, P: Noise,
+                        E: Interference, F: Interference, K: Interference, L: Interference,
+                        Q: Interference, R: Interference}
+        reference: None
+
+  3d_display_comp_vehicle:
+    participant: UserID
+    source: ConditionID levels LookingGlass, LumePad (lightfield / 3D) and 2D; each participant saw all three
+    factors:
+      - name: display
+        canonical: display_dimensionality
+        design: within
+        columns: {ConditionID: null}
+        levels: {2D: 2d, LumePad: 3d, LookingGlass: 3d}
+
+  fact_av:
+    participant: ProlificID
+    source: repository README (mixed design; INTRODUCTION and SCENARIO between subjects)
+    factors:
+      - name: introduction
+        design: between
+        columns: {INTRODUCTION: null}
+        reference: ambiguous
+      - name: scenario
+        design: between
+        columns: {SCENARIO: null}
+        reference: City
+
+  longitudinal_usa_germany_ehmi:
+    participant: [subject_id, userID]
+    timepoint: [rep_exposure, repExposure]
+    source: repeated exposure (three sessions); condition coding not documented in the data files
+    factors: []
+
+  psych_conflict_handling:
+    participant: ID
+    trial: meta_trial_sequence
+    source: 12 within-subject conditions; the meaning of the numeric Condition codes is not in the data files
+    factors: []
+
+  roads_chi25:
+    participant: UserID
+    source: 12 ConditionID codes per participant; their meaning is not in the data files
+    factors: []
+
+  ehmi_optimization_chi25:
+    participant: User_ID
+    trial: meta_run
+    factors: []
+
+  scrolling_in_the_deep_chi25:
+    participant: Participant_ID
+    factors: []
+
+  osf_cwd6h:
+    participant: Participant ID
+    factors: []
+
+  road_bumps_touch:
+    participant: PId
+    factors:
+      - name: speed
+        design: within
+        columns: {SpeedCondition: null}
+        reference: "10.0"
