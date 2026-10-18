@@ -10,3 +10,8 @@ v0.2:
   - Integrated 5 new DV concepts from community suggestions
   - Refined alias naming to ensure snake_case compliance
   - Added schema metadata and validation rule files for reproducibility
+v3.0.1:
+  date: '2026-10-17'
+  changes:
+  - Optional `subitem_of` key on DV entries declares the construct an item-level DV belongs to (used to keep item -> scale edges out of the causal DAG)
+  - conflict_item_01..05 declared as items of perceived_conflict; sts_ad_item_01..06 as items of sts_ad_trust

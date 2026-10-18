@@ -153,6 +153,24 @@ Per dataset, the runner does this in order:
 
 The LLM is not used for blocked admin fields such as `UserID` or `ConditionID`, and it is also skipped for metadata/process columns and non-DV dataset types such as object-detection files.
 
+**Plausibility check.** Before and after each LLM call, `scripts/llm_plausibility.py` applies the rules in `schemas/llm_plausibility_rules.yaml`:
+
+- columns whose names mark them as demographics, identifiers, random seeds, timestamps, survey timings, coordinates, experimental conditions or rankings are never sent to the model;
+- columns that are not at least 90% numeric are never sent;
+- a suggestion is rejected when the observed values fit neither the canonical DV's range nor a standard response scale.
+
+Every rejection, with its reason, is written to `llm_rejected_suggestions.json` and listed in `llm_deductions.log`. Use `--no-llm-plausibility-check` only for ablation.
+
+**Candidate retrieval.** The LLM chooses from a shortlist of candidate DVs. By default (`--llm-shortlist definition`), `scripts/dv_retrieval.py` builds it by TF-IDF similarity to each DV's definition (id, label, aliases, instruments, notes, cluster, unit). The earlier alias-string matching (`--llm-shortlist fuzzy`) missed the correct DV for most real columns.
+
+**How good is the LLM fallback?** `analyses/evaluate_llm_mapping.py` replays the LLM step with each curated mapping hidden (leave-alias-out). With the local Gemma-4-E2B model and the plausibility check on, it found on real dataset columns:
+
+- **With the old fuzzy shortlist:** 23% of accepted LLM mappings are correct.
+- **With definition retrieval:** 59% are correct.
+- **Effect of the check:** non-DV columns mapped to a DV drop sharply (54% → 7% for blocklisted columns, 74% → 35% for curated ones), without losing any true DV mapping.
+
+Treat LLM-deduced rows as provisional. `multi_study_analysis.py --exclude-llm-deduced` writes the `*_llm_excluded` sensitivity outputs that drop them. Details and further results are in [`docs/research_agenda.md`](docs/research_agenda.md).
+
 Use the provided manifest example as a template:
 
 ```bash
@@ -249,6 +267,11 @@ First-run notes:
   inference): `--disable-llm-deduction`.
 - `--cache-dir` materializes upstream GitHub/OSF/web sources to disk
   so subsequent runs reuse the local copy instead of re-cloning.
+- `--workers N` standardizes datasets in N worker processes (default:
+  CPU count − 1, at most 8; `--workers 1` is fully sequential). Outputs
+  are aggregated in file order, so they are identical to a sequential
+  run. Datasets that need LLM deduction are handed back to the main
+  process, which owns the model, and are processed in file order there.
 
 ### Catalog-driven URL workflow
 
@@ -330,7 +353,36 @@ The included `sources_manifest_example.yaml` is preconfigured for:
    - `schemas/standard_detection_mapping.yaml`
    - `schemas/standard_metadata_mapping.yaml`
 6. Local LLM deduction is only used for still-unmapped DV-style aliases in `results_table` and `questionnaire` datasets.
-7. Outputs include standardized files, quality sidecars, an aggregated meta-view, `unknown_alias_summary.json`, `mapping_debug_summary.json`, and source-level availability statuses when a catalog URL is not publicly accessible.
+7. Outputs include standardized files, quality sidecars, an aggregated meta-view, `unknown_alias_summary.json`, `mapping_debug_summary.json`, and source-level availability statuses when a catalog URL is not publicly accessible (`not_available`, `login_required`, `access_restricted`, or `temporarily_unavailable` for 502/503/504 outages such as OSF maintenance windows).
+
+Datasets are processed in parallel (`--workers`, see above); a run with `--workers 1` produces the same files.
+
+### Robustness analyses
+
+- `analyses/multi_study_analysis.py` reports Hartung-Knapp-Sidik-Jonkman intervals (`hksj_ci95_low/high`) next to the Wald intervals; with the k = 2–3 studies typical here, Wald intervals are far too narrow. All meta-analytic estimators (DL, REML, Egger, trim-and-fill, HKSJ) are validated against R's `metafor` in `tests/test_meta_analysis_reference.py`.
+- `analyses/multiverse_analysis.py` re-runs the meta-analysis across every combination of 5 choices (32 specifications per DV) and writes specification curves:
+  - LLM mappings included or excluded;
+  - scale harmonization on or off;
+  - observation- or participant-level n;
+  - DL or REML;
+  - Wald or HKSJ intervals.
+
+### Extending the batch runner
+
+- **New dataset type**: add a profile to `schemas/dataset_type_profiles.yaml`. Its `schema` field selects the alias family; a YAML file that is not built in is loaded from `schemas/` on first use. The optional `llm_deduction` and `item_composition` switches default to on for profiles that use `standard_dv_mapping.yaml` and off otherwise.
+- **New source type**: register a materializer that fetches files into the cache directory and returns `(base_dir, provenance_id)`. Archive extraction and include/exclude matching are shared by all source types, and manifest validation accepts the new `source_type` automatically:
+
+  ```python
+  from scripts.run_batch_standardization import register_source_type
+
+  @register_source_type("zenodo_record")
+  def materialize_zenodo(source, target, refresh_remote_cache):
+      ...  # download files for source["location"] into target
+      return target, record_id
+  ```
+- **Negative answer codes**: LimeSurvey exports negative scale points as `neg1`, `neg2`, …; in questionnaire/results tables these are recoded to −1, −2, … (counted in `-quality.json` as `negative_answer_codes_recoded`). Before this, numeric coercion silently dropped every negative answer.
+- **Text-labelled responses**: if a dataset stores Likert answers as labels ("Rather agree"), declare the codes once in its mapping YAML under `value_labels:` (columns + label → number; see `schemas/psych_conflict_handling_mapping.yaml`). Cells are recoded before standardization; labels that are not declared become missing and are counted in the dataset's `-quality.json` (`value_labels_applied`). Without this, such a dataset contributes no numeric DV.
+- **Item-level DVs**: name item DVs `<construct id>_item_NN` (e.g. `perceived_safety_item_01`) or declare `subitem_of: <construct id>` in the schema entry. The causal analysis then drops the items whenever their construct is present, so item → scale edges cannot appear in the DAG.
 
 ```bash
 python scripts/run_batch_standardization.py \

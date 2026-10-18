@@ -24,6 +24,7 @@ if str(REPO_ROOT) not in sys.path:
 from analyses.multi_study_analysis import (
     _canonicalize_studies,
     build_composite_index,
+    compute_composite_scores,
     compute_dv_presence_matrix,
     compute_overlap,
     compute_overlap_details,
@@ -35,7 +36,7 @@ from analyses.multi_study_analysis import (
     save_composite_plot,
     save_plots,
 )
-from scripts.run_batch_standardization import run_batch
+from scripts.run_batch_standardization import default_worker_count, run_batch
 
 DEFAULT_SCHEMA_PATH = REPO_ROOT / "schemas" / "standard_dv_mapping.yaml"
 REMOTE_DATASET_SUFFIXES = {".csv", ".tsv", ".xlsx", ".xls", ".pkl", ".pickle", ".zip", ".yaml", ".yml"}
@@ -358,6 +359,9 @@ def run_catalog_meta_analysis(
     refresh_remote_cache: bool = False,
     preferred_models: list[str] | None = None,
     debug_mappings: bool = False,
+    workers: int = 1,
+    llm_plausibility_check: bool = True,
+    llm_shortlist: str = "definition",
 ) -> dict[str, Any]:
     catalog_path = Path(catalog_path)
     output_dir = Path(output_dir)
@@ -389,6 +393,9 @@ def run_catalog_meta_analysis(
         refresh_remote_cache=refresh_remote_cache,
         preferred_models=preferred_models,
         debug_mappings=debug_mappings,
+        workers=workers,
+        llm_plausibility_check=llm_plausibility_check,
+        llm_shortlist=llm_shortlist,
     )
 
     batch_results = pd.DataFrame(batch_summary.get("results", []))
@@ -419,7 +426,7 @@ def run_catalog_meta_analysis(
     analysis_dir.mkdir(parents=True, exist_ok=True)
 
     try:
-        studies = load_studies(standardized_root)
+        studies = load_studies(standardized_root, skip_files_without_dvs=True)
     except FileNotFoundError as exc:
         analysis_summary = {
             "catalog_path": str(catalog_path),
@@ -484,9 +491,10 @@ def run_catalog_meta_analysis(
 
     composite_written = False
     try:
-        composite = build_composite_index(studies, canonical_studies=canonical)
+        composite_scores = compute_composite_scores(studies, canonical_studies=canonical)
+        composite = build_composite_index(studies, scores=composite_scores)
         composite.to_csv(analysis_dir / "cross_study_composite_summary.csv", index=False)
-        save_composite_plot(studies, analysis_dir, canonical_studies=canonical)
+        save_composite_plot(studies, analysis_dir, scores=composite_scores)
         composite_written = True
     except ValueError:
         composite = pd.DataFrame()
@@ -574,6 +582,24 @@ def main() -> None:
         action="store_true",
         help="Write per-dataset mapping debug artifacts during batch standardization.",
     )
+    parser.add_argument(
+        "--workers",
+        type=int,
+        default=default_worker_count(),
+        help="Worker processes for batch standardization (default: %(default)s; 1 = sequential).",
+    )
+    parser.add_argument(
+        "--no-llm-plausibility-check",
+        dest="llm_plausibility_check",
+        action="store_false",
+        help="Disable the LLM plausibility check (schemas/llm_plausibility_rules.yaml); for ablation only.",
+    )
+    parser.add_argument(
+        "--llm-shortlist",
+        choices=["fuzzy", "definition"],
+        default="definition",
+        help="Candidate retrieval for the LLM (default: %(default)s).",
+    )
     args = parser.parse_args()
 
     preferred_models = [item.strip() for item in args.llm_models.split(",") if item.strip()] or None
@@ -591,6 +617,9 @@ def main() -> None:
         refresh_remote_cache=args.refresh_remote_cache,
         preferred_models=preferred_models,
         debug_mappings=args.debug_mappings,
+        workers=args.workers,
+        llm_plausibility_check=args.llm_plausibility_check,
+        llm_shortlist=args.llm_shortlist,
     )
 
     print(json.dumps(summary, indent=2))

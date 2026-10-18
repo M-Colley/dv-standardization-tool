@@ -1,0 +1,107 @@
+# Plausibility rules for LLM-suggested DV mappings (scripts/llm_plausibility.py).
+#
+# The local LLM is only a fallback for columns that no explicit mapping
+# covers, and on real repositories it confidently maps participant age to
+# "retention_time", survey random seeds to "trust_rating" and LimeSurvey
+# timing columns to "mental_demand". These rules screen its input and output:
+#
+#   1. name rules   — columns whose *name* says they are not a dependent
+#                     variable are never sent to the LLM;
+#   2. data rules   — columns that are not (mostly) numeric are never sent;
+#   3. range rule   — a suggestion is rejected when the observed values fit
+#                     neither the canonical DV's range nor a standard
+#                     alternative response scale (the same scales the
+#                     meta-analysis knows how to rescale from).
+#
+# Every rejection is written to llm_rejected_suggestions.json with its reason,
+# so the rules can be audited and tuned. Explicit schema / repository mappings
+# are never subject to these rules.
+#
+# Name matching works on lower-cased tokens split at non-alphanumerics,
+# camelCase and letter/digit boundaries:
+#   "probandenIDTime" -> [probanden, id, time]
+#   "TimeOfTouch"     -> [time, of, touch]
+#   "attention_check001" -> [attention, check, 001]
+# A rule matches when ALL of its keys match:
+#   any_token: [..]     at least one token is listed
+#   all_tokens: [..]    every listed token occurs
+#   first_token: [..]   the first token is listed
+#   second_token: [..]  the second token is listed
+#   last_token: [..]    the last token is listed
+#   min_tokens: n       the name has at least n tokens
+#   exact: [..]         the whole name, lower-cased with non-alphanumerics removed, is listed
+#   contains: [..]      that normalized name contains one of the substrings
+version: "1.1"
+
+# Share of non-missing values that must parse as numbers ("3,5" counts).
+min_numeric_fraction: 0.9
+
+# Tolerance around a range, as a fraction of its span.
+range_tolerance: 0.15
+
+# Response scales accepted in addition to a DV's canonical range; keep in
+# sync with _detect_scale_range in analyses/multi_study_analysis.py.
+alternative_ranges:
+  - [0, 20]
+  - [1, 20]
+  - [0, 21]
+  - [1, 21]
+  - [0, 10]
+  - [1, 10]
+  - [0, 9]
+  - [1, 9]
+  - [1, 7]
+  - [0, 7]
+  - [1, 5]
+  - [0, 5]
+  - [0, 100]
+  - [1, 100]
+
+name_rules:
+  - reason: demographic
+    any_token: [age, alter, gender, geschlecht, sex, education, bildung, bildungsabschluss,
+                occupation, beruf, job, profession, nationality, nationalitaet, country,
+                income, einkommen, handedness, ethnicity, marital, familienstand,
+                licence, license, fuehrerschein, führerschein, birth, birthyear, geburtsjahr,
+                language, sprache]
+  - reason: identifier
+    any_token: [id, ids, uuid, guid, pid, uid]
+  - reason: randomization
+    any_token: [seed, random, randomization, randomisation, randomized, randomised]
+  - reason: randomization
+    contains: [zufall]
+  - reason: quality_control
+    all_tokens: [attention, check]
+  - reason: timestamp
+    any_token: [timestamp, datestamp, datetime, date, datum, started, gestartet, submitted, abgeschickt]
+  - reason: event_time
+    exact: [time]
+  - reason: event_time
+    first_token: [time]
+    second_token: [of, start, end, stamp, peak, relativ, relative, shift, stop, begin]
+  - reason: survey_timing
+    exact: [interviewtime, gesamtzeit]
+  - reason: survey_timing
+    first_token: [fragenzeit, gruppenzeit, grouptime, questiontime]
+  # "TouchX", "VisualStimuliPositionY" — but not e.g. "DurationX".
+  - reason: coordinate
+    last_token: [x, y, z]
+    any_token: [position, pos, touch, gaze, pixel, coord, coordinate, location, loc, cursor, mouse,
+                point, head, hand, hmd, eye, projected, quad, local, world, screen, rotation, rot]
+  # "SpeedCondition", "VisualStimuliCondition". A trailing singular only:
+  # plural "conditions" names constructs such as UTAUT facilitating_conditions
+  # (v1.1, after the v1.0 evaluation rejected that alias).
+  - reason: experimental_condition
+    last_token: [condition, cond]
+  - reason: experimental_condition
+    first_token: [is]
+    min_tokens: 2
+  - reason: ranking
+    first_token: [ranking, rank]
+
+# LimeSurvey exports pair every question (group) code with a "<code>Time"
+# column holding the seconds spent on it. In files that look like LimeSurvey
+# exports (any of these normalized column names present), a column ending in
+# "Time" is treated as survey timing when another column's normalized name
+# starts with the same prefix (e.g. "TLX1Time" next to "tlx1_sq001").
+limesurvey_markers: [interviewtime, gesamtzeit, lastpage, startlanguage, startsprache, submitdate, datestamp]

@@ -1,5 +1,5 @@
 [build-system]
-requires = ["setuptools>=68.0", "wheel"]
+requires = ["setuptools>=84.0"]
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -19,45 +19,48 @@ classifiers = [
     "Topic :: Scientific/Engineering",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
 ]
 dependencies = [
-    "pandas>=3.0",
-    "numpy>=2.4",
-    "scipy>=1.16",
-    "pyyaml>=6.0",
-    "tqdm>=4.68",
-    "openpyxl>=3.1",
-    "rapidfuzz>=2.13",
-    "pydantic>=2.13",
-    "httpx>=0.28",
-    "tenacity>=9.1",
-    "beautifulsoup4>=4.15",
-    "charset-normalizer>=3.4",
-    "matplotlib>=3.11",
-    "seaborn>=0.13",
-    "scikit-learn>=1.9",
-    "lingam>=1.12",
+    "pandas>=3.0.6",
+    "numpy>=2.5.4",
+    "scipy>=1.16.3",  # capped below 1.17 by lingam's dependency pygam 0.12
+    "pyyaml>=6.0.3",
+    "tqdm>=4.70.1",
+    "openpyxl>=3.1.5",
+    "rapidfuzz>=3.14.6",
+    "pydantic>=2.14.1",
+    "httpx>=0.28.1",
+    "tenacity>=9.2.1",
+    "beautifulsoup4>=4.15.0",
+    "charset-normalizer>=3.5.2",
+    "matplotlib>=3.11.2",
+    "seaborn>=0.13.2",
+    "scikit-learn>=1.9.1",
+    "lingam>=1.12.2",  # 1.13.0 pins scipy<=1.13.1 (incompatible with numpy>=2.3)
 ]
 
 [project.optional-dependencies]
-# Aligned with requirements-llm.txt. transformers and pypdf are required by
-# scripts/llm_utils.py (local-LLM alias deduction + PDF context extraction);
-# scikit-learn is already in core deps so it is omitted here.
+# Aligned with requirements-llm.txt. torch, transformers and pypdf are
+# required by scripts/llm_utils.py (local-LLM alias deduction + PDF context
+# extraction); scikit-learn is already in core deps so it is omitted here.
+# For CUDA, install the matching torch wheel first (see requirements-llm.txt).
 llm = [
-    "openai>=2.41",
-    "sentence-transformers>=5.5",
-    "transformers>=5.12",
-    "accelerate>=1.14",
-    "pypdf>=6.7",
+    "torch>=2.14.1",
+    "openai>=3.33.0",
+    "sentence-transformers>=6.1.0",
+    "transformers>=5.20.1",
+    "accelerate>=1.15.0",
+    "pypdf>=6.21.1",
 ]
 # Aligned with requirements-ui.txt. matplotlib / seaborn / scikit-learn live
 # in core deps already so they are omitted from this extra.
 ui = [
-    "streamlit>=1.58",
-    "plotly>=6.7",
-    "watchdog>=6.0",
+    "streamlit>=1.66.0",
+    "plotly>=7.1.0",
+    "watchdog>=6.0.0",
 ]
-dev = ["pytest>=9.0", "ruff>=0.4"]
+dev = ["pytest>=9.1.1", "ruff>=0.17.1"]
 all = ["opendv-hci[llm,ui,dev]"]
 
 [project.urls]

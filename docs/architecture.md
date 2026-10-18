@@ -18,6 +18,35 @@ At every boundary the pipeline records *why* each value exists:
 - **Meta-analysis pool membership**: `meta_analysis_summary.csv` columns `mapping_source_categories`, `k_llm_deduced`, `includes_llm_deduced` flag pooled estimates that lean on LLM inference.
 - **Causal discovery**: `discover_causal_structure` reports `used_method` ∈ {`complete_case`, `clique_complete_case`, `synthetic_cholesky`} and a `synthetic_fallback` flag.
 
+## Batch execution model
+`run_batch` materializes one source at a time; within a source, every dataset file becomes a `_DatasetTask` handled by `_process_dataset` (load → classify → map → standardize → compose → summarize).
+
+- `--workers N` fans the tasks out to a process pool. The built-in schema families (`SchemaFamilies`) are sent to each worker once, and alias mappings are memoized per (schema family, repository mapping YAML).
+- A dataset that needs LLM deduction comes back from its worker as `needs_llm`. The main process, which owns the local model and its caches, deduces the aliases in file order and resubmits the task with the deduced aliases. LLM calls therefore happen in the same order as in a sequential run.
+- Outcomes are aggregated in file order, so `meta_view.csv`, `run_summary.json` and all sidecars match `--workers 1`.
+
+Extension points: dataset types (and their schema family, `llm_deduction`, `item_composition`) live in `schemas/dataset_type_profiles.yaml`; source types are registered with `@register_source_type("<name>")` in `scripts/run_batch_standardization.py`.
+
+## LLM plausibility layer
+`scripts/llm_plausibility.py` screens what the local LLM sees and what it may return, using the rules in `schemas/llm_plausibility_rules.yaml`.
+
+- **Before the call:** name rules (demographics, identifiers, seeds, timestamps, survey timings, coordinates, conditions, rankings) and a numeric-data rule.
+- **After the call:** a range rule that compares observed values with the canonical DV's range and standard response scales.
+
+Column profiles are computed in the worker that loaded the data. The parent process only sees the surviving candidate columns. Rejections are aggregated into `llm_rejected_suggestions.json`, and the rules version is recorded in `run_summary.json`. `analyses/evaluate_llm_mapping.py` measures the layer against curated mappings (leave-alias-out).
+
+## Candidate retrieval for the LLM
+`scripts/dv_retrieval.py` ranks canonical DVs for an unmapped column by TF-IDF similarity to their definitions in `standard_dv_mapping.yaml`. The LLM then chooses among the top 8. The fuzzy alias score is still used to decide whether to ask the LLM at all. `--llm-shortlist fuzzy` switches back to alias-string candidates.
+
+## Response recoding before standardization
+Before any numeric step, `_process_dataset` applies two recodings (`scripts/value_labels.py`), and every recoded cell is counted in the dataset's `-quality.json`:
+
+1. text labels declared under `value_labels` in the repository mapping;
+2. for survey-like tables, LimeSurvey `negN` answer codes.
+
+## Validation of the statistics
+`tests/test_meta_analysis_reference.py` checks DerSimonian-Laird pooling, REML, Egger's regression test, trim-and-fill (L0/R0, FE/DL) and Hartung-Knapp-Sidik-Jonkman intervals against R's `metafor` 5.2.1. It uses two published datasets (Hackshaw 1998; Colditz et al. 1994), stored with metafor's results in `tests/fixtures/metafor_reference.json`. `analyses/multiverse_analysis.py` quantifies how much pooled estimates depend on harmonization choices.
+
 ## Technologies Used
 - YAML for schema and manifest representation
 - Python (pandas, numpy, matplotlib, seaborn, pydantic) for transformation and analysis

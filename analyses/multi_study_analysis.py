@@ -10,12 +10,14 @@ from __future__ import annotations
 import argparse
 import json
 import logging
+import os
 import re
+from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime, timezone
 from functools import lru_cache
 from itertools import combinations
 from pathlib import Path
-from typing import Dict, Iterable, List, Optional
+from typing import Any, Dict, Iterable, List, Optional
 
 import lingam
 import matplotlib.pyplot as plt
@@ -25,6 +27,21 @@ import seaborn as sns
 import yaml
 from scipy import stats
 from sklearn.decomposition import PCA
+
+# libyaml's C parser is ~7x faster on the 2k-line DV schema and yields
+# identical objects; fall back to the pure-Python loader when unavailable.
+_YAML_SAFE_LOADER = getattr(yaml, "CSafeLoader", yaml.SafeLoader)
+
+
+@lru_cache(maxsize=16)
+def _read_yaml_cached(path_str: str, mtime_ns: int) -> Any:
+    with open(path_str, "r", encoding="utf-8") as f:
+        return yaml.load(f, Loader=_YAML_SAFE_LOADER)
+
+
+def _load_yaml(path: Path) -> Any:
+    """Parse a schema YAML once per (path, mtime). Callers must not mutate the result."""
+    return _read_yaml_cached(str(path), path.stat().st_mtime_ns)
 
 ID_LIKE_COLUMNS = {
     "id",
@@ -51,6 +68,9 @@ META_ANALYSIS_COLUMNS = [
     "random_effects_se",
     "ci95_low",
     "ci95_high",
+    "hksj_se",
+    "hksj_ci95_low",
+    "hksj_ci95_high",
     "prediction_interval_low",
     "prediction_interval_high",
     "heterogeneity_q",
@@ -138,18 +158,33 @@ def load_mapping_provenance(meta_view_path: Path) -> Dict[tuple, str]:
         return {}
     if "source_id" not in df.columns or "canonical_dv" not in df.columns:
         return {}
-    provenance: Dict[tuple, str] = {}
-    for _, row in df.iterrows():
-        source_id = str(row["source_id"])
-        canonical_dv = str(row["canonical_dv"])
-        if canonical_dv in {"", "nan", "None"}:
-            continue
-        key = (source_id, canonical_dv)
-        new_cat = _categorize_mapping_source(row.get("mapping_source"))
-        existing = provenance.get(key)
-        if existing is None or _MAPPING_SOURCE_PRIORITY.get(new_cat, -1) > _MAPPING_SOURCE_PRIORITY.get(existing, -1):
-            provenance[key] = new_cat
-    return provenance
+    frame = pd.DataFrame({
+        "source_id": df["source_id"].astype(str),
+        "canonical_dv": df["canonical_dv"].astype(str),
+        "mapping_source": df["mapping_source"] if "mapping_source" in df.columns else None,
+    })
+    frame = frame[~frame["canonical_dv"].isin({"", "nan", "None"})]
+    if frame.empty:
+        return {}
+    # meta_view has one row per (dataset, column) — tens of thousands for
+    # telemetry-heavy runs — but only a handful of distinct mapping sources.
+    categories = {
+        raw: _categorize_mapping_source(raw)
+        for raw in frame["mapping_source"].drop_duplicates()
+    }
+    frame["category"] = frame["mapping_source"].map(categories).fillna("unknown")
+    frame["priority"] = frame["category"].map(_MAPPING_SOURCE_PRIORITY).fillna(-1)
+    # idxmax keeps the first row on ties, i.e. the earliest-seen category wins
+    # unless a later one is strictly more cautious.
+    winners = frame.loc[frame.groupby(["source_id", "canonical_dv"], sort=False)["priority"].idxmax()]
+    return {
+        (source_id, canonical_dv): category
+        for source_id, canonical_dv, category in zip(
+            winners["source_id"], winners["canonical_dv"], winners["category"], strict=True
+        )
+    }
+
+
 OVERLAP_DETAIL_COLUMNS = [
     "study_a",
     "study_b",
@@ -208,7 +243,7 @@ def _load_standard_dv_lookup(schema_path: str = str(DEFAULT_DV_SCHEMA_PATH)) -> 
         return {}
 
     try:
-        data = yaml.safe_load(path.read_text(encoding="utf-8")) or {}
+        data = _load_yaml(path) or {}
     except OSError:
         return {}
 
@@ -243,7 +278,7 @@ def _load_dv_measurement_metadata(
         return {}
 
     try:
-        data = yaml.safe_load(path.read_text(encoding="utf-8")) or {}
+        data = _load_yaml(path) or {}
     except OSError:
         return {}
 
@@ -284,7 +319,7 @@ def validate_schema_clusters(
     if not dv_schema_path.is_file():
         return
     try:
-        dv_data = yaml.safe_load(dv_schema_path.read_text(encoding="utf-8")) or {}
+        dv_data = _load_yaml(dv_schema_path) or {}
     except OSError:
         return
 
@@ -305,7 +340,7 @@ def validate_schema_clusters(
         return
 
     try:
-        cluster_data = yaml.safe_load(cluster_schema_path.read_text(encoding="utf-8")) or {}
+        cluster_data = _load_yaml(cluster_schema_path) or {}
     except OSError:
         return
 
@@ -477,6 +512,26 @@ def _build_construct_subitems() -> dict[str, list[str]]:
     return mapping
 
 
+def _aoa_scale_midpoint(items: list[pd.Series]) -> float:
+    """Midpoint of the 5-point coding used for AOA items: 0 for -2..+2, 3 for 1..5."""
+    values = pd.concat(items, ignore_index=True).dropna()
+    if values.empty:
+        return 3.0
+    lo, hi = float(values.min()), float(values.max())
+    if lo < 0:
+        return 0.0
+    if lo >= 1:
+        return 3.0
+    if hi <= 2:
+        # Only 0..2 observed: cannot tell -2..+2 (no negative answers) from
+        # 0..4; the -2..+2 export is the one seen in practice.
+        logging.getLogger(__name__).warning(
+            "AOA items span %.0f..%.0f; assuming -2..+2 coding (midpoint 0)", lo, hi
+        )
+        return 0.0
+    return 2.0  # 0..4 coding
+
+
 def add_derived_scale_scores(df: pd.DataFrame) -> pd.DataFrame:
     """Add TLX/SUS/AOA derived scores when all required mapped item columns are present.
 
@@ -516,22 +571,28 @@ def add_derived_scale_scores(df: pd.DataFrame) -> pd.DataFrame:
             + (5 - sus_items[9])
         ) * 2.5
 
-    # AOA: usefulness and satisfying subscales with reverse-coded items
+    # AOA (Van der Laan acceptance): usefulness and satisfying subscales.
+    # Items are stored as the answer *position* on a 5-point semantic
+    # differential; items 3, 6 and 8 have the positive pole on the other side.
+    # Each item is centred on the scale midpoint (mid - x, or x - mid for the
+    # mirrored items), so scores are -2..+2 whether a study codes positions
+    # 1..5 (midpoint 3) or -2..+2 (midpoint 0, e.g. LimeSurvey "neg2".."2").
     spec = _DERIVED_SCALES["aoa_usefulness"]
     aoa_items = [_resolve_series(out, cands) for cands in spec["item_candidates"]]
     if all(item is not None for item in aoa_items):
+        mid = _aoa_scale_midpoint(aoa_items)
         out["aoa_usefulness"] = (
-            (3 - aoa_items[0])
-            + (-3 + aoa_items[2])
-            + (3 - aoa_items[4])
-            + (3 - aoa_items[6])
-            + (3 - aoa_items[8])
+            (mid - aoa_items[0])
+            + (aoa_items[2] - mid)
+            + (mid - aoa_items[4])
+            + (mid - aoa_items[6])
+            + (mid - aoa_items[8])
         ) / 5.0
         out["aoa_satisfying"] = (
-            (3 - aoa_items[1])
-            + (3 - aoa_items[3])
-            + (-3 + aoa_items[5])
-            + (-3 + aoa_items[7])
+            (mid - aoa_items[1])
+            + (mid - aoa_items[3])
+            + (aoa_items[5] - mid)
+            + (aoa_items[7] - mid)
         ) / 4.0
 
     return out
@@ -539,17 +600,44 @@ def add_derived_scale_scores(df: pd.DataFrame) -> pd.DataFrame:
 
 # ── Study loading ────────────────────────────────────────────────────────────
 
+_PICKLE_SUFFIXES = {".pkl", ".pickle"}
+
+
 def _read_file(path: Path) -> pd.DataFrame:
     if path.suffix.lower() == ".csv":
         return pd.read_csv(path)
-    if path.suffix.lower() in {".pkl", ".pickle"}:
+    if path.suffix.lower() in _PICKLE_SUFFIXES:
         return pd.read_pickle(path)
     return pd.read_excel(path)
+
+
+def _read_header(path: Path) -> list[str]:
+    if path.suffix.lower() == ".csv":
+        return [str(c) for c in pd.read_csv(path, nrows=0).columns]
+    return [str(c) for c in pd.read_excel(path, nrows=0).columns]
+
+
+def _derived_scale_item_names() -> frozenset[str]:
+    return frozenset(
+        _normalize_colname(candidate)
+        for spec in _DERIVED_SCALES.values()
+        for candidates in spec["item_candidates"]
+        for candidate in candidates
+    )
+
+
+def _is_analysis_column(name: str, derived_items: frozenset[str] | None = None) -> bool:
+    """True when a column can feed any analysis: a canonical DV or a derived-scale item."""
+    if derived_items is None:
+        derived_items = _derived_scale_item_names()
+    return bool(_canonicalize_dv_name(name)) or _normalize_colname(name) in derived_items
 
 
 def load_studies(
     input_dir: Path,
     repeated_measures_studies: set[str] | None = None,
+    skip_files_without_dvs: bool = False,
+    max_workers: int | None = None,
 ) -> Dict[str, pd.DataFrame]:
     """Load studies, combining all files that share the same subdirectory.
 
@@ -572,6 +660,15 @@ def load_studies(
     repeated_measures_studies:
         When a study key is in this set, rows are aggregated to participant-level
         means (detected by ID_LIKE_COLUMNS) before storing in the output dict.
+    skip_files_without_dvs:
+        Read each CSV/XLSX header first and skip files with no canonical DV
+        (or derived-scale item) column — typically per-trial telemetry logs.
+        Such files only contribute rows in which every DV is missing, which no
+        analysis uses, so results are unchanged while loading gets much
+        faster. A study whose files are all skipped is kept as an empty frame
+        so study counts and coverage percentages stay the same.
+    max_workers:
+        Threads used to read files (default: up to 8).
     """
     _load_logger = logging.getLogger(__name__)
     files = sorted(
@@ -598,19 +695,38 @@ def load_studies(
 
     rm_keys = repeated_measures_studies or set()
 
+    # Computed here (not cached globally) so edits to _DERIVED_SCALES apply;
+    # also warms the schema lookup cache before threads share it.
+    derived_items = _derived_scale_item_names()
+    _load_standard_dv_lookup()
+
+    def _load(path: Path) -> pd.DataFrame | None:
+        if skip_files_without_dvs and path.suffix.lower() not in _PICKLE_SUFFIXES:
+            if not any(_is_analysis_column(col, derived_items) for col in _read_header(path)):
+                return None
+        return _read_file(path)
+    n_threads = max_workers or min(8, os.cpu_count() or 1)
+    with ThreadPoolExecutor(max_workers=n_threads) as pool:
+        loaded = dict(zip(files, pool.map(_load, files), strict=True))
+    n_skipped = sum(1 for df in loaded.values() if df is None)
+    if n_skipped:
+        print(f"Skipped {n_skipped} file(s) without canonical DV columns.")
+
     studies: Dict[str, pd.DataFrame] = {}
     for project_key, paths in sorted(groups.items()):
         frames = []
         for path in paths:
-            df = _read_file(path)
+            df = loaded[path]
+            if df is None:
+                continue
             df["_source_file"] = path.name  # traceability column
             frames.append(df)
             print(f"  [{project_key}] loaded {path.name} ({len(df)} rows)")
 
-        combined = pd.concat(frames, ignore_index=True)
+        combined = pd.concat(frames, ignore_index=True) if frames else pd.DataFrame()
         print(
             f"  -> project '{project_key}': {len(combined)} total rows "
-            f"from {len(paths)} file(s)"
+            f"from {len(frames)} of {len(paths)} file(s)"
         )
         combined = add_derived_scale_scores(combined)
 
@@ -916,9 +1032,13 @@ def _estimate_tau2_reml(
         mu = np.sum(w * effects) / np.sum(w)
         residuals_sq = np.square(effects - mu)
 
-        # REML log-likelihood gradient and Hessian (Fisher information)
-        gradient = -0.5 * np.sum(w) + 0.5 * np.sum(w ** 2 * residuals_sq) + 0.5 * (np.sum(w ** 2) / np.sum(w))
-        fisher_info = 0.5 * (np.sum(w ** 2) - np.sum(w ** 3) / np.sum(w))
+        # REML score and expected (Fisher) information for tau², with
+        # P = W - w w' / sum(w):  score = (y'PPy - tr P) / 2,  I = tr(PP) / 2,
+        # tr(PP) = Σw² - 2Σw³/Σw + (Σw²/Σw)²  (Viechtbauer, 2005).
+        sum_w = np.sum(w)
+        sum_w2 = np.sum(w ** 2)
+        gradient = -0.5 * sum_w + 0.5 * np.sum(w ** 2 * residuals_sq) + 0.5 * (sum_w2 / sum_w)
+        fisher_info = 0.5 * (sum_w2 - 2.0 * np.sum(w ** 3) / sum_w + (sum_w2 / sum_w) ** 2)
 
         if fisher_info <= 0:
             break
@@ -977,6 +1097,15 @@ def _run_meta_for_dv(
         random_mean = float(np.sum(w_random * means) / np.sum(w_random))
         random_se = float(np.sqrt(1.0 / np.sum(w_random)))
 
+    # Hartung-Knapp-Sidik-Jonkman small-sample interval (metafor test="knha"):
+    # the SE is rescaled by the weighted residual variance of the pooled model
+    # and the interval uses t(k-1). With the k = 2-3 studies typical here the
+    # normal-theory interval above is far too narrow (IntHout et al., 2014).
+    w_pooled = w_fixed if k < MIN_K_FOR_RANDOM_EFFECTS else w_random
+    q_hk = float(np.sum(w_pooled * np.square(means - random_mean))) / df_q
+    hksj_se = float(np.sqrt(q_hk / np.sum(w_pooled)))
+    hksj_half = float(stats.t.ppf(0.975, df_q)) * hksj_se
+
     # Heterogeneity
     i2 = max(0.0, (q - df_q) / q) * 100 if q > 0 else 0.0
     q_pvalue = float(stats.chi2.sf(q, df_q)) if df_q > 0 else np.nan
@@ -1021,6 +1150,9 @@ def _run_meta_for_dv(
         "random_effects_se": random_se,
         "ci95_low": random_mean - 1.96 * random_se,
         "ci95_high": random_mean + 1.96 * random_se,
+        "hksj_se": hksj_se,
+        "hksj_ci95_low": random_mean - hksj_half,
+        "hksj_ci95_high": random_mean + hksj_half,
         "prediction_interval_low": pi_low,
         "prediction_interval_high": pi_high,
         "heterogeneity_q": q,
@@ -1101,66 +1233,157 @@ def eggers_test(summary: pd.DataFrame, dv: str) -> dict | None:
 
 # ── Trim-and-fill (Duval & Tweedie) ─────────────────────────────────────────
 
+def _estimate_tau2(effects: np.ndarray, variances: np.ndarray, method: str) -> float:
+    """Between-study variance for ``method`` in {"FE", "DL", "REML"}."""
+    if method == "FE":
+        return 0.0
+    if method == "REML":
+        return _estimate_tau2_reml(effects, variances)
+    if method == "DL":
+        return _estimate_tau2_dl(effects, variances)
+    raise ValueError(f"Unknown pooling method '{method}' (expected FE, DL or REML).")
+
+
+def _pool_inverse_variance(
+    effects: np.ndarray,
+    variances: np.ndarray,
+    method: str,
+) -> tuple[float, float]:
+    """Inverse-variance pooled estimate and its SE (fixed or random effects)."""
+    tau2 = _estimate_tau2(effects, variances, method)
+    w = 1.0 / (variances + tau2)
+    return float(np.sum(w * effects) / np.sum(w)), float(np.sqrt(1.0 / np.sum(w)))
+
+
+def _small_study_slope(effects: np.ndarray, variances: np.ndarray, method: str) -> float:
+    """Slope of a meta-regression of the effects on their standard errors.
+
+    Used to pick the side on which trim-and-fill imputes studies: a negative
+    slope (small studies show smaller effects) means studies are missing on
+    the right. Mirrors ``metafor::trimfill``, which fits
+    ``rma(yi, vi, mods = sqrt(vi), method = <model method>)``; for the
+    random-effects methods the residual tau² uses the DerSimonian-Laird
+    meta-regression estimator (only the sign of the slope is used). Returns
+    NaN when all studies have the same SE (slope undefined); callers then
+    fall back to ``side="left"`` as metafor does when this model fails.
+    """
+    sei = np.sqrt(variances)
+    if np.ptp(sei) <= 1e-12 * max(float(np.max(sei)), 1.0):
+        return float("nan")
+    X = np.column_stack([np.ones_like(effects), sei])
+
+    def _wls(weights: np.ndarray) -> np.ndarray:
+        xtw = X.T * weights
+        return np.linalg.solve(xtw @ X, xtw @ effects)
+
+    w = 1.0 / variances
+    if method != "FE":
+        k, p = X.shape
+        beta = _wls(w)
+        q_resid = float(np.sum(w * (effects - X @ beta) ** 2))
+        xtwx_inv = np.linalg.inv((X.T * w) @ X)
+        trace_p = float(np.sum(w) - np.trace(xtwx_inv @ ((X.T * w**2) @ X)))
+        tau2 = max(0.0, (q_resid - (k - p)) / trace_p) if trace_p > 0 else 0.0
+        w = 1.0 / (variances + tau2)
+    return float(_wls(w)[1])
+
+
 def trim_and_fill(
     summary: pd.DataFrame,
     dv: str,
     estimator: str = "DL",
-    side: str = "right",
-    max_iter: int = 50,
+    side: str | None = None,
+    max_iter: int = 100,
+    k0_estimator: str = "L0",
 ) -> dict | None:
-    """Duval & Tweedie trim-and-fill for funnel plot asymmetry correction.
+    """Duval & Tweedie (2000) trim-and-fill funnel-asymmetry adjustment.
 
-    Returns the adjusted pooled estimate and number of imputed studies.
+    Follows ``metafor::trimfill`` (Viechtbauer, 2010) and is validated against
+    it in ``tests/test_meta_analysis_reference.py``:
+
+    1. Flip the effects if studies are to be imputed on the right, then sort.
+    2. Iterate: pool the ``k - k0`` least extreme studies, rank the absolute
+       deviations of *all* studies from that estimate, and re-estimate the
+       number of suppressed studies ``k0`` with the L0 (default) or R0
+       estimator, until ``k0`` stops changing.
+    3. Mirror the ``k0`` most extreme studies around the final truncated
+       estimate and pool the original plus imputed studies.
+
+    ``estimator`` is the pooling model used throughout ("FE", "DL" or
+    "REML"), so the unadjusted estimate matches the main meta-analysis.
+    ``side`` is the side on which studies are imputed ("left"/"right");
+    ``None`` infers it from the sign of the small-study slope. Requires
+    k >= 3. Trim-and-fill assumes funnel asymmetry stems from publication
+    bias; under high heterogeneity it can impute spurious studies, so treat
+    the adjusted estimate as a sensitivity analysis, not a correction.
     """
-    sub = summary[(summary["dv"] == dv) & (summary["n"] > 1) & (summary["sd"] > 0)].copy()
+    if k0_estimator not in {"L0", "R0"}:
+        raise ValueError(f"k0_estimator must be 'L0' or 'R0', got '{k0_estimator}'")
+    sub = summary[(summary["dv"] == dv) & (summary["n"] > 1) & (summary["sd"] > 0)]
     if len(sub) < 3:
         return None
 
-    means = sub["mean"].values.copy()
-    variances = (sub["sd"].values ** 2) / sub["n"].values
+    effects = sub["mean"].to_numpy(dtype=float)
+    variances = (sub["sd"].to_numpy(dtype=float) ** 2) / sub["n"].to_numpy(dtype=float)
+    k = len(effects)
+    pooled_orig, se_orig = _pool_inverse_variance(effects, variances, estimator)
 
-    k_original = len(means)
-    k_imputed = 0
+    if side is None:
+        side = "right" if _small_study_slope(effects, variances, estimator) < 0 else "left"
+    if side not in {"left", "right"}:
+        raise ValueError(f"side must be 'left', 'right' or None, got '{side}'")
 
-    # Original (unadjusted) estimate — also the fallback when no studies are
-    # mirrored (e.g. perfectly symmetric or degenerate identical means), so
-    # the adjusted values are always defined.
-    w_orig = 1.0 / variances
-    pooled_orig = float(np.sum(w_orig * means) / np.sum(w_orig))
-    pooled_adj = pooled_orig
-    se_adj = float(np.sqrt(1.0 / np.sum(w_orig)))
+    # Work in a frame where suppressed studies are always on the left, i.e.
+    # the excess (to be trimmed) sits at the top of the sorted effects.
+    sign = -1.0 if side == "right" else 1.0
+    order = np.argsort(sign * effects, kind="stable")
+    y = sign * effects[order]
+    v = variances[order]
 
+    k0 = 0
+    k0_previous = -1
+    truncated_mean = float("nan")
+    converged = False
     for _ in range(max_iter):
-        w = 1.0 / variances
-        pooled = np.sum(w * means) / np.sum(w)
-
-        # Rank-based estimator (R0)
-        deviations = means - pooled
-        signs = deviations > 0 if side == "right" else deviations < 0
-
-        # Mirror extreme studies
-        mirror_means = 2 * pooled - means[signs]
-        mirror_variances = variances[signs]
-
-        new_k = len(mirror_means)
-        if new_k == k_imputed:
+        truncated_mean, _ = _pool_inverse_variance(y[: k - k0], v[: k - k0], estimator)
+        centered = y - truncated_mean
+        signed_ranks = np.sign(centered) * stats.rankdata(np.abs(centered), method="ordinal")
+        if k0_estimator == "L0":
+            s_rank = float(np.sum(signed_ranks[signed_ranks > 0]))
+            k0_raw = (4.0 * s_rank - k * (k + 1)) / (2.0 * k - 1.0)
+        else:  # R0: length of the rightmost run of positive ranks, minus one
+            negative = -signed_ranks[signed_ranks < 0]
+            k0_raw = (k - float(np.max(negative))) - 1.0 if negative.size else k - 1.0
+        # np.round rounds half to even, like R's round().
+        k0 = int(max(0.0, np.round(k0_raw)))
+        if k0 == k0_previous:
+            converged = True
             break
-        k_imputed = new_k
+        k0_previous = k0
+    if not converged:
+        logging.getLogger(__name__).warning(
+            "trim_and_fill(%s): k0 did not converge in %d iterations", dv, max_iter
+        )
 
-        # Recompute with augmented data
-        all_means = np.concatenate([means, mirror_means])
-        all_variances = np.concatenate([variances, mirror_variances])
-
-        w_all = 1.0 / all_variances
-        pooled_adj = float(np.sum(w_all * all_means) / np.sum(w_all))
-        se_adj = float(np.sqrt(1.0 / np.sum(w_all)))
+    pooled_adj, se_adj = pooled_orig, se_orig
+    if k0 > 0:
+        filled = sign * (2.0 * truncated_mean - y[k - k0:])
+        pooled_adj, se_adj = _pool_inverse_variance(
+            np.concatenate([effects, filled]),
+            np.concatenate([variances, v[k - k0:]]),
+            estimator,
+        )
 
     return {
         "dv": dv,
-        "k_original": k_original,
-        "k_imputed": k_imputed,
-        "k_total": k_original + k_imputed,
+        "k_original": k,
+        "k_imputed": k0,
+        "k_total": k + k0,
+        "side": side,
+        "k0_estimator": k0_estimator,
+        "pooling": estimator,
         "original_mean": pooled_orig,
+        "original_se": se_orig,
         "adjusted_mean": pooled_adj,
         "adjusted_se": se_adj,
         "adjusted_ci95_low": pooled_adj - 1.96 * se_adj,
@@ -1657,12 +1880,21 @@ def _prepare_composite_matrix(
     for study, sub in long.groupby("study", sort=False):
         x = sub[common_cols].copy()
         x = x.apply(pd.to_numeric, errors="coerce")
+        # Rows that observed none of the shared DVs (e.g. telemetry rows of a
+        # study whose questionnaire lives in another file) carry no
+        # information. Median-imputing them would turn each into an all-zero
+        # z-row, inflating the study's n and shrinking its composite SD.
+        x = x.dropna(how="all")
+        if x.empty:
+            continue
         x = x.fillna(x.median())
         x = (x - x.mean()) / x.std(ddof=0).replace(0, np.nan)
         x = x.reindex(columns=common_cols)
         x = x.fillna(0.0)
         x["study"] = study
         standardized.append(x)
+    if not standardized:
+        raise ValueError("No study observed any shared DV; cannot build a PCA composite index.")
     z = pd.concat(standardized, ignore_index=True)
 
     feature_matrix = z[common_cols].apply(pd.to_numeric, errors="coerce").fillna(0.0)
@@ -1672,14 +1904,30 @@ def _prepare_composite_matrix(
     return z, usable_cols
 
 
+def compute_composite_scores(
+    studies: Dict[str, pd.DataFrame],
+    canonical_studies: Dict[str, pd.DataFrame] | None = None,
+) -> tuple[pd.DataFrame, List[str], float]:
+    """Per-row PC1 scores on within-study z-scored shared DVs.
+
+    Returns ``(scores, usable_cols, explained_variance_ratio)`` where
+    ``scores`` has a ``study`` and a ``cross_study_composite`` column. Compute
+    it once and pass it to :func:`build_composite_index` and
+    :func:`save_composite_plot`. Raises ``ValueError`` when fewer than two
+    shared DVs are usable.
+    """
+    z, usable_cols = _prepare_composite_matrix(studies, canonical_studies)
+    pca = PCA(n_components=1)
+    z["cross_study_composite"] = pca.fit_transform(z[usable_cols])
+    return z, usable_cols, float(pca.explained_variance_ratio_[0])
+
+
 def build_composite_index(
     studies: Dict[str, pd.DataFrame],
     canonical_studies: Dict[str, pd.DataFrame] | None = None,
+    scores: tuple[pd.DataFrame, List[str], float] | None = None,
 ) -> pd.DataFrame:
-    z, usable_cols = _prepare_composite_matrix(studies, canonical_studies)
-
-    pca = PCA(n_components=1)
-    z["cross_study_composite"] = pca.fit_transform(z[usable_cols])
+    z, usable_cols, explained_variance_ratio = scores or compute_composite_scores(studies, canonical_studies)
 
     summary = (
         z.groupby("study")["cross_study_composite"]
@@ -1687,7 +1935,7 @@ def build_composite_index(
         .rename(columns={"count": "n", "std": "sd"})
         .reset_index()
     )
-    summary["explained_variance_ratio"] = pca.explained_variance_ratio_[0]
+    summary["explained_variance_ratio"] = explained_variance_ratio
     summary["n_shared_dvs_used"] = len(usable_cols)
     return summary
 
@@ -1739,14 +1987,14 @@ def save_composite_plot(
     studies: Dict[str, pd.DataFrame],
     output_dir: Path,
     canonical_studies: Dict[str, pd.DataFrame] | None = None,
+    scores: tuple[pd.DataFrame, List[str], float] | None = None,
 ) -> None:
-    try:
-        z, usable_cols = _prepare_composite_matrix(studies, canonical_studies)
-    except ValueError:
-        return
-
-    pca = PCA(n_components=1)
-    z["cross_study_composite"] = pca.fit_transform(z[usable_cols])
+    if scores is None:
+        try:
+            scores = compute_composite_scores(studies, canonical_studies)
+        except ValueError:
+            return
+    z = scores[0]
 
     plt.figure(figsize=(8, 5))
     sns.violinplot(data=z, x="study", y="cross_study_composite", inner="quartile", hue="study", legend=False)
@@ -1889,6 +2137,11 @@ def save_forest_plot(
         f"\u03C4\u00B2 = {tau2_val:.4f}, "
         f"Q({k - 1}) = {q_val:.2f}, {p_str}"
     )
+    if pd.notna(meta_row.get("hksj_ci95_low")):
+        het_text += (
+            f"\nHartung-Knapp-Sidik-Jonkman 95% CI: "
+            f"[{meta_row['hksj_ci95_low']:.2f}, {meta_row['hksj_ci95_high']:.2f}]"
+        )
     fig.text(
         0.02, -0.01, het_text,
         fontsize=8, fontfamily="monospace", va="top", ha="left",
@@ -1984,9 +2237,44 @@ def save_sensitivity_plot(
 # causal edges (e.g., SUS items → usability).
 #
 # Built automatically from ``_DERIVED_SCALES`` — adding a new derived scale
-# there will auto-exclude its sub-items from the DAG.
+# there will auto-exclude its sub-items from the DAG — and from the DV schema:
+# an entry declares its parent with ``subitem_of: <construct id>``, or is
+# recognised by the ``<construct id>_item_NN`` naming convention when that
+# construct id exists in the schema (e.g. perceived_safety_item_01).
 
-CONSTRUCT_SUBITEMS: dict[str, list[str]] = _build_construct_subitems()
+_SUBITEM_ID_PATTERN = re.compile(r"^(?P<construct>.+)_item_\d+$")
+
+
+def _schema_construct_subitems(schema_path: Path = DEFAULT_DV_SCHEMA_PATH) -> dict[str, list[str]]:
+    """Construct → item-level DV ids declared by (or implied in) the DV schema."""
+    if not schema_path.is_file():
+        return {}
+    entries = [entry for entry in (_load_yaml(schema_path) or {}).get("dvs", []) if isinstance(entry, dict)]
+    known_ids = {str(entry.get("id", "")).strip() for entry in entries}
+    mapping: dict[str, list[str]] = {}
+    for entry in entries:
+        dv_id = str(entry.get("id", "")).strip()
+        parent = str(entry.get("subitem_of") or "").strip()
+        if not parent:
+            match = _SUBITEM_ID_PATTERN.match(dv_id)
+            if match and match.group("construct") in known_ids:
+                parent = match.group("construct")
+        if dv_id and parent and parent != dv_id:
+            mapping.setdefault(parent, []).append(dv_id)
+    return mapping
+
+
+def _merge_subitem_maps(*maps: dict[str, list[str]]) -> dict[str, list[str]]:
+    merged: dict[str, list[str]] = {}
+    for mapping in maps:
+        for construct, items in mapping.items():
+            merged[construct] = list(dict.fromkeys(merged.get(construct, []) + list(items)))
+    return merged
+
+
+CONSTRUCT_SUBITEMS: dict[str, list[str]] = _merge_subitem_maps(
+    _build_construct_subitems(), _schema_construct_subitems()
+)
 
 
 def _filter_subitems_when_construct_present(dvs: list[str]) -> list[str]:
@@ -2007,6 +2295,73 @@ def _filter_subitems_when_construct_present(dvs: list[str]) -> list[str]:
 # ── LiNGAM causal discovery ─────────────────────────────────────────────────
 
 _lingam_logger = logging.getLogger(__name__ + ".lingam")
+
+
+def _pool_standardized_shared_dvs(
+    canonical_studies: Dict[str, pd.DataFrame],
+    min_shared_studies: int,
+    min_rows: int,
+) -> tuple[pd.DataFrame, list[str]] | None:
+    """Pool within-study z-scored rows of the DVs shared across studies.
+
+    Shared DVs are those present in at least *min_shared_studies* studies,
+    minus sub-items whose parent construct is also shared. Each study is
+    z-scored on the shared DVs it actually has (rows complete on those DVs,
+    at least *min_rows* of them); blocks are then stacked, so DVs a study
+    lacks are NaN. Returns ``(pooled, usable_dvs)`` where every usable DV has
+    at least *min_rows* pooled observations, or None when fewer than two DVs
+    qualify. Shared by the LiNGAM, bootstrap and PC passes so they all see
+    the same data.
+    """
+    dv_counts: Dict[str, int] = {}
+    for df in canonical_studies.values():
+        for dv in df.columns:
+            dv_counts[dv] = dv_counts.get(dv, 0) + 1
+    shared_dvs = sorted(dv for dv, cnt in dv_counts.items() if cnt >= min_shared_studies)
+
+    # Remove sub-items when their higher-order construct is also shared
+    shared_dvs = _filter_subitems_when_construct_present(shared_dvs)
+    _lingam_logger.info("Shared DVs after subitem filtering (%d): %s",
+                        len(shared_dvs), shared_dvs)
+    if len(shared_dvs) < 2:
+        return None
+
+    pooled_blocks = []
+    for study_name, df in canonical_studies.items():
+        available = [dv for dv in shared_dvs if dv in df.columns]
+        if len(available) < 2:
+            continue
+        sub = df[available].dropna()          # drop rows with NaN *within available DVs only*
+        if len(sub) < min_rows:
+            continue
+        # Within-study standardization to remove scale differences
+        z = (sub - sub.mean()) / sub.std(ddof=0).replace(0, np.nan)
+        z = z.dropna(axis=1, how="all").dropna()
+        if z.empty:
+            continue
+        _lingam_logger.info("  Study '%s': %d rows × %d DVs (%s)",
+                            study_name, len(z), len(z.columns), list(z.columns))
+        # Provenance only: lets callers report which studies a fit rests on.
+        z[STUDY_COLUMN] = study_name
+        pooled_blocks.append(z)
+
+    if not pooled_blocks:
+        return None
+
+    pooled = pd.concat(pooled_blocks, ignore_index=True)
+
+    # Keep DVs that appear in enough pooled rows (may have NaN from
+    # studies that lack a given DV).
+    usable_dvs = [c for c in shared_dvs
+                  if c in pooled.columns and pooled[c].notna().sum() >= min_rows]
+    _lingam_logger.info("Usable DVs after min-row filter (%d): %s",
+                        len(usable_dvs), usable_dvs)
+    if len(usable_dvs) < 2:
+        return None
+    return pooled, usable_dvs
+
+
+STUDY_COLUMN = "_study"
 
 
 def discover_causal_structure(
@@ -2032,55 +2387,10 @@ def discover_causal_structure(
     Returns None if fewer than 2 shared DVs have sufficient data.
     """
     canonical_studies = _resolve_canonical(studies, canonical_studies)
-
-    # Find DVs shared across enough studies
-    dv_counts: Dict[str, int] = {}
-    for df in canonical_studies.values():
-        for dv in df.columns:
-            dv_counts[dv] = dv_counts.get(dv, 0) + 1
-    shared_dvs = sorted(dv for dv, cnt in dv_counts.items() if cnt >= min_shared_studies)
-
-    # Remove sub-items when their higher-order construct is also shared
-    shared_dvs = _filter_subitems_when_construct_present(shared_dvs)
-    _lingam_logger.info("Shared DVs after subitem filtering (%d): %s",
-                        len(shared_dvs), shared_dvs)
-
-    if len(shared_dvs) < 2:
+    pooled_result = _pool_standardized_shared_dvs(canonical_studies, min_shared_studies, min_rows)
+    if pooled_result is None:
         return None
-
-    # Pool data: z-score within each study on its AVAILABLE subset of
-    # shared DVs, then concatenate.  Studies need not contain every DV —
-    # partial overlap is handled via pairwise-complete observations below.
-    pooled_blocks = []
-    for study_name, df in canonical_studies.items():
-        available = [dv for dv in shared_dvs if dv in df.columns]
-        if len(available) < 2:
-            continue
-        sub = df[available].dropna()          # drop rows with NaN *within available DVs only*
-        if len(sub) < min_rows:
-            continue
-        # Within-study standardization to remove scale differences
-        z = (sub - sub.mean()) / sub.std(ddof=0).replace(0, np.nan)
-        z = z.dropna(axis=1, how="all").dropna()
-        if z.empty:
-            continue
-        _lingam_logger.info("  Study '%s': %d rows × %d DVs (%s)",
-                            study_name, len(z), len(z.columns), list(z.columns))
-        pooled_blocks.append(z)
-
-    if not pooled_blocks:
-        return None
-
-    pooled = pd.concat(pooled_blocks, ignore_index=True)
-
-    # Keep DVs that appear in enough pooled rows (may have NaN from
-    # studies that lack a given DV).
-    usable_dvs = [c for c in shared_dvs
-                  if c in pooled.columns and pooled[c].notna().sum() >= min_rows]
-    _lingam_logger.info("Usable DVs after min-row filter (%d): %s",
-                        len(usable_dvs), usable_dvs)
-    if len(usable_dvs) < 2:
-        return None
+    pooled, usable_dvs = pooled_result
 
     # Build the data matrix for LiNGAM.
     # With partial DV overlap across studies, not all DVs co-occur.
@@ -2195,16 +2505,28 @@ def discover_causal_structure(
                     "coefficient": adj[i, j],
                 })
 
+    # Which studies the fitted rows come from: a "cross-study" DAG fit on a
+    # single study's rows is a within-study result and must be reported so.
+    if used_method == "synthetic_cholesky":
+        source_rows = sub_pooled[usable_dvs].notna().any(axis=1)
+        studies_used = sorted(pooled.loc[source_rows[source_rows].index, STUDY_COLUMN].unique())
+    else:
+        studies_used = sorted(pooled.loc[X.index, STUDY_COLUMN].unique())
+
     return {
         "adjacency_matrix": adjacency,
         "causal_order": causal_order,
         "edges": pd.DataFrame(edges) if edges else pd.DataFrame(columns=["from", "to", "coefficient"]),
+        "studies_used": [str(s) for s in studies_used],
         "n_observations": len(X),
         "n_dvs": len(usable_dvs),
         "dvs_used": usable_dvs,
         "used_method": used_method,
         "synthetic_fallback": used_method == "synthetic_cholesky",
         "n_complete_rows": n_complete_rows,
+        # The exact matrix DirectLiNGAM was fit on, so stability checks
+        # (bootstrap, PC) can be run on the same observations.
+        "data": X.reset_index(drop=True),
     }
 
 
@@ -2340,13 +2662,19 @@ def bootstrap_causal_stability(
     edge_threshold: float = 0.1,
     random_seed: int = 42,
     canonical_studies: Dict[str, pd.DataFrame] | None = None,
+    data: pd.DataFrame | None = None,
 ) -> pd.DataFrame:
     """Assess stability of LiNGAM causal edges via bootstrap resampling.
 
-    For each bootstrap iteration:
-    1. Resample rows (with replacement) from the pooled study data
-    2. Fit DirectLiNGAM
-    3. Record which edges appear (|coef| > edge_threshold)
+    Uses ``lingam.DirectLiNGAM.bootstrap`` (rows resampled with replacement,
+    model refit per sample) and records, per directed edge, how often
+    ``|coefficient| > edge_threshold`` appeared.
+
+    Pass ``data`` — the matrix the main LiNGAM run was fit on
+    (``discover_causal_structure(...)["data"]``) — so the stability estimates
+    describe the reported DAG. Without it, rows complete on every usable
+    shared DV are pooled from *studies*; with partial DV overlap across
+    studies that is often empty.
 
     Returns a DataFrame with columns:
         from, to, appearance_rate, mean_coefficient, sd_coefficient
@@ -2354,82 +2682,52 @@ def bootstrap_causal_stability(
     Edges with appearance_rate > 0.5 are considered stable.
     """
     result_cols = ["from", "to", "appearance_rate", "mean_coefficient", "sd_coefficient"]
-    canonical_studies = _resolve_canonical(studies, canonical_studies)
-    dv_sets = _study_numeric_dv_sets_from_canonical(canonical_studies)
-    if not dv_sets:
-        return pd.DataFrame(columns=result_cols)
+    if data is not None:
+        X_full = data.dropna()
+        usable_dvs = [str(c) for c in X_full.columns]
+        if len(usable_dvs) < 2 or len(X_full) < 2:
+            return pd.DataFrame(columns=result_cols)
+    else:
+        pooled_result = _pool_standardized_shared_dvs(
+            _resolve_canonical(studies, canonical_studies), min_shared_studies, min_rows
+        )
+        if pooled_result is None:
+            return pd.DataFrame(columns=result_cols)
+        pooled, usable_dvs = pooled_result
+        X_full = pooled[usable_dvs].dropna()
+        if len(X_full) < min_rows:
+            return pd.DataFrame(columns=result_cols)
 
-    shared_dvs = sorted(
-        dv
-        for dv in set.union(*dv_sets.values())
-        if sum(1 for s in dv_sets.values() if dv in s) >= min_shared_studies
-    )
-    shared_dvs = _filter_subitems_when_construct_present(shared_dvs)
+    # lingam resamples via sklearn.utils.resample with the global NumPy RNG;
+    # seed it for reproducibility and restore the caller's state afterwards.
+    rng_state = np.random.get_state()
+    np.random.seed(random_seed)
+    try:
+        bootstrap = lingam.DirectLiNGAM().bootstrap(X_full.to_numpy(dtype=float), n_sampling=n_bootstrap)
+    finally:
+        np.random.set_state(rng_state)
 
-    if len(shared_dvs) < 2:
-        return pd.DataFrame(columns=result_cols)
-
-    # Pool data
-    pooled_blocks = []
-    for _, df in canonical_studies.items():
-        available = [dv for dv in shared_dvs if dv in df.columns]
-        if len(available) < 2:
-            continue
-        sub = df[available].dropna()
-        if len(sub) < min_rows:
-            continue
-        z = (sub - sub.mean()) / sub.std(ddof=0).replace(0, np.nan)
-        z = z.dropna(axis=1, how="all").dropna()
-        if not z.empty:
-            pooled_blocks.append(z)
-
-    if not pooled_blocks:
-        return pd.DataFrame(columns=result_cols)
-
-    pooled = pd.concat(pooled_blocks, ignore_index=True)
-    usable_dvs = [c for c in shared_dvs if c in pooled.columns
-                  and pooled[c].notna().sum() >= min_rows]
-    if len(usable_dvs) < 2:
-        return pd.DataFrame(columns=result_cols)
-
-    X_full = pooled[usable_dvs].dropna()
-    if len(X_full) < min_rows:
-        return pd.DataFrame(columns=result_cols)
-
-    rng = np.random.default_rng(random_seed)
-    edge_counts: dict[tuple[str, str], list[float]] = {}
-    n_obs = len(X_full)
-
-    for _ in range(n_bootstrap):
-        idx = rng.choice(n_obs, size=n_obs, replace=True)
-        X_boot = X_full.iloc[idx].reset_index(drop=True)
-        try:
-            model = lingam.DirectLiNGAM()
-            model.fit(X_boot.values)
-            adj_mat = model.adjacency_matrix_
-            for i in range(len(usable_dvs)):
-                for j in range(len(usable_dvs)):
-                    if abs(adj_mat[i, j]) > edge_threshold:
-                        key = (usable_dvs[j], usable_dvs[i])
-                        edge_counts.setdefault(key, []).append(adj_mat[i, j])
-        except Exception:
-            continue
-
-    if not edge_counts:
-        return pd.DataFrame(columns=result_cols)
-
+    # adjacency_matrices_[b, i, j] is the effect of variable j on variable i.
+    matrices = np.asarray(bootstrap.adjacency_matrices_)
+    present = np.abs(matrices) > edge_threshold
     rows = []
-    for (src, tgt), coefficients in sorted(edge_counts.items()):
-        rows.append({
-            "from": src,
-            "to": tgt,
-            "appearance_rate": len(coefficients) / n_bootstrap,
-            "mean_coefficient": float(np.mean(coefficients)),
-            "sd_coefficient": float(np.std(coefficients)),
-        })
+    for i, target in enumerate(usable_dvs):
+        for j, source in enumerate(usable_dvs):
+            hits = matrices[present[:, i, j], i, j]
+            if hits.size == 0:
+                continue
+            rows.append({
+                "from": source,
+                "to": target,
+                "appearance_rate": hits.size / n_bootstrap,
+                "mean_coefficient": float(np.mean(hits)),
+                "sd_coefficient": float(np.std(hits)),
+            })
+    if not rows:
+        return pd.DataFrame(columns=result_cols)
 
-    result = pd.DataFrame(rows, columns=result_cols)
-    return result.sort_values("appearance_rate", ascending=False).reset_index(drop=True)
+    result = pd.DataFrame(rows, columns=result_cols).sort_values(["from", "to"])
+    return result.sort_values("appearance_rate", ascending=False, kind="stable").reset_index(drop=True)
 
 
 # ── PC algorithm for Gaussian data ──────────────────────────────────────────
@@ -2440,6 +2738,7 @@ def discover_causal_structure_pc(
     min_shared_studies: int = 2,
     min_rows: int = 30,
     canonical_studies: Dict[str, pd.DataFrame] | None = None,
+    data: pd.DataFrame | None = None,
 ) -> dict | None:
     """Constraint-based causal discovery using the PC algorithm skeleton.
 
@@ -2448,6 +2747,9 @@ def discover_causal_structure_pc(
     edges are removed when conditional independence is established via
     partial correlation tests with Fisher z-transformation.
 
+    Pass ``data`` (``discover_causal_structure(...)["data"]``) to run on the
+    same observations as the LiNGAM DAG.
+
     Returns dict with keys:
         skeleton: pd.DataFrame (adjacency matrix, 1 = edge present)
         n_observations: int
@@ -2455,46 +2757,22 @@ def discover_causal_structure_pc(
         dvs_used: list[str]
         removed_edges: list[dict] with from, to, conditioning_set, p_value
     """
-    canonical_studies = _resolve_canonical(studies, canonical_studies)
-    dv_sets = _study_numeric_dv_sets_from_canonical(canonical_studies)
-    if not dv_sets:
-        return None
-
-    shared_dvs = sorted(
-        dv
-        for dv in set.union(*dv_sets.values())
-        if sum(1 for s in dv_sets.values() if dv in s) >= min_shared_studies
-    )
-    shared_dvs = _filter_subitems_when_construct_present(shared_dvs)
-
-    if len(shared_dvs) < 2:
-        return None
-
-    pooled_blocks = []
-    for _, df in canonical_studies.items():
-        available = [dv for dv in shared_dvs if dv in df.columns]
-        if len(available) < 2:
-            continue
-        sub = df[available].dropna()
-        if len(sub) < min_rows:
-            continue
-        z = (sub - sub.mean()) / sub.std(ddof=0).replace(0, np.nan)
-        z = z.dropna(axis=1, how="all").dropna()
-        if not z.empty:
-            pooled_blocks.append(z)
-
-    if not pooled_blocks:
-        return None
-
-    pooled = pd.concat(pooled_blocks, ignore_index=True)
-    usable_dvs = [c for c in shared_dvs if c in pooled.columns
-                  and pooled[c].notna().sum() >= min_rows]
-    if len(usable_dvs) < 2:
-        return None
-
-    X = pooled[usable_dvs].dropna()
-    if len(X) < min_rows:
-        return None
+    if data is not None:
+        # Same observations the main LiNGAM run used (see discover_causal_structure).
+        X = data.dropna()
+        usable_dvs = [str(c) for c in X.columns]
+        if len(usable_dvs) < 2 or len(X) < 4:
+            return None
+    else:
+        pooled_result = _pool_standardized_shared_dvs(
+            _resolve_canonical(studies, canonical_studies), min_shared_studies, min_rows
+        )
+        if pooled_result is None:
+            return None
+        pooled, usable_dvs = pooled_result
+        X = pooled[usable_dvs].dropna()
+        if len(X) < min_rows:
+            return None
 
     p = len(usable_dvs)
     n = len(X)
@@ -2663,7 +2941,11 @@ def main() -> None:
 
     validate_schema_clusters()
 
-    studies = load_studies(input_dir, repeated_measures_studies=repeated_measures or None)
+    studies = load_studies(
+        input_dir,
+        repeated_measures_studies=repeated_measures or None,
+        skip_files_without_dvs=True,
+    )
     # Canonicalize once; every analysis below reuses the same frames instead
     # of re-scanning all study columns per function call.
     canonical = _canonicalize_studies(studies)
@@ -2768,17 +3050,21 @@ def main() -> None:
         egger_df.to_csv(output_dir / "eggers_test.csv", index=False)
         print("\nEgger's test for funnel asymmetry:\n", egger_df.round(3).to_string(index=False))
 
-    # Trim-and-fill for publication bias
+    # Trim-and-fill for publication bias. Every evaluated DV is written —
+    # k_imputed == 0 is itself a result (no funnel asymmetry detected).
     tf_rows = []
     for _, mrow in meta_summary_df.iterrows():
         tf = trim_and_fill(summary, mrow["dv"], estimator=args.estimator)
-        if tf is not None and tf["k_imputed"] > 0:
+        if tf is not None:
             tf_rows.append(tf)
     if tf_rows:
         tf_df = pd.DataFrame(tf_rows)
         tf_df.to_csv(output_dir / "trim_and_fill.csv", index=False)
-        print("\nTrim-and-fill (DVs with imputed studies):\n",
-              tf_df.round(3).to_string(index=False))
+        imputed = tf_df[tf_df["k_imputed"] > 0]
+        print(f"\nTrim-and-fill (L0, {args.estimator}): "
+              f"{len(imputed)} of {len(tf_df)} DVs with imputed studies")
+        if not imputed.empty:
+            print(imputed.round(3).to_string(index=False))
 
     # Meta-regression (sample size as default moderator)
     mr_rows = []
@@ -2845,9 +3131,10 @@ def main() -> None:
 
     # Composite index
     try:
-        composite = build_composite_index(studies, canonical_studies=canonical)
+        composite_scores = compute_composite_scores(studies, canonical_studies=canonical)
+        composite = build_composite_index(studies, scores=composite_scores)
         composite.to_csv(output_dir / "cross_study_composite_summary.csv", index=False)
-        save_composite_plot(studies, output_dir, canonical_studies=canonical)
+        save_composite_plot(studies, output_dir, scores=composite_scores)
         print("\nComposite index by study:\n", composite.round(3).to_string(index=False))
     except ValueError as e:
         print(f"\n[WARNING] Skipping composite index: {e}")
@@ -2907,11 +3194,23 @@ def main() -> None:
             "used_method": causal_result.get("used_method"),
             "synthetic_fallback": bool(causal_result.get("synthetic_fallback", False)),
             "n_complete_rows": int(causal_result.get("n_complete_rows", 0)),
+            "studies_used": causal_result.get("studies_used", []),
         }
+
+    # Stability checks run on the exact observations the DAG was fit on.
+    # Cholesky-synthesized rows are excluded: resampling fabricated data says
+    # nothing about the stability of real edges.
+    causal_data = None
+    if causal_result is not None and not causal_result.get("synthetic_fallback", False):
+        causal_data = causal_result.get("data")
 
     # Bootstrap causal edge stability
     try:
-        boot_df = bootstrap_causal_stability(studies, n_bootstrap=50, canonical_studies=canonical)
+        boot_df = (
+            bootstrap_causal_stability(studies, n_bootstrap=50, data=causal_data)
+            if causal_data is not None
+            else bootstrap_causal_stability(studies, n_bootstrap=50, canonical_studies=canonical)
+        )
         if not boot_df.empty:
             boot_df.to_csv(output_dir / "causal_bootstrap_stability.csv", index=False)
             stable = boot_df[boot_df["appearance_rate"] >= 0.5]
@@ -2927,7 +3226,7 @@ def main() -> None:
 
     # PC algorithm (alternative for Gaussian data)
     try:
-        pc_result = discover_causal_structure_pc(studies, canonical_studies=canonical)
+        pc_result = discover_causal_structure_pc(studies, canonical_studies=canonical, data=causal_data)
         if pc_result is not None:
             pc_result["skeleton"].to_csv(output_dir / "pc_skeleton_matrix.csv")
             if pc_result["removed_edges"]:

@@ -1,0 +1,99 @@
+#!/usr/bin/env python3
+"""Compare candidate-retrieval strategies for LLM DV mapping (recall@k).
+
+The LLM can only pick a DV that the shortlist offers, and the evaluation in
+``evaluate_llm_mapping.py`` shows that the fuzzy *alias-string* shortlist misses
+the correct DV for most real dataset columns. This script replays the same
+held-out items (``llm_mapping_evaluation_items.csv``) through three retrievers
+and reports recall@k with Wilson 95% CIs:
+
+* ``fuzzy``      — alias-string similarity (rapidfuzz), the original shortlist;
+* ``definition`` — ``scripts/dv_retrieval.py``: TF-IDF over DV definitions
+  (mean of name and full-definition similarity);
+* ``hybrid``     — reciprocal-rank fusion of the two (Cormack et al., 2009).
+
+Every item is leave-alias-out: the held-out alias is removed from the fuzzy
+mapping and from every DV definition before ranking. No model is downloaded
+and no LLM is called.
+"""
+
+from __future__ import annotations
+
+import argparse
+import json
+import sys
+from pathlib import Path
+
+import pandas as pd
+from scipy.stats import binomtest
+
+REPO_ROOT = Path(__file__).resolve().parents[1]
+if str(REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(REPO_ROOT))
+
+from scripts.dv_retrieval import get_retriever  # noqa: E402
+from scripts.llm_coordinator import _select_llm_candidate_shortlist  # noqa: E402
+from scripts.llm_plausibility import normalize_name  # noqa: E402
+from scripts.run_batch_standardization import SchemaFamilies  # noqa: E402
+
+KS = (1, 3, 5, 8, 10)
+RRF_K = 60
+
+
+def _fuzzy_ranking(alias: str, mapping: dict[str, str]) -> list[str]:
+    target = normalize_name(alias)
+    reduced = {k: v for k, v in mapping.items() if normalize_name(k) != target}
+    ranked, _ = _select_llm_candidate_shortlist(reduced, alias, max_candidates=max(KS))
+    return ranked
+
+
+def _rrf(*rankings: list[str]) -> list[str]:
+    scores: dict[str, float] = {}
+    for ranking in rankings:
+        for rank, item in enumerate(ranking):
+            scores[item] = scores.get(item, 0.0) + 1.0 / (RRF_K + rank + 1)
+    return [item for item, _ in sorted(scores.items(), key=lambda kv: (-kv[1], kv[0]))]
+
+
+def _wilson(k: int, n: int) -> dict:
+    ci = binomtest(k, n).proportion_ci(method="wilson") if n else None
+    return {"k": k, "n": n, "rate": k / n if n else None,
+            "ci95": [float(ci.low), float(ci.high)] if ci else [None, None]}
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
+    parser.add_argument("--items", default="analyses/output_llm_evaluation/llm_mapping_evaluation_items.csv")
+    parser.add_argument("--output", default="analyses/output_llm_evaluation/shortlist_retrieval_summary.json")
+    args = parser.parse_args()
+
+    retriever = get_retriever()
+    dv_ids = {dv for dv, _ in retriever.rank("x", k=10_000)}
+    mapping = SchemaFamilies.load(REPO_ROOT / "schemas" / "standard_dv_mapping.yaml").standard_mapping_for(
+        "questionnaire"
+    )
+    items = pd.read_csv(args.items)
+    items = items[(items["label_kind"] == "dv") & items["gold"].isin(dv_ids)]
+    results: dict[str, dict] = {}
+    for experiment, group in items.groupby("experiment", sort=True):
+        hits = {name: {k: 0 for k in KS} for name in ("fuzzy", "definition", "hybrid")}
+        for row in group.itertuples(index=False):
+            fuzzy = _fuzzy_ranking(row.alias, mapping)
+            definition = [dv for dv, _ in retriever.rank(row.alias, k=max(KS) * 2, exclude_alias=row.alias)]
+            rankings = {"fuzzy": fuzzy, "definition": definition, "hybrid": _rrf(fuzzy, definition)}
+            for name, ranking in rankings.items():
+                for k in KS:
+                    hits[name][k] += int(row.gold in ranking[:k])
+        results[experiment] = {
+            name: {f"recall@{k}": _wilson(count, len(group)) for k, count in by_k.items()}
+            for name, by_k in hits.items()
+        }
+    Path(args.output).write_text(json.dumps(results, indent=2), encoding="utf-8")
+    for experiment, by_name in results.items():
+        print(experiment)
+        for name, by_k in by_name.items():
+            print(f"  {name:10s}", "  ".join(f"{key}={val['rate']:.2f}" for key, val in by_k.items()))
+
+
+if __name__ == "__main__":
+    main()

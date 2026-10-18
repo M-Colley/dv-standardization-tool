@@ -6,9 +6,10 @@
 #
 # StudyResults.xlsx (sheet "Blatt 1"): 36 participants x 12 persuasion
 # conditions = 432 rows. Raw cells are TEXTUAL Likert labels (English for the
-# C*/ST* items, German for the A* items), so this mapping operates at the
-# construct/name level — numeric recoding + reverse-scoring lives in the
-# authors' R script, not in the shipped spreadsheet.
+# C*/ST* items, German for the A* items). `value_labels` below recodes them to
+# the numeric codes of the original instruments (scripts/value_labels.py);
+# without it the dataset contributes no numeric DV at all. Items stay as
+# recorded: reverse-scoring (C2, ST2, ST4, ST5, A2) is NOT applied here.
 
 # --- Perceived conflict with the AV's decision (5 items, 5-point) -------------
 C1: conflict_item_01
@@ -36,3 +37,29 @@ A4: acceptance_rating
 # reaches the LLM step. ID and Condition are auto-blocked by the runner's
 # NEVER_MAP_NORMALIZED_COLUMNS set, so they need no entry here.
 Sequence: meta_trial_sequence
+
+# --- Text label -> numeric code -----------------------------------------------
+value_labels:
+  - columns: [C1, C2, C3, C4, C5]          # 5-point agreement
+    labels:
+      Do not agree at all: 1
+      Rather disagree: 2
+      Neither: 3
+      Rather agree: 4
+      Fully agree: 5
+  - columns: [ST1, ST2, ST3, ST4, ST5, ST6]  # STS-AD 7-point agreement
+    labels:
+      Strongly disagree: 1
+      Disagree: 2
+      Mildly disagree: 3
+      Neutral: 4
+      Mildly agree: 5
+      Agree: 6
+      Strongly agree: 7
+  - columns: [A1, A2, A3, A4]              # German 5-point agreement
+    labels:
+      Stimme gar nicht zu: 1
+      Stimme eher nicht zu: 2
+      Weder noch: 3
+      Stimme eher zu: 4
+      Stimme voll zu: 5

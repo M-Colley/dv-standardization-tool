@@ -28,6 +28,10 @@ import yaml
 
 logger = logging.getLogger(__name__)
 
+# libyaml's C parser (when available) loads the 2k-line DV schema ~7x faster
+# than the pure-Python SafeLoader and produces identical objects.
+_YAML_SAFE_LOADER = getattr(yaml, "CSafeLoader", yaml.SafeLoader)
+
 # ---------------------------------------------------------------------------
 # Optional rapidfuzz import for fuzzy column matching
 # ---------------------------------------------------------------------------
@@ -110,6 +114,9 @@ def _fuzzy_match_column(
     return None, 0.0
 
 
+RESERVED_MAPPING_KEYS = frozenset({"scales", "value_labels"})
+
+
 def _build_alias_mapping(schema: Dict) -> Dict[str, str]:
     """Build a case-insensitive alias -> standard_name mapping for a schema dictionary."""
     alias_to_standard: Dict[str, str] = {}
@@ -160,10 +167,11 @@ def _build_alias_mapping(schema: Dict) -> Dict[str, str]:
         # because it reads naturally as "rename this raw column to that
         # canonical". The two flavours are distinguished by the value type.
         #
-        # The reserved top-level key ``scales:`` declares multi-item scales
-        # and is handled separately by item composition — skip it here.
+        # The reserved top-level keys ``scales:`` (multi-item scales, used by
+        # item composition) and ``value_labels:`` (text-label recoding, see
+        # scripts/value_labels.py) are not aliases — skip them here.
         for key, value in schema.items():
-            if key == "scales":
+            if key in RESERVED_MAPPING_KEYS:
                 continue
             if isinstance(value, list):
                 # Form (1): {canonical: [aliases]}
@@ -226,7 +234,7 @@ def load_schema(
         Dictionary with alias_to_standard mapping and full schema
     """
     with open(schema_path, "r", encoding="utf-8") as f:
-        schema = yaml.safe_load(f)
+        schema = yaml.load(f, Loader=_YAML_SAFE_LOADER)
 
     if schema is None:
         raise ValueError(
@@ -246,7 +254,7 @@ def load_schema(
         selected_path = Path(schema_path).resolve()
         if selected_path != standard_path:
             with open(standard_path, "r", encoding="utf-8") as f:
-                standard_schema = yaml.safe_load(f)
+                standard_schema = yaml.load(f, Loader=_YAML_SAFE_LOADER)
             if standard_schema is None or not isinstance(standard_schema, dict):
                 raise ValueError(
                     f"Standard schema file '{standard_path}' must contain a non-empty YAML object."
