@@ -4,6 +4,17 @@ This document logs human-readable updates to the repo's functionality, structure
 
 ---
 
+### [2026-10-19]
+
+- **Per-dataset reverse keying.** Mapping YAMLs can declare `reverse_items` (columns, scale range, reason). Those items are reverse-scored before mapping and scoring, and each reversal is recorded in the quality JSON and the data package.
+- **Running into Traffic UEQ-S.** Its eight UEQ-Short items were mapped to long-form UEQ subscales and composed in pairs. They are now scored as UEQ-S pragmatic and hedonic quality. Two items (clarity, inventive) correlated negatively with all others; they keep the long UEQ's polarity and are reverse-scored, after which α = 0.89 for both scales.
+- **Psych-Conflict.** C2, A2, ST2, ST4 and ST5 are reverse-scored, as in the source analysis.
+- **Registry scores reach the analysis.** UEQ-S and TiA scores were written under names the analysis did not map; they now use their DV ids, and a test checks every score.
+- **Regenerated 11-study outputs.** 132 LLM aliases accepted, 90 canonical DVs, 54 poolable DVs (34 without LLM rows). Mental demand: 7.59 (HKSJ 5.60–9.58), 7.71 without LLM rows; the longitudinal study's `tlx1_sq001` is now LLM-mapped to it.
+- **End-to-end LLM benchmark with dense retrieval.** Higher shortlist recall (97 vs. 83 of 101) did not raise accuracy (41 vs. 52 correct; paired p = 0.11); TF-IDF stays the default. `evaluate_llm_mapping.py --shortlist dense` now actually uses the dense shortlist (it silently fell back to fuzzy before).
+
+---
+
 ### [2026-10-18]
 
 - **Condition contrasts from declared study designs.** New `schemas/study_designs.yaml` declares the participant column and manipulated factors of each study and maps factor levels to canonical independent variables (`ehmi_presence`, `display_dimensionality`). New `analyses/contrast_meta_analysis.py` computes condition-vs-reference effects on participant means (Hedges' g between subjects, metafor `SMCRPH` within subjects), checks the declared design against the data, combines dependent contrasts by GLS and pools them across studies. All formulas match metafor 5.2.1 (`tests/test_contrast_meta_analysis.py`). `multi_study_analysis.py` runs it by default (`--study-designs`). Five of the 11 benchmark studies declare factors; eHMI-for-All's survey condition codes A–R are mapped to its eHMI × road user × distraction cells.

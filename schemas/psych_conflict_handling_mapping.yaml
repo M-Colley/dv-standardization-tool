@@ -8,8 +8,10 @@
 # conditions = 432 rows. Raw cells are TEXTUAL Likert labels (English for the
 # C*/ST* items, German for the A* items). `value_labels` below recodes them to
 # the numeric codes of the original instruments (scripts/value_labels.py);
-# without it the dataset contributes no numeric DV at all. Items stay as
-# recorded: reverse-scoring (C2, ST2, ST4, ST5, A2) is NOT applied here.
+# without it the dataset contributes no numeric DV at all. The items the
+# source analysis reverse-scores (C2, ST2, ST4, ST5, A2; *_inv in the paper's
+# scripts) are reversed by `reverse_items` at the end of this file, so every
+# item is keyed in the direction of its construct.
 
 # --- Perceived conflict with the AV's decision (5 items, 5-point) -------------
 C1: conflict_item_01
@@ -63,3 +65,12 @@ value_labels:
       Weder noch: 3
       Stimme eher zu: 4
       Stimme voll zu: 5
+
+# --- Reverse-scored items (as in the source analysis) -------------------------
+reverse_items:
+  - columns: [C2, A2]
+    scale_range: [1, 5]
+    reason: reverse-scored in the source analysis (C2_inv, A2_inv)
+  - columns: [ST2, ST4, ST5]
+    scale_range: [1, 7]
+    reason: reverse-scored in the source analysis (ST2_inv, ST4_inv, ST5_inv)

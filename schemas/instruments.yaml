@@ -17,7 +17,8 @@
 #                ignoring spaces/underscores/dashes), key: +1 or -1
 #   scores:      name -> {dv, items, centering, aggregate, multiplier, weight}
 #     dv:        canonical DV id the score is reported as
-#     column:    output column name (defaults to the score name)
+#     column:    output column name (defaults to the score name); it must be
+#                the DV id or one of its aliases so the analysis picks it up
 #     centering: none     -> item value as is (key must be +1)
 #                reflect  -> x for key +1, min + max - x for key -1
 #                min      -> x - min for key +1, max - x for key -1
@@ -114,8 +115,8 @@ instruments:
     label: User Experience Questionnaire, short version (UEQ-S)
     citation: "Schrepp, M., Hinderks, A., & Thomaschewski, J. (2017). Design and evaluation of a short version of the User Experience Questionnaire (UEQ-S). IJIMAI, 4(6), 103-108."
     doi: 10.9781/ijimai.2017.09.001
-    notes: Eight 7-point items, negative pole first; answers 1..7 are scored -3..+3.
-    response_codings: [[1, 7]]
+    notes: Eight 7-point items, negative pole first; answers 1..7 (or already centred -3..+3) are scored -3..+3.
+    response_codings: [[1, 7], [-3, 3]]
     items:
       - {id: ueq_s_1, aliases: [ueqs1, ueq_s1, ueqs_1], key: 1}
       - {id: ueq_s_2, aliases: [ueqs2, ueq_s2, ueqs_2], key: 1}
@@ -128,11 +129,13 @@ instruments:
     scores:
       ueq_s_pragmatic:
         dv: ueq_pragmatic
+        column: ueq_pragmatic
         items: [ueq_s_1, ueq_s_2, ueq_s_3, ueq_s_4]
         centering: midpoint
         aggregate: mean
       ueq_s_hedonic:
         dv: ueq_hedonic
+        column: ueq_hedonic
         items: [ueq_s_5, ueq_s_6, ueq_s_7, ueq_s_8]
         centering: midpoint
         aggregate: mean
@@ -232,31 +235,37 @@ instruments:
     scores:
       tia_reliability_competence_score:
         dv: tia_reliability_competence
+        column: tia_reliability_competence
         items: [tia_k01, tia_k06, tia_k10, tia_k13, tia_k15, tia_k19]
         centering: reflect
         aggregate: mean
       tia_understanding_predictability_score:
         dv: tia_understanding_predictability
+        column: tia_understanding_predictability
         items: [tia_k02, tia_k07, tia_k11, tia_k16]
         centering: reflect
         aggregate: mean
       tia_familiarity_score:
         dv: tia_familiarity
+        column: tia_familiarity
         items: [tia_k03, tia_k17]
         centering: reflect
         aggregate: mean
       tia_intention_of_developers_score:
         dv: tia_intention_of_developers
+        column: tia_intention_of_developers
         items: [tia_k04, tia_k08]
         centering: reflect
         aggregate: mean
       tia_propensity_to_trust_score:
         dv: tia_propensity_to_trust
+        column: tia_propensity_to_trust
         items: [tia_k05, tia_k12, tia_k18]
         centering: reflect
         aggregate: mean
       tia_trust_in_automation_score:
         dv: tia_trust_in_automation
+        column: tia_trust_in_automation
         items: [tia_k09, tia_k14]
         centering: reflect
         aggregate: mean

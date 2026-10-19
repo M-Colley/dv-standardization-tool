@@ -144,9 +144,31 @@ On E2 (300 schema aliases) recall@8 rises from 84% to 88% (bge), 91%
 ("MentalDemand" ranks `sart_demand` first), so the pipeline option
 `--llm-shortlist dense` uses the fusion. The TF-IDF blend weight was tuned on
 the E1 items and the dense models were not, so the comparison if anything
-favours TF-IDF. Whether higher recall raises the LLM's end-to-end mapping
-precision is untested: rerun `analyses/evaluate_llm_mapping.py --shortlist
-dense` on the GPU before making it the default.
+favours TF-IDF.
+
+**End to end, higher recall did not help (2026-10-19).** Same LLM
+(Gemma-4-E2B), plausibility check on, same 101 real DV columns (E1; the
+items changed slightly with the UEQ-S remapping) and 300 schema aliases (E2):
+
+| | fuzzy | definition (default) | dense (fused) |
+|---|---|---|---|
+| E1 gold DV among candidates | 39 | 83 | 97 |
+| E1 correct mappings | 17 | 52 | 41 |
+| E1 precision of accepted DV mappings | 22% | 62% | 47% |
+| E1 true mappings lost to the check | 0 | 0 | 3 |
+| E2 correct mappings | 169 | 203 | 196 |
+
+Paired on the same items, definition vs. dense differs by 25 vs. 14 E1
+columns that only one of them gets right (exact McNemar p = 0.11; E2 34 vs.
+27, p = 0.44). The mechanism is visible: on the 83 E1 columns whose gold DV
+is in *both* shortlists the model picks it 52 times from the TF-IDF list but
+33 times from the fused list, while it picks 11 of the 14 gold DVs that only
+dense retrieval surfaces. Dense candidates are semantically closer to each
+other, and a 2B model confuses near-synonyms. Recall@k is therefore not a
+sufficient objective for the shortlist (cf. P3): candidate *diversity* and
+ordering matter. TF-IDF stays the default; `--llm-shortlist dense` remains
+available. Next: append only the dense-only candidates to the TF-IDF list,
+or use dense retrieval to decide when to abstain.
 
 **Trade-off.** Because a plausible-looking candidate is always available, the
 model maps non-DV columns more often with the definition shortlist (74% of
@@ -163,8 +185,10 @@ P1 must confirm it on a held-out split.
 The multiverse crosses five binary choices (32 specifications). Results for
 the 11-study run (`analyses/output_multiverse/`):
 
-- **Robust:** NASA-TLX `mental_demand` (k = 7, no LLM rows). All 32
-  estimates lie in 7.37–7.58 and every interval covers the default estimate.
+- **Robust:** NASA-TLX `mental_demand` (k = 7). All 32 estimates lie in
+  7.59–8.02 and every interval covers the default estimate (run of
+  2026-10-19; 7.37–7.58 in the run of 2026-10-17, before the LLM mapped
+  `tlx1_sq001` of the longitudinal study to it).
 - **Fragile:**
   - `perceived_safety` (k = 7) moves from −0.24 to 4.27 depending only on
     scale harmonization, and cannot be pooled at all without LLM-deduced rows;
@@ -196,8 +220,11 @@ The lexical definition retriever (§2.4) lifts recall@8 on real columns from
 42% to 83% and precision from 23% to 59%; dense embeddings fused with it
 reach 97% recall@8 (§2.4). Next steps:
 
-- **End-to-end effect of dense retrieval.** Rerun the LLM benchmark with
-  `--shortlist dense`; German labels need the multilingual model.
+- **Shortlist design beyond recall.** Dense retrieval reaches 97% recall@8
+  but lowers end-to-end accuracy (52 → 41 of 101) because its candidates are
+  near-synonyms (§2.4). Test diversity-aware shortlists (TF-IDF list plus
+  dense-only additions) and larger models; German labels need the
+  multilingual model.
 - **Value-aware features.** Use the observed range, number of distinct levels,
   integer-ness, and correlation with already-mapped items of the same
   instrument.
