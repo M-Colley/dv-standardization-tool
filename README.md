@@ -161,12 +161,12 @@ The LLM is not used for blocked admin fields such as `UserID` or `ConditionID`, 
 
 Every rejection, with its reason, is written to `llm_rejected_suggestions.json` and listed in `llm_deductions.log`. Use `--no-llm-plausibility-check` only for ablation.
 
-**Candidate retrieval.** The LLM chooses from a shortlist of candidate DVs. By default (`--llm-shortlist definition`), `scripts/dv_retrieval.py` builds it by TF-IDF similarity to each DV's definition (id, label, aliases, instruments, notes, cluster, unit). The earlier alias-string matching (`--llm-shortlist fuzzy`) missed the correct DV for most real columns. `--llm-shortlist dense` fuses TF-IDF with sentence embeddings (`BAAI/bge-small-en-v1.5`, downloaded on first use, runs on CPU): the correct DV is among 8 candidates for 97% of held-out real columns, against 83% for TF-IDF alone. Its effect on end-to-end LLM accuracy has not been measured yet, so it is not the default.
+**Candidate retrieval.** The LLM chooses from a shortlist of candidate DVs. By default (`--llm-shortlist definition`), `scripts/dv_retrieval.py` builds it by TF-IDF similarity to each DV's definition (id, label, aliases, instruments, notes, cluster, unit). The earlier alias-string matching (`--llm-shortlist fuzzy`) missed the correct DV for most real columns. `--llm-shortlist dense` fuses TF-IDF with sentence embeddings (`BAAI/bge-small-en-v1.5`, downloaded on first use, runs on CPU): the correct DV is among 8 candidates for 97% of held-out real columns, against 83% for TF-IDF alone. It is not the default: end to end, the LLM chose the right DV less often from the fused list (41 vs. 52 of 101 columns, paired p = 0.11), because the extra candidates are near-synonyms that a small model confuses (`docs/research_agenda.md` §2.4).
 
 **How good is the LLM fallback?** `analyses/evaluate_llm_mapping.py` replays the LLM step with each curated mapping hidden (leave-alias-out). With the local Gemma-4-E2B model and the plausibility check on, it found on real dataset columns:
 
-- **With the old fuzzy shortlist:** 23% of accepted LLM mappings are correct.
-- **With definition retrieval:** 59% are correct.
+- **With the old fuzzy shortlist:** 22% of accepted LLM mappings are correct.
+- **With definition retrieval:** 62% are correct (52 of 84).
 - **Effect of the check:** non-DV columns mapped to a DV drop sharply (54% → 7% for blocklisted columns, 74% → 35% for curated ones), without losing any true DV mapping.
 
 Treat LLM-deduced rows as provisional. `multi_study_analysis.py --exclude-llm-deduced` writes the `*_llm_excluded` sensitivity outputs that drop them. Details and further results are in [`docs/research_agenda.md`](docs/research_agenda.md).
