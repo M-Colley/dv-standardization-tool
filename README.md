@@ -357,6 +357,19 @@ The included `sources_manifest_example.yaml` is preconfigured for:
 
 Datasets are processed in parallel (`--workers`, see above); a run with `--workers 1` produces the same files.
 
+### Reviewing mappings
+
+LLM-deduced mappings are right only about six times in ten, so check them before relying on them:
+
+```bash
+opendv review queue --batch-dir data/processed/catalog_meta_analysis --output review_queue.csv
+# fill in the decision / target / note columns, then
+opendv review apply --decisions review_queue.csv --manifest sources_manifest_no4tu.yaml --reviewer "Your Name"
+opendv review summary
+```
+
+The queue lists LLM-mapped columns first (they are used in the analysis), then suggestions the plausibility check rejected, unmapped survey columns and screened-out columns. Each row shows the observed n, mean, SD and range, the suggested DV's canonical range (`outside_range` flags values that cannot lie on it without rescaling) and the top retrieval candidates. Decisions are `accept`, `map` (to the DV in `target`), `non_dv` (written as `meta_<name>`, so the LLM never sees the column again) and `study_specific` (an outcome without a schema DV). They are written into the source's mapping YAML with a reviewer/date comment, keeping existing comments; a source without one gets `schemas/<source_id>_mapping.yaml`, registered in the manifest. Every decision is appended to `schemas/mapping_review_log.csv`, and `summary` reports the share of LLM mappings reviewers kept. After the next batch run, reviewed mappings are curated mappings and gold labels of `analyses/evaluate_llm_mapping.py`. The same workflow is the **Review Mappings** tab of the Streamlit UI.
+
 ### Research-data repositories
 
 Besides local folders, GitHub, OSF and web landing pages, sources can come from data repositories, through their APIs:

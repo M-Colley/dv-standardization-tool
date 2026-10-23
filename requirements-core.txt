@@ -26,3 +26,5 @@ lingam>=1.12.2
 frictionless>=5.21.0
 rocrate>=0.16.0
 pyarrow>=26.0.0
+# Comment-preserving YAML write-back of reviewed mappings (scripts/mapping_review.py).
+ruamel.yaml>=0.19.1

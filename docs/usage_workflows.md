@@ -167,6 +167,10 @@ This also exports a sidecar JSON file named `<output_stem>_metadata.json` includ
 
 ---
 
+## Reviewing LLM and unmapped mappings
+
+After a batch run, `opendv review queue --batch-dir <run>` writes a CSV of the columns that need a person, most urgent first: LLM-mapped columns, rejected LLM suggestions, unmapped survey/results columns, then columns screened out as demographic, ID or timing. Fill in `decision` (`accept`, `map`, `non_dv`, `study_specific`), `target` (a DV id for `map`, a name for `study_specific`) and an optional `note`, then run `opendv review apply --decisions <csv> --manifest <manifest> --reviewer <name>`. The decisions land in the sources' mapping YAMLs and in `schemas/mapping_review_log.csv`; rerun the batch to apply them. The Streamlit **Review Mappings** tab does the same in an editable table.
+
 ## Practical Maintenance Workflow for Mapping Quality
 
 1. Run conversion on a new dataset.
