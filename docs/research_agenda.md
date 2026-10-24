@@ -170,6 +170,20 @@ ordering matter. TF-IDF stays the default; `--llm-shortlist dense` remains
 available. Next: append only the dense-only candidates to the TF-IDF list,
 or use dense retrieval to decide when to abstain.
 
+**Pre-specified follow-up (written 2026-10-24, before running it).** The
+*mixed* shortlist keeps the TF-IDF top 6 in order and gives the last 2 of 8
+slots to the best dense candidates not among them
+(`scripts.dv_retrieval.mix_rankings`, `N_DENSE_EXTRA = 2`).
+Hypothesis: it keeps most of the recall gain while the model chooses as
+well as from the TF-IDF list. Primary outcome: E1 correct mappings with
+the check on, mixed vs. definition, paired exact McNemar test on the same
+items (two-sided, α = 0.05). Secondary: E1 precision of accepted mappings,
+true mappings lost to the check, E2 correct mappings. Same model, items,
+seed and harness as the 2026-10-19 runs. A variant with 4 dense slots
+(`mixed4`) is exploratory. The default changes only if mixed is not worse
+than definition on E1 correct mappings and precision and loses no true
+mapping.
+
 **Trade-off.** Because a plausible-looking candidate is always available, the
 model maps non-DV columns more often with the definition shortlist (74% of
 curated non-DVs, unchecked). The plausibility check halves that rate. In the

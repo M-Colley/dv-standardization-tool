@@ -2630,7 +2630,7 @@ def main() -> None:
     )
     parser.add_argument(
         "--llm-shortlist",
-        choices=["fuzzy", "definition", "dense"],
+        choices=["fuzzy", "definition", "dense", "mixed"],
         default="definition",
         help="How candidate DVs are retrieved for the LLM: TF-IDF over DV definitions (definition; "
              "default, more than doubles mapping precision in analyses/evaluate_llm_mapping.py) or "

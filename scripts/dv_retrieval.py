@@ -245,6 +245,35 @@ def dense_shortlist(column_name: str, max_candidates: int = 8, **kwargs: Any) ->
     return reciprocal_rank_fusion(lexical, dense)[:max_candidates]
 
 
+# Dense-only candidates that replace the lowest TF-IDF ranks in the mixed
+# shortlist (fixed before the end-to-end evaluation; see research agenda 2.4).
+N_DENSE_EXTRA = 2
+
+
+def mix_rankings(lexical: list[str], dense: list[str], n: int, n_dense: int = N_DENSE_EXTRA) -> list[str]:
+    """Top ``n - n_dense`` TF-IDF candidates in their order, then the best dense
+    candidates not among them.
+
+    Fusion (``dense_shortlist``) raised recall but filled the list with
+    near-synonyms, and a small model then chose worse. This keeps the
+    lexical list, which the model handles well, and adds only what dense
+    retrieval finds beyond it.
+    """
+    n_dense = max(0, min(n_dense, n))
+    keep = list(dict.fromkeys(lexical))[: n - n_dense]
+    extras = [dv for dv in dict.fromkeys(dense) if dv not in keep][: n - len(keep)]
+    return keep + extras
+
+
+def mixed_shortlist(
+    column_name: str, max_candidates: int = 8, n_dense: int = N_DENSE_EXTRA, **kwargs: Any
+) -> list[str]:
+    depth = max(max_candidates * 2, 16)
+    dense = [dv for dv, _ in get_dense_retriever(**kwargs).rank(column_name, k=depth)]
+    lexical = [dv for dv, _ in get_retriever().rank(column_name, k=depth)]
+    return mix_rankings(lexical, dense, max_candidates, n_dense)
+
+
 __all__ = [
     "DefinitionRetriever",
     "DenseRetriever",
@@ -254,6 +283,8 @@ __all__ = [
     "get_dense_retriever",
     "get_retriever",
     "load_dv_definitions",
+    "mix_rankings",
+    "mixed_shortlist",
     "reciprocal_rank_fusion",
     "sentence_transformer_encoder",
 ]
