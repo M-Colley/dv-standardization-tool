@@ -52,7 +52,13 @@ if str(REPO_ROOT) not in sys.path:
 
 from scripts import llm_utils  # noqa: E402
 from scripts.batch_profiles import classify_dataset_type, llm_eligible_dataset_types  # noqa: E402
-from scripts.dv_retrieval import get_dense_retriever, get_retriever, reciprocal_rank_fusion  # noqa: E402
+from scripts.dv_retrieval import (  # noqa: E402
+    N_DENSE_EXTRA,
+    get_dense_retriever,
+    get_retriever,
+    mix_rankings,
+    reciprocal_rank_fusion,
+)
 from scripts.value_labels import (  # noqa: E402
     apply_reverse_keying,
     apply_value_labels,
@@ -104,15 +110,20 @@ def _ask_llm(
     shortlist: str = "definition",
 ) -> tuple[list[str], float, str | None]:
     candidates, top_score = _select_llm_candidate_shortlist(mapping, alias)
-    if shortlist in ("definition", "dense") and candidates:
+    if shortlist in ("definition", "dense", "mixed", "mixed4") and candidates:
         # Leave-alias-out: the held-out alias is removed from every definition.
         n = len(candidates)
         depth = max(2 * n, 16)
         lexical = [dv for dv, _ in get_retriever().rank(alias, k=depth, exclude_alias=alias)]
+        if shortlist != "definition":
+            dense = [dv for dv, _ in get_dense_retriever().rank(alias, k=depth, exclude_alias=alias)]
         if shortlist == "dense":
             # Same fusion as scripts.dv_retrieval.dense_shortlist.
-            dense = [dv for dv, _ in get_dense_retriever().rank(alias, k=depth, exclude_alias=alias)]
             candidates = reciprocal_rank_fusion(lexical, dense)[:n]
+        elif shortlist in ("mixed", "mixed4"):
+            # mixed: the pipeline option (N_DENSE_EXTRA dense-only candidates);
+            # mixed4: exploratory variant with four.
+            candidates = mix_rankings(lexical, dense, n, N_DENSE_EXTRA if shortlist == "mixed" else 4)
         else:
             candidates = lexical[:n]
     if not candidates or top_score < MIN_ATTEMPT_SCORE:
@@ -320,7 +331,8 @@ def main() -> None:
     parser.add_argument("--e2-samples", type=int, default=300, help="Aliases sampled for E2 (default: %(default)s).")
     parser.add_argument("--seed", type=int, default=20261017)
     parser.add_argument("--models", default=None, help="Comma-separated model ids (default: pipeline default).")
-    parser.add_argument("--shortlist", choices=["fuzzy", "definition", "dense"], default="definition",
+    parser.add_argument("--shortlist", choices=["fuzzy", "definition", "dense", "mixed", "mixed4"],
+                        default="definition",
                         help="Candidate retrieval for the LLM (default: %(default)s).")
     args = parser.parse_args()
     args.models = [m.strip() for m in args.models.split(",") if m.strip()] if args.models else None

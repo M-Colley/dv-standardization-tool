@@ -107,6 +107,28 @@ class DenseRetrieverTests(unittest.TestCase):
             _augment_mapping_with_llm_deductions({"trust": "trust_rating"}, ["SUS"], REPO_ROOT, shortlist="dense")
         self.assertEqual(seen, [["usability", "trust_rating"]])
 
+    def test_mix_rankings_keeps_lexical_order_and_adds_dense_only(self):
+        lexical = ["a", "b", "c", "d", "e", "f", "g", "h"]
+        dense = ["x", "a", "y", "b", "z"]
+        self.assertEqual(dv_retrieval.mix_rankings(lexical, dense, 8, 2), ["a", "b", "c", "d", "e", "f", "x", "y"])
+        # dense candidates already kept are not duplicated; short lexical lists are filled up
+        self.assertEqual(dv_retrieval.mix_rankings(["a", "b"], ["a", "x", "y"], 4, 2), ["a", "b", "x", "y"])
+        self.assertEqual(dv_retrieval.mix_rankings(lexical, dense, 8, 0), lexical)
+
+    def test_coordinator_mixed_option_uses_mixed_shortlist(self):
+        seen: list[list[str]] = []
+
+        def fake_llm(raw_column_name, canonical_candidates, **_kwargs):
+            seen.append(list(canonical_candidates))
+            return None
+
+        with mock.patch("scripts.llm_coordinator.deduce_standard_name_with_local_llm", side_effect=fake_llm), \
+                mock.patch("scripts.llm_coordinator._select_llm_candidate_shortlist",
+                           return_value=(["trust_rating", "mental_demand"], 90.0)), \
+                mock.patch("scripts.dv_retrieval.mixed_shortlist", return_value=["mental_demand", "usability"]):
+            _augment_mapping_with_llm_deductions({"trust": "trust_rating"}, ["MD"], REPO_ROOT, shortlist="mixed")
+        self.assertEqual(seen, [["mental_demand", "usability"]])
+
     def test_model_prefixes_are_applied(self):
         seen: list[str] = []
 
