@@ -6,6 +6,8 @@ This document logs human-readable updates to the repo's functionality, structure
 
 ### [2026-10-24]
 
+- **Measurement invariance of shared scales.** New `analyses/measurement_invariance.py` / `.R` fits one-factor multi-group CFAs with lavaan (configural, metric, scalar; MLR with participant clusters) for every registry scale whose items appear in two or more studies, and applies Chen's (2007) rules. `meta_analysis_summary*.csv` gain `measurement_invariance`. Validated on simulated data with known answers. In the benchmark only Van der Laan *satisfying* reaches scalar invariance; SUS and NASA-TLX misfit at the configural level, and TLX *performance* loads negatively in Running into Traffic, which suggests its "success" item is reverse-keyed.
+
 - **Human review of mappings.** `scripts/mapping_review.py` (`opendv review queue|apply|summary`, and a Review Mappings tab in the Streamlit UI) turns a batch run into a review queue (LLM-mapped columns first; observed range against the suggested DV's range; retrieval candidates), writes `accept` / `map` / `non_dv` / `study_specific` decisions into the sources' mapping YAMLs with ruamel.yaml so comments survive, registers new mapping files in the manifest, and logs each decision with reviewer and date. Reviewed mappings become curated mappings and benchmark gold labels on the next run. For the 11-study run the queue has 244 columns, 63 of them LLM-mapped; 10 of those fall outside the suggested DV's range.
 - `meta_view.csv` records each column's observed min and max. `opendv validate` now passes the file path, so it also checks the instrument registry, study designs and dataset mappings.
 

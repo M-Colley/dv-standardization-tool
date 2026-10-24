@@ -2701,6 +2701,15 @@ def discover_causal_structure_pc(
 
 # ── Main ─────────────────────────────────────────────────────────────────────
 
+def _with_invariance(meta: pd.DataFrame, levels: dict[str, str]) -> pd.DataFrame:
+    """Add ``measurement_invariance``: the level reached by the DV's scale and the
+    studies it was tested in (``scalar`` is needed to compare means), or
+    ``not_tested``."""
+    out = meta.copy()
+    out["measurement_invariance"] = out["dv"].map(levels).fillna("not_tested") if "dv" in out else []
+    return out
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description="Analyze multiple standardized studies.")
     parser.add_argument(
@@ -2758,6 +2767,14 @@ def main() -> None:
         help=(
             "Study design declarations (participant and condition columns). "
             "Used for condition-contrast effects; pass '' to skip them."
+        ),
+    )
+    parser.add_argument(
+        "--no-measurement-invariance",
+        action="store_true",
+        help=(
+            "Skip the multi-group CFA invariance test of shared scales "
+            "(analyses/measurement_invariance.py; needs Rscript with lavaan)."
         ),
     )
     parser.add_argument(
@@ -2828,6 +2845,19 @@ def main() -> None:
     meta_summary_df = meta_analysis_summary(summary, total_studies=len(studies), estimator=args.estimator)
     effects = compute_standardized_effects(summary)
 
+    # Pooling means requires scalar invariance of the scale across studies;
+    # test it where item data exist and record the level per pooled DV.
+    invariance_levels: dict[str, str] = {}
+    if not args.no_measurement_invariance:
+        from analyses.measurement_invariance import invariance_by_dv, run_invariance
+
+        invariance = run_invariance(studies, output_dir)
+        invariance_levels = invariance_by_dv(invariance)
+        if not invariance.empty:
+            print("\nMeasurement invariance (level reached per shared scale):\n",
+                  invariance.drop_duplicates("scale")[["scale", "studies", "level_reached"]].to_string(index=False))
+    meta_summary_df = _with_invariance(meta_summary_df, invariance_levels)
+
     output_dir.mkdir(parents=True, exist_ok=True)
     overlap.to_csv(output_dir / "dv_overlap_matrix.csv")
     presence.to_csv(output_dir / "dv_presence_matrix.csv")
@@ -2842,11 +2872,11 @@ def main() -> None:
     if args.exclude_llm_deduced:
         summary_clean = summary[summary["mapping_source"] != "llm_deduced"].copy()
         dropped_rows = int(len(summary) - len(summary_clean))
-        clean_meta = meta_analysis_summary(
+        clean_meta = _with_invariance(meta_analysis_summary(
             summary_clean,
             total_studies=len(studies),
             estimator=args.estimator,
-        )
+        ), invariance_levels)
         clean_effects = compute_standardized_effects(summary_clean)
         summary_clean.to_csv(output_dir / "harmonized_dv_summary_llm_excluded.csv", index=False)
         clean_meta.to_csv(output_dir / "meta_analysis_summary_llm_excluded.csv", index=False)
