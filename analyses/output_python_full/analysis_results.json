@@ -1,6 +1,6 @@
 {
-  "generated_at": "2026-10-19T00:18:43.721773+00:00",
-  "input_dir": "data\\processed\\catalog_meta_analysis\\standardized",
+  "generated_at": "2026-10-24T20:16:27.913133+00:00",
+  "input_dir": "C:\\Users\\localadmin\\Desktop\\dv-standardization-tool\\data\\processed\\catalog_meta_analysis\\standardized",
   "n_studies": 11,
   "studies": [
     "3d_display_comp_vehicle",
