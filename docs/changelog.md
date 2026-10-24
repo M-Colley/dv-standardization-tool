@@ -4,6 +4,13 @@ This document logs human-readable updates to the repo's functionality, structure
 
 ---
 
+### [2026-10-24]
+
+- **Human review of mappings.** `scripts/mapping_review.py` (`opendv review queue|apply|summary`, and a Review Mappings tab in the Streamlit UI) turns a batch run into a review queue (LLM-mapped columns first; observed range against the suggested DV's range; retrieval candidates), writes `accept` / `map` / `non_dv` / `study_specific` decisions into the sources' mapping YAMLs with ruamel.yaml so comments survive, registers new mapping files in the manifest, and logs each decision with reviewer and date. Reviewed mappings become curated mappings and benchmark gold labels on the next run. For the 11-study run the queue has 244 columns, 63 of them LLM-mapped; 10 of those fall outside the suggested DV's range.
+- `meta_view.csv` records each column's observed min and max. `opendv validate` now passes the file path, so it also checks the instrument registry, study designs and dataset mappings.
+
+---
+
 ### [2026-10-19]
 
 - **Per-dataset reverse keying.** Mapping YAMLs can declare `reverse_items` (columns, scale range, reason). Those items are reverse-scored before mapping and scoring, and each reversal is recorded in the quality JSON and the data package.

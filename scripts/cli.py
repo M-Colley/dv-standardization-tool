@@ -11,6 +11,7 @@ standardize  Single-study DV standardization (scripts.convert_dv)
 batch        Batch standardization across multiple studies (scripts.run_batch_standardization)
 analyze      Multi-study meta-analysis (analyses.multi_study_analysis)
 validate     Schema validation (scripts.validate_schema)
+review       Review LLM and unmapped column mappings (scripts.mapping_review)
 """
 
 from __future__ import annotations
@@ -26,6 +27,7 @@ examples:
   opendv batch --manifest sources_manifest.yaml
   opendv analyze --output-dir results/
   opendv validate schemas/standard_dv_mapping.yaml
+  opendv review queue --batch-dir data/processed/catalog_meta_analysis
 """
 
 
@@ -62,6 +64,10 @@ def _build_parser() -> argparse.ArgumentParser:
     subparsers.add_parser(
         "validate",
         help="Validate a DV standardization schema",
+    )
+    subparsers.add_parser(
+        "review",
+        help="Review LLM and unmapped column mappings (queue / apply / summary)",
     )
 
     return parser
@@ -139,7 +145,7 @@ def _run_validate(argv: list[str]) -> None:
         print(f"[ERROR] Could not load schema: {exc}", file=sys.stderr)
         sys.exit(1)
 
-    issues = validate(schema)
+    issues = validate(schema, schema_path)
     if issues:
         print(f"[ERROR] Schema validation FAILED with {len(issues)} issue(s):\n")
         for i, issue in enumerate(issues, 1):
@@ -150,11 +156,18 @@ def _run_validate(argv: list[str]) -> None:
     print("[OK] Schema is valid!\n")
 
 
+def _run_review(argv: list[str]) -> None:
+    from scripts.mapping_review import main
+
+    main(argv)
+
+
 _DISPATCH = {
     "standardize": _run_standardize,
     "batch": _run_batch,
     "analyze": _run_analyze,
     "validate": _run_validate,
+    "review": _run_review,
 }
 
 
