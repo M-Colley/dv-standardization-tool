@@ -394,6 +394,7 @@ Add both to an existing run with `python -m scripts.fair_export <output dir> [--
 ### Robustness analyses
 
 - `analyses/multi_study_analysis.py` reports Hartung-Knapp-Sidik-Jonkman intervals (`hksj_ci95_low/high`) next to the Wald intervals; with the k = 2–3 studies typical here, Wald intervals are far too narrow. All meta-analytic estimators (DL, REML, Egger, trim-and-fill, HKSJ) are validated against R's `metafor` in `tests/test_meta_analysis_reference.py`.
+- `analyses/measurement_invariance.py` tests whether shared scales measure the same thing in every study before their means are pooled: a one-factor multi-group CFA per scale (configural, metric, scalar) fitted with R's lavaan (MLR, participant-clustered), with Chen's (2007) ΔCFI/ΔRMSEA/ΔSRMR rules. `meta_analysis_summary.csv` gets a `measurement_invariance` column (level reached and the studies tested). It needs `Rscript` with lavaan and jsonlite and is skipped otherwise (`--no-measurement-invariance` to turn it off). Of the four scales testable in the benchmark, only Van der Laan *satisfying* reaches scalar invariance.
 - `analyses/multiverse_analysis.py` re-runs the meta-analysis across every combination of 5 choices (32 specifications per DV) and writes specification curves:
   - LLM mappings included or excluded;
   - scale harmonization on or off;

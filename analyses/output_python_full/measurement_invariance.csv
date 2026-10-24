@@ -1,0 +1,13 @@
+instrument,scale,dv,items,studies,n_obs,n_clusters,level,cfi,tli,rmsea,srmr,chisq_scaled,df,delta_cfi,delta_rmsea,delta_srmr,lrt_chisq_diff,lrt_df_diff,lrt_pvalue,holds,level_reached,warning
+sus,sus_score,usability,SUS1; SUS2; SUS3; SUS4; SUS5; SUS6; SUS7; SUS8; SUS9; SUS10,ehmi_for_all_chi26; roads_chi25,996,63,configural,0.9127,0.887758,0.11919,0.068546,272.634003,70.0,,,,,,,False,none,"lavaan->lav_model_vcov():  
+   The variance-covariance matrix of the estimated parameters (vcov) does not 
+   appear to be positive definite! The smallest eigenvalue (= -1.929732e-17) 
+   is smaller than zero. This may be a symptom that the model is not 
+   identified."
+nasa_tlx_raw,nasa_tlx_score,TLX_SCORE,mental_demand; physical_demand; temporal_demand; performance; effort; frustration,roads_chi25; running_into_traffic_chi26,564,47,configural,0.932998,0.88833,0.141969,0.054202,51.401527,18.0,,,,,,,False,none,
+van_der_laan,aoa_usefulness,AOA_USEFULNESS,AOA1; AOA3; AOA5; AOA7; AOA9,ehmi_for_all_chi26; roads_chi25,996,63,configural,0.99875,0.9975,0.027995,0.008975,11.916037,10.0,,,,,,,True,metric,
+van_der_laan,aoa_usefulness,AOA_USEFULNESS,AOA1; AOA3; AOA5; AOA7; AOA9,ehmi_for_all_chi26; roads_chi25,996,63,metric,0.990942,0.98706,0.06369,0.051657,26.470813,14.0,-0.007808000000000037,0.035695,0.042682,12.569185105,4.0,0.0135844293338077,True,metric,
+van_der_laan,aoa_usefulness,AOA_USEFULNESS,AOA1; AOA3; AOA5; AOA7; AOA9,ehmi_for_all_chi26; roads_chi25,996,63,scalar,0.977008,0.974453,0.089488,0.069838,45.831934,18.0,-0.013934000000000002,0.025798,0.018180999999999996,15.8564402446,4.0,0.00321797479904769,False,metric,
+van_der_laan,aoa_satisfying,AOA_SATISFYING,AOA2; AOA4; AOA6; AOA8,ehmi_for_all_chi26; roads_chi25,996,63,configural,1.0,1.005802,0.0,0.003162,1.159486,4.0,,,,,,,True,scalar,
+van_der_laan,aoa_satisfying,AOA_SATISFYING,AOA2; AOA4; AOA6; AOA8,ehmi_for_all_chi26; roads_chi25,996,63,metric,1.0,1.006361,0.0,0.013512,2.1469,7.0,0.0,0.0,0.01035,0.9724031773,3.0,0.807929150365003,True,scalar,
+van_der_laan,aoa_satisfying,AOA_SATISFYING,AOA2; AOA4; AOA6; AOA8,ehmi_for_all_chi26; roads_chi25,996,63,scalar,0.996879,0.996255,0.04383,0.025081,14.085807,10.0,-0.0031210000000000404,0.04383,0.011569,11.9629901127,3.0,0.00751102202446505,True,scalar,
