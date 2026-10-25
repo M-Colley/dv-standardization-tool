@@ -4,6 +4,10 @@ This document logs human-readable updates to the repo's functionality, structure
 
 ---
 
+### [2026-10-25]
+
+- **Hierarchy-aware shortlist (pre-specified).** `scripts.dv_retrieval.apply_hierarchy` keeps only the higher-ranked of a scale and its own item in a shortlist (pairs from the instrument registry, `subitem_of` and `_item_NN` ids); `--llm-shortlist hierarchical` applies it to the dense fusion. On 101 real columns: 61 correct vs. 52 for TF-IDF (p = 0.14; precision 73% vs. 62%); the exploratory `mixed_h` reaches 65 (p = 0.004). The pre-specified rule required no "lost" true mappings, and the filtered variants lose 4 (`PerSafe01`–`04`, screened out before the LLM in every condition), so TF-IDF stays the default pending a confirmatory test. The screened columns revealed that `1neg`-style negative answer codes are not recoded.
+
 ### [2026-10-24]
 
 - **Mixed shortlist experiment (pre-specified).** `--llm-shortlist mixed` keeps the TF-IDF top 6 and adds 2 dense-only candidates. It keeps the recall (96 vs. 83 of 101 real columns) but maps fewer correctly (46 vs. 52, paired p = 0.38; the 4-slot variant 36, p = 0.020). 18 of the 19 lost answers went to an added dense candidate, mostly the scale (`usability`) instead of the item (`SUS3`...). TF-IDF stays the default. A GPU-only rerun of the baseline reproduced all 470 answers exactly.

@@ -229,6 +229,43 @@ model, items, seed and harness as before. The default becomes
 definition, precision at least as high, and loses no true mapping; the
 p-value is reported either way.
 
+**Result (2026-10-25).**
+
+| E1 (101 real DV columns), check on | definition | dense_h (primary) | mixed_h (expl.) | definition_h (expl.) |
+|---|---|---|---|---|
+| Gold DV among candidates | 83 | 96 | 95 | 82 |
+| Correct mappings | 52 | 61 | 65 | 55 |
+| Paired exact McNemar vs. definition | | p = 0.14 (19 vs. 10 discordant) | p = 0.004 (16 vs. 3) | p = 0.38 |
+| Precision of accepted mappings | 62% | 73% | 76% | 62% |
+| True mappings lost to the check | 0 | 4 | 4 | 4 |
+| E2 correct (of 300) | 203 | 201 | 205 | 195 (p = 0.021) |
+
+The filter reverses the dense-retrieval result: with scale/item conflicts
+removed, more recall now means more correct mappings (dense 41 → dense_h
+61; mixed 46 → mixed_h 65), and precision rises to 73–76%.
+
+The pre-specified decision rule is **not met**: dense_h has more correct
+mappings (not significantly, p = 0.14) and higher precision, but "loses" 4
+true mappings to the check. All filtered variants lose the same 4:
+eHMI-for-All's `PerSafe01`–`04`, which the check screens out *before* the
+LLM as non-numeric in every condition. Without the filter the LLM picked
+the scale (`perceived_safety`, wrong) for them; with it, the item (right),
+so the unchecked answer became correct while the checked result stayed
+"unmapped". The criterion therefore counted columns the deployed pipeline
+never maps under any shortlist; the rule was nonetheless pre-specified, so
+the default stays `definition`. `mixed_h` is the best variant, but it is
+exploratory and one of several comparisons on the same items (p = 0.004
+survives a Bonferroni correction for the six comparisons run so far); it
+needs a confirmatory test on new items (P1's held-out split). Applying the
+filter to the TF-IDF list alone gains little on E1 and loses 8 schema
+aliases on E2, where the scale is often the right answer.
+
+**Data bug found on the way.** The screened columns are non-numeric because
+eHMI-for-All exports negative answers as `1neg`/`2neg`/`3neg` (suffix), a
+LimeSurvey variant that `recode_negative_answer_codes` (prefix `negN` only)
+does not recognize. About 20% of every perceived-safety answer in that study
+(all negative ones) is dropped, biasing its means upward.
+
 **Trade-off.** Because a plausible-looking candidate is always available, the
 model maps non-DV columns more often with the definition shortlist (74% of
 curated non-DVs, unchecked). The plausibility check halves that rate. In the
