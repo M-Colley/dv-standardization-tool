@@ -1,16 +1,12 @@
 from,to,conditioning_set,p_value
 jian_trust,sart_understanding,[],0.16886185436518697
-tia_understanding_predictability,ueq_dependability,[],0.1335722578606804
-ueq_dependability,understanding_rating,[],0.6421018505704186
 jian_trust,understanding_rating,['trust_rating'],0.38087922607505664
 perceived_safety,sts_ad_trust,['jian_trust'],0.32199539780311603
 perceived_safety,tia_understanding_predictability,['jian_trust'],0.7540777035108179
 sart_understanding,sts_ad_trust,['trust_rating'],0.12922988126302326
 sart_understanding,tia_understanding_predictability,['understanding_rating'],0.06599351813097565
 sts_ad_trust,tia_understanding_predictability,['jian_trust'],0.3292287903737803
-sts_ad_trust,ueq_dependability,['jian_trust'],0.5348978315545776
 trust_rating,sart_understanding,['sts_ad_trust'],0.3236289804827521
-trust_rating,ueq_dependability,['jian_trust'],0.06663854776571054
 understanding_rating,tia_understanding_predictability,['sart_understanding'],0.08515936210155806
 jian_trust,perceived_safety,"['tia_understanding_predictability', 'trust_rating']",0.11540151561402356
 perceived_safety,understanding_rating,"['sart_understanding', 'trust_rating']",0.6664031354379762

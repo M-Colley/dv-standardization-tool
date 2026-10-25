@@ -107,3 +107,42 @@ def recode_negative_answer_codes(df: pd.DataFrame) -> tuple[pd.DataFrame, dict[s
 
 
 __all__ = ["apply_value_labels", "recode_negative_answer_codes"]
+
+
+def apply_reverse_keying(
+    df: pd.DataFrame,
+    specs: Iterable[dict[str, Any]],
+) -> tuple[pd.DataFrame, dict[str, dict[str, Any]]]:
+    """Reverse-score declared items of one dataset: ``x -> min + max - x``.
+
+    A repository mapping YAML declares items whose positive pole is on the
+    other side in *this* survey (or that the source analysis reverse-scores)::
+
+        reverse_items:
+          - columns: [C2]
+            scale_range: [1, 5]
+            reason: reverse-scored in the source analysis (C2_inv)
+
+    Applied after ``value_labels`` and before mapping, so every downstream
+    score sees consistently keyed items. Values outside ``scale_range`` are
+    left unchanged and counted, so a wrong range is visible in the report.
+    """
+    out = df
+    report: dict[str, dict[str, Any]] = {}
+    for spec in specs:
+        lo, hi = (float(v) for v in spec["scale_range"])
+        for column in spec.get("columns") or []:
+            if column not in out.columns:
+                continue
+            if out is df:
+                out = df.copy()
+            values = pd.to_numeric(out[column], errors="coerce")
+            inside = values.between(lo, hi)
+            out[column] = values.where(~inside, lo + hi - values)
+            report[str(column)] = {
+                "reversed": int(inside.sum()),
+                "out_of_range": int((values.notna() & ~inside).sum()),
+                "scale_range": [lo, hi],
+                "reason": str(spec.get("reason", "")),
+            }
+    return out, report

@@ -52,8 +52,12 @@ if str(REPO_ROOT) not in sys.path:
 
 from scripts import llm_utils  # noqa: E402
 from scripts.batch_profiles import classify_dataset_type, llm_eligible_dataset_types  # noqa: E402
-from scripts.dv_retrieval import get_retriever  # noqa: E402
-from scripts.value_labels import apply_value_labels, recode_negative_answer_codes  # noqa: E402
+from scripts.dv_retrieval import get_dense_retriever, get_retriever, reciprocal_rank_fusion  # noqa: E402
+from scripts.value_labels import (  # noqa: E402
+    apply_reverse_keying,
+    apply_value_labels,
+    recode_negative_answer_codes,
+)
 from scripts.llm_coordinator import _select_llm_candidate_shortlist  # noqa: E402
 from scripts.llm_plausibility import (  # noqa: E402
     check_llm_suggestion,
@@ -100,9 +104,17 @@ def _ask_llm(
     shortlist: str = "definition",
 ) -> tuple[list[str], float, str | None]:
     candidates, top_score = _select_llm_candidate_shortlist(mapping, alias)
-    if shortlist == "definition" and candidates:
+    if shortlist in ("definition", "dense") and candidates:
         # Leave-alias-out: the held-out alias is removed from every definition.
-        candidates = [dv for dv, _ in get_retriever().rank(alias, k=len(candidates), exclude_alias=alias)]
+        n = len(candidates)
+        depth = max(2 * n, 16)
+        lexical = [dv for dv, _ in get_retriever().rank(alias, k=depth, exclude_alias=alias)]
+        if shortlist == "dense":
+            # Same fusion as scripts.dv_retrieval.dense_shortlist.
+            dense = [dv for dv, _ in get_dense_retriever().rank(alias, k=depth, exclude_alias=alias)]
+            candidates = reciprocal_rank_fusion(lexical, dense)[:n]
+        else:
+            candidates = lexical[:n]
     if not candidates or top_score < MIN_ATTEMPT_SCORE:
         return candidates, top_score, None
     suggestion = llm_utils.deduce_standard_name_with_local_llm(
@@ -177,6 +189,7 @@ def run_e1(args, families: SchemaFamilies, dv_ids: set[str]) -> pd.DataFrame:
                     raw, _ = apply_value_labels(raw, resolved.value_labels)
                     if dataset_type in llm_eligible_dataset_types():
                         raw, _ = recode_negative_answer_codes(raw)
+                    raw, _ = apply_reverse_keying(raw, resolved.reverse_items)
                     frames[item.dataset_id] = (raw, resolved.mapping)
                 df, mapping = frames[item.dataset_id]
                 columns = [str(c) for c in df.columns]

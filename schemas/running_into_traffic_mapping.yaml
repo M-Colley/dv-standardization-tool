@@ -27,41 +27,32 @@ risk: perceived_risk
 # --- AV-specific perception measures ------------------------------------------
 av.intent: understanding_rating  # understanding what the AV intends to do
 
-# --- UEQ-Short pragmatic items (4 items pool into UEQ-S pragmatic quality) ----
-# Mapping each to the closest long-form UEQ subscale so item composition
-# can form construct-level scores. ease/clarity both touch perspicuity, so
-# they will compose into the perspicuity construct via __dup_N dedup.
-ueq.p.ease: ueq_perspicuity
-ueq.p.clarity: ueq_perspicuity
-ueq.p.efficiency: ueq_efficiency
-ueq.p.support: ueq_dependability
+# --- UEQ-Short (8 items, 7-point) -------------------------------------------
+# Mapped to the UEQ-S items of the instrument registry (schemas/instruments.yaml,
+# Schrepp et al. 2017), which scores pragmatic quality (items 1-4) and hedonic
+# quality (items 5-8) as ueq_pragmatic / ueq_hedonic on -3..+3. Item order:
+# 1 obstructive-supportive, 2 complicated-easy, 3 inefficient-efficient,
+# 4 confusing-clear, 5 boring-exciting, 6 not interesting-interesting,
+# 7 conventional-inventive, 8 usual-leading edge.
+ueq.p.support: ueq_s_1
+ueq.p.ease: ueq_s_2
+ueq.p.efficiency: ueq_s_3
+ueq.p.clarity: ueq_s_4
+ueq.h.excite: ueq_s_5
+ueq.h.interest: ueq_s_6
+ueq.h.inventive: ueq_s_7
+ueq.h.novelty: ueq_s_8
 
-# --- UEQ-Short hedonic items (4 items pool into UEQ-S hedonic quality) -------
-ueq.h.excite: ueq_stimulation
-ueq.h.interest: ueq_stimulation
-ueq.h.inventive: ueq_novelty
-ueq.h.novelty: ueq_novelty
-
-# --- UEQ-Short declared scales (Tier 2) ---------------------------------------
-# UEQ-Short has 8 bipolar 1-7 items, grouped into 4 subscales of 2 items each.
-# Auto-detect produces α=0.95 for ueq.h.excite+interest (clean), but α=-2.5
-# for ueq.p.ease+clarity and α=-2.9 for ueq.h.inventive+novelty in this
-# sample (one item is likely scored with an inverted polarity in the
-# original survey instrument). Declaring the scales here forces composition
-# regardless of α; the recorded α stays in composites.json for review.
-# reverse_aliases is intentionally empty because the survey instrument is
-# not in the Zenodo bundle — downstream consumers should treat low-α
-# composites as exploratory.
-scales:
-  - canonical: ueq_perspicuity
-    aliases: ["ueq.p.ease", "ueq.p.clarity"]
+# clarity and inventive correlate negatively with every other UEQ item in
+# this dataset (row level r = -0.13 to -0.64; e.g. clarity vs. efficiency
+# -0.64, inventive vs. interest -0.51), while all other pairs are positive.
+# These are the two items whose positive pole comes first in the long UEQ
+# ("clear - confusing", "inventive - conventional"), so the survey evidently
+# kept the long-form orientation. They are reverse-scored before scoring.
+reverse_items:
+  - columns: ["ueq.p.clarity", "ueq.h.inventive"]
     scale_range: [1, 7]
-  - canonical: ueq_stimulation
-    aliases: ["ueq.h.excite", "ueq.h.interest"]
-    scale_range: [1, 7]
-  - canonical: ueq_novelty
-    aliases: ["ueq.h.inventive", "ueq.h.novelty"]
-    scale_range: [1, 7]
+    reason: positive pole first, as in the long UEQ; negative correlation with all other items
 
 # --- Independent variables and ambiguous non-DV columns -----------------------
 # These appeared as wrong LLM targets in earlier runs (e.g. ehmi -> temporal_demand,

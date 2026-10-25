@@ -134,3 +134,30 @@ class AoaCodingTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class ReverseKeyingTests(unittest.TestCase):
+    def test_declared_items_are_reversed_within_their_range(self):
+        from scripts.value_labels import apply_reverse_keying
+
+        df = pd.DataFrame({"C2": [1, 5, 3, 9, None], "ST2": [1, 7, 4, 2, 6], "other": [1, 2, 3, 4, 5]})
+        out, report = apply_reverse_keying(df, [
+            {"columns": ["C2"], "scale_range": [1, 5], "reason": "C2_inv"},
+            {"columns": ["ST2", "missing"], "scale_range": [1, 7]},
+        ])
+        self.assertEqual(out["C2"].tolist()[:4], [5, 1, 3, 9])  # 9 is outside 1..5: kept and counted
+        self.assertEqual(out["ST2"].tolist(), [7, 1, 4, 6, 2])
+        self.assertEqual(out["other"].tolist(), [1, 2, 3, 4, 5])
+        self.assertEqual(report["C2"]["reversed"], 3)
+        self.assertEqual(report["C2"]["out_of_range"], 1)
+        self.assertNotIn("missing", report)
+        self.assertEqual(df["C2"].tolist()[0], 1)  # input untouched
+
+    def test_no_specs_returns_the_same_frame(self):
+        from scripts.value_labels import apply_reverse_keying
+
+        df = pd.DataFrame({"a": [1]})
+        out, report = apply_reverse_keying(df, [])
+        self.assertIs(out, df)
+        self.assertEqual(report, {})
+

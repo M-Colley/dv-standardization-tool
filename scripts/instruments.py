@@ -67,10 +67,12 @@ class Score:
     centering: str
     aggregate: str
     multiplier: float = 1.0
+    output_column: str | None = None
 
     @property
     def column(self) -> str:
-        return self.name
+        """Column the score is written to (``column`` in the YAML, else the score name)."""
+        return self.output_column or self.name
 
 
 @dataclass(frozen=True)
@@ -106,6 +108,7 @@ def _parse_instrument(iid: str, raw: Mapping[str, Any]) -> Instrument:
             centering=str(spec.get("centering", "none")),
             aggregate=str(spec.get("aggregate", "mean")),
             multiplier=float(spec.get("multiplier", 1.0)),
+            output_column=str(spec["column"]) if spec.get("column") else None,
         )
         if score.centering not in CENTERINGS:
             raise ValueError(f"{iid}/{name}: centering must be one of {CENTERINGS}")
