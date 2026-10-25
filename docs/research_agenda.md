@@ -293,6 +293,14 @@ Measures: accuracy against gold, time, calibration of trust in the
 suggestions, and over-acceptance of wrong suggestions (automation bias).
 This is the CHI-shaped paper of the agenda.
 
+The instrument exists: the Review Mappings tab and `opendv review`
+(`scripts/mapping_review.py`) show exactly condition 3's evidence (observed
+range vs. the suggested DV's range, rejection reason, retrieval candidates)
+and log every decision with reviewer and timestamp, so agreement between
+reviewers and over-acceptance can be computed from
+`schemas/mapping_review_log.csv`. Conditions 1 and 2 need only hiding
+columns of the queue.
+
 ### P8. Vocabulary saturation: how many datasets until the schema converges? *(medium value, low effort)*
 
 Fit a Heaps'-law curve to the number of *new* aliases per added dataset

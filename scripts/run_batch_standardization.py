@@ -1254,6 +1254,9 @@ def _summarize_dataset(
                 "n": n_valid,
                 "mean": float(numeric_series.mean()) if n_valid else None,
                 "sd": float(numeric_series.std(ddof=1)) if n_valid > 1 else None,
+                # Observed range, shown to reviewers next to the DV's canonical range.
+                "min": float(numeric_series.min()) if n_valid else None,
+                "max": float(numeric_series.max()) if n_valid else None,
                 "review_flag": base_canonical in unknown_column_set,
                 "mapping_confidence": "high" if base_canonical not in unknown_column_set else "unknown_alias",
                 **provenance,

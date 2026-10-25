@@ -41,6 +41,7 @@ dependencies = [
     "frictionless>=5.21.0",
     "rocrate>=0.16.0",
     "pyarrow>=26.0.0",
+    "ruamel.yaml>=0.19.1",
 ]
 
 [project.optional-dependencies]

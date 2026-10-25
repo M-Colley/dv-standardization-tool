@@ -26,6 +26,7 @@ from ui.components.charts import (
 )
 from ui.components.column_preview import show_column_comparison
 from ui.components.download_button import render_table_download_buttons
+from ui.components.review_panel import render_review_tab
 from ui.components.uploader import list_excel_sheets, load_uploaded_table, upload_tabular_file
 
 DEFAULT_SCHEMA_PATH = REPO_ROOT / "schemas" / "standard_dv_mapping.yaml"
@@ -383,8 +384,10 @@ st.caption(
     "results without leaving the same UI."
 )
 
-single_tab, catalog_tab = st.tabs(["Single Dataset", "Catalog Workflow"])
+single_tab, catalog_tab, review_tab = st.tabs(["Single Dataset", "Catalog Workflow", "Review Mappings"])
 with single_tab:
     _render_single_dataset_tab()
 with catalog_tab:
     _render_catalog_workflow_tab()
+with review_tab:
+    render_review_tab()
