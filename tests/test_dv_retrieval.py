@@ -129,6 +129,41 @@ class DenseRetrieverTests(unittest.TestCase):
             _augment_mapping_with_llm_deductions({"trust": "trust_rating"}, ["MD"], REPO_ROOT, shortlist="mixed")
         self.assertEqual(seen, [["mental_demand", "usability"]])
 
+    def test_apply_hierarchy_keeps_the_higher_ranked_of_scale_and_item(self):
+        related = {"usability": frozenset({"SUS1", "SUS3"}), "SUS1": frozenset({"usability"}),
+                   "SUS3": frozenset({"usability"})}
+        # item first: the scale is dropped, later candidates fill up
+        self.assertEqual(dv_retrieval.apply_hierarchy(["SUS3", "SUS1", "usability", "x", "y"], 3, related),
+                         ["SUS3", "SUS1", "x"])
+        # scale first: its items are dropped
+        self.assertEqual(dv_retrieval.apply_hierarchy(["usability", "SUS3", "x", "SUS1", "y"], 3, related),
+                         ["usability", "x", "y"])
+        self.assertEqual(dv_retrieval.apply_hierarchy(["a", "a", "b"], 5, {}), ["a", "b"])
+
+    def test_construct_hierarchy_combines_registry_and_schema(self):
+        h = dv_retrieval.construct_hierarchy()
+        self.assertIn("SUS3", h["usability"])              # instrument registry
+        self.assertIn("usability", h["SUS3"])
+        self.assertIn("mental_demand", h["TLX_SCORE"])
+        self.assertIn("perceived_safety_item_01", h["perceived_safety"])  # <construct>_item_NN
+        self.assertIn("perceived_conflict", h["conflict_item_01"])        # subitem_of
+        self.assertNotIn("SUS4", h["SUS3"])                # siblings are not related
+
+    def test_coordinator_hierarchical_option(self):
+        seen: list[list[str]] = []
+
+        def fake_llm(raw_column_name, canonical_candidates, **_kwargs):
+            seen.append(list(canonical_candidates))
+            return None
+
+        with mock.patch("scripts.llm_coordinator.deduce_standard_name_with_local_llm", side_effect=fake_llm), \
+                mock.patch("scripts.llm_coordinator._select_llm_candidate_shortlist",
+                           return_value=(["trust_rating", "mental_demand"], 90.0)), \
+                mock.patch("scripts.dv_retrieval.hierarchical_shortlist", return_value=["SUS3", "SUS2"]):
+            _augment_mapping_with_llm_deductions({"trust": "trust_rating"}, ["S3"], REPO_ROOT,
+                                                 shortlist="hierarchical")
+        self.assertEqual(seen, [["SUS3", "SUS2"]])
+
     def test_model_prefixes_are_applied(self):
         seen: list[str] = []
 
