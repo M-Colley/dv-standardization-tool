@@ -41,6 +41,10 @@ ehmi_presence,number_of_collisions,ehmi_for_all_chi26,1,Intention,40,SMCRPH,-0.4
 ehmi_presence,pedestrian_crossing_time,ehmi_for_all_chi26,1,Intention,40,SMCRPH,-0.16594379202433468,0.027432369859748344,0.16562720144876064,,schema,neutral
 ehmi_presence,perceived_risk,running_into_traffic_chi26,2,CyanBand+LightRing,24,SMCRPH,-0.9935653931503238,0.04901487107131349,0.22139302398972172,0.5,schema,lower_is_better
 ehmi_presence,perceived_safety,running_into_traffic_chi26,2,CyanBand+LightRing,24,SMCRPH,1.0184883370318423,0.07530009267698655,0.2744086235470499,0.5,schema,higher_is_better
+ehmi_presence,perceived_safety_item_01,ehmi_for_all_chi26,1,Intention,40,SMCRPH,0.9571237138010611,0.030902872759309044,0.17579212940091785,,schema,higher_is_better
+ehmi_presence,perceived_safety_item_02,ehmi_for_all_chi26,1,Intention,40,SMCRPH,0.9479078824923632,0.032170599055365116,0.17936164321104198,,schema,higher_is_better
+ehmi_presence,perceived_safety_item_03,ehmi_for_all_chi26,1,Intention,40,SMCRPH,1.0255022694543696,0.03448642273980309,0.1857052038576278,,schema,higher_is_better
+ehmi_presence,perceived_safety_item_04,ehmi_for_all_chi26,1,Intention,40,SMCRPH,0.873261530138475,0.03321044671420838,0.182237336224519,,schema,higher_is_better
 ehmi_presence,performance,running_into_traffic_chi26,2,CyanBand+LightRing,24,SMCRPH,0.1993551620025901,0.014132902521294842,0.11888188474824431,0.5,schema,lower_is_better
 ehmi_presence,physical_demand,running_into_traffic_chi26,2,CyanBand+LightRing,24,SMCRPH,-0.12747085518488782,0.012414924731600982,0.11142228112725472,0.5,schema,lower_is_better
 ehmi_presence,temporal_demand,running_into_traffic_chi26,2,CyanBand+LightRing,24,SMCRPH,-0.2638146044537905,0.03487927102582561,0.1867599288547348,0.5,schema,lower_is_better

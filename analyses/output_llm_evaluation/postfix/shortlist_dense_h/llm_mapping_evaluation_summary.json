@@ -1,0 +1,260 @@
+{
+  "generated_at": "2026-10-25T13:24:52.560242+00:00",
+  "models": [
+    "google/gemma-4-E2B-it"
+  ],
+  "plausibility_rules_version": "1.1",
+  "shortlist": "dense_h",
+  "seed": 20261017,
+  "max_per_source": 40,
+  "e2_samples": 300,
+  "blocklist_size": 46,
+  "runtime_seconds": 232.0,
+  "results": {
+    "E1": {
+      "n_positive": 101,
+      "n_negative": 69,
+      "shortlist_contains_gold": {
+        "k": 96,
+        "n": 101,
+        "rate": 0.9504950495049505,
+        "ci95": [
+          0.8893057492703142,
+          0.9786714901119935
+        ]
+      },
+      "unchecked": {
+        "accuracy_on_dv_columns": {
+          "k": 65,
+          "n": 101,
+          "rate": 0.6435643564356436,
+          "ci95": [
+            0.5464746477081652,
+            0.7301334835235593
+          ]
+        },
+        "wrong_dv_on_dv_columns": {
+          "k": 15,
+          "n": 101,
+          "rate": 0.1485148514851485,
+          "ci95": [
+            0.09211601417099888,
+            0.2306709748823653
+          ]
+        },
+        "abstained_on_dv_columns": {
+          "k": 21,
+          "n": 101,
+          "rate": 0.2079207920792079,
+          "ci95": [
+            0.1402080286238294,
+            0.297037497490938
+          ]
+        },
+        "precision_of_accepted_dv_mappings": {
+          "k": 65,
+          "n": 98,
+          "rate": 0.6632653061224489,
+          "ci95": [
+            0.5651152259128325,
+            0.7490986548637617
+          ]
+        },
+        "blocklisted_non_dv_mapped_to_a_dv": {
+          "k": 23,
+          "n": 46,
+          "rate": 0.5,
+          "ci95": [
+            0.3611893708270325,
+            0.6388106291729675
+          ]
+        },
+        "curated_non_dv_mapped_to_a_dv": {
+          "k": 18,
+          "n": 23,
+          "rate": 0.782608695652174,
+          "ci95": [
+            0.58096516983736,
+            0.903360219734138
+          ]
+        }
+      },
+      "checked": {
+        "accuracy_on_dv_columns": {
+          "k": 65,
+          "n": 101,
+          "rate": 0.6435643564356436,
+          "ci95": [
+            0.5464746477081652,
+            0.7301334835235593
+          ]
+        },
+        "wrong_dv_on_dv_columns": {
+          "k": 15,
+          "n": 101,
+          "rate": 0.1485148514851485,
+          "ci95": [
+            0.09211601417099888,
+            0.2306709748823653
+          ]
+        },
+        "abstained_on_dv_columns": {
+          "k": 21,
+          "n": 101,
+          "rate": 0.2079207920792079,
+          "ci95": [
+            0.1402080286238294,
+            0.297037497490938
+          ]
+        },
+        "precision_of_accepted_dv_mappings": {
+          "k": 65,
+          "n": 87,
+          "rate": 0.7471264367816092,
+          "ci95": [
+            0.6466842633310181,
+            0.8266678884092442
+          ]
+        },
+        "blocklisted_non_dv_mapped_to_a_dv": {
+          "k": 3,
+          "n": 46,
+          "rate": 0.06521739130434782,
+          "ci95": [
+            0.022427861429288584,
+            0.17502741081904216
+          ]
+        },
+        "curated_non_dv_mapped_to_a_dv": {
+          "k": 7,
+          "n": 23,
+          "rate": 0.30434782608695654,
+          "ci95": [
+            0.15604024453214022,
+            0.508657562687592
+          ]
+        }
+      },
+      "true_mappings_lost_to_check": {
+        "k": 0,
+        "n": 65,
+        "rate": 0.0,
+        "ci95": [
+          0.0,
+          0.05580153132285688
+        ]
+      },
+      "rejections_by_reason": {
+        "identifier": 22,
+        "non_numeric": 22,
+        "randomization": 4,
+        "experimental_condition": 2,
+        "timestamp": 2,
+        "demographic": 2,
+        "event_time": 1,
+        "out_of_range": 1
+      }
+    },
+    "E2": {
+      "n_positive": 300,
+      "n_negative": 0,
+      "shortlist_contains_gold": {
+        "k": 261,
+        "n": 300,
+        "rate": 0.87,
+        "ci95": [
+          0.8272195707065882,
+          0.9034246305872476
+        ]
+      },
+      "unchecked": {
+        "accuracy_on_dv_columns": {
+          "k": 201,
+          "n": 300,
+          "rate": 0.67,
+          "ci95": [
+            0.61493585339915,
+            0.7207655363845042
+          ]
+        },
+        "wrong_dv_on_dv_columns": {
+          "k": 69,
+          "n": 300,
+          "rate": 0.23,
+          "ci95": [
+            0.18597181807303015,
+            0.2808553863882247
+          ]
+        },
+        "abstained_on_dv_columns": {
+          "k": 30,
+          "n": 300,
+          "rate": 0.1,
+          "ci95": [
+            0.07094791459501534,
+            0.1391664623846215
+          ]
+        },
+        "precision_of_accepted_dv_mappings": {
+          "k": 201,
+          "n": 270,
+          "rate": 0.7444444444444445,
+          "ci95": [
+            0.6892413418306098,
+            0.7927893943788074
+          ]
+        }
+      },
+      "checked": {
+        "accuracy_on_dv_columns": {
+          "k": 201,
+          "n": 300,
+          "rate": 0.67,
+          "ci95": [
+            0.61493585339915,
+            0.7207655363845042
+          ]
+        },
+        "wrong_dv_on_dv_columns": {
+          "k": 69,
+          "n": 300,
+          "rate": 0.23,
+          "ci95": [
+            0.18597181807303015,
+            0.2808553863882247
+          ]
+        },
+        "abstained_on_dv_columns": {
+          "k": 30,
+          "n": 300,
+          "rate": 0.1,
+          "ci95": [
+            0.07094791459501534,
+            0.1391664623846215
+          ]
+        },
+        "precision_of_accepted_dv_mappings": {
+          "k": 201,
+          "n": 270,
+          "rate": 0.7444444444444445,
+          "ci95": [
+            0.6892413418306098,
+            0.7927893943788074
+          ]
+        }
+      },
+      "true_mappings_lost_to_check": {
+        "k": 0,
+        "n": 201,
+        "rate": 0.0,
+        "ci95": [
+          0.0,
+          0.01875332680605788
+        ]
+      },
+      "rejections_by_reason": {
+        "identifier": 1
+      }
+    }
+  }
+}
