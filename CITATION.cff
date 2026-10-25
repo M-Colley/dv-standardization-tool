@@ -1,0 +1,16 @@
+cff-version: 1.2.0
+message: "If you use OpenDV-HCI, please cite it as below."
+type: software
+title: "OpenDV-HCI: Schema-driven standardization and meta-analysis of dependent variables in HCI research"
+authors:
+  - family-names: Colley
+    given-names: Mark
+version: 3.0.0
+license: MIT
+repository-code: "https://github.com/M-Colley/dv-standardization-tool"
+keywords:
+  - HCI
+  - dependent variables
+  - standardization
+  - meta-analysis
+  - open science

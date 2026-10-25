@@ -161,7 +161,7 @@ The LLM is not used for blocked admin fields such as `UserID` or `ConditionID`, 
 
 Every rejection, with its reason, is written to `llm_rejected_suggestions.json` and listed in `llm_deductions.log`. Use `--no-llm-plausibility-check` only for ablation.
 
-**Candidate retrieval.** The LLM chooses from a shortlist of candidate DVs. By default (`--llm-shortlist definition`), `scripts/dv_retrieval.py` builds it by TF-IDF similarity to each DV's definition (id, label, aliases, instruments, notes, cluster, unit). The earlier alias-string matching (`--llm-shortlist fuzzy`) missed the correct DV for most real columns.
+**Candidate retrieval.** The LLM chooses from a shortlist of candidate DVs. By default (`--llm-shortlist definition`), `scripts/dv_retrieval.py` builds it by TF-IDF similarity to each DV's definition (id, label, aliases, instruments, notes, cluster, unit). The earlier alias-string matching (`--llm-shortlist fuzzy`) missed the correct DV for most real columns. `--llm-shortlist dense` fuses TF-IDF with sentence embeddings (`BAAI/bge-small-en-v1.5`, downloaded on first use, runs on CPU): the correct DV is among 8 candidates for 97% of held-out real columns, against 83% for TF-IDF alone. Its effect on end-to-end LLM accuracy has not been measured yet, so it is not the default.
 
 **How good is the LLM fallback?** `analyses/evaluate_llm_mapping.py` replays the LLM step with each curated mapping hidden (leave-alias-out). With the local Gemma-4-E2B model and the plausibility check on, it found on real dataset columns:
 
@@ -357,6 +357,27 @@ The included `sources_manifest_example.yaml` is preconfigured for:
 
 Datasets are processed in parallel (`--workers`, see above); a run with `--workers 1` produces the same files.
 
+### Research-data repositories
+
+Besides local folders, GitHub, OSF and web landing pages, sources can come from data repositories, through their APIs:
+
+| `source_type` | `location` |
+|---|---|
+| `zenodo_record` | `https://zenodo.org/records/<id>` or `10.5281/zenodo.<id>` |
+| `figshare_article` | `https://figshare.com/articles/<type>/<slug>/<id>[/<version>]` or `10.6084/m9.figshare.<id>` |
+| `fourtu_dataset` | `https://data.4tu.nl/datasets/<uuid>[/<version>]` or a legacy `.../articles/_/<id>` |
+| `dataverse_dataset` | `https://<server>/dataset.xhtml?persistentId=doi:...` |
+
+Only data, archive and mapping files are downloaded, and every file is checked against the size and checksum the repository publishes. Dataverse tables are fetched as originally uploaded, not as Dataverse's `.tab` conversion. The record version is recorded as the provenance id of each dataset. `max_file_mb` skips larger files. Missing or restricted records are reported as unavailable instead of failing the run. Other repositories can be added the same way (`scripts/sources/repositories.py`, `register_source_type`).
+
+### Self-describing outputs
+
+Every run also writes standard metadata (`scripts/fair_export.py`; skip it with `--no-fair-export`):
+- **`standardized/<source>/datapackage.json`**: a [Frictionless Data Package](https://datapackage.org/) per source. Each column records its canonical DV, label, range, direction and unit, the raw column names it came from, how it was mapped (`schema`, `repo_mapping`, `llm_deduced`, `blocked`), any recoding of text labels or negative answer codes, and the composite an `__item_N` column belongs to. Validate with `frictionless validate standardized/<source>/datapackage.json`.
+- **`ro-crate-metadata.json`**: an [RO-Crate](https://www.researchobject.org/ro-crate/) for the run, linking the sources (repository URL, publication DOI), the code version and git commit, the schema and plausibility-rule versions, the LLM model, and every output.
+
+Add both to an existing run with `python -m scripts.fair_export <output dir> [--llm-model <id>] [--validate]`. `--output-format parquet` writes standardized tables as Parquet instead of each input's own format; the analysis reads either and gives identical results.
+
 ### Robustness analyses
 
 - `analyses/multi_study_analysis.py` reports Hartung-Knapp-Sidik-Jonkman intervals (`hksj_ci95_low/high`) next to the Wald intervals; with the k = 2–3 studies typical here, Wald intervals are far too narrow. All meta-analytic estimators (DL, REML, Egger, trim-and-fill, HKSJ) are validated against R's `metafor` in `tests/test_meta_analysis_reference.py`.
@@ -366,6 +387,19 @@ Datasets are processed in parallel (`--workers`, see above); a run with `--worke
   - observation- or participant-level n;
   - DL or REML;
   - Wald or HKSJ intervals.
+
+### Instruments
+
+`schemas/instruments.yaml` records how standard questionnaires are scored (items, reverse keys, response codings, scoring rule, citation): SUS, raw NASA-TLX, Van der Laan acceptance, UEQ-S, SSQ and Körber's TiA. Scores are computed from it whenever all items of a scale are present; a new questionnaire needs only a YAML entry. See `docs/schema_design.md`.
+
+### Condition contrasts
+
+Study means alone cannot say what a manipulation did. `schemas/study_designs.yaml` declares, per study, the participant column and the manipulated factors, and maps their levels onto canonical independent variables such as `ehmi_presence` (absent / present). `analyses/contrast_meta_analysis.py`, run by `multi_study_analysis.py`, then:
+- computes each condition's effect against its reference on participant means: Hedges' g between subjects, and the standardized mean change (metafor `SMCRPH`) within subjects, on the same d metric;
+- combines dependent contrasts of a study by GLS (`rho` = 0.5, with 0.2 and 0.8 as sensitivity) and pools studies that share a canonical factor;
+- writes `contrast_effects.csv`, `contrast_study_effects.csv` and `contrast_meta_analysis.csv` (plus an `_llm_excluded` variant).
+
+Five of the 11 benchmark studies declare factors so far. The one cross-study contrast is eHMI vs. none on mental demand (2 studies): −0.51 SD, Wald [−0.70, −0.32], HKSJ [−2.32, 1.31].
 
 ### Extending the batch runner
 

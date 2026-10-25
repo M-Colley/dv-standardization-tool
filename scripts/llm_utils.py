@@ -685,6 +685,15 @@ def _clear_pipeline_cache() -> None:
     _release_torch_memory()
 
 
+# Every model loaded in this process, in load order (recorded in run_summary).
+_MODELS_USED: dict[str, None] = {}
+
+
+def models_used() -> list[str]:
+    """Model ids the LLM fallback loaded in this process."""
+    return list(_MODELS_USED)
+
+
 def _get_text_generation_pipeline(model_name: str):
     """Return a (single-slot cached) text-generation pipeline for `model_name`.
 
@@ -713,6 +722,7 @@ def _get_text_generation_pipeline(model_name: str):
         device_map="auto",
     )
     _PIPELINE_CACHE[model_name] = new_pipeline
+    _MODELS_USED.setdefault(model_name, None)
     return new_pipeline
 
 

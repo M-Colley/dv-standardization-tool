@@ -21,3 +21,8 @@ scikit-learn>=1.9.1
 # lingam 1.13.0 pins scipy<=1.13.1, which cannot be installed next to
 # numpy>=2.3; 1.12.2 is the newest release usable with this stack.
 lingam>=1.12.2
+
+# Self-describing outputs (scripts/fair_export.py) and Parquet tables.
+frictionless>=5.21.0
+rocrate>=0.16.0
+pyarrow>=26.0.0

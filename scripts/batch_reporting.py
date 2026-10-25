@@ -6,6 +6,38 @@ from collections import Counter, defaultdict
 from typing import Any
 
 
+def categorize_mapping_source(raw: object) -> str:
+    """Coarse category of a raw ``mapping_source`` value from meta_view.csv:
+    ``schema``, ``repo_mapping``, ``llm_deduced``, ``blocked`` or ``unknown``."""
+    if raw is None:
+        return "unknown"
+    try:
+        if raw != raw:  # NaN
+            return "unknown"
+    except (TypeError, ValueError):
+        pass
+    text = str(raw).strip().lower()
+    if not text or text in {"n/a", "nan", "none"}:
+        return "unknown"
+    if text == "llm_deduction":
+        return "llm_deduced"
+    if text in {"never_map_blocklist", "blocked"}:
+        return "blocked"
+    if text == "in_memory_mapping":
+        return "schema"
+    schema_markers = (
+        "standard_dv_mapping",
+        "standard_dv_metadata",
+        "standard_detection",
+        "standard_sensor_mapping",
+        "schemas/",
+        "schemas\\",
+    )
+    if any(marker in text for marker in schema_markers):
+        return "schema"
+    return "repo_mapping"
+
+
 def build_unknown_alias_summary(events: list[dict[str, Any]], top_n: int = 50) -> dict[str, Any]:
     alias_counts = Counter()
     alias_examples: dict[str, dict[str, str]] = {}

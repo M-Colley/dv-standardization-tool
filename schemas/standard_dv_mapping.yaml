@@ -1,5 +1,5 @@
-version: "3.0"
-updated: "2026-04-10"
+version: "3.1"
+updated: "2026-10-18"
 
 # all `cluster` values must match an ID in thematic_clusters.yaml
 
@@ -203,9 +203,43 @@ dvs:
       - ML
     instruments:
       - "NASA-TLX (Global or Subscales)"
-      - "Paas Scale"
-      - "RSME"
     units: ["Likert", "VAS"]
+
+  - id: paas_mental_effort
+    label: "Mental Effort (Paas scale)"
+    cluster: cognitive_load
+    measurement:
+      category: Likert
+      primary_unit: "9-point (1-9)"
+      allowed_units: ["9-point (1-9)", "Likert"]
+      scale_type: ordinal
+      direction: lower_is_better
+      canonical_range: [1, 9]
+    aliases:
+      - paas
+      - paas_scale
+      - paas_effort
+      - paas_mental_effort
+    instruments:
+      - "Paas Scale"
+    notes: "Paas, F. G. W. C. (1992). Journal of Educational Psychology, 84(4), 429-434. Anchors: very, very low (1) to very, very high (9) mental effort."
+
+  - id: rsme
+    label: "Rating Scale Mental Effort (RSME)"
+    cluster: cognitive_load
+    measurement:
+      category: Score
+      primary_unit: "0-150"
+      allowed_units: ["0-150"]
+      scale_type: interval
+      direction: lower_is_better
+      canonical_range: [0, 150]
+    aliases:
+      - rsme_score
+      - rating_scale_mental_effort
+    instruments:
+      - "RSME"
+    notes: "Zijlstra, F. R. H. (1993). Efficiency in work behaviour: A design approach for modern tools. PhD thesis, Delft University of Technology. Vertical 0-150 line with anchors."
 
   - id: physical_demand
     label: "Physical Demand"

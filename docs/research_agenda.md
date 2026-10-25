@@ -128,6 +128,26 @@ Final evaluation (11 studies, rules v1.1, Gemma-4-E2B, check on; E1:
 Rank fusion of the two retrievers is worse than definition retrieval alone
 (E1 recall@8 55%).
 
+**Dense retrieval (P2, 2026-10-18).** Sentence embeddings of the same
+definitions, same leave-alias-out items, CPU, no tuning
+(`analyses/evaluate_shortlist_retrieval.py --dense-model ...`):
+
+| E1 (106 real columns) | recall@1 | recall@3 | recall@8 [95% CI] |
+|---|---|---|---|
+| TF-IDF definitions | 56% | 59% | 83% [75, 89] |
+| bge-small-en-v1.5 | 72% | 94% | 97% [92, 99] |
+| multilingual-e5-small | 75% | 85% | 95% [89, 98] |
+| TF-IDF + bge (rank fusion) | 58% | 86% | 97% [92, 99] |
+
+On E2 (300 schema aliases) recall@8 rises from 84% to 88% (bge), 91%
+(fusion) and 92% (e5). The dense model alone can miss exact lexical matches
+("MentalDemand" ranks `sart_demand` first), so the pipeline option
+`--llm-shortlist dense` uses the fusion. The TF-IDF blend weight was tuned on
+the E1 items and the dense models were not, so the comparison if anything
+favours TF-IDF. Whether higher recall raises the LLM's end-to-end mapping
+precision is untested: rerun `analyses/evaluate_llm_mapping.py --shortlist
+dense` on the GPU before making it the default.
+
 **Trade-off.** Because a plausible-looking candidate is always available, the
 model maps non-DV columns more often with the definition shortlist (74% of
 curated non-DVs, unchecked). The plausibility check halves that rate. In the
@@ -170,13 +190,14 @@ string matching, embeddings, small and large LLMs, and LLM + plausibility.
 **Deliverable:** benchmark + leaderboard; this alone is a strong
 *Scientific Data* / *Behavior Research Methods* paper.
 
-### P2. Retrieval-augmented, definition-aware mapping *(high value — lexical version done)*
+### P2. Retrieval-augmented, definition-aware mapping *(high value — lexical and dense versions done)*
 
-The lexical definition retriever (§2.4) already lifts recall@8 on real columns
-from 42% to 83% and precision from 23% to 59%. Next steps:
+The lexical definition retriever (§2.4) lifts recall@8 on real columns from
+42% to 83% and precision from 23% to 59%; dense embeddings fused with it
+reach 97% recall@8 (§2.4). Next steps:
 
-- **Dense retrieval.** `sentence-transformers` is already a dependency; test
-  dense embeddings of the same definitions, alone and fused with TF-IDF.
+- **End-to-end effect of dense retrieval.** Rerun the LLM benchmark with
+  `--shortlist dense`; German labels need the multilingual model.
 - **Value-aware features.** Use the observed range, number of distinct levels,
   integer-ness, and correlation with already-mapped items of the same
   instrument.

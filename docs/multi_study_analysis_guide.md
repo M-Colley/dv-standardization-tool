@@ -10,6 +10,8 @@ When studies share standardized dependent variable (DV) names, you can still do 
 3. **Cross-study latent construct extraction**: build a pooled composite score from common DVs.
 4. **Random-effects DV meta-analysis**: estimate pooled means and heterogeneity for shared DVs.
 
+When the design of a study is declared in `schemas/study_designs.yaml`, the analysis also estimates **condition contrasts**: the effect of each manipulated condition against its reference, pooled across studies that manipulate the same canonical independent variable. See [Condition contrasts](#condition-contrasts-from-declared-designs).
+
 ## Getting standardized datasets to analyze
 The multi-study analysis expects a folder of already-standardized study files (one `.csv` or `.xlsx` per study). There are two supported starting points:
 
@@ -48,6 +50,7 @@ python analyses/multi_study_analysis.py \
 | `--exclude-llm-deduced` | off | Sensitivity pass that drops LLM-deduced rows; emits `*_llm_excluded.csv` siblings. |
 | `--meta-view path` | `<input-dir>/../meta_view.csv` | Source of mapping-provenance categories. |
 | `--refuse-synthetic-causal` | off | Block the Cholesky-synthesized fallback inside LiNGAM causal discovery. |
+| `--study-designs path` | `schemas/study_designs.yaml` | Declared participant and condition columns for condition contrasts; pass `''` to skip them. |
 
 ### Run on the latest standardized batch output
 Use this helper script to automatically pick up everything in
@@ -76,6 +79,36 @@ bash analyses/run_latest_multi_study_analysis.sh analyses/output_python_latest_s
 - `analyses/output_python/dv_mean_shift.png`
 - `analyses/output_python/dv_coverage_by_study.png`
 - `analyses/output_python/cross_study_composite_distribution.png`
+
+### Condition contrasts from declared designs
+
+Pooling study means says where studies sit on a shared scale, not what their manipulations did. `analyses/contrast_meta_analysis.py` (run automatically by `multi_study_analysis.py`, or on its own with `--input-dir/--output-dir`) uses `schemas/study_designs.yaml`:
+
+```yaml
+canonical_factors:
+  ehmi_presence: {levels: [absent, present], reference: absent}
+studies:
+  running_into_traffic_chi26:
+    participant: participant
+    factors:
+      - name: ehmi
+        canonical: ehmi_presence        # pooled with other studies' eHMI factors
+        design: within
+        columns: {ehmi: null}           # raw values are the study levels
+        levels: {Nothing: absent, LightRing: present, CyanBand: present}
+```
+
+A factor can list several columns (e.g. a survey file that only has a condition code, `ConditionID: {A: None, B: Intention, ...}`); the first column with a value gives a row's level. Factors without `canonical` give within-study contrasts only and need a `reference`.
+
+Method:
+1. Rows are averaged per participant and level, so participants are the units.
+2. Each level is contrasted with the reference (level minus reference): Hedges' g for between-subjects factors (metafor `SMD`), and the standardized mean change with the average condition SD for within-subjects factors (metafor `SMCRPH`), which is on the same metric. The design used is the one observed in the data; a mismatch with the declaration is logged and reported (`design_declared`, `design_observed`).
+3. Several contrasts of one study against the same reference are combined by GLS under a compound-symmetric correlation (`rho = 0.5`; metafor `aggregate(struct = "CS")`), with `rho` = 0.2 and 0.8 as sensitivity columns.
+4. Study-level effects are pooled with the same estimators as the mean meta-analysis (fixed effects below k = 3, HKSJ intervals always reported).
+
+All formulas are checked against metafor 5.2.1 in `tests/test_contrast_meta_analysis.py`.
+
+Outputs: `contrast_effects.csv` (every contrast, with means, SDs, the within-person correlation, `favours_level` from the DV's direction and `mapping_source`), `contrast_study_effects.csv` (one effect per study × canonical factor × DV), `contrast_meta_analysis.csv` and `contrast_meta_analysis_llm_excluded.csv`.
 
 ### Provenance tracking and sensitivity analysis
 `run_batch_standardization.py` writes a per-(source_id, canonical DV) provenance trace to `meta_view.csv`. Multi-study analysis now loads this file automatically to stamp each harmonized row with a `mapping_source` category:

@@ -10,7 +10,7 @@ Covers all improvements from the extensibility sprint:
 - Derived-scale formula field
 - Pydantic manifest validation
 - Repeated-measures aggregation
-- Construct→sub-item mapping built from _DERIVED_SCALES
+- Construct→sub-item mapping built from the instrument registry
 """
 
 from __future__ import annotations
@@ -497,23 +497,12 @@ class TestCanonicalRange(unittest.TestCase):
 # ---------------------------------------------------------------------------
 
 class TestDerivedScalesFormula(unittest.TestCase):
+    """Derived scores come from the instrument registry (schemas/instruments.yaml)."""
 
-    def test_all_scales_have_formula_field(self):
-        import multi_study_analysis as m
-        for key, spec in m._DERIVED_SCALES.items():
-            self.assertIn("formula", spec, f"Missing 'formula' in _DERIVED_SCALES['{key}']")
-            self.assertIn(
-                spec["formula"], ("mean", "weighted_mean", "custom"),
-                f"Unknown formula '{spec['formula']}' in _DERIVED_SCALES['{key}']",
-            )
-
-    def test_nasa_tlx_formula_is_mean(self):
-        import multi_study_analysis as m
-        self.assertEqual(m._DERIVED_SCALES["nasa_tlx_score"]["formula"], "mean")
-
-    def test_sus_formula_is_custom(self):
-        import multi_study_analysis as m
-        self.assertEqual(m._DERIVED_SCALES["sus_score"]["formula"], "custom")
+    def test_registry_defines_the_legacy_score_columns(self):
+        from scripts import instruments
+        columns = {s.column for inst in instruments.load_instruments() for s in inst.scores}
+        self.assertLessEqual({"nasa_tlx_score", "sus_score", "aoa_usefulness", "aoa_satisfying"}, columns)
 
     def test_mean_formula_computes_unweighted_mean(self):
         import multi_study_analysis as m
@@ -562,24 +551,35 @@ class TestDerivedScalesFormula(unittest.TestCase):
             "mental_demand must be a sub-item of some TLX construct",
         )
 
-    def test_adding_mean_formula_scale_works_zero_python(self):
-        """A scale with formula='mean' should compute automatically without custom code."""
+    def test_adding_an_instrument_needs_no_python(self):
+        """A new instrument in the registry YAML is scored without code changes."""
+        import tempfile
+
         import multi_study_analysis as m
-        # Temporarily add a test scale
-        original = dict(m._DERIVED_SCALES)
-        m._DERIVED_SCALES["test_mean_scale"] = {
-            "item_candidates": [["col_a", "a"], ["col_b", "b"], ["col_c", "c"]],
-            "canonical_subitems": ["COL_A", "COL_B", "COL_C"],
-            "formula": "mean",
-        }
-        try:
-            df = pd.DataFrame({"col_a": [10.0], "col_b": [20.0], "col_c": [30.0]})
-            result = m.add_derived_scale_scores(df)
-            self.assertIn("test_mean_scale", result.columns)
-            self.assertAlmostEqual(result["test_mean_scale"].iloc[0], 20.0, places=3)
-        finally:
-            m._DERIVED_SCALES.clear()
-            m._DERIVED_SCALES.update(original)
+        registry = """
+instruments:
+  demo:
+    label: Demo scale
+    citation: "Test fixture"
+    response_codings: [[1, 5]]
+    items:
+      - {id: demo_a, aliases: [col_a], key: 1}
+      - {id: demo_b, aliases: [col_b], key: -1}
+      - {id: demo_c, aliases: [col_c], key: 1}
+    scores:
+      test_mean_scale: {dv: usability, items: [demo_a, demo_b, demo_c], centering: reflect, aggregate: mean}
+"""
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "instruments.yaml"
+            path.write_text(registry, encoding="utf-8")
+            original = m.INSTRUMENTS_PATH
+            m.INSTRUMENTS_PATH = path
+            try:
+                df = pd.DataFrame({"col_a": [2.0], "col_b": [2.0], "col_c": [5.0]})
+                result = m.add_derived_scale_scores(df)
+            finally:
+                m.INSTRUMENTS_PATH = original
+        self.assertAlmostEqual(result["test_mean_scale"].iloc[0], (2 + 4 + 5) / 3, places=6)
 
 
 # ---------------------------------------------------------------------------
