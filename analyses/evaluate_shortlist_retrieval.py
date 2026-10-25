@@ -35,7 +35,13 @@ REPO_ROOT = Path(__file__).resolve().parents[1]
 if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
-from scripts.dv_retrieval import DenseRetriever, get_retriever, load_dv_definitions  # noqa: E402
+from scripts.dv_retrieval import (  # noqa: E402
+    N_DENSE_EXTRA,
+    DenseRetriever,
+    get_retriever,
+    load_dv_definitions,
+    mix_rankings,
+)
 from scripts.llm_coordinator import _select_llm_candidate_shortlist  # noqa: E402
 from scripts.llm_plausibility import normalize_name  # noqa: E402
 from scripts.run_batch_standardization import SchemaFamilies  # noqa: E402
@@ -89,7 +95,7 @@ def main() -> None:
     results: dict[str, dict] = {}
     for experiment, group in items.groupby("experiment", sort=True):
         names = ["fuzzy", "definition", "hybrid"]
-        names += [f"{kind}:{model}" for model in dense for kind in ("dense", "hybrid")]
+        names += [f"{kind}:{model}" for model in dense for kind in ("dense", "hybrid", "mixed")]
         hits = {name: {k: 0 for k in KS} for name in names}
         for row in group.itertuples(index=False):
             fuzzy = _fuzzy_ranking(row.alias, mapping)
@@ -99,9 +105,13 @@ def main() -> None:
                 ranking = [dv for dv, _ in dense_retriever.rank(row.alias, k=max(KS) * 2, exclude_alias=row.alias)]
                 rankings[f"dense:{model}"] = ranking
                 rankings[f"hybrid:{model}"] = _rrf(definition, ranking)
+                # recall@k of the mixed list: k - N_DENSE_EXTRA TF-IDF + dense-only extras
+                mixed_at = {k: mix_rankings(definition, ranking, k, min(N_DENSE_EXTRA, k - 1)) for k in KS}
+                rankings[f"mixed:{model}"] = mixed_at
             for name, ranking in rankings.items():
                 for k in KS:
-                    hits[name][k] += int(row.gold in ranking[:k])
+                    top = ranking[k] if isinstance(ranking, dict) else ranking[:k]
+                    hits[name][k] += int(row.gold in top)
         results[experiment] = {
             name: {f"recall@{k}": _wilson(count, len(group)) for k, count in by_k.items()}
             for name, by_k in hits.items()

@@ -170,6 +170,48 @@ ordering matter. TF-IDF stays the default; `--llm-shortlist dense` remains
 available. Next: append only the dense-only candidates to the TF-IDF list,
 or use dense retrieval to decide when to abstain.
 
+**Pre-specified follow-up (written 2026-10-24, before running it).** The
+*mixed* shortlist keeps the TF-IDF top 6 in order and gives the last 2 of 8
+slots to the best dense candidates not among them
+(`scripts.dv_retrieval.mix_rankings`, `N_DENSE_EXTRA = 2`).
+Hypothesis: it keeps most of the recall gain while the model chooses as
+well as from the TF-IDF list. Primary outcome: E1 correct mappings with
+the check on, mixed vs. definition, paired exact McNemar test on the same
+items (two-sided, α = 0.05). Secondary: E1 precision of accepted mappings,
+true mappings lost to the check, E2 correct mappings. Same model, items,
+seed and harness as the 2026-10-19 runs. A variant with 4 dense slots
+(`mixed4`) is exploratory. The default changes only if mixed is not worse
+than definition on E1 correct mappings and precision and loses no true
+mapping.
+
+**Result (2026-10-24).** The mixed list keeps nearly all of the recall
+(gold DV in the top 8 for 96 of 101 real columns, vs. 83 for TF-IDF and 98
+for dense), but the model maps fewer columns correctly:
+
+| E1 (101 real DV columns), check on | definition | mixed (primary) | mixed4 (exploratory) | dense |
+|---|---|---|---|---|
+| Correct mappings | 52 | 46 | 36 | 41 |
+| Paired exact McNemar vs. definition | | p = 0.38 | p = 0.020 | p = 0.11 |
+| Precision of accepted mappings | 62% | 52% | 41% | 47% |
+| True mappings lost to the check | 0 | 0 | 2 | 3 |
+| E2 correct (of 300) | 203 | 206 | 210 | 196 |
+
+The primary hypothesis is not supported, so TF-IDF stays the default. The
+loss is not noise: of the 19 E1 columns that definition maps correctly and
+mixed does not, 18 went to one of the two added dense candidates, almost
+always the scale-level DV instead of the item (`SUS3`…`SUS10` mapped to
+`usability`). Dense retrieval adds the parent construct, and the small model
+prefers it over the item. The shortlist should therefore respect the
+construct hierarchy (never offer a scale together with its own items, or
+decide scale vs. item in a separate step) rather than chase recall. This
+also ties the retrieval result to the construct/instrument/item conflation
+in the schema.
+
+A GPU-only rerun of the definition baseline (the 2026-10-19 run had part of
+the model offloaded to the CPU) gave the same LLM answer on all 470 items:
+generation is deterministic (greedy decoding) and the comparisons above are
+on equal terms.
+
 **Trade-off.** Because a plausible-looking candidate is always available, the
 model maps non-DV columns more often with the definition shortlist (74% of
 curated non-DVs, unchecked). The plausibility check halves that rate. In the
