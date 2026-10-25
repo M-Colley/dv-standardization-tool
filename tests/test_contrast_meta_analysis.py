@@ -117,6 +117,25 @@ def test_repository_designs_file_is_valid():
     assert {"ehmi_presence", "display_dimensionality"} <= set(registry.canonical_factors)
 
 
+def test_integer_codes_read_as_floats_match_integer_levels():
+    assert cma._normalize_value(3.0) == "3"
+    assert cma._normalize_value(np.float64(10.0)) == "10"
+    assert cma._normalize_value(2.5) == "2.5"
+    assert cma._normalize_value(" A ") == "A"
+    assert pd.isna(cma._normalize_value(float("nan")))
+
+
+def test_documented_condition_codes_are_declared():
+    designs = cma.load_study_designs().studies
+    roads = {f.name: f for f in designs["roads_chi25"].factors}
+    frame = pd.DataFrame({"ConditionID": [1.0, 6.0, 11.0, None]})
+    assert roads["interaction_concept"].level_series(frame).tolist()[:3] == ["Trajectory", "Waypoint", "Path planning"]
+    assert roads["number_of_requests"].level_series(frame).tolist()[:3] == ["One", "Two", "Four"]
+    psych = {f.name: f for f in designs["psych_conflict_handling"].factors}
+    assert psych["strategy"].reference == ("Baseline",)
+    assert psych["mechanism"].level_series(pd.DataFrame({"Condition": [12]})).tolist() == ["Politeness"]
+
+
 def test_factor_levels_fall_back_to_code_column(designs_path):
     factor = cma.load_study_designs(designs_path).studies["study_within"].factors[0]
     df = pd.DataFrame({"ehmi": [" none", np.nan, "ring"], "code": [np.nan, "C", np.nan]})

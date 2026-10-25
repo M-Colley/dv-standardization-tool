@@ -142,6 +142,9 @@ def _normalize_value(value: Any) -> Any:
         return np.nan
     if pd.isna(value):
         return np.nan
+    if isinstance(value, (float, np.floating)) and float(value).is_integer():
+        # Integer codes read as floats (columns with missing cells): 3.0 -> "3"
+        return str(int(value))
     text = str(value).strip()
     return text if text else np.nan
 
