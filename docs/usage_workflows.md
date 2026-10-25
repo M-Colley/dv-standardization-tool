@@ -23,7 +23,7 @@ user_satisfaction:
 3. Run the converter:
 
 ```bash
-python scripts/convert_dv.py \
+python -m opendv.convert_dv \
   --input data/raw/my_study.csv \
   --schema data/raw/my_mapping.yaml \
   --output data/processed/my_study-standardized.csv
@@ -32,7 +32,7 @@ python scripts/convert_dv.py \
 4. If you want guidance for unmapped columns, rerun with metadata output:
 
 ```bash
-python scripts/convert_dv.py \
+python -m opendv.convert_dv \
   --input data/raw/my_study.csv \
   --schema data/raw/my_mapping.yaml \
   --output data/processed/my_study-standardized.csv \
@@ -43,7 +43,7 @@ This produces sidecars like `*_metadata.json` and `*_schema_suggestions.yaml` so
 
 ### Where LLM inference is used
 
-LLM-assisted alias deduction is used in `scripts/run_batch_standardization.py` when a source does not include its own mapping YAML. In that case, the pipeline attempts to infer likely canonical IDs for unknown aliases using local model candidates and repository context (README/PDF text).
+LLM-assisted alias deduction is used in `opendv/run_batch_standardization.py` when a source does not include its own mapping YAML. In that case, the pipeline attempts to infer likely canonical IDs for unknown aliases using local model candidates and repository context (README/PDF text).
 
 ### Easy batch processing example (beginner)
 
@@ -64,7 +64,7 @@ sources:
 Then run:
 
 ```bash
-python scripts/run_batch_standardization.py \
+python -m opendv.run_batch_standardization \
   --manifest data/raw/my_sources_manifest.yaml \
   --output-dir data/processed/batch_runs/my_first_batch \
   --snapshot-manifest
@@ -78,11 +78,11 @@ Expected outputs:
 
 ## General Workflow
 
-1. Upload or locate a dataset (`ui/components/uploader.py` for UI mode, local files for CLI mode).
-2. Preview columns (`ui/components/column_preview.py`).
-3. Apply DV mapping (`scripts/convert_dv.py`).
-4. Validate mapping (`scripts/validate_schema.py`, `notebooks/visual_validation.ipynb`).
-5. Export results (`ui/components/download_button.py` or CLI output files).
+1. Upload or locate a dataset (`opendv/ui/components/uploader.py` for UI mode, local files for CLI mode).
+2. Preview columns (`opendv/ui/components/column_preview.py`).
+3. Apply DV mapping (`opendv/convert_dv.py`).
+4. Validate mapping (`opendv/validate_schema.py`, `notebooks/visual_validation.ipynb`).
+5. Export results (`opendv/ui/components/download_button.py` or CLI output files).
 6. Review unknown/unmapped columns and propose additions to `schemas/standard_dv_mapping.yaml` in a pull request.
 
 ---
@@ -92,7 +92,7 @@ Expected outputs:
 ### 1) Basic single-file workflow
 
 ```bash
-python scripts/convert_dv.py \
+python -m opendv.convert_dv \
   --input data/raw/raw_sample_roads_chi25.xlsx \
   --output data/processed/processed_sample_roads_chi25.xlsx
 ```
@@ -104,7 +104,7 @@ Use this when you already know the input and output file paths.
 If your folder contains exactly one input file (`.csv`, `.xlsx`, or `.xls`), you can pass the folder directly:
 
 ```bash
-python scripts/convert_dv.py --input data/raw
+python -m opendv.convert_dv --input data/raw
 ```
 
 Behavior in folder mode:
@@ -117,7 +117,7 @@ Behavior in folder mode:
 ### 3) Folder-based workflow with explicit output
 
 ```bash
-python scripts/convert_dv.py \
+python -m opendv.convert_dv \
   --input data/raw \
   --output data/processed/roads-standardized.xlsx
 ```
@@ -127,7 +127,7 @@ This is useful when you want to keep standardized files in a dedicated output di
 ### 4) Custom schema + standard schema priority (extensible behavior)
 
 ```bash
-python scripts/convert_dv.py \
+python -m opendv.convert_dv \
   --input data/raw/raw_sample_roads_chi25.xlsx \
   --schema schemas/example_alias_submissions.yaml \
   --output data/processed/roads-standardized-from-custom.xlsx
@@ -144,7 +144,7 @@ When a custom schema is provided:
 ### 5) Metadata inference workflow
 
 ```bash
-python scripts/convert_dv.py \
+python -m opendv.convert_dv \
   --input data/raw/raw_sample_roads_chi25.xlsx \
   --output data/processed/roads-standardized-with-meta.xlsx \
   --with-metadata

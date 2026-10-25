@@ -157,7 +157,7 @@ import sys
 from streamlit.testing.v1 import AppTest
 
 at = AppTest.from_string(
-    "from ui.components.review_panel import render_review_tab\\nrender_review_tab()\\n", default_timeout=120
+    "from opendv.ui.components.review_panel import render_review_tab\\nrender_review_tab()\\n", default_timeout=120
 )
 at.run()  # widgets exist only after the first run
 at.text_input[0].set_value("does/not/exist")

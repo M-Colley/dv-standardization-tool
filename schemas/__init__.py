@@ -1,8 +1,5 @@
-"""Schema data package for OpenDV-HCI.
+"""Schema data for OpenDV-HCI (YAML only, no code).
 
-This package intentionally contains no Python code — it exists so the YAML
-schema files are included in built distributions (``[tool.setuptools.packages.find]``
-only collects packages) and resolve next to ``scripts/`` after installation,
-matching the ``Path(__file__).parents[1] / "schemas"`` lookups used across
-the codebase.
+Installed as the ``opendv.schemas`` package data (see ``[tool.setuptools.package-dir]``
+in pyproject.toml); code finds it through ``opendv._paths.SCHEMAS_DIR``.
 """

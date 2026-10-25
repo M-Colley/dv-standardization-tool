@@ -4,21 +4,27 @@ This document outlines the folder structure and purpose of each key directory.
 
 ```
 .github/                 → GitHub workflow & community templates
-analyses/                → Multi-study / cross-dataset analysis entrypoints
-    multi_study_analysis.py          → Overlap, pooled means, meta-analysis, LiNGAM
-    run_latest_multi_study_analysis.sh → Convenience runner against the latest batch output
+opendv/                  → The Python package (installed with `pip install .`)
+    __init__.py          → Public API: standardize, run_batch, analyze, review_queue, score, load_plugins
+    cli.py               → `opendv` command line
+    plugins.py           → Entry-point plugins (opendv.sources, opendv.loaders, opendv.instruments)
+    _paths.py            → Where schemas are found (package data, or schemas/ in a checkout)
+    sources/             → Repository sources (OSF, GitHub, Zenodo, figshare, 4TU, Dataverse)
+    analysis/            → Multi-study analysis, condition contrasts, measurement invariance (+ .R),
+                           multiverse, LLM benchmarks, CHI figures
+    ui/                  → Streamlit app (`opendv ui`), components and assets
+scripts/, analyses/*.py  → Aliases of the pre-3.1 module paths (source checkouts only)
+analyses/                → Committed analysis outputs (output_*), figures (figures_chi) and
+                           run_latest_multi_study_analysis.sh
 data/
     raw/                 → Unprocessed CSVs and the example catalog file
     processed/           → Standardized datasets and batch outputs (gitignored)
 docs/                    → Project documentation (this folder)
 notebooks/               → Prototyping and testing notebooks
-schemas/                 → Canonical and auxiliary YAML schemas
-scripts/                 → Core CLI entrypoints (see table below)
-tests/                   → Unittest / pytest suite for the pipeline
+schemas/                 → Canonical schemas, instrument registry, study designs, dataset mappings
+                           (installed as opendv.schemas)
+tests/                   → Pytest suite
 troubleshooting/         → Logs, mismatches, kernel and schema issues
-ui/
-    components/          → Streamlit helper scripts
-    assets/              → CSS and logo for styling
 sources_manifest_example.yaml → Example batch manifest covering GitHub / OSF / 4TU / ACM
 ```
 
@@ -26,9 +32,9 @@ sources_manifest_example.yaml → Example batch manifest covering GitHub / OSF /
 
 | script | role |
 | --- | --- |
-| `scripts/convert_dv.py` | Standardize a single dataset against the schema(s). |
-| `scripts/run_batch_standardization.py` | Standardize many sources from a manifest; writes `meta_view.csv` and per-source standardized trees. |
-| `scripts/run_catalog_meta_analysis.py` | End-to-end: CSV/Excel catalog → batch standardization → meta-analysis artifacts. |
-| `analyses/multi_study_analysis.py` | Overlap / pooled-mean / random-effects meta-analysis on a folder of standardized files. |
-| `scripts/validate_schema.py` | Schema sanity check. |
-| `ui/app.py` | Streamlit entry point (single-file + catalog modes). |
+| `opendv/convert_dv.py` | Standardize a single dataset against the schema(s). |
+| `opendv/run_batch_standardization.py` | Standardize many sources from a manifest; writes `meta_view.csv` and per-source standardized trees. |
+| `opendv/run_catalog_meta_analysis.py` | End-to-end: CSV/Excel catalog → batch standardization → meta-analysis artifacts. |
+| `opendv/analysis/multi_study_analysis.py` | Overlap / pooled-mean / random-effects meta-analysis on a folder of standardized files. |
+| `opendv/validate_schema.py` | Schema sanity check. |
+| `opendv/ui/app.py` | Streamlit entry point (single-file + catalog modes). |

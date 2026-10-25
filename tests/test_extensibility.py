@@ -1336,7 +1336,7 @@ class TestMainCLI(unittest.TestCase):
         mod = self._load_module()
         self.assertTrue(hasattr(mod, "main"))
         self.assertTrue(hasattr(mod, "__version__"))
-        self.assertEqual(mod.__version__, "3.0.0")
+        self.assertEqual(mod.__version__, __import__("opendv").__version__)
 
     def test_parser_has_subcommands(self):
         mod = self._load_module()
