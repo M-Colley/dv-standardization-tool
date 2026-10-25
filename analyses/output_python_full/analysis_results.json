@@ -1,6 +1,6 @@
 {
-  "generated_at": "2026-10-24T20:16:27.913133+00:00",
-  "input_dir": "C:\\Users\\localadmin\\Desktop\\dv-standardization-tool\\data\\processed\\catalog_meta_analysis\\standardized",
+  "generated_at": "2026-10-25T13:16:58.387460+00:00",
+  "input_dir": "data\\processed\\catalog_meta_analysis\\standardized",
   "n_studies": 11,
   "studies": [
     "3d_display_comp_vehicle",
@@ -378,51 +378,51 @@
     },
     {
       "dv": "perceived_safety_item_01",
-      "k": 5,
-      "pooled_mean": 1.0227665803251966,
-      "pooled_se": 0.726116777891015,
-      "ci_lower": -0.40042230434119275,
-      "ci_upper": 2.4459554649915862,
-      "heterogeneity_i2": 99.86435213884047,
-      "heterogeneity_q": 2948.8116995046967,
+      "k": 6,
+      "pooled_mean": 1.0411448236087926,
+      "pooled_se": 0.5801685966122518,
+      "ci_lower": -0.09598562575122105,
+      "ci_upper": 2.178275272968806,
+      "heterogeneity_i2": 99.83065532114705,
+      "heterogeneity_q": 2952.5580808720856,
       "heterogeneity_p": 0.0,
-      "egger_p": 0.6959509221867269
+      "egger_p": 0.6422303862481848
     },
     {
       "dv": "perceived_safety_item_02",
-      "k": 4,
-      "pooled_mean": 1.8201118955382605,
-      "pooled_se": 0.28267250058309557,
-      "ci_lower": 1.266073794395393,
-      "ci_upper": 2.374149996681128,
-      "heterogeneity_i2": 98.91534677944679,
-      "heterogeneity_q": 276.5860961967116,
-      "heterogeneity_p": 1.1601371322420176e-59,
-      "egger_p": 0.9566220656965847
+      "k": 5,
+      "pooled_mean": 1.685756039281751,
+      "pooled_se": 0.25699654911621234,
+      "ci_lower": 1.182042803013975,
+      "ci_upper": 2.189469275549527,
+      "heterogeneity_i2": 99.01264040539654,
+      "heterogeneity_q": 405.1208923134494,
+      "heterogeneity_p": 2.176754126087897e-86,
+      "egger_p": 0.8525540117480772
     },
     {
       "dv": "perceived_safety_item_03",
-      "k": 4,
-      "pooled_mean": 1.8558332846564036,
-      "pooled_se": 0.14630233309411572,
-      "ci_lower": 1.5690807117919368,
-      "ci_upper": 2.1425858575208703,
-      "heterogeneity_i2": 95.83143521256976,
-      "heterogeneity_q": 71.96721540819294,
-      "heterogeneity_p": 1.6178518073043531e-15,
-      "egger_p": 0.798955548216389
+      "k": 5,
+      "pooled_mean": 1.6580695451408176,
+      "pooled_se": 0.21901621519659534,
+      "ci_lower": 1.2287977633554907,
+      "ci_upper": 2.0873413269261443,
+      "heterogeneity_i2": 98.59057486217601,
+      "heterogeneity_q": 283.80365105276815,
+      "heterogeneity_p": 3.3717702829926903e-60,
+      "egger_p": 0.5806696802916759
     },
     {
       "dv": "perceived_safety_item_04",
-      "k": 4,
-      "pooled_mean": 0.8863135652173179,
-      "pooled_se": 0.8318420721076997,
-      "ci_lower": -0.7440968961137734,
-      "ci_upper": 2.516724026548409,
-      "heterogeneity_i2": 99.9118297938011,
-      "heterogeneity_q": 3402.5099059340987,
+      "k": 5,
+      "pooled_mean": 0.9603023244621802,
+      "pooled_se": 0.6500980024664439,
+      "ci_lower": -0.31388976037204985,
+      "ci_upper": 2.2344944092964103,
+      "heterogeneity_i2": 99.88272151052526,
+      "heterogeneity_q": 3410.6851289738615,
       "heterogeneity_p": 0.0,
-      "egger_p": 0.4169128600378028
+      "egger_p": 0.3129716346280704
     },
     {
       "dv": "performance",
@@ -668,7 +668,7 @@
   "dv_overlap": {
     "3d_display_comp_vehicle": {
       "3d_display_comp_vehicle": 1.0,
-      "ehmi_for_all_chi26": 0.023255813953488372,
+      "ehmi_for_all_chi26": 0.11627906976744186,
       "ehmi_optimization_chi25": 0.375,
       "fact_av": 0.391304347826087,
       "longitudinal_usa_germany_ehmi": 0.3333333333333333,
@@ -680,21 +680,21 @@
       "scrolling_in_the_deep_chi25": 0.0
     },
     "ehmi_for_all_chi26": {
-      "3d_display_comp_vehicle": 0.023255813953488372,
+      "3d_display_comp_vehicle": 0.11627906976744186,
       "ehmi_for_all_chi26": 1.0,
-      "ehmi_optimization_chi25": 0.023255813953488372,
-      "fact_av": 0.018867924528301886,
-      "longitudinal_usa_germany_ehmi": 0.19047619047619047,
-      "osf_cwd6h": 0.0,
+      "ehmi_optimization_chi25": 0.11627906976744186,
+      "fact_av": 0.09433962264150944,
+      "longitudinal_usa_germany_ehmi": 0.2857142857142857,
+      "osf_cwd6h": 0.022727272727272728,
       "psych_conflict_handling": 0.0,
-      "road_bumps_touch": 0.02564102564102564,
-      "roads_chi25": 0.575,
-      "running_into_traffic_chi26": 0.022222222222222223,
+      "road_bumps_touch": 0.023255813953488372,
+      "roads_chi25": 0.5227272727272727,
+      "running_into_traffic_chi26": 0.02040816326530612,
       "scrolling_in_the_deep_chi25": 0.0
     },
     "ehmi_optimization_chi25": {
       "3d_display_comp_vehicle": 0.375,
-      "ehmi_for_all_chi26": 0.023255813953488372,
+      "ehmi_for_all_chi26": 0.11627906976744186,
       "ehmi_optimization_chi25": 1.0,
       "fact_av": 0.45454545454545453,
       "longitudinal_usa_germany_ehmi": 0.3333333333333333,
@@ -707,7 +707,7 @@
     },
     "fact_av": {
       "3d_display_comp_vehicle": 0.391304347826087,
-      "ehmi_for_all_chi26": 0.018867924528301886,
+      "ehmi_for_all_chi26": 0.09433962264150944,
       "ehmi_optimization_chi25": 0.45454545454545453,
       "fact_av": 1.0,
       "longitudinal_usa_germany_ehmi": 0.22580645161290322,
@@ -720,7 +720,7 @@
     },
     "longitudinal_usa_germany_ehmi": {
       "3d_display_comp_vehicle": 0.3333333333333333,
-      "ehmi_for_all_chi26": 0.19047619047619047,
+      "ehmi_for_all_chi26": 0.2857142857142857,
       "ehmi_optimization_chi25": 0.3333333333333333,
       "fact_av": 0.22580645161290322,
       "longitudinal_usa_germany_ehmi": 1.0,
@@ -733,7 +733,7 @@
     },
     "osf_cwd6h": {
       "3d_display_comp_vehicle": 0.1875,
-      "ehmi_for_all_chi26": 0.0,
+      "ehmi_for_all_chi26": 0.022727272727272728,
       "ehmi_optimization_chi25": 0.11764705882352941,
       "fact_av": 0.11538461538461539,
       "longitudinal_usa_germany_ehmi": 0.08695652173913043,
@@ -759,7 +759,7 @@
     },
     "road_bumps_touch": {
       "3d_display_comp_vehicle": 0.058823529411764705,
-      "ehmi_for_all_chi26": 0.02564102564102564,
+      "ehmi_for_all_chi26": 0.023255813953488372,
       "ehmi_optimization_chi25": 0.058823529411764705,
       "fact_av": 0.037037037037037035,
       "longitudinal_usa_germany_ehmi": 0.043478260869565216,
@@ -772,7 +772,7 @@
     },
     "roads_chi25": {
       "3d_display_comp_vehicle": 0.05128205128205128,
-      "ehmi_for_all_chi26": 0.575,
+      "ehmi_for_all_chi26": 0.5227272727272727,
       "ehmi_optimization_chi25": 0.025,
       "fact_av": 0.04081632653061224,
       "longitudinal_usa_germany_ehmi": 0.021739130434782608,
@@ -785,7 +785,7 @@
     },
     "running_into_traffic_chi26": {
       "3d_display_comp_vehicle": 0.14285714285714285,
-      "ehmi_for_all_chi26": 0.022222222222222223,
+      "ehmi_for_all_chi26": 0.02040816326530612,
       "ehmi_optimization_chi25": 0.2,
       "fact_av": 0.1724137931034483,
       "longitudinal_usa_germany_ehmi": 0.1111111111111111,
@@ -893,7 +893,7 @@
     "designs_version": "1.0",
     "studies_with_design": 11,
     "studies_with_contrasts": 5,
-    "n_contrast_effects": 345,
+    "n_contrast_effects": 365,
     "n_pooled": 1,
     "rho": 0.5,
     "estimator": "DL"
@@ -1755,9 +1755,19 @@
       "n": 45,
       "mean": 1.5555555555555556,
       "sd": 1.4547032742664796,
-      "mean_z_vs_global": 0.38445254721696825,
+      "mean_z_vs_global": 0.36531040268163456,
       "scale_note": "",
       "mapping_source": "unknown"
+    },
+    {
+      "study": "ehmi_for_all_chi26",
+      "dv": "perceived_safety_item_01",
+      "n": 720,
+      "mean": 1.1347222222222222,
+      "sd": 1.5093274872476803,
+      "mean_z_vs_global": 0.06561257674565782,
+      "scale_note": "",
+      "mapping_source": "schema"
     },
     {
       "study": "ehmi_optimization_chi25",
@@ -1765,7 +1775,7 @@
       "n": 680,
       "mean": 2.2852941176470587,
       "sd": 1.2650583070127943,
-      "mean_z_vs_global": 0.9124047341475143,
+      "mean_z_vs_global": 0.8849960911421555,
       "scale_note": "",
       "mapping_source": "unknown"
     },
@@ -1775,7 +1785,7 @@
       "n": 2600,
       "mean": 1.5007692307692309,
       "sd": 1.9070350773592881,
-      "mean_z_vs_global": 0.34481566698697647,
+      "mean_z_vs_global": 0.32629414344325713,
       "scale_note": "",
       "mapping_source": "unknown"
     },
@@ -1785,7 +1795,7 @@
       "n": 470,
       "mean": 1.7680851063829788,
       "sd": 1.4423692873827274,
-      "mean_z_vs_global": 0.538213698094226,
+      "mean_z_vs_global": 0.5166640129710486,
       "scale_note": "",
       "mapping_source": "unknown"
     },
@@ -1795,7 +1805,7 @@
       "n": 27,
       "mean": -1.988888888888889,
       "sd": 0.3445547107760228,
-      "mean_z_vs_global": -2.1798866464456848,
+      "mean_z_vs_global": -2.1588772269837535,
       "scale_note": "rescaled 0.0-20.0 -> -3.0-3.0",
       "mapping_source": "llm_deduced"
     },
@@ -1805,9 +1815,19 @@
       "n": 45,
       "mean": 1.711111111111111,
       "sd": 1.3588468075778988,
-      "mean_z_vs_global": -0.06877927667557175,
+      "mean_z_vs_global": 0.016448122324098445,
       "scale_note": "",
       "mapping_source": "unknown"
+    },
+    {
+      "study": "ehmi_for_all_chi26",
+      "dv": "perceived_safety_item_02",
+      "n": 720,
+      "mean": 1.1625,
+      "sd": 1.488942787977182,
+      "mean_z_vs_global": -0.3426322229624472,
+      "scale_note": "",
+      "mapping_source": "schema"
     },
     {
       "study": "ehmi_optimization_chi25",
@@ -1815,7 +1835,7 @@
       "n": 680,
       "mean": 2.398529411764706,
       "sd": 1.1062804571158318,
-      "mean_z_vs_global": 0.378354314350761,
+      "mean_z_vs_global": 0.46638140977621995,
       "scale_note": "",
       "mapping_source": "unknown"
     },
@@ -1825,7 +1845,7 @@
       "n": 2600,
       "mean": 1.445,
       "sd": 2.012670044484342,
-      "mean_z_vs_global": -0.24187216147364285,
+      "mean_z_vs_global": -0.15772857174400823,
       "scale_note": "",
       "mapping_source": "unknown"
     },
@@ -1835,7 +1855,7 @@
       "n": 470,
       "mean": 1.7127659574468086,
       "sd": 1.5274485074709048,
-      "mean_z_vs_global": -0.06770287620154641,
+      "mean_z_vs_global": 0.017531262606137153,
       "scale_note": "",
       "mapping_source": "unknown"
     },
@@ -1845,9 +1865,19 @@
       "n": 45,
       "mean": 1.511111111111111,
       "sd": 1.2724747224176671,
-      "mean_z_vs_global": -0.21870778125568666,
+      "mean_z_vs_global": -0.09467392079503643,
       "scale_note": "",
       "mapping_source": "unknown"
+    },
+    {
+      "study": "ehmi_for_all_chi26",
+      "dv": "perceived_safety_item_03",
+      "n": 720,
+      "mean": 0.9513888888888888,
+      "sd": 1.684131374195885,
+      "mean_z_vs_global": -0.46744694593254366,
+      "scale_note": "",
+      "mapping_source": "schema"
     },
     {
       "study": "ehmi_optimization_chi25",
@@ -1855,7 +1885,7 @@
       "n": 680,
       "mean": 2.263235294117647,
       "sd": 1.2363427004594214,
-      "mean_z_vs_global": 0.29918771184429904,
+      "mean_z_vs_global": 0.40623813137484993,
       "scale_note": "",
       "mapping_source": "unknown"
     },
@@ -1865,7 +1895,7 @@
       "n": 2600,
       "mean": 1.8384615384615384,
       "sd": 1.7066686583092334,
-      "mean_z_vs_global": 0.006698228575627795,
+      "mean_z_vs_global": 0.12334030883300745,
       "scale_note": "",
       "mapping_source": "unknown"
     },
@@ -1875,7 +1905,7 @@
       "n": 470,
       "mean": 1.702127659574468,
       "sd": 1.541396005827604,
-      "mean_z_vs_global": -0.08717815916424018,
+      "mean_z_vs_global": 0.03254242651972242,
       "scale_note": "",
       "mapping_source": "unknown"
     },
@@ -1885,9 +1915,19 @@
       "n": 45,
       "mean": -2.1399999999999997,
       "sd": 0.44589032487617614,
-      "mean_z_vs_global": -2.3541363737099927,
+      "mean_z_vs_global": -2.3441303045863235,
       "scale_note": "rescaled 0.0-20.0 -> -3.0-3.0",
       "mapping_source": "unknown"
+    },
+    {
+      "study": "ehmi_for_all_chi26",
+      "dv": "perceived_safety_item_04",
+      "n": 720,
+      "mean": 1.2555555555555555,
+      "sd": 1.4611224074450226,
+      "mean_z_vs_global": 0.22372349383792195,
+      "scale_note": "",
+      "mapping_source": "schema"
     },
     {
       "study": "ehmi_optimization_chi25",
@@ -1895,7 +1935,7 @@
       "n": 680,
       "mean": 2.323529411764706,
       "sd": 1.1376690697391687,
-      "mean_z_vs_global": 1.1186302438774411,
+      "mean_z_vs_global": 1.0313676859046792,
       "scale_note": "",
       "mapping_source": "unknown"
     },
@@ -1905,7 +1945,7 @@
       "n": 2600,
       "mean": 1.7446153846153847,
       "sd": 1.6773649399402941,
-      "mean_z_vs_global": 0.6682168775762608,
+      "mean_z_vs_global": 0.5935699355058522,
       "scale_note": "",
       "mapping_source": "unknown"
     },
@@ -1915,7 +1955,7 @@
       "n": 470,
       "mean": 1.6148936170212767,
       "sd": 1.5169938182214426,
-      "mean_z_vs_global": 0.5672892522562909,
+      "mean_z_vs_global": 0.49546918933787004,
       "scale_note": "",
       "mapping_source": "unknown"
     },

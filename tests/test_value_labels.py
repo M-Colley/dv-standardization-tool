@@ -101,6 +101,20 @@ class NegativeAnswerCodeTests(unittest.TestCase):
         self.assertEqual(report, {"aoa1": 2})
         self.assertEqual(out["comment"].tolist(), df["comment"].tolist())
 
+    def test_suffix_negative_codes_become_negative_numbers(self):
+        """eHMI-for-All exports -3..+3 items as "1neg", "2neg", "3neg"."""
+        from scripts.value_labels import recode_negative_answer_codes
+
+        df = pd.DataFrame({
+            "PerSafe01": ["2", "1neg", "0", "3NEG", None, "2neg"],
+            "id": ["a1", "b2", "c", "d", "e", "f"],
+        })
+        out, report = recode_negative_answer_codes(df)
+        self.assertEqual(out["PerSafe01"].tolist()[:4], [2.0, -1.0, 0.0, -3.0])
+        self.assertEqual(out["PerSafe01"].tolist()[5], -2.0)
+        self.assertEqual(report, {"PerSafe01": 3})
+        self.assertEqual(out["id"].tolist(), df["id"].tolist())
+
     def test_batch_keeps_negative_answers(self):
         with tempfile.TemporaryDirectory() as tmpdir:
             tmp = Path(tmpdir)

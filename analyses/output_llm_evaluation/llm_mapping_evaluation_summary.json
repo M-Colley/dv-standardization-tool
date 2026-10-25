@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-19T01:17:31.617499+00:00",
+  "generated_at": "2026-10-25T13:20:56.901916+00:00",
   "models": [
     "google/gemma-4-E2B-it"
   ],
@@ -9,7 +9,7 @@
   "max_per_source": 40,
   "e2_samples": 300,
   "blocklist_size": 46,
-  "runtime_seconds": 3479.9,
+  "runtime_seconds": 189.0,
   "results": {
     "E1": {
       "n_positive": 101,
@@ -90,30 +90,30 @@
           ]
         },
         "wrong_dv_on_dv_columns": {
-          "k": 24,
+          "k": 28,
           "n": 101,
-          "rate": 0.2376237623762376,
+          "rate": 0.27722772277227725,
           "ci95": [
-            0.1651996364458167,
-            0.32927515819965236
+            0.19931815046328658,
+            0.37146233555645125
           ]
         },
         "abstained_on_dv_columns": {
-          "k": 25,
+          "k": 21,
           "n": 101,
-          "rate": 0.24752475247524752,
+          "rate": 0.2079207920792079,
           "ci95": [
-            0.1736484307864115,
-            0.3399027867026247
+            0.1402080286238294,
+            0.297037497490938
           ]
         },
         "precision_of_accepted_dv_mappings": {
           "k": 52,
-          "n": 84,
-          "rate": 0.6190476190476191,
+          "n": 88,
+          "rate": 0.5909090909090909,
           "ci95": [
-            0.5121544142609232,
-            0.7155285075451102
+            0.4864808526118738,
+            0.6877324079945095
           ]
         },
         "blocklisted_non_dv_mapped_to_a_dv": {
@@ -145,8 +145,8 @@
         ]
       },
       "rejections_by_reason": {
-        "non_numeric": 26,
         "identifier": 22,
+        "non_numeric": 22,
         "randomization": 4,
         "experimental_condition": 2,
         "timestamp": 2,

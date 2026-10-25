@@ -263,8 +263,29 @@ aliases on E2, where the scale is often the right answer.
 **Data bug found on the way.** The screened columns are non-numeric because
 eHMI-for-All exports negative answers as `1neg`/`2neg`/`3neg` (suffix), a
 LimeSurvey variant that `recode_negative_answer_codes` (prefix `negN` only)
-does not recognize. About 20% of every perceived-safety answer in that study
-(all negative ones) is dropped, biasing its means upward.
+did not recognize. The four perceived-safety items therefore stayed text
+columns and were left out of every analysis of that study (14–24% of their
+answers carry a suffix code). Fixed on 2026-10-25: the items now enter with
+all 720 answers, and each pooled perceived-safety item gains a study
+(k 4 → 5, or 5 → 6 for item 1); other pooled estimates are unchanged.
+
+**Post hoc, after the fix (2026-10-25).** Rerunning the same harness on the
+corrected data (labelled post hoc: the pre-specified test above stands):
+
+| E1 (101 real DV columns), check on | definition | dense_h | mixed_h |
+|---|---|---|---|
+| Correct mappings | 52 | 65 | 69 |
+| Paired exact McNemar vs. definition | | p = 0.035 (23 vs. 10) | p < 0.001 (20 vs. 3) |
+| Precision of accepted mappings | 59% | 75% | 77% |
+| True mappings lost to the check | 0 | 0 | 0 |
+
+With the `PerSafe` columns now reaching the LLM, the "lost" mappings
+disappear: TF-IDF maps them to the scale (wrong, so its precision falls
+from 62% to 59%) and the filtered lists to the item (right). On the
+corrected data dense_h would meet the pre-specified rule. Because this was
+not the pre-specified test, `definition` remains the default; a
+confirmatory evaluation on new datasets (P1) should test `hierarchical`
+(dense_h) as its primary hypothesis.
 
 **Trade-off.** Because a plausible-looking candidate is always available, the
 model maps non-DV columns more often with the definition shortlist (74% of

@@ -69,14 +69,15 @@ def apply_value_labels(
 
 
 # LimeSurvey answer codes cannot contain "-", so negative scale points are
-# exported as "neg1", "neg2", ... (e.g. a -2..+2 acceptance item). Coercing such
-# a column with pd.to_numeric silently drops every negative answer.
-_NEGATIVE_ANSWER_CODE = re.compile(r"^neg(\d+(?:\.\d+)?)$", re.IGNORECASE)
+# exported as "neg1", "neg2", ... or, in some surveys, "1neg", "2neg", ...
+# (e.g. a -2..+2 acceptance item, a -3..+3 safety item). Coercing such a column
+# with pd.to_numeric silently drops every negative answer.
+_NEGATIVE_ANSWER_CODE = re.compile(r"^(?:neg(\d+(?:\.\d+)?)|(\d+(?:\.\d+)?)neg)$", re.IGNORECASE)
 MIN_NUMERIC_SHARE_AFTER_RECODING = 0.9
 
 
 def recode_negative_answer_codes(df: pd.DataFrame) -> tuple[pd.DataFrame, dict[str, int]]:
-    """Turn LimeSurvey ``negN`` answer codes into ``-N``.
+    """Turn LimeSurvey ``negN`` / ``Nneg`` answer codes into ``-N``.
 
     Only text columns that contain at least one such code and become at least
     90% numeric after recoding are converted, so free-text columns are left
@@ -89,7 +90,8 @@ def recode_negative_answer_codes(df: pd.DataFrame) -> tuple[pd.DataFrame, dict[s
         if not (pd.api.types.is_object_dtype(series.dtype) or pd.api.types.is_string_dtype(series.dtype)):
             continue
         text = series.dropna().astype(str).str.strip()
-        codes = text.str.extract(_NEGATIVE_ANSWER_CODE, expand=False)
+        groups = text.str.extract(_NEGATIVE_ANSWER_CODE)
+        codes = groups[0].fillna(groups[1])  # prefix or suffix form
         n_codes = int(codes.notna().sum())
         if not n_codes:
             continue
