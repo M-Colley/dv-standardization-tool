@@ -54,6 +54,7 @@ from scripts import llm_utils  # noqa: E402
 from scripts.batch_profiles import classify_dataset_type, llm_eligible_dataset_types  # noqa: E402
 from scripts.dv_retrieval import (  # noqa: E402
     N_DENSE_EXTRA,
+    apply_hierarchy,
     get_dense_retriever,
     get_retriever,
     mix_rankings,
@@ -102,6 +103,11 @@ def _without_alias(mapping: dict[str, str], alias: str) -> dict[str, str]:
     return {key: value for key, value in mapping.items() if normalize_name(key) != target}
 
 
+# Shortlists built from the definition (TF-IDF) and dense rankings; "_h" variants
+# apply the scale/item hierarchy filter (scripts.dv_retrieval.apply_hierarchy).
+HARNESS_SHORTLISTS = ("definition", "dense", "mixed", "mixed4", "definition_h", "dense_h", "mixed_h")
+
+
 def _ask_llm(
     alias: str,
     mapping: dict[str, str],
@@ -110,14 +116,21 @@ def _ask_llm(
     shortlist: str = "definition",
 ) -> tuple[list[str], float, str | None]:
     candidates, top_score = _select_llm_candidate_shortlist(mapping, alias)
-    if shortlist in ("definition", "dense", "mixed", "mixed4") and candidates:
+    if shortlist in HARNESS_SHORTLISTS and candidates:
         # Leave-alias-out: the held-out alias is removed from every definition.
         n = len(candidates)
-        depth = max(2 * n, 16)
+        depth = max(3 * n, 24)
         lexical = [dv for dv, _ in get_retriever().rank(alias, k=depth, exclude_alias=alias)]
-        if shortlist != "definition":
+        if shortlist not in ("definition", "definition_h"):
             dense = [dv for dv, _ in get_dense_retriever().rank(alias, k=depth, exclude_alias=alias)]
-        if shortlist == "dense":
+        if shortlist == "dense_h":
+            # Pre-specified primary (2026-10-25): the fusion with the scale/item filter.
+            candidates = apply_hierarchy(reciprocal_rank_fusion(lexical, dense), n)
+        elif shortlist == "definition_h":
+            candidates = apply_hierarchy(lexical, n)
+        elif shortlist == "mixed_h":
+            candidates = apply_hierarchy([*mix_rankings(lexical, dense, n, N_DENSE_EXTRA), *lexical, *dense], n)
+        elif shortlist == "dense":
             # Same fusion as scripts.dv_retrieval.dense_shortlist.
             candidates = reciprocal_rank_fusion(lexical, dense)[:n]
         elif shortlist in ("mixed", "mixed4"):
@@ -331,7 +344,7 @@ def main() -> None:
     parser.add_argument("--e2-samples", type=int, default=300, help="Aliases sampled for E2 (default: %(default)s).")
     parser.add_argument("--seed", type=int, default=20261017)
     parser.add_argument("--models", default=None, help="Comma-separated model ids (default: pipeline default).")
-    parser.add_argument("--shortlist", choices=["fuzzy", "definition", "dense", "mixed", "mixed4"],
+    parser.add_argument("--shortlist", choices=["fuzzy", *HARNESS_SHORTLISTS],
                         default="definition",
                         help="Candidate retrieval for the LLM (default: %(default)s).")
     args = parser.parse_args()

@@ -596,7 +596,7 @@ def main() -> None:
     )
     parser.add_argument(
         "--llm-shortlist",
-        choices=["fuzzy", "definition", "dense", "mixed"],
+        choices=["fuzzy", "definition", "dense", "mixed", "hierarchical"],
         default="definition",
         help="Candidate retrieval for the LLM (default: %(default)s).",
     )

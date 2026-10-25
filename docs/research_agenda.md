@@ -212,6 +212,23 @@ the model offloaded to the CPU) gave the same LLM answer on all 470 items:
 generation is deterministic (greedy decoding) and the comparisons above are
 on equal terms.
 
+**Pre-specified follow-up (written 2026-10-25, before running it).** The
+*hierarchy filter* (`scripts.dv_retrieval.apply_hierarchy`) walks a ranking
+and skips a candidate when its scale or one of its own items is already
+listed, so the higher-ranked of the two stays and lower candidates fill the
+slot. Scale/item pairs come from the instrument registry, `subitem_of` and
+the `<construct>_item_NN` convention (`construct_hierarchy`).
+Hypothesis: with the filter, the dense fusion's recall gain turns into
+correct mappings. Primary outcome: E1 correct mappings with the check on,
+`dense_h` (fusion + filter, pipeline option `--llm-shortlist hierarchical`)
+vs. definition, paired exact McNemar (two-sided, α = 0.05). Secondary: E1
+precision, true mappings lost to the check, E2 correct mappings.
+Exploratory: `definition_h` (filter on the TF-IDF list) and `mixed_h`. Same
+model, items, seed and harness as before. The default becomes
+`hierarchical` only if `dense_h` has more E1 correct mappings than
+definition, precision at least as high, and loses no true mapping; the
+p-value is reported either way.
+
 **Trade-off.** Because a plausible-looking candidate is always available, the
 model maps non-DV columns more often with the definition shortlist (74% of
 curated non-DVs, unchecked). The plausibility check halves that rate. In the

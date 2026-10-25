@@ -138,7 +138,9 @@ def _augment_mapping_with_llm_deductions(
     ``"fuzzy"`` (alias-string similarity), ``"definition"`` (TF-IDF over DV
     definitions), ``"dense"`` (sentence embeddings of the definitions,
     ``BAAI/bge-small-en-v1.5`` on CPU, fused with TF-IDF) or ``"mixed"``
-    (TF-IDF list with its last slots given to dense-only candidates).
+    (TF-IDF list with its last slots given to dense-only candidates) or
+    ``"hierarchical"`` (the dense fusion without a scale and its own items
+    side by side).
     ``inference_cache`` is keyed by the
     lowercased alias and is populated so subsequent datasets in the same
     source skip the LLM call.
@@ -153,12 +155,19 @@ def _augment_mapping_with_llm_deductions(
             inferred = inference_cache[alias_key]
         else:
             candidate_shortlist, top_score = _select_llm_candidate_shortlist(mapping, str(alias))
-            if shortlist in ("definition", "dense", "mixed") and candidate_shortlist:
+            if shortlist in ("definition", "dense", "mixed", "hierarchical") and candidate_shortlist:
                 # Same attempt gate; candidates ranked by DV definitions instead
                 # of alias strings (see scripts/dv_retrieval.py).
-                from scripts.dv_retrieval import definition_shortlist, dense_shortlist, mixed_shortlist
+                from scripts.dv_retrieval import (
+                    definition_shortlist,
+                    dense_shortlist,
+                    hierarchical_shortlist,
+                    mixed_shortlist,
+                )
 
-                retrieve = {"dense": dense_shortlist, "mixed": mixed_shortlist}.get(shortlist, definition_shortlist)
+                retrieve = {
+                    "dense": dense_shortlist, "mixed": mixed_shortlist, "hierarchical": hierarchical_shortlist,
+                }.get(shortlist, definition_shortlist)
                 candidate_shortlist = retrieve(str(alias), max_candidates=len(candidate_shortlist))
             if not candidate_shortlist or top_score < min_attempt_score:
                 inferred = None

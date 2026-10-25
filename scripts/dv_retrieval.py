@@ -16,7 +16,9 @@ blend weight was chosen on those items, so confirm on new data).
 
 from __future__ import annotations
 
-from collections.abc import Callable
+import re
+from collections import defaultdict
+from collections.abc import Callable, Iterable
 from dataclasses import dataclass
 from functools import lru_cache
 from pathlib import Path
@@ -274,11 +276,78 @@ def mixed_shortlist(
     return mix_rankings(lexical, dense, max_candidates, n_dense)
 
 
+# ── Construct hierarchy ──────────────────────────────────────────────────────
+# Offering a scale and one of its own items in the same shortlist invites a
+# small model to pick the scale for an item column ("SUS3" -> usability);
+# that caused 18 of the 19 answers the mixed shortlist lost (research agenda
+# 2.4). The hierarchy filter keeps only the higher-ranked of the two.
+
+_ITEM_ID = re.compile(r"^(?P<construct>.+)_item_\d+$")
+
+
+@lru_cache(maxsize=4)
+def construct_hierarchy(schema_path: str = str(DEFAULT_DV_SCHEMA_PATH)) -> dict[str, frozenset[str]]:
+    """DV id -> the DV ids it must not share a shortlist with (its scales and its items).
+
+    Scale/item pairs come from the instrument registry (a score's DV and its
+    item DVs), from ``subitem_of`` in the DV schema, and from the
+    ``<construct>_item_NN`` naming convention.
+    """
+    from scripts import instruments
+
+    schema = yaml.safe_load(Path(schema_path).read_text(encoding="utf-8")) or {}
+    entries = [e for e in schema.get("dvs") or [] if isinstance(e, dict) and e.get("id")]
+    ids = {str(e["id"]) for e in entries}
+    pairs: set[tuple[str, str]] = set()
+    for entry in entries:
+        dv_id = str(entry["id"])
+        parent = str(entry.get("subitem_of") or "")
+        match = _ITEM_ID.match(dv_id)
+        if not parent and match and match.group("construct") in ids:
+            parent = match.group("construct")
+        if parent and parent != dv_id:
+            pairs.add((parent, dv_id))
+    for scale, items in instruments.construct_subitems(instruments.load_instruments()).items():
+        pairs.update((scale, item) for item in items if item in ids and item != scale)
+    related: dict[str, set[str]] = defaultdict(set)
+    for parent, child in pairs:
+        related[parent].add(child)
+        related[child].add(parent)
+    return {dv: frozenset(others) for dv, others in related.items()}
+
+
+def apply_hierarchy(
+    ranking: Iterable[str], n: int, related: dict[str, frozenset[str]] | None = None
+) -> list[str]:
+    """First ``n`` candidates of ``ranking``, skipping any whose scale or item is
+    already listed (the higher-ranked of the two wins; later ones fill up)."""
+    related = construct_hierarchy() if related is None else related
+    out: list[str] = []
+    for dv in dict.fromkeys(ranking):
+        if any(dv in related.get(kept, ()) for kept in out):
+            continue
+        out.append(dv)
+        if len(out) == n:
+            break
+    return out
+
+
+def hierarchical_shortlist(column_name: str, max_candidates: int = 8, **kwargs: Any) -> list[str]:
+    """Dense + TF-IDF fusion (as ``dense_shortlist``) with the hierarchy filter."""
+    depth = max(max_candidates * 3, 24)
+    dense = [dv for dv, _ in get_dense_retriever(**kwargs).rank(column_name, k=depth)]
+    lexical = [dv for dv, _ in get_retriever().rank(column_name, k=depth)]
+    return apply_hierarchy(reciprocal_rank_fusion(lexical, dense), max_candidates)
+
+
 __all__ = [
     "DefinitionRetriever",
     "DenseRetriever",
     "DvDefinition",
+    "apply_hierarchy",
+    "construct_hierarchy",
     "definition_shortlist",
+    "hierarchical_shortlist",
     "dense_shortlist",
     "get_dense_retriever",
     "get_retriever",
