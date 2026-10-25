@@ -1,0 +1,1049 @@
+[
+  {
+    "scale": "sus_score",
+    "lavaan": "0.7.3",
+    "n_obs": 996,
+    "groups": {
+      "ehmi_for_all_chi26": 720,
+      "roads_chi25": 276
+    },
+    "clusters": {
+      "ehmi_for_all_chi26": 40,
+      "roads_chi25": 23
+    },
+    "levels": {
+      "configural": {
+        "chisq.scaled": 272.634003,
+        "df.scaled": 70,
+        "pvalue.scaled": 0,
+        "cfi.robust": 0.9127,
+        "tli.robust": 0.887758,
+        "rmsea.robust": 0.11919,
+        "srmr": 0.068546,
+        "aic": 25397.083571,
+        "bic": 25691.308407,
+        "converged": true,
+        "warning": "lavaan->lav_model_vcov():  \n   The variance-covariance matrix of the estimated parameters (vcov) does not \n   appear to be positive definite! The smallest eigenvalue (= -1.929732e-17) \n   is smaller than zero. This may be a symptom that the model is not \n   identified.",
+        "std_loadings": [
+          {
+            "group": "ehmi_for_all_chi26",
+            "item": "SUS1",
+            "std_loading": 0.820036781326736
+          },
+          {
+            "group": "ehmi_for_all_chi26",
+            "item": "SUS2",
+            "std_loading": 0.613053610483702
+          },
+          {
+            "group": "ehmi_for_all_chi26",
+            "item": "SUS3",
+            "std_loading": 0.899891099590462
+          },
+          {
+            "group": "ehmi_for_all_chi26",
+            "item": "SUS4",
+            "std_loading": 0.408059439927658
+          },
+          {
+            "group": "ehmi_for_all_chi26",
+            "item": "SUS5",
+            "std_loading": 0.836611439576291
+          },
+          {
+            "group": "ehmi_for_all_chi26",
+            "item": "SUS6",
+            "std_loading": 0.647450312565527
+          },
+          {
+            "group": "ehmi_for_all_chi26",
+            "item": "SUS7",
+            "std_loading": 0.807411943329205
+          },
+          {
+            "group": "ehmi_for_all_chi26",
+            "item": "SUS8",
+            "std_loading": 0.494344231629855
+          },
+          {
+            "group": "ehmi_for_all_chi26",
+            "item": "SUS9",
+            "std_loading": 0.831246978843264
+          },
+          {
+            "group": "ehmi_for_all_chi26",
+            "item": "SUS10",
+            "std_loading": 0.503043747042976
+          },
+          {
+            "group": "roads_chi25",
+            "item": "SUS1",
+            "std_loading": 0.868423670023624
+          },
+          {
+            "group": "roads_chi25",
+            "item": "SUS2",
+            "std_loading": 0.787842038231402
+          },
+          {
+            "group": "roads_chi25",
+            "item": "SUS3",
+            "std_loading": 0.899619750674203
+          },
+          {
+            "group": "roads_chi25",
+            "item": "SUS4",
+            "std_loading": 0.417755904613951
+          },
+          {
+            "group": "roads_chi25",
+            "item": "SUS5",
+            "std_loading": 0.674188467616198
+          },
+          {
+            "group": "roads_chi25",
+            "item": "SUS6",
+            "std_loading": 0.476365486781216
+          },
+          {
+            "group": "roads_chi25",
+            "item": "SUS7",
+            "std_loading": 0.753015529924786
+          },
+          {
+            "group": "roads_chi25",
+            "item": "SUS8",
+            "std_loading": 0.8381764774595
+          },
+          {
+            "group": "roads_chi25",
+            "item": "SUS9",
+            "std_loading": 0.775153140866483
+          },
+          {
+            "group": "roads_chi25",
+            "item": "SUS10",
+            "std_loading": 0.459125669707605
+          }
+        ]
+      },
+      "metric": {
+        "chisq.scaled": 329.843906,
+        "df.scaled": 79,
+        "pvalue.scaled": 0,
+        "cfi.robust": 0.891033,
+        "tli.robust": 0.875861,
+        "rmsea.robust": 0.125348,
+        "srmr": 0.102033,
+        "aic": 25525.595278,
+        "bic": 25775.686388,
+        "converged": true,
+        "warning": "",
+        "std_loadings": [
+          {
+            "group": "ehmi_for_all_chi26",
+            "item": "SUS1",
+            "std_loading": 0.8170348612153
+          },
+          {
+            "group": "ehmi_for_all_chi26",
+            "item": "SUS2",
+            "std_loading": 0.664350618235551
+          },
+          {
+            "group": "ehmi_for_all_chi26",
+            "item": "SUS3",
+            "std_loading": 0.899459872739391
+          },
+          {
+            "group": "ehmi_for_all_chi26",
+            "item": "SUS4",
+            "std_loading": 0.437604200073746
+          },
+          {
+            "group": "ehmi_for_all_chi26",
+            "item": "SUS5",
+            "std_loading": 0.810821392498206
+          },
+          {
+            "group": "ehmi_for_all_chi26",
+            "item": "SUS6",
+            "std_loading": 0.62860762957255
+          },
+          {
+            "group": "ehmi_for_all_chi26",
+            "item": "SUS7",
+            "std_loading": 0.812910363590106
+          },
+          {
+            "group": "ehmi_for_all_chi26",
+            "item": "SUS8",
+            "std_loading": 0.596234221238108
+          },
+          {
+            "group": "ehmi_for_all_chi26",
+            "item": "SUS9",
+            "std_loading": 0.81326194621198
+          },
+          {
+            "group": "ehmi_for_all_chi26",
+            "item": "SUS10",
+            "std_loading": 0.516070688807302
+          },
+          {
+            "group": "roads_chi25",
+            "item": "SUS1",
+            "std_loading": 0.871301113770832
+          },
+          {
+            "group": "roads_chi25",
+            "item": "SUS2",
+            "std_loading": 0.665873884899083
+          },
+          {
+            "group": "roads_chi25",
+            "item": "SUS3",
+            "std_loading": 0.898096017207937
+          },
+          {
+            "group": "roads_chi25",
+            "item": "SUS4",
+            "std_loading": 0.316203203610915
+          },
+          {
+            "group": "roads_chi25",
+            "item": "SUS5",
+            "std_loading": 0.766966776683946
+          },
+          {
+            "group": "roads_chi25",
+            "item": "SUS6",
+            "std_loading": 0.569332246610034
+          },
+          {
+            "group": "roads_chi25",
+            "item": "SUS7",
+            "std_loading": 0.735004269706853
+          },
+          {
+            "group": "roads_chi25",
+            "item": "SUS8",
+            "std_loading": 0.708650560621748
+          },
+          {
+            "group": "roads_chi25",
+            "item": "SUS9",
+            "std_loading": 0.820418598935445
+          },
+          {
+            "group": "roads_chi25",
+            "item": "SUS10",
+            "std_loading": 0.427439899592051
+          }
+        ],
+        "lrt_chisq_diff": 55.8763480681,
+        "lrt_df_diff": 9,
+        "lrt_pvalue": 8.28805006577182e-09
+      },
+      "scalar": {
+        "chisq.scaled": 407.494607,
+        "df.scaled": 88,
+        "pvalue.scaled": 0,
+        "cfi.robust": 0.854025,
+        "tli.robust": 0.850708,
+        "rmsea.robust": 0.137461,
+        "srmr": 0.112418,
+        "aic": 25750.940558,
+        "bic": 25956.897943,
+        "converged": true,
+        "warning": "",
+        "std_loadings": [
+          {
+            "group": "ehmi_for_all_chi26",
+            "item": "SUS1",
+            "std_loading": 0.816536704064792
+          },
+          {
+            "group": "ehmi_for_all_chi26",
+            "item": "SUS2",
+            "std_loading": 0.655409439975198
+          },
+          {
+            "group": "ehmi_for_all_chi26",
+            "item": "SUS3",
+            "std_loading": 0.90024037102989
+          },
+          {
+            "group": "ehmi_for_all_chi26",
+            "item": "SUS4",
+            "std_loading": 0.427732930866096
+          },
+          {
+            "group": "ehmi_for_all_chi26",
+            "item": "SUS5",
+            "std_loading": 0.811934406124876
+          },
+          {
+            "group": "ehmi_for_all_chi26",
+            "item": "SUS6",
+            "std_loading": 0.627978296630894
+          },
+          {
+            "group": "ehmi_for_all_chi26",
+            "item": "SUS7",
+            "std_loading": 0.81220856916618
+          },
+          {
+            "group": "ehmi_for_all_chi26",
+            "item": "SUS8",
+            "std_loading": 0.596086387739092
+          },
+          {
+            "group": "ehmi_for_all_chi26",
+            "item": "SUS9",
+            "std_loading": 0.814280070311323
+          },
+          {
+            "group": "ehmi_for_all_chi26",
+            "item": "SUS10",
+            "std_loading": 0.507989628595796
+          },
+          {
+            "group": "roads_chi25",
+            "item": "SUS1",
+            "std_loading": 0.864371689776578
+          },
+          {
+            "group": "roads_chi25",
+            "item": "SUS2",
+            "std_loading": 0.630226316518622
+          },
+          {
+            "group": "roads_chi25",
+            "item": "SUS3",
+            "std_loading": 0.899203394573197
+          },
+          {
+            "group": "roads_chi25",
+            "item": "SUS4",
+            "std_loading": 0.277202475477158
+          },
+          {
+            "group": "roads_chi25",
+            "item": "SUS5",
+            "std_loading": 0.761565626520129
+          },
+          {
+            "group": "roads_chi25",
+            "item": "SUS6",
+            "std_loading": 0.566439631970707
+          },
+          {
+            "group": "roads_chi25",
+            "item": "SUS7",
+            "std_loading": 0.727590340202048
+          },
+          {
+            "group": "roads_chi25",
+            "item": "SUS8",
+            "std_loading": 0.705660028242813
+          },
+          {
+            "group": "roads_chi25",
+            "item": "SUS9",
+            "std_loading": 0.818978331097213
+          },
+          {
+            "group": "roads_chi25",
+            "item": "SUS10",
+            "std_loading": 0.377002193108288
+          }
+        ],
+        "lrt_chisq_diff": 65.5590929397,
+        "lrt_df_diff": 9,
+        "lrt_pvalue": 1.12300018432876e-10
+      }
+    },
+    "items": [
+      "SUS1",
+      "SUS2",
+      "SUS3",
+      "SUS4",
+      "SUS5",
+      "SUS6",
+      "SUS7",
+      "SUS8",
+      "SUS9",
+      "SUS10"
+    ]
+  },
+  {
+    "scale": "nasa_tlx_score",
+    "lavaan": "0.7.3",
+    "n_obs": 564,
+    "groups": {
+      "roads_chi25": 276,
+      "running_into_traffic_chi26": 288
+    },
+    "clusters": {
+      "roads_chi25": 23,
+      "running_into_traffic_chi26": 24
+    },
+    "levels": {
+      "configural": {
+        "chisq.scaled": 51.401527,
+        "df.scaled": 18,
+        "pvalue.scaled": 4.6e-05,
+        "cfi.robust": 0.932998,
+        "tli.robust": 0.88833,
+        "rmsea.robust": 0.141969,
+        "srmr": 0.054202,
+        "aic": 18352.676175,
+        "bic": 18508.738128,
+        "converged": true,
+        "warning": "",
+        "std_loadings": [
+          {
+            "group": "roads_chi25",
+            "item": "mental_demand",
+            "std_loading": 0.855887312302861
+          },
+          {
+            "group": "roads_chi25",
+            "item": "physical_demand",
+            "std_loading": 0.862422979144903
+          },
+          {
+            "group": "roads_chi25",
+            "item": "temporal_demand",
+            "std_loading": 0.898136460159603
+          },
+          {
+            "group": "roads_chi25",
+            "item": "performance",
+            "std_loading": 0.248291069926452
+          },
+          {
+            "group": "roads_chi25",
+            "item": "effort",
+            "std_loading": 0.889121303244545
+          },
+          {
+            "group": "roads_chi25",
+            "item": "frustration",
+            "std_loading": 0.716040570833133
+          },
+          {
+            "group": "running_into_traffic_chi26",
+            "item": "mental_demand",
+            "std_loading": 0.574027930414243
+          },
+          {
+            "group": "running_into_traffic_chi26",
+            "item": "physical_demand",
+            "std_loading": 0.443374361507572
+          },
+          {
+            "group": "running_into_traffic_chi26",
+            "item": "temporal_demand",
+            "std_loading": 0.443254574144726
+          },
+          {
+            "group": "running_into_traffic_chi26",
+            "item": "performance",
+            "std_loading": -0.535132716047515
+          },
+          {
+            "group": "running_into_traffic_chi26",
+            "item": "effort",
+            "std_loading": 0.7722224579093
+          },
+          {
+            "group": "running_into_traffic_chi26",
+            "item": "frustration",
+            "std_loading": 0.830944612987293
+          }
+        ]
+      },
+      "metric": {
+        "chisq.scaled": 84.842,
+        "df.scaled": 23,
+        "pvalue.scaled": 0,
+        "cfi.robust": 0.855855,
+        "tli.robust": 0.811985,
+        "rmsea.robust": 0.184214,
+        "srmr": 0.143808,
+        "aic": 18487.192988,
+        "bic": 18621.57967,
+        "converged": true,
+        "warning": "",
+        "std_loadings": [
+          {
+            "group": "roads_chi25",
+            "item": "mental_demand",
+            "std_loading": 0.861896859198867
+          },
+          {
+            "group": "roads_chi25",
+            "item": "physical_demand",
+            "std_loading": 0.861461231168837
+          },
+          {
+            "group": "roads_chi25",
+            "item": "temporal_demand",
+            "std_loading": 0.881922150306288
+          },
+          {
+            "group": "roads_chi25",
+            "item": "performance",
+            "std_loading": -0.0321045565471797
+          },
+          {
+            "group": "roads_chi25",
+            "item": "effort",
+            "std_loading": 0.891918877691174
+          },
+          {
+            "group": "roads_chi25",
+            "item": "frustration",
+            "std_loading": 0.745745476218807
+          },
+          {
+            "group": "running_into_traffic_chi26",
+            "item": "mental_demand",
+            "std_loading": 0.526409176627808
+          },
+          {
+            "group": "running_into_traffic_chi26",
+            "item": "physical_demand",
+            "std_loading": 0.652830130728625
+          },
+          {
+            "group": "running_into_traffic_chi26",
+            "item": "temporal_demand",
+            "std_loading": 0.695165249740938
+          },
+          {
+            "group": "running_into_traffic_chi26",
+            "item": "performance",
+            "std_loading": -0.0244067658213379
+          },
+          {
+            "group": "running_into_traffic_chi26",
+            "item": "effort",
+            "std_loading": 0.655056791234505
+          },
+          {
+            "group": "running_into_traffic_chi26",
+            "item": "frustration",
+            "std_loading": 0.53997250235558
+          }
+        ],
+        "lrt_chisq_diff": 27.03776826,
+        "lrt_df_diff": 5,
+        "lrt_pvalue": 5.60845001449524e-05
+      },
+      "scalar": {
+        "chisq.scaled": 147.776685,
+        "df.scaled": 28,
+        "pvalue.scaled": 0,
+        "cfi.robust": 0.727336,
+        "tli.robust": 0.70786,
+        "rmsea.robust": 0.229626,
+        "srmr": 0.291083,
+        "aic": 18688.903595,
+        "bic": 18801.615006,
+        "converged": true,
+        "warning": "",
+        "std_loadings": [
+          {
+            "group": "roads_chi25",
+            "item": "mental_demand",
+            "std_loading": 0.844434997804338
+          },
+          {
+            "group": "roads_chi25",
+            "item": "physical_demand",
+            "std_loading": 0.848194662168742
+          },
+          {
+            "group": "roads_chi25",
+            "item": "temporal_demand",
+            "std_loading": 0.892609450648909
+          },
+          {
+            "group": "roads_chi25",
+            "item": "performance",
+            "std_loading": -0.35218039553694
+          },
+          {
+            "group": "roads_chi25",
+            "item": "effort",
+            "std_loading": 0.892405932539391
+          },
+          {
+            "group": "roads_chi25",
+            "item": "frustration",
+            "std_loading": 0.715763537263123
+          },
+          {
+            "group": "running_into_traffic_chi26",
+            "item": "mental_demand",
+            "std_loading": 0.501923947781919
+          },
+          {
+            "group": "running_into_traffic_chi26",
+            "item": "physical_demand",
+            "std_loading": 0.631609237095557
+          },
+          {
+            "group": "running_into_traffic_chi26",
+            "item": "temporal_demand",
+            "std_loading": 0.701850041790512
+          },
+          {
+            "group": "running_into_traffic_chi26",
+            "item": "performance",
+            "std_loading": -0.413055428447876
+          },
+          {
+            "group": "running_into_traffic_chi26",
+            "item": "effort",
+            "std_loading": 0.663522254508246
+          },
+          {
+            "group": "running_into_traffic_chi26",
+            "item": "frustration",
+            "std_loading": 0.517339153742209
+          }
+        ],
+        "lrt_chisq_diff": 68.4309859125,
+        "lrt_df_diff": 5,
+        "lrt_pvalue": 2.17267511633849e-13
+      }
+    },
+    "items": [
+      "mental_demand",
+      "physical_demand",
+      "temporal_demand",
+      "performance",
+      "effort",
+      "frustration"
+    ]
+  },
+  {
+    "scale": "aoa_usefulness",
+    "lavaan": "0.7.3",
+    "n_obs": 996,
+    "groups": {
+      "ehmi_for_all_chi26": 720,
+      "roads_chi25": 276
+    },
+    "clusters": {
+      "ehmi_for_all_chi26": 40,
+      "roads_chi25": 23
+    },
+    "levels": {
+      "configural": {
+        "chisq.scaled": 11.916037,
+        "df.scaled": 10,
+        "pvalue.scaled": 0.290715,
+        "cfi.robust": 0.99875,
+        "tli.robust": 0.9975,
+        "rmsea.robust": 0.027995,
+        "srmr": 0.008975,
+        "aic": 11690.817206,
+        "bic": 11837.929624,
+        "converged": true,
+        "warning": "",
+        "std_loadings": [
+          {
+            "group": "ehmi_for_all_chi26",
+            "item": "AOA1",
+            "std_loading": 0.897870900868619
+          },
+          {
+            "group": "ehmi_for_all_chi26",
+            "item": "AOA3",
+            "std_loading": 0.808593166737083
+          },
+          {
+            "group": "ehmi_for_all_chi26",
+            "item": "AOA5",
+            "std_loading": 0.883519034058354
+          },
+          {
+            "group": "ehmi_for_all_chi26",
+            "item": "AOA7",
+            "std_loading": 0.892124715116967
+          },
+          {
+            "group": "ehmi_for_all_chi26",
+            "item": "AOA9",
+            "std_loading": -0.139599495904653
+          },
+          {
+            "group": "roads_chi25",
+            "item": "AOA1",
+            "std_loading": 0.884769732905156
+          },
+          {
+            "group": "roads_chi25",
+            "item": "AOA3",
+            "std_loading": 0.865948204736011
+          },
+          {
+            "group": "roads_chi25",
+            "item": "AOA5",
+            "std_loading": 0.85972963298459
+          },
+          {
+            "group": "roads_chi25",
+            "item": "AOA7",
+            "std_loading": 0.887145807701835
+          },
+          {
+            "group": "roads_chi25",
+            "item": "AOA9",
+            "std_loading": 0.135533644132014
+          }
+        ]
+      },
+      "metric": {
+        "chisq.scaled": 26.470813,
+        "df.scaled": 14,
+        "pvalue.scaled": 0.022538,
+        "cfi.robust": 0.990942,
+        "tli.robust": 0.98706,
+        "rmsea.robust": 0.06369,
+        "srmr": 0.051657,
+        "aic": 11718.575116,
+        "bic": 11846.072545,
+        "converged": true,
+        "warning": "",
+        "std_loadings": [
+          {
+            "group": "ehmi_for_all_chi26",
+            "item": "AOA1",
+            "std_loading": 0.891054190995373
+          },
+          {
+            "group": "ehmi_for_all_chi26",
+            "item": "AOA3",
+            "std_loading": 0.825040184038487
+          },
+          {
+            "group": "ehmi_for_all_chi26",
+            "item": "AOA5",
+            "std_loading": 0.88772703940299
+          },
+          {
+            "group": "ehmi_for_all_chi26",
+            "item": "AOA7",
+            "std_loading": 0.887068184976801
+          },
+          {
+            "group": "ehmi_for_all_chi26",
+            "item": "AOA9",
+            "std_loading": -0.0813957502425834
+          },
+          {
+            "group": "roads_chi25",
+            "item": "AOA1",
+            "std_loading": 0.90023614749519
+          },
+          {
+            "group": "roads_chi25",
+            "item": "AOA3",
+            "std_loading": 0.81448428980308
+          },
+          {
+            "group": "roads_chi25",
+            "item": "AOA5",
+            "std_loading": 0.844473894219511
+          },
+          {
+            "group": "roads_chi25",
+            "item": "AOA7",
+            "std_loading": 0.898593757787241
+          },
+          {
+            "group": "roads_chi25",
+            "item": "AOA9",
+            "std_loading": -0.0632018854287108
+          }
+        ],
+        "lrt_chisq_diff": 12.569185105,
+        "lrt_df_diff": 4,
+        "lrt_pvalue": 0.0135844293338077
+      },
+      "scalar": {
+        "chisq.scaled": 45.831934,
+        "df.scaled": 18,
+        "pvalue.scaled": 0.000314,
+        "cfi.robust": 0.977008,
+        "tli.robust": 0.974453,
+        "rmsea.robust": 0.089488,
+        "srmr": 0.069838,
+        "aic": 11768.754835,
+        "bic": 11876.637275,
+        "converged": true,
+        "warning": "",
+        "std_loadings": [
+          {
+            "group": "ehmi_for_all_chi26",
+            "item": "AOA1",
+            "std_loading": 0.893987273803828
+          },
+          {
+            "group": "ehmi_for_all_chi26",
+            "item": "AOA3",
+            "std_loading": 0.821688592229365
+          },
+          {
+            "group": "ehmi_for_all_chi26",
+            "item": "AOA5",
+            "std_loading": 0.887483510955275
+          },
+          {
+            "group": "ehmi_for_all_chi26",
+            "item": "AOA7",
+            "std_loading": 0.884673793678567
+          },
+          {
+            "group": "ehmi_for_all_chi26",
+            "item": "AOA9",
+            "std_loading": -0.0454281738178927
+          },
+          {
+            "group": "roads_chi25",
+            "item": "AOA1",
+            "std_loading": 0.897894915522493
+          },
+          {
+            "group": "roads_chi25",
+            "item": "AOA3",
+            "std_loading": 0.807962436078755
+          },
+          {
+            "group": "roads_chi25",
+            "item": "AOA5",
+            "std_loading": 0.844897052121705
+          },
+          {
+            "group": "roads_chi25",
+            "item": "AOA7",
+            "std_loading": 0.896373579867362
+          },
+          {
+            "group": "roads_chi25",
+            "item": "AOA9",
+            "std_loading": -0.0339278231305356
+          }
+        ],
+        "lrt_chisq_diff": 15.8564402446,
+        "lrt_df_diff": 4,
+        "lrt_pvalue": 0.00321797479904769
+      }
+    },
+    "items": [
+      "AOA1",
+      "AOA3",
+      "AOA5",
+      "AOA7",
+      "AOA9"
+    ]
+  },
+  {
+    "scale": "aoa_satisfying",
+    "lavaan": "0.7.3",
+    "n_obs": 996,
+    "groups": {
+      "ehmi_for_all_chi26": 720,
+      "roads_chi25": 276
+    },
+    "clusters": {
+      "ehmi_for_all_chi26": 40,
+      "roads_chi25": 23
+    },
+    "levels": {
+      "configural": {
+        "chisq.scaled": 1.159486,
+        "df.scaled": 4,
+        "pvalue.scaled": 0.884723,
+        "cfi.robust": 1,
+        "tli.robust": 1.005802,
+        "rmsea.robust": 0,
+        "srmr": 0.003162,
+        "aic": 9050.867517,
+        "bic": 9168.557451,
+        "converged": true,
+        "warning": "",
+        "std_loadings": [
+          {
+            "group": "ehmi_for_all_chi26",
+            "item": "AOA2",
+            "std_loading": 0.925783967956846
+          },
+          {
+            "group": "ehmi_for_all_chi26",
+            "item": "AOA4",
+            "std_loading": 0.880279839161036
+          },
+          {
+            "group": "ehmi_for_all_chi26",
+            "item": "AOA6",
+            "std_loading": 0.858509174853793
+          },
+          {
+            "group": "ehmi_for_all_chi26",
+            "item": "AOA8",
+            "std_loading": 0.78208640185066
+          },
+          {
+            "group": "roads_chi25",
+            "item": "AOA2",
+            "std_loading": 0.905301537889058
+          },
+          {
+            "group": "roads_chi25",
+            "item": "AOA4",
+            "std_loading": 0.875861743875397
+          },
+          {
+            "group": "roads_chi25",
+            "item": "AOA6",
+            "std_loading": 0.893974057452621
+          },
+          {
+            "group": "roads_chi25",
+            "item": "AOA8",
+            "std_loading": 0.846962535327725
+          }
+        ]
+      },
+      "metric": {
+        "chisq.scaled": 2.1469,
+        "df.scaled": 7,
+        "pvalue.scaled": 0.951264,
+        "cfi.robust": 1,
+        "tli.robust": 1.006361,
+        "rmsea.robust": 0,
+        "srmr": 0.013512,
+        "aic": 9047.479326,
+        "bic": 9150.458018,
+        "converged": true,
+        "warning": "",
+        "std_loadings": [
+          {
+            "group": "ehmi_for_all_chi26",
+            "item": "AOA2",
+            "std_loading": 0.923461232807472
+          },
+          {
+            "group": "ehmi_for_all_chi26",
+            "item": "AOA4",
+            "std_loading": 0.883465749304446
+          },
+          {
+            "group": "ehmi_for_all_chi26",
+            "item": "AOA6",
+            "std_loading": 0.856659463660568
+          },
+          {
+            "group": "ehmi_for_all_chi26",
+            "item": "AOA8",
+            "std_loading": 0.787034093178462
+          },
+          {
+            "group": "roads_chi25",
+            "item": "AOA2",
+            "std_loading": 0.910846568184307
+          },
+          {
+            "group": "roads_chi25",
+            "item": "AOA4",
+            "std_loading": 0.866636085751004
+          },
+          {
+            "group": "roads_chi25",
+            "item": "AOA6",
+            "std_loading": 0.897237019776428
+          },
+          {
+            "group": "roads_chi25",
+            "item": "AOA8",
+            "std_loading": 0.838825149220323
+          }
+        ],
+        "lrt_chisq_diff": 0.9724031773,
+        "lrt_df_diff": 3,
+        "lrt_pvalue": 0.807929150365003
+      },
+      "scalar": {
+        "chisq.scaled": 14.085807,
+        "df.scaled": 10,
+        "pvalue.scaled": 0.169114,
+        "cfi.robust": 0.996879,
+        "tli.robust": 0.996255,
+        "rmsea.robust": 0.04383,
+        "srmr": 0.025081,
+        "aic": 9069.429431,
+        "bic": 9157.696882,
+        "converged": true,
+        "warning": "",
+        "std_loadings": [
+          {
+            "group": "ehmi_for_all_chi26",
+            "item": "AOA2",
+            "std_loading": 0.92419576383462
+          },
+          {
+            "group": "ehmi_for_all_chi26",
+            "item": "AOA4",
+            "std_loading": 0.880611501339951
+          },
+          {
+            "group": "ehmi_for_all_chi26",
+            "item": "AOA6",
+            "std_loading": 0.857270628758889
+          },
+          {
+            "group": "ehmi_for_all_chi26",
+            "item": "AOA8",
+            "std_loading": 0.788156442807493
+          },
+          {
+            "group": "roads_chi25",
+            "item": "AOA2",
+            "std_loading": 0.911429193919689
+          },
+          {
+            "group": "roads_chi25",
+            "item": "AOA4",
+            "std_loading": 0.855889792790311
+          },
+          {
+            "group": "roads_chi25",
+            "item": "AOA6",
+            "std_loading": 0.89788699783111
+          },
+          {
+            "group": "roads_chi25",
+            "item": "AOA8",
+            "std_loading": 0.836116391398737
+          }
+        ],
+        "lrt_chisq_diff": 11.9629901127,
+        "lrt_df_diff": 3,
+        "lrt_pvalue": 0.00751102202446505
+      }
+    },
+    "items": [
+      "AOA2",
+      "AOA4",
+      "AOA6",
+      "AOA8"
+    ]
+  }
+]

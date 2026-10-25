@@ -80,6 +80,14 @@ bash analyses/run_latest_multi_study_analysis.sh analyses/output_python_latest_s
 - `analyses/output_python/dv_coverage_by_study.png`
 - `analyses/output_python/cross_study_composite_distribution.png`
 
+### Measurement invariance of shared scales
+
+Pooled means are comparable only if a scale measures the same construct on the same metric in every study. `analyses/measurement_invariance.py` (run by `multi_study_analysis.py`) takes every scale in `schemas/instruments.yaml` whose items are present in at least two studies (30+ complete observations from 10+ participants each), reflects reverse-keyed items, and fits a one-factor multi-group CFA with lavaan at three levels: configural, metric (equal loadings) and scalar (equal loadings and intercepts). Participants from `schemas/study_designs.yaml` are clusters (MLR with cluster-robust statistics), since studies answer several times per participant; Likert items are treated as continuous.
+
+Decision rules: configural fit needs robust CFI ≥ .90, RMSEA ≤ .08 and SRMR ≤ .08; a stricter level fails when CFI drops by ≥ .010 together with RMSEA rising by ≥ .015 or SRMR by ≥ .030 (metric) / .010 (scalar) (Chen, 2007). The scaled chi-square difference test is reported too. Outputs: `measurement_invariance.csv` (fit per level), `measurement_invariance.json` (lavaan output with standardized loadings per study), and a `measurement_invariance` column in `meta_analysis_summary*.csv`, e.g. `none (roads_chi25; running_into_traffic_chi26)`. The test covers only studies with every item of the scale, which can be fewer than those pooled.
+
+Requires `Rscript` with the `lavaan` and `jsonlite` packages (`install.packages("lavaan")`); without them the step is skipped and the column reads `not_tested`. `tests/test_measurement_invariance.py` checks the rules on simulated data where the right answer is known.
+
 ### Condition contrasts from declared designs
 
 Pooling study means says where studies sit on a shared scale, not what their manipulations did. `analyses/contrast_meta_analysis.py` (run automatically by `multi_study_analysis.py`, or on its own with `--input-dir/--output-dir`) uses `schemas/study_designs.yaml`:

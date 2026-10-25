@@ -78,7 +78,15 @@ captions is computed from the run artifacts.
    `understanding_rating` from 3.33 to 7.56 depending on scale harmonization.
 3. **Small k.** Most pooled DVs have k = 2–3. Use the HKSJ interval
    (`hksj_ci95_low/high`) rather than the Wald interval for inference.
-4. **Changes relative to the June 2026 figure set.** Trim-and-fill now
+4. **Measurement invariance.** Of the four scales whose items are available
+   in two studies, only Van der Laan *satisfying* reaches scalar invariance,
+   the level needed to compare means. SUS and NASA-TLX fail already at the
+   configural level, and Van der Laan *usefulness* reaches only metric
+   invariance (column `measurement_invariance` in
+   `meta_analysis_summary.csv`; `measurement_invariance.csv`). Treat pooled
+   means of those scales, including Fig. 4's Mental Demand, as describing
+   where studies sit rather than as comparable measurements.
+5. **Changes relative to the June 2026 figure set.** Trim-and-fill now
    matches `metafor`. The PCA composite drops rows with no shared DV
    observed. LimeSurvey `neg1`/`neg2` AOA answers are recoded instead of
    dropped. Psych-Conflict's text Likert labels are recoded, and that study

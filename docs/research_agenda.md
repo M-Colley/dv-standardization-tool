@@ -378,6 +378,25 @@ shows when a question is answered and when more studies are futile.
   subfields before generalizing RQ1.
 - **Gold-label circularity.** E1 gold labels come from mappings written by
   the tool's authors. P1's independent human labels address this.
+- **Measurement non-invariance.** Pooling means assumes a scale measures
+  the same construct on the same metric in every study (scalar invariance).
+  Tested where item data exist (`analyses/measurement_invariance.py`,
+  lavaan multi-group CFA with participant-clustered MLR; 2026-10-24):
+
+  | Scale | Studies | Level reached | Why |
+  |---|---|---|---|
+  | SUS (10 items) | eHMI-for-All, ROADS | none | one factor misfits (robust RMSEA 0.12); items 4 and 10 load weakly, in line with SUS's usability/learnability split |
+  | NASA-TLX (6 subscales) | ROADS, Running into Traffic | none | misfit (RMSEA 0.14); *performance* loads +0.25 in ROADS but −0.54 in Running into Traffic |
+  | Van der Laan usefulness | eHMI-for-All, ROADS | metric | scalar fails (ΔCFI −0.014, ΔRMSEA +0.026): means are not comparable; item 9 barely loads (±0.14) |
+  | Van der Laan satisfying | eHMI-for-All, ROADS | scalar | means comparable |
+
+  Only Van der Laan *satisfying* supports pooling means; `mental_demand`
+  (pooled over 7 studies) is untested in 5 of them and fails in the 2 with
+  full TLX items. The negative *performance* loading suggests Running into
+  Traffic's "success" item is keyed opposite to the TLX performance scale
+  (high = success rather than failure), like the reverse-poled UEQ-S items
+  of the same study; check the questionnaire and add it to `reverse_items`.
+  `meta_analysis_summary.csv` now carries a `measurement_invariance` column.
 - **Observation-level n.** Pooled estimates use row-level n, which is
   anti-conservative for repeated measures. P5 reports the participant-level
   alternative; the multiverse already includes it.
