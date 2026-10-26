@@ -15,7 +15,7 @@
 tlx.mental: mental_demand
 tlx.physical: physical_demand
 tlx.rush: temporal_demand        # "rush" = time pressure
-tlx.success: performance         # "success" = the TLX performance subscale
+tlx.success: performance         # "success" = the TLX performance subscale (reverse-keyed, see below)
 tlx.effort: effort
 tlx.stress: frustration          # "stress" = the TLX frustration subscale
 
@@ -53,6 +53,17 @@ reverse_items:
   - columns: ["ueq.p.clarity", "ueq.h.inventive"]
     scale_range: [1, 7]
     reason: positive pole first, as in the long UEQ; negative correlation with all other items
+
+# tlx.success is the NASA-TLX performance subscale keyed as "success": high =
+# successful, where the TLX scale runs from perfect (low) to failure (high).
+# Its mean is 17.7 on 0-21 (95 of 288 answers at 21; the other five subscales
+# average 3.2-4.9), it correlates negatively with all five (r = -0.19 to -0.55)
+# and positively with perceived safety (0.42) and trust (0.40), and it loads
+# -0.54 on a one-factor TLX model (ROADS: +0.25). The Zenodo record has no
+# questionnaire to confirm the wording. Reverse-scored (21 - x) to TLX polarity.
+  - columns: ["tlx.success"]
+    scale_range: [0, 21]
+    reason: TLX performance keyed as success (high = good); mean 17.7 of 21, negative correlation with the other TLX subscales, loading -0.54
 
 # --- Independent variables and ambiguous non-DV columns -----------------------
 # These appeared as wrong LLM targets in earlier runs (e.g. ehmi -> temporal_demand,
