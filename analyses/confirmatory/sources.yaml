@@ -1,0 +1,94 @@
+# Datasets of the confirmatory shortlist test (docs/preregistration_confirmatory_shortlist.md).
+# Only the files listed here are downloaded, by `python -m opendv.analysis.confirmatory fetch`,
+# into data/raw/confirmatory/<source_id>/ and checked against the published checksum.
+# None of these studies was used to develop OpenDV-HCI; none is from automotive research.
+sources:
+  - source_id: agency_ux_tochi22
+    title: "Sense of Agency and User Experience: Is There a Link?"
+    venue: ACM TOCHI 29(4), 2022
+    doi: 10.1145/3490493
+    license: CC-BY-4.0
+    repository: https://github.com/henningpohl/hcidata
+    files:
+      - {path: data-raw/AgencyUX.csv, size: 10996, git_blob: 73cb12e132bab0bbda7565ac1442250a0878ddc6,
+         url: "https://raw.githubusercontent.com/henningpohl/hcidata/fad8f707c9fbab3ea5f773dca5652d5d4d8f2067/data-raw/AgencyUX.csv"}
+      - {path: R/AgencyUX.R, size: 3426, git_blob: 571428be229d00898e10918e40357b0c8dcbe973, role: codebook,
+         url: "https://raw.githubusercontent.com/henningpohl/hcidata/fad8f707c9fbab3ea5f773dca5652d5d4d8f2067/R/AgencyUX.R"}
+      - {path: data-raw/AgencyUX.R, size: 1171, git_blob: ca5755124387985aa49eae821606ff22b0b2ac29, role: codebook,
+         url: "https://raw.githubusercontent.com/henningpohl/hcidata/fad8f707c9fbab3ea5f773dca5652d5d4d8f2067/data-raw/AgencyUX.R"}
+
+  - source_id: pxi_validation_chi24
+    title: "Independent Validation of the Player Experience Inventory: Findings from a Large Set of Video Game Players"
+    venue: CHI 2024
+    doi: 10.1145/3613904.3642270
+    license: CC-BY-4.0
+    repository: https://osf.io/8xuhr/
+    files:
+      - {path: PXI_validation_main_data.xlsx, size: 1203205, url: "https://osf.io/download/gxfu4/",
+         sha256: 9bd7708d60be1aa165b6469a1ab903b3a054d55300fbb7a51dab2a93f615d090}
+      - {path: PXI_validation_main_analysis.Rmd, size: 110756, url: "https://osf.io/download/w4kj5/", role: codebook,
+         sha256: d1cacfbd46b87949937c5f40815866f72e8be309c2b448f18375bfdb953864f2}
+      - {path: Printout_online_survey.pdf, size: 1516382, url: "https://osf.io/download/kcr8a/", role: codebook,
+         sha256: eacd5f766a9d96963aa6791b25c7cd06fd743584ab86a19289081eaf3bef5400}
+
+  - source_id: hiaudio_eval_2026
+    title: "The Hi-Audio online platform for recording and distributing multi-track music datasets"
+    venue: EURASIP Journal on Audio, Speech, and Music Processing, 2026
+    doi: 10.1186/s13636-026-00459-0
+    license: CC-BY-4.0
+    repository: https://github.com/idsinge/hiaudio_user_evaluation_results
+    files:
+      - {path: data/Hi-Audio_User_Evaluation_Survey.csv, size: 20937, git_blob: 6405c16a89b09ebc87f30106e5e903451204796f,
+         url: "https://raw.githubusercontent.com/idsinge/hiaudio_user_evaluation_results/0fa9f2e9b318400b09daf9d9d8ad35bceb572362/data/Hi-Audio_User_Evaluation_Survey.csv"}
+      - {path: data/Section_4_SUS.csv, size: 594, git_blob: 75625af1dd4170cdbeb1b3de509bee861adb414e,
+         url: "https://raw.githubusercontent.com/idsinge/hiaudio_user_evaluation_results/0fa9f2e9b318400b09daf9d9d8ad35bceb572362/data/Section_4_SUS.csv"}
+      - {path: data/Section_5_NASA-TLX.csv, size: 585, git_blob: 27838965f931724e2a03eecb3e82cb4b0c5c8bdd,
+         url: "https://raw.githubusercontent.com/idsinge/hiaudio_user_evaluation_results/0fa9f2e9b318400b09daf9d9d8ad35bceb572362/data/Section_5_NASA-TLX.csv"}
+      - {path: data/Task_Performance.csv, size: 594, git_blob: 5d544ec68e4e6074b42efd7d05e867a687eee592,
+         url: "https://raw.githubusercontent.com/idsinge/hiaudio_user_evaluation_results/0fa9f2e9b318400b09daf9d9d8ad35bceb572362/data/Task_Performance.csv"}
+      - {path: DATA_DICTIONARY.md, size: 4485, git_blob: 9702893fe3c172937872af21a479185895d998e7, role: codebook,
+         url: "https://raw.githubusercontent.com/idsinge/hiaudio_user_evaluation_results/0fa9f2e9b318400b09daf9d9d8ad35bceb572362/DATA_DICTIONARY.md"}
+
+  - source_id: xai_trust_scales_chi23
+    title: "Trust Issues with Trust Scales: Examining the Psychometric Quality of Trust Measures in the Context of AI"
+    venue: CHI EA 2023
+    doi: 10.1145/3544549.3585808
+    license: CC-BY-4.0
+    repository: https://osf.io/5vgk8/
+    files:
+      - {path: XAI_Trust.csv, size: 207491, url: "https://osf.io/download/49qku/",
+         sha256: 4f40259f1b9ee927a065183e5199cf9d8a0343a4bd60cd1e27cc14338ca16b23}
+      - {path: XAI_Trust.Rmd, size: 33277, url: "https://osf.io/download/2th6e/", role: codebook,
+         sha256: ef888d62fe09fac1e767793584088fb486265dd1507ec859e873fdd617d6a6e4}
+
+  - source_id: sonomancer_chiplay25
+    title: "Sonomancer: Exploring Sonic Control Schemes for Audio Augmented Reality Games"
+    venue: CHI PLAY 2025 (PACMHCI 9(6), GAMES034)
+    doi: 10.1145/3748629
+    license: CC-BY-4.0
+    repository: https://zenodo.org/records/16875852
+    files:
+      - {path: Bhattacharyya-etal-2025-SonomancerSonicControlSchemesAAR.csv, size: 42255, md5: e8649f2e973522bf7b49e90b6062666b,
+         url: "https://zenodo.org/api/records/16875852/files/Bhattacharyya-etal-2025-SonomancerSonicControlSchemesAAR.csv/content"}
+      - {path: Bhattacharyya-etal-2025-SonomancerSonicControlSchemesAAR-Demographics.csv, size: 2079, md5: 8d9866f600a551f739252c8bcc5115c8,
+         url: "https://zenodo.org/api/records/16875852/files/Bhattacharyya-etal-2025-SonomancerSonicControlSchemesAAR-Demographics.csv/content"}
+
+  - source_id: vr_grab_techniques_icom20
+    title: "Comparison of VR interaction techniques (Weise, Zender, Lucke; dataset v1.1)"
+    venue: dataset 10.5281/zenodo.4553165 (paper probably i-com 2020, 10.1515/icom-2020-0011)
+    doi: 10.5281/zenodo.4553165
+    license: CC-BY-4.0
+    repository: https://zenodo.org/records/4553165
+    files:
+      - {path: comparison_vr_interaction_techniques_v1.1.zip, size: 544979, md5: e8d185c9a614db9c193c15548efff5e1,
+         url: "https://zenodo.org/api/records/4553165/files/comparison_vr_interaction_techniques_v1.1.zip/content"}
+
+  - source_id: tamago_supervision_2026
+    title: "TAMAGO Visual Intensity Dataset: A Within-Subjects Evaluation of Three Gamified Final-Project Supervision Interfaces"
+    venue: dataset 2026 (no peer-reviewed paper found)
+    doi: 10.5281/zenodo.23273694
+    license: CC-BY-4.0
+    repository: https://zenodo.org/records/23273694
+    files:
+      - {path: "TAMAGO - Dataset Testing.xlsx", size: 61969, md5: 3570e44f03553572ad0ce3c5bcdd9a69,
+         url: "https://zenodo.org/api/records/23273694/files/TAMAGO%20-%20Dataset%20Testing.xlsx/content"}

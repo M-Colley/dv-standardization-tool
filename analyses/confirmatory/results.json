@@ -1,0 +1,151 @@
+{
+  "n_dv_columns": 168,
+  "shortlists": {
+    "definition": {
+      "correct": 55,
+      "gold_in_shortlist": 114,
+      "precision_of_accepted_dv_mappings": {
+        "k": 55,
+        "n": 159,
+        "rate": 0.34591194968553457,
+        "ci95": [
+          0.27639875877974024,
+          0.42269506932238793
+        ]
+      },
+      "abstained_on_dv_columns": {
+        "k": 35,
+        "n": 168,
+        "rate": 0.20833333333333334,
+        "ci95": [
+          0.15378397854253134,
+          0.27592291132822505
+        ]
+      },
+      "curated_non_dv_mapped_to_a_dv": {
+        "k": 26,
+        "n": 144,
+        "rate": 0.18055555555555555,
+        "ci95": [
+          0.12629942236719174,
+          0.25141234580752614
+        ]
+      },
+      "true_mappings_lost_to_check_among_reached": 0,
+      "screened_before_llm": 31,
+      "correct_by_source": {
+        "agency_ux_tochi22": 4,
+        "hiaudio_eval_2026": 3,
+        "pxi_validation_chi24": 30,
+        "sonomancer_chiplay25": 2,
+        "tamago_supervision_2026": 14,
+        "vr_grab_techniques_icom20": 2,
+        "xai_trust_scales_chi23": 0
+      }
+    },
+    "dense_h": {
+      "correct": 53,
+      "gold_in_shortlist": 117,
+      "precision_of_accepted_dv_mappings": {
+        "k": 53,
+        "n": 161,
+        "rate": 0.32919254658385094,
+        "ci95": [
+          0.26132641529317036,
+          0.40501965811894314
+        ]
+      },
+      "abstained_on_dv_columns": {
+        "k": 40,
+        "n": 168,
+        "rate": 0.23809523809523808,
+        "ci95": [
+          0.18000046417619392,
+          0.3078996001975465
+        ]
+      },
+      "curated_non_dv_mapped_to_a_dv": {
+        "k": 33,
+        "n": 144,
+        "rate": 0.22916666666666666,
+        "ci95": [
+          0.1680899227321394,
+          0.30431788072033883
+        ]
+      },
+      "true_mappings_lost_to_check_among_reached": 0,
+      "screened_before_llm": 31,
+      "correct_by_source": {
+        "agency_ux_tochi22": 1,
+        "hiaudio_eval_2026": 7,
+        "pxi_validation_chi24": 25,
+        "sonomancer_chiplay25": 2,
+        "tamago_supervision_2026": 15,
+        "vr_grab_techniques_icom20": 3,
+        "xai_trust_scales_chi23": 0
+      }
+    },
+    "mixed_h": {
+      "correct": 56,
+      "gold_in_shortlist": 108,
+      "precision_of_accepted_dv_mappings": {
+        "k": 56,
+        "n": 162,
+        "rate": 0.345679012345679,
+        "ci95": [
+          0.27678292383725256,
+          0.42172431099080443
+        ]
+      },
+      "abstained_on_dv_columns": {
+        "k": 38,
+        "n": 168,
+        "rate": 0.2261904761904762,
+        "ci95": [
+          0.16946104906120715,
+          0.29516174551133967
+        ]
+      },
+      "curated_non_dv_mapped_to_a_dv": {
+        "k": 32,
+        "n": 144,
+        "rate": 0.2222222222222222,
+        "ci95": [
+          0.16203742244608532,
+          0.29684237596671287
+        ]
+      },
+      "true_mappings_lost_to_check_among_reached": 0,
+      "screened_before_llm": 31,
+      "correct_by_source": {
+        "agency_ux_tochi22": 4,
+        "hiaudio_eval_2026": 3,
+        "pxi_validation_chi24": 30,
+        "sonomancer_chiplay25": 3,
+        "tamago_supervision_2026": 14,
+        "vr_grab_techniques_icom20": 2,
+        "xai_trust_scales_chi23": 0
+      }
+    }
+  },
+  "tests": {
+    "dense_h_vs_definition": {
+      "new_only": 8,
+      "baseline_only": 10,
+      "p_two_sided": 0.8145294189453125,
+      "p_holm": 1.0
+    },
+    "mixed_h_vs_definition": {
+      "new_only": 5,
+      "baseline_only": 4,
+      "p_two_sided": 1.0,
+      "p_holm": 1.0
+    }
+  },
+  "decision": {
+    "more_correct": false,
+    "p_below_0.05": false,
+    "precision_at_least_baseline": false,
+    "switch_default_to_hierarchical": false
+  }
+}

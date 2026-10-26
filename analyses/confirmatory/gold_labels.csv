@@ -1,0 +1,523 @@
+source_id,dataset_id,column,kind,label,reason
+agency_ux_tochi22,data-raw/AgencyUX.csv,ID,non_dv,meta_participant_id,"id, demographics, device background or condition (codebook)"
+agency_ux_tochi22,data-raw/AgencyUX.csv,Age,non_dv,meta_demographic_age,"id, demographics, device background or condition (codebook)"
+agency_ux_tochi22,data-raw/AgencyUX.csv,Gender,non_dv,meta_demographic_gender,"id, demographics, device background or condition (codebook)"
+agency_ux_tochi22,data-raw/AgencyUX.csv,Mouse Use,non_dv,meta_demographic_mouse_use,"id, demographics, device background or condition (codebook)"
+agency_ux_tochi22,data-raw/AgencyUX.csv,Touchpad Use,non_dv,meta_demographic_touchpad_use,"id, demographics, device background or condition (codebook)"
+agency_ux_tochi22,data-raw/AgencyUX.csv,Condition,non_dv,meta_condition_device,"id, demographics, device background or condition (codebook)"
+agency_ux_tochi22,data-raw/AgencyUX.csv,Hits,dv,task_success,count of game hits (success measure)
+agency_ux_tochi22,data-raw/AgencyUX.csv,Misses,dv,error_rate,count of game misses
+agency_ux_tochi22,data-raw/AgencyUX.csv,AttDiff1,dv,attrakdiff_pq,AttrakDiff short item (codebook word pair)
+agency_ux_tochi22,data-raw/AgencyUX.csv,AttDiff2,dv,attrakdiff_pq,AttrakDiff short item (codebook word pair)
+agency_ux_tochi22,data-raw/AgencyUX.csv,AttDiff3,dv,attrakdiff_pq,AttrakDiff short item (codebook word pair)
+agency_ux_tochi22,data-raw/AgencyUX.csv,AttDiff4,dv,attrakdiff_pq,AttrakDiff short item (codebook word pair)
+agency_ux_tochi22,data-raw/AgencyUX.csv,AttDiff5,dv,attrakdiff_hqs,AttrakDiff short item (codebook word pair)
+agency_ux_tochi22,data-raw/AgencyUX.csv,AttDiff6,dv,attrakdiff_hqi,AttrakDiff short item (codebook word pair)
+agency_ux_tochi22,data-raw/AgencyUX.csv,AttDiff7,dv,attrakdiff_hqi,AttrakDiff short item (codebook word pair)
+agency_ux_tochi22,data-raw/AgencyUX.csv,AttDiff8,dv,attrakdiff_hqs,AttrakDiff short item (codebook word pair)
+agency_ux_tochi22,data-raw/AgencyUX.csv,Umux1,dv,user_satisfaction,UMUX-LITE item; schema lists UMUX-Lite under user_satisfaction
+agency_ux_tochi22,data-raw/AgencyUX.csv,Umux2,dv,user_satisfaction,UMUX-LITE item; schema lists UMUX-Lite under user_satisfaction
+agency_ux_tochi22,data-raw/AgencyUX.csv,NASA1,dv,mental_demand,"NASA-TLX item, 21-point (codebook)"
+agency_ux_tochi22,data-raw/AgencyUX.csv,NASA2,dv,physical_demand,"NASA-TLX item, 21-point (codebook)"
+agency_ux_tochi22,data-raw/AgencyUX.csv,NASA3,dv,temporal_demand,"NASA-TLX item, 21-point (codebook)"
+agency_ux_tochi22,data-raw/AgencyUX.csv,NASA4,dv,performance,"NASA-TLX item, 21-point (codebook)"
+agency_ux_tochi22,data-raw/AgencyUX.csv,NASA5,dv,effort,"NASA-TLX item, 21-point (codebook)"
+agency_ux_tochi22,data-raw/AgencyUX.csv,NASA6,dv,frustration,"NASA-TLX item, 21-point (codebook)"
+agency_ux_tochi22,data-raw/AgencyUX.csv,Ownership,unlabeled_dv,,"body ownership, agency or time estimate; no schema DV"
+agency_ux_tochi22,data-raw/AgencyUX.csv,Agency1,unlabeled_dv,,"body ownership, agency or time estimate; no schema DV"
+agency_ux_tochi22,data-raw/AgencyUX.csv,Agency2,unlabeled_dv,,"body ownership, agency or time estimate; no schema DV"
+agency_ux_tochi22,data-raw/AgencyUX.csv,Agency3,unlabeled_dv,,"body ownership, agency or time estimate; no schema DV"
+agency_ux_tochi22,data-raw/AgencyUX.csv,Estimate(s),unlabeled_dv,,"body ownership, agency or time estimate; no schema DV"
+agency_ux_tochi22,data-raw/AgencyUX.csv,BaseAgency,non_dv,meta_condition_base_agency,recoding of Condition
+hiaudio_eval_2026,data/Hi-Audio_User_Evaluation_Survey.csv,"﻿""Submission Date""",non_dv,meta_timestamp_submission,"background, setup, free text, id or consent"
+hiaudio_eval_2026,data/Hi-Audio_User_Evaluation_Survey.csv,Age range,non_dv,meta_demographic_age,"background, setup, free text, id or consent"
+hiaudio_eval_2026,data/Hi-Audio_User_Evaluation_Survey.csv,English level,non_dv,meta_demographic_english_level,"background, setup, free text, id or consent"
+hiaudio_eval_2026,data/Hi-Audio_User_Evaluation_Survey.csv,"Do you have a technical background (science, engineering, etc.)?",non_dv,meta_demographic_technical_background,"background, setup, free text, id or consent"
+hiaudio_eval_2026,data/Hi-Audio_User_Evaluation_Survey.csv,"Do you have any musical training or studies (tutor, school, conservatory,...)?",non_dv,meta_demographic_musical_training,"background, setup, free text, id or consent"
+hiaudio_eval_2026,data/Hi-Audio_User_Evaluation_Survey.csv,How often do you play music?,non_dv,meta_demographic_music_play_frequency,"background, setup, free text, id or consent"
+hiaudio_eval_2026,data/Hi-Audio_User_Evaluation_Survey.csv,"Do you record music casually no matter the format (voice notes, demos, etc.)?",non_dv,meta_demographic_casual_recording,"background, setup, free text, id or consent"
+hiaudio_eval_2026,data/Hi-Audio_User_Evaluation_Survey.csv,"Are you <strong>involved</strong> <strong>with others</strong>, or collaborate, <strong>in music recording sometimes</strong>?",non_dv,meta_demographic_collaborative_recording,"background, setup, free text, id or consent"
+hiaudio_eval_2026,data/Hi-Audio_User_Evaluation_Survey.csv,What tools or setup do you normally use to record yourself?,non_dv,meta_demographic_recording_setup,"background, setup, free text, id or consent"
+hiaudio_eval_2026,data/Hi-Audio_User_Evaluation_Survey.csv,Are you familiar with recording in multitrack format?,non_dv,meta_demographic_multitrack_familiarity,"background, setup, free text, id or consent"
+hiaudio_eval_2026,data/Hi-Audio_User_Evaluation_Survey.csv,Do you know what a Digital Audio Workstation (DAW) is?,non_dv,meta_demographic_daw_knowledge,"background, setup, free text, id or consent"
+hiaudio_eval_2026,data/Hi-Audio_User_Evaluation_Survey.csv,Have you ever used a Digital Audio Workstation (DAW)?,non_dv,meta_demographic_daw_use,"background, setup, free text, id or consent"
+hiaudio_eval_2026,data/Hi-Audio_User_Evaluation_Survey.csv,Which <strong>DAWs or equivalent software for making music</strong> have you used?,non_dv,meta_demographic_daws_used,"background, setup, free text, id or consent"
+hiaudio_eval_2026,data/Hi-Audio_User_Evaluation_Survey.csv,Which DAWs have you used?,non_dv,meta_demographic_daws_used,"background, setup, free text, id or consent"
+hiaudio_eval_2026,data/Hi-Audio_User_Evaluation_Survey.csv,Which musical instruments do you play and what level?,non_dv,meta_demographic_instruments,"background, setup, free text, id or consent"
+hiaudio_eval_2026,data/Hi-Audio_User_Evaluation_Survey.csv,Which musical instruments do you play and what level?.1,non_dv,meta_demographic_instruments,"background, setup, free text, id or consent"
+hiaudio_eval_2026,data/Hi-Audio_User_Evaluation_Survey.csv,Can you play using a metronome?,non_dv,meta_demographic_metronome_skill,"background, setup, free text, id or consent"
+hiaudio_eval_2026,data/Hi-Audio_User_Evaluation_Survey.csv,Do you compose/write songs?,non_dv,meta_demographic_songwriting,"background, setup, free text, id or consent"
+hiaudio_eval_2026,data/Hi-Audio_User_Evaluation_Survey.csv,"Do you play or rehearse with others (band, ensemble, orchestra, etc.)?",non_dv,meta_demographic_ensemble_playing,"background, setup, free text, id or consent"
+hiaudio_eval_2026,data/Hi-Audio_User_Evaluation_Survey.csv,What sort of music do you enjoy playing/recording?,non_dv,meta_demographic_music_genres,"background, setup, free text, id or consent"
+hiaudio_eval_2026,data/Hi-Audio_User_Evaluation_Survey.csv,What sort of music do you enjoy playing/recording?.1,non_dv,meta_demographic_music_genres,"background, setup, free text, id or consent"
+hiaudio_eval_2026,data/Hi-Audio_User_Evaluation_Survey.csv,What <strong>device</strong> did you use <strong>to perform the tasks</strong>?,non_dv,meta_setup_device,"background, setup, free text, id or consent"
+hiaudio_eval_2026,data/Hi-Audio_User_Evaluation_Survey.csv,Device model?,non_dv,meta_setup_device_model,"background, setup, free text, id or consent"
+hiaudio_eval_2026,data/Hi-Audio_User_Evaluation_Survey.csv,Which Operating System?,non_dv,meta_setup_os,"background, setup, free text, id or consent"
+hiaudio_eval_2026,data/Hi-Audio_User_Evaluation_Survey.csv,Operating System version?,non_dv,meta_setup_os_version,"background, setup, free text, id or consent"
+hiaudio_eval_2026,data/Hi-Audio_User_Evaluation_Survey.csv,Which web browser ?,non_dv,meta_setup_browser,"background, setup, free text, id or consent"
+hiaudio_eval_2026,data/Hi-Audio_User_Evaluation_Survey.csv,Browser version?,non_dv,meta_setup_browser_version,"background, setup, free text, id or consent"
+hiaudio_eval_2026,data/Hi-Audio_User_Evaluation_Survey.csv,"<strong>For audio input, or recording, during the test, </strong>which <strong>hardware or equipment</strong> did you use?",non_dv,meta_setup_audio_input,"background, setup, free text, id or consent"
+hiaudio_eval_2026,data/Hi-Audio_User_Evaluation_Survey.csv,What headphones or earphones?,non_dv,meta_setup_headphones,"background, setup, free text, id or consent"
+hiaudio_eval_2026,data/Hi-Audio_User_Evaluation_Survey.csv,How much time did it take to you to perform all the tasks?,dv,task_completion_time,self-reported time for all tasks (binned minutes); debatable
+hiaudio_eval_2026,data/Hi-Audio_User_Evaluation_Survey.csv,Is it the first time you use or interact with Hi-Audio Online Platform?,non_dv,meta_demographic_first_platform_use,"background, setup, free text, id or consent"
+hiaudio_eval_2026,data/Hi-Audio_User_Evaluation_Survey.csv,Did you need external support to accomplish any of the tasks?,unlabeled_dv,,needed external support; no schema DV
+hiaudio_eval_2026,data/Hi-Audio_User_Evaluation_Survey.csv,Were there any task/s you didn't know how to complete or did not finish due to lack of information or technical issues? Explain them please,non_dv,meta_free_text_task_problems,"background, setup, free text, id or consent"
+hiaudio_eval_2026,data/Hi-Audio_User_Evaluation_Survey.csv,Do you know what is the (round-trip) latency for an audio digital recording and how can it affect you?,non_dv,meta_demographic_latency_knowledge,"background, setup, free text, id or consent"
+hiaudio_eval_2026,data/Hi-Audio_User_Evaluation_Survey.csv,Have you ever measured the latency in an audio system before?,non_dv,meta_demographic_latency_measured,"background, setup, free text, id or consent"
+hiaudio_eval_2026,data/Hi-Audio_User_Evaluation_Survey.csv,Did you use the <strong>platform’s Metronome</strong> feature to make your <strong>recording for Task 2</strong>?,non_dv,meta_task2_metronome_use,"background, setup, free text, id or consent"
+hiaudio_eval_2026,data/Hi-Audio_User_Evaluation_Survey.csv,What time signature did you use in case of recording with the metronome?,non_dv,meta_task2_metronome_settings,"background, setup, free text, id or consent"
+hiaudio_eval_2026,data/Hi-Audio_User_Evaluation_Survey.csv,What <strong>time signature</strong> and <strong>BPM </strong>did you use in case of recording with the metronome?,non_dv,meta_task2_metronome_settings,"background, setup, free text, id or consent"
+hiaudio_eval_2026,data/Hi-Audio_User_Evaluation_Survey.csv,Did you upload a <strong>guide track</strong> for the recording of <strong>Task 2</strong>?,non_dv,meta_task2_guide_track,"background, setup, free text, id or consent"
+hiaudio_eval_2026,data/Hi-Audio_User_Evaluation_Survey.csv,Which <strong>composition/s</strong> did you record for <strong>Task 2</strong>?,non_dv,meta_task2_composition,"background, setup, free text, id or consent"
+hiaudio_eval_2026,data/Hi-Audio_User_Evaluation_Survey.csv,Which <strong>composition/s</strong> did you record for <strong>Task 2</strong>?.1,non_dv,meta_task2_composition,"background, setup, free text, id or consent"
+hiaudio_eval_2026,data/Hi-Audio_User_Evaluation_Survey.csv,Did you explore the interface outside the options related to the tasks?,non_dv,meta_explored_interface,"background, setup, free text, id or consent"
+hiaudio_eval_2026,data/Hi-Audio_User_Evaluation_Survey.csv,"Do you have any other comments, feedback or suggestion related to the Hi-Audio Online Platform?",non_dv,meta_free_text_feedback,"background, setup, free text, id or consent"
+hiaudio_eval_2026,data/Hi-Audio_User_Evaluation_Survey.csv,1. I think that I would like to use this system frequently,dv,SUS1,SUS item 1 (full survey export)
+hiaudio_eval_2026,data/Hi-Audio_User_Evaluation_Survey.csv,2. I found the system unnecessarily complex,dv,SUS2,SUS item 2 (full survey export)
+hiaudio_eval_2026,data/Hi-Audio_User_Evaluation_Survey.csv,3. I thought the system was easy to use,dv,SUS3,SUS item 3 (full survey export)
+hiaudio_eval_2026,data/Hi-Audio_User_Evaluation_Survey.csv,4. I think I would need the support of a technical person to use this system,dv,SUS4,SUS item 4 (full survey export)
+hiaudio_eval_2026,data/Hi-Audio_User_Evaluation_Survey.csv,5. I found the various functions were well integrated,dv,SUS5,SUS item 5 (full survey export)
+hiaudio_eval_2026,data/Hi-Audio_User_Evaluation_Survey.csv,6. I thought there was too much inconsistency in this system,dv,SUS6,SUS item 6 (full survey export)
+hiaudio_eval_2026,data/Hi-Audio_User_Evaluation_Survey.csv,7. I would imagine that most people would learn to use this system very quickly,dv,SUS7,SUS item 7 (full survey export)
+hiaudio_eval_2026,data/Hi-Audio_User_Evaluation_Survey.csv,8. I found the system very cumbersome to use,dv,SUS8,SUS item 8 (full survey export)
+hiaudio_eval_2026,data/Hi-Audio_User_Evaluation_Survey.csv,9. I felt very confident using the system,dv,SUS9,SUS item 9 (full survey export)
+hiaudio_eval_2026,data/Hi-Audio_User_Evaluation_Survey.csv,10. I needed to learn a lot of things before I could get going with this system,dv,SUS10,SUS item 10 (full survey export)
+hiaudio_eval_2026,data/Hi-Audio_User_Evaluation_Survey.csv,"Mental Demand (0 = Low, 100 = High)",dv,mental_demand,"NASA-TLX item, 0-100 (survey header); performance keyed high = success"
+hiaudio_eval_2026,data/Hi-Audio_User_Evaluation_Survey.csv,"Physical Demand (0 = Low, 100 = High)",dv,physical_demand,"NASA-TLX item, 0-100 (survey header); performance keyed high = success"
+hiaudio_eval_2026,data/Hi-Audio_User_Evaluation_Survey.csv,"Temporal Demand (0 = Low, 100 = High)",dv,temporal_demand,"NASA-TLX item, 0-100 (survey header); performance keyed high = success"
+hiaudio_eval_2026,data/Hi-Audio_User_Evaluation_Survey.csv,"Own Performance (0 = Low, 100 = High)",dv,performance,"NASA-TLX item, 0-100 (survey header); performance keyed high = success"
+hiaudio_eval_2026,data/Hi-Audio_User_Evaluation_Survey.csv,"Effort (0 = Low, 100 = High)",dv,effort,"NASA-TLX item, 0-100 (survey header); performance keyed high = success"
+hiaudio_eval_2026,data/Hi-Audio_User_Evaluation_Survey.csv,"Frustration Level (0 = Low, 100 = High)",dv,frustration,"NASA-TLX item, 0-100 (survey header); performance keyed high = success"
+hiaudio_eval_2026,data/Hi-Audio_User_Evaluation_Survey.csv,Submission ID (anonymized),non_dv,meta_participant_id,"background, setup, free text, id or consent"
+hiaudio_eval_2026,data/Hi-Audio_User_Evaluation_Survey.csv,Consent and Ethical Notice,non_dv,meta_consent,"background, setup, free text, id or consent"
+hiaudio_eval_2026,data/Section_4_SUS.csv,Participant,non_dv,meta_participant_id,"background, setup, free text, id or consent"
+hiaudio_eval_2026,data/Section_4_SUS.csv,Q1,dv,SUS1,SUS item 1 (DATA_DICTIONARY)
+hiaudio_eval_2026,data/Section_4_SUS.csv,Q2,dv,SUS2,SUS item 2 (DATA_DICTIONARY)
+hiaudio_eval_2026,data/Section_4_SUS.csv,Q3,dv,SUS3,SUS item 3 (DATA_DICTIONARY)
+hiaudio_eval_2026,data/Section_4_SUS.csv,Q4,dv,SUS4,SUS item 4 (DATA_DICTIONARY)
+hiaudio_eval_2026,data/Section_4_SUS.csv,Q5,dv,SUS5,SUS item 5 (DATA_DICTIONARY)
+hiaudio_eval_2026,data/Section_4_SUS.csv,Q6,dv,SUS6,SUS item 6 (DATA_DICTIONARY)
+hiaudio_eval_2026,data/Section_4_SUS.csv,Q7,dv,SUS7,SUS item 7 (DATA_DICTIONARY)
+hiaudio_eval_2026,data/Section_4_SUS.csv,Q8,dv,SUS8,SUS item 8 (DATA_DICTIONARY)
+hiaudio_eval_2026,data/Section_4_SUS.csv,Q9,dv,SUS9,SUS item 9 (DATA_DICTIONARY)
+hiaudio_eval_2026,data/Section_4_SUS.csv,Q10,dv,SUS10,SUS item 10 (DATA_DICTIONARY)
+hiaudio_eval_2026,data/Section_5_NASA-TLX.csv,Participant,non_dv,meta_participant_id,"background, setup, free text, id or consent"
+hiaudio_eval_2026,data/Section_5_NASA-TLX.csv,Mental_Demand,dv,mental_demand,"NASA-TLX item, 0-100 (DATA_DICTIONARY)"
+hiaudio_eval_2026,data/Section_5_NASA-TLX.csv,Physical_Demand,dv,physical_demand,"NASA-TLX item, 0-100 (DATA_DICTIONARY)"
+hiaudio_eval_2026,data/Section_5_NASA-TLX.csv,Temporal_Demand,dv,temporal_demand,"NASA-TLX item, 0-100 (DATA_DICTIONARY)"
+hiaudio_eval_2026,data/Section_5_NASA-TLX.csv,Own_Performance,dv,performance,"NASA-TLX item, 0-100 (DATA_DICTIONARY)"
+hiaudio_eval_2026,data/Section_5_NASA-TLX.csv,Effort,dv,effort,"NASA-TLX item, 0-100 (DATA_DICTIONARY)"
+hiaudio_eval_2026,data/Section_5_NASA-TLX.csv,Frustration,dv,frustration,"NASA-TLX item, 0-100 (DATA_DICTIONARY)"
+hiaudio_eval_2026,data/Task_Performance.csv,Participant,non_dv,meta_participant_id,"background, setup, free text, id or consent"
+hiaudio_eval_2026,data/Task_Performance.csv,T1,dv,task_success,binary completion of task 1
+hiaudio_eval_2026,data/Task_Performance.csv,T2,dv,task_success,binary completion of task 2
+hiaudio_eval_2026,data/Task_Performance.csv,T3,dv,task_success,binary completion of task 3
+hiaudio_eval_2026,data/Task_Performance.csv,T4,dv,task_success,binary completion of task 4
+hiaudio_eval_2026,data/Task_Performance.csv,T5,dv,task_success,binary completion of task 5
+hiaudio_eval_2026,data/Task_Performance.csv,T6,dv,task_success,binary completion of task 6
+hiaudio_eval_2026,data/Task_Performance.csv,T7,dv,task_success,binary completion of task 7
+hiaudio_eval_2026,data/Task_Performance.csv,T8,dv,task_success,binary completion of task 8
+hiaudio_eval_2026,data/Task_Performance.csv,T9,dv,task_success,binary completion of task 9
+hiaudio_eval_2026,data/Task_Performance.csv,T10,dv,task_success,binary completion of task 10
+xai_trust_scales_chi23,XAI_Trust.csv,id,non_dv,meta_participant_id,survey response id
+xai_trust_scales_chi23,XAI_Trust.csv,TrustAutomation[SQ001],dv,jian_trust,Jian et al. item 1; schema has only the scale-level DV
+xai_trust_scales_chi23,XAI_Trust.csv,TrustAutomation[SQ002],dv,jian_trust,Jian et al. item 2; schema has only the scale-level DV
+xai_trust_scales_chi23,XAI_Trust.csv,TrustAutomation[SQ003],dv,jian_trust,Jian et al. item 3; schema has only the scale-level DV
+xai_trust_scales_chi23,XAI_Trust.csv,TrustAutomation[SQ004],dv,jian_trust,Jian et al. item 4; schema has only the scale-level DV
+xai_trust_scales_chi23,XAI_Trust.csv,TrustAutomation[SQ005],dv,jian_trust,Jian et al. item 5; schema has only the scale-level DV
+xai_trust_scales_chi23,XAI_Trust.csv,TrustAutomation[SQ006],dv,jian_trust,Jian et al. item 6; schema has only the scale-level DV
+xai_trust_scales_chi23,XAI_Trust.csv,TrustAutomation[SQ007],dv,jian_trust,Jian et al. item 7; schema has only the scale-level DV
+xai_trust_scales_chi23,XAI_Trust.csv,TrustAutomation[SQ008],dv,jian_trust,Jian et al. item 8; schema has only the scale-level DV
+xai_trust_scales_chi23,XAI_Trust.csv,TrustAutomation[SQ009],dv,jian_trust,Jian et al. item 9; schema has only the scale-level DV
+xai_trust_scales_chi23,XAI_Trust.csv,TrustAutomation[SQ010],dv,jian_trust,Jian et al. item 10; schema has only the scale-level DV
+xai_trust_scales_chi23,XAI_Trust.csv,TrustAutomation[SQ011],dv,jian_trust,Jian et al. item 11; schema has only the scale-level DV
+xai_trust_scales_chi23,XAI_Trust.csv,TrustAutomation[SQ012],dv,jian_trust,Jian et al. item 12; schema has only the scale-level DV
+xai_trust_scales_chi23,XAI_Trust.csv,TrustAutomation[SQ013],non_dv,meta_attention_check_instructed,instructed-response item (Rmd exclusion)
+xai_trust_scales_chi23,XAI_Trust.csv,TrustHoffman[SQ001],dv,trust_rating,Hoffman XAI trust item; generic trust DV (no Hoffman DV)
+xai_trust_scales_chi23,XAI_Trust.csv,TrustHoffman[SQ002],dv,trust_rating,Hoffman XAI trust item; generic trust DV (no Hoffman DV)
+xai_trust_scales_chi23,XAI_Trust.csv,TrustHoffman[SQ003],dv,trust_rating,Hoffman XAI trust item; generic trust DV (no Hoffman DV)
+xai_trust_scales_chi23,XAI_Trust.csv,TrustHoffman[SQ004],dv,trust_rating,Hoffman XAI trust item; generic trust DV (no Hoffman DV)
+xai_trust_scales_chi23,XAI_Trust.csv,TrustHoffman[SQ005],dv,trust_rating,Hoffman XAI trust item; generic trust DV (no Hoffman DV)
+xai_trust_scales_chi23,XAI_Trust.csv,TrustHoffman[SQ006],dv,trust_rating,Hoffman XAI trust item; generic trust DV (no Hoffman DV)
+xai_trust_scales_chi23,XAI_Trust.csv,TrustHoffman[SQ007],dv,trust_rating,Hoffman XAI trust item; generic trust DV (no Hoffman DV)
+xai_trust_scales_chi23,XAI_Trust.csv,TrustHoffman[SQ008],dv,trust_rating,Hoffman XAI trust item; generic trust DV (no Hoffman DV)
+xai_trust_scales_chi23,XAI_Trust.csv,PreAICertainty[SQ001],unlabeled_dv,,decision certainty or perceived severity; no schema DV
+xai_trust_scales_chi23,XAI_Trust.csv,PostAICertainty[SQ001],unlabeled_dv,,decision certainty or perceived severity; no schema DV
+xai_trust_scales_chi23,XAI_Trust.csv,Severity[SQ001],unlabeled_dv,,decision certainty or perceived severity; no schema DV
+xai_trust_scales_chi23,XAI_Trust.csv,Gender,non_dv,meta_demographic_gender,demographics or attention/exclusion check
+xai_trust_scales_chi23,XAI_Trust.csv,Age,non_dv,meta_demographic_age,demographics or attention/exclusion check
+xai_trust_scales_chi23,XAI_Trust.csv,Education,non_dv,meta_demographic_education,demographics or attention/exclusion check
+xai_trust_scales_chi23,XAI_Trust.csv,AttentionCheck[SQ001],non_dv,meta_attention_check_1,demographics or attention/exclusion check
+xai_trust_scales_chi23,XAI_Trust.csv,AttentionCheck[SQ002],non_dv,meta_attention_check_2,demographics or attention/exclusion check
+xai_trust_scales_chi23,XAI_Trust.csv,AttentionCheck[SQ003],non_dv,meta_attention_check_3,demographics or attention/exclusion check
+xai_trust_scales_chi23,XAI_Trust.csv,SelfDeclaredExcl,non_dv,meta_self_declared_exclusion,demographics or attention/exclusion check
+pxi_validation_chi24,PXI_validation_main_data.xlsx,Unnamed: 0,non_dv,meta_source_index,"not a DV (id, context, demographics, timing)"
+pxi_validation_chi24,PXI_validation_main_data.xlsx,lfdn,non_dv,meta_participant_id,"not a DV (id, context, demographics, timing)"
+pxi_validation_chi24,PXI_validation_main_data.xlsx,lastpage,non_dv,meta_last_page,"not a DV (id, context, demographics, timing)"
+pxi_validation_chi24,PXI_validation_main_data.xlsx,duration,non_dv,meta_survey_duration,survey time; schema alias task_completion_time is wrong
+pxi_validation_chi24,PXI_validation_main_data.xlsx,game_title,non_dv,meta_game_title,"not a DV (id, context, demographics, timing)"
+pxi_validation_chi24,PXI_validation_main_data.xlsx,critical_incident_text,non_dv,meta_critical_incident_text,"not a DV (id, context, demographics, timing)"
+pxi_validation_chi24,PXI_validation_main_data.xlsx,critical_incident_pass,non_dv,meta_critical_incident_pass,"not a DV (id, context, demographics, timing)"
+pxi_validation_chi24,PXI_validation_main_data.xlsx,game_platform_PC,non_dv,meta_game_platform_pc,"not a DV (id, context, demographics, timing)"
+pxi_validation_chi24,PXI_validation_main_data.xlsx,game_platform_smartphone,non_dv,meta_game_platform_smartphone,"not a DV (id, context, demographics, timing)"
+pxi_validation_chi24,PXI_validation_main_data.xlsx,game_platform_tablet,non_dv,meta_game_platform_tablet,"not a DV (id, context, demographics, timing)"
+pxi_validation_chi24,PXI_validation_main_data.xlsx,game_platform_console,non_dv,meta_game_platform_console,"not a DV (id, context, demographics, timing)"
+pxi_validation_chi24,PXI_validation_main_data.xlsx,game_platform_other,non_dv,meta_game_platform_other,"not a DV (id, context, demographics, timing)"
+pxi_validation_chi24,PXI_validation_main_data.xlsx,game_platform_other_text,non_dv,meta_game_platform_other_text,"not a DV (id, context, demographics, timing)"
+pxi_validation_chi24,PXI_validation_main_data.xlsx,game_player_alone,non_dv,meta_game_player_alone,"not a DV (id, context, demographics, timing)"
+pxi_validation_chi24,PXI_validation_main_data.xlsx,game_player_online,non_dv,meta_game_player_online,"not a DV (id, context, demographics, timing)"
+pxi_validation_chi24,PXI_validation_main_data.xlsx,game_player_local,non_dv,meta_game_player_local,"not a DV (id, context, demographics, timing)"
+pxi_validation_chi24,PXI_validation_main_data.xlsx,game_control_controller,non_dv,meta_game_control_controller,"not a DV (id, context, demographics, timing)"
+pxi_validation_chi24,PXI_validation_main_data.xlsx,game_control_VR,non_dv,meta_game_control_vr,"not a DV (id, context, demographics, timing)"
+pxi_validation_chi24,PXI_validation_main_data.xlsx,game_control_keyboard,non_dv,meta_game_control_keyboard,"not a DV (id, context, demographics, timing)"
+pxi_validation_chi24,PXI_validation_main_data.xlsx,game_control_touch,non_dv,meta_game_control_touch,"not a DV (id, context, demographics, timing)"
+pxi_validation_chi24,PXI_validation_main_data.xlsx,game_control_move,non_dv,meta_game_control_move,"not a DV (id, context, demographics, timing)"
+pxi_validation_chi24,PXI_validation_main_data.xlsx,game_control_other,non_dv,meta_game_control_other,"not a DV (id, context, demographics, timing)"
+pxi_validation_chi24,PXI_validation_main_data.xlsx,game_control_other_text,non_dv,meta_game_control_other_text,"not a DV (id, context, demographics, timing)"
+pxi_validation_chi24,PXI_validation_main_data.xlsx,game_genre,non_dv,meta_game_genre,"not a DV (id, context, demographics, timing)"
+pxi_validation_chi24,PXI_validation_main_data.xlsx,PXI_meaning_1,unlabeled_dv,,PXI item; no PXI construct DV in schema
+pxi_validation_chi24,PXI_validation_main_data.xlsx,PXI_curiosity_1,unlabeled_dv,,PXI item; no PXI construct DV in schema
+pxi_validation_chi24,PXI_validation_main_data.xlsx,PXI_mastery_1,unlabeled_dv,,PXI item; no PXI construct DV in schema
+pxi_validation_chi24,PXI_validation_main_data.xlsx,PXI_autonomy_1,unlabeled_dv,,PXI item; no PXI construct DV in schema
+pxi_validation_chi24,PXI_validation_main_data.xlsx,PXI_immersion_1,unlabeled_dv,,PXI item; no PXI construct DV in schema
+pxi_validation_chi24,PXI_validation_main_data.xlsx,IRI_1,non_dv,meta_attention_check_1,instructed-response attention check
+pxi_validation_chi24,PXI_validation_main_data.xlsx,PXI_progress_1,unlabeled_dv,,PXI item; no PXI construct DV in schema
+pxi_validation_chi24,PXI_validation_main_data.xlsx,PXI_appeal_1,dv,aesthetics_rating,PXI audiovisual appeal item; generic aesthetics DV (inferred)
+pxi_validation_chi24,PXI_validation_main_data.xlsx,PXI_challenge_1,unlabeled_dv,,PXI item; no PXI construct DV in schema
+pxi_validation_chi24,PXI_validation_main_data.xlsx,PXI_control_1,unlabeled_dv,,PXI item; no PXI construct DV in schema
+pxi_validation_chi24,PXI_validation_main_data.xlsx,PXI_goals_1,unlabeled_dv,,PXI item; no PXI construct DV in schema
+pxi_validation_chi24,PXI_validation_main_data.xlsx,PXI_enjoyment_1,unlabeled_dv,,PXI item; no PXI construct DV in schema
+pxi_validation_chi24,PXI_validation_main_data.xlsx,PXI_meaning_2,unlabeled_dv,,PXI item; no PXI construct DV in schema
+pxi_validation_chi24,PXI_validation_main_data.xlsx,PXI_curiosity_2,unlabeled_dv,,PXI item; no PXI construct DV in schema
+pxi_validation_chi24,PXI_validation_main_data.xlsx,PXI_mastery_2,unlabeled_dv,,PXI item; no PXI construct DV in schema
+pxi_validation_chi24,PXI_validation_main_data.xlsx,PXI_autonomy_2,unlabeled_dv,,PXI item; no PXI construct DV in schema
+pxi_validation_chi24,PXI_validation_main_data.xlsx,PXI_immersion_2,unlabeled_dv,,PXI item; no PXI construct DV in schema
+pxi_validation_chi24,PXI_validation_main_data.xlsx,PXI_progress_2,unlabeled_dv,,PXI item; no PXI construct DV in schema
+pxi_validation_chi24,PXI_validation_main_data.xlsx,PXI_appeal_2,dv,aesthetics_rating,PXI audiovisual appeal item; generic aesthetics DV (inferred)
+pxi_validation_chi24,PXI_validation_main_data.xlsx,PXI_challenge_2,unlabeled_dv,,PXI item; no PXI construct DV in schema
+pxi_validation_chi24,PXI_validation_main_data.xlsx,PXI_control_2,unlabeled_dv,,PXI item; no PXI construct DV in schema
+pxi_validation_chi24,PXI_validation_main_data.xlsx,PXI_goals_2,unlabeled_dv,,PXI item; no PXI construct DV in schema
+pxi_validation_chi24,PXI_validation_main_data.xlsx,PXI_enjoyment_2,unlabeled_dv,,PXI item; no PXI construct DV in schema
+pxi_validation_chi24,PXI_validation_main_data.xlsx,PXI_meaning_3,unlabeled_dv,,PXI item; no PXI construct DV in schema
+pxi_validation_chi24,PXI_validation_main_data.xlsx,PXI_curiosity_3,unlabeled_dv,,PXI item; no PXI construct DV in schema
+pxi_validation_chi24,PXI_validation_main_data.xlsx,PXI_mastery_3,unlabeled_dv,,PXI item; no PXI construct DV in schema
+pxi_validation_chi24,PXI_validation_main_data.xlsx,PXI_autonomy_3,unlabeled_dv,,PXI item; no PXI construct DV in schema
+pxi_validation_chi24,PXI_validation_main_data.xlsx,PXI_immersion_3,unlabeled_dv,,PXI item; no PXI construct DV in schema
+pxi_validation_chi24,PXI_validation_main_data.xlsx,PXI_progress_3,unlabeled_dv,,PXI item; no PXI construct DV in schema
+pxi_validation_chi24,PXI_validation_main_data.xlsx,PXI_appeal_3,dv,aesthetics_rating,PXI audiovisual appeal item; generic aesthetics DV (inferred)
+pxi_validation_chi24,PXI_validation_main_data.xlsx,PXI_challenge_3,unlabeled_dv,,PXI item; no PXI construct DV in schema
+pxi_validation_chi24,PXI_validation_main_data.xlsx,PXI_control_3,unlabeled_dv,,PXI item; no PXI construct DV in schema
+pxi_validation_chi24,PXI_validation_main_data.xlsx,PXI_goals_3,unlabeled_dv,,PXI item; no PXI construct DV in schema
+pxi_validation_chi24,PXI_validation_main_data.xlsx,PXI_enjoyment_3,unlabeled_dv,,PXI item; no PXI construct DV in schema
+pxi_validation_chi24,PXI_validation_main_data.xlsx,HQI_1,dv,attrakdiff_hqi,"AttrakDiff word pair (survey printout, Rmd scale); schema not itemized"
+pxi_validation_chi24,PXI_validation_main_data.xlsx,HQI_2,dv,attrakdiff_hqi,"AttrakDiff word pair (survey printout, Rmd scale); schema not itemized"
+pxi_validation_chi24,PXI_validation_main_data.xlsx,HQI_3,dv,attrakdiff_hqi,"AttrakDiff word pair (survey printout, Rmd scale); schema not itemized"
+pxi_validation_chi24,PXI_validation_main_data.xlsx,HQI_4,dv,attrakdiff_hqi,"AttrakDiff word pair (survey printout, Rmd scale); schema not itemized"
+pxi_validation_chi24,PXI_validation_main_data.xlsx,HQI_5,dv,attrakdiff_hqi,"AttrakDiff word pair (survey printout, Rmd scale); schema not itemized"
+pxi_validation_chi24,PXI_validation_main_data.xlsx,HQI_6,dv,attrakdiff_hqi,"AttrakDiff word pair (survey printout, Rmd scale); schema not itemized"
+pxi_validation_chi24,PXI_validation_main_data.xlsx,HQI_7,dv,attrakdiff_hqi,"AttrakDiff word pair (survey printout, Rmd scale); schema not itemized"
+pxi_validation_chi24,PXI_validation_main_data.xlsx,HQS_1,dv,attrakdiff_hqs,"AttrakDiff word pair (survey printout, Rmd scale); schema not itemized"
+pxi_validation_chi24,PXI_validation_main_data.xlsx,HQS_2,dv,attrakdiff_hqs,"AttrakDiff word pair (survey printout, Rmd scale); schema not itemized"
+pxi_validation_chi24,PXI_validation_main_data.xlsx,HQS_3,dv,attrakdiff_hqs,"AttrakDiff word pair (survey printout, Rmd scale); schema not itemized"
+pxi_validation_chi24,PXI_validation_main_data.xlsx,HQS_4,dv,attrakdiff_hqs,"AttrakDiff word pair (survey printout, Rmd scale); schema not itemized"
+pxi_validation_chi24,PXI_validation_main_data.xlsx,HQS_5,dv,attrakdiff_hqs,"AttrakDiff word pair (survey printout, Rmd scale); schema not itemized"
+pxi_validation_chi24,PXI_validation_main_data.xlsx,HQS_6,dv,attrakdiff_hqs,"AttrakDiff word pair (survey printout, Rmd scale); schema not itemized"
+pxi_validation_chi24,PXI_validation_main_data.xlsx,HQS_7,dv,attrakdiff_hqs,"AttrakDiff word pair (survey printout, Rmd scale); schema not itemized"
+pxi_validation_chi24,PXI_validation_main_data.xlsx,ATT_1,dv,attrakdiff_att,"AttrakDiff word pair (survey printout, Rmd scale); schema not itemized"
+pxi_validation_chi24,PXI_validation_main_data.xlsx,ATT_2,dv,attrakdiff_att,"AttrakDiff word pair (survey printout, Rmd scale); schema not itemized"
+pxi_validation_chi24,PXI_validation_main_data.xlsx,ATT_3,dv,attrakdiff_att,"AttrakDiff word pair (survey printout, Rmd scale); schema not itemized"
+pxi_validation_chi24,PXI_validation_main_data.xlsx,ATT_4,dv,attrakdiff_att,"AttrakDiff word pair (survey printout, Rmd scale); schema not itemized"
+pxi_validation_chi24,PXI_validation_main_data.xlsx,ATT_5,dv,attrakdiff_att,"AttrakDiff word pair (survey printout, Rmd scale); schema not itemized"
+pxi_validation_chi24,PXI_validation_main_data.xlsx,ATT_6,dv,attrakdiff_att,"AttrakDiff word pair (survey printout, Rmd scale); schema not itemized"
+pxi_validation_chi24,PXI_validation_main_data.xlsx,ATT_7,dv,attrakdiff_att,"AttrakDiff word pair (survey printout, Rmd scale); schema not itemized"
+pxi_validation_chi24,PXI_validation_main_data.xlsx,PQ_1,dv,attrakdiff_pq,"AttrakDiff word pair (survey printout, Rmd scale); schema not itemized"
+pxi_validation_chi24,PXI_validation_main_data.xlsx,PQ_2,dv,attrakdiff_pq,"AttrakDiff word pair (survey printout, Rmd scale); schema not itemized"
+pxi_validation_chi24,PXI_validation_main_data.xlsx,PQ_3,dv,attrakdiff_pq,"AttrakDiff word pair (survey printout, Rmd scale); schema not itemized"
+pxi_validation_chi24,PXI_validation_main_data.xlsx,PQ_4,dv,attrakdiff_pq,"AttrakDiff word pair (survey printout, Rmd scale); schema not itemized"
+pxi_validation_chi24,PXI_validation_main_data.xlsx,PQ_5,dv,attrakdiff_pq,"AttrakDiff word pair (survey printout, Rmd scale); schema not itemized"
+pxi_validation_chi24,PXI_validation_main_data.xlsx,PQ_6,dv,attrakdiff_pq,"AttrakDiff word pair (survey printout, Rmd scale); schema not itemized"
+pxi_validation_chi24,PXI_validation_main_data.xlsx,PQ_7,dv,attrakdiff_pq,"AttrakDiff word pair (survey printout, Rmd scale); schema not itemized"
+pxi_validation_chi24,PXI_validation_main_data.xlsx,PENS_autonomy_1,unlabeled_dv,,PENS/IMI/single-item enjoyment; no schema DV
+pxi_validation_chi24,PXI_validation_main_data.xlsx,PENS_autonomy_2,unlabeled_dv,,PENS/IMI/single-item enjoyment; no schema DV
+pxi_validation_chi24,PXI_validation_main_data.xlsx,PENS_autonomy_3,unlabeled_dv,,PENS/IMI/single-item enjoyment; no schema DV
+pxi_validation_chi24,PXI_validation_main_data.xlsx,PENS_comp_1,unlabeled_dv,,PENS/IMI/single-item enjoyment; no schema DV
+pxi_validation_chi24,PXI_validation_main_data.xlsx,PENS_comp_2,unlabeled_dv,,PENS/IMI/single-item enjoyment; no schema DV
+pxi_validation_chi24,PXI_validation_main_data.xlsx,PENS_comp_3,unlabeled_dv,,PENS/IMI/single-item enjoyment; no schema DV
+pxi_validation_chi24,PXI_validation_main_data.xlsx,PENS_related_1,unlabeled_dv,,PENS/IMI/single-item enjoyment; no schema DV
+pxi_validation_chi24,PXI_validation_main_data.xlsx,PENS_related_2,unlabeled_dv,,PENS/IMI/single-item enjoyment; no schema DV
+pxi_validation_chi24,PXI_validation_main_data.xlsx,PENS_related_3_R,unlabeled_dv,,PENS/IMI/single-item enjoyment; no schema DV
+pxi_validation_chi24,PXI_validation_main_data.xlsx,PENS_phys_pres_1,unlabeled_dv,,PENS/IMI/single-item enjoyment; no schema DV
+pxi_validation_chi24,PXI_validation_main_data.xlsx,PENS_phys_pres_2,unlabeled_dv,,PENS/IMI/single-item enjoyment; no schema DV
+pxi_validation_chi24,PXI_validation_main_data.xlsx,IRI_2,non_dv,meta_attention_check_2,instructed-response attention check
+pxi_validation_chi24,PXI_validation_main_data.xlsx,PENS_phys_pres_3,unlabeled_dv,,PENS/IMI/single-item enjoyment; no schema DV
+pxi_validation_chi24,PXI_validation_main_data.xlsx,PENS_emo_pres_1_R,unlabeled_dv,,PENS/IMI/single-item enjoyment; no schema DV
+pxi_validation_chi24,PXI_validation_main_data.xlsx,PENS_emo_pres_2,unlabeled_dv,,PENS/IMI/single-item enjoyment; no schema DV
+pxi_validation_chi24,PXI_validation_main_data.xlsx,PENS_emo_pres_3,unlabeled_dv,,PENS/IMI/single-item enjoyment; no schema DV
+pxi_validation_chi24,PXI_validation_main_data.xlsx,PENS_nar_pres_1,unlabeled_dv,,PENS/IMI/single-item enjoyment; no schema DV
+pxi_validation_chi24,PXI_validation_main_data.xlsx,PENS_nar_pres_2,unlabeled_dv,,PENS/IMI/single-item enjoyment; no schema DV
+pxi_validation_chi24,PXI_validation_main_data.xlsx,PENS_nar_pres_3,unlabeled_dv,,PENS/IMI/single-item enjoyment; no schema DV
+pxi_validation_chi24,PXI_validation_main_data.xlsx,PENS_int_con_1,unlabeled_dv,,PENS/IMI/single-item enjoyment; no schema DV
+pxi_validation_chi24,PXI_validation_main_data.xlsx,PENS_int_con_2,unlabeled_dv,,PENS/IMI/single-item enjoyment; no schema DV
+pxi_validation_chi24,PXI_validation_main_data.xlsx,PENS_int_con_3,unlabeled_dv,,PENS/IMI/single-item enjoyment; no schema DV
+pxi_validation_chi24,PXI_validation_main_data.xlsx,IMI_1,unlabeled_dv,,PENS/IMI/single-item enjoyment; no schema DV
+pxi_validation_chi24,PXI_validation_main_data.xlsx,IMI_2,unlabeled_dv,,PENS/IMI/single-item enjoyment; no schema DV
+pxi_validation_chi24,PXI_validation_main_data.xlsx,IMI_3_R,unlabeled_dv,,PENS/IMI/single-item enjoyment; no schema DV
+pxi_validation_chi24,PXI_validation_main_data.xlsx,IMI_4_R,unlabeled_dv,,PENS/IMI/single-item enjoyment; no schema DV
+pxi_validation_chi24,PXI_validation_main_data.xlsx,IMI_5,unlabeled_dv,,PENS/IMI/single-item enjoyment; no schema DV
+pxi_validation_chi24,PXI_validation_main_data.xlsx,IMI_6,unlabeled_dv,,PENS/IMI/single-item enjoyment; no schema DV
+pxi_validation_chi24,PXI_validation_main_data.xlsx,IMI_7,unlabeled_dv,,PENS/IMI/single-item enjoyment; no schema DV
+pxi_validation_chi24,PXI_validation_main_data.xlsx,SI_enjoyment,unlabeled_dv,,PENS/IMI/single-item enjoyment; no schema DV
+pxi_validation_chi24,PXI_validation_main_data.xlsx,age,non_dv,meta_demographic_age,"not a DV (id, context, demographics, timing)"
+pxi_validation_chi24,PXI_validation_main_data.xlsx,gender,non_dv,meta_demographic_gender,"not a DV (id, context, demographics, timing)"
+pxi_validation_chi24,PXI_validation_main_data.xlsx,gender_self_describe,non_dv,meta_demographic_gender_self_describe,"not a DV (id, context, demographics, timing)"
+pxi_validation_chi24,PXI_validation_main_data.xlsx,country,non_dv,meta_demographic_country,"not a DV (id, context, demographics, timing)"
+pxi_validation_chi24,PXI_validation_main_data.xlsx,game_hours,non_dv,meta_gaming_hours_per_week,"not a DV (id, context, demographics, timing)"
+pxi_validation_chi24,PXI_validation_main_data.xlsx,game_expert,non_dv,meta_gaming_expertise,"not a DV (id, context, demographics, timing)"
+pxi_validation_chi24,PXI_validation_main_data.xlsx,SRSI_useme,non_dv,meta_seriousness_check,"not a DV (id, context, demographics, timing)"
+pxi_validation_chi24,PXI_validation_main_data.xlsx,rts6285628,non_dv,meta_time_page_1_critical_incident,"not a DV (id, context, demographics, timing)"
+pxi_validation_chi24,PXI_validation_main_data.xlsx,rts6285665,non_dv,meta_time_page_5_scale_instructions,"not a DV (id, context, demographics, timing)"
+pxi_validation_chi24,PXI_validation_main_data.xlsx,rts6285666,non_dv,meta_time_page_4_1_pxi_1,"not a DV (id, context, demographics, timing)"
+pxi_validation_chi24,PXI_validation_main_data.xlsx,rts6285668,non_dv,meta_time_page_6_2_pens,"not a DV (id, context, demographics, timing)"
+pxi_validation_chi24,PXI_validation_main_data.xlsx,rts6285675,non_dv,meta_time_page_7_demographics,"not a DV (id, context, demographics, timing)"
+pxi_validation_chi24,PXI_validation_main_data.xlsx,rts6285676,non_dv,meta_time_page_8_data_quality,"not a DV (id, context, demographics, timing)"
+pxi_validation_chi24,PXI_validation_main_data.xlsx,rts6285677,non_dv,meta_time_page_9_feedback,"not a DV (id, context, demographics, timing)"
+pxi_validation_chi24,PXI_validation_main_data.xlsx,rts6285678,non_dv,meta_time_page_10_endpage,"not a DV (id, context, demographics, timing)"
+pxi_validation_chi24,PXI_validation_main_data.xlsx,rts6285846,non_dv,meta_time_page_6_1_attrakdiff,"not a DV (id, context, demographics, timing)"
+pxi_validation_chi24,PXI_validation_main_data.xlsx,rts6294681,non_dv,meta_time_page_2_game_details,"not a DV (id, context, demographics, timing)"
+pxi_validation_chi24,PXI_validation_main_data.xlsx,rts6294747,non_dv,meta_time_page_6_3_imi,"not a DV (id, context, demographics, timing)"
+pxi_validation_chi24,PXI_validation_main_data.xlsx,rts6295171,non_dv,meta_time_page_4_2_pxi_2,"not a DV (id, context, demographics, timing)"
+pxi_validation_chi24,PXI_validation_main_data.xlsx,rts6295176,non_dv,meta_time_page_3_pxi_instructions,"not a DV (id, context, demographics, timing)"
+pxi_validation_chi24,PXI_validation_main_data.xlsx,rts6295179,non_dv,meta_time_page_4_3_pxi_3,"not a DV (id, context, demographics, timing)"
+pxi_validation_chi24,PXI_validation_main_data.xlsx,rts6295906,non_dv,meta_time_page_6_4_enjoyment,"not a DV (id, context, demographics, timing)"
+sonomancer_chiplay25,Bhattacharyya-etal-2025-SonomancerSonicControlSchemesAAR-Demographics.csv,Unnamed: 0,non_dv,meta_source_index,"id, timestamp, demographics, familiarity or condition"
+sonomancer_chiplay25,Bhattacharyya-etal-2025-SonomancerSonicControlSchemesAAR-Demographics.csv,RecordedDate,non_dv,meta_timestamp,"id, timestamp, demographics, familiarity or condition"
+sonomancer_chiplay25,Bhattacharyya-etal-2025-SonomancerSonicControlSchemesAAR-Demographics.csv,ParticipantID,non_dv,meta_participant_id,"id, timestamp, demographics, familiarity or condition"
+sonomancer_chiplay25,Bhattacharyya-etal-2025-SonomancerSonicControlSchemesAAR-Demographics.csv,Gender,non_dv,meta_demographic_gender,"id, timestamp, demographics, familiarity or condition"
+sonomancer_chiplay25,Bhattacharyya-etal-2025-SonomancerSonicControlSchemesAAR-Demographics.csv,AgeGroup,non_dv,meta_demographic_age,"id, timestamp, demographics, familiarity or condition"
+sonomancer_chiplay25,Bhattacharyya-etal-2025-SonomancerSonicControlSchemesAAR-Demographics.csv,AARFamiliar,non_dv,meta_familiarity_audio_ar,"id, timestamp, demographics, familiarity or condition"
+sonomancer_chiplay25,Bhattacharyya-etal-2025-SonomancerSonicControlSchemesAAR-Demographics.csv,AudioGamesFamiliar,non_dv,meta_familiarity_audio_games,"id, timestamp, demographics, familiarity or condition"
+sonomancer_chiplay25,Bhattacharyya-etal-2025-SonomancerSonicControlSchemesAAR-Demographics.csv,VideoGamesFamiliar,non_dv,meta_familiarity_video_games,"id, timestamp, demographics, familiarity or condition"
+sonomancer_chiplay25,Bhattacharyya-etal-2025-SonomancerSonicControlSchemesAAR.csv,Unnamed: 0,non_dv,meta_source_index,"id, timestamp, demographics, familiarity or condition"
+sonomancer_chiplay25,Bhattacharyya-etal-2025-SonomancerSonicControlSchemesAAR.csv,RecordedDate,non_dv,meta_timestamp,"id, timestamp, demographics, familiarity or condition"
+sonomancer_chiplay25,Bhattacharyya-etal-2025-SonomancerSonicControlSchemesAAR.csv,ParticipantID,non_dv,meta_participant_id,"id, timestamp, demographics, familiarity or condition"
+sonomancer_chiplay25,Bhattacharyya-etal-2025-SonomancerSonicControlSchemesAAR.csv,GameScenario,non_dv,meta_condition_game_scenario,"id, timestamp, demographics, familiarity or condition"
+sonomancer_chiplay25,Bhattacharyya-etal-2025-SonomancerSonicControlSchemesAAR.csv,ControlScheme,non_dv,meta_condition_control_scheme,"id, timestamp, demographics, familiarity or condition"
+sonomancer_chiplay25,Bhattacharyya-etal-2025-SonomancerSonicControlSchemesAAR.csv,MEAN1,unlabeled_dv,,PXI item (inferred from header); schema has no PXI DVs
+sonomancer_chiplay25,Bhattacharyya-etal-2025-SonomancerSonicControlSchemesAAR.csv,MEAN2,unlabeled_dv,,PXI item (inferred from header); schema has no PXI DVs
+sonomancer_chiplay25,Bhattacharyya-etal-2025-SonomancerSonicControlSchemesAAR.csv,MEAN3,unlabeled_dv,,PXI item (inferred from header); schema has no PXI DVs
+sonomancer_chiplay25,Bhattacharyya-etal-2025-SonomancerSonicControlSchemesAAR.csv,IMMERS1,unlabeled_dv,,PXI item (inferred from header); schema has no PXI DVs
+sonomancer_chiplay25,Bhattacharyya-etal-2025-SonomancerSonicControlSchemesAAR.csv,IMMERS2,unlabeled_dv,,PXI item (inferred from header); schema has no PXI DVs
+sonomancer_chiplay25,Bhattacharyya-etal-2025-SonomancerSonicControlSchemesAAR.csv,IMMERS3,unlabeled_dv,,PXI item (inferred from header); schema has no PXI DVs
+sonomancer_chiplay25,Bhattacharyya-etal-2025-SonomancerSonicControlSchemesAAR.csv,CHALLENGE1,unlabeled_dv,,PXI item (inferred from header); schema has no PXI DVs
+sonomancer_chiplay25,Bhattacharyya-etal-2025-SonomancerSonicControlSchemesAAR.csv,CHALLENGE2,unlabeled_dv,,PXI item (inferred from header); schema has no PXI DVs
+sonomancer_chiplay25,Bhattacharyya-etal-2025-SonomancerSonicControlSchemesAAR.csv,CHALLENGE3,unlabeled_dv,,PXI item (inferred from header); schema has no PXI DVs
+sonomancer_chiplay25,Bhattacharyya-etal-2025-SonomancerSonicControlSchemesAAR.csv,EASE1,unlabeled_dv,,PXI item (inferred from header); schema has no PXI DVs
+sonomancer_chiplay25,Bhattacharyya-etal-2025-SonomancerSonicControlSchemesAAR.csv,EASE2,unlabeled_dv,,PXI item (inferred from header); schema has no PXI DVs
+sonomancer_chiplay25,Bhattacharyya-etal-2025-SonomancerSonicControlSchemesAAR.csv,EASE3,unlabeled_dv,,PXI item (inferred from header); schema has no PXI DVs
+sonomancer_chiplay25,Bhattacharyya-etal-2025-SonomancerSonicControlSchemesAAR.csv,ENJOY1,unlabeled_dv,,PXI item (inferred from header); schema has no PXI DVs
+sonomancer_chiplay25,Bhattacharyya-etal-2025-SonomancerSonicControlSchemesAAR.csv,ENJOY2,unlabeled_dv,,PXI item (inferred from header); schema has no PXI DVs
+sonomancer_chiplay25,Bhattacharyya-etal-2025-SonomancerSonicControlSchemesAAR.csv,ENJOY3,unlabeled_dv,,PXI item (inferred from header); schema has no PXI DVs
+sonomancer_chiplay25,Bhattacharyya-etal-2025-SonomancerSonicControlSchemesAAR.csv,MentalDemand,dv,mental_demand,NASA-TLX subscale (0-100)
+sonomancer_chiplay25,Bhattacharyya-etal-2025-SonomancerSonicControlSchemesAAR.csv,PhysicalDemand,dv,physical_demand,NASA-TLX subscale (0-100)
+sonomancer_chiplay25,Bhattacharyya-etal-2025-SonomancerSonicControlSchemesAAR.csv,TemporalDemand,dv,temporal_demand,NASA-TLX subscale (0-100)
+sonomancer_chiplay25,Bhattacharyya-etal-2025-SonomancerSonicControlSchemesAAR.csv,Effort,dv,effort,NASA-TLX subscale (0-100)
+sonomancer_chiplay25,Bhattacharyya-etal-2025-SonomancerSonicControlSchemesAAR.csv,Performance,dv,performance,NASA-TLX subscale (0-100)
+sonomancer_chiplay25,Bhattacharyya-etal-2025-SonomancerSonicControlSchemesAAR.csv,Frustration,dv,frustration,NASA-TLX subscale (0-100)
+sonomancer_chiplay25,Bhattacharyya-etal-2025-SonomancerSonicControlSchemesAAR.csv,RawTLX,dv,TLX_SCORE,raw TLX = mean of six subscales (verified)
+tamago_supervision_2026,TAMAGO - Dataset Testing.xlsx,participant_code,non_dv,meta_participant_code,"participant, condition or order"
+tamago_supervision_2026,TAMAGO - Dataset Testing.xlsx,participant_id,non_dv,meta_participant_id,"participant, condition or order"
+tamago_supervision_2026,TAMAGO - Dataset Testing.xlsx,prototype,non_dv,meta_condition_prototype,"participant, condition or order"
+tamago_supervision_2026,TAMAGO - Dataset Testing.xlsx,exposure_order_index,non_dv,meta_presentation_order,"participant, condition or order"
+tamago_supervision_2026,TAMAGO - Dataset Testing.xlsx,sus_q1,dv,SUS1,SUS item 1 (1-5); codebook scoring
+tamago_supervision_2026,TAMAGO - Dataset Testing.xlsx,sus_q2,dv,SUS2,SUS item 2 (1-5); codebook scoring
+tamago_supervision_2026,TAMAGO - Dataset Testing.xlsx,sus_q3,dv,SUS3,SUS item 3 (1-5); codebook scoring
+tamago_supervision_2026,TAMAGO - Dataset Testing.xlsx,sus_q4,dv,SUS4,SUS item 4 (1-5); codebook scoring
+tamago_supervision_2026,TAMAGO - Dataset Testing.xlsx,sus_q5,dv,SUS5,SUS item 5 (1-5); codebook scoring
+tamago_supervision_2026,TAMAGO - Dataset Testing.xlsx,sus_q6,dv,SUS6,SUS item 6 (1-5); codebook scoring
+tamago_supervision_2026,TAMAGO - Dataset Testing.xlsx,sus_q7,dv,SUS7,SUS item 7 (1-5); codebook scoring
+tamago_supervision_2026,TAMAGO - Dataset Testing.xlsx,sus_q8,dv,SUS8,SUS item 8 (1-5); codebook scoring
+tamago_supervision_2026,TAMAGO - Dataset Testing.xlsx,sus_q9,dv,SUS9,SUS item 9 (1-5); codebook scoring
+tamago_supervision_2026,TAMAGO - Dataset Testing.xlsx,sus_q10,dv,SUS10,SUS item 10 (1-5); codebook scoring
+tamago_supervision_2026,TAMAGO - Dataset Testing.xlsx,sus_score,dv,usability,SUS total 0-100 (verified against item formula)
+tamago_supervision_2026,TAMAGO - Dataset Testing.xlsx,ueq_q1,unlabeled_dv,,"UEQ-S item (1-7); ueq_s_N is a registry item, not a schema DV"
+tamago_supervision_2026,TAMAGO - Dataset Testing.xlsx,ueq_q2,unlabeled_dv,,"UEQ-S item (1-7); ueq_s_N is a registry item, not a schema DV"
+tamago_supervision_2026,TAMAGO - Dataset Testing.xlsx,ueq_q3,unlabeled_dv,,"UEQ-S item (1-7); ueq_s_N is a registry item, not a schema DV"
+tamago_supervision_2026,TAMAGO - Dataset Testing.xlsx,ueq_q4,unlabeled_dv,,"UEQ-S item (1-7); ueq_s_N is a registry item, not a schema DV"
+tamago_supervision_2026,TAMAGO - Dataset Testing.xlsx,ueq_q5,unlabeled_dv,,"UEQ-S item (1-7); ueq_s_N is a registry item, not a schema DV"
+tamago_supervision_2026,TAMAGO - Dataset Testing.xlsx,ueq_q6,unlabeled_dv,,"UEQ-S item (1-7); ueq_s_N is a registry item, not a schema DV"
+tamago_supervision_2026,TAMAGO - Dataset Testing.xlsx,ueq_q7,unlabeled_dv,,"UEQ-S item (1-7); ueq_s_N is a registry item, not a schema DV"
+tamago_supervision_2026,TAMAGO - Dataset Testing.xlsx,ueq_q8,unlabeled_dv,,"UEQ-S item (1-7); ueq_s_N is a registry item, not a schema DV"
+tamago_supervision_2026,TAMAGO - Dataset Testing.xlsx,ueq_pragmatic,dv,ueq_pragmatic,UEQ-S pragmatic quality (verified)
+tamago_supervision_2026,TAMAGO - Dataset Testing.xlsx,ueq_hedonic,dv,ueq_hedonic,UEQ-S hedonic quality (verified)
+tamago_supervision_2026,TAMAGO - Dataset Testing.xlsx,ueq_overall,unlabeled_dv,,UEQ-S overall; no schema DV
+tamago_supervision_2026,TAMAGO - Dataset Testing.xlsx,gx_e1,unlabeled_dv,,GAMEX item or subscale; no schema DV
+tamago_supervision_2026,TAMAGO - Dataset Testing.xlsx,gx_e2,unlabeled_dv,,GAMEX item or subscale; no schema DV
+tamago_supervision_2026,TAMAGO - Dataset Testing.xlsx,gx_e3,unlabeled_dv,,GAMEX item or subscale; no schema DV
+tamago_supervision_2026,TAMAGO - Dataset Testing.xlsx,gx_e4,unlabeled_dv,,GAMEX item or subscale; no schema DV
+tamago_supervision_2026,TAMAGO - Dataset Testing.xlsx,gx_e5,unlabeled_dv,,GAMEX item or subscale; no schema DV
+tamago_supervision_2026,TAMAGO - Dataset Testing.xlsx,gx_e6,unlabeled_dv,,GAMEX item or subscale; no schema DV
+tamago_supervision_2026,TAMAGO - Dataset Testing.xlsx,gx_a1,unlabeled_dv,,GAMEX item or subscale; no schema DV
+tamago_supervision_2026,TAMAGO - Dataset Testing.xlsx,gx_a2,unlabeled_dv,,GAMEX item or subscale; no schema DV
+tamago_supervision_2026,TAMAGO - Dataset Testing.xlsx,gx_a3,unlabeled_dv,,GAMEX item or subscale; no schema DV
+tamago_supervision_2026,TAMAGO - Dataset Testing.xlsx,gx_a4,unlabeled_dv,,GAMEX item or subscale; no schema DV
+tamago_supervision_2026,TAMAGO - Dataset Testing.xlsx,gx_a5,unlabeled_dv,,GAMEX item or subscale; no schema DV
+tamago_supervision_2026,TAMAGO - Dataset Testing.xlsx,gx_a6,unlabeled_dv,,GAMEX item or subscale; no schema DV
+tamago_supervision_2026,TAMAGO - Dataset Testing.xlsx,gx_c1,unlabeled_dv,,GAMEX item or subscale; no schema DV
+tamago_supervision_2026,TAMAGO - Dataset Testing.xlsx,gx_c2,unlabeled_dv,,GAMEX item or subscale; no schema DV
+tamago_supervision_2026,TAMAGO - Dataset Testing.xlsx,gx_c3,unlabeled_dv,,GAMEX item or subscale; no schema DV
+tamago_supervision_2026,TAMAGO - Dataset Testing.xlsx,gx_c4,unlabeled_dv,,GAMEX item or subscale; no schema DV
+tamago_supervision_2026,TAMAGO - Dataset Testing.xlsx,gx_act1,unlabeled_dv,,GAMEX item or subscale; no schema DV
+tamago_supervision_2026,TAMAGO - Dataset Testing.xlsx,gx_act2,unlabeled_dv,,GAMEX item or subscale; no schema DV
+tamago_supervision_2026,TAMAGO - Dataset Testing.xlsx,gx_act3,unlabeled_dv,,GAMEX item or subscale; no schema DV
+tamago_supervision_2026,TAMAGO - Dataset Testing.xlsx,gx_act4,unlabeled_dv,,GAMEX item or subscale; no schema DV
+tamago_supervision_2026,TAMAGO - Dataset Testing.xlsx,gx_n1,unlabeled_dv,,GAMEX item or subscale; no schema DV
+tamago_supervision_2026,TAMAGO - Dataset Testing.xlsx,gx_n2,unlabeled_dv,,GAMEX item or subscale; no schema DV
+tamago_supervision_2026,TAMAGO - Dataset Testing.xlsx,gx_n3,unlabeled_dv,,GAMEX item or subscale; no schema DV
+tamago_supervision_2026,TAMAGO - Dataset Testing.xlsx,gx_d1,unlabeled_dv,,GAMEX item or subscale; no schema DV
+tamago_supervision_2026,TAMAGO - Dataset Testing.xlsx,gx_d2,unlabeled_dv,,GAMEX item or subscale; no schema DV
+tamago_supervision_2026,TAMAGO - Dataset Testing.xlsx,gx_d3,unlabeled_dv,,GAMEX item or subscale; no schema DV
+tamago_supervision_2026,TAMAGO - Dataset Testing.xlsx,gx_d4,unlabeled_dv,,GAMEX item or subscale; no schema DV
+tamago_supervision_2026,TAMAGO - Dataset Testing.xlsx,gx_enjoyment,unlabeled_dv,,GAMEX item or subscale; no schema DV
+tamago_supervision_2026,TAMAGO - Dataset Testing.xlsx,gx_absorption,unlabeled_dv,,GAMEX item or subscale; no schema DV
+tamago_supervision_2026,TAMAGO - Dataset Testing.xlsx,gx_creative,unlabeled_dv,,GAMEX item or subscale; no schema DV
+tamago_supervision_2026,TAMAGO - Dataset Testing.xlsx,gx_activation,unlabeled_dv,,GAMEX item or subscale; no schema DV
+tamago_supervision_2026,TAMAGO - Dataset Testing.xlsx,gx_abs_neg_affect,unlabeled_dv,,GAMEX item or subscale; no schema DV
+tamago_supervision_2026,TAMAGO - Dataset Testing.xlsx,gx_dominance,unlabeled_dv,,GAMEX item or subscale; no schema DV
+tamago_supervision_2026,TAMAGO - Dataset Testing.xlsx,gx_total,unlabeled_dv,,GAMEX item or subscale; no schema DV
+tamago_supervision_2026,TAMAGO - Dataset Testing.xlsx,tlx_mental,dv,mental_demand,NASA-TLX mental demand (0-100)
+tamago_supervision_2026,TAMAGO - Dataset Testing.xlsx,tlx_temporal,dv,temporal_demand,NASA-TLX temporal demand (0-100)
+tamago_supervision_2026,TAMAGO - Dataset Testing.xlsx,tlx_effort,dv,effort,NASA-TLX effort (0-100)
+tamago_supervision_2026,TAMAGO - Dataset Testing.xlsx,tlx_overall,dv,TLX_SCORE,unweighted mean of the 3 TLX subscales used (judgment call)
+vr_grab_techniques_icom20,__extracted_archives/comparison_vr_interaction_techniques_v1.1/data/demographic_data_eng.csv,UserID,non_dv,meta_participant_id,demographics / prior device experience
+vr_grab_techniques_icom20,__extracted_archives/comparison_vr_interaction_techniques_v1.1/data/demographic_data_eng.csv,Age,non_dv,meta_demographic_age,demographics / prior device experience
+vr_grab_techniques_icom20,__extracted_archives/comparison_vr_interaction_techniques_v1.1/data/demographic_data_eng.csv,Handedness,non_dv,meta_demographic_handedness,demographics / prior device experience
+vr_grab_techniques_icom20,__extracted_archives/comparison_vr_interaction_techniques_v1.1/data/demographic_data_eng.csv,Gender,non_dv,meta_demographic_gender,demographics / prior device experience
+vr_grab_techniques_icom20,__extracted_archives/comparison_vr_interaction_techniques_v1.1/data/demographic_data_eng.csv,Glasses,non_dv,meta_demographic_glasses,demographics / prior device experience
+vr_grab_techniques_icom20,__extracted_archives/comparison_vr_interaction_techniques_v1.1/data/demographic_data_eng.csv,"Please assign yourself to one of the following areas with regard to your profession, studies or training.",non_dv,meta_demographic_profession,demographics / prior device experience
+vr_grab_techniques_icom20,__extracted_archives/comparison_vr_interaction_techniques_v1.1/data/demographic_data_eng.csv,How many hours per year have you used the following devices/applications in the last 3 years? [Mouse],non_dv,meta_experience_mouse,demographics / prior device experience
+vr_grab_techniques_icom20,__extracted_archives/comparison_vr_interaction_techniques_v1.1/data/demographic_data_eng.csv,How many hours per year have you used the following devices/applications in the last 3 years? [Touchscreen],non_dv,meta_experience_touchscreen,demographics / prior device experience
+vr_grab_techniques_icom20,__extracted_archives/comparison_vr_interaction_techniques_v1.1/data/demographic_data_eng.csv,How many hours per year have you used the following devices/applications in the last 3 years? [Input devices with whole-body motion detection (such as Kinect)].,non_dv,meta_experience_body_tracking,demographics / prior device experience
+vr_grab_techniques_icom20,__extracted_archives/comparison_vr_interaction_techniques_v1.1/data/demographic_data_eng.csv,"How many hours per year have you used the following devices/applications in the last 3 years? [Input devices with finger recognition (e.g. data gloves, Leap Motion)]",non_dv,meta_experience_finger_tracking,demographics / prior device experience
+vr_grab_techniques_icom20,__extracted_archives/comparison_vr_interaction_techniques_v1.1/data/demographic_data_eng.csv,How many hours per year have you used the following devices/applications in the last 3 years? [Input devices with eye tracking],non_dv,meta_experience_eye_tracking,demographics / prior device experience
+vr_grab_techniques_icom20,__extracted_archives/comparison_vr_interaction_techniques_v1.1/data/demographic_data_eng.csv,"How many hours per year have you used the following devices/applications in the last 3 years? [3D Controller (e.g. Wii Remote Controller, Playstation Move, Vive Controller, Oculus Rift Controller)].",non_dv,meta_experience_3d_controller,demographics / prior device experience
+vr_grab_techniques_icom20,__extracted_archives/comparison_vr_interaction_techniques_v1.1/data/demographic_data_eng.csv,How many hours per year have you used the following devices/applications in the last 3 years? [Computer],non_dv,meta_experience_computer,demographics / prior device experience
+vr_grab_techniques_icom20,__extracted_archives/comparison_vr_interaction_techniques_v1.1/data/demographic_data_eng.csv,"How many hours per year have you used the following devices/applications in the last 3 years? 3D applications [(e.g. Blender, 3Ds Max, Unity)].",non_dv,meta_experience_3d_applications,demographics / prior device experience
+vr_grab_techniques_icom20,__extracted_archives/comparison_vr_interaction_techniques_v1.1/data/demographic_data_eng.csv,How many hours per year have you used the following devices/applications in the last 3 years? [3D Computer Games],non_dv,meta_experience_3d_games,demographics / prior device experience
+vr_grab_techniques_icom20,__extracted_archives/comparison_vr_interaction_techniques_v1.1/data/demographic_data_eng.csv,How many hours per year have you used the following devices/applications in the last 3 years? [VR/AR Applications].,non_dv,meta_experience_vr_ar,demographics / prior device experience
+vr_grab_techniques_icom20,__extracted_archives/comparison_vr_interaction_techniques_v1.1/data/demographic_data_ger.csv,UserID,non_dv,meta_participant_id,demographics / prior device experience
+vr_grab_techniques_icom20,__extracted_archives/comparison_vr_interaction_techniques_v1.1/data/demographic_data_ger.csv,Alter,non_dv,meta_demographic_age,demographics / prior device experience
+vr_grab_techniques_icom20,__extracted_archives/comparison_vr_interaction_techniques_v1.1/data/demographic_data_ger.csv,Händigkeit,non_dv,meta_demographic_handedness,demographics / prior device experience
+vr_grab_techniques_icom20,__extracted_archives/comparison_vr_interaction_techniques_v1.1/data/demographic_data_ger.csv,Geschlecht,non_dv,meta_demographic_gender,demographics / prior device experience
+vr_grab_techniques_icom20,__extracted_archives/comparison_vr_interaction_techniques_v1.1/data/demographic_data_ger.csv,Brillenträger,non_dv,meta_demographic_glasses,demographics / prior device experience
+vr_grab_techniques_icom20,__extracted_archives/comparison_vr_interaction_techniques_v1.1/data/demographic_data_ger.csv,"Ordnen Sie sich bitte hinsichtlich Ihres Berufs, Ihres Studiums oder Ihrer Ausbildung einen der folgenden Bereiche zu.",non_dv,meta_demographic_profession,demographics / prior device experience
+vr_grab_techniques_icom20,__extracted_archives/comparison_vr_interaction_techniques_v1.1/data/demographic_data_ger.csv,Wie viele Stunden pro Jahr haben Sie die folgenden Geräte/Anwendungen in den letzten 3 Jahren verwendet? [Maus],non_dv,meta_experience_mouse,demographics / prior device experience
+vr_grab_techniques_icom20,__extracted_archives/comparison_vr_interaction_techniques_v1.1/data/demographic_data_ger.csv,Wie viele Stunden pro Jahr haben Sie die folgenden Geräte/Anwendungen in den letzten 3 Jahren verwendet? [Touchscreen],non_dv,meta_experience_touchscreen,demographics / prior device experience
+vr_grab_techniques_icom20,__extracted_archives/comparison_vr_interaction_techniques_v1.1/data/demographic_data_ger.csv,Wie viele Stunden pro Jahr haben Sie die folgenden Geräte/Anwendungen in den letzten 3 Jahren verwendet? [Eingabegeräte mit Ganzkörperbewegungserkennung (z.B. Kinect)],non_dv,meta_experience_body_tracking,demographics / prior device experience
+vr_grab_techniques_icom20,__extracted_archives/comparison_vr_interaction_techniques_v1.1/data/demographic_data_ger.csv,"Wie viele Stunden pro Jahr haben Sie die folgenden Geräte/Anwendungen in den letzten 3 Jahren verwendet? [Eingabegeräte mit Fingererkennung (z.B. Datenhandschuhe, Leap Motion)]",non_dv,meta_experience_finger_tracking,demographics / prior device experience
+vr_grab_techniques_icom20,__extracted_archives/comparison_vr_interaction_techniques_v1.1/data/demographic_data_ger.csv,Wie viele Stunden pro Jahr haben Sie die folgenden Geräte/Anwendungen in den letzten 3 Jahren verwendet? [Eingabegeräte mit Eye-Tracking],non_dv,meta_experience_eye_tracking,demographics / prior device experience
+vr_grab_techniques_icom20,__extracted_archives/comparison_vr_interaction_techniques_v1.1/data/demographic_data_ger.csv,"Wie viele Stunden pro Jahr haben Sie die folgenden Geräte/Anwendungen in den letzten 3 Jahren verwendet? [3D Controller (z.B. Wii Remote Controller, Playstation Move, Vive Controller, Oculus Rift Controller)]",non_dv,meta_experience_3d_controller,demographics / prior device experience
+vr_grab_techniques_icom20,__extracted_archives/comparison_vr_interaction_techniques_v1.1/data/demographic_data_ger.csv,Wie viele Stunden pro Jahr haben Sie die folgenden Geräte/Anwendungen in den letzten 3 Jahren verwendet? [Computer],non_dv,meta_experience_computer,demographics / prior device experience
+vr_grab_techniques_icom20,__extracted_archives/comparison_vr_interaction_techniques_v1.1/data/demographic_data_ger.csv,"Wie viele Stunden pro Jahr haben Sie die folgenden Geräte/Anwendungen in den letzten 3 Jahren verwendet? [3D Anwendungen (z.B. Blender, 3Ds Max, Unity)]",non_dv,meta_experience_3d_applications,demographics / prior device experience
+vr_grab_techniques_icom20,__extracted_archives/comparison_vr_interaction_techniques_v1.1/data/demographic_data_ger.csv,Wie viele Stunden pro Jahr haben Sie die folgenden Geräte/Anwendungen in den letzten 3 Jahren verwendet? [3D Computerspiele],non_dv,meta_experience_3d_games,demographics / prior device experience
+vr_grab_techniques_icom20,__extracted_archives/comparison_vr_interaction_techniques_v1.1/data/demographic_data_ger.csv,Wie viele Stunden pro Jahr haben Sie die folgenden Geräte/Anwendungen in den letzten 3 Jahren verwendet? [VR/AR Anwendungen],non_dv,meta_experience_vr_ar,demographics / prior device experience
+vr_grab_techniques_icom20,__extracted_archives/comparison_vr_interaction_techniques_v1.1/data/measurements_manipulation.csv,UserID,non_dv,meta_participant_id,condition / design variable
+vr_grab_techniques_icom20,__extracted_archives/comparison_vr_interaction_techniques_v1.1/data/measurements_manipulation.csv,InteractionTechnique,non_dv,meta_interaction_technique,condition / design variable
+vr_grab_techniques_icom20,__extracted_archives/comparison_vr_interaction_techniques_v1.1/data/measurements_manipulation.csv,TaskID,non_dv,meta_task_id,condition / design variable
+vr_grab_techniques_icom20,__extracted_archives/comparison_vr_interaction_techniques_v1.1/data/measurements_manipulation.csv,Type,non_dv,meta_task_type,condition / design variable
+vr_grab_techniques_icom20,__extracted_archives/comparison_vr_interaction_techniques_v1.1/data/measurements_manipulation.csv,TaskObject,non_dv,meta_task_object,condition / design variable
+vr_grab_techniques_icom20,__extracted_archives/comparison_vr_interaction_techniques_v1.1/data/measurements_manipulation.csv,Distance,non_dv,meta_target_distance,condition / design variable
+vr_grab_techniques_icom20,__extracted_archives/comparison_vr_interaction_techniques_v1.1/data/measurements_manipulation.csv,NeededDoFs,non_dv,meta_needed_dofs,condition / design variable
+vr_grab_techniques_icom20,__extracted_archives/comparison_vr_interaction_techniques_v1.1/data/measurements_manipulation.csv,ManipulationAmount,non_dv,meta_manipulation_amount,condition / design variable
+vr_grab_techniques_icom20,__extracted_archives/comparison_vr_interaction_techniques_v1.1/data/measurements_manipulation.csv,Success,dv,task_success,per-trial success flag (False = 30 s timeout)
+vr_grab_techniques_icom20,__extracted_archives/comparison_vr_interaction_techniques_v1.1/data/measurements_manipulation.csv,Time,dv,task_completion_time,trial completion time in seconds
+vr_grab_techniques_icom20,__extracted_archives/comparison_vr_interaction_techniques_v1.1/data/measurements_manipulation.csv,PositionDifference,unlabeled_dv,,spatial deviation from target; no schema DV
+vr_grab_techniques_icom20,__extracted_archives/comparison_vr_interaction_techniques_v1.1/data/measurements_manipulation.csv,RotationDifference,unlabeled_dv,,spatial deviation from target; no schema DV
+vr_grab_techniques_icom20,__extracted_archives/comparison_vr_interaction_techniques_v1.1/data/measurements_manipulation.csv,ScaleDifference,unlabeled_dv,,spatial deviation from target; no schema DV
+vr_grab_techniques_icom20,__extracted_archives/comparison_vr_interaction_techniques_v1.1/data/measurements_selection.csv,UserID,non_dv,meta_participant_id,condition / design variable
+vr_grab_techniques_icom20,__extracted_archives/comparison_vr_interaction_techniques_v1.1/data/measurements_selection.csv,InteractionTechnique,non_dv,meta_interaction_technique,condition / design variable
+vr_grab_techniques_icom20,__extracted_archives/comparison_vr_interaction_techniques_v1.1/data/measurements_selection.csv,TaskID,non_dv,meta_task_id,condition / design variable
+vr_grab_techniques_icom20,__extracted_archives/comparison_vr_interaction_techniques_v1.1/data/measurements_selection.csv,Type,non_dv,meta_task_type,condition / design variable
+vr_grab_techniques_icom20,__extracted_archives/comparison_vr_interaction_techniques_v1.1/data/measurements_selection.csv,TaskObject,non_dv,meta_task_object,condition / design variable
+vr_grab_techniques_icom20,__extracted_archives/comparison_vr_interaction_techniques_v1.1/data/measurements_selection.csv,Distance,non_dv,meta_target_distance,condition / design variable
+vr_grab_techniques_icom20,__extracted_archives/comparison_vr_interaction_techniques_v1.1/data/measurements_selection.csv,NumberOfObjects,non_dv,meta_number_of_objects,condition / design variable
+vr_grab_techniques_icom20,__extracted_archives/comparison_vr_interaction_techniques_v1.1/data/measurements_selection.csv,MinDensity,non_dv,meta_min_density,condition / design variable
+vr_grab_techniques_icom20,__extracted_archives/comparison_vr_interaction_techniques_v1.1/data/measurements_selection.csv,Success,dv,task_success,per-trial success flag (False = 30 s timeout)
+vr_grab_techniques_icom20,__extracted_archives/comparison_vr_interaction_techniques_v1.1/data/measurements_selection.csv,Time,dv,task_completion_time,selection time in seconds
+vr_grab_techniques_icom20,__extracted_archives/comparison_vr_interaction_techniques_v1.1/data/measurements_selection.csv,Misses,dv,error_rate,missed selections per trial (schema alias error_count)
+vr_grab_techniques_icom20,__extracted_archives/comparison_vr_interaction_techniques_v1.1/data/nasa_tlx_eng.csv,ID,non_dv,meta_participant_id,participant id
+vr_grab_techniques_icom20,__extracted_archives/comparison_vr_interaction_techniques_v1.1/data/nasa_tlx_eng.csv,InteractionTechnique,non_dv,meta_interaction_technique,condition
+vr_grab_techniques_icom20,__extracted_archives/comparison_vr_interaction_techniques_v1.1/data/nasa_tlx_eng.csv,How high were the intellectual demands of the tasks?,dv,mental_demand,NASA-TLX item (1-20); performance: high = failure
+vr_grab_techniques_icom20,__extracted_archives/comparison_vr_interaction_techniques_v1.1/data/nasa_tlx_eng.csv,What were the physical demands of the tasks?,dv,physical_demand,NASA-TLX item (1-20); performance: high = failure
+vr_grab_techniques_icom20,__extracted_archives/comparison_vr_interaction_techniques_v1.1/data/nasa_tlx_eng.csv,What was the speed at which the individual work steps of the tasks followed each other?,dv,temporal_demand,NASA-TLX item (1-20); performance: high = failure
+vr_grab_techniques_icom20,__extracted_archives/comparison_vr_interaction_techniques_v1.1/data/nasa_tlx_eng.csv,"In your opinion, how successfully have you performed the required tasks?",dv,performance,NASA-TLX item (1-20); performance: high = failure
+vr_grab_techniques_icom20,__extracted_archives/comparison_vr_interaction_techniques_v1.1/data/nasa_tlx_eng.csv,How hard did you have to work to achieve your performance?,dv,effort,NASA-TLX item (1-20); performance: high = failure
+vr_grab_techniques_icom20,__extracted_archives/comparison_vr_interaction_techniques_v1.1/data/nasa_tlx_eng.csv,"How insecure, discouraged, irritated and annoyed were you?",dv,frustration,NASA-TLX item (1-20); performance: high = failure
+vr_grab_techniques_icom20,__extracted_archives/comparison_vr_interaction_techniques_v1.1/data/nasa_tlx_ger.csv,ID,non_dv,meta_participant_id,participant id
+vr_grab_techniques_icom20,__extracted_archives/comparison_vr_interaction_techniques_v1.1/data/nasa_tlx_ger.csv,InteractionTechnique,non_dv,meta_interaction_technique,condition
+vr_grab_techniques_icom20,__extracted_archives/comparison_vr_interaction_techniques_v1.1/data/nasa_tlx_ger.csv,Wie hoch waren die geistigen Anforderungen der Aufgaben?,dv,mental_demand,NASA-TLX item (1-20); performance: high = failure
+vr_grab_techniques_icom20,__extracted_archives/comparison_vr_interaction_techniques_v1.1/data/nasa_tlx_ger.csv,Wie hoch waren die körperlichen Anforderungen der Aufgaben?,dv,physical_demand,NASA-TLX item (1-20); performance: high = failure
+vr_grab_techniques_icom20,__extracted_archives/comparison_vr_interaction_techniques_v1.1/data/nasa_tlx_ger.csv,"Wie hoch war das Tempo, mit dem die einzelnen Arbeitsschritte der Aufgaben aufeinander folgten?",dv,temporal_demand,NASA-TLX item (1-20); performance: high = failure
+vr_grab_techniques_icom20,__extracted_archives/comparison_vr_interaction_techniques_v1.1/data/nasa_tlx_ger.csv,Wie erfolgreich haben Sie die geforderte Aufgaben Ihrer Ansicht nach durchgeführt?,dv,performance,NASA-TLX item (1-20); performance: high = failure
+vr_grab_techniques_icom20,__extracted_archives/comparison_vr_interaction_techniques_v1.1/data/nasa_tlx_ger.csv,"Wie sehr mussten Sie sich anstrengen, um ihre Leistung zu erreichen?",dv,effort,NASA-TLX item (1-20); performance: high = failure
+vr_grab_techniques_icom20,__extracted_archives/comparison_vr_interaction_techniques_v1.1/data/nasa_tlx_ger.csv,"Wie verunsichert, entmutigt, gereizt und verärgert waren Sie?",dv,frustration,NASA-TLX item (1-20); performance: high = failure
+vr_grab_techniques_icom20,__extracted_archives/comparison_vr_interaction_techniques_v1.1/data/nasa_tlx_ger.csv,Unnamed: 8,non_dv,meta_empty_column,empty trailing column
+vr_grab_techniques_icom20,__extracted_archives/comparison_vr_interaction_techniques_v1.1/data/ranking_manipulation_eng.csv,UserID,non_dv,meta_participant_id,participant id
+vr_grab_techniques_icom20,__extracted_archives/comparison_vr_interaction_techniques_v1.1/data/ranking_manipulation_eng.csv,Technique 1,non_dv,meta_rank_technique_1,"preference rank, not a DV"
+vr_grab_techniques_icom20,__extracted_archives/comparison_vr_interaction_techniques_v1.1/data/ranking_manipulation_eng.csv,Technique 2,non_dv,meta_rank_technique_2,"preference rank, not a DV"
+vr_grab_techniques_icom20,__extracted_archives/comparison_vr_interaction_techniques_v1.1/data/ranking_manipulation_eng.csv,Technique 3,non_dv,meta_rank_technique_3,"preference rank, not a DV"
+vr_grab_techniques_icom20,__extracted_archives/comparison_vr_interaction_techniques_v1.1/data/ranking_manipulation_eng.csv,What else would you like to share?,non_dv,meta_comment_final,free-text comment
+vr_grab_techniques_icom20,__extracted_archives/comparison_vr_interaction_techniques_v1.1/data/ranking_manipulation_ger.csv,UserID,non_dv,meta_participant_id,participant id
+vr_grab_techniques_icom20,__extracted_archives/comparison_vr_interaction_techniques_v1.1/data/ranking_manipulation_ger.csv,Technik 1,non_dv,meta_rank_technique_1,"preference rank, not a DV"
+vr_grab_techniques_icom20,__extracted_archives/comparison_vr_interaction_techniques_v1.1/data/ranking_manipulation_ger.csv,Technik 2,non_dv,meta_rank_technique_2,"preference rank, not a DV"
+vr_grab_techniques_icom20,__extracted_archives/comparison_vr_interaction_techniques_v1.1/data/ranking_manipulation_ger.csv,Technik 3,non_dv,meta_rank_technique_3,"preference rank, not a DV"
+vr_grab_techniques_icom20,__extracted_archives/comparison_vr_interaction_techniques_v1.1/data/ranking_manipulation_ger.csv,Was möchten Sie noch mitteilen?,non_dv,meta_comment_final,free-text comment
+vr_grab_techniques_icom20,__extracted_archives/comparison_vr_interaction_techniques_v1.1/data/ranking_selection_eng.csv,ID,non_dv,meta_participant_id,participant id
+vr_grab_techniques_icom20,__extracted_archives/comparison_vr_interaction_techniques_v1.1/data/ranking_selection_eng.csv,Technique 1,non_dv,meta_rank_technique_1,"preference rank, not a DV"
+vr_grab_techniques_icom20,__extracted_archives/comparison_vr_interaction_techniques_v1.1/data/ranking_selection_eng.csv,Technique 2,non_dv,meta_rank_technique_2,"preference rank, not a DV"
+vr_grab_techniques_icom20,__extracted_archives/comparison_vr_interaction_techniques_v1.1/data/ranking_selection_eng.csv,Technique 3,non_dv,meta_rank_technique_3,"preference rank, not a DV"
+vr_grab_techniques_icom20,__extracted_archives/comparison_vr_interaction_techniques_v1.1/data/ranking_selection_eng.csv,Technique 4,non_dv,meta_rank_technique_4,"preference rank, not a DV"
+vr_grab_techniques_icom20,__extracted_archives/comparison_vr_interaction_techniques_v1.1/data/ranking_selection_eng.csv,Technique 5,non_dv,meta_rank_technique_5,"preference rank, not a DV"
+vr_grab_techniques_icom20,__extracted_archives/comparison_vr_interaction_techniques_v1.1/data/ranking_selection_eng.csv,What else would you like to share?,non_dv,meta_comment_final,free-text comment
+vr_grab_techniques_icom20,__extracted_archives/comparison_vr_interaction_techniques_v1.1/data/ranking_selection_ger.csv,ID,non_dv,meta_participant_id,participant id
+vr_grab_techniques_icom20,__extracted_archives/comparison_vr_interaction_techniques_v1.1/data/ranking_selection_ger.csv,Technik1,non_dv,meta_rank_technique_1,"preference rank, not a DV"
+vr_grab_techniques_icom20,__extracted_archives/comparison_vr_interaction_techniques_v1.1/data/ranking_selection_ger.csv,Technik2,non_dv,meta_rank_technique_2,"preference rank, not a DV"
+vr_grab_techniques_icom20,__extracted_archives/comparison_vr_interaction_techniques_v1.1/data/ranking_selection_ger.csv,Technik3,non_dv,meta_rank_technique_3,"preference rank, not a DV"
+vr_grab_techniques_icom20,__extracted_archives/comparison_vr_interaction_techniques_v1.1/data/ranking_selection_ger.csv,Technik4,non_dv,meta_rank_technique_4,"preference rank, not a DV"
+vr_grab_techniques_icom20,__extracted_archives/comparison_vr_interaction_techniques_v1.1/data/ranking_selection_ger.csv,Technik5,non_dv,meta_rank_technique_5,"preference rank, not a DV"
+vr_grab_techniques_icom20,__extracted_archives/comparison_vr_interaction_techniques_v1.1/data/ranking_selection_ger.csv,Was möchten Sie noch mitteilen?,non_dv,meta_comment_final,free-text comment
+vr_grab_techniques_icom20,__extracted_archives/comparison_vr_interaction_techniques_v1.1/data/system_usability_scale_and_custom_questions_eng.csv,UserID,non_dv,meta_participant_id,participant id
+vr_grab_techniques_icom20,__extracted_archives/comparison_vr_interaction_techniques_v1.1/data/system_usability_scale_and_custom_questions_eng.csv,InteractionTechnique,non_dv,meta_interaction_technique,condition
+vr_grab_techniques_icom20,__extracted_archives/comparison_vr_interaction_techniques_v1.1/data/system_usability_scale_and_custom_questions_eng.csv,I think that I would like to use the interaction technique frequently.,dv,SUS1,"SUS item 1, raw 1-5"
+vr_grab_techniques_icom20,__extracted_archives/comparison_vr_interaction_techniques_v1.1/data/system_usability_scale_and_custom_questions_eng.csv,I found the interaction technique unnecessarily complex.,dv,SUS2,"SUS item 2, raw 1-5"
+vr_grab_techniques_icom20,__extracted_archives/comparison_vr_interaction_techniques_v1.1/data/system_usability_scale_and_custom_questions_eng.csv,I found the interaction technique easy to use.,dv,SUS3,"SUS item 3, raw 1-5"
+vr_grab_techniques_icom20,__extracted_archives/comparison_vr_interaction_techniques_v1.1/data/system_usability_scale_and_custom_questions_eng.csv,I think I would need the help of a technically skilled person to use the interaction technique.,dv,SUS4,"SUS item 4, raw 1-5"
+vr_grab_techniques_icom20,__extracted_archives/comparison_vr_interaction_techniques_v1.1/data/system_usability_scale_and_custom_questions_eng.csv,I found the various functions in this interaction technique were well integrated.,dv,SUS5,"SUS item 5, raw 1-5"
+vr_grab_techniques_icom20,__extracted_archives/comparison_vr_interaction_techniques_v1.1/data/system_usability_scale_and_custom_questions_eng.csv,I think the interaction technique contained too many inconsistencies.,dv,SUS6,"SUS item 6, raw 1-5"
+vr_grab_techniques_icom20,__extracted_archives/comparison_vr_interaction_techniques_v1.1/data/system_usability_scale_and_custom_questions_eng.csv,I can imagine that most people learn to use this interaction technique very quickly.,dv,SUS7,"SUS item 7, raw 1-5"
+vr_grab_techniques_icom20,__extracted_archives/comparison_vr_interaction_techniques_v1.1/data/system_usability_scale_and_custom_questions_eng.csv,I found the interaction technique very cumbersome to use.,dv,SUS8,"SUS item 8, raw 1-5"
+vr_grab_techniques_icom20,__extracted_archives/comparison_vr_interaction_techniques_v1.1/data/system_usability_scale_and_custom_questions_eng.csv,I felt very confident in using the interaction technique.,dv,SUS9,"SUS item 9, raw 1-5"
+vr_grab_techniques_icom20,__extracted_archives/comparison_vr_interaction_techniques_v1.1/data/system_usability_scale_and_custom_questions_eng.csv,I had to learn a lot before I could start using the interaction technique.,dv,SUS10,"SUS item 10, raw 1-5"
+vr_grab_techniques_icom20,__extracted_archives/comparison_vr_interaction_techniques_v1.1/data/system_usability_scale_and_custom_questions_eng.csv,How much did the interaction technique correspond to action sequences that you know from the real world?,unlabeled_dv,,"custom item (naturalness, fun, precision, speed, unwell); no schema DV"
+vr_grab_techniques_icom20,__extracted_archives/comparison_vr_interaction_techniques_v1.1/data/system_usability_scale_and_custom_questions_eng.csv,How much fun did you have while interacting with the interaction technique?,unlabeled_dv,,"custom item (naturalness, fun, precision, speed, unwell); no schema DV"
+vr_grab_techniques_icom20,__extracted_archives/comparison_vr_interaction_techniques_v1.1/data/system_usability_scale_and_custom_questions_eng.csv,How precisely could you work with interaction technology?,unlabeled_dv,,"custom item (naturalness, fun, precision, speed, unwell); no schema DV"
+vr_grab_techniques_icom20,__extracted_archives/comparison_vr_interaction_techniques_v1.1/data/system_usability_scale_and_custom_questions_eng.csv,How quickly could you work with the interaction technique?,unlabeled_dv,,"custom item (naturalness, fun, precision, speed, unwell); no schema DV"
+vr_grab_techniques_icom20,__extracted_archives/comparison_vr_interaction_techniques_v1.1/data/system_usability_scale_and_custom_questions_eng.csv,"How much did you feel unwell (nausea, dizziness or headaches) when using the interaction technique?",unlabeled_dv,,"custom item (naturalness, fun, precision, speed, unwell); no schema DV"
+vr_grab_techniques_icom20,__extracted_archives/comparison_vr_interaction_techniques_v1.1/data/system_usability_scale_and_custom_questions_eng.csv,Do you have any further comments on the interaction technique?,non_dv,meta_comment_technique,free-text comment
+vr_grab_techniques_icom20,__extracted_archives/comparison_vr_interaction_techniques_v1.1/data/system_usability_scale_and_custom_questions_ger.csv,UserID,non_dv,meta_participant_id,participant id
+vr_grab_techniques_icom20,__extracted_archives/comparison_vr_interaction_techniques_v1.1/data/system_usability_scale_and_custom_questions_ger.csv,InteractionTechnique,non_dv,meta_interaction_technique,condition
+vr_grab_techniques_icom20,__extracted_archives/comparison_vr_interaction_techniques_v1.1/data/system_usability_scale_and_custom_questions_ger.csv,"Ich denke, dass ich die Interaktionstechnik gerne häufig benutzen würde.",dv,SUS1,"SUS item 1, raw 1-5"
+vr_grab_techniques_icom20,__extracted_archives/comparison_vr_interaction_techniques_v1.1/data/system_usability_scale_and_custom_questions_ger.csv,Ich fand die Interaktionstechnik unnötig komplex.,dv,SUS2,"SUS item 2, raw 1-5"
+vr_grab_techniques_icom20,__extracted_archives/comparison_vr_interaction_techniques_v1.1/data/system_usability_scale_and_custom_questions_ger.csv,Ich fand die Interaktionstechnik einfach zu benutzen.,dv,SUS3,"SUS item 3, raw 1-5"
+vr_grab_techniques_icom20,__extracted_archives/comparison_vr_interaction_techniques_v1.1/data/system_usability_scale_and_custom_questions_ger.csv,"Ich glaube, ich würde die Hilfe einer technisch versierten Person benötigen, um die Interaktionstechnik benutzen zu können.",dv,SUS4,"SUS item 4, raw 1-5"
+vr_grab_techniques_icom20,__extracted_archives/comparison_vr_interaction_techniques_v1.1/data/system_usability_scale_and_custom_questions_ger.csv,Ich fand die verschiedenen Funktionen in dieser Interaktionstechnik waren gut integriert.,dv,SUS5,"SUS item 5, raw 1-5"
+vr_grab_techniques_icom20,__extracted_archives/comparison_vr_interaction_techniques_v1.1/data/system_usability_scale_and_custom_questions_ger.csv,Ich denke die Interaktionstechnik enthielt zu viele Inkonsistenzen.,dv,SUS6,"SUS item 6, raw 1-5"
+vr_grab_techniques_icom20,__extracted_archives/comparison_vr_interaction_techniques_v1.1/data/system_usability_scale_and_custom_questions_ger.csv,"Ich kann mir vorstellen, dass die meisten Menschen den Umgang mit dieser Interaktionstechnik sehr schnell lernen.",dv,SUS7,"SUS item 7, raw 1-5"
+vr_grab_techniques_icom20,__extracted_archives/comparison_vr_interaction_techniques_v1.1/data/system_usability_scale_and_custom_questions_ger.csv,Ich fand die Interaktionstechnik sehr umständlich zu nutzen.,dv,SUS8,"SUS item 8, raw 1-5"
+vr_grab_techniques_icom20,__extracted_archives/comparison_vr_interaction_techniques_v1.1/data/system_usability_scale_and_custom_questions_ger.csv,Ich fühlte mich bei der Benutzung der Interaktionstechnik sehr sicher.,dv,SUS9,"SUS item 9, raw 1-5"
+vr_grab_techniques_icom20,__extracted_archives/comparison_vr_interaction_techniques_v1.1/data/system_usability_scale_and_custom_questions_ger.csv,"Ich musste eine Menge lernen, bevor ich anfangen konnte die Interaktionstechnik zu verwenden.",dv,SUS10,"SUS item 10, raw 1-5"
+vr_grab_techniques_icom20,__extracted_archives/comparison_vr_interaction_techniques_v1.1/data/system_usability_scale_and_custom_questions_ger.csv,"Wie sehr entsprach die Interaktionstechnik Handlungsabläufen, die Sie aus der realen Welt kennen?",unlabeled_dv,,"custom item (naturalness, fun, precision, speed, unwell); no schema DV"
+vr_grab_techniques_icom20,__extracted_archives/comparison_vr_interaction_techniques_v1.1/data/system_usability_scale_and_custom_questions_ger.csv,Wie viel Spaß hatten Sie bei der Interaktion mit der Interaktionstechnik?,unlabeled_dv,,"custom item (naturalness, fun, precision, speed, unwell); no schema DV"
+vr_grab_techniques_icom20,__extracted_archives/comparison_vr_interaction_techniques_v1.1/data/system_usability_scale_and_custom_questions_ger.csv,Wie präzise konnten Sie mit der Interaktionstechnik arbeiten?,unlabeled_dv,,"custom item (naturalness, fun, precision, speed, unwell); no schema DV"
+vr_grab_techniques_icom20,__extracted_archives/comparison_vr_interaction_techniques_v1.1/data/system_usability_scale_and_custom_questions_ger.csv,Wie schnell konnten Sie mit der Interaktionstechnik arbeiten?,unlabeled_dv,,"custom item (naturalness, fun, precision, speed, unwell); no schema DV"
+vr_grab_techniques_icom20,__extracted_archives/comparison_vr_interaction_techniques_v1.1/data/system_usability_scale_and_custom_questions_ger.csv,"Wie stark fühlten Sie sich unwohl (Übelkeit, Schwindel oder Kopfschmerzen) bei der Nutzung der Interaktionstechnik ?",unlabeled_dv,,"custom item (naturalness, fun, precision, speed, unwell); no schema DV"
+vr_grab_techniques_icom20,__extracted_archives/comparison_vr_interaction_techniques_v1.1/data/system_usability_scale_and_custom_questions_ger.csv,Haben Sie noch weitere Anmerkungen zur Interaktionstechnik?,non_dv,meta_comment_technique,free-text comment

@@ -1,0 +1,109 @@
+# Gold labels of the confirmatory shortlist test for vr_grab_techniques_icom20, generated from
+# analyses/confirmatory/gold_labels.csv (docs/preregistration_confirmatory_shortlist.md).
+UserID: meta_participant_id
+Age: meta_demographic_age
+Handedness: meta_demographic_handedness
+Gender: meta_demographic_gender
+Glasses: meta_demographic_glasses
+Please assign yourself to one of the following areas with regard to your profession, studies or training.: meta_demographic_profession
+How many hours per year have you used the following devices/applications in the last 3 years? [Mouse]: meta_experience_mouse
+How many hours per year have you used the following devices/applications in the last 3 years? [Touchscreen]: meta_experience_touchscreen
+? How many hours per year have you used the following devices/applications in the last 3 years? [Input devices with whole-body motion detection (such as Kinect)].
+: meta_experience_body_tracking
+? How many hours per year have you used the following devices/applications in the last 3 years? [Input devices with finger recognition (e.g. data gloves, Leap Motion)]
+: meta_experience_finger_tracking
+? How many hours per year have you used the following devices/applications in the last 3 years? [Input devices with eye tracking]
+: meta_experience_eye_tracking
+? How many hours per year have you used the following devices/applications in the last 3 years? [3D Controller (e.g. Wii Remote Controller, Playstation Move, Vive Controller, Oculus Rift Controller)].
+: meta_experience_3d_controller
+How many hours per year have you used the following devices/applications in the last 3 years? [Computer]: meta_experience_computer
+? How many hours per year have you used the following devices/applications in the last 3 years? 3D applications [(e.g. Blender, 3Ds Max, Unity)].
+: meta_experience_3d_applications
+How many hours per year have you used the following devices/applications in the last 3 years? [3D Computer Games]: meta_experience_3d_games
+How many hours per year have you used the following devices/applications in the last 3 years? [VR/AR Applications].: meta_experience_vr_ar
+Alter: meta_demographic_age
+Händigkeit: meta_demographic_handedness
+Geschlecht: meta_demographic_gender
+Brillenträger: meta_demographic_glasses
+Ordnen Sie sich bitte hinsichtlich Ihres Berufs, Ihres Studiums oder Ihrer Ausbildung einen der folgenden Bereiche zu.: meta_demographic_profession
+Wie viele Stunden pro Jahr haben Sie die folgenden Geräte/Anwendungen in den letzten 3 Jahren verwendet? [Maus]: meta_experience_mouse
+Wie viele Stunden pro Jahr haben Sie die folgenden Geräte/Anwendungen in den letzten 3 Jahren verwendet? [Touchscreen]: meta_experience_touchscreen
+? Wie viele Stunden pro Jahr haben Sie die folgenden Geräte/Anwendungen in den letzten 3 Jahren verwendet? [Eingabegeräte mit Ganzkörperbewegungserkennung (z.B. Kinect)]
+: meta_experience_body_tracking
+? Wie viele Stunden pro Jahr haben Sie die folgenden Geräte/Anwendungen in den letzten 3 Jahren verwendet? [Eingabegeräte mit Fingererkennung (z.B. Datenhandschuhe, Leap Motion)]
+: meta_experience_finger_tracking
+? Wie viele Stunden pro Jahr haben Sie die folgenden Geräte/Anwendungen in den letzten 3 Jahren verwendet? [Eingabegeräte mit Eye-Tracking]
+: meta_experience_eye_tracking
+? Wie viele Stunden pro Jahr haben Sie die folgenden Geräte/Anwendungen in den letzten 3 Jahren verwendet? [3D Controller (z.B. Wii Remote Controller, Playstation Move, Vive Controller, Oculus Rift Controller)]
+: meta_experience_3d_controller
+Wie viele Stunden pro Jahr haben Sie die folgenden Geräte/Anwendungen in den letzten 3 Jahren verwendet? [Computer]: meta_experience_computer
+? Wie viele Stunden pro Jahr haben Sie die folgenden Geräte/Anwendungen in den letzten 3 Jahren verwendet? [3D Anwendungen (z.B. Blender, 3Ds Max, Unity)]
+: meta_experience_3d_applications
+? Wie viele Stunden pro Jahr haben Sie die folgenden Geräte/Anwendungen in den letzten 3 Jahren verwendet? [3D Computerspiele]
+: meta_experience_3d_games
+? Wie viele Stunden pro Jahr haben Sie die folgenden Geräte/Anwendungen in den letzten 3 Jahren verwendet? [VR/AR Anwendungen]
+: meta_experience_vr_ar
+InteractionTechnique: meta_interaction_technique
+TaskID: meta_task_id
+Type: meta_task_type
+TaskObject: meta_task_object
+Distance: meta_target_distance
+NeededDoFs: meta_needed_dofs
+ManipulationAmount: meta_manipulation_amount
+Success: task_success
+Time: task_completion_time
+NumberOfObjects: meta_number_of_objects
+MinDensity: meta_min_density
+Misses: error_rate
+ID: meta_participant_id
+How high were the intellectual demands of the tasks?: mental_demand
+What were the physical demands of the tasks?: physical_demand
+What was the speed at which the individual work steps of the tasks followed each other?: temporal_demand
+In your opinion, how successfully have you performed the required tasks?: performance
+How hard did you have to work to achieve your performance?: effort
+How insecure, discouraged, irritated and annoyed were you?: frustration
+Wie hoch waren die geistigen Anforderungen der Aufgaben?: mental_demand
+Wie hoch waren die körperlichen Anforderungen der Aufgaben?: physical_demand
+Wie hoch war das Tempo, mit dem die einzelnen Arbeitsschritte der Aufgaben aufeinander folgten?: temporal_demand
+Wie erfolgreich haben Sie die geforderte Aufgaben Ihrer Ansicht nach durchgeführt?: performance
+Wie sehr mussten Sie sich anstrengen, um ihre Leistung zu erreichen?: effort
+Wie verunsichert, entmutigt, gereizt und verärgert waren Sie?: frustration
+'Unnamed: 8': meta_empty_column
+Technique 1: meta_rank_technique_1
+Technique 2: meta_rank_technique_2
+Technique 3: meta_rank_technique_3
+What else would you like to share?: meta_comment_final
+Technik 1: meta_rank_technique_1
+Technik 2: meta_rank_technique_2
+Technik 3: meta_rank_technique_3
+Was möchten Sie noch mitteilen?: meta_comment_final
+Technique 4: meta_rank_technique_4
+Technique 5: meta_rank_technique_5
+Technik1: meta_rank_technique_1
+Technik2: meta_rank_technique_2
+Technik3: meta_rank_technique_3
+Technik4: meta_rank_technique_4
+Technik5: meta_rank_technique_5
+I think that I would like to use the interaction technique frequently.: SUS1
+I found the interaction technique unnecessarily complex.: SUS2
+I found the interaction technique easy to use.: SUS3
+I think I would need the help of a technically skilled person to use the interaction technique.: SUS4
+I found the various functions in this interaction technique were well integrated.: SUS5
+I think the interaction technique contained too many inconsistencies.: SUS6
+I can imagine that most people learn to use this interaction technique very quickly.: SUS7
+I found the interaction technique very cumbersome to use.: SUS8
+I felt very confident in using the interaction technique.: SUS9
+I had to learn a lot before I could start using the interaction technique.: SUS10
+Do you have any further comments on the interaction technique?: meta_comment_technique
+Ich denke, dass ich die Interaktionstechnik gerne häufig benutzen würde.: SUS1
+Ich fand die Interaktionstechnik unnötig komplex.: SUS2
+Ich fand die Interaktionstechnik einfach zu benutzen.: SUS3
+? Ich glaube, ich würde die Hilfe einer technisch versierten Person benötigen, um die Interaktionstechnik benutzen zu können.
+: SUS4
+Ich fand die verschiedenen Funktionen in dieser Interaktionstechnik waren gut integriert.: SUS5
+Ich denke die Interaktionstechnik enthielt zu viele Inkonsistenzen.: SUS6
+Ich kann mir vorstellen, dass die meisten Menschen den Umgang mit dieser Interaktionstechnik sehr schnell lernen.: SUS7
+Ich fand die Interaktionstechnik sehr umständlich zu nutzen.: SUS8
+Ich fühlte mich bei der Benutzung der Interaktionstechnik sehr sicher.: SUS9
+Ich musste eine Menge lernen, bevor ich anfangen konnte die Interaktionstechnik zu verwenden.: SUS10
+Haben Sie noch weitere Anmerkungen zur Interaktionstechnik?: meta_comment_technique

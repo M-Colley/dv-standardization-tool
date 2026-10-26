@@ -1,0 +1,160 @@
+{
+  "generated_at": "2026-10-26T10:06:17.819542+00:00",
+  "models": [
+    "google/gemma-4-E2B-it"
+  ],
+  "plausibility_rules_version": "1.1",
+  "shortlist": "definition",
+  "seed": 20261017,
+  "max_per_source": 40,
+  "e2_samples": 0,
+  "blocklist_size": 46,
+  "runtime_seconds": 124.4,
+  "results": {
+    "E1": {
+      "n_positive": 168,
+      "n_negative": 153,
+      "shortlist_contains_gold": {
+        "k": 114,
+        "n": 168,
+        "rate": 0.6785714285714286,
+        "ci95": [
+          0.6046383896622171,
+          0.7445206573556872
+        ]
+      },
+      "unchecked": {
+        "accuracy_on_dv_columns": {
+          "k": 65,
+          "n": 168,
+          "rate": 0.3869047619047619,
+          "ci95": [
+            0.3165691859785037,
+            0.462296750910157
+          ]
+        },
+        "wrong_dv_on_dv_columns": {
+          "k": 92,
+          "n": 168,
+          "rate": 0.5476190476190477,
+          "ci95": [
+            0.47212934624121194,
+            0.6209797329635627
+          ]
+        },
+        "abstained_on_dv_columns": {
+          "k": 11,
+          "n": 168,
+          "rate": 0.06547619047619048,
+          "ci95": [
+            0.036950895217393497,
+            0.11342875703903946
+          ]
+        },
+        "precision_of_accepted_dv_mappings": {
+          "k": 65,
+          "n": 288,
+          "rate": 0.22569444444444445,
+          "ci95": [
+            0.18120803462510235,
+            0.2774021277607896
+          ]
+        },
+        "blocklisted_non_dv_mapped_to_a_dv": {
+          "k": 6,
+          "n": 9,
+          "rate": 0.6666666666666666,
+          "ci95": [
+            0.3542021355803963,
+            0.879416181613089
+          ]
+        },
+        "curated_non_dv_mapped_to_a_dv": {
+          "k": 131,
+          "n": 144,
+          "rate": 0.9097222222222222,
+          "ci95": [
+            0.8516702919195349,
+            0.9464820054215877
+          ]
+        }
+      },
+      "checked": {
+        "accuracy_on_dv_columns": {
+          "k": 55,
+          "n": 168,
+          "rate": 0.3273809523809524,
+          "ci95": [
+            0.26097281598877425,
+            0.4015067718939183
+          ]
+        },
+        "wrong_dv_on_dv_columns": {
+          "k": 78,
+          "n": 168,
+          "rate": 0.4642857142857143,
+          "ci95": [
+            0.390513384612854,
+            0.5396548059835652
+          ]
+        },
+        "abstained_on_dv_columns": {
+          "k": 35,
+          "n": 168,
+          "rate": 0.20833333333333334,
+          "ci95": [
+            0.15378397854253134,
+            0.27592291132822505
+          ]
+        },
+        "precision_of_accepted_dv_mappings": {
+          "k": 55,
+          "n": 159,
+          "rate": 0.34591194968553457,
+          "ci95": [
+            0.27639875877974024,
+            0.42269506932238793
+          ]
+        },
+        "blocklisted_non_dv_mapped_to_a_dv": {
+          "k": 0,
+          "n": 9,
+          "rate": 0.0,
+          "ci95": [
+            0.0,
+            0.29914504841954404
+          ]
+        },
+        "curated_non_dv_mapped_to_a_dv": {
+          "k": 26,
+          "n": 144,
+          "rate": 0.18055555555555555,
+          "ci95": [
+            0.12629942236719174,
+            0.25141234580752614
+          ]
+        }
+      },
+      "true_mappings_lost_to_check": {
+        "k": 10,
+        "n": 65,
+        "rate": 0.15384615384615385,
+        "ci95": [
+          0.085770940669885,
+          0.26055319639978514
+        ]
+      },
+      "rejections_by_reason": {
+        "non_numeric": 103,
+        "demographic": 15,
+        "out_of_range": 15,
+        "identifier": 8,
+        "no_values": 7,
+        "quality_control": 3,
+        "experimental_condition": 2,
+        "timestamp": 2,
+        "event_time": 1
+      }
+    }
+  }
+}

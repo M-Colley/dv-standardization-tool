@@ -1,0 +1,27 @@
+# Gold labels of the confirmatory shortlist test for agency_ux_tochi22, generated from
+# analyses/confirmatory/gold_labels.csv (docs/preregistration_confirmatory_shortlist.md).
+ID: meta_participant_id
+Age: meta_demographic_age
+Gender: meta_demographic_gender
+Mouse Use: meta_demographic_mouse_use
+Touchpad Use: meta_demographic_touchpad_use
+Condition: meta_condition_device
+Hits: task_success
+Misses: error_rate
+AttDiff1: attrakdiff_pq
+AttDiff2: attrakdiff_pq
+AttDiff3: attrakdiff_pq
+AttDiff4: attrakdiff_pq
+AttDiff5: attrakdiff_hqs
+AttDiff6: attrakdiff_hqi
+AttDiff7: attrakdiff_hqi
+AttDiff8: attrakdiff_hqs
+Umux1: user_satisfaction
+Umux2: user_satisfaction
+NASA1: mental_demand
+NASA2: physical_demand
+NASA3: temporal_demand
+NASA4: performance
+NASA5: effort
+NASA6: frustration
+BaseAgency: meta_condition_base_agency
