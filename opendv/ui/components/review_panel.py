@@ -13,7 +13,7 @@ from pathlib import Path
 import pandas as pd
 import streamlit as st
 
-from scripts.mapping_review import (
+from opendv.mapping_review import (
     DECISIONS,
     DEFAULT_DV_SCHEMA,
     DEFAULT_LOG,
@@ -24,8 +24,8 @@ from scripts.mapping_review import (
     decisions_from_queue,
     review_summary,
 )
+from opendv._paths import REPO_ROOT
 
-REPO_ROOT = Path(__file__).resolve().parents[2]
 SHOWN_COLUMNS = [
     "decision", "target", "note", "status", "source_id", "raw_column", "suggestion", "suggestion_range",
     "outside_range", "n", "mean", "sd", "min", "max", "candidates", "rejection_reason", "datasets",

@@ -33,8 +33,16 @@ jobs:
         shell: bash
         run: |
           for f in schemas/*_mapping.yaml schemas/instruments.yaml schemas/study_designs.yaml; do
-            python scripts/validate_schema.py "$f" || exit 1
+            python -m opendv.validate_schema "$f" || exit 1
           done
+
+      - name: Install the package and import it outside the checkout
+        shell: bash
+        run: |
+          pip install --no-deps .
+          cd "$RUNNER_TEMP"
+          python -c "import opendv, opendv._paths as p; assert 'site-packages' in opendv.__file__, opendv.__file__; assert (p.SCHEMAS_DIR / 'standard_dv_mapping.yaml').is_file(); print(opendv.__version__, p.SCHEMAS_DIR)"
+          opendv --version
 
       - name: Run unit tests
         run: python -m pytest tests -q

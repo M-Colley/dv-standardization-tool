@@ -1,0 +1,648 @@
+"""HTTP fetch helpers shared by the remote source loaders.
+
+This module bundles the URL retry/backoff client, the landing-page HTML
+parser used to scrape dataset download links, the Cloudflare/login
+challenge detector, and the small bag of constants (timeouts, hosts,
+markers) that drive them.
+
+Built on httpx (HTTP client + async-friendly headers/Response API),
+tenacity (retry decorator), and BeautifulSoup (lenient HTML parsing) —
+all of which are already declared in ``pyproject.toml``. The module
+deliberately avoids pandas / transformers so it can be imported and
+unit-tested without paying their initialisation cost.
+``run_batch_standardization`` re-exports every public name (constants,
+classes, helpers) so existing tests and callers continue to work.
+
+Security / robustness notes:
+
+* ``_read_url_response`` retries timeouts, network errors, 429s, and
+  5xx with a linear-backoff sleep, but never retries other 4xx. The
+  retry count and per-call timeout default to ``NETWORK_TIMEOUTS`` —
+  centralised here so corporate-network operators have a single dial.
+* ``_normalize_remote_filename`` strips path components and forbids any
+  character outside ``[A-Za-z0-9._-]`` to defuse Content-Disposition
+  abuse (path traversal, hidden files).
+* ``_looks_like_challenge_response`` detects Cloudflare/CAPTCHA
+  interstitials by host, ``<title>`` markers, and well-known body
+  fragments so the source-loader can surface a clear ``access_restricted``
+  ``SourceAccessError`` instead of crashing later in the pipeline.
+"""
+
+from __future__ import annotations
+
+import email.message
+import json
+import logging
+import re
+from html import unescape
+from pathlib import Path
+from typing import Any
+from urllib.parse import unquote, urljoin, urlparse
+
+import httpx
+import tenacity
+from bs4 import BeautifulSoup
+
+from opendv.archive_utils import ARCHIVE_SUFFIXES, DATA_FILE_SUFFIXES, MAPPING_SUFFIXES
+
+logger = logging.getLogger(__name__)
+
+
+# ---------------------------------------------------------------------------
+# Constants
+# ---------------------------------------------------------------------------
+
+HTTP_USER_AGENT = "OpenDV-HCI/1.0"
+
+# Centralised network tunables. Previously these magic numbers were sprinkled
+# across _read_url_response, _read_url_bytes, and the OSF/web download helpers,
+# which made it hard to reason about retry/timeout behaviour in tests or to
+# adjust caps for slow corporate networks. Edit values here to retune.
+NETWORK_TIMEOUTS: dict[str, int] = {
+    # Long-lived bulk downloads (OSF blobs, archive payloads).
+    "download_seconds": 180,
+    # Web-dataset landing-page fetches (HTML or small JSON).
+    "landing_seconds": 60,
+    # Lightweight JSON API calls (OSF metadata).
+    "api_seconds": 45,
+    # Number of attempts for transient network failures (timeouts, 429, 5xx).
+    "max_retry_attempts": 4,
+}
+
+WEB_LOGIN_MARKERS = (
+    "login to access dataset files",
+    "create a free account",
+    "/saml_login",
+    "login required",
+    "sign in",
+)
+
+# CJK markers were duplicated in the original module — kept here for
+# clarity. Both the unicode-escaped and literal variants are exposed.
+WEB_NO_DATA_MARKERS_ASCII = (
+    "no data",
+    "no downloadable data",
+    "\u3010\u7ed3\u675f\u3011",
+    "\u5df2\u7ed3\u675f",
+    "\u95ee\u5377\u5df2\u7ed3\u675f",
+    "\u8c03\u67e5\u5df2\u7ed3\u675f",
+    "\u6682\u65e0\u6570\u636e",
+    "\u6ca1\u6709\u6570\u636e",
+)
+WEB_NO_DATA_MARKERS = WEB_NO_DATA_MARKERS_ASCII
+
+# Hosts that are known to gate content behind interactive challenges
+# (Cloudflare, bot management) and therefore cannot be fetched with a
+# plain HTTP client.
+WEB_CHALLENGE_HOSTS = {
+    "dl.acm.org",
+    "www.dl.acm.org",
+}
+WEB_CHALLENGE_TITLE_MARKERS = (
+    "just a moment",
+    "attention required",
+    "access denied",
+    "checking your browser",
+)
+WEB_CHALLENGE_BODY_MARKERS = (
+    "challenges.cloudflare.com",
+    "cf_chl_",
+    "cf-mitigated",
+    "enable javascript and cookies to continue",
+)
+
+
+# ---------------------------------------------------------------------------
+# Errors
+# ---------------------------------------------------------------------------
+
+class SourceAccessError(RuntimeError):
+    """Raised when a remote source is reachable but refuses public access.
+
+    ``status`` is a short machine-readable tag (e.g. ``access_restricted``,
+    ``login_required``, ``not_available``) consumed by the manifest runner
+    to decide between WARN-and-skip vs. fail-the-batch behaviour.
+    """
+
+    def __init__(self, status: str, message: str) -> None:
+        super().__init__(message)
+        self.status = status
+
+
+# ---------------------------------------------------------------------------
+# Landing page HTML parser
+# ---------------------------------------------------------------------------
+
+class _LandingPageParser:
+    """Lenient HTML scraper that captures ``<title>``, ``<a href=...>``, and
+    ``<script type="application/ld+json">`` payloads from a dataset landing
+    page.
+
+    Backed by BeautifulSoup so malformed pages (mismatched tags, comment-
+    soup landing pages from old CMS templates) parse without crashing the
+    runner. Stateful — instantiate one per page, then call ``feed(html)``
+    to populate ``title_parts`` / ``links`` / ``ldjson_blocks``.
+
+    The ``feed()`` interface is preserved from the previous
+    ``html.parser.HTMLParser`` subclass so existing call-sites do not need
+    to change.
+    """
+
+    def __init__(self) -> None:
+        self.title_parts: list[str] = []
+        self.links: list[str] = []
+        self.ldjson_blocks: list[str] = []
+
+    @property
+    def title(self) -> str:
+        return "".join(self.title_parts).strip()
+
+    def feed(self, html_text: str) -> None:
+        # ``html.parser`` is the stdlib backend — no extra system deps. lxml
+        # would be faster but pulls in a C extension we do not need here.
+        soup = BeautifulSoup(html_text, "html.parser")
+
+        title_tag = soup.find("title")
+        if title_tag is not None:
+            text = title_tag.get_text()
+            if text:
+                self.title_parts.append(text)
+
+        for anchor in soup.find_all("a", href=True):
+            href = anchor.get("href")
+            if href:
+                self.links.append(str(href))
+
+        for script in soup.find_all("script"):
+            type_attr = str(script.get("type") or "").lower()
+            if "ld+json" not in type_attr:
+                continue
+            block = (script.string or script.get_text() or "").strip()
+            if block:
+                self.ldjson_blocks.append(block)
+
+
+# ---------------------------------------------------------------------------
+# Filename / response helpers
+# ---------------------------------------------------------------------------
+
+def _extract_content_disposition_filename(disposition: str | None) -> str | None:
+    if not disposition:
+        return None
+
+    utf8_match = re.search(r"filename\*=UTF-8''([^;]+)", disposition, flags=re.IGNORECASE)
+    if utf8_match:
+        return unquote(utf8_match.group(1).strip().strip('"'))
+
+    plain_match = re.search(r'filename="?([^";]+)"?', disposition, flags=re.IGNORECASE)
+    if plain_match:
+        return plain_match.group(1).strip()
+    return None
+
+
+def _infer_extension_from_content_type(content_type: str) -> str:
+    normalized = (content_type or "").split(";", 1)[0].strip().lower()
+    return {
+        "application/zip": ".zip",
+        "text/csv": ".csv",
+        "text/tab-separated-values": ".tsv",
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": ".xlsx",
+        "application/vnd.ms-excel": ".xls",
+        "application/x-yaml": ".yaml",
+        "text/yaml": ".yaml",
+        "text/x-yaml": ".yaml",
+    }.get(normalized, "")
+
+
+def _normalize_remote_filename(
+    raw_name: str | None,
+    fallback_prefix: str,
+    final_url: str,
+    content_type: str,
+) -> str:
+    candidates = [raw_name or ""]
+    url_name = Path(unquote(urlparse(final_url).path)).name
+    if url_name:
+        candidates.append(url_name)
+
+    for candidate in candidates:
+        clean = Path(str(candidate)).name.strip().strip('"').strip("'")
+        clean = re.sub(r"[^A-Za-z0-9._-]+", "_", clean).strip("._")
+        if clean:
+            return clean
+
+    extension = _infer_extension_from_content_type(content_type)
+    return f"{fallback_prefix}{extension}"
+
+
+def _build_unique_destination(target_dir: Path, filename: str) -> Path:
+    destination = target_dir / filename
+    stem = destination.stem
+    suffix = destination.suffix
+    counter = 2
+    while destination.exists():
+        destination = target_dir / f"{stem}_{counter}{suffix}"
+        counter += 1
+    return destination
+
+
+def _looks_like_supported_download_url(url: str) -> bool:
+    parsed = urlparse(url)
+    suffix = Path(unquote(parsed.path)).suffix.lower()
+    return (
+        suffix in DATA_FILE_SUFFIXES
+        or suffix in ARCHIVE_SUFFIXES
+        or suffix in MAPPING_SUFFIXES
+        or "/ndownloader/" in parsed.path
+    )
+
+
+def _is_supported_download_response(final_url: str, headers: Any) -> bool:
+    suffixes = {Path(unquote(urlparse(final_url).path)).suffix.lower()}
+    disposition = headers.get("Content-Disposition") or headers.get("Content-disposition")
+    disposition_name = _extract_content_disposition_filename(disposition)
+    if disposition_name:
+        suffixes.add(Path(disposition_name).suffix.lower())
+    if any(suffix in DATA_FILE_SUFFIXES or suffix in ARCHIVE_SUFFIXES or suffix in MAPPING_SUFFIXES for suffix in suffixes):
+        return True
+
+    content_type = (
+        headers.get_content_type()
+        if hasattr(headers, "get_content_type")
+        else str(headers.get("Content-Type", "")).split(";", 1)[0].strip().lower()
+    )
+    return content_type in {
+        "application/zip",
+        "text/csv",
+        "text/tab-separated-values",
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        "application/vnd.ms-excel",
+    }
+
+
+# ---------------------------------------------------------------------------
+# URL fetch with retry/backoff
+# ---------------------------------------------------------------------------
+
+def _is_transient_error(exc: BaseException) -> bool:
+    """Predicate used by tenacity to decide whether to retry an HTTP failure.
+
+    Retries:
+        * httpx timeouts (connect/read/write/pool)
+        * httpx network / protocol errors (DNS failure, connection drop)
+        * HTTP 429 (rate-limit) and 5xx server errors
+    Does NOT retry:
+        * 4xx other than 429 (permanent — auth, missing resource, bad URL)
+        * Non-HTTP exceptions (programmer error, signal, etc.)
+    """
+    if isinstance(exc, (httpx.TimeoutException, httpx.NetworkError, httpx.RemoteProtocolError)):
+        return True
+    if isinstance(exc, httpx.HTTPStatusError):
+        code = exc.response.status_code
+        return code == 429 or 500 <= code < 600
+    return False
+
+
+def _coerce_to_httpx_request(url_or_request: Any) -> tuple[str, dict[str, str], bytes | None, str]:
+    """Translate a string URL or stdlib ``urllib.request.Request`` into the
+    primitives ``httpx.Client.request`` needs.
+
+    Kept for backwards compatibility with callers that still pass a
+    ``urllib.request.Request`` (they do so to inject custom User-Agent /
+    Accept headers). Newer call-sites can pass a plain string URL.
+    """
+    from urllib.request import Request as _UrllibRequest  # local import — old API only
+    if isinstance(url_or_request, _UrllibRequest):
+        method = url_or_request.get_method() or "GET"
+        return (
+            url_or_request.full_url,
+            dict(url_or_request.header_items()),
+            url_or_request.data,
+            method,
+        )
+    return str(url_or_request), {}, None, "GET"
+
+
+def _httpx_headers_to_message(headers: httpx.Headers) -> email.message.Message:
+    """Wrap httpx headers in an ``email.message.Message`` so callers using
+    ``.get_content_type()`` / ``.get_content_charset()`` / ``["X"]`` keep
+    working. Cheaper than building a dedicated adapter and exactly matches
+    the stdlib API the original urllib-based code returned."""
+    msg = email.message.Message()
+    for key, value in headers.items():
+        msg[key] = value
+    return msg
+
+
+_SHARED_CLIENT: httpx.Client | None = None
+
+
+def _get_shared_client() -> httpx.Client:
+    """Lazily create one process-wide httpx client.
+
+    OSF traversal issues dozens of sequential JSON-API calls; reusing a single
+    client keeps connections (and TLS sessions) alive instead of paying a new
+    handshake per request. Timeouts are passed per request, so one client
+    serves all call sites.
+    """
+    global _SHARED_CLIENT
+    if _SHARED_CLIENT is None or _SHARED_CLIENT.is_closed:
+        _SHARED_CLIENT = httpx.Client(follow_redirects=True)
+    return _SHARED_CLIENT
+
+
+def _execute_http_request(
+    url: str,
+    headers: dict[str, str],
+    body: bytes | None,
+    method: str,
+    timeout: float,
+) -> httpx.Response:
+    """Single seam for tests to patch. Performs ONE HTTP call without retry.
+
+    Tests can monkey-patch ``scripts.http_utils._execute_http_request`` to
+    inject canned ``httpx.Response`` objects or raise httpx exceptions
+    without having to mock the underlying transport stack.
+    """
+    client = _get_shared_client()
+    response = client.request(method, url, headers=headers, content=body, timeout=timeout)
+    # Convert 4xx/5xx into HTTPStatusError so the retry predicate can see
+    # them; consumers that want the raw response on error catch
+    # HTTPStatusError and read .response.
+    response.raise_for_status()
+    return response
+
+
+def _read_url_response(
+    url_or_request: Any,
+    timeout: int,
+    max_attempts: int | None = None,
+) -> tuple[bytes, email.message.Message, str]:
+    """Fetch a URL with linear-backoff retry on transient failures.
+
+    Returns ``(body_bytes, headers, final_url)``. ``headers`` is an
+    ``email.message.Message`` for parity with the previous urllib-based
+    contract — callers may use ``.get("X")``, ``.get_content_type()``, and
+    ``.get_content_charset()``. Raises ``httpx.HTTPStatusError`` on
+    permanent HTTP errors (4xx other than 429).
+
+    ``max_attempts`` defaults to ``NETWORK_TIMEOUTS["max_retry_attempts"]``
+    so the central tuning knob applies to every caller.
+    """
+    if max_attempts is None:
+        max_attempts = int(NETWORK_TIMEOUTS["max_retry_attempts"])
+
+    url, headers, body, method = _coerce_to_httpx_request(url_or_request)
+
+    # Build the Retrying controller per call so it picks up the runtime
+    # max_attempts. wait_incrementing(start=0.75, increment=0.75) reproduces
+    # the previous schedule exactly: sleep 0.75s before attempt 2, 1.5s
+    # before attempt 3, etc.
+    retrying = tenacity.Retrying(
+        stop=tenacity.stop_after_attempt(max_attempts),
+        wait=tenacity.wait_incrementing(start=0.75, increment=0.75),
+        retry=tenacity.retry_if_exception(_is_transient_error),
+        before_sleep=tenacity.before_sleep_log(logger, logging.DEBUG),
+        reraise=True,
+    )
+
+    response: httpx.Response = retrying(
+        _execute_http_request, url, headers, body, method, timeout,
+    )
+    return response.content, _httpx_headers_to_message(response.headers), str(response.url)
+
+
+def _read_url_bytes(
+    url_or_request: Any,
+    timeout: int,
+    max_attempts: int | None = None,
+) -> bytes:
+    """Read bytes from URL with retry/backoff for transient network errors."""
+    payload, _, _ = _read_url_response(url_or_request, timeout=timeout, max_attempts=max_attempts)
+    return payload
+
+
+def _stream_url_to_path(
+    url: str,
+    destination: Path,
+    timeout: int,
+    headers: dict[str, str] | None = None,
+    max_attempts: int | None = None,
+    chunk_size: int = 1 << 20,
+) -> Path:
+    """Stream a URL's body to ``destination`` without buffering it in memory.
+
+    Retries transient failures with the same policy as ``_read_url_response``.
+    Writes to a ``.part`` sibling first so an interrupted download never
+    leaves a truncated file at the final path.
+    """
+    if max_attempts is None:
+        max_attempts = int(NETWORK_TIMEOUTS["max_retry_attempts"])
+    request_headers = {"User-Agent": HTTP_USER_AGENT, "Accept": "*/*"}
+    if headers:
+        request_headers.update(headers)
+
+    destination.parent.mkdir(parents=True, exist_ok=True)
+    partial = destination.with_suffix(destination.suffix + ".part")
+
+    def _attempt() -> None:
+        client = _get_shared_client()
+        with client.stream("GET", url, headers=request_headers, timeout=timeout) as response:
+            response.raise_for_status()
+            with open(partial, "wb") as fh:
+                for chunk in response.iter_bytes(chunk_size):
+                    fh.write(chunk)
+
+    retrying = tenacity.Retrying(
+        stop=tenacity.stop_after_attempt(max_attempts),
+        wait=tenacity.wait_incrementing(start=0.75, increment=0.75),
+        retry=tenacity.retry_if_exception(_is_transient_error),
+        before_sleep=tenacity.before_sleep_log(logger, logging.DEBUG),
+        reraise=True,
+    )
+    try:
+        retrying(_attempt)
+    except BaseException:
+        partial.unlink(missing_ok=True)
+        raise
+
+    partial.replace(destination)
+    return destination
+
+
+def _decode_http_text(payload: bytes, headers: Any) -> str:
+    charset = headers.get_content_charset() if hasattr(headers, "get_content_charset") else None
+    encoding = charset or "utf-8"
+    return payload.decode(encoding, errors="replace")
+
+
+# ---------------------------------------------------------------------------
+# Landing page link extraction + challenge detection
+# ---------------------------------------------------------------------------
+
+def _iter_content_urls(payload: Any) -> list[str]:
+    urls: list[str] = []
+    if isinstance(payload, dict):
+        for key, value in payload.items():
+            if key == "contentUrl" and isinstance(value, str):
+                urls.append(value)
+            else:
+                urls.extend(_iter_content_urls(value))
+    elif isinstance(payload, list):
+        for item in payload:
+            urls.extend(_iter_content_urls(item))
+    return urls
+
+
+def _extract_html_download_urls(html_text: str, base_url: str) -> tuple[str, list[str]]:
+    parser = _LandingPageParser()
+    parser.feed(html_text)
+
+    urls: set[str] = set()
+    for block in parser.ldjson_blocks:
+        try:
+            payload = json.loads(unescape(block))
+        except json.JSONDecodeError:
+            continue
+        for content_url in _iter_content_urls(payload):
+            absolute_url = urljoin(base_url, content_url)
+            if _looks_like_supported_download_url(absolute_url):
+                urls.add(absolute_url)
+
+    for href in parser.links:
+        absolute_url = urljoin(base_url, unescape(href))
+        if _looks_like_supported_download_url(absolute_url):
+            urls.add(absolute_url)
+
+    return parser.title, sorted(urls)
+
+
+def _looks_like_challenge_response(
+    host: str,
+    title: str,
+    html_text: str,
+) -> bool:
+    normalized_host = host.lower()
+    if normalized_host in WEB_CHALLENGE_HOSTS:
+        return True
+    normalized_title = title.lower()
+    if any(marker in normalized_title for marker in WEB_CHALLENGE_TITLE_MARKERS):
+        return True
+    normalized_html = html_text.lower()
+    return any(marker in normalized_html for marker in WEB_CHALLENGE_BODY_MARKERS)
+
+
+def _build_web_dataset_access_error(
+    location: str,
+    final_url: str,
+    html_text: str,
+    title: str,
+) -> SourceAccessError:
+    resolved_url = final_url or location
+    host = urlparse(resolved_url).netloc.lower()
+    normalized_html = html_text.lower()
+    normalized_title = title.lower()
+
+    if _looks_like_challenge_response(host, title, html_text):
+        return SourceAccessError(
+            "access_restricted",
+            (
+                f"Dataset host {host or resolved_url} returned a browser/CAPTCHA challenge "
+                f"(Cloudflare-style) for {resolved_url}. Automated download is not possible; "
+                "download the file manually and re-ingest it with source_type: local_path."
+            ),
+        )
+
+    if host.endswith("ieee-dataport.org") or any(marker in normalized_html for marker in WEB_LOGIN_MARKERS):
+        return SourceAccessError(
+            "login_required",
+            f"Dataset files require a login or account at {resolved_url}. No public download links were detected.",
+        )
+
+    if host.endswith("wjx.cn") or any(
+        marker in html_text or marker in title for marker in WEB_NO_DATA_MARKERS_ASCII
+    ):
+        return SourceAccessError(
+            "not_available",
+            f"Dataset is not available at {resolved_url}. The page indicates it is closed or does not expose downloadable data.",
+        )
+
+    if host.endswith("data.4tu.nl"):
+        return SourceAccessError(
+            "not_available",
+            f"No downloadable dataset files were detected on the 4TU landing page: {resolved_url}",
+        )
+
+    if any(marker in normalized_title for marker in ("closed", "ended")):
+        return SourceAccessError(
+            "not_available",
+            f"Dataset is not available at {resolved_url}. The landing page appears to be closed.",
+        )
+
+    return SourceAccessError(
+        "not_available",
+        f"No downloadable dataset files were detected for {resolved_url}",
+    )
+
+
+# ---------------------------------------------------------------------------
+# Download payload writer
+# ---------------------------------------------------------------------------
+
+def _write_download_payload(
+    target_dir: Path,
+    payload: bytes,
+    final_url: str,
+    headers: Any,
+    fallback_prefix: str,
+) -> Path:
+    target_dir.mkdir(parents=True, exist_ok=True)
+    disposition = headers.get("Content-Disposition") or headers.get("Content-disposition")
+    filename = _normalize_remote_filename(
+        _extract_content_disposition_filename(disposition),
+        fallback_prefix=fallback_prefix,
+        final_url=final_url,
+        content_type=(
+            headers.get_content_type()
+            if hasattr(headers, "get_content_type")
+            else str(headers.get("Content-Type", ""))
+        ),
+    )
+    destination = _build_unique_destination(target_dir, filename)
+    destination.write_bytes(payload)
+    return destination
+
+
+__all__ = [
+    # constants
+    "HTTP_USER_AGENT",
+    "NETWORK_TIMEOUTS",
+    "WEB_LOGIN_MARKERS",
+    "WEB_NO_DATA_MARKERS",
+    "WEB_NO_DATA_MARKERS_ASCII",
+    "WEB_CHALLENGE_HOSTS",
+    "WEB_CHALLENGE_TITLE_MARKERS",
+    "WEB_CHALLENGE_BODY_MARKERS",
+    # types
+    "SourceAccessError",
+    # helpers
+    "_LandingPageParser",
+    "_extract_content_disposition_filename",
+    "_infer_extension_from_content_type",
+    "_normalize_remote_filename",
+    "_build_unique_destination",
+    "_looks_like_supported_download_url",
+    "_is_supported_download_response",
+    "_read_url_response",
+    "_read_url_bytes",
+    "_stream_url_to_path",
+    "_decode_http_text",
+    "_iter_content_urls",
+    "_extract_html_download_urls",
+    "_looks_like_challenge_response",
+    "_build_web_dataset_access_error",
+    "_write_download_payload",
+    # internal seams (exported for tests)
+    "_execute_http_request",
+    "_is_transient_error",
+]

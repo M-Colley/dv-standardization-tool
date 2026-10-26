@@ -76,7 +76,8 @@ Optional extras (still via the requirements files):
 
 **Or** install as a package from the project's `pyproject.toml`. This is
 the preferred path on a fresh machine because it also wires the console
-scripts (`opendv-standardize`, `opendv-batch`, `opendv-analyze`):
+scripts (`opendv`, `opendv-standardize`, `opendv-batch`, `opendv-analyze`,
+`opendv-review`) and ships the schemas inside the package:
 
 ```bash
 pip install -e .                  # core only
@@ -116,7 +117,7 @@ user_satisfaction:
 ### 4) Run standardization
 
 ```bash
-python scripts/convert_dv.py \
+python -m opendv.convert_dv \
   --input data/raw/my_study.csv \
   --schema data/raw/my_mapping.yaml \
   --output data/processed/my_study-standardized.csv
@@ -130,7 +131,7 @@ What this does:
 ### 5) Optional: also generate metadata + suggestions
 
 ```bash
-python scripts/convert_dv.py \
+python -m opendv.convert_dv \
   --input data/raw/my_study.csv \
   --schema data/raw/my_mapping.yaml \
   --output data/processed/my_study-standardized.csv \
@@ -143,7 +144,7 @@ This creates sidecar files to help you iterate:
 
 ### 6) How the local LLM is used
 
-LLM-assisted alias deduction is integrated in **batch mode** (`scripts/run_batch_standardization.py`), but it is now a fallback rather than the first step.
+LLM-assisted alias deduction is integrated in **batch mode** (`opendv/run_batch_standardization.py`), but it is now a fallback rather than the first step.
 
 Per dataset, the runner does this in order:
 - classifies the dataset type,
@@ -153,7 +154,7 @@ Per dataset, the runner does this in order:
 
 The LLM is not used for blocked admin fields such as `UserID` or `ConditionID`, and it is also skipped for metadata/process columns and non-DV dataset types such as object-detection files.
 
-**Plausibility check.** Before and after each LLM call, `scripts/llm_plausibility.py` applies the rules in `schemas/llm_plausibility_rules.yaml`:
+**Plausibility check.** Before and after each LLM call, `opendv/llm_plausibility.py` applies the rules in `schemas/llm_plausibility_rules.yaml`:
 
 - columns whose names mark them as demographics, identifiers, random seeds, timestamps, survey timings, coordinates, experimental conditions or rankings are never sent to the model;
 - columns that are not at least 90% numeric are never sent;
@@ -161,9 +162,9 @@ The LLM is not used for blocked admin fields such as `UserID` or `ConditionID`, 
 
 Every rejection, with its reason, is written to `llm_rejected_suggestions.json` and listed in `llm_deductions.log`. Use `--no-llm-plausibility-check` only for ablation.
 
-**Candidate retrieval.** The LLM chooses from a shortlist of candidate DVs. By default (`--llm-shortlist definition`), `scripts/dv_retrieval.py` builds it by TF-IDF similarity to each DV's definition (id, label, aliases, instruments, notes, cluster, unit). The earlier alias-string matching (`--llm-shortlist fuzzy`) missed the correct DV for most real columns. `--llm-shortlist dense` fuses TF-IDF with sentence embeddings (`BAAI/bge-small-en-v1.5`, downloaded on first use, runs on CPU): the correct DV is among 8 candidates for 97% of held-out real columns, against 83% for TF-IDF alone. It is not the default: end to end, the LLM chose the right DV less often from the fused list (41 vs. 52 of 101 columns, paired p = 0.11), because the extra candidates are near-synonyms that a small model confuses (`docs/research_agenda.md` §2.4).
+**Candidate retrieval.** The LLM chooses from a shortlist of candidate DVs. By default (`--llm-shortlist definition`), `opendv/dv_retrieval.py` builds it by TF-IDF similarity to each DV's definition (id, label, aliases, instruments, notes, cluster, unit). The earlier alias-string matching (`--llm-shortlist fuzzy`) missed the correct DV for most real columns. `--llm-shortlist dense` fuses TF-IDF with sentence embeddings (`BAAI/bge-small-en-v1.5`, downloaded on first use, runs on CPU): the correct DV is among 8 candidates for 97% of held-out real columns, against 83% for TF-IDF alone. It is not the default: end to end, the LLM chose the right DV less often from the fused list (41 vs. 52 of 101 columns, paired p = 0.11), because the extra candidates are near-synonyms that a small model confuses (`docs/research_agenda.md` §2.4).
 
-**How good is the LLM fallback?** `analyses/evaluate_llm_mapping.py` replays the LLM step with each curated mapping hidden (leave-alias-out). With the local Gemma-4-E2B model and the plausibility check on, it found on real dataset columns:
+**How good is the LLM fallback?** `opendv/analysis/evaluate_llm_mapping.py` replays the LLM step with each curated mapping hidden (leave-alias-out). With the local Gemma-4-E2B model and the plausibility check on, it found on real dataset columns:
 
 - **With the old fuzzy shortlist:** 22% of accepted LLM mappings are correct.
 - **With definition retrieval:** 59% are correct (52 of 88). The opt-in `--llm-shortlist hierarchical` (dense retrieval without a scale and its own items side by side) reached 75% (65 of 87) in a post hoc evaluation; it awaits a confirmatory test.
@@ -174,7 +175,7 @@ Treat LLM-deduced rows as provisional. `multi_study_analysis.py --exclude-llm-de
 Use the provided manifest example as a template:
 
 ```bash
-python scripts/run_batch_standardization.py \
+python -m opendv.run_batch_standardization \
   --manifest sources_manifest_example.yaml \
   --output-dir data/processed/batch_runs/latest \
   --snapshot-manifest
@@ -200,7 +201,7 @@ sources:
 Run it like this:
 
 ```bash
-python scripts/run_batch_standardization.py \
+python -m opendv.run_batch_standardization \
   --manifest data/raw/my_sources_manifest.yaml \
   --output-dir data/processed/batch_runs/my_first_batch \
   --snapshot-manifest
@@ -248,7 +249,7 @@ huggingface-cli login
 python -c "import torch; print('CUDA:', torch.cuda.is_available(), '| Device:', torch.cuda.get_device_name(0) if torch.cuda.is_available() else 'CPU')"
 
 # 4. Run the batch with LLM enabled (default)
-python -m scripts.run_batch_standardization \
+python -m opendv.run_batch_standardization \
   --manifest sources_manifest_no4tu.yaml \
   --output-dir batch_outputs/llm_run \
   --snapshot-manifest \
@@ -260,7 +261,7 @@ First-run notes:
   when an unmapped column actually reaches the LLM step.
 - LLM deduction is automatically skipped for `id` / `Timestamp` /
   YOLO bbox / other admin fields. See
-  `scripts/run_batch_standardization.py:LLM_EXCLUDED_NORMALIZED_COLUMNS`.
+  `opendv/run_batch_standardization.py:LLM_EXCLUDED_NORMALIZED_COLUMNS`.
 - Override the model priority list per run:
   `--llm-models google/gemma-2-2b-it,google/gemma-4-E4B-it`
 - For a deterministic schema-only run (no model download, no
@@ -285,7 +286,7 @@ If you already have a CSV/Excel sheet listing dataset URLs or local study folder
 Example:
 
 ```bash
-python scripts/run_catalog_meta_analysis.py \
+python -m opendv.run_catalog_meta_analysis \
   --catalog data/raw/study_catalog_example.csv \
   --url-column dataset_url \
   --source-id-column study_name \
@@ -312,7 +313,7 @@ If you want deterministic behavior (no model downloads/inference), provide a rep
 The core functionality is a **conversion pipeline** for standardizing column names in `.csv` files using a YAML-based DV mapping schema. The tool allows researchers to rapidly harmonize datasets, reducing manual effort and promoting reproducibility.
 
 ```bash
-python scripts/convert_dv.py \
+python -m opendv.convert_dv \
   --input data/raw/sample.csv \
   --output data/processed/standardized.csv
 ```
@@ -368,7 +369,38 @@ opendv review apply --decisions review_queue.csv --manifest sources_manifest_no4
 opendv review summary
 ```
 
-The queue lists LLM-mapped columns first (they are used in the analysis), then suggestions the plausibility check rejected, unmapped survey columns and screened-out columns. Each row shows the observed n, mean, SD and range, the suggested DV's canonical range (`outside_range` flags values that cannot lie on it without rescaling) and the top retrieval candidates. Decisions are `accept`, `map` (to the DV in `target`), `non_dv` (written as `meta_<name>`, so the LLM never sees the column again) and `study_specific` (an outcome without a schema DV). They are written into the source's mapping YAML with a reviewer/date comment, keeping existing comments; a source without one gets `schemas/<source_id>_mapping.yaml`, registered in the manifest. Every decision is appended to `schemas/mapping_review_log.csv`, and `summary` reports the share of LLM mappings reviewers kept. After the next batch run, reviewed mappings are curated mappings and gold labels of `analyses/evaluate_llm_mapping.py`. The same workflow is the **Review Mappings** tab of the Streamlit UI.
+The queue lists LLM-mapped columns first (they are used in the analysis), then suggestions the plausibility check rejected, unmapped survey columns and screened-out columns. Each row shows the observed n, mean, SD and range, the suggested DV's canonical range (`outside_range` flags values that cannot lie on it without rescaling) and the top retrieval candidates. Decisions are `accept`, `map` (to the DV in `target`), `non_dv` (written as `meta_<name>`, so the LLM never sees the column again) and `study_specific` (an outcome without a schema DV). They are written into the source's mapping YAML with a reviewer/date comment, keeping existing comments; a source without one gets `schemas/<source_id>_mapping.yaml`, registered in the manifest. Every decision is appended to `schemas/mapping_review_log.csv`, and `summary` reports the share of LLM mappings reviewers kept. After the next batch run, reviewed mappings are curated mappings and gold labels of `opendv/analysis/evaluate_llm_mapping.py`. The same workflow is the **Review Mappings** tab of the Streamlit UI.
+
+### Python package, API and plugins
+
+The code is the `opendv` package (`pip install .`; the schemas are installed inside it). The modules formerly under `scripts/` and `analyses/` are `opendv.<module>` and `opendv.analysis.<module>`; in a source checkout the old paths (`python -m scripts.run_batch_standardization`, `python analyses/multi_study_analysis.py`, `from scripts.x import y`) are aliases of the same modules and keep working.
+
+```python
+import opendv
+
+opendv.run_batch("sources_manifest_no4tu.yaml", "out", workers=8)       # fetch + standardize
+opendv.analyze("out/standardized", "results")                           # meta-analysis, contrasts, invariance, ...
+queue = opendv.review_queue("out")                                       # columns needing a human decision
+df = opendv.standardize("my_study.csv")                                  # one table -> canonical DV names
+scored = opendv.score(df)                                                # questionnaire scores (SUS, TLX, ...)
+```
+
+Command line: `opendv standardize | batch | analyze | validate | review | ui | plugins` (`opendv <command> --help`).
+
+**Plugins.** Another installed package can add source types, file formats and instruments through entry points, without forking OpenDV-HCI (`opendv/plugins.py`):
+
+```toml
+[project.entry-points."opendv.sources"]
+my_archive = "my_plugin:materialize"      # materialize(source, target, refresh) -> (base_dir, version)
+
+[project.entry-points."opendv.loaders"]
+sav2 = "my_plugin:load_sav2"              # load(path) -> DataFrame, for *.sav2 files
+
+[project.entry-points."opendv.instruments"]
+my_scales = "my_plugin:REGISTRY_PATH"     # a YAML in the format of schemas/instruments.yaml
+```
+
+`opendv plugins` lists what is installed. A plugin that fails to load is logged and skipped.
 
 ### Research-data repositories
 
@@ -381,21 +413,21 @@ Besides local folders, GitHub, OSF and web landing pages, sources can come from 
 | `fourtu_dataset` | `https://data.4tu.nl/datasets/<uuid>[/<version>]` or a legacy `.../articles/_/<id>` |
 | `dataverse_dataset` | `https://<server>/dataset.xhtml?persistentId=doi:...` |
 
-Only data, archive and mapping files are downloaded, and every file is checked against the size and checksum the repository publishes. Dataverse tables are fetched as originally uploaded, not as Dataverse's `.tab` conversion. The record version is recorded as the provenance id of each dataset. `max_file_mb` skips larger files. Missing or restricted records are reported as unavailable instead of failing the run. Other repositories can be added the same way (`scripts/sources/repositories.py`, `register_source_type`).
+Only data, archive and mapping files are downloaded, and every file is checked against the size and checksum the repository publishes. Dataverse tables are fetched as originally uploaded, not as Dataverse's `.tab` conversion. The record version is recorded as the provenance id of each dataset. `max_file_mb` skips larger files. Missing or restricted records are reported as unavailable instead of failing the run. Other repositories can be added the same way (`opendv/sources/repositories.py`, `register_source_type`).
 
 ### Self-describing outputs
 
-Every run also writes standard metadata (`scripts/fair_export.py`; skip it with `--no-fair-export`):
+Every run also writes standard metadata (`opendv/fair_export.py`; skip it with `--no-fair-export`):
 - **`standardized/<source>/datapackage.json`**: a [Frictionless Data Package](https://datapackage.org/) per source. Each column records its canonical DV, label, range, direction and unit, the raw column names it came from, how it was mapped (`schema`, `repo_mapping`, `llm_deduced`, `blocked`), any recoding of text labels or negative answer codes, and the composite an `__item_N` column belongs to. Validate with `frictionless validate standardized/<source>/datapackage.json`.
 - **`ro-crate-metadata.json`**: an [RO-Crate](https://www.researchobject.org/ro-crate/) for the run, linking the sources (repository URL, publication DOI), the code version and git commit, the schema and plausibility-rule versions, the LLM model, and every output.
 
-Add both to an existing run with `python -m scripts.fair_export <output dir> [--llm-model <id>] [--validate]`. `--output-format parquet` writes standardized tables as Parquet instead of each input's own format; the analysis reads either and gives identical results.
+Add both to an existing run with `python -m opendv.fair_export <output dir> [--llm-model <id>] [--validate]`. `--output-format parquet` writes standardized tables as Parquet instead of each input's own format; the analysis reads either and gives identical results.
 
 ### Robustness analyses
 
-- `analyses/multi_study_analysis.py` reports Hartung-Knapp-Sidik-Jonkman intervals (`hksj_ci95_low/high`) next to the Wald intervals; with the k = 2–3 studies typical here, Wald intervals are far too narrow. All meta-analytic estimators (DL, REML, Egger, trim-and-fill, HKSJ) are validated against R's `metafor` in `tests/test_meta_analysis_reference.py`.
-- `analyses/measurement_invariance.py` tests whether shared scales measure the same thing in every study before their means are pooled: a one-factor multi-group CFA per scale (configural, metric, scalar) fitted with R's lavaan (MLR, participant-clustered), with Chen's (2007) ΔCFI/ΔRMSEA/ΔSRMR rules. `meta_analysis_summary.csv` gets a `measurement_invariance` column (level reached and the studies tested). It needs `Rscript` with lavaan and jsonlite and is skipped otherwise (`--no-measurement-invariance` to turn it off). Of the four scales testable in the benchmark, only Van der Laan *satisfying* reaches scalar invariance.
-- `analyses/multiverse_analysis.py` re-runs the meta-analysis across every combination of 5 choices (32 specifications per DV) and writes specification curves:
+- `opendv/analysis/multi_study_analysis.py` reports Hartung-Knapp-Sidik-Jonkman intervals (`hksj_ci95_low/high`) next to the Wald intervals; with the k = 2–3 studies typical here, Wald intervals are far too narrow. All meta-analytic estimators (DL, REML, Egger, trim-and-fill, HKSJ) are validated against R's `metafor` in `tests/test_meta_analysis_reference.py`.
+- `opendv/analysis/measurement_invariance.py` tests whether shared scales measure the same thing in every study before their means are pooled: a one-factor multi-group CFA per scale (configural, metric, scalar) fitted with R's lavaan (MLR, participant-clustered), with Chen's (2007) ΔCFI/ΔRMSEA/ΔSRMR rules. `meta_analysis_summary.csv` gets a `measurement_invariance` column (level reached and the studies tested). It needs `Rscript` with lavaan and jsonlite and is skipped otherwise (`--no-measurement-invariance` to turn it off). Of the four scales testable in the benchmark, only Van der Laan *satisfying* reaches scalar invariance.
+- `opendv/analysis/multiverse_analysis.py` re-runs the meta-analysis across every combination of 5 choices (32 specifications per DV) and writes specification curves:
   - LLM mappings included or excluded;
   - scale harmonization on or off;
   - observation- or participant-level n;
@@ -408,7 +440,7 @@ Add both to an existing run with `python -m scripts.fair_export <output dir> [--
 
 ### Condition contrasts
 
-Study means alone cannot say what a manipulation did. `schemas/study_designs.yaml` declares, per study, the participant column and the manipulated factors, and maps their levels onto canonical independent variables such as `ehmi_presence` (absent / present). `analyses/contrast_meta_analysis.py`, run by `multi_study_analysis.py`, then:
+Study means alone cannot say what a manipulation did. `schemas/study_designs.yaml` declares, per study, the participant column and the manipulated factors, and maps their levels onto canonical independent variables such as `ehmi_presence` (absent / present). `opendv/analysis/contrast_meta_analysis.py`, run by `multi_study_analysis.py`, then:
 - computes each condition's effect against its reference on participant means: Hedges' g between subjects, and the standardized mean change (metafor `SMCRPH`) within subjects, on the same d metric;
 - combines dependent contrasts of a study by GLS (`rho` = 0.5, with 0.2 and 0.8 as sensitivity) and pools studies that share a canonical factor;
 - writes `contrast_effects.csv`, `contrast_study_effects.csv` and `contrast_meta_analysis.csv` (plus an `_llm_excluded` variant).
@@ -421,7 +453,7 @@ Seven of the 11 benchmark studies declare factors; the ROADS and Psych-Conflict 
 - **New source type**: register a materializer that fetches files into the cache directory and returns `(base_dir, provenance_id)`. Archive extraction and include/exclude matching are shared by all source types, and manifest validation accepts the new `source_type` automatically:
 
   ```python
-  from scripts.run_batch_standardization import register_source_type
+  from opendv.run_batch_standardization import register_source_type
 
   @register_source_type("zenodo_record")
   def materialize_zenodo(source, target, refresh_remote_cache):
@@ -433,7 +465,7 @@ Seven of the 11 benchmark studies declare factors; the ROADS and Psych-Conflict 
 - **Item-level DVs**: name item DVs `<construct id>_item_NN` (e.g. `perceived_safety_item_01`) or declare `subitem_of: <construct id>` in the schema entry. The causal analysis then drops the items whenever their construct is present, so item → scale edges cannot appear in the DAG.
 
 ```bash
-python scripts/run_batch_standardization.py \
+python -m opendv.run_batch_standardization \
   --manifest sources_manifest_example.yaml \
   --output-dir data/processed/batch_runs/latest \
   --snapshot-manifest
@@ -464,7 +496,7 @@ sources:
 Run it with caching:
 
 ```bash
-python scripts/run_batch_standardization.py \
+python -m opendv.run_batch_standardization \
   --manifest sources_manifest_osf_example.yaml \
   --output-dir data/processed/batch_runs/osf_cwd6h \
   --cache-dir data/processed/batch_runs/.cache/sources
@@ -473,7 +505,7 @@ python scripts/run_batch_standardization.py \
 Deterministic mode (no LLM deduction):
 
 ```bash
-python scripts/run_batch_standardization.py \
+python -m opendv.run_batch_standardization \
   --manifest sources_manifest_osf_example.yaml \
   --output-dir data/processed/batch_runs/osf_cwd6h_deterministic \
   --disable-llm-deduction
@@ -507,7 +539,7 @@ This project followed a structured literature review methodology. Key steps incl
 * Deepen the existing LLM-assisted alias deduction with confidence scoring, retrieval-augmented suggestion from past mappings, and context-aware dataset labeling.
 * Pilot the tool across a broader range of HCI datasets and venues, and refine it into a reusable, community-adoptable research artifact supporting long-term reproducibility and responsible data practices.
 
-Already delivered (formerly listed here): fuzzy column matching via `rapidfuzz` (`scripts/convert_dv.py`), a Streamlit upload-to-export UI (`ui/app.py`), local-LLM alias deduction as a batch fallback (`scripts/llm_utils.py`), and pre/post-standardization visual analytics (`scripts/visual_helpers.py`, `notebooks/visual_validation.ipynb`).
+Already delivered (formerly listed here): fuzzy column matching via `rapidfuzz` (`opendv/convert_dv.py`), a Streamlit upload-to-export UI (`opendv/ui/app.py`), local-LLM alias deduction as a batch fallback (`opendv/llm_utils.py`), and pre/post-standardization visual analytics (`opendv/visual_helpers.py`, `notebooks/visual_validation.ipynb`).
 ---
 
 ## References
@@ -536,7 +568,7 @@ If you use this repository or the accompanying tool, please cite:
 
 
 ## Repository Structure & Rationale
-This repository functions as a testbed to evaluate the viability of a canonical naming scheme for dependent variables (DVs) in HCI research and to empirically ground the hypothesis that harmonizing DV nomenclature can significantly enhance dataset interoperability, reuse, and reproducibility. Each folder and script within the repository was carefully aligned with dissertation components to ensure traceability across research stages. The `schemas/` directory houses the naming scheme that operationalizes the standardization logic. The `scripts/` folder contains the conversion tool’s core implementation, demonstrating how real datasets can be mapped using this schema. The notebooks/ directory supports schema ideation (schema_builder.ipynb), validation testing (prototype_notebook.ipynb), visual exploration (visual_validation.ipynb), and forward-looking LLM prototyping (llm_inference_prototype.ipynb). Raw input data and standardized outputs are stored respectively in `data/raw/` and `data/processed/`, thereby offering before/after evidence for tool performance and transformation fidelity. Additional design rationale, transparency strategies, and schema expansion plans are documented in `docs/`, reinforcing the project’s alignment with open science principles. Altogether, the repository serves not only as a demonstration artifact but also as an empirical anchor for validating the dissertation’s core research claims.
+This repository functions as a testbed to evaluate the viability of a canonical naming scheme for dependent variables (DVs) in HCI research and to empirically ground the hypothesis that harmonizing DV nomenclature can significantly enhance dataset interoperability, reuse, and reproducibility. Each folder and script within the repository was carefully aligned with dissertation components to ensure traceability across research stages. The `schemas/` directory houses the naming scheme that operationalizes the standardization logic. The `opendv/` package contains the tool's implementation (`scripts/` and `analyses/` keep aliases of the old module paths), demonstrating how real datasets can be mapped using this schema. The notebooks/ directory supports schema ideation (schema_builder.ipynb), validation testing (prototype_notebook.ipynb), visual exploration (visual_validation.ipynb), and forward-looking LLM prototyping (llm_inference_prototype.ipynb). Raw input data and standardized outputs are stored respectively in `data/raw/` and `data/processed/`, thereby offering before/after evidence for tool performance and transformation fidelity. Additional design rationale, transparency strategies, and schema expansion plans are documented in `docs/`, reinforcing the project’s alignment with open science principles. Altogether, the repository serves not only as a demonstration artifact but also as an empirical anchor for validating the dissertation’s core research claims.
 
 ```bash
 dv-standardization-tool/
@@ -555,34 +587,21 @@ dv-standardization-tool/
 │   ├── example_alias_submissions.yaml   # Sample community submissions
 │   └── schema_changelog.yaml            # Manual schema evolution tracking
 │
-├── scripts/
-│   ├── convert_dv.py                        # Single-file standardization
-│   ├── run_batch_standardization.py         # Manifest-driven batch runner
-│   ├── run_catalog_meta_analysis.py         # Catalog → batch → meta-analysis orchestrator
-│   ├── schema_utils.py                      # Flattening, validation, and schema helpers
-│   ├── visual_helpers.py                    # Comparison visualizations
-│   ├── validate_schema.py                   # Schema sanity check
-│   └── llm_utils.py                         # Optional LLM inference logic
+├── opendv/                          # The Python package (pip install .)
+│   ├── __init__.py                   # Public API: standardize, run_batch, analyze, review_queue, score
+│   ├── cli.py                        # `opendv` command (standardize/batch/analyze/validate/review/ui/plugins)
+│   ├── run_batch_standardization.py  # Manifest-driven batch runner
+│   ├── convert_dv.py                 # Single-file standardization
+│   ├── instruments.py                # Instrument registry scoring
+│   ├── mapping_review.py             # Human review of mappings
+│   ├── fair_export.py                # Data packages and RO-Crate
+│   ├── plugins.py                    # Entry-point plugins (sources, loaders, instruments)
+│   ├── sources/                      # OSF, GitHub, Zenodo, figshare, 4TU, Dataverse
+│   ├── analysis/                     # Multi-study analysis, contrasts, invariance, multiverse, figures
+│   └── ui/                           # Streamlit app, components and assets (`opendv ui`)
 │
-├── analyses/
-│   ├── multi_study_analysis.py              # Cross-study overlap & meta-analysis
-│   └── run_latest_multi_study_analysis.sh   # Convenience runner against latest batch output
-│
-├── notebooks/
-│   ├── prototype_notebook.ipynb             # Main schema validation/testing
-│   ├── schema_builder.ipynb                 # Manual YAML construction notebook
-│   ├── visual_validation.ipynb              # Schema alignment visualization
-│   └── llm_inference_prototype.ipynb        # Optional LLM-based prototype
-│
-├── ui/
-│   ├── app.py                   # Streamlit app entry point
-│   ├── assets/
-│   │   └── style.css            # Minimal styling
-│   └── components/              # Modular UI elements
-│       ├── uploader.py          # Upload logic
-│       ├── column_preview.py    # Column-level feedback
-│       ├── charts.py            # Mapping/overlap charts
-│       └── download_button.py   # Download-ready output
+├── scripts/, analyses/*.py, ui/app.py  # Aliases of the old paths (source checkouts only)
+├── analyses/output_*/, analyses/figures_chi/  # Committed analysis outputs and figures
 │
 ├── tests/                       # Pytest suite covering pipeline + analyses
 │

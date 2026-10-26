@@ -16,14 +16,14 @@ When the design of a study is declared in `schemas/study_designs.yaml`, the anal
 The multi-study analysis expects a folder of already-standardized study files (one `.csv` or `.xlsx` per study). There are two supported starting points:
 
 1. **Run the batch pipeline first** (recommended). Any of the workflows below produces a `standardized/<source_id>/` tree that can be fed in directly:
-   - `python scripts/run_batch_standardization.py --manifest sources_manifest_example.yaml --output-dir data/processed/batch_runs/latest`
-   - `python scripts/run_catalog_meta_analysis.py --catalog data/raw/study_catalog_example.csv ...` (this already invokes the meta-analysis automatically on the produced datasets).
+   - `python -m opendv.run_batch_standardization --manifest sources_manifest_example.yaml --output-dir data/processed/batch_runs/latest`
+   - `python -m opendv.run_catalog_meta_analysis --catalog data/raw/study_catalog_example.csv ...` (this already invokes the meta-analysis automatically on the produced datasets).
 2. **Use pre-standardized files of your own**. Put one standardized file per study into a single folder and point `--input-dir` at it.
 
 The `data/processed/` tree is gitignored, so it does not ship with pre-computed example outputs. The repository's `data/raw/study_catalog_example.csv` together with `sources_manifest_example.yaml` are the canonical reproducible starting points.
 
 ## Python workflow
-Script: `analyses/multi_study_analysis.py`
+Script: `opendv/analysis/multi_study_analysis.py`
 
 ### Install latest packages
 ```bash
@@ -33,7 +33,7 @@ python -m pip install --upgrade pandas numpy matplotlib seaborn scikit-learn ope
 
 ### Run
 ```bash
-python analyses/multi_study_analysis.py \
+python -m opendv.analysis.multi_study_analysis \
   --input-dir data/processed/batch_runs/latest/standardized \
   --output-dir analyses/output_python
 ```
@@ -82,7 +82,7 @@ bash analyses/run_latest_multi_study_analysis.sh analyses/output_python_latest_s
 
 ### Measurement invariance of shared scales
 
-Pooled means are comparable only if a scale measures the same construct on the same metric in every study. `analyses/measurement_invariance.py` (run by `multi_study_analysis.py`) takes every scale in `schemas/instruments.yaml` whose items are present in at least two studies (30+ complete observations from 10+ participants each), reflects reverse-keyed items, and fits a one-factor multi-group CFA with lavaan at three levels: configural, metric (equal loadings) and scalar (equal loadings and intercepts). Participants from `schemas/study_designs.yaml` are clusters (MLR with cluster-robust statistics), since studies answer several times per participant; Likert items are treated as continuous.
+Pooled means are comparable only if a scale measures the same construct on the same metric in every study. `opendv/analysis/measurement_invariance.py` (run by `multi_study_analysis.py`) takes every scale in `schemas/instruments.yaml` whose items are present in at least two studies (30+ complete observations from 10+ participants each), reflects reverse-keyed items, and fits a one-factor multi-group CFA with lavaan at three levels: configural, metric (equal loadings) and scalar (equal loadings and intercepts). Participants from `schemas/study_designs.yaml` are clusters (MLR with cluster-robust statistics), since studies answer several times per participant; Likert items are treated as continuous.
 
 Decision rules: configural fit needs robust CFI ≥ .90, RMSEA ≤ .08 and SRMR ≤ .08; a stricter level fails when CFI drops by ≥ .010 together with RMSEA rising by ≥ .015 or SRMR by ≥ .030 (metric) / .010 (scalar) (Chen, 2007). The scaled chi-square difference test is reported too. Outputs: `measurement_invariance.csv` (fit per level), `measurement_invariance.json` (lavaan output with standardized loadings per study), and a `measurement_invariance` column in `meta_analysis_summary*.csv`, e.g. `none (roads_chi25; running_into_traffic_chi26)`. The test covers only studies with every item of the scale, which can be fewer than those pooled.
 
@@ -90,7 +90,7 @@ Requires `Rscript` with the `lavaan` and `jsonlite` packages (`install.packages(
 
 ### Condition contrasts from declared designs
 
-Pooling study means says where studies sit on a shared scale, not what their manipulations did. `analyses/contrast_meta_analysis.py` (run automatically by `multi_study_analysis.py`, or on its own with `--input-dir/--output-dir`) uses `schemas/study_designs.yaml`:
+Pooling study means says where studies sit on a shared scale, not what their manipulations did. `opendv/analysis/contrast_meta_analysis.py` (run automatically by `multi_study_analysis.py`, or on its own with `--input-dir/--output-dir`) uses `schemas/study_designs.yaml`:
 
 ```yaml
 canonical_factors:
@@ -133,16 +133,16 @@ Use these CLI flags for sensitivity runs:
 
 ```bash
 # Re-run meta-analysis without LLM-deduced rows and write _llm_excluded.csv siblings.
-python analyses/multi_study_analysis.py \
+python -m opendv.analysis.multi_study_analysis \
   --input-dir data/processed/batch_runs/latest/standardized \
   --output-dir analyses/output_python \
   --exclude-llm-deduced
 
 # Point at a non-default provenance file.
-python analyses/multi_study_analysis.py --meta-view path/to/meta_view.csv ...
+python -m opendv.analysis.multi_study_analysis --meta-view path/to/meta_view.csv ...
 
 # Refuse the synthetic Cholesky fallback in LiNGAM causal discovery.
-python analyses/multi_study_analysis.py --refuse-synthetic-causal ...
+python -m opendv.analysis.multi_study_analysis --refuse-synthetic-causal ...
 ```
 
 When `--exclude-llm-deduced` is set, three additional files are emitted:
@@ -150,18 +150,18 @@ When `--exclude-llm-deduced` is set, three additional files are emitted:
 - `meta_analysis_summary_llm_excluded.csv`
 - `study_vs_pool_standardized_deviation_llm_excluded.csv`
 
-The `scripts/run_catalog_meta_analysis.py` orchestrator also writes the `_llm_excluded` variants automatically whenever any LLM-deduced rows are present.
+The `opendv/run_catalog_meta_analysis.py` orchestrator also writes the `_llm_excluded` variants automatically whenever any LLM-deduced rows are present.
 
 ### Causal discovery fallback
 `discover_causal_structure` reports `used_method` (one of `complete_case`, `clique_complete_case`, `synthetic_cholesky`) and a boolean `synthetic_fallback`. When rows are scarce the old behavior synthesized rows from the observed correlation matrix via Cholesky factorization; this is still available but is now labeled and logged as a warning. Pass `refuse_synthetic=True` (or `--refuse-synthetic-causal` on the CLI) to skip the synthetic fallback entirely.
 
 ## R workflow
-> **Status:** planned. A matching `analyses/multi_study_analysis.R` is on the roadmap (see `docs/future_plans.md`) but is not yet shipped in this repository. If you need R today, export `harmonized_dv_summary.csv` from the Python workflow and read it into your preferred meta-analysis package (`metafor`, `meta`, `tidymeta`, etc.).
+> **Status:** planned. A matching `opendv/analysis/multi_study_analysis.R` is on the roadmap (see `docs/future_plans.md`) but is not yet shipped in this repository. If you need R today, export `harmonized_dv_summary.csv` from the Python workflow and read it into your preferred meta-analysis package (`metafor`, `meta`, `tidymeta`, etc.).
 
 ## Applying to your own standardized studies
 1. Put each standardized dataset (`.csv` or `.xlsx`) into one folder.
 2. Ensure DV columns are numeric and consistently named using the schema.
-3. Run `python analyses/multi_study_analysis.py --input-dir <folder>` against it.
+3. Run `python -m opendv.analysis.multi_study_analysis --input-dir <folder>` against it.
 4. Inspect the DV overlap outputs first; if overlap is weak, restrict to the best-shared subset and rerun.
 
 

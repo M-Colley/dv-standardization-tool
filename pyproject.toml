@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "opendv-hci"
-version = "3.0.0"
+version = "3.1.0"
 description = "Schema-driven standardization and meta-analysis of dependent variables in HCI research"
 readme = "README.md"
 license = {text = "MIT"}
@@ -73,16 +73,32 @@ Repository = "https://github.com/M-Colley/dv-standardization-tool"
 Documentation = "https://github.com/M-Colley/dv-standardization-tool/tree/main/docs"
 
 [project.scripts]
-opendv-standardize = "scripts.convert_dv:main"
-opendv-batch = "scripts.run_batch_standardization:main"
-opendv-analyze = "analyses.multi_study_analysis:main"
-opendv = "scripts.cli:main"
+opendv = "opendv.cli:main"
+opendv-standardize = "opendv.convert_dv:main"
+opendv-batch = "opendv.run_batch_standardization:main"
+opendv-analyze = "opendv.analysis.multi_study_analysis:main"
+opendv-review = "opendv.mapping_review:main"
 
-[tool.setuptools.packages.find]
-include = ["scripts*", "analyses*", "schemas*", "ui*"]
+[tool.setuptools]
+# Only the opendv package is installed; scripts/ and analyses/ hold
+# compatibility aliases for source checkouts. The repository's schemas/
+# folder ships inside the package as opendv.schemas (opendv/_paths.py).
+packages = [
+    "opendv",
+    "opendv.analysis",
+    "opendv.schemas",
+    "opendv.sources",
+    "opendv.ui",
+    "opendv.ui.components",
+]
+
+[tool.setuptools.package-dir]
+"opendv.schemas" = "schemas"
 
 [tool.setuptools.package-data]
-schemas = ["*.yaml"]
+"opendv.schemas" = ["*.yaml"]
+"opendv.analysis" = ["*.R"]
+"opendv.ui" = ["assets/*"]
 
 [tool.ruff]
 line-length = 120

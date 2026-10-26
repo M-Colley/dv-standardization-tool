@@ -39,9 +39,9 @@ harmonization decision moves the result.
    metadata and item → construct structure) and an open, tested pipeline.
 2. An empirical audit of 11 open automotive-HCI datasets (RQ1).
 3. A leave-alias-out benchmark of LLM DV mapping with a plausibility layer
-   (RQ2), seeded by `analyses/evaluate_llm_mapping.py`.
+   (RQ2), seeded by `opendv/analysis/evaluate_llm_mapping.py`.
 4. A harmonization multiverse showing how much pooled estimates depend on
-   analytic choices (RQ3), seeded by `analyses/multiverse_analysis.py`.
+   analytic choices (RQ3), seeded by `opendv/analysis/multiverse_analysis.py`.
 5. A taxonomy of silent failures with concrete instances from this
    pipeline (RQ4) and the guards that now catch them.
 
@@ -106,7 +106,7 @@ Readings:
 
 ### 2.4 Definition-aware retrieval more than doubles LLM mapping quality (RQ2)
 
-`scripts/dv_retrieval.py` ranks DVs by character n-gram TF-IDF similarity to
+`opendv/dv_retrieval.py` ranks DVs by character n-gram TF-IDF similarity to
 their definitions: the mean of a name similarity (id, label, aliases,
 instruments) and a full-definition similarity (adding notes, cluster and
 unit). It needs no model download, only scikit-learn.
@@ -130,7 +130,7 @@ Rank fusion of the two retrievers is worse than definition retrieval alone
 
 **Dense retrieval (P2, 2026-10-18).** Sentence embeddings of the same
 definitions, same leave-alias-out items, CPU, no tuning
-(`analyses/evaluate_shortlist_retrieval.py --dense-model ...`):
+(`opendv/analysis/evaluate_shortlist_retrieval.py --dense-model ...`):
 
 | E1 (106 real columns) | recall@1 | recall@3 | recall@8 [95% CI] |
 |---|---|---|---|
@@ -173,7 +173,7 @@ or use dense retrieval to decide when to abstain.
 **Pre-specified follow-up (written 2026-10-24, before running it).** The
 *mixed* shortlist keeps the TF-IDF top 6 in order and gives the last 2 of 8
 slots to the best dense candidates not among them
-(`scripts.dv_retrieval.mix_rankings`, `N_DENSE_EXTRA = 2`).
+(`opendv.dv_retrieval.mix_rankings`, `N_DENSE_EXTRA = 2`).
 Hypothesis: it keeps most of the recall gain while the model chooses as
 well as from the TF-IDF list. Primary outcome: E1 correct mappings with
 the check on, mixed vs. definition, paired exact McNemar test on the same
@@ -213,7 +213,7 @@ generation is deterministic (greedy decoding) and the comparisons above are
 on equal terms.
 
 **Pre-specified follow-up (written 2026-10-25, before running it).** The
-*hierarchy filter* (`scripts.dv_retrieval.apply_hierarchy`) walks a ranking
+*hierarchy filter* (`opendv.dv_retrieval.apply_hierarchy`) walks a ranking
 and skips a candidate when its scale or one of its own items is already
 listed, so the higher-ranked of the two stays and lower candidates fill the
 slot. Scale/item pairs come from the instrument registry, `subitem_of` and
@@ -365,7 +365,7 @@ current warning ("LLM rows may be wrong") into a quantified contract.
 Many DVs are items of standard instruments (NASA-TLX, SUS, TiA, UEQ-S,
 STS-AD, SART). Detect instruments from *structure* rather than names: the
 number of items, response scale, inter-item correlations (Cronbach's α,
-already computed in `scripts/item_composition.py`) and one-factor fit
+already computed in `opendv/item_composition.py`) and one-factor fit
 (`semopy` is installed with lingam). Map whole instruments at once,
 including reverse-keyed items. This also enables
 **measurement-invariance tests** across studies (configural / metric /
@@ -374,7 +374,7 @@ studies before anyone pools it.
 
 ### P5. The harmonization multiverse as a reporting standard *(high value, low effort — prototype exists)*
 
-Extend `analyses/multiverse_analysis.py` with:
+Extend `opendv/analysis/multiverse_analysis.py` with:
 
 - participant-level vs. observation-level variance (cluster-robust
   variance estimation, three-level models);
@@ -411,7 +411,7 @@ suggestions, and over-acceptance of wrong suggestions (automation bias).
 This is the CHI-shaped paper of the agenda.
 
 The instrument exists: the Review Mappings tab and `opendv review`
-(`scripts/mapping_review.py`) show exactly condition 3's evidence (observed
+(`opendv/mapping_review.py`) show exactly condition 3's evidence (observed
 range vs. the suggested DV's range, rejection reason, retrieval candidates)
 and log every decision with reviewer and timestamp, so agreement between
 reviewers and over-acceptance can be computed from
@@ -455,7 +455,7 @@ shows when a question is answered and when more studies are futile.
   the tool's authors. P1's independent human labels address this.
 - **Measurement non-invariance.** Pooling means assumes a scale measures
   the same construct on the same metric in every study (scalar invariance).
-  Tested where item data exist (`analyses/measurement_invariance.py`,
+  Tested where item data exist (`opendv/analysis/measurement_invariance.py`,
   lavaan multi-group CFA with participant-clustered MLR; 2026-10-24):
 
   | Scale | Studies | Level reached | Why |
@@ -489,18 +489,18 @@ shows when a question is answered and when more studies are futile.
 
 ```bash
 # Deterministic run (gold labels for the evaluation)
-python -m scripts.run_batch_standardization --manifest sources_manifest_no4tu.yaml \
+python -m opendv.run_batch_standardization --manifest sources_manifest_no4tu.yaml \
   --output-dir data/processed/det_run --cache-dir data/processed/cache --disable-llm-deduction
 
 # LLM mapping benchmark (E1 + E2)
-python analyses/evaluate_llm_mapping.py --manifest sources_manifest_no4tu.yaml \
+python -m opendv.analysis.evaluate_llm_mapping --manifest sources_manifest_no4tu.yaml \
   --batch-dir data/processed/det_run --cache-dir data/processed/cache
 
 # Full LLM-assisted run, analysis, multiverse and figures
-python -m scripts.run_batch_standardization --manifest sources_manifest_no4tu.yaml \
+python -m opendv.run_batch_standardization --manifest sources_manifest_no4tu.yaml \
   --output-dir data/processed/catalog_meta_analysis --cache-dir data/processed/cache --snapshot-manifest
-python analyses/multi_study_analysis.py --input-dir data/processed/catalog_meta_analysis/standardized \
+python -m opendv.analysis.multi_study_analysis --input-dir data/processed/catalog_meta_analysis/standardized \
   --output-dir analyses/output_python_full --exclude-llm-deduced
-python analyses/multiverse_analysis.py --input-dir data/processed/catalog_meta_analysis/standardized
-python analyses/make_chi_figures.py
+python -m opendv.analysis.multiverse_analysis --input-dir data/processed/catalog_meta_analysis/standardized
+python -m opendv.analysis.make_chi_figures
 ```

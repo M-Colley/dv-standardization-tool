@@ -5,7 +5,7 @@ title: "OpenDV-HCI: Schema-driven standardization and meta-analysis of dependent
 authors:
   - family-names: Colley
     given-names: Mark
-version: 3.0.0
+version: 3.1.0
 license: MIT
 repository-code: "https://github.com/M-Colley/dv-standardization-tool"
 keywords:

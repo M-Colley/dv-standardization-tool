@@ -1,27 +1,16 @@
-import yaml
+"""Alias of :mod:`opendv.validate_cluster` (moved there in 3.1).
+
+Keeps the old import path, ``python -m`` and direct runs of this file working
+in a source checkout; new code should import the module from ``opendv``.
+"""
+
 import sys
-import pathlib
+from pathlib import Path
 
-# Base path for schema files
-base = pathlib.Path("schemas")
+_ROOT = str(Path(__file__).resolve().parents[1])
+if _ROOT not in sys.path:  # run directly as a file
+    sys.path.insert(0, _ROOT)
 
-# Load clusters
-with open(base / "thematic_clusters.yaml", "r") as f:
-    clusters = yaml.safe_load(f)["clusters"]
-cluster_ids = {c["id"] for c in clusters}
+from opendv._compat import alias  # noqa: E402
 
-# Load DVs
-with open(base / "standard_dv_mapping.yaml", "r") as f:
-    dvs = yaml.safe_load(f)["dvs"]
-
-# Validate
-unknown = [(d["id"], d["cluster"]) for d in dvs if d["cluster"] not in cluster_ids]
-
-if unknown:
-    print("❌ Unknown cluster IDs found:")
-    for dv_id, cluster in unknown:
-        print(f"  DV: {dv_id} → Invalid cluster: {cluster}")
-    sys.exit(1)
-else:
-    print("All DVs reference valid clusters")
-    sys.exit(0)
+alias(__name__, "opendv.validate_cluster")
