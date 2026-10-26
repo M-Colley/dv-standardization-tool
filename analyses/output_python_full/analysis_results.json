@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-25T21:57:21.087393+00:00",
+  "generated_at": "2026-10-26T07:36:32.110407+00:00",
   "input_dir": "data\\processed\\catalog_meta_analysis\\standardized",
   "n_studies": 11,
   "studies": [
@@ -271,13 +271,13 @@
     {
       "dv": "TLX_SCORE",
       "k": 2,
-      "pooled_mean": 6.612687995002227,
-      "pooled_se": 0.11008722830393593,
-      "ci_lower": 6.396917027526512,
-      "ci_upper": 6.828458962477941,
-      "heterogeneity_i2": 96.99094797193868,
-      "heterogeneity_q": 33.233057809382,
-      "heterogeneity_p": 8.174889812845091e-09,
+      "pooled_mean": 5.012521610183359,
+      "pooled_se": 0.13284508208690454,
+      "ci_lower": 4.752145249293027,
+      "ci_upper": 5.272897971073692,
+      "heterogeneity_i2": 99.45890687935336,
+      "heterogeneity_q": 184.8110725941144,
+      "heterogeneity_p": 4.315613968622914e-42,
       "egger_p": null
     },
     {
@@ -427,14 +427,14 @@
     {
       "dv": "performance",
       "k": 4,
-      "pooled_mean": 8.729742309927085,
-      "pooled_se": 3.1628528078926044,
-      "ci_lower": 2.5305508064575806,
-      "ci_upper": 14.92893381339659,
-      "heterogeneity_i2": 99.90759817862836,
-      "heterogeneity_q": 3246.6892486178763,
-      "heterogeneity_p": 0.0,
-      "egger_p": 0.29150194900737963
+      "pooled_mean": 5.074260628998683,
+      "pooled_se": 0.7939914421854061,
+      "ci_lower": 3.5180374023152874,
+      "ci_upper": 6.630483855682079,
+      "heterogeneity_i2": 98.51983283542395,
+      "heterogeneity_q": 202.67981021314216,
+      "heterogeneity_p": 1.1120155131361223e-43,
+      "egger_p": 0.4201512564527695
     },
     {
       "dv": "physical_demand",
@@ -1335,7 +1335,7 @@
       "n": 276,
       "mean": 7.916666666666667,
       "sd": 4.179277884558962,
-      "mean_z_vs_global": 0.24435153006712834,
+      "mean_z_vs_global": 0.5751451354083817,
       "scale_note": "",
       "mapping_source": "unknown"
     },
@@ -1343,9 +1343,9 @@
       "study": "running_into_traffic_chi26",
       "dv": "TLX_SCORE",
       "n": 288,
-      "mean": 6.303819444444445,
-      "sd": 2.0777560362438825,
-      "mean_z_vs_global": -0.2443515300671281,
+      "mean": 3.889467592592593,
+      "sd": 2.654814140483317,
+      "mean_z_vs_global": -0.5751451354083816,
       "scale_note": "",
       "mapping_source": "unknown"
     },
@@ -1975,7 +1975,7 @@
       "n": 45,
       "mean": 4.377777777777778,
       "sd": 1.5563490039905001,
-      "mean_z_vs_global": -1.112353114878541,
+      "mean_z_vs_global": -0.18715773601681682,
       "scale_note": "",
       "mapping_source": "llm_deduced"
     },
@@ -1985,7 +1985,7 @@
       "n": 2600,
       "mean": 3.835769230769231,
       "sd": 1.8915247540454712,
-      "mean_z_vs_global": -1.2508205887642643,
+      "mean_z_vs_global": -0.32562520990254,
       "scale_note": "",
       "mapping_source": "llm_deduced"
     },
@@ -1995,7 +1995,7 @@
       "n": 276,
       "mean": 8.971014492753623,
       "sd": 6.130035775052668,
-      "mean_z_vs_global": 0.06108573288898851,
+      "mean_z_vs_global": 0.9862811117507126,
       "scale_note": "",
       "mapping_source": "schema"
     },
@@ -2003,9 +2003,9 @@
       "study": "running_into_traffic_chi26",
       "dv": "performance",
       "n": 288,
-      "mean": 17.743055555555557,
+      "mean": 3.2569444444444446,
       "sd": 4.208414547117138,
-      "mean_z_vs_global": 2.3020879707538158,
+      "mean_z_vs_global": -0.4734981658313562,
       "scale_note": "",
       "mapping_source": "schema"
     },

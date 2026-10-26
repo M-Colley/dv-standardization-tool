@@ -451,7 +451,7 @@
           {
             "group": "running_into_traffic_chi26",
             "item": "performance",
-            "std_loading": -0.535132716047515
+            "std_loading": 0.535132716047515
           },
           {
             "group": "running_into_traffic_chi26",
@@ -466,160 +466,160 @@
         ]
       },
       "metric": {
-        "chisq.scaled": 84.842,
+        "chisq.scaled": 73.149442,
         "df.scaled": 23,
         "pvalue.scaled": 0,
-        "cfi.robust": 0.855855,
-        "tli.robust": 0.811985,
-        "rmsea.robust": 0.184214,
-        "srmr": 0.143808,
-        "aic": 18487.192988,
-        "bic": 18621.57967,
+        "cfi.robust": 0.888961,
+        "tli.robust": 0.855166,
+        "rmsea.robust": 0.161682,
+        "srmr": 0.106593,
+        "aic": 18432.545461,
+        "bic": 18566.932143,
         "converged": true,
         "warning": "",
         "std_loadings": [
           {
             "group": "roads_chi25",
             "item": "mental_demand",
-            "std_loading": 0.861896859198867
+            "std_loading": 0.858451225592177
           },
           {
             "group": "roads_chi25",
             "item": "physical_demand",
-            "std_loading": 0.861461231168837
+            "std_loading": 0.855717910319682
           },
           {
             "group": "roads_chi25",
             "item": "temporal_demand",
-            "std_loading": 0.881922150306288
+            "std_loading": 0.875442489012663
           },
           {
             "group": "roads_chi25",
             "item": "performance",
-            "std_loading": -0.0321045565471797
+            "std_loading": 0.36226781394113
           },
           {
             "group": "roads_chi25",
             "item": "effort",
-            "std_loading": 0.891918877691174
+            "std_loading": 0.89677535349937
           },
           {
             "group": "roads_chi25",
             "item": "frustration",
-            "std_loading": 0.745745476218807
+            "std_loading": 0.754340699237197
           },
           {
             "group": "running_into_traffic_chi26",
             "item": "mental_demand",
-            "std_loading": 0.526409176627808
+            "std_loading": 0.538917114691148
           },
           {
             "group": "running_into_traffic_chi26",
             "item": "physical_demand",
-            "std_loading": 0.652830130728625
+            "std_loading": 0.649333370273078
           },
           {
             "group": "running_into_traffic_chi26",
             "item": "temporal_demand",
-            "std_loading": 0.695165249740938
+            "std_loading": 0.690125602848268
           },
           {
             "group": "running_into_traffic_chi26",
             "item": "performance",
-            "std_loading": -0.0244067658213379
+            "std_loading": 0.303183971966718
           },
           {
             "group": "running_into_traffic_chi26",
             "item": "effort",
-            "std_loading": 0.655056791234505
+            "std_loading": 0.6778699412099
           },
           {
             "group": "running_into_traffic_chi26",
             "item": "frustration",
-            "std_loading": 0.53997250235558
+            "std_loading": 0.576314455078998
           }
         ],
-        "lrt_chisq_diff": 27.03776826,
+        "lrt_chisq_diff": 19.8587530653,
         "lrt_df_diff": 5,
-        "lrt_pvalue": 5.60845001449524e-05
+        "lrt_pvalue": 0.00132833789312276
       },
       "scalar": {
-        "chisq.scaled": 147.776685,
+        "chisq.scaled": 97.788568,
         "df.scaled": 28,
         "pvalue.scaled": 0,
-        "cfi.robust": 0.727336,
-        "tli.robust": 0.70786,
-        "rmsea.robust": 0.229626,
-        "srmr": 0.291083,
-        "aic": 18688.903595,
-        "bic": 18801.615006,
+        "cfi.robust": 0.847035,
+        "tli.robust": 0.836109,
+        "rmsea.robust": 0.17199,
+        "srmr": 0.154976,
+        "aic": 18502.512419,
+        "bic": 18615.22383,
         "converged": true,
         "warning": "",
         "std_loadings": [
           {
             "group": "roads_chi25",
             "item": "mental_demand",
-            "std_loading": 0.844434997804338
+            "std_loading": 0.840630350123635
           },
           {
             "group": "roads_chi25",
             "item": "physical_demand",
-            "std_loading": 0.848194662168742
+            "std_loading": 0.846873923151707
           },
           {
             "group": "roads_chi25",
             "item": "temporal_demand",
-            "std_loading": 0.892609450648909
+            "std_loading": 0.889119461467928
           },
           {
             "group": "roads_chi25",
             "item": "performance",
-            "std_loading": -0.35218039553694
+            "std_loading": 0.474530175785801
           },
           {
             "group": "roads_chi25",
             "item": "effort",
-            "std_loading": 0.892405932539391
+            "std_loading": 0.899839030700302
           },
           {
             "group": "roads_chi25",
             "item": "frustration",
-            "std_loading": 0.715763537263123
+            "std_loading": 0.720184189314724
           },
           {
             "group": "running_into_traffic_chi26",
             "item": "mental_demand",
-            "std_loading": 0.501923947781919
+            "std_loading": 0.501195760550584
           },
           {
             "group": "running_into_traffic_chi26",
             "item": "physical_demand",
-            "std_loading": 0.631609237095557
+            "std_loading": 0.630237220681371
           },
           {
             "group": "running_into_traffic_chi26",
             "item": "temporal_demand",
-            "std_loading": 0.701850041790512
+            "std_loading": 0.69915480053467
           },
           {
             "group": "running_into_traffic_chi26",
             "item": "performance",
-            "std_loading": -0.413055428447876
+            "std_loading": 0.427486418568282
           },
           {
             "group": "running_into_traffic_chi26",
             "item": "effort",
-            "std_loading": 0.663522254508246
+            "std_loading": 0.66707409397321
           },
           {
             "group": "running_into_traffic_chi26",
             "item": "frustration",
-            "std_loading": 0.517339153742209
+            "std_loading": 0.521106350526286
           }
         ],
-        "lrt_chisq_diff": 68.4309859125,
+        "lrt_chisq_diff": 25.0688811035,
         "lrt_df_diff": 5,
-        "lrt_pvalue": 2.17267511633849e-13
+        "lrt_pvalue": 0.000135130858146443
       }
     },
     "items": [

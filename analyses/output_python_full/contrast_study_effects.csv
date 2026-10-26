@@ -31,7 +31,7 @@ ehmi_presence,SUS6,ehmi_for_all_chi26,1,Intention,40,SMCRPH,-0.5300907708092628,
 ehmi_presence,SUS7,ehmi_for_all_chi26,1,Intention,40,SMCRPH,0.8893152799949645,0.03690769373368485,0.19211375206810377,,schema,higher_is_better
 ehmi_presence,SUS8,ehmi_for_all_chi26,1,Intention,40,SMCRPH,-0.737092197565875,0.02659418792632868,0.16307724527452835,,schema,higher_is_better
 ehmi_presence,SUS9,ehmi_for_all_chi26,1,Intention,40,SMCRPH,1.0091766475848474,0.04177881499641689,0.20439866681663285,,schema,higher_is_better
-ehmi_presence,TLX_SCORE,running_into_traffic_chi26,2,CyanBand+LightRing,24,SMCRPH,-0.3593144932045826,0.028023648529266722,0.16740265388955672,0.5,unknown,lower_is_better
+ehmi_presence,TLX_SCORE,running_into_traffic_chi26,2,CyanBand+LightRing,24,SMCRPH,-0.4426737177076415,0.03184007791936924,0.17843788252321657,0.5,unknown,lower_is_better
 ehmi_presence,crossing_initiation_time,ehmi_for_all_chi26,1,Intention,40,SMCRPH,0.02011069698718898,0.006877978839689223,0.08293358089271935,,schema,neutral
 ehmi_presence,effort,running_into_traffic_chi26,2,CyanBand+LightRing,24,SMCRPH,-0.15420862428263937,0.02477491324104395,0.15740048678782398,0.5,schema,lower_is_better
 ehmi_presence,frustration,running_into_traffic_chi26,2,CyanBand+LightRing,24,SMCRPH,-0.5635912300871926,0.04195797374177293,0.20483645608575865,0.5,schema,lower_is_better
@@ -45,7 +45,7 @@ ehmi_presence,perceived_safety_item_01,ehmi_for_all_chi26,1,Intention,40,SMCRPH,
 ehmi_presence,perceived_safety_item_02,ehmi_for_all_chi26,1,Intention,40,SMCRPH,0.9479078824923632,0.032170599055365116,0.17936164321104198,,schema,higher_is_better
 ehmi_presence,perceived_safety_item_03,ehmi_for_all_chi26,1,Intention,40,SMCRPH,1.0255022694543696,0.03448642273980309,0.1857052038576278,,schema,higher_is_better
 ehmi_presence,perceived_safety_item_04,ehmi_for_all_chi26,1,Intention,40,SMCRPH,0.873261530138475,0.03321044671420838,0.182237336224519,,schema,higher_is_better
-ehmi_presence,performance,running_into_traffic_chi26,2,CyanBand+LightRing,24,SMCRPH,0.1993551620025901,0.014132902521294842,0.11888188474824431,0.5,schema,lower_is_better
+ehmi_presence,performance,running_into_traffic_chi26,2,CyanBand+LightRing,24,SMCRPH,-0.19935516200259043,0.01413290252129483,0.11888188474824425,0.5,schema,lower_is_better
 ehmi_presence,physical_demand,running_into_traffic_chi26,2,CyanBand+LightRing,24,SMCRPH,-0.12747085518488782,0.012414924731600982,0.11142228112725472,0.5,schema,lower_is_better
 ehmi_presence,temporal_demand,running_into_traffic_chi26,2,CyanBand+LightRing,24,SMCRPH,-0.2638146044537905,0.03487927102582561,0.1867599288547348,0.5,schema,lower_is_better
 ehmi_presence,tia_item_01,ehmi_for_all_chi26,1,Intention,40,SMCRPH,0.9352433267356998,0.028449813740236238,0.1686707257950716,,schema,higher_is_better
