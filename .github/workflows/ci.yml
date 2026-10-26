@@ -46,3 +46,33 @@ jobs:
 
       - name: Run unit tests
         run: python -m pytest tests -q
+
+  lockfiles-and-docs:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Set up Python
+        uses: actions/setup-python@v7
+        with:
+          python-version: "3.13"
+          cache: pip
+
+      - name: Lockfiles match pyproject.toml
+        # uv.lock pins the environment of the committed outputs;
+        # requirements-lock.txt is its pip export (docs/reproducibility.md).
+        run: |
+          python -m pip install --upgrade pip
+          pip install uv==0.13.5
+          uv lock --check
+          uv export --frozen --all-extras --no-default-groups --no-hashes --no-emit-project \
+            --format requirements-txt -o requirements-lock.txt
+          git diff --exit-code requirements-lock.txt
+
+      - name: Build the documentation site
+        env:
+          NO_MKDOCS_2_WARNING: "1"
+        run: |
+          pip install --group docs
+          mkdocs build --strict

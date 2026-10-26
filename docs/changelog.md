@@ -4,6 +4,10 @@ This document logs human-readable updates to the repo's functionality, structure
 
 ---
 
+### [2026-10-26]
+
+- **Lockfiles and documentation site.** `uv.lock` pins all 165 Python packages at the versions that produced the committed outputs (resolved with those versions as constraints, then kept as uv's preferences), `requirements-lock.txt` is its pip export, and `renv.lock` pins R 4.6.1 with lavaan 0.7-3 and jsonlite 2.0.0 for the invariance step. New `docs/reproducibility.md` lists them, the Hugging Face model snapshots of every committed run (`google/gemma-4-E2B-it` at `3e22461f`, the embedding models) and the commands to rerun. An MkDocs (Material) site builds the `docs/` pages with an API reference from the code (mkdocstrings); `pip install --group docs`, then `mkdocs serve`. CI checks that both lockfiles match `pyproject.toml` and builds the site with `--strict`. Fixed on the way: `opendv <command> --help` printed an empty usage for `standardize`, `batch`, `analyze` and `review` instead of the command's own options; broken links in the 2.1 release notes.
+
 ### [2026-10-25]
 
 - **`opendv` package (3.1.0).** The code moved from the generic top-level packages `scripts/`, `analyses/` and `ui/` into one installable package: `opendv` (pipeline), `opendv.sources`, `opendv.analysis` (with the lavaan script) and `opendv.ui`. Schemas ship as package data (`opendv.schemas`) and are found through `opendv._paths.SCHEMAS_DIR` both installed and in a checkout. The old module paths are aliases of the same module objects in a checkout, so existing imports, mocks and commands keep working; only `opendv` is installed. New public API (`opendv.standardize`, `run_batch`, `analyze`, `review_queue`, `score`, `load_plugins`), `opendv ui` and `opendv plugins` commands, an `opendv-review` console script, and entry-point plugin groups `opendv.sources`, `opendv.loaders` and `opendv.instruments`. Batch and analysis outputs are identical to 3.0 on the 11-study benchmark (1,764 standardized tables, `meta_view.csv`, 31 analysis tables). CI installs the wheel and imports it outside the checkout.

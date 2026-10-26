@@ -218,10 +218,9 @@ Columns with `needs_review: true` are flagged in the output for manual inspectio
 
 ## 📖 Additional Documentation
 
-- [Measurement Categories Reference](measurement_categories.yaml)
-- [Inference Rules Specification](inference_rules.yaml)
-- [API Documentation](../scripts/dv_inference.py)
-- [Implementation Report](../OpenDV_HCI_Tool_Assessment_Analysis.pdf)
+- [Measurement Categories Reference](https://github.com/M-Colley/dv-standardization-tool/blob/main/schemas/measurement_categories.yaml)
+- [Inference Rules Specification](https://github.com/M-Colley/dv-standardization-tool/blob/main/schemas/inference_rules.yaml)
+- [API Documentation](https://github.com/M-Colley/dv-standardization-tool/blob/main/opendv/dv_inference.py)
 
 ---
 

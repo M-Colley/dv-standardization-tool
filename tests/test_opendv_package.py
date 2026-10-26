@@ -42,6 +42,22 @@ def test_version_matches_pyproject_and_cli():
     assert cli.__version__ == opendv.__version__
 
 
+@pytest.mark.parametrize("command, expected", [
+    ("batch", "--manifest"),
+    ("analyze", "--input-dir"),
+    ("standardize", "--input"),
+    ("review", "{queue,apply,summary}"),
+])
+def test_subcommand_help_is_the_delegates_help(command, expected, monkeypatch, capsys):
+    from opendv import cli
+
+    monkeypatch.setattr(sys, "argv", ["opendv", command, "--help"])
+    with pytest.raises(SystemExit) as exit_info:
+        cli.main()
+    assert exit_info.value.code == 0
+    assert expected in capsys.readouterr().out
+
+
 # ── Compatibility aliases ────────────────────────────────────────────────────
 
 @pytest.mark.parametrize("old, new", [

@@ -51,27 +51,38 @@ def _build_parser() -> argparse.ArgumentParser:
 
     subparsers = parser.add_subparsers(dest="command", title="commands")
 
+    # Delegating commands have no options of their own (add_help=False), so
+    # -h/--help reaches the delegate's parser along with the other arguments.
     subparsers.add_parser(
         "standardize",
         help="Run single-study DV standardization",
+        add_help=False,
     )
     subparsers.add_parser(
         "batch",
         help="Run batch standardization across multiple studies",
+        add_help=False,
     )
     subparsers.add_parser(
         "analyze",
         help="Run multi-study meta-analysis",
+        add_help=False,
     )
     subparsers.add_parser(
         "validate",
         help="Validate a DV standardization schema",
+        usage="opendv validate [-h] path/to/schema.yaml",
     )
-    subparsers.add_parser("ui", help="Start the Streamlit interface")
+    subparsers.add_parser(
+        "ui",
+        help="Start the Streamlit interface",
+        description="Start the Streamlit app; further arguments go to `streamlit run`.",
+    )
     subparsers.add_parser("plugins", help="List installed OpenDV plugins")
     subparsers.add_parser(
         "review",
         help="Review LLM and unmapped column mappings (queue / apply / summary)",
+        add_help=False,
     )
 
     return parser
@@ -163,6 +174,7 @@ def _run_validate(argv: list[str]) -> None:
 def _run_review(argv: list[str]) -> None:
     from opendv.mapping_review import main
 
+    sys.argv = ["opendv-review", *argv]
     main(argv)
 
 
