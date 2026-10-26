@@ -1,0 +1,23 @@
+# Gold labels of the confirmatory shortlist test for tamago_supervision_2026, generated from
+# analyses/confirmatory/gold_labels.csv (docs/preregistration_confirmatory_shortlist.md).
+participant_code: meta_participant_code
+participant_id: meta_participant_id
+prototype: meta_condition_prototype
+exposure_order_index: meta_presentation_order
+sus_q1: SUS1
+sus_q2: SUS2
+sus_q3: SUS3
+sus_q4: SUS4
+sus_q5: SUS5
+sus_q6: SUS6
+sus_q7: SUS7
+sus_q8: SUS8
+sus_q9: SUS9
+sus_q10: SUS10
+sus_score: usability
+ueq_pragmatic: ueq_pragmatic
+ueq_hedonic: ueq_hedonic
+tlx_mental: mental_demand
+tlx_temporal: temporal_demand
+tlx_effort: effort
+tlx_overall: TLX_SCORE

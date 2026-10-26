@@ -1,0 +1,19 @@
+# Gold labels of the confirmatory shortlist test for sonomancer_chiplay25, generated from
+# analyses/confirmatory/gold_labels.csv (docs/preregistration_confirmatory_shortlist.md).
+'Unnamed: 0': meta_source_index
+RecordedDate: meta_timestamp
+ParticipantID: meta_participant_id
+Gender: meta_demographic_gender
+AgeGroup: meta_demographic_age
+AARFamiliar: meta_familiarity_audio_ar
+AudioGamesFamiliar: meta_familiarity_audio_games
+VideoGamesFamiliar: meta_familiarity_video_games
+GameScenario: meta_condition_game_scenario
+ControlScheme: meta_condition_control_scheme
+MentalDemand: mental_demand
+PhysicalDemand: physical_demand
+TemporalDemand: temporal_demand
+Effort: effort
+Performance: performance
+Frustration: frustration
+RawTLX: TLX_SCORE
