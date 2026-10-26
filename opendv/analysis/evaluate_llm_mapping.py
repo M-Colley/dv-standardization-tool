@@ -163,8 +163,10 @@ def _source_context(source: dict[str, Any], base_dir: Path) -> str:
 def gold_items(meta_view: pd.DataFrame, dv_ids: set[str], max_per_source: int, seed: int) -> pd.DataFrame:
     """One row per (source, alias) with its gold label (canonical DV or None)."""
     mv = meta_view.copy()
-    if "item_of" in mv:
-        mv = mv[mv["item_of"].isna()]  # items of composites: the benchmark's items predate their rows
+    if "composite_items" in mv:
+        # Each item of a composite is a column with its own row; the
+        # composite's row repeats its first item's alias.
+        mv = mv[mv["composite_items"].isna()]
     mv["original_alias"] = mv["original_alias"].astype(str)
     positives = mv[(mv["mapping_method"] == "mapping") & mv["canonical_dv"].isin(dv_ids)].assign(
         label_kind="dv", gold=lambda d: d["canonical_dv"]

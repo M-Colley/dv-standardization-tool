@@ -194,7 +194,7 @@ def test_composite_items_keep_their_own_mapping_and_values(tmp_path):
     assert set(queue.index) == {"Recognized", "Seen"}
     assert queue.loc["Seen", "mean"] == pytest.approx(original["Seen"].mean())
     gold = gold_items(meta, {"mental_demand"}, max_per_source=40, seed=1)
-    assert list(gold["original_alias"]) == ["TLX1"]  # one gold item per composite, as before items had rows
+    assert list(gold["original_alias"]) == ["TLX1"]  # the curated item; LLM-mapped items are not gold labels
 
 
 UI_SMOKE_SCRIPT = """
