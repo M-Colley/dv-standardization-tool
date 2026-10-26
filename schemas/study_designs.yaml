@@ -133,13 +133,47 @@ studies:
   psych_conflict_handling:
     participant: ID
     trial: meta_trial_sequence
-    source: 12 within-subject conditions; the meaning of the numeric Condition codes is not in the data files
-    factors: []
+    source: >-
+      Condition codes 1-12 from get_values_based_on_condition() in the
+      repository's psychological_conflict-handling_strategies.R (strategy,
+      mechanism); every participant saw all 12.
+    factors:
+      - name: strategy
+        design: within
+        columns:
+          Condition: {"1": Baseline, "2": Explanation, "3": Show benefit, "4": Annoyance, "5": Command,
+                      "6": Threat, "7": Appeal, "8": Thanking, "9": Apologize, "10": Humorous,
+                      "11": Trigger empathy, "12": Thanking submissive}
+        reference: Baseline
+      - name: mechanism
+        design: within
+        columns:
+          Condition: {"1": Baseline, "2": Cognitive, "3": Cognitive, "4": Social, "5": Social, "6": Social,
+                      "7": Politeness, "8": Politeness, "9": Politeness, "10": Emotional, "11": Emotional,
+                      "12": Politeness}
+        reference: Baseline
 
   roads_chi25:
     participant: UserID
-    source: 12 ConditionID codes per participant; their meaning is not in the data files
-    factors: []
+    source: >-
+      ConditionID 1-12 coded as in the repository's Evaluation_CHI25_ROADS.R:
+      interaction concept (1/4/7/10 Trajectory, 2/5/8/11 Path planning,
+      3/6/9/12 Waypoint, the script's reference level) x number of requests
+      (1-3 One, 4-6 Two, 7-9 Three, 10-12 Four); every participant saw all 12.
+    factors:
+      - name: interaction_concept
+        design: within
+        columns:
+          ConditionID: {"1": Trajectory, "4": Trajectory, "7": Trajectory, "10": Trajectory,
+                        "2": Path planning, "5": Path planning, "8": Path planning, "11": Path planning,
+                        "3": Waypoint, "6": Waypoint, "9": Waypoint, "12": Waypoint}
+        reference: Waypoint
+      - name: number_of_requests
+        design: within
+        columns:
+          ConditionID: {"1": One, "2": One, "3": One, "4": Two, "5": Two, "6": Two,
+                        "7": Three, "8": Three, "9": Three, "10": Four, "11": Four, "12": Four}
+        reference: One
 
   ehmi_optimization_chi25:
     participant: User_ID
@@ -160,4 +194,4 @@ studies:
       - name: speed
         design: within
         columns: {SpeedCondition: null}
-        reference: "10.0"
+        reference: "10"

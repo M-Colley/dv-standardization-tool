@@ -413,7 +413,7 @@ Study means alone cannot say what a manipulation did. `schemas/study_designs.yam
 - combines dependent contrasts of a study by GLS (`rho` = 0.5, with 0.2 and 0.8 as sensitivity) and pools studies that share a canonical factor;
 - writes `contrast_effects.csv`, `contrast_study_effects.csv` and `contrast_meta_analysis.csv` (plus an `_llm_excluded` variant).
 
-Five of the 11 benchmark studies declare factors so far. The one cross-study contrast is eHMI vs. none on mental demand (2 studies): −0.51 SD, Wald [−0.70, −0.32], HKSJ [−2.32, 1.31].
+Seven of the 11 benchmark studies declare factors; the ROADS and Psych-Conflict condition codes are taken from the studies' own analysis scripts. The one cross-study contrast is eHMI vs. none on mental demand (2 studies): −0.51 SD, Wald [−0.70, −0.32], HKSJ [−2.32, 1.31].
 
 ### Extending the batch runner
 

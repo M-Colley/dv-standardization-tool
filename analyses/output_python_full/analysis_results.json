@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-25T13:16:58.387460+00:00",
+  "generated_at": "2026-10-25T21:57:21.087393+00:00",
   "input_dir": "data\\processed\\catalog_meta_analysis\\standardized",
   "n_studies": 11,
   "studies": [
@@ -892,8 +892,8 @@
   "condition_contrasts": {
     "designs_version": "1.0",
     "studies_with_design": 11,
-    "studies_with_contrasts": 5,
-    "n_contrast_effects": 365,
+    "studies_with_contrasts": 7,
+    "n_contrast_effects": 735,
     "n_pooled": 1,
     "rho": 0.5,
     "estimator": "DL"
