@@ -287,6 +287,18 @@ not the pre-specified test, `definition` remains the default; a
 confirmatory evaluation on new datasets (P1) should test `hierarchical`
 (dense_h) as its primary hypothesis.
 
+**Confirmatory test (2026-10-26, pre-registered in
+`docs/preregistration_confirmatory_shortlist.md`).** On 168 DV columns of
+seven new, non-automotive studies with frozen gold labels, `dense_h` mapped
+53 correctly and `definition` 55 (8 vs. 10 discordant, p = 0.81); `mixed_h`
+56 (p = 1.0). The post hoc advantage does not replicate, and `definition`
+stays the default. All shortlists do much worse on new studies than on the
+development set: 33% of DV columns correct (51% before), 35% precision (59%),
+gold among the candidates for 68% (82%). The losses come from outside the
+shortlist: text answer codes screened out before the LLM, long
+question-text headers, and wrong choices although the right DV was offered
+(44 of 78 errors). Details: `docs/confirmatory_shortlist_results.md`.
+
 **Trade-off.** Because a plausible-looking candidate is always available, the
 model maps non-DV columns more often with the definition shortlist (74% of
 curated non-DVs, unchecked). The plausibility check halves that rate. In the
