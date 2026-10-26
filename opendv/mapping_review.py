@@ -137,6 +137,11 @@ def build_review_queue(batch_dir: Path, schema_path: Path = DEFAULT_DV_SCHEMA) -
     from opendv.dv_retrieval import get_retriever
 
     meta = pd.read_csv(batch_dir / "meta_view.csv", low_memory=False)
+    if "composite_items" in meta:
+        # A composite's items have rows of their own (``item_of``), each with
+        # its raw column's mapping and values; the composite row would repeat
+        # its first item with the composite's values.
+        meta = meta[meta["composite_items"].isna()]
     meta["original_alias"] = meta["original_alias"].astype(str)
     for col in ("min", "max"):
         if col not in meta:

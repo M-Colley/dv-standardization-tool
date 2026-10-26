@@ -152,6 +152,51 @@ def test_reviewed_mappings_drive_the_next_run_and_the_benchmark(tmp_path):
     assert gold.loc["OddColumn", "label_kind"] == "curated_non_dv"
 
 
+
+def test_composite_items_keep_their_own_mapping_and_values(tmp_path):
+    """An LLM-mapped item composed with a schema-mapped one stays visible.
+
+    The composite counts as LLM-derived for the provenance index (so analyses
+    that exclude LLM mappings drop it), and the review queue lists the LLM
+    item with its own values rather than the composite's.
+    """
+    from analyses.evaluate_llm_mapping import gold_items
+    from analyses.multi_study_analysis import load_mapping_provenance
+    from opendv.convert_dv import standardize_columns
+    from opendv.item_composition import compose_item_groups
+    from scripts.run_batch_standardization import _summarize_dataset
+
+    original = pd.DataFrame({"TLX1": [1, 2, 3, 4, 5, 6, 7, 8], "Recognized": [2, 2, 3, 5, 5, 6, 8, 8],
+                             "Seen": [1, 3, 3, 4, 6, 6, 7, 9]})
+    mapping = dict.fromkeys(original.columns, "mental_demand")
+    standardized, records = compose_item_groups(standardize_columns(original.copy(), mapping), "questionnaire")
+    assert records[0]["decision"] == "composed"
+    debug = [{"original_column": "TLX1", "mapping_method": "mapping",
+              "mapping_source": "schemas/standard_dv_mapping.yaml"}] + [
+        {"original_column": c, "mapping_method": "llm", "mapping_source": "llm_deduction"}
+        for c in ("Recognized", "Seen")]
+    rows, _ = _summarize_dataset("s", "d.csv", original, standardized, mapping, {"source_mapping": None}, debug,
+                                 "questionnaire", composite_records=records)
+    meta = pd.DataFrame(rows)
+    composite = meta[meta["item_of"].isna()].iloc[0]
+    items = meta[meta["item_of"].notna()].set_index("original_alias")
+    assert composite["composite_items"] == "TLX1; Recognized; Seen"
+    assert composite["mapping_method"] == "mapping"  # the composite row still describes its first item
+    assert list(items.index) == ["TLX1", "Recognized", "Seen"]
+    assert items.loc["Seen", "mean"] == pytest.approx(original["Seen"].mean())
+    assert items.loc["Recognized", "mapping_method"] == "llm"
+
+    batch = tmp_path / "run"
+    batch.mkdir()
+    meta.to_csv(batch / "meta_view.csv", index=False)
+    assert load_mapping_provenance(batch / "meta_view.csv")[("s", "mental_demand")] == "llm_deduced"
+    queue = mr.build_review_queue(batch, SCHEMA).set_index("raw_column")
+    assert set(queue.index) == {"Recognized", "Seen"}
+    assert queue.loc["Seen", "mean"] == pytest.approx(original["Seen"].mean())
+    gold = gold_items(meta, {"mental_demand"}, max_per_source=40, seed=1)
+    assert list(gold["original_alias"]) == ["TLX1"]  # one gold item per composite, as before items had rows
+
+
 UI_SMOKE_SCRIPT = """
 import sys
 from streamlit.testing.v1 import AppTest

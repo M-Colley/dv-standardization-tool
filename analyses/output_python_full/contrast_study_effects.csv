@@ -1,5 +1,5 @@
 canonical_factor,dv,study,n_contrasts,levels,n,measure,yi,vi,se,rho,mapping_source,direction
-display_dimensionality,mental_demand,3d_display_comp_vehicle,2,LookingGlass+LumePad,15,SMCRPH,-0.07913179410700191,0.05681147520803919,0.23835157899212497,0.5,schema,lower_is_better
+display_dimensionality,mental_demand,3d_display_comp_vehicle,2,LookingGlass+LumePad,15,SMCRPH,-0.07913179410700191,0.05681147520803919,0.23835157899212497,0.5,llm_deduced,lower_is_better
 display_dimensionality,perceived_safety,3d_display_comp_vehicle,2,LookingGlass+LumePad,15,SMCRPH,0.16163736876109278,0.033251709547833394,0.18235051288064258,0.5,llm_deduced,higher_is_better
 display_dimensionality,perceived_safety_item_01,3d_display_comp_vehicle,2,LookingGlass+LumePad,15,SMCRPH,0.023539954121532612,0.03762330515213726,0.19396727856042437,0.5,unknown,higher_is_better
 display_dimensionality,perceived_safety_item_02,3d_display_comp_vehicle,2,LookingGlass+LumePad,15,SMCRPH,0.10358660632145941,0.028295454935960477,0.1682125290695092,0.5,unknown,higher_is_better
