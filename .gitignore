@@ -215,5 +215,8 @@ __marimo__/
 # any time the pipeline is re-run, so it does not belong in version control.
 /batch_outputs/
 
+# MkDocs build output
+site/
+
 # Confirmatory test data (downloaded by `python -m opendv.analysis.confirmatory fetch`)
 /data/raw/confirmatory/

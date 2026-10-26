@@ -67,6 +67,10 @@ ui = [
 dev = ["pytest>=9.1.1", "ruff>=0.17.1"]
 all = ["opendv-hci[llm,ui,dev]"]
 
+[dependency-groups]
+# Documentation site (mkdocs.yml): pip install --group docs, then mkdocs serve.
+docs = ["mkdocs-material>=9.8.0", "mkdocstrings[python]>=1.0.8"]
+
 [project.urls]
 Changelog = "https://github.com/M-Colley/dv-standardization-tool/blob/main/docs/changelog.md"
 Repository = "https://github.com/M-Colley/dv-standardization-tool"

@@ -54,7 +54,7 @@ def standardize(
 def run_batch(manifest: str | Path, output_dir: str | Path, **options: Any) -> dict[str, Any]:
     """Standardize every source of a manifest; returns the run summary.
 
-    Options are those of :func:`opendv.run_batch_standardization.run_batch`
+    Options are those of ``opendv.run_batch_standardization.run_batch``
     (e.g. ``workers``, ``llm_deduction_enabled``, ``cache_root``,
     ``output_format``). Use ``schema_path`` for a custom DV schema.
     """

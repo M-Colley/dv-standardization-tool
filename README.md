@@ -86,6 +86,10 @@ pip install -e .[ui]              # + Streamlit UI
 pip install -e .[llm,ui,dev]      # everything, including pytest + ruff
 ```
 
+**Exact versions.** `uv.lock` (with its pip export `requirements-lock.txt`) and `renv.lock` pin the Python and R environment that produced the committed results, and `docs/reproducibility.md` lists the model snapshots and the commands to rerun everything: `uv sync --frozen --all-extras`, or `pip install -r requirements-lock.txt`.
+
+**Documentation site.** `pip install --group docs`, then `mkdocs serve` builds the pages in `docs/` with an API reference generated from the code.
+
 ### 2) Put your dataset somewhere simple
 
 For example:
