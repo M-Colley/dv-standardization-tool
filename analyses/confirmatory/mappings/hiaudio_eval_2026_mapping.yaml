@@ -1,0 +1,91 @@
+# Gold labels of the confirmatory shortlist test for hiaudio_eval_2026, generated from
+# analyses/confirmatory/gold_labels.csv (docs/preregistration_confirmatory_shortlist.md).
+"\uFEFF\"Submission Date\"": meta_timestamp_submission
+Age range: meta_demographic_age
+English level: meta_demographic_english_level
+Do you have a technical background (science, engineering, etc.)?: meta_demographic_technical_background
+Do you have any musical training or studies (tutor, school, conservatory,...)?: meta_demographic_musical_training
+How often do you play music?: meta_demographic_music_play_frequency
+Do you record music casually no matter the format (voice notes, demos, etc.)?: meta_demographic_casual_recording
+? Are you <strong>involved</strong> <strong>with others</strong>, or collaborate, <strong>in music recording sometimes</strong>?
+: meta_demographic_collaborative_recording
+What tools or setup do you normally use to record yourself?: meta_demographic_recording_setup
+Are you familiar with recording in multitrack format?: meta_demographic_multitrack_familiarity
+Do you know what a Digital Audio Workstation (DAW) is?: meta_demographic_daw_knowledge
+Have you ever used a Digital Audio Workstation (DAW)?: meta_demographic_daw_use
+Which <strong>DAWs or equivalent software for making music</strong> have you used?: meta_demographic_daws_used
+Which DAWs have you used?: meta_demographic_daws_used
+Which musical instruments do you play and what level?: meta_demographic_instruments
+Which musical instruments do you play and what level?.1: meta_demographic_instruments
+Can you play using a metronome?: meta_demographic_metronome_skill
+Do you compose/write songs?: meta_demographic_songwriting
+Do you play or rehearse with others (band, ensemble, orchestra, etc.)?: meta_demographic_ensemble_playing
+What sort of music do you enjoy playing/recording?: meta_demographic_music_genres
+What sort of music do you enjoy playing/recording?.1: meta_demographic_music_genres
+What <strong>device</strong> did you use <strong>to perform the tasks</strong>?: meta_setup_device
+Device model?: meta_setup_device_model
+Which Operating System?: meta_setup_os
+Operating System version?: meta_setup_os_version
+Which web browser ?: meta_setup_browser
+Browser version?: meta_setup_browser_version
+<strong>For audio input, or recording, during the test, </strong>which <strong>hardware or equipment</strong> did you use?: meta_setup_audio_input
+What headphones or earphones?: meta_setup_headphones
+How much time did it take to you to perform all the tasks?: task_completion_time
+Is it the first time you use or interact with Hi-Audio Online Platform?: meta_demographic_first_platform_use
+? Were there any task/s you didn't know how to complete or did not finish due to lack of information or technical issues? Explain them please
+: meta_free_text_task_problems
+Do you know what is the (round-trip) latency for an audio digital recording and how can it affect you?: meta_demographic_latency_knowledge
+Have you ever measured the latency in an audio system before?: meta_demographic_latency_measured
+Did you use the <strong>platform’s Metronome</strong> feature to make your <strong>recording for Task 2</strong>?: meta_task2_metronome_use
+What time signature did you use in case of recording with the metronome?: meta_task2_metronome_settings
+What <strong>time signature</strong> and <strong>BPM </strong>did you use in case of recording with the metronome?: meta_task2_metronome_settings
+Did you upload a <strong>guide track</strong> for the recording of <strong>Task 2</strong>?: meta_task2_guide_track
+Which <strong>composition/s</strong> did you record for <strong>Task 2</strong>?: meta_task2_composition
+Which <strong>composition/s</strong> did you record for <strong>Task 2</strong>?.1: meta_task2_composition
+Did you explore the interface outside the options related to the tasks?: meta_explored_interface
+Do you have any other comments, feedback or suggestion related to the Hi-Audio Online Platform?: meta_free_text_feedback
+1. I think that I would like to use this system frequently: SUS1
+2. I found the system unnecessarily complex: SUS2
+3. I thought the system was easy to use: SUS3
+4. I think I would need the support of a technical person to use this system: SUS4
+5. I found the various functions were well integrated: SUS5
+6. I thought there was too much inconsistency in this system: SUS6
+7. I would imagine that most people would learn to use this system very quickly: SUS7
+8. I found the system very cumbersome to use: SUS8
+9. I felt very confident using the system: SUS9
+10. I needed to learn a lot of things before I could get going with this system: SUS10
+Mental Demand (0 = Low, 100 = High): mental_demand
+Physical Demand (0 = Low, 100 = High): physical_demand
+Temporal Demand (0 = Low, 100 = High): temporal_demand
+Own Performance (0 = Low, 100 = High): performance
+Effort (0 = Low, 100 = High): effort
+Frustration Level (0 = Low, 100 = High): frustration
+Submission ID (anonymized): meta_participant_id
+Consent and Ethical Notice: meta_consent
+Participant: meta_participant_id
+Q1: SUS1
+Q2: SUS2
+Q3: SUS3
+Q4: SUS4
+Q5: SUS5
+Q6: SUS6
+Q7: SUS7
+Q8: SUS8
+Q9: SUS9
+Q10: SUS10
+Mental_Demand: mental_demand
+Physical_Demand: physical_demand
+Temporal_Demand: temporal_demand
+Own_Performance: performance
+Effort: effort
+Frustration: frustration
+T1: task_success
+T2: task_success
+T3: task_success
+T4: task_success
+T5: task_success
+T6: task_success
+T7: task_success
+T8: task_success
+T9: task_success
+T10: task_success

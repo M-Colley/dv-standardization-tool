@@ -129,6 +129,8 @@ Outputs: `contrast_effects.csv` (every contrast, with means, SDs, the within-per
 | `blocked`       | Never-map blocklist applied                                        |
 | `unknown`       | No provenance available (e.g., ad-hoc input folder)                |
 
+When several raw columns map to one DV and are composed into a per-row mean (`opendv/item_composition.py`), each item keeps a `meta_view.csv` row of its own: `item_of` names the composite and `original_alias`, `mapping_source`, `n`, `mean`, `min` and `max` describe that raw column; the composite's row lists its items in `composite_items`. The most cautious category over all of a DV's rows wins, so a composite with one LLM-mapped item counts as `llm_deduced`. Rows with `item_of` set describe items, not additional observations of the construct.
+
 Use these CLI flags for sensitivity runs:
 
 ```bash

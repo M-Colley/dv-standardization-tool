@@ -287,6 +287,18 @@ not the pre-specified test, `definition` remains the default; a
 confirmatory evaluation on new datasets (P1) should test `hierarchical`
 (dense_h) as its primary hypothesis.
 
+**Confirmatory test (2026-10-26, pre-registered in
+`docs/preregistration_confirmatory_shortlist.md`).** On 168 DV columns of
+seven new, non-automotive studies with frozen gold labels, `dense_h` mapped
+53 correctly and `definition` 55 (8 vs. 10 discordant, p = 0.81); `mixed_h`
+56 (p = 1.0). The post hoc advantage does not replicate, and `definition`
+stays the default. All shortlists do much worse on new studies than on the
+development set: 33% of DV columns correct (51% before), 35% precision (59%),
+gold among the candidates for 68% (82%). The losses come from outside the
+shortlist: text answer codes screened out before the LLM, long
+question-text headers, and wrong choices although the right DV was offered
+(44 of 78 errors). Details: `docs/confirmatory_shortlist_results.md`.
+
 **Trade-off.** Because a plausible-looking candidate is always available, the
 model maps non-DV columns more often with the definition shortlist (74% of
 curated non-DVs, unchecked). The plausibility check halves that rate. In the
@@ -302,17 +314,22 @@ P1 must confirm it on a held-out split.
 The multiverse crosses five binary choices (32 specifications). Results for
 the 11-study run (`analyses/output_multiverse/`):
 
-- **Robust:** NASA-TLX `mental_demand` (k = 7). All 32 estimates lie in
-  7.59–8.02 and every interval covers the default estimate (run of
-  2026-10-19; 7.37–7.58 in the run of 2026-10-17, before the LLM mapped
-  `tlx1_sq001` of the longitudinal study to it).
+- **Robust:** NASA-TLX `mental_demand` (k = 3–7). All 32 estimates lie in
+  6.88–7.77 and every interval covers the default estimate. The low end
+  drops the three studies whose composites contain LLM-mapped columns; until
+  2026-10-26 only one of them was recognized as such (range 7.59–8.02, see the
+  changelog).
 - **Fragile:**
   - `perceived_safety` (k = 7) moves from −0.24 to 4.27 depending only on
     scale harmonization, and cannot be pooled at all without LLM-deduced rows;
-  - `understanding_rating` ranges from 3.33 to 7.56;
-  - `performance` ranges from 8.78 to 15.01.
+  - `understanding_rating` ranges from 3.33 to 7.56.
+- **Fragility that was a data error:** `performance` (k = 2–4) ranged from
+  8.73 to 15.01, the widest range of any DV, until Running into Traffic's
+  reverse-keyed "success" item was fixed (2026-10-26); it now lies in
+  5.03–5.10. A wide multiverse range can flag a polarity error, not only a
+  consequential harmonization choice.
 - **Interval width:** 95% interval widths differ by up to two orders of
-  magnitude between Wald and HKSJ at small k (e.g. `performance`: 0.8 to 103).
+  magnitude between Wald and HKSJ at small k (e.g. `performance`: 0.8 to 67).
 
 The multiverse turns "we pooled k studies" into "this estimate survives N of
 32 defensible pipelines" — a reporting standard worth proposing (P5).
@@ -461,16 +478,19 @@ shows when a question is answered and when more studies are futile.
   | Scale | Studies | Level reached | Why |
   |---|---|---|---|
   | SUS (10 items) | eHMI-for-All, ROADS | none | one factor misfits (robust RMSEA 0.12); items 4 and 10 load weakly, in line with SUS's usability/learnability split |
-  | NASA-TLX (6 subscales) | ROADS, Running into Traffic | none | misfit (RMSEA 0.14); *performance* loads +0.25 in ROADS but −0.54 in Running into Traffic |
+  | NASA-TLX (6 subscales) | ROADS, Running into Traffic | none | misfit (RMSEA 0.14); *performance* loads +0.25 in ROADS and +0.54 in Running into Traffic (−0.54 before its reverse-keyed item was fixed) |
   | Van der Laan usefulness | eHMI-for-All, ROADS | metric | scalar fails (ΔCFI −0.014, ΔRMSEA +0.026): means are not comparable; item 9 barely loads (±0.14) |
   | Van der Laan satisfying | eHMI-for-All, ROADS | scalar | means comparable |
 
   Only Van der Laan *satisfying* supports pooling means; `mental_demand`
   (pooled over 7 studies) is untested in 5 of them and fails in the 2 with
-  full TLX items. The negative *performance* loading suggests Running into
-  Traffic's "success" item is keyed opposite to the TLX performance scale
-  (high = success rather than failure), like the reverse-poled UEQ-S items
-  of the same study; check the questionnaire and add it to `reverse_items`.
+  full TLX items. The negative *performance* loading revealed that Running
+  into Traffic's "success" item is keyed opposite to the TLX performance
+  scale (high = success rather than failure; mean 17.7 of 21, negative
+  correlations with the other five subscales), like the reverse-poled UEQ-S
+  items of the same study. It is reverse-scored since 2026-10-26
+  (`schemas/running_into_traffic_mapping.yaml`); the configural misfit
+  remains, so TLX means are still not shown to be comparable.
   `meta_analysis_summary.csv` now carries a `measurement_invariance` column.
 - **Observation-level n.** Pooled estimates use row-level n, which is
   anti-conservative for repeated measures. P5 reports the participant-level

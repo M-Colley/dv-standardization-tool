@@ -1,0 +1,322 @@
+experiment,source_id,dataset_id,alias,label_kind,gold,gold_in_shortlist,shortlist_top_score,suggestion,pre_llm_rejection,post_llm_rejection,final_unchecked,final_checked,observed_min,observed_max,seconds
+E1,agency_ux_tochi22,data-raw/AgencyUX.csv,Condition,blocklisted_non_dv,,False,90.0,utaut_facilitating_conditions,experimental_condition,,utaut_facilitating_conditions,,,,16.139
+E1,agency_ux_tochi22,data-raw/AgencyUX.csv,ID,blocklisted_non_dv,,False,90.0,sts_ad_item_03,identifier,,sts_ad_item_03,,1.0,42.0,0.527
+E1,agency_ux_tochi22,data-raw/AgencyUX.csv,Age,curated_non_dv,,False,90.0,temporal_demand,demographic,,temporal_demand,,20.0,37.0,0.311
+E1,agency_ux_tochi22,data-raw/AgencyUX.csv,BaseAgency,curated_non_dv,,False,90.0,sts_ad_trust,,,sts_ad_trust,sts_ad_trust,0.0,2.0,0.392
+E1,agency_ux_tochi22,data-raw/AgencyUX.csv,Gender,curated_non_dv,,False,81.8,engagement_level,demographic,,engagement_level,,,,0.326
+E1,agency_ux_tochi22,data-raw/AgencyUX.csv,Mouse Use,curated_non_dv,,False,85.5,interaction_events,,,interaction_events,interaction_events,0.0,1.0,0.346
+E1,agency_ux_tochi22,data-raw/AgencyUX.csv,Touchpad Use,curated_non_dv,,False,90.0,interaction_events,,,interaction_events,interaction_events,0.0,1.0,0.363
+E1,agency_ux_tochi22,data-raw/AgencyUX.csv,AttDiff1,dv,attrakdiff_pq,True,87.5,attrakdiff_att,,,attrakdiff_att,attrakdiff_att,2.0,7.0,0.423
+E1,agency_ux_tochi22,data-raw/AgencyUX.csv,AttDiff2,dv,attrakdiff_pq,True,87.5,attrakdiff_att,,,attrakdiff_att,attrakdiff_att,2.0,7.0,0.412
+E1,agency_ux_tochi22,data-raw/AgencyUX.csv,AttDiff3,dv,attrakdiff_pq,True,87.5,attrakdiff_att,,,attrakdiff_att,attrakdiff_att,2.0,7.0,0.405
+E1,agency_ux_tochi22,data-raw/AgencyUX.csv,AttDiff4,dv,attrakdiff_pq,True,87.5,attrakdiff_att,,,attrakdiff_att,attrakdiff_att,1.0,7.0,0.386
+E1,agency_ux_tochi22,data-raw/AgencyUX.csv,AttDiff5,dv,attrakdiff_hqs,True,87.5,attrakdiff_att,,,attrakdiff_att,attrakdiff_att,1.0,7.0,0.417
+E1,agency_ux_tochi22,data-raw/AgencyUX.csv,AttDiff6,dv,attrakdiff_hqi,True,87.5,attrakdiff_att,,,attrakdiff_att,attrakdiff_att,1.0,7.0,0.414
+E1,agency_ux_tochi22,data-raw/AgencyUX.csv,AttDiff7,dv,attrakdiff_hqi,True,87.5,attrakdiff_att,,,attrakdiff_att,attrakdiff_att,1.0,7.0,0.401
+E1,agency_ux_tochi22,data-raw/AgencyUX.csv,AttDiff8,dv,attrakdiff_hqs,True,87.5,attrakdiff_att,,,attrakdiff_att,attrakdiff_att,1.0,7.0,0.415
+E1,agency_ux_tochi22,data-raw/AgencyUX.csv,Hits,dv,task_success,False,67.5,sts_ad_item_01,,,sts_ad_item_01,sts_ad_item_01,57.0,84.0,0.528
+E1,agency_ux_tochi22,data-raw/AgencyUX.csv,Misses,dv,error_rate,True,75.0,ttc,,,ttc,ttc,0.0,23.0,0.299
+E1,agency_ux_tochi22,data-raw/AgencyUX.csv,NASA1,dv,mental_demand,True,90.0,mental_demand,,,mental_demand,mental_demand,1.0,18.0,0.347
+E1,agency_ux_tochi22,data-raw/AgencyUX.csv,NASA2,dv,physical_demand,True,90.0,mental_demand,,,mental_demand,mental_demand,1.0,15.0,0.349
+E1,agency_ux_tochi22,data-raw/AgencyUX.csv,NASA3,dv,temporal_demand,True,90.0,mental_demand,,,mental_demand,mental_demand,1.0,18.0,0.338
+E1,agency_ux_tochi22,data-raw/AgencyUX.csv,NASA4,dv,performance,True,90.0,mental_demand,,,mental_demand,mental_demand,2.0,21.0,0.311
+E1,agency_ux_tochi22,data-raw/AgencyUX.csv,NASA5,dv,effort,True,90.0,mental_demand,,,mental_demand,mental_demand,1.0,17.0,0.333
+E1,agency_ux_tochi22,data-raw/AgencyUX.csv,NASA6,dv,frustration,True,90.0,mental_demand,,,mental_demand,mental_demand,1.0,17.0,0.338
+E1,agency_ux_tochi22,data-raw/AgencyUX.csv,Umux1,dv,user_satisfaction,True,80.0,SUS1,,,SUS1,SUS1,1.0,7.0,0.295
+E1,agency_ux_tochi22,data-raw/AgencyUX.csv,Umux2,dv,user_satisfaction,True,80.0,SUS2,,,SUS2,SUS2,1.0,7.0,0.318
+E1,hiaudio_eval_2026,data/Hi-Audio_User_Evaluation_Survey.csv,"<strong>For audio input, or recording, during the test, </strong>which <strong>hardware or equipment</strong> did you use?",curated_non_dv,,False,85.5,dali_auditory_demand,non_numeric,,dali_auditory_demand,,,,0.544
+E1,hiaudio_eval_2026,data/Hi-Audio_User_Evaluation_Survey.csv,"Are you <strong>involved</strong> <strong>with others</strong>, or collaborate, <strong>in music recording sometimes</strong>?",curated_non_dv,,False,85.5,interaction_events,non_numeric,,interaction_events,,,,0.367
+E1,hiaudio_eval_2026,data/Hi-Audio_User_Evaluation_Survey.csv,Are you familiar with recording in multitrack format?,curated_non_dv,,False,85.5,eye_tracking,no_values,,eye_tracking,,,,0.368
+E1,hiaudio_eval_2026,data/Hi-Audio_User_Evaluation_Survey.csv,Browser version?,curated_non_dv,,False,90.0,retention_time,non_numeric,,retention_time,,,,0.407
+E1,hiaudio_eval_2026,data/Hi-Audio_User_Evaluation_Survey.csv,Can you play using a metronome?,curated_non_dv,,False,85.5,crossing_initiation_time,non_numeric,,crossing_initiation_time,,,,0.477
+E1,hiaudio_eval_2026,data/Hi-Audio_User_Evaluation_Survey.csv,Consent and Ethical Notice,curated_non_dv,,False,85.5,sts_ad_trust,non_numeric,,sts_ad_trust,,,,0.464
+E1,hiaudio_eval_2026,data/Hi-Audio_User_Evaluation_Survey.csv,Device model?,curated_non_dv,,False,85.5,rsme,non_numeric,,rsme,,,,0.326
+E1,hiaudio_eval_2026,data/Hi-Audio_User_Evaluation_Survey.csv,Did you use the <strong>platform’s Metronome</strong> feature to make your <strong>recording for Task 2</strong>?,curated_non_dv,,False,85.5,rsme,non_numeric,,rsme,,,,0.328
+E1,hiaudio_eval_2026,data/Hi-Audio_User_Evaluation_Survey.csv,Do you compose/write songs?,curated_non_dv,,False,85.5,task_completion_time,non_numeric,,task_completion_time,,,,0.411
+E1,hiaudio_eval_2026,data/Hi-Audio_User_Evaluation_Survey.csv,"Do you have a technical background (science, engineering, etc.)?",curated_non_dv,,False,85.5,rsme,non_numeric,,rsme,,,,0.309
+E1,hiaudio_eval_2026,data/Hi-Audio_User_Evaluation_Survey.csv,"Do you have any musical training or studies (tutor, school, conservatory,...)?",curated_non_dv,,False,85.5,dali_auditory_demand,non_numeric,,dali_auditory_demand,,,,0.541
+E1,hiaudio_eval_2026,data/Hi-Audio_User_Evaluation_Survey.csv,"Do you have any other comments, feedback or suggestion related to the Hi-Audio Online Platform?",curated_non_dv,,False,85.5,interaction_events,non_numeric,,interaction_events,,,,0.355
+E1,hiaudio_eval_2026,data/Hi-Audio_User_Evaluation_Survey.csv,Do you know what a Digital Audio Workstation (DAW) is?,curated_non_dv,,False,85.5,dali_auditory_demand,no_values,,dali_auditory_demand,,,,0.521
+E1,hiaudio_eval_2026,data/Hi-Audio_User_Evaluation_Survey.csv,Do you know what is the (round-trip) latency for an audio digital recording and how can it affect you?,curated_non_dv,,False,85.5,intervention_responsiveness,non_numeric,,intervention_responsiveness,,,,0.409
+E1,hiaudio_eval_2026,data/Hi-Audio_User_Evaluation_Survey.csv,"Do you play or rehearse with others (band, ensemble, orchestra, etc.)?",curated_non_dv,,False,85.5,interaction_events,non_numeric,,interaction_events,,,,0.361
+E1,hiaudio_eval_2026,data/Hi-Audio_User_Evaluation_Survey.csv,"Do you record music casually no matter the format (voice notes, demos, etc.)?",curated_non_dv,,False,85.5,performance,no_values,,performance,,,,0.272
+E1,hiaudio_eval_2026,data/Hi-Audio_User_Evaluation_Survey.csv,English level,curated_non_dv,,False,85.5,scanpath_length,non_numeric,,scanpath_length,,,,0.359
+E1,hiaudio_eval_2026,data/Hi-Audio_User_Evaluation_Survey.csv,Have you ever measured the latency in an audio system before?,curated_non_dv,,False,85.5,crossing_initiation_time,non_numeric,,crossing_initiation_time,,,,0.47
+E1,hiaudio_eval_2026,data/Hi-Audio_User_Evaluation_Survey.csv,Have you ever used a Digital Audio Workstation (DAW)?,curated_non_dv,,False,85.5,dali_auditory_demand,non_numeric,,dali_auditory_demand,,,,0.528
+E1,hiaudio_eval_2026,data/Hi-Audio_User_Evaluation_Survey.csv,How often do you play music?,curated_non_dv,,False,85.5,time_after_crossing,non_numeric,,time_after_crossing,,,,0.462
+E1,hiaudio_eval_2026,data/Hi-Audio_User_Evaluation_Survey.csv,Is it the first time you use or interact with Hi-Audio Online Platform?,curated_non_dv,,False,85.5,interaction_events,experimental_condition,,interaction_events,,,,0.356
+E1,hiaudio_eval_2026,data/Hi-Audio_User_Evaluation_Survey.csv,Operating System version?,curated_non_dv,,False,85.5,usability,non_numeric,,usability,,11.0,11.0,0.283
+E1,hiaudio_eval_2026,data/Section_4_SUS.csv,Participant,curated_non_dv,,False,90.0,retention_time,non_numeric,,retention_time,,,,0.411
+E1,hiaudio_eval_2026,data/Hi-Audio_User_Evaluation_Survey.csv,Submission ID (anonymized),curated_non_dv,,False,85.5,usability_problems,identifier,,usability_problems,,6.408690289642567e+18,6.421684511428985e+18,0.395
+E1,hiaudio_eval_2026,data/Hi-Audio_User_Evaluation_Survey.csv,Were there any task/s you didn't know how to complete or did not finish due to lack of information or technical issues? Explain them please,curated_non_dv,,False,85.5,task_completion_time,non_numeric,,task_completion_time,,,,0.439
+E1,hiaudio_eval_2026,data/Hi-Audio_User_Evaluation_Survey.csv,What <strong>device</strong> did you use <strong>to perform the tasks</strong>?,curated_non_dv,,False,85.5,efficiency,non_numeric,,efficiency,,,,0.284
+E1,hiaudio_eval_2026,data/Hi-Audio_User_Evaluation_Survey.csv,What <strong>time signature</strong> and <strong>BPM </strong>did you use in case of recording with the metronome?,curated_non_dv,,False,85.5,eye_tracking,non_numeric,,eye_tracking,,,,0.327
+E1,hiaudio_eval_2026,data/Hi-Audio_User_Evaluation_Survey.csv,What headphones or earphones?,curated_non_dv,,False,85.5,headway,non_numeric,,headway,,,,0.32
+E1,hiaudio_eval_2026,data/Hi-Audio_User_Evaluation_Survey.csv,What sort of music do you enjoy playing/recording?,curated_non_dv,,False,98.0,emg,non_numeric,,emg,,,,0.331
+E1,hiaudio_eval_2026,data/Hi-Audio_User_Evaluation_Survey.csv,What time signature did you use in case of recording with the metronome?,curated_non_dv,,False,85.5,pedestrian_crossing_time,no_values,,pedestrian_crossing_time,,,,0.488
+E1,hiaudio_eval_2026,data/Hi-Audio_User_Evaluation_Survey.csv,What tools or setup do you normally use to record yourself?,curated_non_dv,,False,85.5,takeover_time,non_numeric,,takeover_time,,,,0.395
+E1,hiaudio_eval_2026,data/Hi-Audio_User_Evaluation_Survey.csv,Which <strong>DAWs or equivalent software for making music</strong> have you used?,curated_non_dv,,False,85.5,,non_numeric,,,,,,2.92
+E1,hiaudio_eval_2026,data/Hi-Audio_User_Evaluation_Survey.csv,Which <strong>composition/s</strong> did you record for <strong>Task 2</strong>?,curated_non_dv,,False,98.6,,non_numeric,,,,,,0.373
+E1,hiaudio_eval_2026,data/Hi-Audio_User_Evaluation_Survey.csv,Which <strong>composition/s</strong> did you record for <strong>Task 2</strong>?.1,curated_non_dv,,False,98.6,dali_auditory_demand,no_values,,dali_auditory_demand,,,,0.557
+E1,hiaudio_eval_2026,data/Hi-Audio_User_Evaluation_Survey.csv,Which DAWs have you used?,curated_non_dv,,False,85.5,,no_values,,,,,,0.449
+E1,hiaudio_eval_2026,data/Hi-Audio_User_Evaluation_Survey.csv,Which Operating System?,curated_non_dv,,False,85.5,rsme,non_numeric,,rsme,,,,0.319
+E1,hiaudio_eval_2026,data/Hi-Audio_User_Evaluation_Survey.csv,Which musical instruments do you play and what level?,curated_non_dv,,False,98.1,dali_total,no_values,,dali_total,,,,0.374
+E1,hiaudio_eval_2026,data/Hi-Audio_User_Evaluation_Survey.csv,Which musical instruments do you play and what level?.1,curated_non_dv,,False,98.1,dali_total,non_numeric,,dali_total,,,,0.423
+E1,hiaudio_eval_2026,data/Hi-Audio_User_Evaluation_Survey.csv,Which web browser ?,curated_non_dv,,False,85.5,interaction_events,non_numeric,,interaction_events,,,,0.375
+E1,hiaudio_eval_2026,data/Hi-Audio_User_Evaluation_Survey.csv,"﻿""Submission Date""",curated_non_dv,,False,90.0,retention_time,timestamp,,retention_time,,,,0.391
+E1,hiaudio_eval_2026,data/Hi-Audio_User_Evaluation_Survey.csv,10. I needed to learn a lot of things before I could get going with this system,dv,SUS10,True,85.5,crossing_initiation_time,,,crossing_initiation_time,crossing_initiation_time,1.0,5.0,0.466
+E1,hiaudio_eval_2026,data/Hi-Audio_User_Evaluation_Survey.csv,2. I found the system unnecessarily complex,dv,SUS2,False,85.5,efficiency,,,efficiency,efficiency,1.0,5.0,0.287
+E1,hiaudio_eval_2026,data/Hi-Audio_User_Evaluation_Survey.csv,3. I thought the system was easy to use,dv,SUS3,True,85.5,tam_perceived_ease_of_use,,,tam_perceived_ease_of_use,tam_perceived_ease_of_use,1.0,5.0,0.619
+E1,hiaudio_eval_2026,data/Hi-Audio_User_Evaluation_Survey.csv,4. I think I would need the support of a technical person to use this system,dv,SUS4,False,85.5,sart_understanding,,,sart_understanding,sart_understanding,1.0,5.0,0.391
+E1,hiaudio_eval_2026,data/Hi-Audio_User_Evaluation_Survey.csv,5. I found the various functions were well integrated,dv,SUS5,True,85.5,interaction_events,,,interaction_events,interaction_events,1.0,5.0,0.355
+E1,hiaudio_eval_2026,data/Hi-Audio_User_Evaluation_Survey.csv,6. I thought there was too much inconsistency in this system,dv,SUS6,True,85.5,interaction_events,,,interaction_events,interaction_events,1.0,5.0,0.373
+E1,hiaudio_eval_2026,data/Hi-Audio_User_Evaluation_Survey.csv,7. I would imagine that most people would learn to use this system very quickly,dv,SUS7,True,85.5,retention_time,,,retention_time,retention_time,1.0,5.0,0.413
+E1,hiaudio_eval_2026,data/Hi-Audio_User_Evaluation_Survey.csv,8. I found the system very cumbersome to use,dv,SUS8,True,85.5,usability_problems,,,usability_problems,usability_problems,1.0,5.0,0.395
+E1,hiaudio_eval_2026,data/Hi-Audio_User_Evaluation_Survey.csv,9. I felt very confident using the system,dv,SUS9,True,85.5,SUS9,,,SUS9,SUS9,1.0,5.0,0.317
+E1,hiaudio_eval_2026,data/Section_5_NASA-TLX.csv,Effort,dv,effort,True,90.0,efficiency,,,efficiency,efficiency,0.0,75.0,0.255
+E1,hiaudio_eval_2026,data/Hi-Audio_User_Evaluation_Survey.csv,"Effort (0 = Low, 100 = High)",dv,effort,True,90.0,effort,,,effort,effort,0.0,75.0,0.237
+E1,hiaudio_eval_2026,data/Section_5_NASA-TLX.csv,Frustration,dv,frustration,True,95.0,fixation_duration,,,fixation_duration,fixation_duration,0.0,92.0,0.414
+E1,hiaudio_eval_2026,data/Hi-Audio_User_Evaluation_Survey.csv,"Frustration Level (0 = Low, 100 = High)",dv,frustration,True,90.0,frustration,,,frustration,frustration,0.0,92.0,0.292
+E1,hiaudio_eval_2026,data/Hi-Audio_User_Evaluation_Survey.csv,How much time did it take to you to perform all the tasks?,dv,task_completion_time,True,85.5,task_completion_time,non_numeric,,task_completion_time,,,,0.446
+E1,hiaudio_eval_2026,data/Hi-Audio_User_Evaluation_Survey.csv,"Mental Demand (0 = Low, 100 = High)",dv,mental_demand,True,90.0,mental_demand,,,mental_demand,mental_demand,0.0,90.0,0.374
+E1,hiaudio_eval_2026,data/Section_5_NASA-TLX.csv,Mental_Demand,dv,mental_demand,True,95.0,mental_demand,,,mental_demand,mental_demand,0.0,90.0,0.36
+E1,hiaudio_eval_2026,data/Hi-Audio_User_Evaluation_Survey.csv,"Own Performance (0 = Low, 100 = High)",dv,performance,True,90.0,performance,,,performance,performance,0.0,100.0,0.235
+E1,hiaudio_eval_2026,data/Section_5_NASA-TLX.csv,Own_Performance,dv,performance,True,95.0,efficiency,,,efficiency,efficiency,0.0,100.0,0.285
+E1,hiaudio_eval_2026,data/Hi-Audio_User_Evaluation_Survey.csv,"Physical Demand (0 = Low, 100 = High)",dv,physical_demand,True,90.0,,,,,,0.0,53.0,0.347
+E1,hiaudio_eval_2026,data/Section_5_NASA-TLX.csv,Physical_Demand,dv,physical_demand,True,90.0,temporal_demand,,,temporal_demand,temporal_demand,0.0,53.0,0.373
+E1,hiaudio_eval_2026,data/Section_4_SUS.csv,Q1,dv,SUS1,True,90.0,,,,,,1.0,4.0,0.326
+E1,hiaudio_eval_2026,data/Section_4_SUS.csv,Q10,dv,SUS10,True,90.0,,,,,,1.0,5.0,0.498
+E1,hiaudio_eval_2026,data/Section_4_SUS.csv,Q2,dv,SUS2,True,90.0,,,,,,1.0,5.0,0.349
+E1,hiaudio_eval_2026,data/Section_4_SUS.csv,Q3,dv,SUS3,True,90.0,sts_ad_item_03,,,sts_ad_item_03,sts_ad_item_03,1.0,5.0,0.568
+E1,hiaudio_eval_2026,data/Section_4_SUS.csv,Q4,dv,SUS4,True,90.0,,,,,,1.0,5.0,0.347
+E1,hiaudio_eval_2026,data/Section_4_SUS.csv,Q5,dv,SUS5,True,90.0,conflict_item_05,,,conflict_item_05,conflict_item_05,1.0,5.0,0.48
+E1,hiaudio_eval_2026,data/Section_4_SUS.csv,Q6,dv,SUS6,True,90.0,sts_ad_item_06,,,sts_ad_item_06,sts_ad_item_06,1.0,5.0,0.548
+E1,hiaudio_eval_2026,data/Section_4_SUS.csv,Q7,dv,SUS7,True,90.0,AOA7,,,AOA7,AOA7,1.0,5.0,0.345
+E1,hiaudio_eval_2026,data/Section_4_SUS.csv,Q8,dv,SUS8,True,90.0,AOA8,,,AOA8,AOA8,1.0,5.0,0.325
+E1,hiaudio_eval_2026,data/Section_4_SUS.csv,Q9,dv,SUS9,True,90.0,SUS9,,,SUS9,SUS9,1.0,5.0,0.309
+E1,hiaudio_eval_2026,data/Task_Performance.csv,T1,dv,task_success,False,66.7,intervention_responsiveness,non_numeric,,intervention_responsiveness,,,,0.407
+E1,hiaudio_eval_2026,data/Task_Performance.csv,T10,dv,task_success,False,90.0,intervention_responsiveness,non_numeric,,intervention_responsiveness,,,,0.397
+E1,hiaudio_eval_2026,data/Task_Performance.csv,T2,dv,task_success,False,90.0,task_feasibility_item_02,non_numeric,,task_feasibility_item_02,,,,0.6
+E1,hiaudio_eval_2026,data/Task_Performance.csv,T3,dv,task_success,False,66.7,temporal_demand,non_numeric,,temporal_demand,,,,0.366
+E1,hiaudio_eval_2026,data/Task_Performance.csv,T5,dv,task_success,False,66.7,SUS5,non_numeric,,SUS5,,,,0.286
+E1,hiaudio_eval_2026,data/Task_Performance.csv,T6,dv,task_success,False,66.7,,non_numeric,,,,,,2.944
+E1,hiaudio_eval_2026,data/Task_Performance.csv,T8,dv,task_success,False,60.0,,non_numeric,,,,,,0.06
+E1,hiaudio_eval_2026,data/Task_Performance.csv,T9,dv,task_success,False,60.0,,non_numeric,,,,,,0.099
+E1,hiaudio_eval_2026,data/Hi-Audio_User_Evaluation_Survey.csv,"Temporal Demand (0 = Low, 100 = High)",dv,temporal_demand,True,90.0,mental_demand,,,mental_demand,mental_demand,0.0,79.0,0.383
+E1,hiaudio_eval_2026,data/Section_5_NASA-TLX.csv,Temporal_Demand,dv,temporal_demand,True,95.0,mental_demand,,,mental_demand,mental_demand,0.0,79.0,0.364
+E1,pxi_validation_chi24,PXI_validation_main_data.xlsx,lastpage,blocklisted_non_dv,,False,90.0,SUS9,,out_of_range,SUS9,,6285679.0,6285679.0,0.293
+E1,pxi_validation_chi24,PXI_validation_main_data.xlsx,IRI_1,curated_non_dv,,False,85.5,task_feasibility_item_01,,,task_feasibility_item_01,task_feasibility_item_01,0.0,7.0,0.614
+E1,pxi_validation_chi24,PXI_validation_main_data.xlsx,IRI_2,curated_non_dv,,False,85.5,task_feasibility_item_02,,,task_feasibility_item_02,task_feasibility_item_02,0.0,7.0,0.571
+E1,pxi_validation_chi24,PXI_validation_main_data.xlsx,SRSI_useme,curated_non_dv,,False,90.0,user_satisfaction,,,user_satisfaction,user_satisfaction,1.0,2.0,0.389
+E1,pxi_validation_chi24,PXI_validation_main_data.xlsx,Unnamed: 0,curated_non_dv,,False,88.9,attrakdiff_hqi,,out_of_range,attrakdiff_hqi,,1.0,1551.0,0.482
+E1,pxi_validation_chi24,PXI_validation_main_data.xlsx,age,curated_non_dv,,False,90.0,understanding_rating,demographic,,understanding_rating,,18.0,79.0,0.353
+E1,pxi_validation_chi24,PXI_validation_main_data.xlsx,country,curated_non_dv,,False,75.0,attrakdiff_pq,demographic,,attrakdiff_pq,,0.0,69.0,0.453
+E1,pxi_validation_chi24,PXI_validation_main_data.xlsx,critical_incident_pass,curated_non_dv,,False,82.8,attrakdiff_hqi,,,attrakdiff_hqi,attrakdiff_hqi,0.0,1.0,0.472
+E1,pxi_validation_chi24,PXI_validation_main_data.xlsx,critical_incident_text,curated_non_dv,,False,82.8,attrakdiff_hqi,non_numeric,,attrakdiff_hqi,,,,0.472
+E1,pxi_validation_chi24,PXI_validation_main_data.xlsx,duration,curated_non_dv,,False,90.0,attrakdiff_hqs,,out_of_range,attrakdiff_hqs,,-1.0,3175.0,0.472
+E1,pxi_validation_chi24,PXI_validation_main_data.xlsx,game_control_controller,curated_non_dv,,False,90.0,,,,,,0.0,1.0,0.27
+E1,pxi_validation_chi24,PXI_validation_main_data.xlsx,game_control_keyboard,curated_non_dv,,False,90.0,interaction_events,,,interaction_events,interaction_events,0.0,1.0,0.324
+E1,pxi_validation_chi24,PXI_validation_main_data.xlsx,game_control_move,curated_non_dv,,False,90.0,ueq_novelty,,,ueq_novelty,ueq_novelty,0.0,1.0,0.424
+E1,pxi_validation_chi24,PXI_validation_main_data.xlsx,game_control_other_text,curated_non_dv,,False,95.0,ueq_novelty,,out_of_range,ueq_novelty,,-99.0,-99.0,0.448
+E1,pxi_validation_chi24,PXI_validation_main_data.xlsx,game_control_touch,curated_non_dv,,False,90.0,interaction_events,,,interaction_events,interaction_events,0.0,1.0,0.366
+E1,pxi_validation_chi24,PXI_validation_main_data.xlsx,game_expert,curated_non_dv,,False,90.0,ipq_experienced_realism,,,ipq_experienced_realism,ipq_experienced_realism,1.0,7.0,0.501
+E1,pxi_validation_chi24,PXI_validation_main_data.xlsx,game_genre,curated_non_dv,,False,85.5,situational_awareness,,,situational_awareness,situational_awareness,1.0,15.0,0.359
+E1,pxi_validation_chi24,PXI_validation_main_data.xlsx,game_hours,curated_non_dv,,False,85.5,task_completion_time,,,task_completion_time,task_completion_time,0.0,6.0,0.399
+E1,pxi_validation_chi24,PXI_validation_main_data.xlsx,game_platform_PC,curated_non_dv,,False,85.5,SUS8,,,SUS8,SUS8,0.0,1.0,0.32
+E1,pxi_validation_chi24,PXI_validation_main_data.xlsx,game_platform_console,curated_non_dv,,False,85.5,SUS7,,,SUS7,SUS7,0.0,1.0,0.316
+E1,pxi_validation_chi24,PXI_validation_main_data.xlsx,game_platform_other,curated_non_dv,,False,95.0,SUS5,,,SUS5,SUS5,0.0,1.0,0.294
+E1,pxi_validation_chi24,PXI_validation_main_data.xlsx,game_platform_other_text,curated_non_dv,,False,95.0,SUS3,,out_of_range,SUS3,,-99.0,-99.0,0.303
+E1,pxi_validation_chi24,PXI_validation_main_data.xlsx,game_platform_smartphone,curated_non_dv,,False,85.5,performance,,,performance,performance,0.0,1.0,0.257
+E1,pxi_validation_chi24,PXI_validation_main_data.xlsx,game_platform_tablet,curated_non_dv,,False,85.5,attrakdiff_att,,,attrakdiff_att,attrakdiff_att,0.0,1.0,0.437
+E1,pxi_validation_chi24,PXI_validation_main_data.xlsx,game_player_alone,curated_non_dv,,False,85.7,attrakdiff_hqi,,,attrakdiff_hqi,attrakdiff_hqi,0.0,1.0,0.477
+E1,pxi_validation_chi24,PXI_validation_main_data.xlsx,game_player_local,curated_non_dv,,False,85.5,ipq_spatial_presence,,,ipq_spatial_presence,ipq_spatial_presence,0.0,1.0,0.498
+E1,pxi_validation_chi24,PXI_validation_main_data.xlsx,game_player_online,curated_non_dv,,False,85.7,SUS8,,,SUS8,SUS8,0.0,1.0,0.321
+E1,pxi_validation_chi24,PXI_validation_main_data.xlsx,game_title,curated_non_dv,,False,85.5,SUS9,non_numeric,,SUS9,,2048.0,4096.0,0.315
+E1,pxi_validation_chi24,PXI_validation_main_data.xlsx,gender,curated_non_dv,,False,90.0,engagement_level,demographic,,engagement_level,,0.0,5.0,0.328
+E1,pxi_validation_chi24,PXI_validation_main_data.xlsx,gender_self_describe,curated_non_dv,,False,90.0,ipq_general_presence,demographic,,ipq_general_presence,,-99.0,-99.0,0.481
+E1,pxi_validation_chi24,PXI_validation_main_data.xlsx,rts6285628,curated_non_dv,,False,90.0,sts_ad_trust,,out_of_range,sts_ad_trust,,7.0,2076.0,0.456
+E1,pxi_validation_chi24,PXI_validation_main_data.xlsx,rts6285665,curated_non_dv,,False,90.0,sts_ad_item_05,,out_of_range,sts_ad_item_05,,113.0,4024.0,0.541
+E1,pxi_validation_chi24,PXI_validation_main_data.xlsx,rts6285666,curated_non_dv,,False,90.0,sts_ad_trust,,out_of_range,sts_ad_trust,,71.0,3989.0,0.429
+E1,pxi_validation_chi24,PXI_validation_main_data.xlsx,rts6285668,curated_non_dv,,False,90.0,sts_ad_trust,,out_of_range,sts_ad_trust,,139.0,4600.0,0.426
+E1,pxi_validation_chi24,PXI_validation_main_data.xlsx,rts6285677,curated_non_dv,,False,90.0,situational_awareness,,,situational_awareness,situational_awareness,205.0,4639.0,0.375
+E1,pxi_validation_chi24,PXI_validation_main_data.xlsx,rts6285846,curated_non_dv,,False,90.0,situational_awareness,,,situational_awareness,situational_awareness,162.0,4119.0,0.402
+E1,pxi_validation_chi24,PXI_validation_main_data.xlsx,rts6294681,curated_non_dv,,False,90.0,situational_awareness,,,situational_awareness,situational_awareness,44.0,2104.0,0.385
+E1,pxi_validation_chi24,PXI_validation_main_data.xlsx,rts6295171,curated_non_dv,,False,90.0,situational_awareness,,,situational_awareness,situational_awareness,89.0,4020.0,0.406
+E1,pxi_validation_chi24,PXI_validation_main_data.xlsx,rts6295176,curated_non_dv,,False,90.0,situational_awareness,,,situational_awareness,situational_awareness,49.0,2110.0,0.362
+E1,pxi_validation_chi24,PXI_validation_main_data.xlsx,rts6295179,curated_non_dv,,False,90.0,situational_awareness,,,situational_awareness,situational_awareness,78.0,3944.0,0.378
+E1,pxi_validation_chi24,PXI_validation_main_data.xlsx,rts6295906,curated_non_dv,,False,90.0,situational_awareness,,,situational_awareness,situational_awareness,139.0,4621.0,0.364
+E1,pxi_validation_chi24,PXI_validation_main_data.xlsx,ATT_1,dv,attrakdiff_att,True,85.5,attrakdiff_att,,,attrakdiff_att,attrakdiff_att,1.0,7.0,0.508
+E1,pxi_validation_chi24,PXI_validation_main_data.xlsx,ATT_2,dv,attrakdiff_att,True,85.5,attrakdiff_att,,,attrakdiff_att,attrakdiff_att,1.0,7.0,0.532
+E1,pxi_validation_chi24,PXI_validation_main_data.xlsx,ATT_3,dv,attrakdiff_att,True,85.5,attrakdiff_att,,,attrakdiff_att,attrakdiff_att,1.0,7.0,0.516
+E1,pxi_validation_chi24,PXI_validation_main_data.xlsx,ATT_4,dv,attrakdiff_att,True,85.5,attrakdiff_att,,,attrakdiff_att,attrakdiff_att,1.0,7.0,0.505
+E1,pxi_validation_chi24,PXI_validation_main_data.xlsx,ATT_5,dv,attrakdiff_att,True,85.5,attrakdiff_att,,,attrakdiff_att,attrakdiff_att,1.0,7.0,0.456
+E1,pxi_validation_chi24,PXI_validation_main_data.xlsx,ATT_6,dv,attrakdiff_att,True,85.5,attrakdiff_att,,,attrakdiff_att,attrakdiff_att,1.0,7.0,0.51
+E1,pxi_validation_chi24,PXI_validation_main_data.xlsx,ATT_7,dv,attrakdiff_att,True,85.5,attrakdiff_att,,,attrakdiff_att,attrakdiff_att,1.0,7.0,0.436
+E1,pxi_validation_chi24,PXI_validation_main_data.xlsx,HQI_1,dv,attrakdiff_hqi,True,85.5,attrakdiff_hqi,,,attrakdiff_hqi,attrakdiff_hqi,1.0,7.0,0.48
+E1,pxi_validation_chi24,PXI_validation_main_data.xlsx,HQI_2,dv,attrakdiff_hqi,True,85.5,attrakdiff_hqi,,,attrakdiff_hqi,attrakdiff_hqi,1.0,7.0,0.45
+E1,pxi_validation_chi24,PXI_validation_main_data.xlsx,HQI_3,dv,attrakdiff_hqi,True,85.5,attrakdiff_hqi,,,attrakdiff_hqi,attrakdiff_hqi,1.0,7.0,0.493
+E1,pxi_validation_chi24,PXI_validation_main_data.xlsx,HQI_4,dv,attrakdiff_hqi,True,85.5,attrakdiff_hqi,,,attrakdiff_hqi,attrakdiff_hqi,1.0,7.0,0.452
+E1,pxi_validation_chi24,PXI_validation_main_data.xlsx,HQI_5,dv,attrakdiff_hqi,True,85.5,attrakdiff_hqi,,,attrakdiff_hqi,attrakdiff_hqi,1.0,7.0,0.49
+E1,pxi_validation_chi24,PXI_validation_main_data.xlsx,HQI_6,dv,attrakdiff_hqi,True,85.5,attrakdiff_hqi,,,attrakdiff_hqi,attrakdiff_hqi,1.0,7.0,0.483
+E1,pxi_validation_chi24,PXI_validation_main_data.xlsx,HQI_7,dv,attrakdiff_hqi,True,85.5,attrakdiff_hqi,,,attrakdiff_hqi,attrakdiff_hqi,1.0,7.0,0.457
+E1,pxi_validation_chi24,PXI_validation_main_data.xlsx,HQS_1,dv,attrakdiff_hqs,True,85.5,attrakdiff_hqs,,,attrakdiff_hqs,attrakdiff_hqs,1.0,7.0,0.462
+E1,pxi_validation_chi24,PXI_validation_main_data.xlsx,HQS_2,dv,attrakdiff_hqs,True,85.5,attrakdiff_hqs,,,attrakdiff_hqs,attrakdiff_hqs,1.0,7.0,0.493
+E1,pxi_validation_chi24,PXI_validation_main_data.xlsx,HQS_3,dv,attrakdiff_hqs,True,85.5,attrakdiff_hqs,,,attrakdiff_hqs,attrakdiff_hqs,1.0,7.0,0.471
+E1,pxi_validation_chi24,PXI_validation_main_data.xlsx,HQS_4,dv,attrakdiff_hqs,True,85.5,attrakdiff_hqs,,,attrakdiff_hqs,attrakdiff_hqs,1.0,7.0,0.48
+E1,pxi_validation_chi24,PXI_validation_main_data.xlsx,HQS_5,dv,attrakdiff_hqs,True,85.5,SUS5,,,SUS5,SUS5,1.0,7.0,0.294
+E1,pxi_validation_chi24,PXI_validation_main_data.xlsx,HQS_6,dv,attrakdiff_hqs,True,85.5,SUS6,,,SUS6,SUS6,1.0,7.0,0.316
+E1,pxi_validation_chi24,PXI_validation_main_data.xlsx,HQS_7,dv,attrakdiff_hqs,True,85.5,,,,,,1.0,7.0,0.371
+E1,pxi_validation_chi24,PXI_validation_main_data.xlsx,PQ_1,dv,attrakdiff_pq,True,85.5,attrakdiff_pq,,,attrakdiff_pq,attrakdiff_pq,1.0,7.0,0.447
+E1,pxi_validation_chi24,PXI_validation_main_data.xlsx,PQ_2,dv,attrakdiff_pq,True,85.5,attrakdiff_pq,,,attrakdiff_pq,attrakdiff_pq,1.0,7.0,0.418
+E1,pxi_validation_chi24,PXI_validation_main_data.xlsx,PQ_3,dv,attrakdiff_pq,True,85.5,attrakdiff_pq,,,attrakdiff_pq,attrakdiff_pq,1.0,7.0,0.435
+E1,pxi_validation_chi24,PXI_validation_main_data.xlsx,PQ_4,dv,attrakdiff_pq,True,85.5,attrakdiff_pq,,,attrakdiff_pq,attrakdiff_pq,1.0,7.0,0.44
+E1,pxi_validation_chi24,PXI_validation_main_data.xlsx,PQ_5,dv,attrakdiff_pq,True,85.5,attrakdiff_pq,,,attrakdiff_pq,attrakdiff_pq,1.0,7.0,0.447
+E1,pxi_validation_chi24,PXI_validation_main_data.xlsx,PQ_6,dv,attrakdiff_pq,True,85.5,attrakdiff_pq,,,attrakdiff_pq,attrakdiff_pq,1.0,7.0,0.45
+E1,pxi_validation_chi24,PXI_validation_main_data.xlsx,PQ_7,dv,attrakdiff_pq,True,85.5,attrakdiff_pq,,,attrakdiff_pq,attrakdiff_pq,1.0,7.0,0.408
+E1,pxi_validation_chi24,PXI_validation_main_data.xlsx,PXI_appeal_1,dv,aesthetics_rating,True,91.7,SUS1,,,SUS1,SUS1,1.0,7.0,0.307
+E1,pxi_validation_chi24,PXI_validation_main_data.xlsx,PXI_appeal_2,dv,aesthetics_rating,True,91.7,,,,,,1.0,7.0,0.434
+E1,pxi_validation_chi24,PXI_validation_main_data.xlsx,PXI_appeal_3,dv,aesthetics_rating,True,91.7,AOA3,,,AOA3,AOA3,1.0,7.0,0.336
+E1,sonomancer_chiplay25,Bhattacharyya-etal-2025-SonomancerSonicControlSchemesAAR-Demographics.csv,ParticipantID,blocklisted_non_dv,,False,90.0,,identifier,,,,,,0.313
+E1,sonomancer_chiplay25,Bhattacharyya-etal-2025-SonomancerSonicControlSchemesAAR-Demographics.csv,RecordedDate,blocklisted_non_dv,,False,60.0,,timestamp,,,,,,0.051
+E1,sonomancer_chiplay25,Bhattacharyya-etal-2025-SonomancerSonicControlSchemesAAR-Demographics.csv,AARFamiliar,curated_non_dv,,False,75.8,tia_familiarity,non_numeric,,tia_familiarity,,,,0.412
+E1,sonomancer_chiplay25,Bhattacharyya-etal-2025-SonomancerSonicControlSchemesAAR-Demographics.csv,AgeGroup,curated_non_dv,,False,53.3,,demographic,,,,,,0.051
+E1,sonomancer_chiplay25,Bhattacharyya-etal-2025-SonomancerSonicControlSchemesAAR-Demographics.csv,AudioGamesFamiliar,curated_non_dv,,False,83.3,tia_familiarity,non_numeric,,tia_familiarity,,,,0.393
+E1,sonomancer_chiplay25,Bhattacharyya-etal-2025-SonomancerSonicControlSchemesAAR.csv,ControlScheme,curated_non_dv,,False,90.0,conflict_item_04,non_numeric,,conflict_item_04,,,,0.506
+E1,sonomancer_chiplay25,Bhattacharyya-etal-2025-SonomancerSonicControlSchemesAAR.csv,GameScenario,curated_non_dv,,False,67.5,conflict_item_01,non_numeric,,conflict_item_01,,,,0.458
+E1,sonomancer_chiplay25,Bhattacharyya-etal-2025-SonomancerSonicControlSchemesAAR-Demographics.csv,Gender,curated_non_dv,,False,81.8,engagement_level,demographic,,engagement_level,,,,0.362
+E1,sonomancer_chiplay25,Bhattacharyya-etal-2025-SonomancerSonicControlSchemesAAR-Demographics.csv,Unnamed: 0,curated_non_dv,,False,88.9,perceived_safety_item_01,,,perceived_safety_item_01,perceived_safety_item_01,3.0,27.0,0.582
+E1,sonomancer_chiplay25,Bhattacharyya-etal-2025-SonomancerSonicControlSchemesAAR-Demographics.csv,VideoGamesFamiliar,curated_non_dv,,False,83.3,tia_familiarity,non_numeric,,tia_familiarity,,,,0.398
+E1,sonomancer_chiplay25,Bhattacharyya-etal-2025-SonomancerSonicControlSchemesAAR.csv,Effort,dv,effort,True,90.0,paas_mental_effort,,,paas_mental_effort,paas_mental_effort,0.0,100.0,0.469
+E1,sonomancer_chiplay25,Bhattacharyya-etal-2025-SonomancerSonicControlSchemesAAR.csv,Frustration,dv,frustration,True,95.0,frustration,,,frustration,frustration,0.0,100.0,0.242
+E1,sonomancer_chiplay25,Bhattacharyya-etal-2025-SonomancerSonicControlSchemesAAR.csv,MentalDemand,dv,mental_demand,True,82.8,mental_demand,,,mental_demand,mental_demand,0.0,85.0,0.352
+E1,sonomancer_chiplay25,Bhattacharyya-etal-2025-SonomancerSonicControlSchemesAAR.csv,Performance,dv,performance,True,95.0,error_rate,,,error_rate,error_rate,0.0,90.0,0.374
+E1,sonomancer_chiplay25,Bhattacharyya-etal-2025-SonomancerSonicControlSchemesAAR.csv,PhysicalDemand,dv,physical_demand,True,90.0,mental_demand,,,mental_demand,mental_demand,0.0,85.0,0.347
+E1,sonomancer_chiplay25,Bhattacharyya-etal-2025-SonomancerSonicControlSchemesAAR.csv,RawTLX,dv,TLX_SCORE,True,80.0,sart_total,,,sart_total,sart_total,0.0,60.8333333333333,0.406
+E1,sonomancer_chiplay25,Bhattacharyya-etal-2025-SonomancerSonicControlSchemesAAR.csv,TemporalDemand,dv,temporal_demand,True,82.4,mental_demand,,,mental_demand,mental_demand,0.0,65.0,0.293
+E1,tamago_supervision_2026,TAMAGO - Dataset Testing.xlsx,participant_id,blocklisted_non_dv,,False,90.0,,identifier,,,,1.0,36.0,0.334
+E1,tamago_supervision_2026,TAMAGO - Dataset Testing.xlsx,exposure_order_index,curated_non_dv,,False,67.5,sart_understanding,,,sart_understanding,sart_understanding,1.0,3.0,0.376
+E1,tamago_supervision_2026,TAMAGO - Dataset Testing.xlsx,participant_code,curated_non_dv,,False,90.0,,non_numeric,,,,,,0.295
+E1,tamago_supervision_2026,TAMAGO - Dataset Testing.xlsx,prototype,curated_non_dv,,False,90.0,dali_total,non_numeric,,dali_total,,,,0.391
+E1,tamago_supervision_2026,TAMAGO - Dataset Testing.xlsx,sus_q1,dv,SUS1,True,92.3,SUS1,,,SUS1,SUS1,1.0,5.0,0.291
+E1,tamago_supervision_2026,TAMAGO - Dataset Testing.xlsx,sus_q10,dv,SUS10,True,92.3,SUS10,,,SUS10,SUS10,1.0,5.0,0.344
+E1,tamago_supervision_2026,TAMAGO - Dataset Testing.xlsx,sus_q2,dv,SUS2,True,85.5,SUS2,,,SUS2,SUS2,1.0,5.0,0.292
+E1,tamago_supervision_2026,TAMAGO - Dataset Testing.xlsx,sus_q3,dv,SUS3,True,85.5,SUS3,,,SUS3,SUS3,1.0,5.0,0.282
+E1,tamago_supervision_2026,TAMAGO - Dataset Testing.xlsx,sus_q4,dv,SUS4,True,85.5,SUS4,,,SUS4,SUS4,1.0,5.0,0.301
+E1,tamago_supervision_2026,TAMAGO - Dataset Testing.xlsx,sus_q5,dv,SUS5,True,85.5,SUS5,,,SUS5,SUS5,1.0,5.0,0.312
+E1,tamago_supervision_2026,TAMAGO - Dataset Testing.xlsx,sus_q6,dv,SUS6,True,85.5,SUS6,,,SUS6,SUS6,1.0,5.0,0.325
+E1,tamago_supervision_2026,TAMAGO - Dataset Testing.xlsx,sus_q7,dv,SUS7,True,85.5,SUS7,,,SUS7,SUS7,1.0,5.0,0.297
+E1,tamago_supervision_2026,TAMAGO - Dataset Testing.xlsx,sus_q8,dv,SUS8,True,85.5,SUS8,,,SUS8,SUS8,1.0,5.0,0.294
+E1,tamago_supervision_2026,TAMAGO - Dataset Testing.xlsx,sus_q9,dv,SUS9,True,85.5,SUS9,,,SUS9,SUS9,1.0,5.0,0.292
+E1,tamago_supervision_2026,TAMAGO - Dataset Testing.xlsx,sus_score,dv,usability,True,88.9,usability,,,usability,usability,0.0,100.0,0.297
+E1,tamago_supervision_2026,TAMAGO - Dataset Testing.xlsx,tlx_effort,dv,effort,True,90.0,mental_demand,,,mental_demand,mental_demand,0.0,100.0,0.351
+E1,tamago_supervision_2026,TAMAGO - Dataset Testing.xlsx,tlx_mental,dv,mental_demand,True,90.0,mental_demand,,,mental_demand,mental_demand,0.0,100.0,0.31
+E1,tamago_supervision_2026,TAMAGO - Dataset Testing.xlsx,tlx_overall,dv,TLX_SCORE,True,85.5,TLX_SCORE,,,TLX_SCORE,TLX_SCORE,0.0,100.0,0.378
+E1,tamago_supervision_2026,TAMAGO - Dataset Testing.xlsx,tlx_temporal,dv,temporal_demand,True,85.5,mental_demand,,,mental_demand,mental_demand,0.0,100.0,0.354
+E1,tamago_supervision_2026,TAMAGO - Dataset Testing.xlsx,ueq_hedonic,dv,ueq_hedonic,True,85.5,ueq_hedonic,,,ueq_hedonic,ueq_hedonic,-3.0,3.0,0.435
+E1,tamago_supervision_2026,TAMAGO - Dataset Testing.xlsx,ueq_pragmatic,dv,ueq_pragmatic,True,85.5,ueq_pragmatic,,,ueq_pragmatic,ueq_pragmatic,-3.0,3.0,0.477
+E1,vr_grab_techniques_icom20,__extracted_archives/comparison_vr_interaction_techniques_v1.1/data/nasa_tlx_eng.csv,ID,blocklisted_non_dv,,False,90.0,sts_ad_item_03,identifier,,sts_ad_item_03,,2.0,101.0,0.551
+E1,vr_grab_techniques_icom20,__extracted_archives/comparison_vr_interaction_techniques_v1.1/data/demographic_data_eng.csv,UserID,blocklisted_non_dv,,False,72.0,SUS1,identifier,,SUS1,,2.0,101.0,0.268
+E1,vr_grab_techniques_icom20,__extracted_archives/comparison_vr_interaction_techniques_v1.1/data/demographic_data_eng.csv,Age,curated_non_dv,,False,90.0,temporal_demand,demographic,,temporal_demand,,,,0.316
+E1,vr_grab_techniques_icom20,__extracted_archives/comparison_vr_interaction_techniques_v1.1/data/demographic_data_ger.csv,Brillenträger,curated_non_dv,,False,60.0,,non_numeric,,,,,,0.059
+E1,vr_grab_techniques_icom20,__extracted_archives/comparison_vr_interaction_techniques_v1.1/data/measurements_manipulation.csv,Distance,curated_non_dv,,False,90.0,headway,,,headway,headway,0.6,6.0,0.286
+E1,vr_grab_techniques_icom20,__extracted_archives/comparison_vr_interaction_techniques_v1.1/data/system_usability_scale_and_custom_questions_eng.csv,Do you have any further comments on the interaction technique?,curated_non_dv,,False,85.5,perceived_vehicle_influence,non_numeric,,perceived_vehicle_influence,,,,0.432
+E1,vr_grab_techniques_icom20,__extracted_archives/comparison_vr_interaction_techniques_v1.1/data/demographic_data_eng.csv,Gender,curated_non_dv,,False,81.8,engagement_level,demographic,,engagement_level,,,,0.314
+E1,vr_grab_techniques_icom20,__extracted_archives/comparison_vr_interaction_techniques_v1.1/data/demographic_data_ger.csv,Geschlecht,curated_non_dv,,False,60.0,,demographic,,,,,,0.053
+E1,vr_grab_techniques_icom20,__extracted_archives/comparison_vr_interaction_techniques_v1.1/data/demographic_data_eng.csv,Glasses,curated_non_dv,,False,61.5,,non_numeric,,,,,,0.06
+E1,vr_grab_techniques_icom20,__extracted_archives/comparison_vr_interaction_techniques_v1.1/data/system_usability_scale_and_custom_questions_ger.csv,Haben Sie noch weitere Anmerkungen zur Interaktionstechnik?,curated_non_dv,,False,85.5,dali_interference,non_numeric,,dali_interference,,,,0.422
+E1,vr_grab_techniques_icom20,__extracted_archives/comparison_vr_interaction_techniques_v1.1/data/demographic_data_eng.csv,"How many hours per year have you used the following devices/applications in the last 3 years? [3D Controller (e.g. Wii Remote Controller, Playstation Move, Vive Controller, Oculus Rift Controller)].",curated_non_dv,,False,87.6,interaction_events,non_numeric,,interaction_events,,,,0.346
+E1,vr_grab_techniques_icom20,__extracted_archives/comparison_vr_interaction_techniques_v1.1/data/demographic_data_eng.csv,"How many hours per year have you used the following devices/applications in the last 3 years? [Input devices with finger recognition (e.g. data gloves, Leap Motion)]",curated_non_dv,,False,91.9,retention_time,non_numeric,,retention_time,,,,0.381
+E1,vr_grab_techniques_icom20,__extracted_archives/comparison_vr_interaction_techniques_v1.1/data/demographic_data_eng.csv,How many hours per year have you used the following devices/applications in the last 3 years? [Input devices with whole-body motion detection (such as Kinect)].,curated_non_dv,,False,91.9,eye_tracking,non_numeric,,eye_tracking,,,,0.384
+E1,vr_grab_techniques_icom20,__extracted_archives/comparison_vr_interaction_techniques_v1.1/data/demographic_data_eng.csv,How many hours per year have you used the following devices/applications in the last 3 years? [Mouse],curated_non_dv,,False,96.5,interaction_events,non_numeric,,interaction_events,,,,0.325
+E1,vr_grab_techniques_icom20,__extracted_archives/comparison_vr_interaction_techniques_v1.1/data/demographic_data_eng.csv,How many hours per year have you used the following devices/applications in the last 3 years? [Touchscreen],curated_non_dv,,False,96.0,retention_time,non_numeric,,retention_time,,,,0.399
+E1,vr_grab_techniques_icom20,__extracted_archives/comparison_vr_interaction_techniques_v1.1/data/demographic_data_eng.csv,How many hours per year have you used the following devices/applications in the last 3 years? [VR/AR Applications].,curated_non_dv,,False,91.9,retention_time,non_numeric,,retention_time,,,,0.386
+E1,vr_grab_techniques_icom20,__extracted_archives/comparison_vr_interaction_techniques_v1.1/data/measurements_manipulation.csv,InteractionTechnique,curated_non_dv,,False,86.1,interaction_events,non_numeric,,interaction_events,,,,0.363
+E1,vr_grab_techniques_icom20,__extracted_archives/comparison_vr_interaction_techniques_v1.1/data/measurements_selection.csv,MinDensity,curated_non_dv,,False,90.0,dali_total,,,dali_total,dali_total,0.05,0.1,0.38
+E1,vr_grab_techniques_icom20,__extracted_archives/comparison_vr_interaction_techniques_v1.1/data/measurements_manipulation.csv,NeededDoFs,curated_non_dv,,False,90.0,conflict_item_03,,,conflict_item_03,conflict_item_03,1.0,3.0,0.47
+E1,vr_grab_techniques_icom20,__extracted_archives/comparison_vr_interaction_techniques_v1.1/data/demographic_data_ger.csv,"Ordnen Sie sich bitte hinsichtlich Ihres Berufs, Ihres Studiums oder Ihrer Ausbildung einen der folgenden Bereiche zu.",curated_non_dv,,False,85.5,sts_ad_trust,non_numeric,,sts_ad_trust,,,,0.459
+E1,vr_grab_techniques_icom20,__extracted_archives/comparison_vr_interaction_techniques_v1.1/data/demographic_data_eng.csv,"Please assign yourself to one of the following areas with regard to your profession, studies or training.",curated_non_dv,,False,85.5,dali_situational_stress,demographic,,dali_situational_stress,,,,0.518
+E1,vr_grab_techniques_icom20,__extracted_archives/comparison_vr_interaction_techniques_v1.1/data/measurements_manipulation.csv,TaskID,curated_non_dv,,False,77.1,task_feasibility_item_01,identifier,,task_feasibility_item_01,,1.0,90.0,0.592
+E1,vr_grab_techniques_icom20,__extracted_archives/comparison_vr_interaction_techniques_v1.1/data/measurements_manipulation.csv,TaskObject,curated_non_dv,,False,77.1,task_feasibility_item_01,non_numeric,,task_feasibility_item_01,,,,0.587
+E1,vr_grab_techniques_icom20,__extracted_archives/comparison_vr_interaction_techniques_v1.1/data/ranking_manipulation_ger.csv,Technik 3,curated_non_dv,,False,88.9,perceived_safety_item_03,non_numeric,,perceived_safety_item_03,,,,0.626
+E1,vr_grab_techniques_icom20,__extracted_archives/comparison_vr_interaction_techniques_v1.1/data/ranking_selection_ger.csv,Technik1,curated_non_dv,,False,87.5,mental_demand,non_numeric,,mental_demand,,,,0.339
+E1,vr_grab_techniques_icom20,__extracted_archives/comparison_vr_interaction_techniques_v1.1/data/ranking_selection_ger.csv,Technik3,curated_non_dv,,False,87.5,perceived_safety_item_03,non_numeric,,perceived_safety_item_03,,,,0.589
+E1,vr_grab_techniques_icom20,__extracted_archives/comparison_vr_interaction_techniques_v1.1/data/ranking_selection_ger.csv,Technik4,curated_non_dv,,False,87.5,sts_ad_item_04,non_numeric,,sts_ad_item_04,,,,0.562
+E1,vr_grab_techniques_icom20,__extracted_archives/comparison_vr_interaction_techniques_v1.1/data/ranking_selection_ger.csv,Technik5,curated_non_dv,,False,87.5,rsme,non_numeric,,rsme,,,,0.304
+E1,vr_grab_techniques_icom20,__extracted_archives/comparison_vr_interaction_techniques_v1.1/data/ranking_manipulation_eng.csv,Technique 1,curated_non_dv,,False,90.9,takeover_time,non_numeric,,takeover_time,,,,0.379
+E1,vr_grab_techniques_icom20,__extracted_archives/comparison_vr_interaction_techniques_v1.1/data/ranking_manipulation_eng.csv,Technique 2,curated_non_dv,,False,90.9,task_feasibility_item_02,non_numeric,,task_feasibility_item_02,,,,0.61
+E1,vr_grab_techniques_icom20,__extracted_archives/comparison_vr_interaction_techniques_v1.1/data/ranking_selection_eng.csv,Technique 4,curated_non_dv,,False,90.9,sts_ad_item_04,non_numeric,,sts_ad_item_04,,,,0.55
+E1,vr_grab_techniques_icom20,__extracted_archives/comparison_vr_interaction_techniques_v1.1/data/ranking_selection_eng.csv,Technique 5,curated_non_dv,,False,90.9,effort,non_numeric,,effort,,,,0.246
+E1,vr_grab_techniques_icom20,__extracted_archives/comparison_vr_interaction_techniques_v1.1/data/measurements_manipulation.csv,Type,curated_non_dv,,False,90.0,arousal,non_numeric,,arousal,,,,0.283
+E1,vr_grab_techniques_icom20,__extracted_archives/comparison_vr_interaction_techniques_v1.1/data/ranking_manipulation_ger.csv,Was möchten Sie noch mitteilen?,curated_non_dv,,False,85.5,ueq_novelty,non_numeric,,ueq_novelty,,,,0.418
+E1,vr_grab_techniques_icom20,__extracted_archives/comparison_vr_interaction_techniques_v1.1/data/demographic_data_ger.csv,"Wie viele Stunden pro Jahr haben Sie die folgenden Geräte/Anwendungen in den letzten 3 Jahren verwendet? [3D Anwendungen (z.B. Blender, 3Ds Max, Unity)]",curated_non_dv,,False,92.7,sart_understanding,non_numeric,,sart_understanding,,,,0.405
+E1,vr_grab_techniques_icom20,__extracted_archives/comparison_vr_interaction_techniques_v1.1/data/demographic_data_ger.csv,Wie viele Stunden pro Jahr haben Sie die folgenden Geräte/Anwendungen in den letzten 3 Jahren verwendet? [3D Computerspiele],curated_non_dv,,False,96.1,task_completion_time,non_numeric,,task_completion_time,,,,0.442
+E1,vr_grab_techniques_icom20,__extracted_archives/comparison_vr_interaction_techniques_v1.1/data/demographic_data_ger.csv,"Wie viele Stunden pro Jahr haben Sie die folgenden Geräte/Anwendungen in den letzten 3 Jahren verwendet? [3D Controller (z.B. Wii Remote Controller, Playstation Move, Vive Controller, Oculus Rift Controller)]",curated_non_dv,,False,88.3,task_completion_time,non_numeric,,task_completion_time,,,,0.446
+E1,vr_grab_techniques_icom20,__extracted_archives/comparison_vr_interaction_techniques_v1.1/data/demographic_data_ger.csv,Wie viele Stunden pro Jahr haben Sie die folgenden Geräte/Anwendungen in den letzten 3 Jahren verwendet? [Eingabegeräte mit Eye-Tracking],curated_non_dv,,False,92.7,scanpath_length,non_numeric,,scanpath_length,,,,0.384
+E1,vr_grab_techniques_icom20,__extracted_archives/comparison_vr_interaction_techniques_v1.1/data/demographic_data_ger.csv,"Wie viele Stunden pro Jahr haben Sie die folgenden Geräte/Anwendungen in den letzten 3 Jahren verwendet? [Eingabegeräte mit Fingererkennung (z.B. Datenhandschuhe, Leap Motion)]",curated_non_dv,,False,92.3,eye_tracking,non_numeric,,eye_tracking,,,,0.378
+E1,vr_grab_techniques_icom20,__extracted_archives/comparison_vr_interaction_techniques_v1.1/data/demographic_data_ger.csv,Wie viele Stunden pro Jahr haben Sie die folgenden Geräte/Anwendungen in den letzten 3 Jahren verwendet? [Eingabegeräte mit Ganzkörperbewegungserkennung (z.B. Kinect)],curated_non_dv,,False,92.7,understanding_rating,non_numeric,,understanding_rating,,,,0.375
+E1,vr_grab_techniques_icom20,__extracted_archives/comparison_vr_interaction_techniques_v1.1/data/demographic_data_ger.csv,Wie viele Stunden pro Jahr haben Sie die folgenden Geräte/Anwendungen in den letzten 3 Jahren verwendet? [Touchscreen],curated_non_dv,,False,95.1,interaction_events,non_numeric,,interaction_events,,,,0.315
+E1,vr_grab_techniques_icom20,__extracted_archives/comparison_vr_interaction_techniques_v1.1/data/demographic_data_ger.csv,Wie viele Stunden pro Jahr haben Sie die folgenden Geräte/Anwendungen in den letzten 3 Jahren verwendet? [VR/AR Anwendungen],curated_non_dv,,False,92.7,AOA3,non_numeric,,AOA3,,,,0.385
+E1,vr_grab_techniques_icom20,__extracted_archives/comparison_vr_interaction_techniques_v1.1/data/nasa_tlx_eng.csv,How hard did you have to work to achieve your performance?,dv,effort,False,90.0,mental_demand,,,mental_demand,mental_demand,1.0,20.0,0.358
+E1,vr_grab_techniques_icom20,__extracted_archives/comparison_vr_interaction_techniques_v1.1/data/nasa_tlx_eng.csv,How high were the intellectual demands of the tasks?,dv,mental_demand,True,85.5,mental_demand,,,mental_demand,mental_demand,1.0,20.0,0.374
+E1,vr_grab_techniques_icom20,__extracted_archives/comparison_vr_interaction_techniques_v1.1/data/nasa_tlx_eng.csv,"How insecure, discouraged, irritated and annoyed were you?",dv,frustration,False,85.5,stress,,,stress,stress,1.0,20.0,0.214
+E1,vr_grab_techniques_icom20,__extracted_archives/comparison_vr_interaction_techniques_v1.1/data/system_usability_scale_and_custom_questions_eng.csv,I can imagine that most people learn to use this interaction technique very quickly.,dv,SUS7,False,85.5,retention_time,,,retention_time,retention_time,1.0,5.0,0.4
+E1,vr_grab_techniques_icom20,__extracted_archives/comparison_vr_interaction_techniques_v1.1/data/system_usability_scale_and_custom_questions_eng.csv,I felt very confident in using the interaction technique.,dv,SUS9,False,85.5,perceived_vehicle_influence,,,perceived_vehicle_influence,perceived_vehicle_influence,1.0,5.0,0.468
+E1,vr_grab_techniques_icom20,__extracted_archives/comparison_vr_interaction_techniques_v1.1/data/system_usability_scale_and_custom_questions_eng.csv,I found the interaction technique easy to use.,dv,SUS3,False,89.4,tam_perceived_ease_of_use,,,tam_perceived_ease_of_use,tam_perceived_ease_of_use,1.0,5.0,0.647
+E1,vr_grab_techniques_icom20,__extracted_archives/comparison_vr_interaction_techniques_v1.1/data/system_usability_scale_and_custom_questions_eng.csv,I found the interaction technique unnecessarily complex.,dv,SUS2,False,85.5,sart_understanding,,,sart_understanding,sart_understanding,1.0,5.0,0.356
+E1,vr_grab_techniques_icom20,__extracted_archives/comparison_vr_interaction_techniques_v1.1/data/system_usability_scale_and_custom_questions_eng.csv,I found the interaction technique very cumbersome to use.,dv,SUS8,False,89.4,pedestrian_crossing_time,,,pedestrian_crossing_time,pedestrian_crossing_time,1.0,5.0,0.426
+E1,vr_grab_techniques_icom20,__extracted_archives/comparison_vr_interaction_techniques_v1.1/data/system_usability_scale_and_custom_questions_eng.csv,I found the various functions in this interaction technique were well integrated.,dv,SUS5,False,85.5,interaction_events,,,interaction_events,interaction_events,1.0,5.0,0.358
+E1,vr_grab_techniques_icom20,__extracted_archives/comparison_vr_interaction_techniques_v1.1/data/system_usability_scale_and_custom_questions_eng.csv,I had to learn a lot before I could start using the interaction technique.,dv,SUS10,False,85.5,interaction_events,,,interaction_events,interaction_events,1.0,5.0,0.364
+E1,vr_grab_techniques_icom20,__extracted_archives/comparison_vr_interaction_techniques_v1.1/data/system_usability_scale_and_custom_questions_eng.csv,I think I would need the help of a technically skilled person to use the interaction technique.,dv,SUS4,False,85.5,interaction_events,,,interaction_events,interaction_events,1.0,5.0,0.337
+E1,vr_grab_techniques_icom20,__extracted_archives/comparison_vr_interaction_techniques_v1.1/data/system_usability_scale_and_custom_questions_eng.csv,I think that I would like to use the interaction technique frequently.,dv,SUS1,False,85.5,interaction_events,,,interaction_events,interaction_events,1.0,5.0,0.347
+E1,vr_grab_techniques_icom20,__extracted_archives/comparison_vr_interaction_techniques_v1.1/data/system_usability_scale_and_custom_questions_eng.csv,I think the interaction technique contained too many inconsistencies.,dv,SUS6,False,85.5,perceived_vehicle_influence,,,perceived_vehicle_influence,perceived_vehicle_influence,1.0,5.0,0.49
+E1,vr_grab_techniques_icom20,__extracted_archives/comparison_vr_interaction_techniques_v1.1/data/system_usability_scale_and_custom_questions_ger.csv,Ich denke die Interaktionstechnik enthielt zu viele Inkonsistenzen.,dv,SUS6,False,85.5,dali_interference,,,dali_interference,dali_interference,1.0,5.0,0.36
+E1,vr_grab_techniques_icom20,__extracted_archives/comparison_vr_interaction_techniques_v1.1/data/system_usability_scale_and_custom_questions_ger.csv,"Ich denke, dass ich die Interaktionstechnik gerne häufig benutzen würde.",dv,SUS1,False,85.5,attrakdiff_hqi,,,attrakdiff_hqi,attrakdiff_hqi,1.0,5.0,0.449
+E1,vr_grab_techniques_icom20,__extracted_archives/comparison_vr_interaction_techniques_v1.1/data/system_usability_scale_and_custom_questions_ger.csv,Ich fand die Interaktionstechnik einfach zu benutzen.,dv,SUS3,False,85.5,dali_interference,,,dali_interference,dali_interference,1.0,5.0,0.403
+E1,vr_grab_techniques_icom20,__extracted_archives/comparison_vr_interaction_techniques_v1.1/data/system_usability_scale_and_custom_questions_ger.csv,Ich fand die Interaktionstechnik sehr umständlich zu nutzen.,dv,SUS8,False,85.5,dali_interference,,,dali_interference,dali_interference,1.0,5.0,0.352
+E1,vr_grab_techniques_icom20,__extracted_archives/comparison_vr_interaction_techniques_v1.1/data/system_usability_scale_and_custom_questions_ger.csv,Ich fand die Interaktionstechnik unnötig komplex.,dv,SUS2,False,85.5,,,,,,1.0,5.0,0.352
+E1,vr_grab_techniques_icom20,__extracted_archives/comparison_vr_interaction_techniques_v1.1/data/system_usability_scale_and_custom_questions_ger.csv,Ich fand die verschiedenen Funktionen in dieser Interaktionstechnik waren gut integriert.,dv,SUS5,False,85.5,sart_total,,,sart_total,sart_total,1.0,5.0,0.397
+E1,vr_grab_techniques_icom20,__extracted_archives/comparison_vr_interaction_techniques_v1.1/data/system_usability_scale_and_custom_questions_ger.csv,Ich fühlte mich bei der Benutzung der Interaktionstechnik sehr sicher.,dv,SUS9,False,85.5,dali_situational_stress,,,dali_situational_stress,dali_situational_stress,1.0,5.0,0.452
+E1,vr_grab_techniques_icom20,__extracted_archives/comparison_vr_interaction_techniques_v1.1/data/system_usability_scale_and_custom_questions_ger.csv,"Ich glaube, ich würde die Hilfe einer technisch versierten Person benötigen, um die Interaktionstechnik benutzen zu können.",dv,SUS4,False,85.5,rsme,,,rsme,rsme,1.0,5.0,0.264
+E1,vr_grab_techniques_icom20,__extracted_archives/comparison_vr_interaction_techniques_v1.1/data/system_usability_scale_and_custom_questions_ger.csv,"Ich kann mir vorstellen, dass die meisten Menschen den Umgang mit dieser Interaktionstechnik sehr schnell lernen.",dv,SUS7,False,85.5,dali_effort_of_attention,,,dali_effort_of_attention,dali_effort_of_attention,1.0,5.0,0.568
+E1,vr_grab_techniques_icom20,__extracted_archives/comparison_vr_interaction_techniques_v1.1/data/system_usability_scale_and_custom_questions_ger.csv,"Ich musste eine Menge lernen, bevor ich anfangen konnte die Interaktionstechnik zu verwenden.",dv,SUS10,False,85.5,,,,,,1.0,5.0,0.377
+E1,vr_grab_techniques_icom20,__extracted_archives/comparison_vr_interaction_techniques_v1.1/data/nasa_tlx_eng.csv,"In your opinion, how successfully have you performed the required tasks?",dv,performance,False,85.5,task_success,,,task_success,task_success,1.0,20.0,0.348
+E1,vr_grab_techniques_icom20,__extracted_archives/comparison_vr_interaction_techniques_v1.1/data/measurements_selection.csv,Misses,dv,error_rate,True,75.0,ttc,,,ttc,ttc,0.0,13.0,0.312
+E1,vr_grab_techniques_icom20,__extracted_archives/comparison_vr_interaction_techniques_v1.1/data/measurements_manipulation.csv,Success,dv,task_success,True,90.0,task_success,non_numeric,,task_success,,,,0.294
+E1,vr_grab_techniques_icom20,__extracted_archives/comparison_vr_interaction_techniques_v1.1/data/measurements_manipulation.csv,Time,dv,task_completion_time,True,90.0,pedestrian_crossing_time,event_time,,pedestrian_crossing_time,,0.029,30.005,0.433
+E1,vr_grab_techniques_icom20,__extracted_archives/comparison_vr_interaction_techniques_v1.1/data/nasa_tlx_eng.csv,What was the speed at which the individual work steps of the tasks followed each other?,dv,temporal_demand,False,85.5,task_completion_time,,,task_completion_time,task_completion_time,1.0,20.0,0.427
+E1,vr_grab_techniques_icom20,__extracted_archives/comparison_vr_interaction_techniques_v1.1/data/nasa_tlx_eng.csv,What were the physical demands of the tasks?,dv,physical_demand,True,90.0,mental_demand,,,mental_demand,mental_demand,1.0,20.0,0.361
+E1,vr_grab_techniques_icom20,__extracted_archives/comparison_vr_interaction_techniques_v1.1/data/nasa_tlx_ger.csv,Wie erfolgreich haben Sie die geforderte Aufgaben Ihrer Ansicht nach durchgeführt?,dv,performance,True,85.5,performance,,,performance,performance,1.0,20.0,0.296
+E1,vr_grab_techniques_icom20,__extracted_archives/comparison_vr_interaction_techniques_v1.1/data/nasa_tlx_ger.csv,"Wie hoch war das Tempo, mit dem die einzelnen Arbeitsschritte der Aufgaben aufeinander folgten?",dv,temporal_demand,True,85.5,temporal_demand,,,temporal_demand,temporal_demand,1.0,20.0,0.381
+E1,vr_grab_techniques_icom20,__extracted_archives/comparison_vr_interaction_techniques_v1.1/data/nasa_tlx_ger.csv,Wie hoch waren die geistigen Anforderungen der Aufgaben?,dv,mental_demand,False,88.5,AOA9,,,AOA9,AOA9,1.0,20.0,0.34
+E1,vr_grab_techniques_icom20,__extracted_archives/comparison_vr_interaction_techniques_v1.1/data/nasa_tlx_ger.csv,Wie hoch waren die körperlichen Anforderungen der Aufgaben?,dv,physical_demand,False,88.5,tia_intention_of_developers,,,tia_intention_of_developers,tia_intention_of_developers,1.0,20.0,0.505
+E1,vr_grab_techniques_icom20,__extracted_archives/comparison_vr_interaction_techniques_v1.1/data/nasa_tlx_ger.csv,"Wie sehr mussten Sie sich anstrengen, um ihre Leistung zu erreichen?",dv,effort,False,85.5,stress,,,stress,stress,1.0,20.0,0.235
+E1,vr_grab_techniques_icom20,__extracted_archives/comparison_vr_interaction_techniques_v1.1/data/nasa_tlx_ger.csv,"Wie verunsichert, entmutigt, gereizt und verärgert waren Sie?",dv,frustration,False,85.5,sart_understanding,,,sart_understanding,sart_understanding,1.0,20.0,0.38
+E1,xai_trust_scales_chi23,XAI_Trust.csv,id,blocklisted_non_dv,,False,90.0,sts_ad_item_03,identifier,,sts_ad_item_03,,57.0,2436.0,0.542
+E1,xai_trust_scales_chi23,XAI_Trust.csv,Age,curated_non_dv,,False,90.0,temporal_demand,demographic,,temporal_demand,,18.0,100.0,0.335
+E1,xai_trust_scales_chi23,XAI_Trust.csv,AttentionCheck[SQ001],curated_non_dv,,False,95.0,dali_effort_of_attention,quality_control,,dali_effort_of_attention,,,,0.532
+E1,xai_trust_scales_chi23,XAI_Trust.csv,AttentionCheck[SQ002],curated_non_dv,,False,95.0,dali_effort_of_attention,quality_control,,dali_effort_of_attention,,,,0.55
+E1,xai_trust_scales_chi23,XAI_Trust.csv,AttentionCheck[SQ003],curated_non_dv,,False,95.0,,quality_control,,,,,,0.532
+E1,xai_trust_scales_chi23,XAI_Trust.csv,Education,curated_non_dv,,False,82.4,understanding_rating,demographic,,understanding_rating,,,,0.32
+E1,xai_trust_scales_chi23,XAI_Trust.csv,Gender,curated_non_dv,,False,81.8,engagement_level,demographic,,engagement_level,,,,0.33
+E1,xai_trust_scales_chi23,XAI_Trust.csv,SelfDeclaredExcl,curated_non_dv,,False,60.0,,non_numeric,,,,,,0.055
+E1,xai_trust_scales_chi23,XAI_Trust.csv,TrustAutomation[SQ013],curated_non_dv,,False,95.2,trust_rating,non_numeric,,trust_rating,,,,0.365
+E1,xai_trust_scales_chi23,XAI_Trust.csv,TrustAutomation[SQ001],dv,jian_trust,False,95.2,trust_rating,non_numeric,,trust_rating,,,,0.317
+E1,xai_trust_scales_chi23,XAI_Trust.csv,TrustAutomation[SQ002],dv,jian_trust,False,95.2,tia_trust_in_automation,non_numeric,,tia_trust_in_automation,,,,0.522
+E1,xai_trust_scales_chi23,XAI_Trust.csv,TrustAutomation[SQ003],dv,jian_trust,False,95.2,tia_trust_in_automation,non_numeric,,tia_trust_in_automation,,,,0.464
+E1,xai_trust_scales_chi23,XAI_Trust.csv,TrustAutomation[SQ004],dv,jian_trust,False,95.2,tia_trust_in_automation,non_numeric,,tia_trust_in_automation,,,,0.496
+E1,xai_trust_scales_chi23,XAI_Trust.csv,TrustAutomation[SQ005],dv,jian_trust,False,95.2,tia_trust_in_automation,non_numeric,,tia_trust_in_automation,,,,0.523
+E1,xai_trust_scales_chi23,XAI_Trust.csv,TrustAutomation[SQ006],dv,jian_trust,False,95.2,tia_item_06,non_numeric,,tia_item_06,,,,0.452
+E1,xai_trust_scales_chi23,XAI_Trust.csv,TrustAutomation[SQ007],dv,jian_trust,False,95.2,tia_trust_in_automation,non_numeric,,tia_trust_in_automation,,,,0.502
+E1,xai_trust_scales_chi23,XAI_Trust.csv,TrustAutomation[SQ008],dv,jian_trust,False,95.2,trust_rating,non_numeric,,trust_rating,,,,0.315
+E1,xai_trust_scales_chi23,XAI_Trust.csv,TrustAutomation[SQ009],dv,jian_trust,False,95.2,tia_trust_in_automation,non_numeric,,tia_trust_in_automation,,,,0.529
+E1,xai_trust_scales_chi23,XAI_Trust.csv,TrustAutomation[SQ010],dv,jian_trust,False,95.2,trust_rating,non_numeric,,trust_rating,,,,0.327
+E1,xai_trust_scales_chi23,XAI_Trust.csv,TrustAutomation[SQ011],dv,jian_trust,False,95.2,tia_trust_in_automation,non_numeric,,tia_trust_in_automation,,,,0.493
+E1,xai_trust_scales_chi23,XAI_Trust.csv,TrustAutomation[SQ012],dv,jian_trust,False,95.2,trust_rating,non_numeric,,trust_rating,,,,0.322
+E1,xai_trust_scales_chi23,XAI_Trust.csv,TrustHoffman[SQ001],dv,trust_rating,True,94.4,tia_trust_in_automation,non_numeric,,tia_trust_in_automation,,,,0.503
+E1,xai_trust_scales_chi23,XAI_Trust.csv,TrustHoffman[SQ002],dv,trust_rating,True,94.4,tia_trust_in_automation,non_numeric,,tia_trust_in_automation,,,,0.51
+E1,xai_trust_scales_chi23,XAI_Trust.csv,TrustHoffman[SQ003],dv,trust_rating,True,94.4,tia_trust_in_automation,non_numeric,,tia_trust_in_automation,,,,0.49
+E1,xai_trust_scales_chi23,XAI_Trust.csv,TrustHoffman[SQ004],dv,trust_rating,True,94.4,tia_item_04,non_numeric,,tia_item_04,,,,0.469
+E1,xai_trust_scales_chi23,XAI_Trust.csv,TrustHoffman[SQ005],dv,trust_rating,True,94.4,tia_trust_in_automation,non_numeric,,tia_trust_in_automation,,,,0.501
+E1,xai_trust_scales_chi23,XAI_Trust.csv,TrustHoffman[SQ006],dv,trust_rating,True,94.4,tia_trust_in_automation,non_numeric,,tia_trust_in_automation,,,,0.507
+E1,xai_trust_scales_chi23,XAI_Trust.csv,TrustHoffman[SQ007],dv,trust_rating,True,94.4,tia_trust_in_automation,non_numeric,,tia_trust_in_automation,,,,0.497
+E1,xai_trust_scales_chi23,XAI_Trust.csv,TrustHoffman[SQ008],dv,trust_rating,True,94.4,sts_ad_trust,non_numeric,,sts_ad_trust,,,,0.458

@@ -28,9 +28,9 @@ captions is computed from the run artifacts.
 | DVs pooled across ≥ 3 studies: all / without LLM-deduced rows | 12 / 6 | `meta_analysis_summary*.csv` |
 | **Mean pairwise DV overlap** | **Jaccard = 0.098** | `dv_overlap_details.csv` |
 | Most similar pair | eHMI-for-All ↔ ROADS (0.52) | `dv_overlap_details.csv` |
-| NASA-TLX Mental Demand, all mappings (k = 7; one study's rows LLM-mapped) | 7.59; Wald [5.34, 9.83]; HKSJ [5.60, 9.58]; I² = 99.7%, τ² = 9.12 | `meta_analysis_summary.csv` |
-| NASA-TLX Mental Demand, without LLM-deduced rows (k = 6) | 7.71; Wald [5.17, 10.26]; HKSJ [5.27, 10.16]; I² = 99.8% | `meta_analysis_summary_llm_excluded.csv` |
-| Multiverse range of the Mental Demand estimate (32 specifications) | 7.59–8.02 | `output_multiverse/multiverse_summary.csv` |
+| NASA-TLX Mental Demand, all mappings (k = 7; in 3 studies LLM-mapped columns enter the composite) | 7.59; Wald [5.34, 9.83]; HKSJ [5.60, 9.58]; I² = 99.7%, τ² = 9.12 | `meta_analysis_summary.csv` |
+| NASA-TLX Mental Demand, without LLM-deduced rows (k = 4) | 6.88; Wald [4.91, 8.85]; HKSJ [3.76, 10.00]; I² = 99.2% | `meta_analysis_summary_llm_excluded.csv` |
+| Multiverse range of the Mental Demand estimate (32 specifications) | 6.88–7.77 | `output_multiverse/multiverse_summary.csv` |
 | Condition contrast: eHMI vs. none on Mental Demand (2 studies) | −0.51 SD; Wald [−0.70, −0.32]; HKSJ [−2.32, 1.31] | `contrast_meta_analysis.csv` |
 | Causal DAG (DirectLiNGAM) | fit on 2,600 complete-case rows, **all from FACT-AV** (a within-study DAG) | `analysis_results.json` (`studies_used`) |
 

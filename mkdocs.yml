@@ -64,6 +64,8 @@ nav:
       - Directory map: directory_map.md
   - Research:
       - Research agenda: research_agenda.md
+      - Confirmatory shortlist test: confirmatory_shortlist_results.md
+      - Pre-registration: preregistration_confirmatory_shortlist.md
       - Summary: summary.md
       - Future plans: future_plans.md
   - Changelog: changelog.md

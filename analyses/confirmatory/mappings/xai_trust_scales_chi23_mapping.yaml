@@ -1,0 +1,31 @@
+# Gold labels of the confirmatory shortlist test for xai_trust_scales_chi23, generated from
+# analyses/confirmatory/gold_labels.csv (docs/preregistration_confirmatory_shortlist.md).
+id: meta_participant_id
+TrustAutomation[SQ001]: jian_trust
+TrustAutomation[SQ002]: jian_trust
+TrustAutomation[SQ003]: jian_trust
+TrustAutomation[SQ004]: jian_trust
+TrustAutomation[SQ005]: jian_trust
+TrustAutomation[SQ006]: jian_trust
+TrustAutomation[SQ007]: jian_trust
+TrustAutomation[SQ008]: jian_trust
+TrustAutomation[SQ009]: jian_trust
+TrustAutomation[SQ010]: jian_trust
+TrustAutomation[SQ011]: jian_trust
+TrustAutomation[SQ012]: jian_trust
+TrustAutomation[SQ013]: meta_attention_check_instructed
+TrustHoffman[SQ001]: trust_rating
+TrustHoffman[SQ002]: trust_rating
+TrustHoffman[SQ003]: trust_rating
+TrustHoffman[SQ004]: trust_rating
+TrustHoffman[SQ005]: trust_rating
+TrustHoffman[SQ006]: trust_rating
+TrustHoffman[SQ007]: trust_rating
+TrustHoffman[SQ008]: trust_rating
+Gender: meta_demographic_gender
+Age: meta_demographic_age
+Education: meta_demographic_education
+AttentionCheck[SQ001]: meta_attention_check_1
+AttentionCheck[SQ002]: meta_attention_check_2
+AttentionCheck[SQ003]: meta_attention_check_3
+SelfDeclaredExcl: meta_self_declared_exclusion
