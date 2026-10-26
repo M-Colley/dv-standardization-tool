@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-26T07:36:32.110407+00:00",
+  "generated_at": "2026-10-26T08:01:57.912535+00:00",
   "input_dir": "data\\processed\\catalog_meta_analysis\\standardized",
   "n_studies": 11,
   "studies": [
@@ -1577,7 +1577,7 @@
       "sd": 1.9775110477272375,
       "mean_z_vs_global": -0.029303320736185016,
       "scale_note": "",
-      "mapping_source": "schema"
+      "mapping_source": "llm_deduced"
     },
     {
       "study": "ehmi_for_all_chi26",
@@ -1607,7 +1607,7 @@
       "sd": 4.6127655313188605,
       "mean_z_vs_global": 0.8633554245706089,
       "scale_note": "",
-      "mapping_source": "schema"
+      "mapping_source": "llm_deduced"
     },
     {
       "study": "longitudinal_usa_germany_ehmi",

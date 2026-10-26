@@ -302,10 +302,11 @@ P1 must confirm it on a held-out split.
 The multiverse crosses five binary choices (32 specifications). Results for
 the 11-study run (`analyses/output_multiverse/`):
 
-- **Robust:** NASA-TLX `mental_demand` (k = 7). All 32 estimates lie in
-  7.59–8.02 and every interval covers the default estimate (run of
-  2026-10-19; 7.37–7.58 in the run of 2026-10-17, before the LLM mapped
-  `tlx1_sq001` of the longitudinal study to it).
+- **Robust:** NASA-TLX `mental_demand` (k = 3–7). All 32 estimates lie in
+  6.88–7.77 and every interval covers the default estimate. The low end
+  drops the three studies whose composites contain LLM-mapped columns; until
+  2026-10-26 only one of them was recognized as such (range 7.59–8.02, see the
+  changelog).
 - **Fragile:**
   - `perceived_safety` (k = 7) moves from −0.24 to 4.27 depending only on
     scale harmonization, and cannot be pooled at all without LLM-deduced rows;

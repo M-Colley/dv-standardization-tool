@@ -1182,6 +1182,33 @@ def _merge_with_standard_precedence(
     return merged
 
 
+def _composite_item_aliases(
+    composite_records: list[dict[str, Any]],
+    original_lookup: dict[str, list],
+) -> tuple[dict[str, str], dict[str, list[str]]]:
+    """Raw column of every ``<canonical>__item_N`` column, and the items of each composite.
+
+    Declared scales record their items by raw column name. The reliability
+    heuristic records the ``<canonical>`` / ``<canonical>__dup_K`` columns that
+    ``standardize_columns`` gave to the K-th raw column mapped to the canonical.
+    """
+    item_alias: dict[str, str] = {}
+    members: dict[str, list[str]] = {}
+    for record in composite_records:
+        canonical = str(record.get("canonical"))
+        originals = original_lookup.get(canonical, [])
+        declared = record.get("decision") == "composed_declared_scale"
+        for item_column, item in zip(record.get("renamed_items") or [], record.get("items") or [], strict=False):
+            item = str(item)
+            match = re.fullmatch(rf"{re.escape(canonical)}__dup_(\d+)", item)
+            position = 0 if item == canonical else int(match.group(1)) - 1 if match else -1
+            if not declared and 0 <= position < len(originals):
+                item = str(originals[position])
+            item_alias[str(item_column)] = item
+            members.setdefault(str(record.get("composite_column", canonical)), []).append(item)
+    return item_alias, members
+
+
 def _summarize_dataset(
     source_id: str,
     dataset_id: str,
@@ -1191,6 +1218,7 @@ def _summarize_dataset(
     provenance: dict[str, Any],
     mapping_debug_records: list[dict[str, Any]],
     dataset_type: str,
+    composite_records: list[dict[str, Any]] | None = None,
 ) -> tuple[list[dict[str, Any]], dict[str, Any]]:
     # build_original_column_lookup only reads df.columns — no copy needed.
     original_lookup = build_original_column_lookup(original_df, mapping)
@@ -1202,31 +1230,40 @@ def _summarize_dataset(
         str(row["original_column"]): row
         for row in mapping_debug_records
     }
+    item_alias, composite_members = _composite_item_aliases(composite_records or [], original_lookup)
 
     records: list[dict[str, Any]] = []
     # When ``standardize_columns`` suffixed duplicate canonicals (e.g.
     # ``trust_rating__dup_2``) we still want to record the base canonical so
     # meta-view rows pool as the same construct. We walk the columns by
     # position because pandas indexing on a duplicate name returns a frame.
-    # ``__item_N`` columns are sub-items of a composite that already lives in
-    # the DataFrame under the bare canonical — skip them so meta-view treats
-    # the construct as one observation per row, not (k items × N rows).
+    # ``__item_N`` columns are the items of a composite that lives in the
+    # DataFrame under the bare canonical. Each gets its own row, marked with
+    # ``item_of``, so its raw column keeps its own mapping provenance and
+    # values: an LLM-mapped item makes the composite LLM-derived for
+    # ``load_mapping_provenance``, and reviewers see what the item holds.
+    # Consumers that count constructs skip rows with ``item_of`` set; the
+    # composite's row lists its items in ``composite_items``.
     position_by_base: dict[str, int] = {}
     for column_position, suffixed_canonical in enumerate(standardized_df.columns):
-        if is_item_suffixed(str(suffixed_canonical)):
-            continue
-        base_canonical = strip_duplicate_suffix(str(suffixed_canonical))
-        idx_in_base = position_by_base.get(base_canonical, 0)
-        position_by_base[base_canonical] = idx_in_base + 1
-
+        column = str(suffixed_canonical)
         series = standardized_df.iloc[:, column_position]
-        aliases = original_lookup.get(base_canonical, [base_canonical])
-        if 0 <= idx_in_base < len(aliases):
-            original_alias = aliases[idx_in_base]
-        elif aliases:
-            original_alias = aliases[-1]
+        item_of = None
+        if is_item_suffixed(column):
+            base_canonical = item_of = strip_item_suffix(column)
+            original_alias = item_alias.get(column, column)
         else:
-            original_alias = base_canonical
+            base_canonical = strip_duplicate_suffix(column)
+            idx_in_base = position_by_base.get(base_canonical, 0)
+            position_by_base[base_canonical] = idx_in_base + 1
+            aliases = original_lookup.get(base_canonical, [base_canonical])
+            if 0 <= idx_in_base < len(aliases):
+                original_alias = aliases[idx_in_base]
+            elif aliases:
+                original_alias = aliases[-1]
+            else:
+                original_alias = base_canonical
+        members = None if item_of else composite_members.get(column)
         mapping_record = debug_lookup.get(str(original_alias), {})
         # Numeric columns are already what ``to_numeric`` would return; only
         # coerce object/string/bool columns (the per-column ``to_numeric``
@@ -1257,6 +1294,8 @@ def _summarize_dataset(
                 "max": float(numeric_series.max()) if n_valid else None,
                 "review_flag": base_canonical in unknown_column_set,
                 "mapping_confidence": "high" if base_canonical not in unknown_column_set else "unknown_alias",
+                "item_of": item_of,
+                "composite_items": "; ".join(members) if members else None,
                 **provenance,
             }
         )
@@ -1798,6 +1837,7 @@ def _process_dataset(
             provenance,
             mapping_debug_records,
             dataset_type,
+            composite_records=composite_records,
         )
         if value_label_report:
             quality["value_labels_applied"] = value_label_report
