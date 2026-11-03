@@ -126,8 +126,14 @@ class NegativeAnswerCodeTests(unittest.TestCase):
             "T1": ["Y", "N", "y", None],
             "first_time": ["YES", "YES", "NO", "yes"],
             "comment": ["Y", "no idea", "N", "Y"],        # not only yes/no: left alone
+            # A VR study's per-trial success flag: booleans in a column with a gap stay object.
+            "Success": [True, False, None, True],
+            "passed": ["TRUE", "false", "False", "true"],
         })
         out, report = recode_survey_answer_codes(df)
+        self.assertEqual(out["Success"].tolist()[:2], [1.0, 0.0])
+        self.assertTrue(pd.isna(out["Success"].iloc[2]))
+        self.assertEqual(out["passed"].tolist(), [1.0, 0.0, 0.0, 1.0])
         self.assertEqual(out["TrustAutomation[SQ001]"].tolist()[:2], [1.0, 7.0])
         self.assertEqual(out["TrustAutomation[SQ001]"].iloc[3], 3.0)
         self.assertEqual(out["item_SQ002"].tolist(), [2.0, 10.0, 1.0, 4.0])
@@ -136,7 +142,8 @@ class NegativeAnswerCodeTests(unittest.TestCase):
         self.assertEqual(out["Gender"].tolist(), df["Gender"].tolist())
         self.assertEqual(out["comment"].tolist(), df["comment"].tolist())
         self.assertEqual(report, {"TrustAutomation[SQ001]": "answer_code", "item_SQ002": "answer_code",
-                                  "T1": "yes_no", "first_time": "yes_no"})
+                                  "T1": "yes_no", "first_time": "yes_no",
+                                  "Success": "true_false", "passed": "true_false"})
 
     def test_batch_keeps_negative_answers(self):
         with tempfile.TemporaryDirectory() as tmpdir:
