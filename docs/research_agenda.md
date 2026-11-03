@@ -299,6 +299,19 @@ shortlist: text answer codes screened out before the LLM, long
 question-text headers, and wrong choices although the right DV was offered
 (44 of 78 errors). Details: `docs/confirmatory_shortlist_results.md`.
 
+**Post hoc, after fixing two of those gaps (2026-11-03).** This is not part of the
+pre-registered test, and header matching was designed on these studies'
+headers. Answer codes are now recoded before the screen, so 28 of the 31
+screened DV columns reach the LLM. `definition` then maps 63 columns
+correctly (8 more Hoffman trust items, none lost, p = 0.008), while `dense_h`
+and `mixed_h` stay at 53 and 56, so the shortlist conclusion holds. Header
+matching against instrument item wording assigns 45 question-text columns
+(Hi-Audio, VR; English and German), all correct, with no non-DV column
+matched. Header matching first and the LLM for the rest gives 105 correct
+with `definition` (precision 60% [52, 67], up from 36%). New studies are
+needed to confirm both gains. Still open: `True`/`False` columns,
+decimal-comma numbers, and the LLM's wrong choices among correct candidates.
+
 **Trade-off.** Because a plausible-looking candidate is always available, the
 model maps non-DV columns more often with the definition shortlist (74% of
 curated non-DVs, unchecked). The plausibility check halves that rate. In the

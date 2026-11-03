@@ -154,6 +154,7 @@ Per dataset, the runner does this in order:
 - classifies the dataset type,
 - checks for an explicit repository mapping YAML (requested `mapping_path` first, then the nearest matching YAML),
 - applies the relevant built-in schema family (`dv`, `sensor`, `detection`, `metadata`),
+- maps question-text headers deterministically (`opendv/header_matching.py`): a header whose anchors or item number hide a known alias ("Mental Demand (0 = Low, 100 = High)"), and a block of adjacent headers that are the items of a registered questionnaire, matched one to one with the item wordings in `schemas/instruments.yaml` by multilingual sentence embeddings (`intfloat/multilingual-e5-small`, CPU); these rows have their own provenance (`header_match`), and `--no-header-matching` turns the step off,
 - only then asks the local LLM about remaining eligible DV-style aliases.
 
 The LLM is not used for blocked admin fields such as `UserID` or `ConditionID`, and it is also skipped for metadata/process columns and non-DV dataset types such as object-detection files.
@@ -162,7 +163,8 @@ The LLM is not used for blocked admin fields such as `UserID` or `ConditionID`, 
 
 - columns whose names mark them as demographics, identifiers, random seeds, timestamps, survey timings, coordinates, experimental conditions or rankings are never sent to the model;
 - columns that are not at least 90% numeric are never sent;
-- a suggestion is rejected when the observed values fit neither the canonical DV's range nor a standard response scale.
+- a suggestion is rejected when the observed values fit neither the canonical DV's range nor a standard response scale;
+- a column holding only 0 and 1 (for example a recoded yes/no answer) is never accepted for a rating-scale DV.
 
 Every rejection, with its reason, is written to `llm_rejected_suggestions.json` and listed in `llm_deductions.log`. Use `--no-llm-plausibility-check` only for ablation.
 
@@ -358,7 +360,7 @@ The included `sources_manifest_example.yaml` is preconfigured for:
    - `schemas/standard_sensor_mapping.yaml`
    - `schemas/standard_detection_mapping.yaml`
    - `schemas/standard_metadata_mapping.yaml`
-6. Local LLM deduction is only used for still-unmapped DV-style aliases in `results_table` and `questionnaire` datasets.
+6. In `results_table` and `questionnaire` datasets, question-text headers are matched to aliases and questionnaire item wordings, and local LLM deduction is only used for the DV-style aliases still unmapped after that.
 7. Outputs include standardized files, quality sidecars, an aggregated meta-view, `unknown_alias_summary.json`, `mapping_debug_summary.json`, and source-level availability statuses when a catalog URL is not publicly accessible (`not_available`, `login_required`, `access_restricted`, or `temporarily_unavailable` for 502/503/504 outages such as OSF maintenance windows).
 
 Datasets are processed in parallel (`--workers`, see above); a run with `--workers 1` produces the same files.
@@ -374,7 +376,7 @@ opendv review apply --decisions review_queue.csv --manifest sources_manifest_no4
 opendv review summary
 ```
 
-The queue lists LLM-mapped columns first (they are used in the analysis), then suggestions the plausibility check rejected, unmapped survey columns and screened-out columns. Each row shows the observed n, mean, SD and range, the suggested DV's canonical range (`outside_range` flags values that cannot lie on it without rescaling) and the top retrieval candidates. Decisions are `accept`, `map` (to the DV in `target`), `non_dv` (written as `meta_<name>`, so the LLM never sees the column again) and `study_specific` (an outcome without a schema DV). They are written into the source's mapping YAML with a reviewer/date comment, keeping existing comments; a source without one gets `schemas/<source_id>_mapping.yaml`, registered in the manifest. Every decision is appended to `schemas/mapping_review_log.csv`, and `summary` reports the share of LLM mappings reviewers kept. After the next batch run, reviewed mappings are curated mappings and gold labels of `opendv/analysis/evaluate_llm_mapping.py`. The same workflow is the **Review Mappings** tab of the Streamlit UI.
+The queue lists LLM-mapped columns first (they are used in the analysis), then header-matched columns (also used), suggestions the plausibility check rejected, unmapped survey columns and screened-out columns. Each row shows the observed n, mean, SD and range, the suggested DV's canonical range (`outside_range` flags values that cannot lie on it without rescaling) and the top retrieval candidates. Decisions are `accept`, `map` (to the DV in `target`), `non_dv` (written as `meta_<name>`, so the LLM never sees the column again) and `study_specific` (an outcome without a schema DV). They are written into the source's mapping YAML with a reviewer/date comment, keeping existing comments; a source without one gets `schemas/<source_id>_mapping.yaml`, registered in the manifest. Every decision is appended to `schemas/mapping_review_log.csv`, and `summary` reports the share of LLM mappings reviewers kept. After the next batch run, reviewed mappings are curated mappings and gold labels of `opendv/analysis/evaluate_llm_mapping.py`. The same workflow is the **Review Mappings** tab of the Streamlit UI.
 
 ### Python package, API and plugins
 
@@ -443,6 +445,8 @@ Add both to an existing run with `python -m opendv.fair_export <output dir> [--l
 
 `schemas/instruments.yaml` records how standard questionnaires are scored (items, reverse keys, response codings, scoring rule, citation): SUS, raw NASA-TLX, Van der Laan acceptance, UEQ-S, SSQ and Körber's TiA. Scores are computed from it whenever all items of a scale are present; a new questionnaire needs only a YAML entry. See `docs/schema_design.md`.
 
+Items may carry their `wording`, which header matching uses. After standardization, a **keying check** (`opendv.instruments.keying_check`) looks at the items of each registered scale in a table (at least 3 items and 20 complete rows): an item whose loading on the first principal component of the item correlations runs against its registered key (key × loading ≤ −0.3) is reported in `-quality.json` and `run_summary.json` (`instrument_keying_warnings`), like R's `psych::check.keys`. It found the reversed NASA-TLX performance item of Running into Traffic (loading −0.59, n = 288) before that was fixed by hand. It is a warning, never a correction: in small samples a real anomaly can trigger it, and a reversed item can go unnoticed.
+
 ### Condition contrasts
 
 Study means alone cannot say what a manipulation did. `schemas/study_designs.yaml` declares, per study, the participant column and the manipulated factors, and maps their levels onto canonical independent variables such as `ehmi_presence` (absent / present). `opendv/analysis/contrast_meta_analysis.py`, run by `multi_study_analysis.py`, then:
@@ -466,6 +470,7 @@ Seven of the 11 benchmark studies declare factors; the ROADS and Psych-Conflict 
       return target, record_id
   ```
 - **Negative answer codes**: LimeSurvey exports negative scale points as `neg1`, `neg2`, …; in questionnaire/results tables these are recoded to −1, −2, … (counted in `-quality.json` as `negative_answer_codes_recoded`). Before this, numeric coercion silently dropped every negative answer.
+- **Survey answer codes**: array sub-questions (`Q[SQ001]`, `Q_sq001`) whose answers are all LimeSurvey answer codes (`A1`, `A01`, …) become their numbers, and yes/no columns (`Y`/`N`, `Yes`/`No`, `Ja`/`Nein`) become 1/0 (`survey_answer_codes_recoded` in `-quality.json`). Without this, such items were screened out as non-numeric before the LLM.
 - **Text-labelled responses**: if a dataset stores Likert answers as labels ("Rather agree"), declare the codes once in its mapping YAML under `value_labels:` (columns + label → number; see `schemas/psych_conflict_handling_mapping.yaml`). Cells are recoded before standardization; labels that are not declared become missing and are counted in the dataset's `-quality.json` (`value_labels_applied`). Without this, such a dataset contributes no numeric DV.
 - **Item-level DVs**: name item DVs `<construct id>_item_NN` (e.g. `perceived_safety_item_01`) or declare `subitem_of: <construct id>` in the schema entry. The causal analysis then drops the items whenever their construct is present, so item → scale edges cannot appear in the DAG.
 

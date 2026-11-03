@@ -5,6 +5,8 @@ into ``data/raw/confirmatory/<source_id>/`` and verifies each against its
 published checksum (SHA-256 for OSF, MD5 for Zenodo, the git blob hash for
 files pinned to a GitHub commit). ``manifest`` writes the batch manifest
 (``local_path`` sources with the frozen gold-label mappings).
+``posthoc`` re-analyses E1 runs made after the pre-registered test, with
+header matching applied first; its results are not part of that test.
 
     python -m opendv.analysis.confirmatory fetch
     python -m opendv.analysis.confirmatory manifest
@@ -202,12 +204,102 @@ def analyze(run_dirs: dict[str, Path], baseline: str = "definition", primary: st
     return result
 
 
+def _e1_items(run_dir: Path):
+    import pandas as pd
+
+    frame = pd.read_csv(run_dir / "llm_mapping_evaluation_items.csv", low_memory=False)
+    return frame[frame["experiment"] == "E1"].set_index(["source_id", "dataset_id", "alias"]).sort_index()
+
+
+def header_match_answers(items, data_dir: Path = DATA_DIR) -> dict[tuple[str, str, str], str]:
+    """DV that header matching gives each E1 item, as for a study without a mapping file.
+
+    A table's columns that no standard alias maps go through
+    :func:`opendv.header_matching.match_headers` with the standard aliases only,
+    so neither the gold labels nor the study's mapping file are used.
+    """
+    from opendv._paths import SCHEMAS_DIR
+    from opendv.header_matching import match_headers
+    from opendv.run_batch_standardization import _load_any_table, load_schema
+
+    aliases = load_schema(str(SCHEMAS_DIR / "standard_dv_mapping.yaml"))["mapping"]
+    known = {str(alias).lower() for alias in aliases}
+    answers: dict[tuple[str, str, str], str] = {}
+    for (source_id, dataset_id), group in items.reset_index().groupby(["source_id", "dataset_id"]):
+        columns = [str(c) for c in _load_any_table(data_dir / source_id / dataset_id).columns]
+        matches = match_headers(columns, [c for c in columns if c.lower() not in known], aliases)
+        for alias in group["alias"].astype(str):
+            if alias in matches:
+                answers[(source_id, dataset_id, alias)] = matches[alias].dv
+    return answers
+
+
+def posthoc(
+    run_dirs: dict[str, Path],
+    preregistered_dirs: dict[str, Path],
+    header_answers: dict[tuple[str, str, str], str] | None = None,
+    baseline: str = "definition",
+    dv_ids: set[str] | None = None,
+) -> dict[str, Any]:
+    """E1 runs after the pre-registered test: the pre-registered analysis, the
+    change against the pre-registered run of each shortlist, and the accuracy
+    when header matching answers first and the LLM answers the rest.
+
+    The combined rates come from the evaluator's own ``summarize`` over the
+    schema's DV ids, so they are defined as the LLM-only rates are."""
+    import pandas as pd
+
+    from opendv._paths import SCHEMAS_DIR
+    from opendv.analysis.evaluate_llm_mapping import summarize
+    from opendv.run_batch_standardization import SchemaFamilies
+
+    result = analyze(run_dirs, baseline=baseline)
+    items = {name: _e1_items(run_dir) for name, run_dir in run_dirs.items()}
+    if header_answers is None:
+        header_answers = header_match_answers(items[baseline])
+    if dv_ids is None:
+        families = SchemaFamilies.load(SCHEMAS_DIR / "standard_dv_mapping.yaml")
+        dv_ids = {canonical for canonical, domain in families.canonical_domain_lookup.items() if domain == "dv"}
+    header = pd.Series(header_answers, dtype=object).reindex(items[baseline].index)
+    combined_correct = {}
+    for name, frame in items.items():
+        pos = frame["label_kind"] == "dv"
+        llm_correct = (frame["final_checked"] == frame["gold"])[pos]
+        stats = result["shortlists"][name]
+        before = _e1_items(preregistered_dirs[name])
+        common = llm_correct.index.intersection(before.index[before["label_kind"] == "dv"])
+        before_correct = (before["final_checked"] == before["gold"]).loc[common]
+        stats["vs_preregistered_run"] = {
+            "dv_columns_in_both": int(len(common)),
+            "correct_before": int(before_correct.sum()),
+            "correct_now": int(llm_correct.loc[common].sum()),
+            **_mcnemar(llm_correct.loc[common].to_numpy(), before_correct.to_numpy()),
+        }
+        answer = header.combine_first(frame["final_checked"])
+        combined_correct[name] = (answer == frame["gold"])[pos]
+        rates = summarize(frame.assign(final_checked=answer).reset_index(), dv_ids)["E1"]["checked"]
+        stats["with_header_matching"] = {
+            "correct": int(combined_correct[name].sum()),
+            "header_matched_dv_columns": int(header[pos].notna().sum()),
+            "header_matched_correct": int((header == frame["gold"])[pos].sum()),
+            "header_matched_non_dv_columns": int(header[~pos].notna().sum()),
+            "precision_of_accepted_dv_mappings": rates["precision_of_accepted_dv_mappings"],
+            "abstained_on_dv_columns": rates["abstained_on_dv_columns"],
+            "curated_non_dv_mapped_to_a_dv": rates.get("curated_non_dv_mapped_to_a_dv"),
+            **{f"vs_llm_only_{k}": v for k, v in _mcnemar(
+                combined_correct[name].to_numpy(), llm_correct.to_numpy()).items()},
+        }
+    return result
+
+
 def main(argv: list[str] | None = None) -> None:
     logging.basicConfig(level=logging.INFO, format="%(levelname)s %(message)s")
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
-    parser.add_argument("command", choices=["fetch", "manifest", "mappings", "analyze"])
+    parser.add_argument("command", choices=["fetch", "manifest", "mappings", "analyze", "posthoc"])
     parser.add_argument("--runs", nargs="*", default=[], metavar="NAME=DIR",
                         help="analyze: E1 output directories, e.g. definition=out/def dense_h=out/dh mixed_h=out/mh")
+    parser.add_argument("--preregistered-runs", nargs="*", default=[], metavar="NAME=DIR",
+                        help="posthoc: the pre-registered E1 output directories, by the same names")
     parser.add_argument("--output", default=str(CONFIRMATORY_DIR / "results.json"))
     args = parser.parse_args(argv)
     if args.command == "fetch":
@@ -223,7 +315,11 @@ def main(argv: list[str] | None = None) -> None:
         print(json.dumps({k: v for k, v in conflicts.items() if v}, indent=2) or "no conflicts")
     else:
         runs = {name: Path(path) for name, path in (item.split("=", 1) for item in args.runs)}
-        result = analyze(runs)
+        if args.command == "posthoc":
+            before = {name: Path(path) for name, path in (item.split("=", 1) for item in args.preregistered_runs)}
+            result = posthoc(runs, before)
+        else:
+            result = analyze(runs)
         Path(args.output).write_text(json.dumps(result, indent=2), encoding="utf-8")
         print(json.dumps(result, indent=2))
 

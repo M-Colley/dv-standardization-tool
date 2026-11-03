@@ -38,16 +38,28 @@ instruments:
     citation: "Brooke, J. (1996). SUS: A 'quick and dirty' usability scale. In Usability Evaluation in Industry (pp. 189-194). Taylor & Francis."
     response_codings: [[1, 5]]
     items:
-      - {id: SUS1, aliases: [sus1, sus_1], key: 1}
-      - {id: SUS2, aliases: [sus2, sus_2], key: -1}
-      - {id: SUS3, aliases: [sus3, sus_3], key: 1}
-      - {id: SUS4, aliases: [sus4, sus_4], key: -1}
-      - {id: SUS5, aliases: [sus5, sus_5], key: 1}
-      - {id: SUS6, aliases: [sus6, sus_6], key: -1}
-      - {id: SUS7, aliases: [sus7, sus_7], key: 1}
-      - {id: SUS8, aliases: [sus8, sus_8], key: -1}
-      - {id: SUS9, aliases: [sus9, sus_9], key: 1}
-      - {id: SUS10, aliases: [sus10, sus_10], key: -1}
+    # Item wordings (Brooke, 1996) let question-text headers be matched to the
+    # items (opendv.header_matching); "system" stands for whatever was rated.
+      - {id: SUS1, aliases: [sus1, sus_1], key: 1,
+         wording: "I think that I would like to use this system frequently."}
+      - {id: SUS2, aliases: [sus2, sus_2], key: -1,
+         wording: "I found the system unnecessarily complex."}
+      - {id: SUS3, aliases: [sus3, sus_3], key: 1,
+         wording: "I thought the system was easy to use."}
+      - {id: SUS4, aliases: [sus4, sus_4], key: -1,
+         wording: "I think that I would need the support of a technical person to be able to use this system."}
+      - {id: SUS5, aliases: [sus5, sus_5], key: 1,
+         wording: "I found the various functions in this system were well integrated."}
+      - {id: SUS6, aliases: [sus6, sus_6], key: -1,
+         wording: "I thought there was too much inconsistency in this system."}
+      - {id: SUS7, aliases: [sus7, sus_7], key: 1,
+         wording: "I would imagine that most people would learn to use this system very quickly."}
+      - {id: SUS8, aliases: [sus8, sus_8], key: -1,
+         wording: "I found the system very cumbersome to use."}
+      - {id: SUS9, aliases: [sus9, sus_9], key: 1,
+         wording: "I felt very confident using the system."}
+      - {id: SUS10, aliases: [sus10, sus_10], key: -1,
+         wording: "I needed to learn a lot of things before I could get going with this system."}
     scores:
       sus_score:
         dv: usability
@@ -67,12 +79,19 @@ instruments:
       21 marks 0-20; the score keeps the coding of its items.
     response_codings: [[0, 100]]
     items:
-      - {id: mental_demand, aliases: [tlx1, nasa_tlx1, tlx_mental_demand, nasa_tlx_mental], key: 1}
-      - {id: physical_demand, aliases: [tlx2, nasa_tlx2], key: 1}
-      - {id: temporal_demand, aliases: [tlx3, nasa_tlx3], key: 1}
-      - {id: performance, aliases: [tlx4, nasa_tlx4], key: 1}
-      - {id: effort, aliases: [tlx5, nasa_tlx5], key: 1}
-      - {id: frustration, aliases: [tlx6, nasa_tlx6], key: 1}
+    # Rating-scale questions of the NASA-TLX paper version (Hart & Staveland, 1988).
+      - {id: mental_demand, aliases: [tlx1, nasa_tlx1, tlx_mental_demand, nasa_tlx_mental], key: 1,
+         wording: "Mental demand: How mentally demanding was the task?"}
+      - {id: physical_demand, aliases: [tlx2, nasa_tlx2], key: 1,
+         wording: "Physical demand: How physically demanding was the task?"}
+      - {id: temporal_demand, aliases: [tlx3, nasa_tlx3], key: 1,
+         wording: "Temporal demand: How hurried or rushed was the pace of the task?"}
+      - {id: performance, aliases: [tlx4, nasa_tlx4], key: 1,
+         wording: "Performance: How successful were you in accomplishing what you were asked to do?"}
+      - {id: effort, aliases: [tlx5, nasa_tlx5], key: 1,
+         wording: "Effort: How hard did you have to work to accomplish your level of performance?"}
+      - {id: frustration, aliases: [tlx6, nasa_tlx6], key: 1,
+         wording: "Frustration: How insecure, discouraged, irritated, stressed, and annoyed were you?"}
     scores:
       nasa_tlx_score:
         dv: TLX_SCORE

@@ -40,7 +40,7 @@ def test_mappings_from_gold_labels_leave_out_conflicting_names(tmp_path):
 
 def _run(tmp_path, name, answers, precision):
     rows = [{"experiment": "E1", "source_id": "s", "dataset_id": "d.csv", "alias": f"c{i}", "label_kind": "dv",
-             "gold": "g", "gold_in_shortlist": True, "pre_llm_rejection": None,
+             "gold": "g", "gold_in_shortlist": True, "pre_llm_rejection": None, "post_llm_rejection": None,
              "final_unchecked": a, "final_checked": a} for i, a in enumerate(answers)]
     out = tmp_path / name
     out.mkdir()
@@ -67,3 +67,21 @@ def test_analysis_follows_the_preregistered_rule(tmp_path):
 
     runs["dense_h"] = _run(tmp_path, "dense_h_low_precision", better, 0.4)
     assert not cf.analyze(runs)["decision"]["switch_default_to_hierarchical"]
+
+
+def test_posthoc_compares_with_the_preregistered_run_and_adds_header_matches(tmp_path):
+    names = ("definition", "dense_h", "mixed_h")
+    before = {n: _run(tmp_path, f"before_{n}", ["g"] * 5 + ["x"] * 5, 0.5) for n in names}
+    after = {n: _run(tmp_path, f"after_{n}", ["g"] * 7 + ["x"] * 3, 0.7) for n in names}
+    # Header matching answers c8 correctly and c0 wrongly; it replaces the LLM's answer.
+    header = {("s", "d.csv", "c8"): "g", ("s", "d.csv", "c0"): "y"}
+    result = cf.posthoc(after, before, header_answers=header, dv_ids={"g", "x", "y"})
+    stats = result["shortlists"]["definition"]
+    assert stats["vs_preregistered_run"]["correct_before"] == 5
+    assert stats["vs_preregistered_run"]["new_only"] == 2
+    combined = stats["with_header_matching"]
+    assert (combined["correct"], combined["header_matched_dv_columns"], combined["header_matched_correct"]) == (7, 2, 1)
+    assert (combined["vs_llm_only_new_only"], combined["vs_llm_only_baseline_only"]) == (1, 1)
+    # Every answer is a DV id, so all 10 count as accepted mappings, 7 of them correct.
+    precision = combined["precision_of_accepted_dv_mappings"]
+    assert (precision["k"], precision["n"]) == (7, 10)

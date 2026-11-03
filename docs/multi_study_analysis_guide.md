@@ -125,6 +125,7 @@ Outputs: `contrast_effects.csv` (every contrast, with means, SDs, the within-per
 | --------------- | ----------------------------------------------------------------- |
 | `schema`        | In-memory alias / shipped schema files                             |
 | `repo_mapping`  | Repository-specific `mapping.yaml` overrides                       |
+| `header_match`  | Question-text header matched by a cleaned alias or item wording    |
 | `llm_deduced`   | A local LLM inferred the mapping                                   |
 | `blocked`       | Never-map blocklist applied                                        |
 | `unknown`       | No provenance available (e.g., ad-hoc input folder)                |

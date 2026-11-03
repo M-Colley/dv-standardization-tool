@@ -11,7 +11,11 @@
 #   3. range rule   — a suggestion is rejected when the observed values fit
 #                     neither the canonical DV's range nor a standard
 #                     alternative response scale (the same scales the
-#                     meta-analysis knows how to rescale from).
+#                     meta-analysis knows how to rescale from);
+#   4. indicator rule — a column holding only 0 and 1 (e.g. a recoded yes/no
+#                     answer) is never accepted for a DV measured on a rating
+#                     scale (measurement.category Likert or Score), although
+#                     0-1 fits inside most response scales.
 #
 # Every rejection is written to llm_rejected_suggestions.json with its reason,
 # so the rules can be audited and tuned. Explicit schema / repository mappings

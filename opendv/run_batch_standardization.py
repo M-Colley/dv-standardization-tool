@@ -152,6 +152,8 @@ from opendv.convert_dv import (
     standardize_columns,
     strip_duplicate_suffix,
 )
+from opendv.header_matching import HeaderMatch, match_headers
+from opendv.instruments import keying_check
 from opendv.item_composition import (
     compose_item_groups,
     is_item_suffixed,
@@ -159,12 +161,18 @@ from opendv.item_composition import (
 )
 from opendv.llm_utils import collect_repository_context, deduce_standard_name_with_local_llm
 from opendv.llm_plausibility import load_rules as load_plausibility_rules
-from opendv.value_labels import apply_reverse_keying, apply_value_labels, recode_negative_answer_codes
+from opendv.value_labels import (
+    apply_reverse_keying,
+    apply_value_labels,
+    recode_negative_answer_codes,
+    recode_survey_answer_codes,
+)
 from opendv.llm_plausibility import (
     ColumnProfile,
     canonical_ranges_from_schema,
     check_llm_suggestion,
     profile_columns,
+    rating_scale_dvs_from_schema,
     screen_llm_candidates,
 )
 # llm_coordinator owns the alias-scoring, candidate-shortlisting, and
@@ -1323,8 +1331,10 @@ def _build_dataset_mapping_debug_records(
     schema_family_aliases_ci: dict[str, set[str]],
     schema_family_paths: dict[str, str | None],
     canonical_domain_lookup: dict[str, str],
+    header_matches: dict[str, HeaderMatch] | None = None,
 ) -> list[dict[str, Any]]:
     unknown_before_llm_ci = {str(col).lower() for col in unknown_before_llm}
+    header_matches = header_matches or {}
     debug_records: list[dict[str, Any]] = []
 
     for original_column in original_columns:
@@ -1346,11 +1356,17 @@ def _build_dataset_mapping_debug_records(
             and mapped is not None
         )
 
+        header_match = header_matches.get(column_name)
         if was_blocked:
             mapping_origin = "blocked_never_map"
             mapping_status = "blocked"
             mapping_method = "blocked"
             mapping_source = "never_map_blocklist"
+        elif header_match is not None:
+            mapping_origin = "header_match"
+            mapping_status = "mapped"
+            mapping_method = "header_match"
+            mapping_source = f"header_match:{header_match.method}:{header_match.detail}"
         elif inferred_by_llm:
             mapping_origin = "llm"
             mapping_status = "mapped"
@@ -1442,6 +1458,8 @@ class SchemaFamilies:
     canonical_domain_lookup: dict[str, str]
     # Canonical value range per DV id; used to reject implausible LLM suggestions.
     canonical_ranges: dict[str, tuple[float, float]] = field(default_factory=dict)
+    # DV ids measured on a rating scale; a 0/1 indicator is never mapped to one.
+    rating_scales: frozenset[str] = frozenset()
     schema_version: str = ""
 
     @classmethod
@@ -1472,6 +1490,7 @@ class SchemaFamilies:
         return cls(
             mappings, paths, aliases_ci, canonical_domain_lookup,
             canonical_ranges=canonical_ranges_from_schema(dv_schema.get("schema") or {}),
+            rating_scales=rating_scale_dvs_from_schema(dv_schema.get("schema") or {}),
             schema_version=str((dv_schema.get("schema") or {}).get("version", "")),
         )
 
@@ -1602,6 +1621,7 @@ class _SourceJob:
     debug_mappings: bool
     llm_plausibility_check: bool = True
     output_format: str = "native"
+    header_matching: bool = True
 
 
 @dataclass
@@ -1697,10 +1717,14 @@ def _process_dataset(
         # numbers before anything numeric (profiles, summaries) looks at them.
         original_df, value_label_report = apply_value_labels(original_df, resolved.value_labels)
         answer_code_report: dict[str, int] = {}
+        survey_code_report: dict[str, str] = {}
         if dataset_type in llm_eligible_dataset_types():
             # Survey-like tables only: LimeSurvey exports "neg1"/"neg2" for
-            # negative scale points, which numeric coercion would drop.
+            # negative scale points, which numeric coercion would drop, and
+            # "A1".."A7" answer codes or yes/no answers, which would make the
+            # column look like text.
             original_df, answer_code_report = recode_negative_answer_codes(original_df)
+            original_df, survey_code_report = recode_survey_answer_codes(original_df)
         # Items declared reverse-keyed for this dataset (after the recodings
         # above, so they operate on numeric codes).
         original_df, reverse_report = apply_reverse_keying(original_df, resolved.reverse_items)
@@ -1709,6 +1733,19 @@ def _process_dataset(
         unknown_before_llm = _filter_llm_eligible_columns(
             identify_unmapped_columns(raw_columns, source_mapping)
         )
+        # Question-text headers that a cleaned alias or a registered item's
+        # wording identifies are mapped here, before the LLM sees them
+        # (opendv.header_matching). Part of assisted mapping, so off without the LLM.
+        header_matches: dict[str, HeaderMatch] = {}
+        if (
+            source.llm_enabled and source.header_matching
+            and dataset_type in llm_eligible_dataset_types() and unknown_before_llm
+        ):
+            header_matches = match_headers(raw_columns, unknown_before_llm, source_mapping)
+        header_mapping = {key: m.dv for column, m in header_matches.items() for key in (column, column.lower())}
+        if header_matches:
+            dataset_mapping = {**source_mapping, **header_mapping}
+            unknown_before_llm = [col for col in unknown_before_llm if str(col) not in header_matches]
 
         # Columns the LLM may see. With the plausibility check on, columns whose
         # name or values rule them out as DVs are dropped (and logged) first.
@@ -1748,7 +1785,8 @@ def _process_dataset(
                     continue
                 if source.llm_plausibility_check:
                     rejection = check_llm_suggestion(
-                        alias_text, str(inferred), profiles.get(alias_text), families.canonical_ranges
+                        alias_text, str(inferred), profiles.get(alias_text), families.canonical_ranges,
+                        rating_scales=families.rating_scales,
                     )
                     if rejection is not None:
                         llm_rejections.append(rejection)
@@ -1756,7 +1794,7 @@ def _process_dataset(
                 accepted[alias_text] = str(inferred)
                 accepted[alias_text.lower()] = str(inferred)
                 llm_inferred.append((alias_text, str(inferred)))
-            dataset_mapping = {**source_mapping, **accepted}
+            dataset_mapping = {**source_mapping, **header_mapping, **accepted}
 
         mapping_debug_records = _build_dataset_mapping_debug_records(
             source_mapping=source_mapping,
@@ -1768,6 +1806,7 @@ def _process_dataset(
             schema_family_aliases_ci=families.aliases_ci,
             schema_family_paths=families.paths,
             canonical_domain_lookup=families.canonical_domain_lookup,
+            header_matches=header_matches,
         )
 
         if source.debug_mappings:
@@ -1843,8 +1882,27 @@ def _process_dataset(
             quality["value_labels_applied"] = value_label_report
         if answer_code_report:
             quality["negative_answer_codes_recoded"] = answer_code_report
+        if survey_code_report:
+            quality["survey_answer_codes_recoded"] = survey_code_report
         if reverse_report:
             quality["reverse_keyed_items"] = reverse_report
+        if dataset_type in llm_eligible_dataset_types():
+            # Registered instruments whose items run against their keying,
+            # e.g. a NASA-TLX performance item anchored "failure" to "success".
+            raw_name = {r["canonical_dv"]: r["original_alias"] for r in rows if not r.get("item_of")}
+            keying_warnings = [
+                {**finding, "original_column": raw_name.get(finding["column"], finding["column"])}
+                for finding in keying_check(standardized_df)
+            ]
+            for finding in keying_warnings:
+                logger.warning(
+                    "%s/%s: %s item %s (%s) runs against its keying (loading %.2f, n = %d); "
+                    "declare it in reverse_items if it is stored reversed",
+                    source.source_id, dataset_id, finding["instrument"], finding["item"],
+                    finding["original_column"], finding["loading"], finding["n"],
+                )
+            if keying_warnings:
+                quality["instrument_keying_warnings"] = keying_warnings
         quality["dataset_id"] = dataset_id
         quality["standardized_file"] = destination.name
         # Column types and row count let the data-package export describe the
@@ -2149,6 +2207,7 @@ def run_batch(
     llm_shortlist: str = "definition",
     output_format: str = "native",
     fair_export: bool = True,
+    header_matching: bool = True,
 ) -> dict[str, Any]:
     """Standardize every source in the manifest and write run-level artefacts.
 
@@ -2163,6 +2222,11 @@ def run_batch(
     only to measure what the check changes. ``llm_shortlist`` chooses how
     candidate DVs are retrieved for the LLM (``"fuzzy"`` alias strings or
     ``"definition"`` TF-IDF over DV definitions, ``scripts/dv_retrieval.py``).
+
+    ``header_matching`` (with LLM deduction on) maps question-text headers
+    by a cleaned alias or a registered item's wording before the LLM is asked
+    (``opendv/header_matching.py``); such mappings are recorded as
+    ``header_match``.
 
     ``workers > 1`` processes each source's datasets in that many worker
     processes. Outputs are aggregated in file order, so they match a
@@ -2191,6 +2255,7 @@ def run_batch(
     unknown_alias_events: list[dict[str, Any]] = []
     all_mapping_debug_records: list[dict[str, Any]] = []
     all_composite_records: list[dict[str, Any]] = []
+    all_keying_warnings: list[dict[str, Any]] = []
     global_mapping_metrics = {
         "mapping": 0,
         "llm": 0,
@@ -2312,6 +2377,7 @@ def run_batch(
                     debug_mappings=debug_mappings,
                     llm_plausibility_check=llm_plausibility_check,
                     output_format=output_format,
+                    header_matching=header_matching,
                 )
                 tasks = [
                     _DatasetTask(index=index, source=source_job, file_path=file_path)
@@ -2421,6 +2487,10 @@ def run_batch(
                             }
                         )
                     quality = outcome.quality or {}
+                    all_keying_warnings.extend(
+                        {"source_id": source_id, "dataset_id": dataset_id, **finding}
+                        for finding in quality.get("instrument_keying_warnings", [])
+                    )
                     total_unknown += quality.get("unknown_columns", 0)
                     total_columns += quality.get("total_columns", 0)
                     total_mapped_columns += quality.get("mapped_columns", 0)
@@ -2542,9 +2612,11 @@ def run_batch(
         "llm_deductions_log": str(llm_log_path),
         "llm_deductions_json": str(llm_json_path),
         "llm_plausibility_check": llm_plausibility_check,
+        "header_matching": bool(llm_deduction_enabled and header_matching),
         "llm_shortlist": llm_shortlist,
         "llm_plausibility_rules_version": load_plausibility_rules().version if llm_plausibility_check else None,
         "llm_rejected_count": len(llm_rejections),
+        "instrument_keying_warnings": all_keying_warnings,
         "llm_rejected_by_reason": dict(sorted(
             pd.Series([r["reason"] for r in llm_rejections], dtype=object).value_counts().items()
         )) if llm_rejections else {},
@@ -2662,6 +2734,15 @@ def main() -> None:
         ),
     )
     parser.add_argument(
+        "--no-header-matching",
+        dest="header_matching",
+        action="store_false",
+        help=(
+            "Do not map question-text headers by cleaned aliases or item wording before the LLM "
+            "(opendv/header_matching.py; for ablation)."
+        ),
+    )
+    parser.add_argument(
         "--no-llm-plausibility-check",
         dest="llm_plausibility_check",
         action="store_false",
@@ -2717,6 +2798,7 @@ def main() -> None:
         llm_shortlist=args.llm_shortlist,
         output_format=args.output_format,
         fair_export=not args.no_fair_export,
+        header_matching=args.header_matching,
     )
 
     if args.snapshot_manifest:

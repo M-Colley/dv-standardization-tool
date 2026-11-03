@@ -13,10 +13,13 @@ human, most urgent first.
 priority  status           why it is in the queue
 ========  ===============  ==================================================
 1         llm_accepted     mapped by the LLM and used in the analysis
-2         llm_rejected     the LLM suggested a DV that the plausibility check
+2         header_matched   matched to an instrument item by its question
+                           wording (``opendv.header_matching``) and used in
+                           the analysis
+3         llm_rejected     the LLM suggested a DV that the plausibility check
                            rejected; the column may still be a DV
-3         unmapped         survey/results column nobody mapped
-4         screened_out     kept from the LLM as demographic, ID, timing, ...
+4         unmapped         survey/results column nobody mapped
+5         screened_out     kept from the LLM as demographic, ID, timing, ...
 ========  ===============  ==================================================
 
 Within a priority, rows whose LLM suggestion disagrees with the top
@@ -28,7 +31,7 @@ candidates with their labels.
 
 Decisions (column ``decision``):
 
-* ``accept``: keep the LLM suggestion (``raw: suggestion``);
+* ``accept``: keep the LLM or header-match suggestion (``raw: suggestion``);
 * ``map``: map to the DV in ``target`` (must be a schema DV id);
 * ``non_dv``: not a dependent variable (``raw: meta_<name>``). The batch
   runner never sends it to the LLM, and ``evaluate_llm_mapping.py`` counts it
@@ -68,7 +71,7 @@ DEFAULT_DV_SCHEMA = SCHEMAS_DIR / "standard_dv_mapping.yaml"
 DEFAULT_LOG = SCHEMAS_DIR / "mapping_review_log.csv"
 DECISIONS = ("accept", "map", "non_dv", "study_specific", "skip")
 REVIEWABLE_DATASET_TYPES = {"questionnaire", "results_table"}
-STATUS_PRIORITY = {"llm_accepted": 1, "llm_rejected": 2, "unmapped": 3, "screened_out": 4}
+STATUS_PRIORITY = {"llm_accepted": 1, "header_matched": 2, "llm_rejected": 3, "unmapped": 4, "screened_out": 5}
 N_CANDIDATES = 5
 
 QUEUE_COLUMNS = [
@@ -158,6 +161,10 @@ def build_review_queue(batch_dir: Path, schema_path: Path = DEFAULT_DV_SCHEMA) -
     for (source, alias), group in llm_rows.groupby(["source_id", "original_alias"], sort=False):
         entries[(source, alias)] = {"status": "llm_accepted", "suggestion": group["canonical_dv"].iloc[0],
                                     "rows": group}
+    header_rows = meta[meta["mapping_method"] == "header_match"]
+    for (source, alias), group in header_rows.groupby(["source_id", "original_alias"], sort=False):
+        entries.setdefault((source, alias), {"status": "header_matched", "suggestion": group["canonical_dv"].iloc[0],
+                                             "rows": group})
     for (source, alias), rej in by_rejection.items():
         if (source, alias) in entries:
             continue

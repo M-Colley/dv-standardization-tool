@@ -12,7 +12,8 @@ estimates. This module screens both sides of the LLM call:
   (``schemas/llm_plausibility_rules.yaml``) or whose values are not numeric;
 * :func:`check_llm_suggestion` — after the call, reject a suggestion when the
   observed values fit neither the canonical DV's range nor a standard
-  alternative response scale.
+  alternative response scale, or when a 0/1 indicator (a recoded yes/no
+  answer) is proposed for a rating-scale DV.
 
 Every rejection is returned as a record so the batch runner can log it
 (``llm_rejected_suggestions.json``). Explicit mappings never pass through here.
@@ -21,7 +22,7 @@ Every rejection is returned as a record so the batch runner can log it
 from __future__ import annotations
 
 import re
-from collections.abc import Iterable
+from collections.abc import Collection, Iterable
 from dataclasses import dataclass
 from functools import lru_cache
 from typing import Any
@@ -35,6 +36,10 @@ RULES_PATH = SCHEMAS_DIR / "llm_plausibility_rules.yaml"
 
 STAGE_PRE_LLM = "pre_llm"
 STAGE_POST_LLM = "post_llm"
+
+# Measurement categories (``measurement.category`` in the DV schema) of DVs
+# measured on a rating scale: a 0/1 indicator cannot be one of them.
+RATING_SCALE_CATEGORIES = frozenset({"Likert", "Score"})
 
 _UPPER = "A-ZÀ-ÖØ-Þ"
 _LOWER = "a-zß-öø-ÿ"
@@ -153,6 +158,7 @@ class ColumnProfile:
     n_numeric: int
     minimum: float | None
     maximum: float | None
+    binary: bool = False  # every numeric value is 0 or 1
 
     @property
     def numeric_fraction(self) -> float:
@@ -165,6 +171,7 @@ class ColumnProfile:
             "numeric_fraction": round(self.numeric_fraction, 4),
             "min": self.minimum,
             "max": self.maximum,
+            "binary": self.binary,
         }
 
 
@@ -183,7 +190,8 @@ def profile_column(series: pd.Series) -> ColumnProfile:
     if not len(numeric):
         return ColumnProfile(int(len(non_null)), 0, None, None)
     return ColumnProfile(
-        int(len(non_null)), int(len(numeric)), float(numeric.min()), float(numeric.max())
+        int(len(non_null)), int(len(numeric)), float(numeric.min()), float(numeric.max()),
+        binary=bool(numeric.astype(float).isin([0.0, 1.0]).all()),
     )
 
 
@@ -257,23 +265,32 @@ def check_llm_suggestion(
     profile: ColumnProfile | None,
     canonical_ranges: dict[str, tuple[float, float]],
     rules: PlausibilityRules | None = None,
+    rating_scales: Collection[str] = (),
 ) -> dict[str, Any] | None:
-    """Return a rejection record for an implausible suggestion, or None to accept it."""
+    """Return a rejection record for an implausible suggestion, or None to accept it.
+
+    ``rating_scales`` are the DV ids measured on a rating scale
+    (:func:`rating_scale_dvs_from_schema`); a column holding only 0 and 1 is
+    an indicator, such as a recoded yes/no answer, and is never accepted for
+    one of them, although 0-1 fits inside most response scales.
+    """
+    if profile is None or profile.minimum is None or profile.maximum is None:
+        return None
     canonical_range = canonical_ranges.get(str(canonical))
-    if (
-        canonical_range is None
-        or profile is None
-        or profile.minimum is None
-        or profile.maximum is None
-        or range_is_compatible((profile.minimum, profile.maximum), canonical_range, rules)
+    if profile.binary and str(canonical) in rating_scales:
+        reason = "binary_for_rating_scale"
+    elif canonical_range is not None and not range_is_compatible(
+        (profile.minimum, profile.maximum), canonical_range, rules
     ):
+        reason = "out_of_range"
+    else:
         return None
     return {
         "alias": str(alias),
         "proposed_canonical": str(canonical),
         "stage": STAGE_POST_LLM,
-        "reason": "out_of_range",
-        "canonical_range": list(canonical_range),
+        "reason": reason,
+        "canonical_range": list(canonical_range) if canonical_range is not None else None,
         **profile.as_dict(),
     }
 
@@ -320,9 +337,20 @@ def canonical_ranges_from_schema(schema: dict[str, Any]) -> dict[str, tuple[floa
     return ranges
 
 
+def rating_scale_dvs_from_schema(schema: dict[str, Any]) -> frozenset[str]:
+    """DV ids whose ``measurement.category`` is a rating scale (:data:`RATING_SCALE_CATEGORIES`)."""
+    return frozenset(
+        str(entry["id"])
+        for entry in schema.get("dvs") or []
+        if isinstance(entry, dict) and entry.get("id")
+        and (entry.get("measurement") or {}).get("category") in RATING_SCALE_CATEGORIES
+    )
+
+
 __all__ = [
     "ColumnProfile",
     "PlausibilityRules",
+    "RATING_SCALE_CATEGORIES",
     "STAGE_POST_LLM",
     "STAGE_PRE_LLM",
     "canonical_ranges_from_schema",
@@ -334,5 +362,6 @@ __all__ = [
     "profile_column",
     "profile_columns",
     "range_is_compatible",
+    "rating_scale_dvs_from_schema",
     "screen_llm_candidates",
 ]

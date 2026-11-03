@@ -31,6 +31,7 @@ def batch_dir(tmp_path):
         _meta_row("s1", "strangeScore", "unmapped", "strangeScore"),
         _meta_row("s1", "telemetry_x", "unmapped", "telemetry_x", dtype="sensor_stream"),
         _meta_row("s2", "TLX1", "mapping", "mental_demand"),
+        _meta_row("s2", "How hurried or rushed was the pace of the task?", "header_match", "temporal_demand"),
     ]).to_csv(out / "meta_view.csv", index=False)
     (out / "llm_rejected_suggestions.json").write_text(json.dumps([
         {"source_id": "s1", "alias": "age", "proposed_canonical": None, "stage": "pre_llm", "reason": "demographic",
@@ -43,7 +44,9 @@ def batch_dir(tmp_path):
 
 def test_queue_orders_by_urgency_and_flags_impossible_values(batch_dir):
     queue = mr.build_review_queue(batch_dir, SCHEMA)
-    assert queue["status"].tolist() == ["llm_accepted", "llm_accepted", "llm_rejected", "unmapped", "screened_out"]
+    assert queue["status"].tolist() == [
+        "llm_accepted", "llm_accepted", "header_matched", "llm_rejected", "unmapped", "screened_out"]
+    assert queue.set_index("status").loc["header_matched", "suggestion"] == "temporal_demand"
     assert "telemetry_x" not in set(queue["raw_column"])  # sensor streams are not reviewed
     rows = queue.set_index("raw_column")
     assert rows.loc["MentalDemand", "n"] == 40

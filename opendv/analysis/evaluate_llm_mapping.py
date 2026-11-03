@@ -60,6 +60,7 @@ from opendv.value_labels import (  # noqa: E402
     apply_reverse_keying,
     apply_value_labels,
     recode_negative_answer_codes,
+    recode_survey_answer_codes,
 )
 from opendv.llm_coordinator import _select_llm_candidate_shortlist  # noqa: E402
 from opendv.llm_plausibility import (  # noqa: E402
@@ -214,6 +215,7 @@ def run_e1(args, families: SchemaFamilies, dv_ids: set[str]) -> pd.DataFrame:
                     raw, _ = apply_value_labels(raw, resolved.value_labels)
                     if dataset_type in llm_eligible_dataset_types():
                         raw, _ = recode_negative_answer_codes(raw)
+                        raw, _ = recode_survey_answer_codes(raw)
                     raw, _ = apply_reverse_keying(raw, resolved.reverse_items)
                     frames[item.dataset_id] = (raw, resolved.mapping)
                 df, mapping = frames[item.dataset_id]
@@ -226,7 +228,8 @@ def run_e1(args, families: SchemaFamilies, dv_ids: set[str]) -> pd.DataFrame:
                 )
                 pre = name_rejection_reason(alias, columns) or (data_rejection_reason(profile) if profile else None)
                 post = (
-                    check_llm_suggestion(alias, suggestion, profile, families.canonical_ranges)
+                    check_llm_suggestion(alias, suggestion, profile, families.canonical_ranges,
+                                         rating_scales=families.rating_scales)
                     if suggestion and not pre else None
                 )
                 rows.append({

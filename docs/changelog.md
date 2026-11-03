@@ -4,6 +4,28 @@ This document logs human-readable updates to the repo's functionality, structure
 
 ---
 
+### [2026-11-03]
+
+- **Survey answer codes recoded before screening.** `recode_survey_answer_codes` (`opendv/value_labels.py`) turns array-question answer codes into numbers before the non-numeric screen:
+  - LimeSurvey sub-questions (`Q[SQ001]`, `Q_sq001`) holding `A1`/`A01` codes;
+  - yes/no answers (`Y`/`N`, `Yes`/`No`, `Ja`/`Nein`) become 1/0.
+
+  Each recoding is recorded in the quality JSON (`survey_answer_codes_recoded`) and the data package. In the 11 development studies only six non-DV columns change: osf_cwd6h's four yes/no car-use questions and two constant "Y" flags (3D display `general`, FACT-AV `videoInfo`). No DV and no pooled estimate changes.
+- **Header matching against instrument item wording.** `opendv/header_matching.py` handles blocks of question-text headers (for example "How mentally demanding was the task? (0 = Low, 100 = High)"):
+  - it embeds the cleaned headers and the registered items' wording (`Item.wording` in `schemas/instruments.yaml`, for SUS and NASA-TLX) with `multilingual-e5-small`;
+  - it assigns them one-to-one (Hungarian assignment);
+  - it accepts a block only with at least 4 matches in a compact window and a similarity of at least 0.80.
+
+  It runs before the LLM. Its mappings get their own provenance (`header_match`, priority between repository and LLM mappings) and appear in the review queue. `--no-header-matching` turns it off. It maps nothing new in the development studies, whose headers are short codes.
+- **Keying check.** `opendv.instruments.keying_check` flags registered items whose loading on the first principal component of the item correlations runs against their key (key × loading ≤ −0.3, at least 20 complete rows and 3 items), in the manner of `psych::check.keys`. Warnings go to the log and `run_summary.json` (`instrument_keying_warnings`); nothing is reversed automatically. Run on the state before the 2026-10-26 fix, it finds Running into Traffic's reversed TLX performance item (−0.59, n = 288). It finds nothing in the current development studies.
+- **Indicator rule in the plausibility check.** Yes/no recoding first let the LLM map osf_cwd6h's yes/no demographics to `dali_total` and `tam_perceived_ease_of_use`, and the all-"Y" `general` flag to `trust_rating`, because 0–1 fits inside most response scales. A 0/1 column is now never accepted for a DV whose `measurement.category` is Likert or Score (`binary_for_rating_scale`; these five proposals are rejected). Binary and count DVs (`task_success`, `number_of_collisions`) are not affected. Regenerated LLM batch: `meta_view.csv` differs from the previous run only in the six recoded non-DV columns, which stay unmapped. Pooled estimates, multiverse ranges and the figures are unchanged.
+- **Post hoc rerun of the confirmatory test.** This is not pre-registered: two of the fixes were designed after seeing those data. The rerun uses `analyses/confirmatory/posthoc.sh`, the new `python -m opendv.analysis.confirmatory posthoc`, and outputs in `analyses/confirmatory/posthoc/`. Of the 168 DV columns:
+  - `definition` maps 63 correctly (55 before; 8 Hoffman trust items now reach the LLM; p = 0.008);
+  - `dense_h` and `mixed_h` are unchanged at 53 and 56, so `definition` stays the default;
+  - header matching assigns 45 question-text columns, all correct and with no non-DV column. Header matching first and the LLM for the rest gives 105 correct (precision 60%, was 36%).
+
+  The keying check flags AgencyUX's TLX performance item. The study's codebook confirms the reversal ("How successful were you…? low–high"). It also flags Hi-Audio's physical demand at n = 22, probably not a keying error. New studies are needed to confirm the gains (`docs/confirmatory_shortlist_results.md`).
+
 ### [2026-10-26]
 
 - **Lockfiles and documentation site.** `uv.lock` pins all 165 Python packages at the versions that produced the committed outputs (resolved with those versions as constraints, then kept as uv's preferences), `requirements-lock.txt` is its pip export, and `renv.lock` pins R 4.6.1 with lavaan 0.7-3 and jsonlite 2.0.0 for the invariance step. New `docs/reproducibility.md` lists them, the Hugging Face model snapshots of every committed run (`google/gemma-4-E2B-it` at `3e22461f`, the embedding models) and the commands to rerun. An MkDocs (Material) site builds the `docs/` pages with an API reference from the code (mkdocstrings); `pip install --group docs`, then `mkdocs serve`. CI checks that both lockfiles match `pyproject.toml` and builds the site with `--strict`. Fixed on the way: `opendv <command> --help` printed an empty usage for `standardize`, `batch`, `analyze` and `review` instead of the command's own options; broken links in the 2.1 release notes.

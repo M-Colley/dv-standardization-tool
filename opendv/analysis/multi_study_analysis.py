@@ -107,6 +107,9 @@ STANDARDIZED_EFFECTS_COLUMNS = [
 # analysis can quarantine or down-weight the latter.
 _MAPPING_SOURCE_PRIORITY = {
     "llm_deduced": 3,
+    # Question-text header matched by a cleaned alias or item wording
+    # (opendv/header_matching.py): automatic, but not an LLM deduction.
+    "header_match": 2.5,
     "repo_mapping": 2,
     "schema": 1,
     "blocked": 0,

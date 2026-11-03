@@ -5,9 +5,9 @@ The tool is a layered pipeline. Each layer has one entry script and can be used 
 
 1. **Schema layer** (`schemas/`). YAML files describe canonical DV names, sensor streams, object-detection fields, and metadata/process columns. `opendv/schema_utils.py` flattens and validates them; `opendv/validate_schema.py` is a standalone sanity check.
 2. **Single-file conversion** (`opendv/convert_dv.py`). Reads a `.csv`/`.xlsx`, classifies the dataset type, applies the relevant schema family, and writes a standardized file (+ optional sidecars: `_metadata.json`, `_schema_suggestions.yaml`, `*-quality.json`).
-3. **Batch standardization** (`opendv/run_batch_standardization.py`). Iterates a manifest of sources (`local_path`, `github_repo`, `osf_project`, `web_dataset`), downloads/extracts archives, runs conversion per dataset, and writes cross-source artifacts: `meta_view.csv/json`, `run_summary.json`, `unknown_alias_summary.json`, `mapping_debug_summary.json`. Optional local LLM deduction (`opendv/llm_utils.py`) is a fallback after explicit mappings.
+3. **Batch standardization** (`opendv/run_batch_standardization.py`). Iterates a manifest of sources (`local_path`, `github_repo`, `osf_project`, `web_dataset`), downloads/extracts archives, runs conversion per dataset, and writes cross-source artifacts: `meta_view.csv/json`, `run_summary.json`, `unknown_alias_summary.json`, `mapping_debug_summary.json`. Survey answer codes (LimeSurvey `negN`/`Nneg`, `A1`..`An` in array sub-questions, yes/no) are recoded to numbers first (`opendv/value_labels.py`). With assisted mapping on, question-text headers are then matched to DVs by a cleaned alias or a registered item's wording (`opendv/header_matching.py`), and the local LLM (`opendv/llm_utils.py`) is the last fallback for the remaining columns. Every table is also checked for registered instrument items that run against their keying (`opendv.instruments.keying_check`); findings go to the quality JSON and `run_summary.json` (`instrument_keying_warnings`).
 4. **Catalog orchestrator** (`opendv/run_catalog_meta_analysis.py`). Reads a CSV/Excel catalog of dataset URLs, deduplicates, generates a manifest, invokes batch standardization, then runs the cross-study meta-analysis.
-5. **Multi-study analysis** (`opendv/analysis/multi_study_analysis.py`). Consumes the `standardized/` tree produced above. Computes DV overlap, harmonized per-(study, DV) summaries, random-effects pooled estimates, standardized study-vs-pool deviations, a cross-study composite, and LiNGAM causal discovery. Uses `meta_view.csv` for mapping-provenance categories (`schema` / `repo_mapping` / `llm_deduced` / `blocked` / `unknown`) and supports sensitivity passes via `--exclude-llm-deduced`.
+5. **Multi-study analysis** (`opendv/analysis/multi_study_analysis.py`). Consumes the `standardized/` tree produced above. Computes DV overlap, harmonized per-(study, DV) summaries, random-effects pooled estimates, standardized study-vs-pool deviations, a cross-study composite, and LiNGAM causal discovery. Uses `meta_view.csv` for mapping-provenance categories (`schema` / `repo_mapping` / `header_match` / `llm_deduced` / `blocked` / `unknown`) and supports sensitivity passes via `--exclude-llm-deduced`.
 6. **UI layer** (`ui/`). Streamlit app covering single-file standardization and catalog-driven exploration of overlap/meta-analysis artifacts.
 
 ## Package layout and extension points
@@ -21,7 +21,7 @@ Extension without forking happens through entry points (`opendv/plugins.py`): `o
 ## Provenance and fallbacks
 At every boundary the pipeline records *why* each value exists:
 
-- **Alias resolution**: `mapping_source` per (source_id, canonical_dv) in `meta_view.csv` — `schema`, `repo_mapping`, `llm_deduced`, or `blocked`.
+- **Alias resolution**: `mapping_source` per (source_id, canonical_dv) in `meta_view.csv` — `schema`, `repo_mapping`, `header_match`, `llm_deduced`, or `blocked`.
 - **Source availability**: `run_summary.json` statuses include `ok`, `not_available`, `access_restricted` (e.g. Cloudflare-blocked ACM downloads), and `failed`.
 - **Meta-analysis pool membership**: `meta_analysis_summary.csv` columns `mapping_source_categories`, `k_llm_deduced`, `includes_llm_deduced` flag pooled estimates that lean on LLM inference.
 - **Causal discovery**: `discover_causal_structure` reports `used_method` ∈ {`complete_case`, `clique_complete_case`, `synthetic_cholesky`} and a `synthetic_fallback` flag.
@@ -39,9 +39,12 @@ Extension points: dataset types (and their schema family, `llm_deduction`, `item
 `opendv/llm_plausibility.py` screens what the local LLM sees and what it may return, using the rules in `schemas/llm_plausibility_rules.yaml`.
 
 - **Before the call:** name rules (demographics, identifiers, seeds, timestamps, survey timings, coordinates, conditions, rankings) and a numeric-data rule.
-- **After the call:** a range rule that compares observed values with the canonical DV's range and standard response scales.
+- **After the call:** a range rule that compares observed values with the canonical DV's range and standard response scales, and an indicator rule: a column holding only 0 and 1 (for example a recoded yes/no answer) is never accepted for a rating-scale DV (measurement category Likert or Score).
 
 Column profiles are computed in the worker that loaded the data. The parent process only sees the surviving candidate columns. Rejections are aggregated into `llm_rejected_suggestions.json`, and the rules version is recorded in `run_summary.json`. `opendv/analysis/evaluate_llm_mapping.py` measures the layer against curated mappings (leave-alias-out).
+
+## Question-text headers
+`opendv/header_matching.py` runs before the LLM on the columns no alias maps (only when LLM deduction is on; `--no-header-matching` turns it off). A header is first cleaned of HTML, a leading item number and parenthesized anchors and looked up among the aliases again ("Mental Demand (0 = Low, 100 = High)" → `mental_demand`). Then, for every registered instrument whose items carry a `wording` in `schemas/instruments.yaml` (SUS, NASA-TLX), the table's question-like headers are embedded with `intfloat/multilingual-e5-small` and assigned one to one to the items (Hungarian assignment). A block is accepted only when at least four headers are each the best header for their item and lie in a compact run of columns, because questionnaire items are adjacent and stray questions that resemble an item are not. Matches are recorded as `mapping_method: header_match`, neither curated mappings (gold labels) nor LLM deductions.
 
 ## Candidate retrieval for the LLM
 `opendv/dv_retrieval.py` ranks canonical DVs for an unmapped column by TF-IDF similarity to their definitions in `standard_dv_mapping.yaml`. The LLM then chooses among the top 8. The fuzzy alias score is still used to decide whether to ask the LLM at all. `--llm-shortlist fuzzy` switches back to alias-string candidates.
