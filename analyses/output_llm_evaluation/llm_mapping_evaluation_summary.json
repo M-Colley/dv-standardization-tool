@@ -1,15 +1,15 @@
 {
-  "generated_at": "2026-10-25T13:20:56.901916+00:00",
+  "generated_at": "2026-11-03T14:31:27.112000+00:00",
   "models": [
     "google/gemma-4-E2B-it"
   ],
-  "plausibility_rules_version": "1.1",
+  "plausibility_rules_version": "1.2",
   "shortlist": "definition",
   "seed": 20261017,
   "max_per_source": 40,
   "e2_samples": 300,
   "blocklist_size": 46,
-  "runtime_seconds": 189.0,
+  "runtime_seconds": 693.2,
   "results": {
     "E1": {
       "n_positive": 101,
@@ -109,11 +109,11 @@
         },
         "precision_of_accepted_dv_mappings": {
           "k": 52,
-          "n": 88,
-          "rate": 0.5909090909090909,
+          "n": 87,
+          "rate": 0.5977011494252874,
           "ci95": [
-            0.4864808526118738,
-            0.6877324079945095
+            0.49264741201064083,
+            0.6944918107703932
           ]
         },
         "blocklisted_non_dv_mapped_to_a_dv": {
@@ -126,12 +126,12 @@
           ]
         },
         "curated_non_dv_mapped_to_a_dv": {
-          "k": 8,
+          "k": 7,
           "n": 23,
-          "rate": 0.34782608695652173,
+          "rate": 0.30434782608695654,
           "ci95": [
-            0.18811275938797734,
-            0.55109664622737
+            0.15604024453214022,
+            0.508657562687592
           ]
         }
       },
@@ -152,7 +152,8 @@
         "timestamp": 2,
         "demographic": 2,
         "event_time": 1,
-        "out_of_range": 1
+        "out_of_range": 1,
+        "binary_for_rating_scale": 1
       }
     },
     "E2": {

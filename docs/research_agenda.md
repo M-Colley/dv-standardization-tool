@@ -111,15 +111,15 @@ their definitions: the mean of a name similarity (id, label, aliases,
 instruments) and a full-definition similarity (adding notes, cluster and
 unit). It needs no model download, only scikit-learn.
 
-Final evaluation (11 studies, rules v1.1, Gemma-4-E2B, check on; E1:
+Final evaluation (11 studies, rules v1.2, Gemma-4-E2B, check on; E1:
 106 real DV columns, 69 non-DV columns; E2: 300 schema aliases):
 
 | Metric | fuzzy shortlist | definition shortlist (default) |
 |---|---|---|
 | E1 recall@8 (gold DV among candidates) | 42% (44/106) | 83% (88/106) |
 | E1 accuracy on true DV columns | 18% | 49% |
-| E1 precision of accepted DV mappings | 23% (19/83) | 59% (52/88) |
-| E1 curated non-DVs mapped to a DV, unchecked → checked | 30% → 17% | 74% → 35% |
+| E1 precision of accepted DV mappings | 23% (19/83) | 60% (52/87) |
+| E1 curated non-DVs mapped to a DV, unchecked → checked | 30% → 17% | 74% → 30% |
 | E1 blocklisted non-DVs mapped to a DV, unchecked → checked | 41% → 4% | 54% → 7% |
 | E2 accuracy | 55% | 67% |
 | E2 precision | 62% | 75% |
@@ -276,7 +276,7 @@ corrected data (labelled post hoc: the pre-specified test above stands):
 |---|---|---|---|
 | Correct mappings | 52 | 65 | 69 |
 | Paired exact McNemar vs. definition | | p = 0.035 (23 vs. 10) | p < 0.001 (20 vs. 3) |
-| Precision of accepted mappings | 59% | 75% | 77% |
+| Precision of accepted mappings | 60% | 76% | 78% |
 | True mappings lost to the check | 0 | 0 | 0 |
 
 With the `PerSafe` columns now reaching the LLM, the "lost" mappings
@@ -314,10 +314,13 @@ decimal-comma numbers, and the LLM's wrong choices among correct candidates.
 
 **Trade-off.** Because a plausible-looking candidate is always available, the
 model maps non-DV columns more often with the definition shortlist (74% of
-curated non-DVs, unchecked). The plausibility check halves that rate. In the
-deployed pipeline, where the older LLM-exclusion list also applies, 3 of 23
-curated non-DV columns end up mapped: Scrolling-in-the-Deep's binary context
-variables. No true DV column is blocked.
+curated non-DVs, unchecked). The plausibility check more than halves that
+rate (to 30%). In the deployed pipeline, where the older LLM-exclusion list
+also applies, 2 of 23 curated non-DV columns end up mapped:
+Scrolling-in-the-Deep's context variables `Current_Activity` and
+`Multitasking`. A third, the 0/1 indicator `At_Home`, has been rejected
+since rules v1.2, because a 0/1 column is never accepted for a rating-scale
+DV. No true DV column is blocked.
 
 **Caveat.** The 50/50 blend weight was chosen on the 10-study pilot items, so
 P1 must confirm it on a held-out split.

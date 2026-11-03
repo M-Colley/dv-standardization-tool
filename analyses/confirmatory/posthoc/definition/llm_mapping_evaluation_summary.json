@@ -3,7 +3,7 @@
   "models": [
     "google/gemma-4-E2B-it"
   ],
-  "plausibility_rules_version": "1.1",
+  "plausibility_rules_version": "1.2",
   "shortlist": "definition",
   "seed": 20261017,
   "max_per_source": 40,
