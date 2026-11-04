@@ -35,12 +35,16 @@
 #   min_tokens: n       the name has at least n tokens
 #   exact: [..]         the whole name, lower-cased with non-alphanumerics removed, is listed
 #   contains: [..]      that normalized name contains one of the substrings
-version: "1.2"
+# v1.3 (2026-11-04): the range tolerance widens only the canonical range;
+#   values must lie within an alternative scale itself. The LimeSurvey timing
+#   rule needs the question code itself (or its sub-questions), not a shared
+#   prefix ("reactionTime" next to "reactionCorrect" is a DV).
+version: "1.3"
 
 # Share of non-missing values that must parse as numbers ("3,5" counts).
 min_numeric_fraction: 0.9
 
-# Tolerance around a range, as a fraction of its span.
+# Tolerance around the canonical range, as a fraction of its span.
 range_tolerance: 0.15
 
 # Response scales accepted in addition to a DV's canonical range; keep in

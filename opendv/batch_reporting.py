@@ -27,13 +27,17 @@ def categorize_mapping_source(raw: object) -> str:
         return "blocked"
     if text == "in_memory_mapping":
         return "schema"
+    # Only the shared schema files count as ``schema``. A study's own mapping
+    # file is ``repo_mapping`` wherever it lives, including
+    # ``schemas/<study>_mapping.yaml`` (until 2026-11-04 any path under
+    # ``schemas/`` was labelled ``schema``, so curated mappings were
+    # indistinguishable from the shared vocabulary).
     schema_markers = (
         "standard_dv_mapping",
         "standard_dv_metadata",
         "standard_detection",
         "standard_sensor_mapping",
-        "schemas/",
-        "schemas\\",
+        "standard_metadata_mapping",
     )
     if any(marker in text for marker in schema_markers):
         return "schema"

@@ -31,6 +31,12 @@ sources:
       - "**/first upload/**"
       - "**/last year/**"
       - "**/ehmi-optimization-chi25-demographic-data.csv"
+    # The optimizer's log stores MentalLoad as an objective to maximize
+    # (11 - answer for 720 of 740 evaluations); the participants' answers are
+    # in QuestionnaireResponses.csv. Keeping both averaged them to a constant.
+    table_options:
+      "**/ObservationsPerEvaluation.csv":
+        drop_columns: [MentalLoad]
     use_llm_deduction: true
 
   - source_id: osf_cwd6h

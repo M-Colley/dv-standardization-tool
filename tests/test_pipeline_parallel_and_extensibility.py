@@ -39,7 +39,9 @@ def _write_study_tree(root: Path) -> None:
         "Trust2": base + rng.normal(0, 0.3, n),
         "Trust3": base + rng.normal(0, 0.3, n),
         "TLX1": rng.integers(0, 21, n),
-        "mystery_score": rng.normal(0, 1, n),
+        # On 1-5, so a trust_rating suggestion passes the range check (values
+        # around 0 fit no response scale and are rejected since rules v1.3).
+        "mystery_score": rng.uniform(1, 5, n),
     }).to_csv(root / "questionnaire.csv", index=False)
     pd.DataFrame({
         "participant_id": range(n),

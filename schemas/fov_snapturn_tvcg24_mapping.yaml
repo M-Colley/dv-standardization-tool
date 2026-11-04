@@ -47,14 +47,18 @@
 #   - Column1 (a single value, 6.0, in the first row) is unresolved and left out.
 
 # --- Dependent measures: FMS-type sickness rating (0-10) ----------------------
-FMS0: fms_score                     # rating at entry into VR (minute 0)
-FMS4: fms_score                     # minute 4
-FMS8: fms_score                     # minute 8 (missing after withdrawal)
-FMS12: fms_score                    # minute 12
-FMS16: fms_score                    # minute 16
-FMS20: fms_score                    # minute 20
-Early FMS: fms_score                # rating on early withdrawal (only for withdrawers)
-Final FMS: fms_score                # rating on exiting VR (all participants)
+# One value per participant: ADS (below) is the session average the paper
+# reports. The single ratings are time points of it, so they are kept apart;
+# mapped to fms_score as well, the batch could not average them (Early FMS
+# exists only for withdrawers) and the minute-0 baseline became the score.
+FMS0: meta_fms_timepoint            # rating at entry into VR (minute 0)
+FMS4: meta_fms_timepoint            # minute 4
+FMS8: meta_fms_timepoint            # minute 8 (missing after withdrawal)
+FMS12: meta_fms_timepoint           # minute 12
+FMS16: meta_fms_timepoint           # minute 16
+FMS20: meta_fms_timepoint           # minute 20
+Early FMS: meta_fms_timepoint       # rating on early withdrawal (only for withdrawers)
+Final FMS: meta_fms_timepoint       # rating on exiting VR (all participants)
 ADS0: meta_imputed_carried_forward  # FMS rating with the exit rating carried forward after withdrawal (derived)
 ADS4: meta_imputed_carried_forward  # FMS rating with the exit rating carried forward after withdrawal (derived)
 ADS8: meta_imputed_carried_forward  # FMS rating with the exit rating carried forward after withdrawal (derived)

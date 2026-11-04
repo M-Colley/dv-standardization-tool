@@ -9,6 +9,14 @@
 #   participant: column with the participant identifier (one or more names;
 #                the first present column wins, so a study whose files use
 #                different spellings can list them all)
+#   participant_from_file: optional regular expression with one group that
+#                takes the participant id from the file name for rows that
+#                carry none (e.g. '_u_(\d+)_' for per-participant folders)
+#   participant_scope: study (default) | file. With `file`, ids are only
+#                unique within one standardized file (e.g. "1"-"12" restart in
+#                every experiment's file) and are qualified by the file name.
+#   domain:      research area (automotive | other), used to split pooled
+#                construct relations (analyses/construct_relations.py)
 #   trial / timepoint: optional columns, recorded for provenance
 #   factors: list of manipulated IVs
 #     name:      study-level name of the factor
@@ -31,8 +39,8 @@
 # within-subjects factors (metafor measure "SMCRPH"), so both are on the
 # same d metric and can be pooled.
 
-version: "1.0"
-updated: "2026-10-18"
+version: "1.1"
+updated: "2026-11-04"
 
 canonical_factors:
   ehmi_presence:
@@ -50,6 +58,7 @@ canonical_factors:
 studies:
   running_into_traffic_chi26:
     participant: participant
+    domain: automotive
     source: running_questionnaire.csv column names; every participant saw all 12 cells
     factors:
       - name: ehmi
@@ -68,6 +77,7 @@ studies:
 
   ehmi_for_all_chi26:
     participant: [UserID, user_id]
+    domain: automotive
     source: >-
       Log files carry scenario/distraction/ehmi columns; survey rows only carry
       ConditionID (A-R). The letter-to-cell mapping was derived from the log
@@ -103,6 +113,7 @@ studies:
 
   3d_display_comp_vehicle:
     participant: UserID
+    domain: automotive
     source: ConditionID levels LookingGlass, LumePad (lightfield / 3D) and 2D; each participant saw all three
     factors:
       - name: display
@@ -113,6 +124,7 @@ studies:
 
   fact_av:
     participant: ProlificID
+    domain: automotive
     source: repository README (mixed design; INTRODUCTION and SCENARIO between subjects)
     factors:
       - name: introduction
@@ -126,12 +138,14 @@ studies:
 
   longitudinal_usa_germany_ehmi:
     participant: [subject_id, userID]
+    domain: automotive
     timepoint: [rep_exposure, repExposure]
     source: repeated exposure (three sessions); condition coding not documented in the data files
     factors: []
 
   psych_conflict_handling:
     participant: ID
+    domain: automotive
     trial: meta_trial_sequence
     source: >-
       Condition codes 1-12 from get_values_based_on_condition() in the
@@ -155,6 +169,7 @@ studies:
 
   roads_chi25:
     participant: UserID
+    domain: automotive
     source: >-
       ConditionID 1-12 coded as in the repository's Evaluation_CHI25_ROADS.R:
       interaction concept (1/4/7/10 Trajectory, 2/5/8/11 Path planning,
@@ -177,21 +192,152 @@ studies:
 
   ehmi_optimization_chi25:
     participant: User_ID
+    participant_from_file: '_u_(\d+)_'   # QuestionnaireResponses files carry no id
+    domain: automotive
     trial: meta_run
     factors: []
 
   scrolling_in_the_deep_chi25:
     participant: Participant_ID
+    domain: other
     factors: []
 
   osf_cwd6h:
     participant: Participant ID
+    domain: automotive
     factors: []
 
   road_bumps_touch:
     participant: PId
+    domain: automotive
     factors:
       - name: speed
         design: within
         columns: {SpeedCondition: null}
         reference: "10"
+
+  # --- Added 2026-11-04 (development set; column names as standardized) -----
+  incar_vr_gain_chi24:
+    participant: meta_participant_id
+    domain: automotive
+    source: >-
+      schemas/incar_vr_gain_chi24_mapping.yaml: PID (questionnaires) and
+      ActualParticipant (reading questions) are the same ids; Condition 1-3 =
+      Gain, Attenuation, Matched Motion, each participant saw all three.
+    factors:
+      - name: motion_manipulation
+        design: within
+        columns:
+          Condition: {"1": Gain, "2": Attenuation, "3": Matched}
+        reference: Matched
+
+  bvi_auditory_hav_autoui26:
+    participant: UserID
+    domain: automotive
+    source: >-
+      Results sheet (35 participants x 3 conditions); infoContent Few / Medium /
+      Most within subjects, VIP (Y = blind or visually impaired) between.
+    factors:
+      - name: information_content
+        design: within
+        columns: {meta_condition_label: null}
+        reference: Few
+      - name: visual_impairment
+        design: between
+        columns: {meta_condition_visual_impairment: null}
+        reference: N
+
+  av_prevalence_ehmi_autoui24:
+    participant: meta_participant_id
+    domain: automotive
+    source: readme.html; AV_Prevalence 0 = low (21 % AVs), 1 = high (79 %), between subjects
+    factors:
+      - name: av_prevalence
+        design: between
+        columns:
+          meta_condition_av_prevalence: {"0": low, "1": high}
+        reference: low
+
+  ehmi_state_intent_mtap24:
+    participant: meta_participant_id
+    domain: automotive
+    source: README.html; 2 (eHMI state / intent) x 2 (crosswalk / roundabout) between subjects, one row per participant
+    factors:
+      - name: ehmi_content
+        design: between
+        columns: {eHMI: null}
+        reference: state
+      - name: environment
+        design: between
+        columns: {meta_condition_environment: null}
+        reference: crosswalk
+
+  av_acceptance_vr_ijhci24:
+    participant: meta_participant_id
+    domain: automotive
+    source: EEDA_Qdata.csv; one row per respondent (uid), no condition column
+    factors: []
+
+  fido2_auth_chi23:
+    participant: id
+    domain: other
+    source: README.md; group P = platform (Touch ID), R = roaming (YubiKey), between groups
+    factors:
+      - name: authentication_method
+        design: between
+        columns: {group: null}
+        reference: P
+
+  pairsonic_cscw24:
+    participant: id
+    domain: other
+    source: one row per participant; both systems are wide columns (a_*, b_*), so no factor rows
+    factors: []
+
+  curved_dragging_vr_ijhci26:
+    participant: [meta_participant_id, subject_id]
+    participant_scope: file
+    domain: other
+    source: >-
+      README.md: 12 participants in each experiment; behavioural files number
+      them 1-12 per experiment and the NASA-TLX sheet E1_P01-E2_P12, and nothing
+      links the two numberings, so ids are kept apart per file.
+    factors: []
+
+  fov_snapturn_tvcg24:
+    participant: ID
+    domain: other
+    source: >-
+      2 x 2 between subjects; the no-mitigation control has an empty Mitigation
+      cell, which a factor level cannot name, so no factor is declared.
+    factors: []
+
+  handsize_touch_mobilehci19:
+    participant: meta_participant_id
+    domain: other
+    source: 27 participants x 2 phones x 500 trials
+    factors:
+      - name: device
+        design: within
+        columns: {meta_condition_device: null}
+        reference: Android
+
+  woz_adaptation_ijhcs24:
+    participant: Participant ID
+    domain: other
+    source: >-
+      One row per participant (97), three intervals as wide columns; Group (five
+      adaptation behaviours, between groups) has no control level, so no factor
+      is declared.
+    factors: []
+
+  gaze_platformer_chi24:
+    participant: [ID, ParticipantID]
+    timepoint: meta_session_day
+    domain: other
+    source: CODEBOOK.md; input method Eye / Mouse between subjects x study day 1-5
+    factors:
+      - name: input_method
+        design: between
+        columns: {meta_condition_input_method: null}
+        reference: Mouse

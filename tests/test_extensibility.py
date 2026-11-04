@@ -516,7 +516,9 @@ class TestDerivedScalesFormula(unittest.TestCase):
         })
         result = m.add_derived_scale_scores(df)
         self.assertIn("nasa_tlx_score", result.columns)
-        expected = (10 + 8 + 12 + 14 + 6 + 4) / 6
+        # Raw TLX on 0-100: subscales on the 21 marks (0-20) are put on 0-100
+        # before averaging, so the score is comparable with 0-100 recordings.
+        expected = (10 + 8 + 12 + 14 + 6 + 4) / 6 * 5
         self.assertAlmostEqual(result["nasa_tlx_score"].iloc[0], expected, places=3)
 
     def test_sus_custom_formula_correct_bounds(self):

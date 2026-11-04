@@ -499,6 +499,23 @@ def auto_reshape_to_wide(df: pd.DataFrame) -> pd.DataFrame:
         )
         return df
 
+    # A pivot keeps only id, variable and value. Any other column that varies
+    # within a participant (a second measure, a condition next to a measure
+    # column) would be dropped or averaged across, so the data are left as
+    # they are. Until 2026-11-04 a wide within-subject table (participant,
+    # condition, sus, tlx, trust) was pivoted on condition and kept only SUS.
+    extra = [c for c in df.columns if c not in (id_col, variable_col, value_col)]
+    varying = [c for c in extra if (df.groupby(id_col)[c].nunique(dropna=True) > 1).any()]
+    if varying:
+        warnings.warn(
+            "auto_reshape_to_wide: columns "
+            f"{varying} vary within {id_col!r} and would be lost in a pivot on "
+            f"{variable_col!r}; returning DataFrame unchanged.",
+            UserWarning,
+            stacklevel=2,
+        )
+        return df
+
     logger.info(
         "auto_reshape_to_wide: detected long format -- pivoting with "
         "id=%r, variable=%r, value=%r.",

@@ -67,3 +67,12 @@
 # --- Demographics -------------------------------------------------------------
 "Age": meta_demographic_age
 "Gender": meta_demographic_gender             # "Male"/"male"/"Female"/"female" (mixed case)
+
+# --- Scale ---------------------------------------------------------------------
+# The schema's NASA-TLX subscales are on 0-20 (the 21 marks). These are stored
+# on 0-10, which fits inside 0-20, so the analysis would not rescale them.
+scale_conversions:
+  - columns: ["TLX 1", "TLX 2", "TLX 3", "TLX 4", "TLX 5", "TLX 6", "TLX 1.1", "TLX 2.1", "TLX 3.1", "TLX 4.1", "TLX 5.1", "TLX 6.1", "TLX 1.2", "TLX 2.2", "TLX 3.2", "TLX 4.2", "TLX 5.2", "TLX 6.2"]
+    from: [0, 10]
+    to: [0, 20]
+    reason: NASA-TLX subscales stored 0-10 (the plain sum reproduces the paper's Table 3)

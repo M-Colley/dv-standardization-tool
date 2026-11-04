@@ -363,7 +363,7 @@ def _load_jsonlines(path: Path) -> pd.DataFrame:
 # ---------------------------------------------------------------------------
 
 _SPREADSHEET_SUFFIXES = {".xlsx", ".xls", ".xlsm", ".ods"}
-TABLE_OPTION_KEYS = ("sheet", "header", "pivot")
+TABLE_OPTION_KEYS = ("sheet", "header", "pivot", "drop_columns")
 
 
 def table_options_for(table_options: dict[str, Any] | None, dataset_id: str) -> dict[str, Any]:
@@ -377,6 +377,8 @@ def table_options_for(table_options: dict[str, Any] | None, dataset_id: str) -> 
             sheet: NASA_TLX_Data
             header: 1                # 0-based row holding the column names
             pivot: {index: [subject_id, curvature], columns: subscale, values: score}
+          "**/ObservationsPerEvaluation.csv":
+            drop_columns: [MentalLoad]   # a transformed copy of an answer kept elsewhere
     """
     if not table_options:
         return {}
@@ -406,7 +408,9 @@ def load_input_file(input_path: str, options: dict[str, Any] | None = None) -> p
     by content-based magic-byte sniffing if the extension is unrecognised.
     *options* are a file's ``table_options`` (``table_options_for``): for a
     spreadsheet the ``sheet`` to read (instead of the most data-rich one) and
-    the 0-based ``header`` row; for any table a long-to-wide ``pivot``.
+    the 0-based ``header`` row; for any table a long-to-wide ``pivot`` and
+    ``drop_columns`` (columns that must not be read as data, e.g. an
+    optimizer's inverted copy of a questionnaire answer).
     """
     path = Path(input_path)
     options = dict(options or {})
@@ -421,6 +425,12 @@ def load_input_file(input_path: str, options: dict[str, Any] | None = None) -> p
         df = _load_with_registry(path)
     if options.get("pivot"):
         df = _pivot_long_table(df, **options["pivot"])
+    drop = [str(c) for c in options.get("drop_columns") or []]
+    if drop:
+        missing = [c for c in drop if c not in {str(col).strip() for col in df.columns}]
+        if missing:
+            raise ValueError(f"drop_columns {missing} not found in '{path.name}'")
+        df = df.loc[:, [str(col).strip() not in drop for col in df.columns]]
     return df
 
 

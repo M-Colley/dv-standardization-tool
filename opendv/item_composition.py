@@ -14,8 +14,16 @@ This module implements Tier 1 of that strategy:
 
 * automatic group discovery from the ``__dup_N`` suffix introduced by
   :func:`scripts.convert_dv.standardize_columns`;
-* a Cronbach's α reliability estimate per group, with a sign-of-correlation
-  reverse-coding heuristic applied before α is computed;
+* a Cronbach's α reliability estimate per group. Items are never flipped on
+  the evidence of the data: a group in which an item correlates negatively
+  with the others is left uncomposed (``skip_negative_item_correlation``),
+  because the negative sign can as well mean that two different measures
+  share a DV id (or that a reverse-keyed item was not declared) as that the
+  item is reverse-keyed. Reverse keying is applied only where a mapping file
+  declares it (``reverse_items`` or a ``scales`` block);
+* groups that mix LLM-mapped columns with deterministically mapped ones are
+  left uncomposed (``skip_mixed_provenance``), so an LLM guess never changes
+  the value of a column the schema or a curated mapping resolved;
 * a single composite column per group (named with the base canonical) plus the
   item columns renamed to ``<canonical>__item_N`` for traceability;
 * a list of composition records that the orchestrator can persist alongside
@@ -273,23 +281,24 @@ def compose_item_groups(
     min_alpha_to_compose: float = 0.0,
     declared_scales: list[dict[str, Any]] | None = None,
     canonical_to_originals: dict[str, list[str]] | None = None,
+    llm_columns: frozenset[str] | set[str] = frozenset(),
 ) -> tuple[pd.DataFrame, list[dict[str, Any]]]:
     """Compose ``__dup_N`` groups in *df* into per-row composite scores.
 
     For each group of columns sharing a base canonical:
 
-    1. Cast to numeric (non-numeric values become NaN).
-    2. Detect reverse-keyed items via correlation with the mean of the others.
-    3. Apply the flips.
+    1. Leave the group alone when it mixes LLM-mapped columns (*llm_columns*,
+       standardized names) with other columns.
+    2. Cast to numeric (non-numeric values become NaN).
+    3. Leave the group alone when an item correlates negatively with the
+       group's anchor item (:func:`detect_reverse_coded_items`); the items
+       are recorded as ``negatively_correlated_items``, never flipped.
     4. Compute Cronbach's α on rows where all items are present.
-    5. When α is finite and ≥ ``min_alpha_to_compose`` (default 0.0, i.e. any
-       non-negative α including 0 — anything positive means the items at least
-       share a common direction), build a per-row mean composite, write it as
-       the base canonical column, and rename the original items to
-       ``<canonical>__item_N``.
-    6. When α is NaN or negative (items contradict each other — likely a
-       grouping mistake), leave the columns as-is so they appear as separate
-       observations downstream.
+    5. When α is finite and ≥ ``min_alpha_to_compose`` (default 0.0), build a
+       per-row mean composite, write it as the base canonical column, and
+       rename the original items to ``<canonical>__item_N``.
+    6. When α is NaN or negative, leave the columns as-is so they appear as
+       separate observations downstream.
 
     Returns ``(df_out, records)`` where *records* is a list of dicts describing
     each group's outcome (composed/skipped, α, item names, reverse-coded items,
@@ -327,6 +336,9 @@ def compose_item_groups(
     for base_canonical, item_cols in groups.items():
         if base_canonical in canonicals_handled_by_declared:
             continue
+        if base_canonical.startswith("meta_"):
+            # Bookkeeping columns (time points, conditions) are not items.
+            continue
         # Cast a defensive copy to numeric for the reliability analysis. The
         # full-row composite is computed against the same numeric coercion so
         # rows with sporadic NaN items still contribute via skipna=True.
@@ -341,27 +353,36 @@ def compose_item_groups(
             "n_complete_rows": n_complete,
         }
 
+        llm_items = [col for col in item_cols if col in llm_columns]
+        if llm_items and len(llm_items) < len(item_cols):
+            record["llm_items"] = llm_items
+            record["decision"] = "skip_mixed_provenance"
+            records.append(record)
+            continue
+
         if n_complete < MIN_COMPLETE_ROWS_FOR_COMPOSITION:
             record["decision"] = "skip_insufficient_rows"
             records.append(record)
             continue
 
-        reversed_cols = detect_reverse_coded_items(complete_rows)
-        complete_corrected = apply_reverse_coding(complete_rows, reversed_cols)
-        alpha = compute_cronbach_alpha(complete_corrected)
-
+        negative = detect_reverse_coded_items(complete_rows)
+        alpha = compute_cronbach_alpha(complete_rows)
         record["cronbach_alpha"] = (
             float(alpha) if isinstance(alpha, float) and np.isfinite(alpha) else None
         )
-        record["reverse_coded_items"] = reversed_cols
+        record["reverse_coded_items"] = []
+        if negative:
+            record["negatively_correlated_items"] = negative
+            record["decision"] = "skip_negative_item_correlation"
+            records.append(record)
+            continue
 
         if record["cronbach_alpha"] is None or record["cronbach_alpha"] < min_alpha_to_compose:
             record["decision"] = "skip_low_alpha"
             records.append(record)
             continue
 
-        full_corrected = apply_reverse_coding(full_numeric, reversed_cols)
-        composite = full_corrected.mean(axis=1, skipna=True)
+        composite = full_numeric.mean(axis=1, skipna=True)
 
         rename_map = {
             col: f"{base_canonical}{ITEM_COLUMN_SUFFIX}{i + 1}"

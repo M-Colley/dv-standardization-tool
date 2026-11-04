@@ -35,10 +35,10 @@
 # --- Dependent measures: behavioural (both experiments) -----------------------
 MT: task_completion_time            # mean movement (drag) time per condition, seconds
 TP: efficiency                      # Fitts throughput, bit/s (= ID / MT)
-ER: error_rate                      # Exp. 1 error rate, proportion 0-1
-ER_pct: meta_derived_percent        # = 100 x ER (same measure in percent)
-error_rate: error_rate              # Exp. 2 error rate, proportion 0-1
-error_rate_pct: meta_derived_percent  # = 100 x error_rate (same measure in percent)
+ER: meta_derived_proportion         # Exp. 1 error rate as a proportion 0-1 (= ER_pct / 100)
+ER_pct: error_rate                  # Exp. 1 error rate in percent; the schema's error_rate is 0-100 %
+error_rate: meta_derived_proportion   # Exp. 2 error rate as a proportion 0-1 (= error_rate_pct / 100)
+error_rate_pct: error_rate          # Exp. 2 error rate in percent
 # Exp. 2 endpoint measures with no schema id (left out): dx, avg_abs_dx, avg_Ae, We
 
 # --- Dependent measures: NASA-TLX (pivoted NASA_TLX_Data) ---------------------

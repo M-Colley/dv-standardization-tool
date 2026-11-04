@@ -23,6 +23,10 @@
 #                reflect  -> x for key +1, min + max - x for key -1
 #                min      -> x - min for key +1, max - x for key -1
 #                midpoint -> x - mid for key +1, mid - x for key -1
+#                proportion -> (x - min) / (max - min) for key +1,
+#                             (max - x) / (max - min) for key -1, so a score
+#                             (with multiplier 100) is on 0-100 whatever the
+#                             items' coding
 #     aggregate: mean | sum
 #     multiplier: applied after aggregation (default 1)
 #
@@ -30,7 +34,7 @@
 # score. Only facts stated in the cited sources are recorded here.
 
 version: "1.0"
-updated: "2026-10-18"
+updated: "2026-11-04"
 
 instruments:
   sus:
@@ -75,9 +79,11 @@ instruments:
     notes: >-
       Raw TLX: the unweighted mean of the six subscales (Hart, 2006). Higher is
       more workload on every subscale, including performance (anchored
-      "perfect" to "failure"). Subscales may be recorded on 0-100 or as the
-      21 marks 0-20; the score keeps the coding of its items.
-    response_codings: [[0, 100]]
+      "perfect" to "failure"). Subscales are recorded as the 21 marks (0-20 or
+      1-21) or on 0-100; each is put on 0-100 before averaging, so the score
+      is on the 0-100 range of TLX_SCORE whatever the coding (until 2026-11-04
+      it kept the items' coding, and 0-20 scores were pooled as 0-100).
+    response_codings: [[0, 20], [1, 21], [0, 100]]
     items:
     # Rating-scale questions of the NASA-TLX paper version (Hart & Staveland, 1988).
       - {id: mental_demand, aliases: [tlx1, nasa_tlx1, tlx_mental_demand, nasa_tlx_mental], key: 1,
@@ -96,8 +102,9 @@ instruments:
       nasa_tlx_score:
         dv: TLX_SCORE
         items: [mental_demand, physical_demand, temporal_demand, performance, effort, frustration]
-        centering: none
+        centering: proportion
         aggregate: mean
+        multiplier: 100
 
   van_der_laan:
     label: Van der Laan acceptance scale (AOA)
@@ -127,6 +134,31 @@ instruments:
       aoa_satisfying:
         dv: AOA_SATISFYING
         items: [AOA2, AOA4, AOA6, AOA8]
+        centering: midpoint
+        aggregate: mean
+
+  perceived_safety_items:
+    label: Perceived safety, four bipolar items (-3..+3), as used in eHMI studies
+    citation: "Colley, M., et al. (2026). Effects of Auditory Information for People With Visual Impairments in Highly Automated Vehicles. AutomotiveUI 2026. Analysis script bvi-auditory-hav.R (github.com/M-Colley/bvi-auditory-hav, MIT), line 90: ps_score = mean of perceivedSafety1-4."
+    doi: 10.1145/3828157.3828774
+    notes: >-
+      The schema declares perceived_safety_item_01..04 as items of
+      perceived_safety (canonical range -3..+3). The studies attribute the
+      items to Faas et al. (2020); the item wording is not recorded here
+      because it could not be checked against that source. Scored as the mean
+      of the four items, as in the cited analysis script; answers on 1..7 are
+      centred to -3..+3. Keying is checked on every dataset (keying_check).
+    response_codings: [[-3, 3], [1, 7]]
+    items:
+      - {id: perceived_safety_item_01, aliases: [persafe01, perceivedsafety1], key: 1}
+      - {id: perceived_safety_item_02, aliases: [persafe02, perceivedsafety2], key: 1}
+      - {id: perceived_safety_item_03, aliases: [persafe03, perceivedsafety3], key: 1}
+      - {id: perceived_safety_item_04, aliases: [persafe04, perceivedsafety4], key: 1}
+    scores:
+      perceived_safety_score:
+        dv: perceived_safety
+        column: perceived_safety_score
+        items: [perceived_safety_item_01, perceived_safety_item_02, perceived_safety_item_03, perceived_safety_item_04]
         centering: midpoint
         aggregate: mean
 

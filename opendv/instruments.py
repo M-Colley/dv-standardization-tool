@@ -40,7 +40,7 @@ from opendv._paths import SCHEMAS_DIR
 logger = logging.getLogger(__name__)
 
 DEFAULT_INSTRUMENTS_PATH = SCHEMAS_DIR / "instruments.yaml"
-CENTERINGS = ("none", "reflect", "min", "midpoint")
+CENTERINGS = ("none", "reflect", "min", "midpoint", "proportion")
 AGGREGATES = ("mean", "sum")
 
 
@@ -319,6 +319,8 @@ def _item_score(x: pd.Series, key: int, centering: str, lo: float, hi: float) ->
         return x if key == 1 else (lo + hi) - x
     if centering == "min":
         return x - lo if key == 1 else hi - x
+    if centering == "proportion":
+        return (x - lo) / (hi - lo) if key == 1 else (hi - x) / (hi - lo)
     mid = (lo + hi) / 2.0
     return x - mid if key == 1 else mid - x
 

@@ -358,9 +358,18 @@ def _load_candidate_schema_metadata(schema_path: str = str(DEFAULT_DV_SCHEMA_PAT
     return metadata
 
 
-def _format_candidate_reference(candidates: Iterable[str]) -> str:
+def _format_candidate_reference(candidates: Iterable[str], query: str | None = None) -> str:
+    """One reference line per candidate DV (label, cluster, aliases, ...).
+
+    Aliases equal to the column being asked about (ignoring case) are left
+    out. In the pipeline such a column is mapped before the LLM is asked, so
+    nothing changes there; in the leave-alias-out benchmark the held-out alias
+    would otherwise be printed next to the correct answer (until 2026-11-04
+    for 86 of 265 E1 and 216 of 300 E2 items).
+    """
     metadata = _load_candidate_schema_metadata()
     lines: list[str] = []
+    hidden = str(query).strip().lower() if query is not None else None
 
     for candidate in candidates:
         record = metadata.get(candidate)
@@ -373,7 +382,10 @@ def _format_candidate_reference(candidates: Iterable[str]) -> str:
         cluster = str(record.get("cluster", "")).strip()
         category = str(record.get("category", "")).strip()
         direction = str(record.get("direction", "")).strip()
-        aliases = [str(alias) for alias in record.get("aliases", [])][:3]
+        aliases = [
+            str(alias) for alias in record.get("aliases", [])
+            if hidden is None or str(alias).strip().lower() != hidden
+        ][:3]
         instruments = [str(instrument) for instrument in record.get("instruments", [])][:2]
         notes = _truncate_text(str(record.get("notes", "")).strip(), 120) if record.get("notes") else ""
 
@@ -811,7 +823,7 @@ def deduce_standard_name_with_local_llm(
     if context is None:
         context = collect_repository_context(source_root) if source_root else ""
 
-    candidate_reference = _format_candidate_reference(candidates)
+    candidate_reference = _format_candidate_reference(candidates, query=raw_column_name)
     prompt = (
         "You standardize HCI dependent variable columns into canonical identifiers.\n"
         "Choose exactly one identifier from the candidate list. Do not invent new identifiers.\n\n"
