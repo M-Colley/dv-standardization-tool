@@ -198,10 +198,12 @@ def build_data_package(
             column_types = {str(c): frictionless_type(df[c]) for c in df.columns}
             n_rows = len(df)
         recoding = {
+            "missingValueCodes": quality.get("missing_value_codes") or {},
             "valueLabelsApplied": quality.get("value_labels_applied") or {},
             "negativeAnswerCodesRecoded": quality.get("negative_answer_codes_recoded") or {},
             "surveyAnswerCodesRecoded": quality.get("survey_answer_codes_recoded") or {},
             "reverseKeyed": quality.get("reverse_keyed_items") or {},
+            "unitConversions": quality.get("unit_conversions") or {},
         }
         fields = [
             _field_descriptor(name, column_types[name], dvs, by_dataset.get(dataset_id or "", {}), recoding)

@@ -1,0 +1,97 @@
+# Source-specific column mapping for fido2_auth_chi23
+# Paper: Leon Würsching*, Florentin Putz*, Steffen Haesler, Matthias Hollick (CHI '23).
+#   "FIDO2 the Rescue? Platform vs. Roaming Authentication on Smartphones."
+#   DOI 10.1145/3544548.3580993 (arXiv:2302.07777)
+# Data: Zenodo 7572697 (CC-BY-4.0), fido2-lab-study-code-and-dataset.zip.
+#
+# Covers data.csv inside the zip (dataset path
+# __extracted_archives/fido2-lab-study-code-and-dataset/data.csv); comma-delimited,
+# one row per participant (89 rows; the paper analyses the 87 complete ones).
+# No table options needed. README.md and fido2-smartphone-study.Rmd are the
+# codebook and analysis script; gfx/*.pdf and likert/*.patch are not data.
+#
+# Notes:
+# - Between-groups design: `group` P = platform authentication (Touch ID),
+#   R = roaming authentication (YubiKey).
+# - Missing codes: 98 = participant explicitly chose "NA"/"not available",
+#   99 = nothing selected on the paper questionnaire (sus6, sus7, adopt* use them).
+#   Both must be read as missing before any range check.
+# - SUS items 1-5 (1 = strongly disagree, 5 = strongly agree), standard order.
+# - Van der Laan items 1-5 (1 = left word, 5 = right word), standard order with
+#   the positive pole first except items 3, 6 and 8 (mirrored), i.e. the [1, 5]
+#   coding of the van_der_laan instrument in schemas/instruments.yaml. The paper's
+#   appendix prints item 1 as "Useless vs. Useful", but the analysis script scores
+#   item 1 as positive-first and accept1 correlates positively with items 2, 4, 5,
+#   7 and negatively with 3, 6, 8 and with sus1, so 1 = "useful" in the data.
+# - ATI (tech1..9) and privacy concerns (privacy1..4) are control variables in the
+#   paper (Section 4, Table 1), so they get meta_* labels.
+# - adopt1..adopt11 (adoption likelihood per account type, a DV in the paper) are
+#   left out: no schema id fits (see the report).
+
+# --- Dependent measures -------------------------------------------------------
+# System Usability Scale, 1-5
+sus1: SUS1
+sus2: SUS2
+sus3: SUS3
+sus4: SUS4
+sus5: SUS5
+sus6: SUS6
+sus7: SUS7
+sus8: SUS8
+sus9: SUS9
+sus10: SUS10
+# Van der Laan acceptance scale, 1-5 (1 = left word); items 3, 6, 8 mirrored
+accept1: AOA1     # useful - useless
+accept2: AOA2     # pleasant - unpleasant
+accept3: AOA3     # bad - good (mirrored)
+accept4: AOA4     # nice - annoying
+accept5: AOA5     # effective - superfluous
+accept6: AOA6     # irritating - likeable (mirrored)
+accept7: AOA7     # assisting - worthless
+accept8: AOA8     # undesirable - desirable (mirrored)
+accept9: AOA9     # raising alertness - sleep-inducing
+
+# --- Conditions ---------------------------------------------------------------
+id: meta_participant_id
+group: meta_condition_authentication_method     # P = platform, R = roaming (between groups)
+
+# --- Demographics -------------------------------------------------------------
+gender: meta_demographic_gender
+age: meta_demographic_age                       # age bracket ("20-29", ...)
+education: meta_demographic_education
+
+# --- Control variables (measured once) ----------------------------------------
+# Privacy concerns, 4 Likert items after Langer et al. (general concern about
+# personal data, not about the system), 1-7
+privacy1: meta_privacy_concern_item_01
+privacy2: meta_privacy_concern_item_02
+privacy3: meta_privacy_concern_item_03
+privacy4: meta_privacy_concern_item_04
+# Affinity for Technology Interaction (Franke et al. 2019), 1-6; items 3, 6, 8 reversed
+tech1: meta_ati_item_01
+tech2: meta_ati_item_02
+tech3: meta_ati_item_03
+tech4: meta_ati_item_04
+tech5: meta_ati_item_05
+tech6: meta_ati_item_06
+tech7: meta_ati_item_07
+tech8: meta_ati_item_08
+tech9: meta_ati_item_09
+
+# --- Experience ---------------------------------------------------------------
+iphone: meta_experience_ios                     # 1 = prior iPhone/iOS experience
+factor_sms: meta_experience_2fa_sms             # 1 = has used SMS 2FA
+factor_tan: meta_experience_2fa_tan_list        # 1 = has used TAN-list 2FA
+factor_gen: meta_experience_2fa_code_generator  # 1 = has used a code-generator 2FA
+factor_app: meta_experience_2fa_push_app        # 1 = has used push-based app 2FA
+factor_key: meta_experience_2fa_hardware_key    # 1 = has used a hardware key
+
+# --- Missing-value codes ------------------------------------------------------
+# README: "98 means that the participant explicitly selected the NA option";
+# "99 means that the participant selected nothing on the paper questionnaire".
+# The convention covers every field (98/99 occur in SUS, ATI, adoption and
+# demographic items), so the codes are set to missing before any summary.
+missing_values:
+  - columns: "*"
+    values: [98, 99]
+    reason: 98 = NA chosen, 99 = left blank (dataset README)

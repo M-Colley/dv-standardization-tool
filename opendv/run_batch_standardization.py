@@ -70,6 +70,9 @@ if _PYDANTIC_AVAILABLE:
         llm_models: list[str] | None = None
         # Repository sources: skip files larger than this (MB).
         max_file_mb: float | None = None
+        # Per-file loading options (sheet, header row, long-to-wide pivot), keyed by
+        # path relative to the source root or a glob; see data_loaders.table_options_for.
+        table_options: dict[str, dict[str, Any]] = {}
 
         @field_validator("source_type")
         @classmethod
@@ -152,6 +155,7 @@ from opendv.convert_dv import (
     standardize_columns,
     strip_duplicate_suffix,
 )
+from opendv.data_loaders import table_options_for
 from opendv.header_matching import HeaderMatch, match_headers
 from opendv.instruments import keying_check
 from opendv.item_composition import (
@@ -167,7 +171,9 @@ from opendv.llm_utils import (
 )
 from opendv.llm_plausibility import load_rules as load_plausibility_rules
 from opendv.value_labels import (
+    apply_missing_values,
     apply_reverse_keying,
+    apply_unit_conversions,
     apply_value_labels,
     recode_negative_answer_codes,
     recode_survey_answer_codes,
@@ -994,10 +1000,11 @@ def discover_source_files(
     )
     return base_dir, files, provenance_id
 
-def _load_any_table(path: Path) -> pd.DataFrame:
+def _load_any_table(path: Path, options: dict[str, Any] | None = None) -> pd.DataFrame:
     # The format registry handles .tsv (with encoding + delimiter detection),
-    # so every discovered file goes through the same robust loader.
-    df = load_input_file(str(path))
+    # so every discovered file goes through the same robust loader. *options*
+    # are the file's manifest table_options (sheet, header row, pivot).
+    df = load_input_file(str(path), options)
     # Strip whitespace from headers — many real CSVs have " scenario", "id ",
     # etc. and the schema mapping is whitespace-sensitive.
     df.columns = [str(col).strip() for col in df.columns]
@@ -1530,6 +1537,8 @@ class _ResolvedMapping:
     declared_scales: tuple[dict[str, Any], ...]
     value_labels: tuple[dict[str, Any], ...] = ()
     reverse_items: tuple[dict[str, Any], ...] = ()
+    missing_values: tuple[dict[str, Any], ...] = ()
+    unit_conversions: tuple[dict[str, Any], ...] = ()
 
 
 class _MappingResolver:
@@ -1566,6 +1575,8 @@ class _MappingResolver:
                     tuple(custom_schema_data.get("scales") or []),
                     tuple(raw_schema.get("value_labels") or []) if isinstance(raw_schema, dict) else (),
                     tuple(raw_schema.get("reverse_items") or []) if isinstance(raw_schema, dict) else (),
+                    tuple(raw_schema.get("missing_values") or []) if isinstance(raw_schema, dict) else (),
+                    tuple(raw_schema.get("unit_conversions") or []) if isinstance(raw_schema, dict) else (),
                 )
         return self._custom[mapping_path]
 
@@ -1584,9 +1595,12 @@ class _MappingResolver:
         declared_scales: tuple[dict[str, Any], ...] = ()
         value_labels: tuple[dict[str, Any], ...] = ()
         reverse_items: tuple[dict[str, Any], ...] = ()
+        missing_values: tuple[dict[str, Any], ...] = ()
+        unit_conversions: tuple[dict[str, Any], ...] = ()
         custom = self._load_custom(path_key, dataset_id) if path_key is not None else None
         if custom is not None:
-            custom_mapping, custom_aliases_ci, declared_scales, value_labels, reverse_items = custom
+            (custom_mapping, custom_aliases_ci, declared_scales, value_labels, reverse_items, missing_values,
+             unit_conversions) = custom
             # Only report a mapping path once a non-empty source mapping is
             # actually merged in.
             if custom_mapping:
@@ -1603,6 +1617,8 @@ class _MappingResolver:
             declared_scales=declared_scales,
             value_labels=value_labels,
             reverse_items=reverse_items,
+            missing_values=missing_values,
+            unit_conversions=unit_conversions,
         )
         self._resolved[key] = resolved
         return resolved
@@ -1630,6 +1646,7 @@ class _SourceJob:
     llm_plausibility_check: bool = True
     output_format: str = "native"
     header_matching: bool = True
+    table_options: dict[str, dict[str, Any]] = field(default_factory=dict)
 
 
 @dataclass
@@ -1711,7 +1728,7 @@ def _process_dataset(
     destination = source.output_dir / f"{artifact_prefix}-standardized{output_suffix}"
 
     try:
-        original_df = _load_any_table(task.file_path)
+        original_df = _load_any_table(task.file_path, table_options_for(source.table_options, dataset_id))
         raw_columns = [str(column) for column in original_df.columns]
         dataset_type = classify_dataset_type(relative_file, raw_columns)
         repository_mapping_path = _resolve_repository_mapping_path(
@@ -1721,8 +1738,10 @@ def _process_dataset(
             dataset_path=task.file_path,
         )
         resolved = resolver.resolve(dataset_type, repository_mapping_path, dataset_id)
-        # Text-labelled responses declared in the repository mapping become
+        # Declared missing-value codes (98/99 "no answer") go first, then
+        # text-labelled responses declared in the repository mapping become
         # numbers before anything numeric (profiles, summaries) looks at them.
+        original_df, missing_value_report = apply_missing_values(original_df, resolved.missing_values)
         original_df, value_label_report = apply_value_labels(original_df, resolved.value_labels)
         answer_code_report: dict[str, int] = {}
         survey_code_report: dict[str, str] = {}
@@ -1736,6 +1755,8 @@ def _process_dataset(
         # Items declared reverse-keyed for this dataset (after the recodings
         # above, so they operate on numeric codes).
         original_df, reverse_report = apply_reverse_keying(original_df, resolved.reverse_items)
+        # Columns recorded in another unit than their DV's (ms for seconds).
+        original_df, unit_report = apply_unit_conversions(original_df, resolved.unit_conversions)
         source_mapping = resolved.mapping
         dataset_mapping = source_mapping
         unknown_before_llm = _filter_llm_eligible_columns(
@@ -1886,8 +1907,12 @@ def _process_dataset(
             dataset_type,
             composite_records=composite_records,
         )
+        if missing_value_report:
+            quality["missing_value_codes"] = missing_value_report
         if value_label_report:
             quality["value_labels_applied"] = value_label_report
+        if unit_report:
+            quality["unit_conversions"] = unit_report
         if answer_code_report:
             quality["negative_answer_codes_recoded"] = answer_code_report
         if survey_code_report:
@@ -2396,6 +2421,7 @@ def run_batch(
                     llm_plausibility_check=llm_plausibility_check,
                     output_format=output_format,
                     header_matching=header_matching,
+                    table_options=dict(source.get("table_options") or {}),
                 )
                 tasks = [
                     _DatasetTask(index=index, source=source_job, file_path=file_path)

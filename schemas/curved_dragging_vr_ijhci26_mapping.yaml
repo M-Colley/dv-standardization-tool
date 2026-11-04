@@ -1,0 +1,72 @@
+# Source-specific column mapping for curved_dragging_vr_ijhci26
+# Paper: Xing, Zhang, Tu, Wu. "Exploring Dragging Interaction on Curved Displays
+#   in Virtual Reality." International Journal of Human-Computer Interaction (2026).
+#   DOI 10.1080/10447318.2026.2738094
+# Data: Zenodo record 21589932 (DOI 10.5281/zenodo.21589932), CC-BY-4.0; codebook
+#   is the record's README.md plus the README sheet of the workload workbook.
+#
+# Files and table options covered by this mapping:
+#   - experiment_1_curvilinear_processed_condition_data.xlsx  {sheet: DATA, header: 0}
+#   - experiment_2_angular_processed_condition_data.xlsx      {sheet: DATA, header: 0}
+#     One row = participant x condition (R x D x A x W), aggregated over blocks;
+#     864 rows each (12 participants x 4 curvatures x 3 depths x 2 A x 3 W).
+#   - subjective_workload_processed_condition_data.xlsx       {sheet: NASA_TLX_Data, header: 1}
+#     Row 0 is a title row; row 1 the header. The sheet is LONG format (one row per
+#     participant x curvature x depth x subscale, value in `score`) and must be
+#     pivoted before this mapping applies:
+#       index:   [experiment, measurement_condition, subject_id, curvature, curvature_code, depth_m]
+#       columns: subscale   (values Mental, Physical, Temporal, Performance, Effort, Frustration)
+#       values:  score
+#     `score_range` ("0-20") and `higher_score_meaning` are descriptors that the
+#     pivot drops. Result: 288 rows (2 experiments x 12 participants x 4 x 3).
+# Excluded: README.md (codebook); workbook sheets README (codebook), ART_ANOVA and
+#   ART_Posthoc (inferential statistics, not participant data).
+#
+# Notes:
+#   - Units differ between experiments: Exp. 1 A in m (6, 12) and W in m
+#     (0.1, 0.3, 0.5); Exp. 2 A in degrees (60, 120) and W in degrees (1, 3, 5).
+#     D is in mm in the behavioural files, depth_m in metres in the TLX sheet.
+#   - TP is nominal throughput in bit/s, TP = ID / MT (checked on the data).
+#   - NASA-TLX: unweighted subscale scores, 0-20. Higher = more workload for all
+#     subscales except Performance, where higher = poorer perceived performance.
+#   - Column `ID` is the Fitts index of difficulty (bits), not a participant id;
+#     the batch runner's never-map list blocks the name "ID" anyway.
+
+# --- Dependent measures: behavioural (both experiments) -----------------------
+MT: task_completion_time            # mean movement (drag) time per condition, seconds
+TP: efficiency                      # Fitts throughput, bit/s (= ID / MT)
+ER: error_rate                      # Exp. 1 error rate, proportion 0-1
+ER_pct: meta_derived_percent        # = 100 x ER (same measure in percent)
+error_rate: error_rate              # Exp. 2 error rate, proportion 0-1
+error_rate_pct: meta_derived_percent  # = 100 x error_rate (same measure in percent)
+# Exp. 2 endpoint measures with no schema id (left out): dx, avg_abs_dx, avg_Ae, We
+
+# --- Dependent measures: NASA-TLX (pivoted NASA_TLX_Data) ---------------------
+Mental: mental_demand               # 0-20, unweighted
+Physical: physical_demand           # 0-20
+Temporal: temporal_demand           # 0-20
+Performance: performance            # 0-20, higher = poorer perceived performance
+Effort: effort                      # 0-20
+Frustration: frustration            # 0-20
+
+# --- Participants -------------------------------------------------------------
+subject: meta_participant_id        # behavioural files, 1-12 within each experiment
+subject_id: meta_participant_id     # TLX sheet, E1_P01..E2_P12
+
+# --- Conditions / design factors ---------------------------------------------
+R: meta_condition_curvature         # curvature code: 0 = flat, 3000/4500/6000 = curved
+curvature: meta_condition_curvature        # label: Flat, 3000R, 4500R, 6000R
+curvature_code: meta_condition_curvature   # 0, 3000, 4500, 6000
+D: meta_condition_depth             # viewing depth, mm (3000, 4500, 6000)
+depth_m: meta_condition_depth       # viewing depth, m (3.0, 4.5, 6.0)
+A: meta_condition_amplitude         # movement amplitude (m in Exp. 1, deg in Exp. 2)
+W: meta_condition_target_width      # target width (m in Exp. 1, deg in Exp. 2)
+experiment: meta_experiment         # 1 or 2
+measurement_condition: meta_condition_measurement   # Curvilinear (Exp. 1) / Angular (Exp. 2)
+
+# --- Model predictors derived from the design (constant within condition) -----
+ID: meta_index_of_difficulty                        # log2(A/W + 1), bits
+S: meta_model_parameter_fov                         # horizontal FOV parameter of the peephole model (106)
+peephole_index_n076: meta_peephole_index_of_difficulty   # peephole-model index, n = 0.76
+LogAplusW: meta_model_predictor_log2_a_plus_w       # log2(A + W)
+LogW: meta_model_predictor_log2_w                   # log2(W)

@@ -357,9 +357,9 @@ def _canonicalize_dv_name(name: str) -> str | None:
 def _detect_scale_range(series: pd.Series, canonical_range: tuple[float, float]) -> tuple[float, float]:
     """Heuristically detect the actual scale range of a data series.
 
-    If the observed data clearly exceeds the canonical range, infer an
-    alternative scale (e.g. a 0-20 Likert when canonical is 1-5).
-    More specific ranges are tried before broad catch-alls like 0-100.
+    If the observed data clearly exceeds the canonical range, infer the
+    narrowest common scale that holds every value (e.g. 1-7 for 1-7 answers
+    when canonical is -3..3), so 1-5 data is never read as a 0-20 scale.
     """
     smin, smax = float(series.min()), float(series.max())
     cmin, cmax = canonical_range
@@ -373,21 +373,25 @@ def _detect_scale_range(series: pd.Series, canonical_range: tuple[float, float])
     if smin >= cmin - tol and smax <= cmax + tol:
         return canonical_range
 
-    # Try common alternative ranges — more specific first so a 0-20 Likert
-    # is not swallowed by the broad 0-100 VAS catch-all.
-    # Only consider alternatives that are WIDER than the canonical range.
-    for alt_lo, alt_hi in [
-        (0, 20), (1, 20),   # 21-point scales (common in psychology)
-        (0, 21), (1, 21),   # explicit 21-point
-        (0, 10), (1, 10),   # 11-point
-        (0, 9), (1, 9),     # 9-point (SAM)
-        (1, 7), (0, 7),     # 7-point
-        (1, 5), (0, 5),     # 5-point
-        (0, 100), (1, 100), # VAS / percentage (broad catch-all last)
-    ]:
-        alt_tol = (alt_hi - alt_lo) * 0.15
-        if smin >= alt_lo - alt_tol and smax <= alt_hi + alt_tol:
-            return (float(alt_lo), float(alt_hi))
+    # Otherwise take the common scale with the lowest top that contains every
+    # value; of its 0- and 1-anchored variants, the one listed first.
+    fitting = [
+        (alt_lo, alt_hi)
+        for alt_lo, alt_hi in [
+            (0, 20), (1, 20),   # 21-point scales (common in psychology)
+            (0, 21), (1, 21),   # explicit 21-point
+            (0, 10), (1, 10),   # 11-point
+            (0, 9), (1, 9),     # 9-point (SAM)
+            (1, 7), (0, 7),     # 7-point
+            (1, 5), (0, 5),     # 5-point
+            (0, 100), (1, 100), # VAS / percentage
+        ]
+        if alt_lo <= smin and smax <= alt_hi
+    ]
+    if fitting:
+        top = min(hi for _, hi in fitting)
+        alt_lo, alt_hi = next(r for r in fitting if r[1] == top)
+        return (float(alt_lo), float(alt_hi))
 
     return (smin, smax)
 

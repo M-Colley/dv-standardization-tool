@@ -1,0 +1,227 @@
+# Source-specific column mapping for fov_snapturn_tvcg24
+# Paper: Kelly, Doty, Gilbert, Dorneich. "Field of View Restriction and Snap
+#   Turning as Cybersickness Mitigation Tools." IEEE Transactions on Visualization
+#   and Computer Graphics (2025). DOI 10.1109/TVCG.2024.3470214
+# Data: OSF project d4zyf (https://osf.io/d4zyf/), CC-BY-4.0. The project holds
+#   Data/FOV&SnapTurnDataOSF_Revision.csv, Supplemental analyses/
+#   SupplementalAnalyses_Revision2.pdf and Supplemental figures/{logSSQ_Revision.pdf,
+#   VRNQ_Full_Revision.pdf}; there is no codebook, so meanings below were settled
+#   from the paper (accepted manuscript, NSF PAR 10591601), the VRNQ supplemental
+#   table and checks on the data.
+#
+# File covered: Data/FOV&SnapTurnDataOSF_Revision.csv, one row per participant
+#   (N = 201, 2 x 2 between-subjects design).
+# Table options: the file is Windows-1252, not UTF-8 (byte 0x92 in a free-text
+#   answer); read with pd.read_csv(path, encoding="cp1252"). The loader's encoding
+#   detection fails on it. "N/A" strings are read as missing.
+#
+# Notes:
+#   - Mitigation is empty (NaN) for the 52 no-mitigation control participants.
+#   - "FMS" here is an 11-point 0-10 sickness rating modelled on the 21-point Fast
+#     Motion Sickness scale (paper, Sec. 4.3). Ratings every 4 min (FMS0..FMS20,
+#     missing after early withdrawal) and on exiting VR (Final FMS; Early FMS only
+#     for participants who withdrew). ADS0..ADS20 are the same ratings with missing
+#     values after withdrawal filled with the exit rating; ADS (average discomfort
+#     score, the paper's primary DV) is their mean (checked on the data).
+#   - SSQ item order (SSQ Pre_k, SSQ Post_k, k = 1..16) is Kennedy et al. (1993):
+#     general discomfort, fatigue, headache, eye strain, difficulty focusing,
+#     salivation increasing, sweating, nausea, difficulty concentrating, fullness
+#     of head, blurred vision, dizzy (eyes open), dizzy (eyes closed), vertigo,
+#     stomach awareness, burping; 0-3 each. The 16 named columns GeneralDiscomfort
+#     .. Burping are post-minus-pre item change scores (match SSQ Post_k - SSQ Pre_k
+#     in 93-100 % of rows; the rest equal the post rating). Sub_Nausea,
+#     Sub_Oculomotor, Sub_Disorientation and SSQ_Total are the weighted SSQ scores
+#     of those change items (exact match); the "... Post" columns are the weighted
+#     scores of the post-exposure items (exact match) and are the ones the paper
+#     reports. SSQ_PostLog = log10(SSQ_Total Post + 26) (exact match), the
+#     transformed DV of the paper's ANCOVA; it is left out (not on SSQ units).
+#   - MSSQ (long form: child and adult sections a, b, c with 9 items each, plus
+#     totals), VIMSSQ (named VIMSQ
+#     in the file), IPD and gaming experience were measured once before exposure
+#     and used as covariates or descriptors, so they are meta_*.
+#   - VRNQ items (User1_*, Mechanics1_*, Assistance*_*; 1-7) have no schema id and
+#     are left out; item order from the OSF VRNQ table: Immersion, Enjoyment,
+#     Graphics, Sound, Technology | Navigation, Physical, Pick up items, Use items,
+#     2-handed | Tutorial-Easy, Tutorial-Helpful, Tutorial-Duration,
+#     Tutorial-Instructions, In-game prompts, Tutorial-Duration (second).
+#   - Column1 (a single value, 6.0, in the first row) is unresolved and left out.
+
+# --- Dependent measures: FMS-type sickness rating (0-10) ----------------------
+FMS0: fms_score                     # rating at entry into VR (minute 0)
+FMS4: fms_score                     # minute 4
+FMS8: fms_score                     # minute 8 (missing after withdrawal)
+FMS12: fms_score                    # minute 12
+FMS16: fms_score                    # minute 16
+FMS20: fms_score                    # minute 20
+Early FMS: fms_score                # rating on early withdrawal (only for withdrawers)
+Final FMS: fms_score                # rating on exiting VR (all participants)
+ADS0: meta_imputed_carried_forward  # FMS rating with the exit rating carried forward after withdrawal (derived)
+ADS4: meta_imputed_carried_forward  # FMS rating with the exit rating carried forward after withdrawal (derived)
+ADS8: meta_imputed_carried_forward  # FMS rating with the exit rating carried forward after withdrawal (derived)
+ADS12: meta_imputed_carried_forward # FMS rating with the exit rating carried forward after withdrawal (derived)
+ADS16: meta_imputed_carried_forward # FMS rating with the exit rating carried forward after withdrawal (derived)
+ADS20: meta_imputed_carried_forward # FMS rating with the exit rating carried forward after withdrawal (derived)
+ADS: fms_score                      # average discomfort score = mean of ADS0..ADS20 (0-10)
+
+# --- Dependent measures: SSQ, post-exposure (weighted scores) -----------------
+Sub_Nausea Post: ssq_nausea
+Sub_Oculomotr Post: ssq_oculomotor
+Sub_Disorientation Post: ssq_disorientation
+SSQ_Total Post: ssq_total
+
+# --- Dependent measures: SSQ, post-minus-pre change (weighted scores) ---------
+Sub_Nausea: meta_ssq_change_score   # post minus pre; kept apart from the absolute post scores
+Sub_Oculomotor: meta_ssq_change_score  # post minus pre; kept apart from the absolute post scores
+Sub_Disorientation: meta_ssq_change_score  # post minus pre; kept apart from the absolute post scores
+SSQ_Total: meta_ssq_change_score    # post minus pre; kept apart from the absolute post scores
+
+# --- Participants and conditions ---------------------------------------------
+ID: meta_participant_id
+Mitigation: meta_condition_mitigation   # Blinders (FOV restriction), Snap, Snap & Blinders; empty = none
+
+# --- Demographics -------------------------------------------------------------
+GENDER: meta_demographic_gender
+AGE: meta_demographic_age
+ETHNICITY: meta_demographic_ethnicity
+ETHNICITY_Other: meta_demographic_ethnicity_other   # free text
+EDUCATION: meta_demographic_education
+IPD: meta_demographic_ipd           # interpupillary distance, mm, measured with a ruler
+
+# --- Motion-sickness susceptibility (covariates, measured once) ---------------
+VIMSQ 1_1: meta_vimsq_item_01       # VIMSSQ symptom frequency items, 0-3
+VIMSQ 1_2: meta_vimsq_item_02
+VIMSQ 1_3: meta_vimsq_item_03
+VIMSQ 1_4: meta_vimsq_item_04
+VIMSQ 1_5: meta_vimsq_item_05
+VIMSQ Total: meta_vimsq_total       # sum of VIMSQ 1_1..1_5
+VIMSQ 2: meta_vimsq_avoidance       # Never / Rarely / Sometimes / Often
+VIMSQ 2b: meta_free_text            # which devices/situations are avoided
+MSSQ 1: meta_mssq_self_rated_susceptibility   # Not at all .. Very much so
+MSSQ Child a_1: meta_mssq_child_a
+MSSQ Child a_2: meta_mssq_child_a
+MSSQ Child a_3: meta_mssq_child_a
+MSSQ Child a_4: meta_mssq_child_a
+MSSQ Child a_5: meta_mssq_child_a
+MSSQ Child a_6: meta_mssq_child_a
+MSSQ Child a_7: meta_mssq_child_a
+MSSQ Child a_8: meta_mssq_child_a
+MSSQ Child a_9: meta_mssq_child_a
+MSSQ Child b_1: meta_mssq_child_b
+MSSQ Child b_2: meta_mssq_child_b
+MSSQ Child b_3: meta_mssq_child_b
+MSSQ Child b_4: meta_mssq_child_b
+MSSQ Child b_5: meta_mssq_child_b
+MSSQ Child b_6: meta_mssq_child_b
+MSSQ Child b_7: meta_mssq_child_b
+MSSQ Child b_8: meta_mssq_child_b
+MSSQ Child b_9: meta_mssq_child_b
+MSSQ Child c_1: meta_mssq_child_c
+MSSQ Child c_2: meta_mssq_child_c
+MSSQ Child c_3: meta_mssq_child_c
+MSSQ Child c_4: meta_mssq_child_c
+MSSQ Child c_5: meta_mssq_child_c
+MSSQ Child c_6: meta_mssq_child_c
+MSSQ Child c_7: meta_mssq_child_c
+MSSQ Child c_8: meta_mssq_child_c
+MSSQ Child c_9: meta_mssq_child_c
+MSSQ Adult a_1: meta_mssq_adult_a
+MSSQ Adult a_2: meta_mssq_adult_a
+MSSQ Adult a_3: meta_mssq_adult_a
+MSSQ Adult a_4: meta_mssq_adult_a
+MSSQ Adult a_5: meta_mssq_adult_a
+MSSQ Adult a_6: meta_mssq_adult_a
+MSSQ Adult a_7: meta_mssq_adult_a
+MSSQ Adult a_8: meta_mssq_adult_a
+MSSQ Adult a_9: meta_mssq_adult_a
+MSSQ Adult b_1: meta_mssq_adult_b
+MSSQ Adult b_2: meta_mssq_adult_b
+MSSQ Adult b_3: meta_mssq_adult_b
+MSSQ Adult b_4: meta_mssq_adult_b
+MSSQ Adult b_5: meta_mssq_adult_b
+MSSQ Adult b_6: meta_mssq_adult_b
+MSSQ Adult b_7: meta_mssq_adult_b
+MSSQ Adult b_8: meta_mssq_adult_b
+MSSQ Adult b_9: meta_mssq_adult_b
+MSSQ Adult c_1: meta_mssq_adult_c
+MSSQ Adult c_2: meta_mssq_adult_c
+MSSQ Adult c_3: meta_mssq_adult_c
+MSSQ Adult c_4: meta_mssq_adult_c
+MSSQ Adult c_5: meta_mssq_adult_c
+MSSQ Adult c_6: meta_mssq_adult_c
+MSSQ Adult c_7: meta_mssq_adult_c
+MSSQ Adult c_8: meta_mssq_adult_c
+MSSQ Adult c_9: meta_mssq_adult_c
+MSSQ Child Total: meta_mssq_child_total
+MSSQ Adult Total: meta_mssq_adult_total
+MSSQ Total: meta_mssq_total         # covariate in the paper's ANCOVAs
+
+# --- Gaming / VR experience ---------------------------------------------------
+Video FPS: meta_experience_game_genres            # multi-select list of genres played
+Video 1_13_TEXT: meta_experience_game_genres_other # free text for "other" genre
+VR Experience: meta_experience_vr                  # 0/1
+Video Game Experience: meta_experience_video_games # 0/1
+Game hrs/wk day: meta_experience_gaming_hours_weekday      # hours per weekday
+Game hrs/wk end: meta_experience_gaming_hours_weekend_day  # hours per weekend day
+Game hrs/wk: meta_experience_gaming_hours_per_week         # = 5 x weekday + 2 x weekend day
+
+# --- Free-text comments -------------------------------------------------------
+User1b: meta_free_text              # comments on the VRNQ user-experience block
+Mechanics1b: meta_free_text         # comments on the game-mechanics block
+Assistance4: meta_free_text         # comments on the in-game-assistance block
+General1: meta_free_text            # general comments
+
+# --- SSQ items (Kennedy et al. 1993 order, 0-3) ---------------------------------
+# Post-exposure items map to the SSQ items of the instrument registry, which
+# scores them with the Kennedy weights; the paper's Sub_* Post scores match
+# that scoring exactly. Pre-exposure items are a baseline covariate; the named
+# item columns (GeneralDiscomfort .. Burping) hold post minus pre and are locked
+# as meta (otherwise the standard alias would map 'Nausea' to ssq_nausea).
+"SSQ Post_1": ssq_general_discomfort
+"SSQ Post_2": ssq_fatigue
+"SSQ Post_3": ssq_headache
+"SSQ Post_4": ssq_eye_strain
+"SSQ Post_5": ssq_difficulty_focusing
+"SSQ Post_6": ssq_increased_salivation
+"SSQ Post_7": ssq_sweating
+"SSQ Post_8": ssq_nausea_item
+"SSQ Post_9": ssq_difficulty_concentrating
+"SSQ Post_10": ssq_fullness_of_head
+"SSQ Post_11": ssq_blurred_vision
+"SSQ Post_12": ssq_dizzy_eyes_open
+"SSQ Post_13": ssq_dizzy_eyes_closed
+"SSQ Post_14": ssq_vertigo
+"SSQ Post_15": ssq_stomach_awareness
+"SSQ Post_16": ssq_burping
+"SSQ Pre_1": meta_ssq_baseline_item
+"SSQ Pre_2": meta_ssq_baseline_item
+"SSQ Pre_3": meta_ssq_baseline_item
+"SSQ Pre_4": meta_ssq_baseline_item
+"SSQ Pre_5": meta_ssq_baseline_item
+"SSQ Pre_6": meta_ssq_baseline_item
+"SSQ Pre_7": meta_ssq_baseline_item
+"SSQ Pre_8": meta_ssq_baseline_item
+"SSQ Pre_9": meta_ssq_baseline_item
+"SSQ Pre_10": meta_ssq_baseline_item
+"SSQ Pre_11": meta_ssq_baseline_item
+"SSQ Pre_12": meta_ssq_baseline_item
+"SSQ Pre_13": meta_ssq_baseline_item
+"SSQ Pre_14": meta_ssq_baseline_item
+"SSQ Pre_15": meta_ssq_baseline_item
+"SSQ Pre_16": meta_ssq_baseline_item
+GeneralDiscomfort: meta_ssq_change_item
+Fatigue: meta_ssq_change_item
+Headache: meta_ssq_change_item
+EyeStrain: meta_ssq_change_item
+DiffFocusing: meta_ssq_change_item
+SalivationIncrease: meta_ssq_change_item
+Sweating: meta_ssq_change_item
+Nausea: meta_ssq_change_item
+DiffConcentrating: meta_ssq_change_item
+FullnessofHead: meta_ssq_change_item
+BlurredVision: meta_ssq_change_item
+DizzyEyesOpen: meta_ssq_change_item
+DizzyEyesClosed: meta_ssq_change_item
+Vertigo: meta_ssq_change_item
+StomachAwareness: meta_ssq_change_item
+Burping: meta_ssq_change_item
+SSQ_PostLog: meta_derived_log       # log10(SSQ_Total Post + 26), the paper's ANCOVA transform

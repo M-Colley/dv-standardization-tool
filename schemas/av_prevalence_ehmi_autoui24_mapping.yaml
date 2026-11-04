@@ -1,0 +1,80 @@
+# Curated column mapping for av_prevalence_ehmi_autoui24 (development set)
+#
+# Paper: D. Eisele, C. B. Bubeck, M. Rudolf, T. Petzoldt (AutomotiveUI 2024). "The Prevalence of Automated Vehicles (with eHMIs) May Influence
+#   Pedestrian-Vehicle Interactions." DOI 10.1145/3640792.3675723. The method is
+#   also reported as Study V of Eisele's dissertation (TU Dresden 2025,
+#   qucosa:96578), which was read to settle the meaning of Decision_Time.
+# Data: OSF cr3qm (project bu3r2), data.csv. Codebook: readme.html in the same component.
+# Table options: none. data.csv is semicolon-separated UTF-8 with a BOM and the
+#   header in row 0; load_input_file reads it (BOM stripped, 3,199 x 32).
+#
+# Structure: one table with three row types, given by Task_Category:
+#   experimental_trials (3,072 = 64 participants x 48 trials): the trial and
+#     decision variables
+#   UEQ-S (64, one per participant): the eHMI ratings
+#   demographics (63; the row of Subject 63 is missing): visibility checks, age, gender
+# Columns not used by a row type are empty in it. Trial_Nr, Trial_Id and
+# Condition_Id are export placeholders (1) on the questionnaire rows.
+#
+# Notes
+# - AV_Prevalence (between): 0 = low (21 % AVs), 1 = high (79 % AVs).
+# - Target_Vehicle_Type: 0 = conventional, 1 = automated. Target_Vehicle_Behavior:
+#   0 = non-yielding distractor, 1 = yielding. Only yielding trials were analysed.
+# - UEQ-S items: raw 1-7, 1 = the negative pole named in the column and 7 = its
+#   positive opposite. Subtract 4 for -3..+3. No item is reversed. The items are
+#   named by their negative pole, in the standard UEQ-S order: obstructive,
+#   complicated, inefficient and confusing form pragmatic quality; boring, not
+#   interesting, conventional and usual form hedonic quality. Two eHMIs were rated:
+#   UEQS_FBL_* is the frontal brake light and UEQs_mode_* the cyan automation
+#   marker light. Mapped to the UEQ-S items of the instrument registry (ueq_s_1..8,
+#   schemas/instruments.yaml), which scores pragmatic and hedonic quality on
+#   -3..+3, as in schemas/running_into_traffic_mapping.yaml.
+#   The second set (UEQs_mode_*) becomes ueq_s_N__dup_1 columns.
+# - Decision_Time (ms from video onset to the click) is the moment participants
+#   decided to cross. They were told explicitly not to mark the moment they would
+#   initiate crossing (dissertation, sec. 8.3.4). It is therefore not mapped to
+#   crossing_initiation_time and is left out (no fitting schema id).
+
+# --- Dependent measures (UEQ-S rows) -------------------------------------------------
+UEQS_FBL_obstructive: ueq_s_1          # obstructive-supportive, 1-7
+UEQS_FBL_complicated: ueq_s_2          # complicated-easy, 1-7
+UEQS_FBL_inefficient: ueq_s_3          # inefficient-efficient, 1-7
+UEQS_FBL_confusing: ueq_s_4            # confusing-clear, 1-7
+UEQS_FBL_boring: ueq_s_5                 # boring-exciting, 1-7
+UEQS_FBL_notinteresting: ueq_s_6         # not interesting-interesting, 1-7
+UEQS_FBL_conventional: ueq_s_7           # conventional-inventive, 1-7
+UEQS_FBL_usual: ueq_s_8                  # usual-leading edge, 1-7
+UEQs_mode_obstructive: ueq_s_1
+UEQs_mode_complicated: ueq_s_2
+UEQs_mode_inefficient: ueq_s_3
+UEQs_mode_confusing: ueq_s_4
+UEQs_mode_boring: ueq_s_5
+"UEQs_mode_not interesting": ueq_s_6     # column name contains a space
+UEQs_mode_conventional: ueq_s_7
+UEQs_mode_usual: ueq_s_8
+
+# --- Conditions and stimuli ----------------------------------------------------------
+AV_Prevalence: meta_condition_av_prevalence          # 0 low, 1 high (between subjects)
+Condition_Id: meta_condition                         # stimulus condition 1-24 within prevalence group
+Target_Vehicle_Type: meta_condition_vehicle_type     # 0 conventional, 1 automated
+Target_Vehicle_Behavior: meta_condition_vehicle_behavior  # 0 non-yielding distractor, 1 yielding
+
+# --- Identifiers and row bookkeeping -------------------------------------------------
+Subject: meta_participant_id
+Trial_Nr: meta_trial_number                  # presentation order 1-48 (randomized)
+Trial_Id: meta_trial_id                      # stimulus-repeat id 1-48
+Task_Category: meta_row_type                 # experimental_trials / UEQ-S / demographics
+
+# --- Checks and demographics ---------------------------------------------------------
+Percieve_Vehicle_Well: meta_check_visibility_vehicle      # 1 = could see the vehicles well
+Perceive_FBL_Well: meta_check_visibility_fbl              # 1 = could see the frontal brake light well
+Perceive_Mode_Well: meta_check_visibility_mode_marker     # 1 = could see the automation marker well
+Age: meta_demographic_age
+Gender: meta_demographic_gender              # f / m
+
+# --- Left out (not in the mapping) ---------------------------------------------------
+# DVs with no fitting schema id: Decision_Time (crossing decision time, ms),
+#   Decision_Before_Yielding_Vehicle_Starts_Decelerating (1 = decision before the
+#   programmed braking onset at 6.6 s; the basis of the paper's early/late crosser
+#   split), FBL_Active_During_Decision (1 = the frontal brake light was already on
+#   at the decision; clicked yielding AV trials only).

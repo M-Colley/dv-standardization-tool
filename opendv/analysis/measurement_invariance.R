@@ -13,6 +13,9 @@
 #   scalar      loadings and intercepts equal across studies
 # Estimator MLR with cluster-robust standard errors and test statistics
 # (Yuan-Bentler), so repeated answers of one participant are handled.
+# lavaan refuses a cluster variable when every cluster of a study holds one
+# observation (a between-subject study); the models are then fitted without
+# it (robust MLR only) and the result says so (cluster_robust = false).
 # The Python caller applies the decision rules; this script only fits.
 
 suppressPackageStartupMessages({
@@ -30,18 +33,24 @@ levels <- list(configural = character(0), metric = "loadings", scalar = c("loadi
 measures <- c("chisq.scaled", "df.scaled", "pvalue.scaled", "cfi.robust", "tli.robust",
               "rmsea.robust", "srmr", "aic", "bic")
 
+sizes <- table(data$group, data$cluster)
+singleton_groups <- rownames(sizes)[apply(sizes, 1, function(n) all(n[n > 0] == 1))]
+cluster <- if (length(singleton_groups) > 0) NULL else "cluster"
+
 fits <- list()
 out <- list(scale = spec$scale, lavaan = as.character(packageVersion("lavaan")),
             n_obs = nrow(data), groups = as.list(table(data$group)),
             clusters = as.list(tapply(data$cluster, data$group, function(x) length(unique(x)))),
+            cluster_robust = length(singleton_groups) == 0,
+            one_observation_per_cluster = as.list(singleton_groups),
             levels = list())
 for (level in names(levels)) {
   fit <- tryCatch(
-    cfa(model, data = data, group = "group", cluster = "cluster", estimator = "MLR",
+    cfa(model, data = data, group = "group", cluster = cluster, estimator = "MLR",
         group.equal = levels[[level]], std.lv = FALSE),
     error = function(e) e, warning = function(w) {
       # keep the fit but record the warning (e.g. negative variances)
-      suppressWarnings(fit2 <- cfa(model, data = data, group = "group", cluster = "cluster",
+      suppressWarnings(fit2 <- cfa(model, data = data, group = "group", cluster = cluster,
                                    estimator = "MLR", group.equal = levels[[level]]))
       attr(fit2, "warning") <- conditionMessage(w)
       fit2

@@ -301,9 +301,12 @@ def main(argv: list[str] | None = None) -> None:
     parser.add_argument("--preregistered-runs", nargs="*", default=[], metavar="NAME=DIR",
                         help="posthoc: the pre-registered E1 output directories, by the same names")
     parser.add_argument("--output", default=str(CONFIRMATORY_DIR / "results.json"))
+    parser.add_argument("--sources", default=str(SOURCES_PATH),
+                        help="fetch: list of pinned files (also used for analyses/development_sources/sources.yaml)")
+    parser.add_argument("--data-dir", default=str(DATA_DIR), help="fetch: where <source_id>/ folders are written")
     args = parser.parse_args(argv)
     if args.command == "fetch":
-        problems = {k: v for k, v in fetch().items() if v}
+        problems = {k: v for k, v in fetch(Path(args.data_dir), Path(args.sources)).items() if v}
         for source_id, issues in problems.items():
             for issue in issues:
                 print(f"[DROP?] {source_id}: {issue}")

@@ -220,3 +220,5 @@ site/
 
 # Confirmatory test data (downloaded by `python -m opendv.analysis.confirmatory fetch`)
 /data/raw/confirmatory/
+# Development studies pinned in analyses/development_sources/sources.yaml (same fetch command)
+/data/raw/development/

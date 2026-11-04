@@ -5,6 +5,7 @@ sources:
     location: https://github.com/M-Colley/roads-chi25-data
     ref: main
     publication_doi: 10.1145/3706598.3713476
+    mapping_path: schemas/roads_chi25_mapping.yaml
     include_globs:
       - "**/*.csv"
       - "**/*.xlsx"
@@ -92,6 +93,7 @@ sources:
     location: https://github.com/M-Colley/ehmi-for-all-chi26-data
     ref: main
     publication_doi: 10.1145/3772318.3790585
+    mapping_path: schemas/ehmi_for_all_chi26_mapping.yaml
     include_globs:
       - "**/*.csv"
       - "**/*.xlsx"
@@ -183,4 +185,128 @@ sources:
       (latency to the intervention, seconds). App_Name, At_Home,
       Current_Activity, Multitasking, Social_Situation are contextual IVs and
       Age/Gender are demographics — all locked as meta_* in the mapping.
+    use_llm_deduction: true
+
+  # --- Added 2026-11-04 (docs/open_data_candidates.md) --------------------------
+  # Pinned files: analyses/development_sources/sources.yaml. Download and verify
+  # them first: python -m opendv.analysis.confirmatory fetch \
+  #   --sources analyses/development_sources/sources.yaml --data-dir data/raw/development
+  - source_id: incar_vr_gain_chi24
+    source_type: local_path
+    location: data/raw/development/incar_vr_gain_chi24
+    publication_doi: 10.1145/3613904.3642298
+    include_globs: ["*.csv"]
+    mapping_path: schemas/incar_vr_gain_chi24_mapping.yaml
+    override_standard_aliases: true
+    use_llm_deduction: true
+
+  - source_id: bvi_auditory_hav_autoui26
+    source_type: local_path
+    location: data/raw/development/bvi_auditory_hav_autoui26
+    publication_doi: 10.1145/3828157.3828774
+    include_globs: ["*.xlsx"]
+    table_options:
+      bvi-auditory-hav.xlsx: {sheet: Results}   # the analysed long table, not the raw export
+    mapping_path: schemas/bvi_auditory_hav_autoui26_mapping.yaml
+    override_standard_aliases: true
+    use_llm_deduction: true
+
+  - source_id: av_prevalence_ehmi_autoui24
+    source_type: local_path
+    location: data/raw/development/av_prevalence_ehmi_autoui24
+    publication_doi: 10.1145/3640792.3675723
+    include_globs: ["data.csv"]
+    mapping_path: schemas/av_prevalence_ehmi_autoui24_mapping.yaml
+    override_standard_aliases: true
+    use_llm_deduction: true
+
+  - source_id: ehmi_state_intent_mtap24
+    source_type: local_path
+    location: data/raw/development/ehmi_state_intent_mtap24
+    publication_doi: 10.1007/s11042-024-20497-0
+    include_globs: ["data.csv"]
+    mapping_path: schemas/ehmi_state_intent_mtap24_mapping.yaml
+    override_standard_aliases: true
+    use_llm_deduction: true
+
+  - source_id: av_acceptance_vr_ijhci24
+    source_type: local_path
+    location: data/raw/development/av_acceptance_vr_ijhci24
+    publication_doi: 10.1080/10447318.2024.2358577
+    include_globs: ["Questionnaire_data/raw_data/*.csv"]
+    mapping_path: schemas/av_acceptance_vr_ijhci24_mapping.yaml
+    override_standard_aliases: true
+    use_llm_deduction: true
+
+  - source_id: fido2_auth_chi23
+    source_type: local_path
+    location: data/raw/development/fido2_auth_chi23
+    publication_doi: 10.1145/3544548.3580993
+    include_globs: ["**/data.csv"]
+    mapping_path: schemas/fido2_auth_chi23_mapping.yaml
+    override_standard_aliases: true
+    use_llm_deduction: true
+
+  - source_id: pairsonic_cscw24
+    source_type: local_path
+    location: data/raw/development/pairsonic_cscw24
+    publication_doi: 10.1145/3686964
+    include_globs: ["**/data.csv"]
+    mapping_path: schemas/pairsonic_cscw24_mapping.yaml
+    override_standard_aliases: true
+    use_llm_deduction: true
+
+  - source_id: curved_dragging_vr_ijhci26
+    source_type: local_path
+    location: data/raw/development/curved_dragging_vr_ijhci26
+    publication_doi: 10.1080/10447318.2026.2738094
+    include_globs: ["*.xlsx"]
+    table_options:
+      subjective_workload_processed_condition_data.xlsx:
+        sheet: NASA_TLX_Data   # the other sheets hold a README and test statistics
+        header: 1              # row 0 is a title
+        pivot:                 # one score row per subscale -> one column per subscale
+          index: [experiment, measurement_condition, subject_id, curvature, curvature_code, depth_m]
+          columns: subscale
+          values: score
+    mapping_path: schemas/curved_dragging_vr_ijhci26_mapping.yaml
+    override_standard_aliases: true
+    use_llm_deduction: true
+
+  - source_id: fov_snapturn_tvcg24
+    source_type: local_path
+    location: data/raw/development/fov_snapturn_tvcg24
+    publication_doi: 10.1109/TVCG.2024.3470214
+    include_globs: ["Data/*.csv"]
+    mapping_path: schemas/fov_snapturn_tvcg24_mapping.yaml
+    override_standard_aliases: true
+    use_llm_deduction: true
+
+  - source_id: handsize_touch_mobilehci19
+    source_type: local_path
+    location: data/raw/development/handsize_touch_mobilehci19
+    publication_doi: 10.1145/3338286.3340115
+    include_globs: ["data-raw/*.csv"]
+    mapping_path: schemas/handsize_touch_mobilehci19_mapping.yaml
+    override_standard_aliases: true
+    use_llm_deduction: true
+
+  - source_id: woz_adaptation_ijhcs24
+    source_type: local_path
+    location: data/raw/development/woz_adaptation_ijhcs24
+    publication_doi: 10.1016/j.ijhcs.2024.103440
+    include_globs: ["*.xlsx"]
+    table_options:
+      NSF2151464_Study2_ResearchData.xlsx: {header: 1}   # row 0 labels the three interval blocks
+    mapping_path: schemas/woz_adaptation_ijhcs24_mapping.yaml
+    override_standard_aliases: true
+    use_llm_deduction: true
+
+  - source_id: gaze_platformer_chi24
+    source_type: local_path
+    location: data/raw/development/gaze_platformer_chi24
+    publication_doi: 10.1145/3613904.3641909
+    include_globs: ["*.xlsx"]
+    mapping_path: schemas/gaze_platformer_chi24_mapping.yaml
+    override_standard_aliases: true
     use_llm_deduction: true

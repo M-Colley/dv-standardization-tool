@@ -194,6 +194,15 @@ class MultiStudyAnalysisTests(unittest.TestCase):
         detected = _detect_scale_range(s, (0.0, 20.0))
         self.assertEqual(detected, (0.0, 100.0))
 
+    def test_detect_scale_range_takes_the_narrowest_scale_that_holds_the_data(self):
+        # Van der Laan is -2..2; raw 1-5 answers are a 5-point scale, not 0-20.
+        self.assertEqual(_detect_scale_range(pd.Series([1, 2, 5]), (-2.0, 2.0)), (1.0, 5.0))
+        self.assertEqual(_detect_scale_range(pd.Series([1, 4, 7]), (-3.0, 3.0)), (1.0, 7.0))
+        self.assertEqual(_detect_scale_range(pd.Series([2, 6]), (-3.0, 3.0)), (1.0, 7.0))
+        self.assertEqual(_detect_scale_range(pd.Series([0, 6]), (-3.0, 3.0)), (0.0, 7.0))
+        self.assertEqual(_detect_scale_range(pd.Series([1, 9, 12]), (1.0, 5.0)), (0.0, 20.0))
+        self.assertEqual(_detect_scale_range(pd.Series([600, 8000]), (1.0, 5.0)), (600.0, 8000.0))
+
     def test_rescale_to_canonical(self):
         s = pd.Series([0.0, 50.0, 100.0])
         result = _rescale_to_canonical(s, (0.0, 100.0), (0.0, 20.0))

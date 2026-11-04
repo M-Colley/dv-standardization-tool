@@ -1,0 +1,132 @@
+# Source-specific column mapping for ehmi_state_intent_mtap24 (OSF w9mfv)
+# Paper: Eisele, Kraus, Schlemer, Petzoldt. "Should automated vehicles
+#   communicate their state or intent? Effects of eHMI activations and
+#   non-activations on pedestrians' trust formation and crossing behavior."
+#   Multimedia Tools and Applications 2024. DOI 10.1007/s11042-024-20497-0
+# Data record: https://osf.io/w9mfv/ (data set DOI 10.17605/OSF.IO/UYQZ6);
+#   codebook = README.html shipped with the data.
+#
+# Covers: data.csv (semicolon-delimited, UTF-8 with BOM; load_input_file reads
+#   it as is). 87 rows = 87 participants, wide format, 53 columns.
+# Design: 2 (environment: crosswalk / roundabout) x 2 (eHMI: state / intent)
+#   between subjects; 31 trials in six blocks. Blocks 1, 2, 3, 5, 6: two
+#   yielding AV + four conventional-vehicle (CV) trials; block 4: one AV
+#   failure-to-yield trial.
+#
+# Notes
+# - CIT_* = crossing initiation time in milliseconds from video onset (converted
+#   to seconds by unit_conversions below), stored
+#   as block-level means (wide repeated measures: block x vehicle type).
+#   10000 = no crossing initiated before the 10-s video ended (censored; 8
+#   participants in block 4). CIT_4_AV and CIT_4_overall hold identical values.
+#   CIT_CV_*_non-yielding is empty for crosswalk participants by design.
+#   Two names keep source typos: CIT_3_overal, CIT_5_V_yielding.
+# - Trust_0..Trust_6 = mean of the five-item short LETRAS-G trust scale
+#   (Kraus 2020), 1-7; Trust_0 is the baseline before the trials, Trust_k is
+#   measured after block k. The schema's trust_rating is defined on 1-5.
+# - UEQs_* = raw UEQ-S items, 1 (named negative pole) .. 7 (positive pole);
+#   subtract 4 for the -3..+3 item scale. No item is reversed. Items 1-4 form
+#   pragmatic quality, items 5-8 hedonic quality. UEQs_8_usual is missing for
+#   Subject_Code 87. Mapped to the UEQ-S items of the instrument registry (ueq_s_1..8,
+#   schemas/instruments.yaml), which scores pragmatic and hedonic quality on
+#   -3..+3, as in schemas/running_into_traffic_mapping.yaml.
+# - Left unmapped (no fitting schema DV): `potentially dangerous CIT`
+#   (block-4 binary: 1 = crossing initiated before the non-yielding AV passed).
+
+# --- Dependent measures: crossing initiation time (ms) -----------------------
+CIT_1_overall: crossing_initiation_time      # block mean over all 6 trials
+CIT_2_overall: crossing_initiation_time
+CIT_3_overal: crossing_initiation_time
+CIT_4_overall: crossing_initiation_time      # single AV failure-to-yield trial (= CIT_4_AV)
+CIT_5_overall: crossing_initiation_time
+CIT_6_overall: crossing_initiation_time
+CIT_1_AV: crossing_initiation_time           # mean of the 2 yielding AV trials
+CIT_2_AV: crossing_initiation_time
+CIT_3_AV: crossing_initiation_time
+CIT_4_AV: crossing_initiation_time           # AV failure-to-yield trial; 10000 = no crossing
+CIT_5_AV: crossing_initiation_time
+CIT_6_AV: crossing_initiation_time
+CIT_CV_1_overall: crossing_initiation_time   # mean of the 4 CV trials
+CIT_CV_2_overall: crossing_initiation_time
+CIT_CV_3_overall: crossing_initiation_time
+CIT_CV_5_overall: crossing_initiation_time
+CIT_CV_6_overall: crossing_initiation_time
+CIT_CV_1_non-yielding: crossing_initiation_time   # roundabout only (3 non-yielding CV trials)
+CIT_CV_2_non-yielding: crossing_initiation_time
+CIT_CV_3_non-yielding: crossing_initiation_time
+CIT_CV_5_non-yielding: crossing_initiation_time
+CIT_CV_6_non-yielding: crossing_initiation_time
+CIT_1_CV_yielding: crossing_initiation_time  # mean of yielding CV trials
+CIT_2_CV_yielding: crossing_initiation_time
+CIT_3_CV_yielding: crossing_initiation_time
+CIT_5_V_yielding: crossing_initiation_time
+CIT_6_CV_yielding: crossing_initiation_time
+
+# The schema states crossing_initiation_time in seconds; the CIT_* columns are ms.
+unit_conversions:
+  - columns:
+      - CIT_1_overall
+      - CIT_2_overall
+      - CIT_3_overal
+      - CIT_4_overall
+      - CIT_5_overall
+      - CIT_6_overall
+      - CIT_1_AV
+      - CIT_2_AV
+      - CIT_3_AV
+      - CIT_4_AV
+      - CIT_5_AV
+      - CIT_6_AV
+      - CIT_CV_1_overall
+      - CIT_CV_2_overall
+      - CIT_CV_3_overall
+      - CIT_CV_5_overall
+      - CIT_CV_6_overall
+      - CIT_CV_1_non-yielding
+      - CIT_CV_2_non-yielding
+      - CIT_CV_3_non-yielding
+      - CIT_CV_5_non-yielding
+      - CIT_CV_6_non-yielding
+      - CIT_1_CV_yielding
+      - CIT_2_CV_yielding
+      - CIT_3_CV_yielding
+      - CIT_5_V_yielding
+      - CIT_6_CV_yielding
+    from: ms
+    to: s
+    reason: crossing initiation time in milliseconds (dataset README)
+
+# --- Dependent measures: trust (short LETRAS-G mean, 1-7) --------------------
+Trust_0: trust_rating                        # baseline, before the trials
+Trust_1: trust_rating
+Trust_2: trust_rating
+Trust_3: trust_rating
+Trust_4: trust_rating                        # after the failure-to-yield block
+Trust_5: trust_rating
+Trust_6: trust_rating
+
+# --- Dependent measures: UEQ-S items (raw 1-7) --------------------------------
+UEQs_1_obstructive: ueq_s_1            # obstructive - supportive
+UEQs_2_complicated: ueq_s_2            # complicated - easy
+UEQs_3_inefficient: ueq_s_3            # inefficient - efficient
+UEQs_4_confusing: ueq_s_4              # confusing - clear
+UEQs_5_boring: ueq_s_5                   # boring - exciting
+UEQs_6_not interesting: ueq_s_6          # not interesting - interesting
+UEQs_7_conventional: ueq_s_7             # conventional - inventive
+UEQs_8_usual: ueq_s_8                    # usual - leading edge
+
+# --- Participant and conditions ----------------------------------------------
+Subject_Code: meta_participant_id
+Group_Name: meta_condition_group             # "<eHMI>, <environment>"; "behavior" = state eHMI
+Group_Nr: meta_condition_group_code          # 1-4, see README table
+environment: meta_condition_environment      # crosswalk / roundabout
+eHMI: meta_condition_ehmi                    # state / intent
+
+# --- Manipulation (visibility) checks, 1 = yes, 0 = no ------------------------
+perceived vehicle well: meta_manipulation_check_vehicle_visible
+perceived status well: meta_manipulation_check_mode_ehmi_visible
+perceived behavior/intent well: meta_manipulation_check_ehmi_visible
+
+# --- Demographics -------------------------------------------------------------
+age: meta_demographic_age
+gender: meta_demographic_gender              # f / m

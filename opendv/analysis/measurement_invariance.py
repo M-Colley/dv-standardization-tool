@@ -17,7 +17,10 @@ reverse-keyed items reflected so every loading is positive. Studies
 answer several times per participant, so participants (declared in
 ``schemas/study_designs.yaml``) are clusters: lavaan's MLR estimator with
 ``cluster=`` gives cluster-robust standard errors and scaled test
-statistics. Likert items are treated as continuous.
+statistics. lavaan refuses ``cluster=`` when a study has one observation per
+participant (a between-subject study); all levels are then fitted without it,
+and each row's ``warning`` names those studies. Likert items are treated as
+continuous.
 
 Decision rules:
 
@@ -180,14 +183,24 @@ def _num(entry: Mapping[str, Any], key: str) -> float:
 
 
 def decide(result: Mapping[str, Any]) -> tuple[list[dict[str, Any]], str]:
-    """One row per level and the highest level that holds."""
+    """One row per level and the highest level that holds.
+
+    ``"not_fitted"`` when the configural model could not be fitted at all, so
+    a lavaan error is never reported as a failed test (``"none"``).
+    """
     rows, reached, previous = [], "none", None
+    singletons = result.get("one_observation_per_cluster") or []
+    note = (f"fitted without participant clusters ({'; '.join(singletons)}: one observation per cluster)"
+            if result.get("cluster_robust") is False else "")
     for level in LEVELS:
         entry = (result.get("levels") or {}).get(level) or {}
-        row: dict[str, Any] = {"level": level, "warning": entry.get("warning") or entry.get("error", "")}
+        warning = entry.get("warning") or entry.get("error", "")
+        row: dict[str, Any] = {"level": level, "warning": "; ".join(w for w in (note, warning) if w)}
         if "error" in entry or not entry:
             row["holds"] = False
             rows.append(row)
+            if level == "configural":
+                reached = "not_fitted"
             break
         row.update({
             "cfi": _num(entry, "cfi.robust"), "tli": _num(entry, "tli.robust"),
@@ -251,7 +264,7 @@ def invariance_by_dv(table: pd.DataFrame) -> dict[str, str]:
     The test covers only studies that report every item of the scale, which
     can be fewer than the studies pooled for the DV.
     """
-    order = {"none": 0, "configural": 1, "metric": 2, "scalar": 3}
+    order = {"not_fitted": -1, "none": 0, "configural": 1, "metric": 2, "scalar": 3}
     out: dict[str, tuple[str, str]] = {}
     for _, row in table.drop_duplicates("scale").iterrows():
         for dv in [row["dv"], *str(row["items"]).split("; ")]:

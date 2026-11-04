@@ -67,6 +67,10 @@ mappings); "E2" holds out schema aliases. Model: `google/gemma-4-E2B-it`
 | Silent data loss | `psych_conflict_handling` stores Likert answers as text labels ("Rather agree") | The study was in the committed 11-study run but contributed **0** numeric DVs | Declarative `value_labels` in mapping YAMLs; all 432 rows of each item recoded, unmatched labels counted |
 | Silent truncation of a scale | LimeSurvey exports negative AOA answers as `neg1`/`neg2`; numeric coercion turned them into missing values | eHMI-for-All and ROADS lost 30% of AOA answers (1,868/6,480 and 749/2,484 cells), all of them negative, so the AOA means were biased upward | `negN` codes recoded to −N in survey-like tables, counted in `-quality.json` |
 | Wrong scale assumption | The derived AOA usefulness/satisfying formula hard-coded the 1–5 midpoint (3) | For studies coding items −2…+2 the composite was shifted and then mis-rescaled | Each study's coding midpoint is used, so 1–5 and −2…+2 give identical scores (regression test) |
+| Off-range scales read as 0–20 | Harmonization took the first listed alternative scale that held the data, and 0–20 came first | 1–5 Van der Laan answers (canonical −2…+2) became −1.7 with SD 0.1; 12 study means in six of the original studies were squeezed the same way (e.g. Running into Traffic's perceived safety −1.93 instead of +0.85 on −3…+3) | The narrowest common scale that holds every value is taken (regression test) |
+| Reversed item keying | ROADS and eHMI-for-All store Van der Laan items with +2 at each item's first word; the registry's −2…+2 coding puts −2 there | Their usefulness and satisfying scores had the wrong sign (−0.5 and −0.9 instead of +0.5 and +0.9) and correlated −0.72 to −0.83 with SUS; found when a third study (+0.42) joined | `reverse_items` declared in both studies' mapping files; correlation with SUS is now a check worth running for every bipolar scale |
+| Mixed units | One added study records crossing initiation times in ms, pooled with another study's seconds | A pooled estimate across units | `unit_conversions` in mapping files |
+| Fit errors reported as non-invariance | lavaan refuses participant clusters when a study has one observation per participant; the error was reported as level "none" | Every scale shared with an added study showed "none", like a real misfit | Such scales are fitted without clusters (noted per row); an unfittable model is `not_fitted` |
 | Anti-conservative intervals at small k | Most pooled DVs have k = 2–3 | Wald intervals far narrower than warranted | Hartung-Knapp-Sidik-Jonkman intervals reported next to Wald (validated against `metafor`, `test = "knha"`) |
 
 ### 2.2 LLM mapping is weak on real columns; plausibility checks are cheap (RQ2)
@@ -329,6 +333,41 @@ failure leaves, and the three pre-registered shortlist runs logged the same
 PDF context. A full development rerun with both fixes reproduced every
 benchmark item of the three shortlists.
 
+**Twelve added studies (2026-11-04, not pre-registered).** Twelve open-data
+studies joined the development set (`docs/open_data_candidates.md`). Their
+curated mappings were committed before any LLM run on them, and none of the
+current methods was tuned on them, so their first benchmark run is reported
+apart from the original 11 (`evaluate_llm_mapping.py --subset`):
+
+| E1, check on | definition | dense_h | mixed_h |
+|---|---|---|---|
+| Correct, of 164 DV columns | 68 (41%) | 70 (43%) | 70 (43%) |
+| Paired exact McNemar vs. definition | | p = 0.85 (15 vs. 13) | p = 0.81 (10 vs. 8) |
+| Gold among the candidates | 77% | 78% | 73% |
+| Precision of accepted mappings | 29% | 30% | 29% |
+| Curated non-DVs mapped to a DV | 54% | 54% | 56% |
+| Original 11 studies: correct, of 101 | 52 | 65 | 69 |
+
+The original 11 studies' items are identical to the previous run. As in the
+confirmatory test, the filtered dense shortlists do not beat `definition` on
+studies they were not tuned on. Three patterns account for 80 of
+`definition`'s 96 errors:
+
+- **Item numbers misread (31).** Zero-based SUS items (`sus0`–`sus9`) are
+  mapped one item too low, and the numbered NASA-TLX columns `TLX 2`–`TLX 6`
+  all become mental demand.
+- **An abbreviation the shortlist misses (27).** `CIT_*` (crossing initiation
+  time) does not bring `crossing_initiation_time` into the candidates. The LLM
+  picks trust items instead, which the range check rejects (the values are
+  milliseconds).
+- **A scale for its parts (22).** SART items become the SART total,
+  perceived-safety items the scale, NASA-TLX subscales the TLX score.
+
+Precision falls mainly because columns of questionnaires the schema does not
+cover (ATI, MSSQ, privacy concern), demographics and condition aggregates are
+mapped to some DV. Any fix for these patterns would be designed on these
+studies, so confirming it needs another held-out set.
+
 **Trade-off.** Because a plausible-looking candidate is always available, the
 model maps non-DV columns more often with the definition shortlist (74% of
 curated non-DVs, unchecked). The plausibility check more than halves that
@@ -345,24 +384,34 @@ P1 must confirm it on a held-out split.
 ### 2.3 Pooled estimates depend on harmonization choices (RQ3)
 
 The multiverse crosses five binary choices (32 specifications). Results for
-the 11-study run (`analyses/output_multiverse/`):
+the 23-study run (`analyses/output_multiverse/`; the 11-study values of
+2026-11-03 in parentheses):
 
-- **Robust:** NASA-TLX `mental_demand` (k = 3–7). All 32 estimates lie in
-  6.88–7.77 and every interval covers the default estimate. The low end
-  drops the three studies whose composites contain LLM-mapped columns; until
-  2026-10-26 only one of them was recognized as such (range 7.59–8.02, see the
-  changelog).
+- **Robust:** NASA-TLX `mental_demand` (k = 5–13). All 32 estimates lie in
+  7.07–7.63 (6.88–7.77 with k = 3–7) and every interval covers the default
+  estimate.
 - **Fragile:**
-  - `perceived_safety` (k = 7) moves from −0.24 to 4.27 depending only on
-    scale harmonization, and cannot be pooled at all without LLM-deduced rows;
-  - `understanding_rating` ranges from 3.33 to 7.56.
-- **Fragility that was a data error:** `performance` (k = 2–4) ranged from
-  8.73 to 15.01, the widest range of any DV, until Running into Traffic's
+  - `perceived_safety` (k = 2–9) moves from 1.12 to 5.06 (−0.24 to 4.27),
+    entirely with scale harmonization (raw 4.82–5.06, harmonized 1.12–1.93);
+    half of the intervals miss the default;
+  - `understanding_rating` ranges from 3.71 to 7.56 (3.33 to 7.56);
+  - the NASA-TLX total `TLX_SCORE` from 5.95 to 11.49.
+- **Fragility from LLM rows:** with LLM-deduced columns included,
+  `task_completion_time` spans 0.65 to 1,287, because the LLM mapped an
+  added study's decision time in milliseconds, which its curated mapping
+  leaves out. `pedestrian_crossing_time` gains four LLM-mapped columns from
+  VR, game and authentication studies. The plausibility rules check names,
+  types and ranges, not whether a DV fits the study's domain.
+- **Fragility that was a data error:** `performance` ranged from 8.73 to
+  15.01, the widest range of any DV, until Running into Traffic's
   reverse-keyed "success" item was fixed (2026-10-26); it now lies in
-  5.03–5.10. A wide multiverse range can flag a polarity error, not only a
-  consequential harmonization choice.
+  5.59–6.49 (k = 4–7). Van der Laan usefulness was negative in every
+  specification (−0.63) until the item keying of ROADS and eHMI-for-All was
+  fixed; it now lies in 0.81–2.30. A wide or implausible multiverse range
+  can flag a polarity error, not only a consequential harmonization choice.
 - **Interval width:** 95% interval widths differ by up to two orders of
-  magnitude between Wald and HKSJ at small k (e.g. `performance`: 0.8 to 67).
+  magnitude between Wald and HKSJ at small k (e.g. `perceived_safety`: 0.25
+  to 61).
 
 The multiverse turns "we pooled k studies" into "this estimate survives N of
 32 defensible pipelines" — a reporting standard worth proposing (P5).
@@ -498,32 +547,40 @@ shows when a question is answered and when more studies are futile.
 
 ## 4. Threats to validity (to address in the paper)
 
-- **Domain concentration.** 10 of the 11 datasets come from automotive /
-  eHMI research, several from the same lab. Extend the catalog to other HCI
-  subfields before generalizing RQ1.
+- **Domain concentration.** 10 of the original 11 datasets come from
+  automotive / eHMI research, several from the same lab. The 12 studies
+  added on 2026-11-04 bring 7 from other HCI fields (authentication, VR
+  interaction, touch input, games, adaptive interfaces), so 15 of the 23
+  are still automotive. Extend the catalog further before generalizing RQ1.
 - **Gold-label circularity.** E1 gold labels come from mappings written by
   the tool's authors. P1's independent human labels address this.
 - **Measurement non-invariance.** Pooling means assumes a scale measures
   the same construct on the same metric in every study (scalar invariance).
   Tested where item data exist (`opendv/analysis/measurement_invariance.py`,
-  lavaan multi-group CFA with participant-clustered MLR; 2026-10-24):
+  lavaan multi-group CFA with robust MLR; 23 studies, 2026-11-04):
 
   | Scale | Studies | Level reached | Why |
   |---|---|---|---|
-  | SUS (10 items) | eHMI-for-All, ROADS | none | one factor misfits (robust RMSEA 0.12); items 4 and 10 load weakly, in line with SUS's usability/learnability split |
-  | NASA-TLX (6 subscales) | ROADS, Running into Traffic | none | misfit (RMSEA 0.14); *performance* loads +0.25 in ROADS and +0.54 in Running into Traffic (−0.54 before its reverse-keyed item was fixed) |
-  | Van der Laan usefulness | eHMI-for-All, ROADS | metric | scalar fails (ΔCFI −0.014, ΔRMSEA +0.026): means are not comparable; item 9 barely loads (±0.14) |
-  | Van der Laan satisfying | eHMI-for-All, ROADS | scalar | means comparable |
+  | SUS (10 items) | eHMI-for-All, ROADS, FIDO2, PairSonic | none | one factor misfits (robust RMSEA 0.13); items 4 and 10 load weakly everywhere, in line with SUS's usability/learnability split, and FIDO2's loadings are low throughout (ceiling: SUS 90) |
+  | NASA-TLX (6 subscales) | ROADS, Running into Traffic, curved dragging, in-car VR, WoZ adaptation | none | misfit (RMSEA 0.16); *performance* loads −0.04 to +0.59 |
+  | Van der Laan usefulness | eHMI-for-All, ROADS, FIDO2 | configural | metric fails (ΔCFI −0.012, ΔRMSEA +0.034); item 9 barely loads (−0.14 to +0.26) |
+  | Van der Laan satisfying | eHMI-for-All, ROADS, FIDO2 | metric | scalar fails (ΔCFI −0.022, ΔRMSEA +0.067): means are not comparable |
+  | UEQ-S pragmatic | Running into Traffic, three added automotive studies | none | misfit (RMSEA 0.13) |
+  | UEQ-S hedonic | Running into Traffic, three added automotive studies | none | misfit (RMSEA 0.28); item 7 (inventive) loads 0.44–0.58 in three of the four studies |
 
-  Only Van der Laan *satisfying* supports pooling means; `mental_demand`
-  (pooled over 7 studies) is untested in 5 of them and fails in the 2 with
-  full TLX items. The negative *performance* loading revealed that Running
+  With the original two studies, Van der Laan *satisfying* reached scalar
+  and *usefulness* metric invariance; adding FIDO2 removes both. No shared
+  scale now supports pooling means. Every scale includes a study with one
+  observation per participant (or no declared participant id), for which
+  lavaan refuses participant clusters, so these fits are robust MLR without
+  the cluster correction; declaring the added studies' participants in
+  `schemas/study_designs.yaml` would restore it where answers repeat.
+  The negative *performance* loading of the 2-study run revealed that Running
   into Traffic's "success" item is keyed opposite to the TLX performance
   scale (high = success rather than failure; mean 17.7 of 21, negative
   correlations with the other five subscales), like the reverse-poled UEQ-S
   items of the same study. It is reverse-scored since 2026-10-26
-  (`schemas/running_into_traffic_mapping.yaml`); the configural misfit
-  remains, so TLX means are still not shown to be comparable.
+  (`schemas/running_into_traffic_mapping.yaml`).
   `meta_analysis_summary.csv` now carries a `measurement_invariance` column.
 - **Observation-level n.** Pooled estimates use row-level n, which is
   anti-conservative for repeated measures. P5 reports the participant-level

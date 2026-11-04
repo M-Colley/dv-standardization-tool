@@ -163,7 +163,100 @@ def recode_survey_answer_codes(df: pd.DataFrame) -> tuple[pd.DataFrame, dict[str
     return out, report
 
 
-__all__ = ["apply_value_labels", "recode_negative_answer_codes", "recode_survey_answer_codes"]
+def apply_missing_values(
+    df: pd.DataFrame,
+    specs: Iterable[dict[str, Any]],
+) -> tuple[pd.DataFrame, dict[str, int]]:
+    """Set declared missing-value codes of one dataset to missing.
+
+    Survey exports often store "no answer" or "not applicable" as numbers
+    (98, 99, -99), which numeric analyses would otherwise read as answers::
+
+        missing_values:
+          - columns: [sus6, sus7]     # or "*" for every column
+            values: [98, 99]
+            reason: 99 = no answer (README)
+
+    Applied first, before ``value_labels``. Codes are compared as numbers
+    when the cell is numeric and as trimmed text otherwise. Returns the frame
+    and ``{column: n_cells_set_missing}`` for the columns that had any.
+    """
+    out = df
+    report: dict[str, int] = {}
+    for spec in specs or []:
+        if not isinstance(spec, dict):
+            continue
+        codes = list(spec.get("values") or [])
+        numeric_codes = [float(c) for c in codes if isinstance(c, (int, float)) and not isinstance(c, bool)]
+        text_codes = {str(c).strip() for c in codes}
+        columns = list(out.columns) if spec.get("columns") == "*" else list(spec.get("columns") or [])
+        for column in columns:
+            if column not in out.columns:
+                continue
+            series = out[column]
+            hit = pd.to_numeric(series, errors="coerce").isin(numeric_codes)
+            hit |= series.astype(str).str.strip().isin(text_codes) & series.notna()
+            if not hit.any():
+                continue
+            if out is df:
+                out = df.copy()
+            out[column] = series.mask(hit)
+            report[str(column)] = report.get(str(column), 0) + int(hit.sum())
+    return out, report
+
+
+def unit_factor(source_unit: str, target_unit: str) -> float:
+    """Multiplier from one time unit to another (``ms`` -> ``s`` is 0.001).
+
+    Units are the ones ``pandas.Timedelta`` understands (``ms``, ``s``,
+    ``min``, ``h``, ...); anything else raises ``ValueError``.
+    """
+    return pd.Timedelta(1, unit=str(source_unit)) / pd.Timedelta(1, unit=str(target_unit))
+
+
+def apply_unit_conversions(
+    df: pd.DataFrame,
+    specs: Iterable[dict[str, Any]],
+) -> tuple[pd.DataFrame, dict[str, str]]:
+    """Convert the declared columns of one dataset to the unit of their DV.
+
+    The schema states each time DV's unit (``crossing_initiation_time`` in
+    seconds); a dataset that recorded milliseconds would otherwise be pooled
+    with seconds::
+
+        unit_conversions:
+          - columns: [CIT_1_overall, CIT_2_overall]
+            from: ms
+            to: s
+            reason: crossing initiation time in ms (README)
+
+    Numeric cells are multiplied, other cells are kept. Returns the frame and
+    ``{column: "ms -> s"}`` for the columns that were converted.
+    """
+    out = df
+    report: dict[str, str] = {}
+    for spec in specs or []:
+        if not isinstance(spec, dict):
+            continue
+        factor = unit_factor(spec["from"], spec["to"])
+        for column in spec.get("columns") or []:
+            if column not in out.columns:
+                continue
+            if out is df:
+                out = df.copy()
+            numbers = pd.to_numeric(out[column], errors="coerce")
+            out[column] = (numbers * factor).where(numbers.notna(), out[column])
+            report[str(column)] = f"{spec['from']} -> {spec['to']}"
+    return out, report
+
+
+__all__ = [
+    "apply_missing_values",
+    "apply_unit_conversions",
+    "apply_value_labels",
+    "recode_negative_answer_codes",
+    "recode_survey_answer_codes",
+]
 
 
 def apply_reverse_keying(

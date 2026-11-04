@@ -1,0 +1,118 @@
+# Source-specific column mapping for pairsonic_cscw24
+# Paper: Florentin Putz, Steffen Haesler, Matthias Hollick (PACM HCI CSCW 2024).
+#   "Sounds Good? Fast and Secure Contact Exchange in Groups."
+#   DOI 10.1145/3686964 (arXiv:2411.13694)
+# Data: Zenodo 13324112 (CC-BY-4.0), pairsonic-study-code-and-dataset.zip.
+#
+# Covers data.csv inside the zip (dataset path
+# __extracted_archives/pairsonic-study-code-and-dataset/data.csv); semicolon-
+# delimited, one row per participant (47 rows; participants 6 and 8 are incomplete,
+# the paper analyses 45). No table options needed. README.md and
+# contact-exchange-in-groups.Rmd are the codebook and analysis script; gfx/*.pdf
+# and likert/*.patch are not data.
+#
+# Notes:
+# - Within-subjects, counterbalanced: every participant used both systems.
+#   a_* = first system used, b_* = second system used; which system that was
+#   (PairSonic or SafeSlinger) is given by `pairsonic_first` (1 = PairSonic first).
+#   Both blocks therefore map to the same SUS item ids.
+# - SUS items 1-5 (1 = strongly disagree, 5 = strongly agree), standard order but
+#   numbered from 0: sus0 = SUS item 1 ... sus9 = SUS item 10.
+# - Missing codes: 98 = explicit "no answer", 99 = nothing selected on the paper
+#   questionnaire (e.g. b_sus7, ati4, gender, edu_professional).
+# - Completion time (Section 7.4) is not in data.csv: it was measured per study
+#   group and is hard-coded in the Rmd (slinger_time, pairsonic_time).
+# - Left out (DVs without a fitting schema id, see the report): a_sec, b_sec
+#   (perceived security, "I think that this system is secure", 1-5) and pref
+#   (forced-choice preference, 1 = first system, 2 = second system).
+
+# --- Dependent measures -------------------------------------------------------
+# System Usability Scale for the first system used, 1-5
+a_sus0: SUS1
+a_sus1: SUS2
+a_sus2: SUS3
+a_sus3: SUS4
+a_sus4: SUS5
+a_sus5: SUS6
+a_sus6: SUS7
+a_sus7: SUS8
+a_sus8: SUS9
+a_sus9: SUS10
+# System Usability Scale for the second system used, 1-5
+b_sus0: SUS1
+b_sus1: SUS2
+b_sus2: SUS3
+b_sus3: SUS4
+b_sus4: SUS5
+b_sus5: SUS6
+b_sus6: SUS7
+b_sus7: SUS8
+b_sus8: SUS9
+b_sus9: SUS10
+
+# --- Conditions ---------------------------------------------------------------
+id: meta_participant_id
+group_id: meta_group_id                         # study group (1-12) that paired together
+pairsonic_first: meta_presentation_order        # 1 = PairSonic first, 0 = SafeSlinger first
+
+# --- Demographics -------------------------------------------------------------
+gender: meta_demographic_gender                 # 1 male, 2 female, 3 diverse, 98 no answer
+age: meta_demographic_age                       # start of 5-year bracket (15 = 18-19, 20 = 20-24, ...)
+edu_school: meta_demographic_education_school
+edu_professional: meta_demographic_education_professional
+student: meta_demographic_student               # 1 = yes, 2 = no
+
+# --- Control variables (measured once) ----------------------------------------
+smartphone_exp: meta_experience_smartphone      # 1 = uses smartphones for more than two years
+# Affinity for Technology Interaction (Franke et al. 2019), 1-6; items 3, 6, 8 reversed
+ati0: meta_ati_item_01
+ati1: meta_ati_item_02
+ati2: meta_ati_item_03
+ati3: meta_ati_item_04
+ati4: meta_ati_item_05
+ati5: meta_ati_item_06
+ati6: meta_ati_item_07
+ati7: meta_ati_item_08
+ati8: meta_ati_item_09
+
+# --- Usage of social/collaborative tools (background, Section 7.5) ------------
+# Per group type: _part = 1 if active participation, _size = average number of
+# members, _sec = 1 if authenticated participants (security) are important.
+group0_part: meta_tool_use_public_chat_groups_active
+group0_size: meta_tool_use_public_chat_groups_size
+group0_sec: meta_tool_use_public_chat_groups_security_important
+group1_part: meta_tool_use_private_chat_groups_active
+group1_size: meta_tool_use_private_chat_groups_size
+group1_sec: meta_tool_use_private_chat_groups_security_important
+group2_part: meta_tool_use_professional_chat_groups_active
+group2_size: meta_tool_use_professional_chat_groups_size
+group2_sec: meta_tool_use_professional_chat_groups_security_important
+group3_part: meta_tool_use_online_forums_active
+group3_size: meta_tool_use_online_forums_size
+group3_sec: meta_tool_use_online_forums_security_important
+group4_part: meta_tool_use_social_network_groups_active
+group4_size: meta_tool_use_social_network_groups_size
+group4_sec: meta_tool_use_social_network_groups_security_important
+group5_part: meta_tool_use_audio_video_conferences_active
+group5_size: meta_tool_use_audio_video_conferences_size
+group5_sec: meta_tool_use_audio_video_conferences_security_important
+group6_part: meta_tool_use_mailing_lists_active
+group6_size: meta_tool_use_mailing_lists_size
+group6_sec: meta_tool_use_mailing_lists_security_important
+group7_part: meta_tool_use_collaboration_tools_active
+group7_size: meta_tool_use_collaboration_tools_size
+group7_sec: meta_tool_use_collaboration_tools_security_important
+group8_part: meta_tool_use_project_planning_tools_active
+group8_size: meta_tool_use_project_planning_tools_size
+group8_sec: meta_tool_use_project_planning_tools_security_important
+groups_total: meta_tool_use_groups_total        # estimated number of digital groups taken part in
+
+# --- Missing-value codes ------------------------------------------------------
+# README: "98 means that the participant explicitly selected the NA option";
+# "99 means that the participant selected nothing on the paper questionnaire".
+# The convention covers every field (98/99 occur in SUS, ATI, adoption and
+# demographic items), so the codes are set to missing before any summary.
+missing_values:
+  - columns: "*"
+    values: [98, 99]
+    reason: 98 = NA chosen, 99 = left blank (dataset README)

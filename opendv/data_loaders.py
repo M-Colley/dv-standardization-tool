@@ -21,6 +21,7 @@ Supported input formats are the union of the keys registered by the
 from __future__ import annotations
 
 import csv
+import fnmatch
 import io
 import json
 import logging
@@ -216,27 +217,28 @@ def _load_text_table(path: Path) -> pd.DataFrame:
     delimiter = _detect_delimiter(sample, prefer=prefer_delim)
     decimal = _detect_decimal(sample, delimiter)
 
-    try:
+    def _read(encoding: str) -> pd.DataFrame:
         # The C engine is typically an order of magnitude faster; it handles
         # single-character separators fine. Fall back to the lenient python
         # engine only when the C parser rejects the file.
         try:
-            return pd.read_csv(
-                path,
-                sep=delimiter,
-                decimal=decimal,
-                encoding=encoding,
-                on_bad_lines="warn",
-            )
+            return pd.read_csv(path, sep=delimiter, decimal=decimal, encoding=encoding, on_bad_lines="warn")
+        except UnicodeDecodeError:
+            raise
         except (pd.errors.ParserError, ValueError):
             return pd.read_csv(
-                path,
-                sep=delimiter,
-                decimal=decimal,
-                encoding=encoding,
-                engine="python",
-                on_bad_lines="warn",
+                path, sep=delimiter, decimal=decimal, encoding=encoding, engine="python", on_bad_lines="warn"
             )
+
+    try:
+        try:
+            return _read(encoding)
+        except UnicodeDecodeError:
+            # Detection sees only the first 32 KB; a byte further in (e.g. a
+            # cp1252 apostrophe in a free-text answer) can still fail.
+            whole_file = detect_text_encoding(path.read_bytes(), sample_bytes=None)
+            logger.info("'%s' is not %s beyond its first 32 KB; reading it as %s", path.name, encoding, whole_file)
+            return _read(whole_file)
     except pd.errors.EmptyDataError as exc:
         raise ValueError(
             f"File '{path}' is empty or contains no parseable data."
@@ -257,31 +259,34 @@ def _load_excel(path: Path) -> pd.DataFrame:
             "Reading Excel files requires openpyxl: pip install openpyxl"
         ) from exc
 
-    if len(xl.sheet_names) == 1:
-        return xl.parse(xl.sheet_names[0])
+    # Closed on exit: an open workbook stays locked on Windows.
+    with xl:
+        if len(xl.sheet_names) == 1:
+            return xl.parse(xl.sheet_names[0])
 
-    # Multiple sheets: pick the one with the most non-empty cells. Keep each
-    # parsed frame so the winner is returned without a second parse pass.
-    best_sheet: str | None = None
-    best_count = -1
-    best_df: pd.DataFrame | None = None
-    for name in xl.sheet_names:
-        df = xl.parse(name)
-        count = int(df.notna().sum().sum())
-        if count > best_count:
-            best_count = count
-            best_sheet = name
-            best_df = df
+        # Multiple sheets: pick the one with the most non-empty cells. Keep each
+        # parsed frame so the winner is returned without a second parse pass.
+        # A source can name the sheet instead (manifest table_options).
+        best_sheet: str | None = None
+        best_count = -1
+        best_df: pd.DataFrame | None = None
+        for name in xl.sheet_names:
+            df = xl.parse(name)
+            count = int(df.notna().sum().sum())
+            if count > best_count:
+                best_count = count
+                best_sheet = name
+                best_df = df
 
-    logger.info(
-        "Multi-sheet workbook '%s': selected sheet '%s' (%d non-empty cells). "
-        "Other sheets: %s",
-        path.name,
-        best_sheet,
-        best_count,
-        [n for n in xl.sheet_names if n != best_sheet],
-    )
-    return best_df
+        logger.info(
+            "Multi-sheet workbook '%s': selected sheet '%s' (%d non-empty cells). "
+            "Other sheets: %s",
+            path.name,
+            best_sheet,
+            best_count,
+            [n for n in xl.sheet_names if n != best_sheet],
+        )
+        return best_df
 
 
 @_register_format(".pkl", ".pickle")
@@ -357,13 +362,69 @@ def _load_jsonlines(path: Path) -> pd.DataFrame:
 # Public load / save / coerce entry points
 # ---------------------------------------------------------------------------
 
-def load_input_file(input_path: str) -> pd.DataFrame:
+_SPREADSHEET_SUFFIXES = {".xlsx", ".xls", ".xlsm", ".ods"}
+TABLE_OPTION_KEYS = ("sheet", "header", "pivot")
+
+
+def table_options_for(table_options: dict[str, Any] | None, dataset_id: str) -> dict[str, Any]:
+    """The manifest's ``table_options`` entry for one file (exact path first, then globs).
+
+    A source can declare, per file path relative to its root (or glob)::
+
+        table_options:
+          bvi-auditory-hav.xlsx: {sheet: Results}
+          subjective_workload_*.xlsx:
+            sheet: NASA_TLX_Data
+            header: 1                # 0-based row holding the column names
+            pivot: {index: [subject_id, curvature], columns: subscale, values: score}
+    """
+    if not table_options:
+        return {}
+    if dataset_id in table_options:
+        return dict(table_options[dataset_id])
+    for pattern, options in table_options.items():
+        if fnmatch.fnmatch(dataset_id, pattern):
+            return dict(options)
+    return {}
+
+
+def _pivot_long_table(df: pd.DataFrame, index: list[str] | str, columns: str, values: str) -> pd.DataFrame:
+    """One column per value of *columns* (e.g. one per NASA-TLX subscale).
+
+    ``DataFrame.pivot`` refuses duplicate (index, column) pairs, so a wrong
+    index fails loudly instead of silently averaging rows.
+    """
+    wide = df.pivot(index=index, columns=columns, values=values)
+    wide.columns = [str(c) for c in wide.columns]
+    return wide.reset_index()
+
+
+def load_input_file(input_path: str, options: dict[str, Any] | None = None) -> pd.DataFrame:
     """Load tabular input data using the format registry.
 
     Format is determined first by file extension (registry lookup), then
     by content-based magic-byte sniffing if the extension is unrecognised.
+    *options* are a file's ``table_options`` (``table_options_for``): for a
+    spreadsheet the ``sheet`` to read (instead of the most data-rich one) and
+    the 0-based ``header`` row; for any table a long-to-wide ``pivot``.
     """
     path = Path(input_path)
+    options = dict(options or {})
+    unknown = sorted(set(options) - set(TABLE_OPTION_KEYS))
+    if unknown:
+        raise ValueError(f"Unknown table option(s) {unknown} for '{path.name}'; allowed: {list(TABLE_OPTION_KEYS)}")
+    if "sheet" in options or "header" in options:
+        if path.suffix.lower() not in _SPREADSHEET_SUFFIXES:
+            raise ValueError(f"'sheet' and 'header' apply to spreadsheets, not '{path.name}'")
+        df = pd.read_excel(path, sheet_name=options.get("sheet", 0), header=options.get("header", 0))
+    else:
+        df = _load_with_registry(path)
+    if options.get("pivot"):
+        df = _pivot_long_table(df, **options["pivot"])
+    return df
+
+
+def _load_with_registry(path: Path) -> pd.DataFrame:
     suffix = path.suffix.lower()
 
     # Try registry by extension first
@@ -497,6 +558,8 @@ __all__ = [
     "_load_json",
     "_load_jsonlines",
     "load_input_file",
+    "table_options_for",
+    "TABLE_OPTION_KEYS",
     "_coerce_pickled_payload_to_dataframe",
     "save_output_file",
 ]
