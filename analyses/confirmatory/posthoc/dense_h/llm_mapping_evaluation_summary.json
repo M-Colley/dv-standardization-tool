@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-03T14:05:37.073914+00:00",
+  "generated_at": "2026-11-04T12:03:14.208078+00:00",
   "models": [
     "google/gemma-4-E2B-it"
   ],
@@ -9,7 +9,17 @@
   "max_per_source": 40,
   "e2_samples": 0,
   "blocklist_size": 46,
-  "runtime_seconds": 2284.4,
+  "runtime_seconds": 1757.8,
+  "llm_generation_errors": 0,
+  "context_sha256": {
+    "agency_ux_tochi22": "9cd0d7ccd86ec32d",
+    "hiaudio_eval_2026": "b54fb951b587d663",
+    "pxi_validation_chi24": "9934558668f59895",
+    "sonomancer_chiplay25": "efb1fa97ddfe8f24",
+    "tamago_supervision_2026": "a4c15b4d4dd65262",
+    "vr_grab_techniques_icom20": "ac3e77495d3a3734",
+    "xai_trust_scales_chi23": "d5cab34e62bc9045"
+  },
   "results": {
     "E1": {
       "n_positive": 168,
@@ -81,12 +91,12 @@
       },
       "checked": {
         "accuracy_on_dv_columns": {
-          "k": 53,
+          "k": 54,
           "n": 168,
-          "rate": 0.31547619047619047,
+          "rate": 0.32142857142857145,
           "ci95": [
-            0.24999851872138207,
-            0.3892037993601169
+            0.25547934264431293,
+            0.39536161033778294
           ]
         },
         "wrong_dv_on_dv_columns": {
@@ -99,21 +109,21 @@
           ]
         },
         "abstained_on_dv_columns": {
-          "k": 18,
+          "k": 17,
           "n": 168,
-          "rate": 0.10714285714285714,
+          "rate": 0.10119047619047619,
           "ci95": [
-            0.06885438384524045,
-            0.16299571271537017
+            0.06414204521491729,
+            0.15606941644509653
           ]
         },
         "precision_of_accepted_dv_mappings": {
-          "k": 53,
-          "n": 180,
-          "rate": 0.29444444444444445,
+          "k": 54,
+          "n": 181,
+          "rate": 0.2983425414364641,
           "ci95": [
-            0.23271369718530804,
-            0.36476556307135516
+            0.23644230276616768,
+            0.3686246531767963
           ]
         },
         "blocklisted_non_dv_mapped_to_a_dv": {
@@ -136,16 +146,16 @@
         }
       },
       "true_mappings_lost_to_check": {
-        "k": 2,
+        "k": 1,
         "n": 55,
-        "rate": 0.03636363636363636,
+        "rate": 0.01818181818181818,
         "ci95": [
-          0.010029541289333574,
-          0.12323463974651015
+          0.003216780454841077,
+          0.09605776062162397
         ]
       },
       "rejections_by_reason": {
-        "non_numeric": 62,
+        "non_numeric": 61,
         "binary_for_rating_scale": 17,
         "demographic": 15,
         "out_of_range": 9,

@@ -4,6 +4,26 @@ This document logs human-readable updates to the repo's functionality, structure
 
 ---
 
+### [2026-11-04]
+
+- **Decimal commas.** A semicolon- or tab-separated file whose numbers use decimal commas (`24,825`, common in German or French spreadsheet exports) is now read with pandas' `decimal=","` (`opendv.data_loaders._detect_decimal`, also used by the UI uploader). The loader decides per file, and only when the sample has decimal-comma numbers and no decimal-point ones, because pandas would turn `1.5` into text under `decimal=","`.
+  - Before this, numeric coercion kept only the integer-valued cells of such columns, so summaries came from a biased subset. The confirmatory VR study's trial times were summarized from 259 of 8,640 trials (mean 29.3 s, mostly 30-s timeouts) instead of all of them (9.3 s).
+  - In the development studies the change reaches ROADS' and osf_cwd6h's log files: 1,779 files, no column losing numeric parsing. In the regenerated catalog only osf_cwd6h's 20 eye-tracking and sensor channels change (216 logs). They were summarized from 2.3 million of their 30.7 million cells, and 3,672 of the 4,318 summaries were empty. No DV changes.
+- **`True`/`False` columns** (as text, or as booleans in a column with gaps, which pandas keeps as object) are recoded to 1/0 by `recode_survey_answer_codes` (kind `true_false`). The VR study's per-trial `Success` now reaches the LLM.
+- **Failed LLM calls are no longer abstentions.**
+  - **Before:** a generation call that raised (e.g. CUDA out of memory while another job used the GPU) was logged at DEBUG and left the column unmapped, exactly like an abstention. In one development batch this silently removed all 32 FACT-AV LLM mappings.
+  - **Now:** failures are logged as warnings and collected (`llm_utils.generation_errors`), and an out-of-memory error is retried once after freeing cached GPU memory. The batch reports the count in `run_summary.json` (`llm_generation_errors`). The benchmark harness flags each affected item (`llm_error`) and exits with an error.
+  - **Earlier results:** no committed run shows the fast unanswered calls a failure leaves.
+- **Frozen manuscript context.** The prompt's repository context includes manuscript text fetched from the DOI's landing page, which can differ between requests: one confirmatory rerun got another PDF excerpt for Hi-Audio and changed 41 `mixed_h` answers.
+  - **Caching:** fetched text is now kept in a `joblib.Memory` cache under the source cache (`llm_context/`), shared by the batch and the benchmark harness. A failed fetch is retried on the next run rather than frozen.
+  - **Fingerprints:** each source's context fingerprint is recorded (`llm_context_sha256` in `run_summary.json`; `context_sha256` in the harness summary).
+  - **Earlier results:** the three pre-registered confirmatory runs logged the same PDF context.
+- **Confirmatory post hoc rerun** (not pre-registered), with the three shortlists run one after another on the shared context and no failed call: `definition` 64 correct (64 vs. 55 before, p = 0.004), `dense_h` 54, `mixed_h` 57, all because the VR `Success` column is now mapped correctly; otherwise identical to the 2026-11-03 rerun. With header matching first: 106 / 93 / 99 correct, precision 59.9% for `definition`.
+- **Development rerun.** The LLM batch, the analyses and the LLM benchmark of the three shortlists were rerun one after another on the shared context, with no failed call.
+  - Every benchmark item (470 per shortlist) is identical to the 2026-11-03 run, so the published development numbers stand.
+  - The LLM catalog differs only in the osf_cwd6h sensor channels above.
+  - Pooled estimates, multiverse ranges and figures are unchanged.
+
 ### [2026-11-03]
 
 - **Survey answer codes recoded before screening.** `recode_survey_answer_codes` (`opendv/value_labels.py`) turns array-question answer codes into numbers before the non-numeric screen:

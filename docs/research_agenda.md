@@ -301,16 +301,33 @@ question-text headers, and wrong choices although the right DV was offered
 
 **Post hoc, after fixing two of those gaps (2026-11-03).** This is not part of the
 pre-registered test, and header matching was designed on these studies'
-headers. Answer codes are now recoded before the screen, so 28 of the 31
-screened DV columns reach the LLM. `definition` then maps 63 columns
-correctly (8 more Hoffman trust items, none lost, p = 0.008), while `dense_h`
-and `mixed_h` stay at 53 and 56, so the shortlist conclusion holds. Header
+headers. Answer codes and (since 2026-11-04) `True`/`False` columns are now
+recoded before the screen, so 29 of the 31 screened DV columns reach the
+LLM. `definition` then maps 64 columns correctly (8 more Hoffman trust items
+and the VR study's `Success`, none lost, p = 0.004), while `dense_h` and
+`mixed_h` reach 54 and 57, so the shortlist conclusion holds. Header
 matching against instrument item wording assigns 45 question-text columns
 (Hi-Audio, VR; English and German), all correct, with no non-DV column
-matched. Header matching first and the LLM for the rest gives 105 correct
-with `definition` (precision 60% [52, 67], up from 36%). New studies are
-needed to confirm both gains. Still open: `True`/`False` columns,
-decimal-comma numbers, and the LLM's wrong choices among correct candidates.
+matched. Header matching first and the LLM for the rest gives 106 correct
+with `definition` (precision 60% [53, 67], up from 36%). New studies are
+needed to confirm both gains. Still open: the LLM's wrong choices among
+correct candidates, and the name rule that screens the VR study's `Time`.
+
+**Reproducibility of LLM results (2026-11-04).** Two ways for a rerun to
+change without any input changing were found and closed. (1) A failed
+generation call (e.g. CUDA out of memory on a shared GPU) was logged at
+DEBUG and counted as an abstention; in one development batch it silently
+removed all 32 FACT-AV LLM mappings. Failures are now recorded, retried once
+after an out-of-memory error, reported in `run_summary.json`, and make the
+benchmark harness exit with an error. (2) The prompt's manuscript context was
+fetched live from the DOI landing page, which served a different PDF excerpt
+for Hi-Audio in one run and changed 41 `mixed_h` answers. Fetched text is now
+cached per source and shared by the batch and every shortlist, and each
+source's context fingerprint is recorded. Neither problem affected the
+committed results: no committed run shows the fast unanswered calls a
+failure leaves, and the three pre-registered shortlist runs logged the same
+PDF context. A full development rerun with both fixes reproduced every
+benchmark item of the three shortlists.
 
 **Trade-off.** Because a plausible-looking candidate is always available, the
 model maps non-DV columns more often with the definition shortlist (74% of

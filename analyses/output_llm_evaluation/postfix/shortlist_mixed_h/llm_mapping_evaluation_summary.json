@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-03T14:48:11.533383+00:00",
+  "generated_at": "2026-11-04T14:53:15.355007+00:00",
   "models": [
     "google/gemma-4-E2B-it"
   ],
@@ -9,7 +9,20 @@
   "max_per_source": 40,
   "e2_samples": 300,
   "blocklist_size": 46,
-  "runtime_seconds": 506.2,
+  "runtime_seconds": 1243.6,
+  "llm_generation_errors": 0,
+  "context_sha256": {
+    "3d_display_comp_vehicle": "d38c20c6ff03745b",
+    "ehmi_for_all_chi26": "9af2f87fa01a5f21",
+    "ehmi_optimization_chi25": "c09163582cb9fabb",
+    "fact_av": "69a9758645a034ec",
+    "longitudinal_usa_germany_ehmi": "16dce62437b3d956",
+    "osf_cwd6h": "eef2ed14de20aac1",
+    "psych_conflict_handling": "bd1657d6df2300f9",
+    "roads_chi25": "724097e219a8d4b5",
+    "running_into_traffic_chi26": "3ad59c6109afdc84",
+    "scrolling_in_the_deep_chi25": "8099bc3eaf3b1fba"
+  },
   "results": {
     "E1": {
       "n_positive": 101,
