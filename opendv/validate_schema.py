@@ -266,6 +266,17 @@ def validate_dataset_mapping(schema: dict) -> tuple[list[str], list[str]]:
                 elif not all(isinstance(v, (int, float)) and not isinstance(v, bool) for v in labels.values()):
                     errors.append(f"value_labels[{i}]: every label must map to a number")
             continue
+        if key == "missing_values":
+            if not isinstance(value, list):
+                errors.append("'missing_values' must be a list of {columns, values} blocks")
+                continue
+            for i, block in enumerate(value):
+                columns = block.get("columns") if isinstance(block, dict) else None
+                if columns != "*" and (not isinstance(columns, list) or not columns):
+                    errors.append(f"missing_values[{i}]: 'columns' must be \"*\" or a non-empty list")
+                elif not isinstance(block.get("values"), list) or not block["values"]:
+                    errors.append(f"missing_values[{i}]: 'values' must be a non-empty list of codes")
+            continue
         if not isinstance(key, str) or not key.strip():
             errors.append(f"Invalid raw column name: {key!r}")
         if not isinstance(value, str) or not value.strip():

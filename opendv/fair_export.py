@@ -198,6 +198,7 @@ def build_data_package(
             column_types = {str(c): frictionless_type(df[c]) for c in df.columns}
             n_rows = len(df)
         recoding = {
+            "missingValueCodes": quality.get("missing_value_codes") or {},
             "valueLabelsApplied": quality.get("value_labels_applied") or {},
             "negativeAnswerCodesRecoded": quality.get("negative_answer_codes_recoded") or {},
             "surveyAnswerCodesRecoded": quality.get("survey_answer_codes_recoded") or {},

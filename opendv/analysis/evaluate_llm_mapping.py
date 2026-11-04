@@ -58,6 +58,7 @@ from opendv.dv_retrieval import (  # noqa: E402
     reciprocal_rank_fusion,
 )
 from opendv.value_labels import (  # noqa: E402
+    apply_missing_values,
     apply_reverse_keying,
     apply_value_labels,
     recode_negative_answer_codes,
@@ -72,6 +73,7 @@ from opendv.llm_plausibility import (  # noqa: E402
     normalize_name,
     profile_columns,
 )
+from opendv.data_loaders import table_options_for  # noqa: E402
 from opendv.run_batch_standardization import (  # noqa: E402
     NEVER_MAP_NORMALIZED_COLUMNS,
     SchemaFamilies,
@@ -217,7 +219,9 @@ def run_e1(args, families: SchemaFamilies, dv_ids: set[str]) -> pd.DataFrame:
             for item in group.itertuples(index=False):
                 relative = Path(item.dataset_id)
                 if item.dataset_id not in frames:
-                    raw = _load_any_table(base_dir / item.dataset_id)
+                    raw = _load_any_table(
+                        base_dir / item.dataset_id, table_options_for(source.get("table_options"), item.dataset_id)
+                    )
                     raw_columns = [str(c) for c in raw.columns]
                     dataset_type = classify_dataset_type(relative, raw_columns)
                     mapping_path = _resolve_repository_mapping_path(
@@ -225,6 +229,7 @@ def run_e1(args, families: SchemaFamilies, dv_ids: set[str]) -> pd.DataFrame:
                     )
                     resolved = resolver.resolve(dataset_type, mapping_path, item.dataset_id)
                     # Same response recoding as the pipeline, before profiling.
+                    raw, _ = apply_missing_values(raw, resolved.missing_values)
                     raw, _ = apply_value_labels(raw, resolved.value_labels)
                     if dataset_type in llm_eligible_dataset_types():
                         raw, _ = recode_negative_answer_codes(raw)

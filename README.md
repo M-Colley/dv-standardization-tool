@@ -203,6 +203,13 @@ sources:
     # Optional: skip files you do not want standardized
     exclude_globs:
       - "**/pilot/**"
+    # Optional, per file (path relative to `location`, or a glob): which sheet,
+    # which 0-based row holds the column names, and pivoting a long table
+    # (one row per subscale) to one column per subscale.
+    table_options:
+      results.xlsx: {sheet: Results, header: 1}
+      workload_*.xlsx:
+        pivot: {index: [participant, condition], columns: subscale, values: score}
 ```
 
 Run it like this:
@@ -472,6 +479,7 @@ Seven of the 11 benchmark studies declare factors; the ROADS and Psych-Conflict 
 - **Negative answer codes**: LimeSurvey exports negative scale points as `neg1`, `neg2`, …; in questionnaire/results tables these are recoded to −1, −2, … (counted in `-quality.json` as `negative_answer_codes_recoded`). Before this, numeric coercion silently dropped every negative answer.
 - **Survey answer codes**: array sub-questions (`Q[SQ001]`, `Q_sq001`) whose answers are all LimeSurvey answer codes (`A1`, `A01`, …) become their numbers, and yes/no columns (`Y`/`N`, `Yes`/`No`, `Ja`/`Nein`) become 1/0 (`survey_answer_codes_recoded` in `-quality.json`). Without this, such items were screened out as non-numeric before the LLM.
 - **Text-labelled responses**: if a dataset stores Likert answers as labels ("Rather agree"), declare the codes once in its mapping YAML under `value_labels:` (columns + label → number; see `schemas/psych_conflict_handling_mapping.yaml`). Cells are recoded before standardization; labels that are not declared become missing and are counted in the dataset's `-quality.json` (`value_labels_applied`). Without this, such a dataset contributes no numeric DV.
+- **Missing-value codes**: if a dataset stores "no answer" as a number (98, 99, −99), declare it in its mapping YAML under `missing_values:` (`columns:` a list or `"*"`, `values:`, `reason:`; see `schemas/fido2_auth_chi23_mapping.yaml`). These cells become missing before anything else is recoded, and are counted in `-quality.json` (`missing_value_codes`). Without this, a 99 inside a 1–5 SUS item is summarized as an answer.
 - **Item-level DVs**: name item DVs `<construct id>_item_NN` (e.g. `perceived_safety_item_01`) or declare `subitem_of: <construct id>` in the schema entry. The causal analysis then drops the items whenever their construct is present, so item → scale edges cannot appear in the DAG.
 
 ```bash

@@ -205,3 +205,42 @@ class ReverseKeyingTests(unittest.TestCase):
         self.assertIs(out, df)
         self.assertEqual(report, {})
 
+
+
+class MissingValueCodeTests(unittest.TestCase):
+    """FIDO2 / PairSonic store "no answer" as 98/99 inside 1-5 SUS items."""
+
+    def test_declared_codes_become_missing(self):
+        from scripts.value_labels import apply_missing_values
+
+        df = pd.DataFrame({"sus6": [1, 99, 5, None], "adopt1": ["2", "98", " 98", "5"], "age": [98, 30, 22, 41]})
+        out, report = apply_missing_values(df, [
+            {"columns": ["sus6", "adopt1"], "values": [98, 99], "reason": "no answer"},
+        ])
+        self.assertEqual(out["sus6"].isna().tolist(), [False, True, False, True])
+        self.assertEqual(out["adopt1"].isna().tolist(), [False, True, True, False])
+        self.assertEqual(out["age"].tolist(), [98, 30, 22, 41])          # not declared: untouched
+        self.assertEqual(report, {"sus6": 1, "adopt1": 2})
+        star, _ = apply_missing_values(df, [{"columns": "*", "values": [98]}])
+        self.assertTrue(pd.isna(star["age"].iloc[0]))
+
+    def test_batch_applies_codes_before_summaries(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            tmp = Path(tmpdir)
+            (tmp / "src").mkdir()
+            pd.DataFrame({"sus1": [4, 5, 99, 3]}).to_csv(tmp / "src" / "d.csv", index=False)
+            (tmp / "map.yaml").write_text(yaml.safe_dump({
+                "sus1": "SUS1", "missing_values": [{"columns": ["sus1"], "values": [99]}],
+            }), encoding="utf-8")
+            (tmp / "manifest.yaml").write_text(yaml.safe_dump({"sources": [{
+                "source_id": "s", "source_type": "local_path", "location": str(tmp / "src"),
+                "include_globs": ["*.csv"], "mapping_path": str(tmp / "map.yaml"),
+            }]}), encoding="utf-8")
+            run_batch(tmp / "manifest.yaml", tmp / "out", SCHEMA, llm_deduction_enabled=False,
+                      cache_root=tmp / "cache")
+            meta = pd.read_csv(tmp / "out" / "meta_view.csv")
+            row = meta[meta["canonical_dv"] == "SUS1"].iloc[0]
+            self.assertEqual(row["n"], 3)
+            self.assertAlmostEqual(row["mean"], 4.0)
+            quality = json.loads(next((tmp / "out").rglob("*-quality.json")).read_text(encoding="utf-8"))
+            self.assertEqual(quality["missing_value_codes"], {"sus1": 1})
