@@ -50,6 +50,7 @@ Despite ongoing advocacy for open methods (Koelle et al., 2024; Goodman et al., 
 - Optional lightweight UI layer for upload-to-export interaction
 - Interactive Streamlit UI for single-file standardization and catalog-driven overlap/meta-analysis exploration
 - Cross-study synthesis examples in Python and R for standardized multi-dataset analysis (`docs/multi_study_analysis_guide.md`)
+- Cross-study relations between harmonized constructs, attributed to the harmonization step that made them estimable (`docs/cross_study_insights.md`)
 
 
 ---
@@ -170,13 +171,13 @@ Every rejection, with its reason, is written to `llm_rejected_suggestions.json` 
 
 **Candidate retrieval.** The LLM chooses from a shortlist of candidate DVs. By default (`--llm-shortlist definition`), `opendv/dv_retrieval.py` builds it by TF-IDF similarity to each DV's definition (id, label, aliases, instruments, notes, cluster, unit). The earlier alias-string matching (`--llm-shortlist fuzzy`) missed the correct DV for most real columns. `--llm-shortlist dense` fuses TF-IDF with sentence embeddings (`BAAI/bge-small-en-v1.5`, downloaded on first use, runs on CPU): the correct DV is among 8 candidates for 97% of held-out real columns, against 83% for TF-IDF alone. It is not the default: end to end, the LLM chose the right DV less often from the fused list (41 vs. 52 of 101 columns, paired p = 0.11), because the extra candidates are near-synonyms that a small model confuses (`docs/research_agenda.md` §2.4).
 
-**How good is the LLM fallback?** `opendv/analysis/evaluate_llm_mapping.py` replays the LLM step with each curated mapping hidden (leave-alias-out). With the local Gemma-4-E2B model and the plausibility check on, it found on real dataset columns:
+**How good is the LLM fallback?** `opendv/analysis/evaluate_llm_mapping.py` replays the LLM step with each curated mapping hidden (leave-alias-out). With the local Gemma-4-E2B model and the plausibility check on, the rerun of 2026-11-04 on the 23 development studies (after a fix: earlier runs showed the model the held-out alias for a third of the items) finds:
 
-- **With the old fuzzy shortlist:** 22% of accepted LLM mappings are correct.
-- **With definition retrieval:** 60% are correct (52 of 87). The opt-in `--llm-shortlist hierarchical` (dense retrieval without a scale and its own items side by side) reached 76% (65 of 86) in a post hoc evaluation, but a pre-registered confirmatory test on 168 DV columns of 7 new, non-automotive studies did not replicate it (53 vs. 55 correct, p = 0.81).
-- **On new studies** all shortlists do much worse: about a third of DV columns are mapped correctly and 35% of accepted LLM mappings are right ([`docs/confirmatory_shortlist_results.md`](docs/confirmatory_shortlist_results.md)).
-- **On the 12 studies added on 2026-11-04** (no method was tuned on them; reported with `--subset`): `definition` maps 68 of 164 DV columns correctly and 29% of accepted mappings are right; `dense_h` and `mixed_h` map 70 each (paired p = 0.85 and 0.81). Most errors come from misread item numbers (`sus0`–`sus9`, `TLX 2`–`TLX 6`), an abbreviation missing from the shortlist (`CIT`), and a scale chosen for its subscale or item columns.
-- **Effect of the check:** non-DV columns mapped to a DV drop sharply (54% → 7% for blocklisted columns, 74% → 30% for curated ones), without losing any true DV mapping.
+- **Columns:** `definition` maps 41% of 255 DV columns correctly, and 31% of its accepted mappings are right (55% on the original 11 studies, 23% on the 12 added ones). The older fuzzy shortlist reached 22% precision on 11 studies.
+- **Dense shortlists:** `dense_h` and `mixed_h` map 49% and 48% correctly (paired p = 0.009 and 0.008), but only on the original studies they were designed on. On the 12 added studies they are not better (63 and 62 vs. 57 of 155, p = 0.34 and 0.27), nor in a pre-registered confirmatory test on 168 DV columns of 7 new, non-automotive studies (53 and 56 vs. 55, [`docs/confirmatory_shortlist_results.md`](docs/confirmatory_shortlist_results.md)). `definition` stays the default.
+- **Error patterns** on the added studies: misread item numbers (`sus0`–`sus9`, `TLX 2`–`TLX 6`), an abbreviation missing from the shortlist (`CIT`), and a scale chosen for its subscale or item columns.
+- **Effect of the check:** non-DV columns mapped to a DV drop from 62% to 6% (blocklisted) and from 87% to 50% (curated non-DVs); 1 of 106 correct mappings is lost (a column whose sampled file holds only 1s).
+- **Conclusions, not columns:** with the LLM's answers in place of the curated mappings, none of the 16 within-person relations found with curated mappings survives (one with `dense_h`), while relations both pool agree closely (see [Cross-study relations](#cross-study-relations)).
 
 Treat LLM-deduced rows as provisional. `multi_study_analysis.py --exclude-llm-deduced` writes the `*_llm_excluded` sensitivity outputs that drop them. Details and further results are in [`docs/research_agenda.md`](docs/research_agenda.md).
 
@@ -205,12 +206,14 @@ sources:
     exclude_globs:
       - "**/pilot/**"
     # Optional, per file (path relative to `location`, or a glob): which sheet,
-    # which 0-based row holds the column names, and pivoting a long table
-    # (one row per subscale) to one column per subscale.
+    # which 0-based row holds the column names, pivoting a long table
+    # (one row per subscale) to one column per subscale, and columns to drop.
     table_options:
       results.xlsx: {sheet: Results, header: 1}
       workload_*.xlsx:
         pivot: {index: [participant, condition], columns: subscale, values: score}
+      "**/ObservationsPerEvaluation.csv":
+        drop_columns: [MentalLoad]   # columns that must not be read as data
 ```
 
 Run it like this:
@@ -441,7 +444,7 @@ Add both to an existing run with `python -m opendv.fair_export <output dir> [--l
 ### Robustness analyses
 
 - `opendv/analysis/multi_study_analysis.py` reports Hartung-Knapp-Sidik-Jonkman intervals (`hksj_ci95_low/high`) next to the Wald intervals; with the k = 2–3 studies typical here, Wald intervals are far too narrow. All meta-analytic estimators (DL, REML, Egger, trim-and-fill, HKSJ) are validated against R's `metafor` in `tests/test_meta_analysis_reference.py`.
-- `opendv/analysis/measurement_invariance.py` tests whether shared scales measure the same thing in every study before their means are pooled: a one-factor multi-group CFA per scale (configural, metric, scalar) fitted with R's lavaan (MLR, participant-clustered unless a study has one observation per participant), with Chen's (2007) ΔCFI/ΔRMSEA/ΔSRMR rules. `meta_analysis_summary.csv` gets a `measurement_invariance` column (level reached and the studies tested). It needs `Rscript` with lavaan and jsonlite and is skipped otherwise (`--no-measurement-invariance` to turn it off). Of the six scales testable in the 23 development studies, none reaches scalar invariance: Van der Laan *satisfying* reaches metric, *usefulness* configural, and SUS, NASA-TLX and both UEQ-S scales misfit already at the configural level.
+- `opendv/analysis/measurement_invariance.py` tests whether shared scales measure the same thing in every study before their means are pooled: a one-factor multi-group CFA per scale (configural, metric, scalar) fitted with R's lavaan (MLR, participant-clustered unless a study has one observation per participant), with Chen's (2007) ΔCFI/ΔRMSEA/ΔSRMR rules. `meta_analysis_summary.csv` gets a `measurement_invariance` column (level reached and the studies tested). It needs `Rscript` with lavaan and jsonlite and is skipped otherwise (`--no-measurement-invariance` to turn it off). Of the seven scales testable in the 23 development studies, none reaches scalar invariance: Van der Laan *satisfying* reaches metric, *usefulness* configural, and SUS, NASA-TLX, perceived safety and both UEQ-S scales misfit already at the configural level.
 - `opendv/analysis/multiverse_analysis.py` re-runs the meta-analysis across every combination of 5 choices (32 specifications per DV) and writes specification curves:
   - LLM mappings included or excluded;
   - scale harmonization on or off;
@@ -451,7 +454,7 @@ Add both to an existing run with `python -m opendv.fair_export <output dir> [--l
 
 ### Instruments
 
-`schemas/instruments.yaml` records how standard questionnaires are scored (items, reverse keys, response codings, scoring rule, citation): SUS, raw NASA-TLX, Van der Laan acceptance, UEQ-S, SSQ and Körber's TiA. Scores are computed from it whenever all items of a scale are present; a new questionnaire needs only a YAML entry. See `docs/schema_design.md`.
+`schemas/instruments.yaml` records how standard questionnaires are scored (items, reverse keys, response codings, scoring rule, citation): SUS, raw NASA-TLX (on 0–100 whatever the subscales' coding), Van der Laan acceptance, the four-item perceived-safety scale, UEQ-S, SSQ and Körber's TiA. Scores are computed from it whenever all items of a scale are present; a new questionnaire needs only a YAML entry. See `docs/schema_design.md`.
 
 Items may carry their `wording`, which header matching uses. After standardization, a **keying check** (`opendv.instruments.keying_check`) looks at the items of each registered scale in a table (at least 3 items and 20 complete rows): an item whose loading on the first principal component of the item correlations runs against its registered key (key × loading ≤ −0.3) is reported in `-quality.json` and `run_summary.json` (`instrument_keying_warnings`), like R's `psych::check.keys`. It found the reversed NASA-TLX performance item of Running into Traffic (loading −0.59, n = 288) before that was fixed by hand. It is a warning, never a correction: in small samples a real anomaly can trigger it, and a reversed item can go unnoticed.
 
@@ -462,7 +465,20 @@ Study means alone cannot say what a manipulation did. `schemas/study_designs.yam
 - combines dependent contrasts of a study by GLS (`rho` = 0.5, with 0.2 and 0.8 as sensitivity) and pools studies that share a canonical factor;
 - writes `contrast_effects.csv`, `contrast_study_effects.csv` and `contrast_meta_analysis.csv` (plus an `_llm_excluded` variant).
 
-Seven of the original 11 development studies declare factors (the 12 added on 2026-11-04 do not yet); the ROADS and Psych-Conflict condition codes are taken from the studies' own analysis scripts. The one cross-study contrast is eHMI vs. none on mental demand (2 studies): −0.51 SD, Wald [−0.70, −0.32], HKSJ [−2.32, 1.31].
+All 23 development studies declare their participant columns, and 14 declare factors, each yielding contrasts (the ROADS and Psych-Conflict condition codes are taken from the studies' own analysis scripts). Two contrasts are shared by two studies, eHMI vs. none:
+- on mental demand: −0.51 SD, Wald [−0.70, −0.32], HKSJ [−2.32, 1.31];
+- on perceived safety: +1.02 SD, Wald [0.72, 1.32]; possible since perceived safety is scored from its four items. The two estimates agree so closely that the HKSJ interval (1.00–1.04) is narrower than Wald's, a known artefact of HKSJ at k = 2; read the Wald interval.
+
+### Cross-study relations
+
+Because no shared scale supports pooling means, `opendv/analysis/construct_relations.py` pools what harmonized open data can support: correlations between constructs, which no linear rescaling changes. It computes them per study between persons (participant means) and within persons (repeated-measures r, Bakdash & Marusich 2017), pools them on Fisher's z (REML, HKSJ, prediction interval, Benjamini-Hochberg q), and traces every column to the step that mapped it: identical raw names, the shared schema, a curated study mapping, or the local LLM. In the 23 development studies:
+
+- **What each step makes estimable.** No pair of constructs is measured in three studies under the same column names. With the shared schema and header matching alone there are still none; with the curated mappings there are 29 (between persons), and 54 with the LLM fallback.
+- **A relation no single study shows (exploratory; the finding rule was fixed after a first look at the data).** Within persons, higher mental demand goes with lower perceived safety in all four studies that measured both repeatedly (r = −0.44, HKSJ [−0.72, −0.05], q = .04), while between persons the relation is uncertain (r = −0.27, five studies). The NASA-TLX subscales covary within persons in every study, with *performance* the weakest link.
+- **What the LLM adds, and its cost.** The LLM reaches studies no rule maps (21 instead of 16) and reproduces the workload–safety relation in eight. Its new cross-construct findings mix correct and wrong mappings (the ride's *relaxation* rating as trust), and still look homogeneous, so they need review first.
+- **The LLM does not replace curation.** `--llm-replay-items` runs the analysis with the LLM's leave-alias-out answers in place of the curated mappings: none of the 16 within-person findings survives, one with the dense shortlist (NASA-TLX subscales are read as mental demand), although relations both versions pool agree closely (median |Δr| 0.06–0.09). It compares conclusions, not single columns.
+
+Method and results: [`docs/cross_study_insights.md`](docs/cross_study_insights.md).
 
 ### Extending the batch runner
 
@@ -483,6 +499,7 @@ Seven of the original 11 development studies declare factors (the 12 added on 20
 - **Text-labelled responses**: if a dataset stores Likert answers as labels ("Rather agree"), declare the codes once in its mapping YAML under `value_labels:` (columns + label → number; see `schemas/psych_conflict_handling_mapping.yaml`). Cells are recoded before standardization; labels that are not declared become missing and are counted in the dataset's `-quality.json` (`value_labels_applied`). Without this, such a dataset contributes no numeric DV.
 - **Missing-value codes**: if a dataset stores "no answer" as a number (98, 99, −99), declare it in its mapping YAML under `missing_values:` (`columns:` a list or `"*"`, `values:`, `reason:`; see `schemas/fido2_auth_chi23_mapping.yaml`). These cells become missing before anything else is recoded, and are counted in `-quality.json` (`missing_value_codes`). Without this, a 99 inside a 1–5 SUS item is summarized as an answer.
 - **Units**: if a dataset records a time DV in another unit than the schema states (milliseconds where `crossing_initiation_time` is in seconds), declare it under `unit_conversions:` (`columns:`, `from:`, `to:`, `reason:`; any time unit pandas knows, e.g. `ms`, `s`, `min`; see `schemas/ehmi_state_intent_mtap24_mapping.yaml`). The values are converted before they are summarized and listed in `-quality.json` (`unit_conversions`).
+- **Scales**: the analysis rescales a DV only when its values leave the DV's range, so a narrower recording scale that fits inside it (NASA-TLX subscales stored 0–10 where the schema uses 0–20) must be declared under `scale_conversions:` (`columns:`, `from: [min, max]`, `to: [min, max]`, `reason:`; see `schemas/woz_adaptation_ijhcs24_mapping.yaml`). The mapping is linear and listed in `-quality.json` (`scale_conversions`).
 - **Item-level DVs**: name item DVs `<construct id>_item_NN` (e.g. `perceived_safety_item_01`) or declare `subitem_of: <construct id>` in the schema entry. The causal analysis then drops the items whenever their construct is present, so item → scale edges cannot appear in the DAG.
 
 ```bash

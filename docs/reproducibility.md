@@ -65,6 +65,20 @@ opendv batch --manifest sources_manifest_no4tu.yaml --output-dir data/processed/
 opendv analyze --input-dir data/processed/catalog_meta_analysis/standardized --output-dir analyses/output_python_full --exclude-llm-deduced
 python -m opendv.analysis.multiverse_analysis --input-dir data/processed/catalog_meta_analysis/standardized --output-dir analyses/output_multiverse
 python -m opendv.analysis.make_chi_figures
+
+# LLM benchmark: a run without LLM deductions gives the gold labels; every
+# curated column is asked about (--max-per-source 1000) for the replay below.
+opendv batch --manifest sources_manifest_no4tu.yaml --output-dir data/processed/det23 --disable-llm-deduction --workers 8 --no-fair-export
+for s in definition dense_h mixed_h; do
+  out=analyses/output_llm_evaluation; [ "$s" = definition ] || out=$out/postfix/shortlist_$s
+  python -m opendv.analysis.evaluate_llm_mapping --manifest sources_manifest_no4tu.yaml --batch-dir data/processed/det23 \
+    --cache-dir data/processed/cache --max-per-source 1000 --seed 20261017 --models google/gemma-4-E2B-it \
+    --subset added_2026_11_04=analyses/development_sources/sources.yaml --shortlist "$s" --output-dir "$out"
+done
+
+# Cross-study relations, with the LLM standing in for the curated mappings
+python -m opendv.analysis.construct_relations --input-dir data/processed/catalog_meta_analysis/standardized \
+  --output-dir analyses/output_relations --llm-replay-items analyses/output_llm_evaluation/llm_mapping_evaluation_items.csv
 ```
 
 On the same environment this reproduces the committed tables exactly; figure PDFs differ only in their embedded timestamps.

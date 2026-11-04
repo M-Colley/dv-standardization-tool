@@ -56,6 +56,7 @@ nav:
       - Troubleshooting: troubleshooting_index.md
   - Guides:
       - Multi-study analysis: multi_study_analysis_guide.md
+      - Cross-study relations: cross_study_insights.md
       - Dataset guidelines: dataset_guidelines.md
       - Schema design: schema_design.md
   - Reference:

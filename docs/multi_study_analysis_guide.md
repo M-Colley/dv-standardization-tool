@@ -74,7 +74,10 @@ bash analyses/run_latest_multi_study_analysis.sh analyses/output_python_latest_s
 - `analyses/output_python/meta_analysis_summary.csv` — random-effects pooled estimates per canonical DV. New columns: `estimator` (DL / REML), `mapping_source_categories`, `k_llm_deduced`, `includes_llm_deduced`.
 - `analyses/output_python/standardized_effects.csv` — legacy alias, preserved for backward compatibility.
 - `analyses/output_python/study_vs_pool_standardized_deviation.csv` — descriptive standardized distance between each study mean and the pooled mean. Renamed (and documented) to avoid being mistaken for a contrast-based Hedges' g effect size.
-- `analyses/output_python/cross_study_composite_summary.csv`
+- `analyses/output_python/cross_study_composite_summary.csv` — studies are z-scored before the first principal component, so its per-study means are 0 by construction; it describes within-study spread only.
+- `analyses/output_python/meta_regression.csv` — random-effects meta-regression of study means on sample size with the Knapp-Hartung test (`mixed_meta_regression`; `tau2_residual`, `r2_analog` = share of between-study variance explained).
+- `analyses/output_python/subgroup_meta_analysis.csv` — standardized deviations pooled per schema cluster; items next to their scale score are dropped and each study counts once per cluster (`k_studies`).
+- `analyses/output_python/leave_one_out_sensitivity.csv` — with `k_remaining` and `pooling_method` (two remaining studies are pooled with fixed effects).
 - `analyses/output_python/dv_overlap_heatmap.png`
 - `analyses/output_python/dv_mean_shift.png`
 - `analyses/output_python/dv_coverage_by_study.png`
@@ -114,6 +117,8 @@ Method:
 3. Several contrasts of one study against the same reference are combined by GLS under a compound-symmetric correlation (`rho = 0.5`; metafor `aggregate(struct = "CS")`), with `rho` = 0.2 and 0.8 as sensitivity columns.
 4. Study-level effects are pooled with the same estimators as the mean meta-analysis (fixed effects below k = 3, HKSJ intervals always reported).
 
+Participants are identified by the declared `participant` columns (the first present one wins). Two optional keys cover files that identify them differently: `participant_from_file` (a regular expression with one group that takes the id from the file name, for files that carry none) and `participant_scope: file` (ids that restart in every file, which are then qualified by the file name). Each study also records its research `domain`, which the relations analysis uses to split pooled relations.
+
 All formulas are checked against metafor 5.2.1 in `tests/test_contrast_meta_analysis.py`.
 
 Outputs: `contrast_effects.csv` (every contrast, with means, SDs, the within-person correlation, `favours_level` from the DV's direction and `mapping_source`), `contrast_study_effects.csv` (one effect per study × canonical factor × DV), `contrast_meta_analysis.csv` and `contrast_meta_analysis_llm_excluded.csv`.
@@ -123,14 +128,18 @@ Outputs: `contrast_effects.csv` (every contrast, with means, SDs, the within-per
 
 | category        | origin                                                            |
 | --------------- | ----------------------------------------------------------------- |
-| `schema`        | In-memory alias / shipped schema files                             |
-| `repo_mapping`  | Repository-specific `mapping.yaml` overrides                       |
+| `schema`        | In-memory alias / the shared `standard_*_mapping.yaml` files      |
+| `repo_mapping`  | A study's own mapping file (`schemas/<study>_mapping.yaml` or one in the repository) |
 | `header_match`  | Question-text header matched by a cleaned alias or item wording    |
 | `llm_deduced`   | A local LLM inferred the mapping                                   |
 | `blocked`       | Never-map blocklist applied                                        |
 | `unknown`       | No provenance available (e.g., ad-hoc input folder)                |
 
-When several raw columns map to one DV and are composed into a per-row mean (`opendv/item_composition.py`), each item keeps a `meta_view.csv` row of its own: `item_of` names the composite and `original_alias`, `mapping_source`, `n`, `mean`, `min` and `max` describe that raw column; the composite's row lists its items in `composite_items`. The most cautious category over all of a DV's rows wins, so a composite with one LLM-mapped item counts as `llm_deduced`. Rows with `item_of` set describe items, not additional observations of the construct.
+When several raw columns map to one DV and are composed into a per-row mean (`opendv/item_composition.py`), each item keeps a `meta_view.csv` row of its own: `item_of` names the composite and `original_alias`, `mapping_source`, `n`, `mean`, `min` and `max` describe that raw column; the composite's row lists its items in `composite_items`. The most cautious category over all of a DV's rows wins, so a composite with one LLM-mapped item counts as `llm_deduced`, and so does a questionnaire score the analysis computes from an LLM-mapped item. Rows with `item_of` set describe items, not additional observations of the construct; their `<dv>__item_N` columns are never read as the scale's numbered items.
+
+Columns are composed only when they agree: a group in which one column correlates negatively with the others is left uncomposed (`skip_negative_item_correlation`), and LLM-mapped columns are never composed with others (`skip_mixed_provenance`). Reverse keying comes only from a mapping file. Uncomposed columns of one DV are averaged per row by the analysis.
+
+Provenance is assigned per study and DV, so an LLM-mapped column anywhere in a study quarantines the DV for that study in the `_llm_excluded` outputs, even when the values come from curated columns. In the 23 development studies this removes ROADS' SUS score, because the LLM mapped a "reality" item of another file to SUS item 1. `opendv/analysis/construct_relations.py` works column by column instead.
 
 Use these CLI flags for sensitivity runs:
 
@@ -154,6 +163,10 @@ When `--exclude-llm-deduced` is set, three additional files are emitted:
 - `study_vs_pool_standardized_deviation_llm_excluded.csv`
 
 The `opendv/run_catalog_meta_analysis.py` orchestrator also writes the `_llm_excluded` variants automatically whenever any LLM-deduced rows are present.
+
+### Cross-study relations
+
+`opendv/analysis/construct_relations.py` pools within-study correlations between constructs across studies, between and within persons, and attributes each to the harmonization step that made it estimable; with `--llm-replay-items` it also evaluates the LLM fallback by the conclusions it leads to. See [`cross_study_insights.md`](cross_study_insights.md).
 
 ### Causal discovery fallback
 `discover_causal_structure` reports `used_method` (one of `complete_case`, `clique_complete_case`, `synthetic_cholesky`) and a boolean `synthetic_fallback`. When rows are scarce the old behavior synthesized rows from the observed correlation matrix via Cholesky factorization; this is still available but is now labeled and logged as a warning. Pass `refuse_synthetic=True` (or `--refuse-synthetic-causal` on the CLI) to skip the synthetic fallback entirely.
