@@ -115,7 +115,7 @@ def _fuzzy_match_column(
     return None, 0.0
 
 
-RESERVED_MAPPING_KEYS = frozenset({"scales", "value_labels", "reverse_items", "missing_values"})
+RESERVED_MAPPING_KEYS = frozenset({"scales", "value_labels", "reverse_items", "missing_values", "unit_conversions"})
 
 
 def _build_alias_mapping(schema: Dict) -> Dict[str, str]:

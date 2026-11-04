@@ -147,6 +147,16 @@ def test_dataset_mapping_validation_checks_missing_value_blocks():
     assert any("missing_values[1]" in e and "values" in e for e in errors)
 
 
+def test_dataset_mapping_validation_checks_unit_conversion_blocks():
+    errors, _ = validate_dataset_mapping({"unit_conversions": [{"columns": ["cit"], "from": "ms", "to": "s"}]})
+    assert errors == []
+    errors, _ = validate_dataset_mapping({
+        "unit_conversions": [{"columns": "cit", "from": "ms", "to": "s"}, {"columns": ["cit"], "from": "ms", "to": "pts"}],
+    })
+    assert any("unit_conversions[0]" in e and "columns" in e for e in errors)
+    assert any("unit_conversions[1]" in e and "time units" in e for e in errors)
+
+
 @pytest.mark.parametrize("path", sorted((REPO / "schemas").glob("*_mapping.yaml")), ids=lambda p: p.name)
 def test_repository_mappings_are_valid(path):
     schema = yaml.safe_load(path.read_text(encoding="utf-8"))

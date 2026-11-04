@@ -173,6 +173,7 @@ from opendv.llm_plausibility import load_rules as load_plausibility_rules
 from opendv.value_labels import (
     apply_missing_values,
     apply_reverse_keying,
+    apply_unit_conversions,
     apply_value_labels,
     recode_negative_answer_codes,
     recode_survey_answer_codes,
@@ -1537,6 +1538,7 @@ class _ResolvedMapping:
     value_labels: tuple[dict[str, Any], ...] = ()
     reverse_items: tuple[dict[str, Any], ...] = ()
     missing_values: tuple[dict[str, Any], ...] = ()
+    unit_conversions: tuple[dict[str, Any], ...] = ()
 
 
 class _MappingResolver:
@@ -1574,6 +1576,7 @@ class _MappingResolver:
                     tuple(raw_schema.get("value_labels") or []) if isinstance(raw_schema, dict) else (),
                     tuple(raw_schema.get("reverse_items") or []) if isinstance(raw_schema, dict) else (),
                     tuple(raw_schema.get("missing_values") or []) if isinstance(raw_schema, dict) else (),
+                    tuple(raw_schema.get("unit_conversions") or []) if isinstance(raw_schema, dict) else (),
                 )
         return self._custom[mapping_path]
 
@@ -1593,9 +1596,11 @@ class _MappingResolver:
         value_labels: tuple[dict[str, Any], ...] = ()
         reverse_items: tuple[dict[str, Any], ...] = ()
         missing_values: tuple[dict[str, Any], ...] = ()
+        unit_conversions: tuple[dict[str, Any], ...] = ()
         custom = self._load_custom(path_key, dataset_id) if path_key is not None else None
         if custom is not None:
-            custom_mapping, custom_aliases_ci, declared_scales, value_labels, reverse_items, missing_values = custom
+            (custom_mapping, custom_aliases_ci, declared_scales, value_labels, reverse_items, missing_values,
+             unit_conversions) = custom
             # Only report a mapping path once a non-empty source mapping is
             # actually merged in.
             if custom_mapping:
@@ -1613,6 +1618,7 @@ class _MappingResolver:
             value_labels=value_labels,
             reverse_items=reverse_items,
             missing_values=missing_values,
+            unit_conversions=unit_conversions,
         )
         self._resolved[key] = resolved
         return resolved
@@ -1749,6 +1755,8 @@ def _process_dataset(
         # Items declared reverse-keyed for this dataset (after the recodings
         # above, so they operate on numeric codes).
         original_df, reverse_report = apply_reverse_keying(original_df, resolved.reverse_items)
+        # Columns recorded in another unit than their DV's (ms for seconds).
+        original_df, unit_report = apply_unit_conversions(original_df, resolved.unit_conversions)
         source_mapping = resolved.mapping
         dataset_mapping = source_mapping
         unknown_before_llm = _filter_llm_eligible_columns(
@@ -1903,6 +1911,8 @@ def _process_dataset(
             quality["missing_value_codes"] = missing_value_report
         if value_label_report:
             quality["value_labels_applied"] = value_label_report
+        if unit_report:
+            quality["unit_conversions"] = unit_report
         if answer_code_report:
             quality["negative_answer_codes_recoded"] = answer_code_report
         if survey_code_report:

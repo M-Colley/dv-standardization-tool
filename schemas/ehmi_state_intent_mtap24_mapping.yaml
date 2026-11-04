@@ -14,7 +14,8 @@
 #   failure-to-yield trial.
 #
 # Notes
-# - CIT_* = crossing initiation time in milliseconds from video onset, stored
+# - CIT_* = crossing initiation time in milliseconds from video onset (converted
+#   to seconds by unit_conversions below), stored
 #   as block-level means (wide repeated measures: block x vehicle type).
 #   10000 = no crossing initiated before the 10-s video ended (censored; 8
 #   participants in block 4). CIT_4_AV and CIT_4_overall hold identical values.
@@ -60,6 +61,40 @@ CIT_2_CV_yielding: crossing_initiation_time
 CIT_3_CV_yielding: crossing_initiation_time
 CIT_5_V_yielding: crossing_initiation_time
 CIT_6_CV_yielding: crossing_initiation_time
+
+# The schema states crossing_initiation_time in seconds; the CIT_* columns are ms.
+unit_conversions:
+  - columns:
+      - CIT_1_overall
+      - CIT_2_overall
+      - CIT_3_overal
+      - CIT_4_overall
+      - CIT_5_overall
+      - CIT_6_overall
+      - CIT_1_AV
+      - CIT_2_AV
+      - CIT_3_AV
+      - CIT_4_AV
+      - CIT_5_AV
+      - CIT_6_AV
+      - CIT_CV_1_overall
+      - CIT_CV_2_overall
+      - CIT_CV_3_overall
+      - CIT_CV_5_overall
+      - CIT_CV_6_overall
+      - CIT_CV_1_non-yielding
+      - CIT_CV_2_non-yielding
+      - CIT_CV_3_non-yielding
+      - CIT_CV_5_non-yielding
+      - CIT_CV_6_non-yielding
+      - CIT_1_CV_yielding
+      - CIT_2_CV_yielding
+      - CIT_3_CV_yielding
+      - CIT_5_V_yielding
+      - CIT_6_CV_yielding
+    from: ms
+    to: s
+    reason: crossing initiation time in milliseconds (dataset README)
 
 # --- Dependent measures: trust (short LETRAS-G mean, 1-7) --------------------
 Trust_0: trust_rating                        # baseline, before the trials

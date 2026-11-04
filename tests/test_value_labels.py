@@ -224,6 +224,21 @@ class MissingValueCodeTests(unittest.TestCase):
         star, _ = apply_missing_values(df, [{"columns": "*", "values": [98]}])
         self.assertTrue(pd.isna(star["age"].iloc[0]))
 
+    def test_declared_columns_are_converted_to_the_dv_unit(self):
+        from scripts.value_labels import apply_unit_conversions, unit_factor
+
+        self.assertEqual(unit_factor("ms", "s"), 0.001)
+        self.assertEqual(unit_factor("min", "s"), 60)
+        df = pd.DataFrame({"cit": [1500, None, "n/a"], "trust": [3, 4, 5]})
+        out, report = apply_unit_conversions(df, [{"columns": ["cit", "absent"], "from": "ms", "to": "s"}])
+        self.assertEqual(out["cit"].iloc[0], 1.5)
+        self.assertTrue(pd.isna(out["cit"].iloc[1]))
+        self.assertEqual(out["cit"].iloc[2], "n/a")                      # text is kept
+        self.assertEqual(out["trust"].tolist(), [3, 4, 5])
+        self.assertEqual(report, {"cit": "ms -> s"})
+        with self.assertRaises(ValueError):
+            unit_factor("ms", "points")
+
     def test_batch_applies_codes_before_summaries(self):
         with tempfile.TemporaryDirectory() as tmpdir:
             tmp = Path(tmpdir)

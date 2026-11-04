@@ -277,6 +277,21 @@ def validate_dataset_mapping(schema: dict) -> tuple[list[str], list[str]]:
                 elif not isinstance(block.get("values"), list) or not block["values"]:
                     errors.append(f"missing_values[{i}]: 'values' must be a non-empty list of codes")
             continue
+        if key == "unit_conversions":
+            from opendv.value_labels import unit_factor
+
+            if not isinstance(value, list):
+                errors.append("'unit_conversions' must be a list of {columns, from, to} blocks")
+                continue
+            for i, block in enumerate(value):
+                if not isinstance(block, dict) or not isinstance(block.get("columns"), list) or not block["columns"]:
+                    errors.append(f"unit_conversions[{i}]: 'columns' must be a non-empty list")
+                    continue
+                try:
+                    unit_factor(block.get("from"), block.get("to"))
+                except (ValueError, TypeError):
+                    errors.append(f"unit_conversions[{i}]: 'from' and 'to' must be time units such as ms, s, min")
+            continue
         if not isinstance(key, str) or not key.strip():
             errors.append(f"Invalid raw column name: {key!r}")
         if not isinstance(value, str) or not value.strip():
