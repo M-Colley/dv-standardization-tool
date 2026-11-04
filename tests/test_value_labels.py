@@ -115,6 +115,36 @@ class NegativeAnswerCodeTests(unittest.TestCase):
         self.assertEqual(report, {"PerSafe01": 3})
         self.assertEqual(out["id"].tolist(), df["id"].tolist())
 
+    def test_limesurvey_array_answer_codes_and_yes_no_become_numbers(self):
+        """XAI trust scales (CHI EA '23) export Likert answers as A1..A7; Hi-Audio stores task success as Y/N."""
+        from scripts.value_labels import recode_survey_answer_codes
+
+        df = pd.DataFrame({
+            "TrustAutomation[SQ001]": ["A1", "A7", None, "a3"],
+            "item_SQ002": ["A2", "A10", "A1", "A4"],
+            "Gender": ["A1", "A2", "A1", "A3"],          # single list question: nominal, left alone
+            "T1": ["Y", "N", "y", None],
+            "first_time": ["YES", "YES", "NO", "yes"],
+            "comment": ["Y", "no idea", "N", "Y"],        # not only yes/no: left alone
+            # A VR study's per-trial success flag: booleans in a column with a gap stay object.
+            "Success": [True, False, None, True],
+            "passed": ["TRUE", "false", "False", "true"],
+        })
+        out, report = recode_survey_answer_codes(df)
+        self.assertEqual(out["Success"].tolist()[:2], [1.0, 0.0])
+        self.assertTrue(pd.isna(out["Success"].iloc[2]))
+        self.assertEqual(out["passed"].tolist(), [1.0, 0.0, 0.0, 1.0])
+        self.assertEqual(out["TrustAutomation[SQ001]"].tolist()[:2], [1.0, 7.0])
+        self.assertEqual(out["TrustAutomation[SQ001]"].iloc[3], 3.0)
+        self.assertEqual(out["item_SQ002"].tolist(), [2.0, 10.0, 1.0, 4.0])
+        self.assertEqual(out["T1"].tolist()[:3], [1.0, 0.0, 1.0])
+        self.assertEqual(out["first_time"].tolist(), [1.0, 1.0, 0.0, 1.0])
+        self.assertEqual(out["Gender"].tolist(), df["Gender"].tolist())
+        self.assertEqual(out["comment"].tolist(), df["comment"].tolist())
+        self.assertEqual(report, {"TrustAutomation[SQ001]": "answer_code", "item_SQ002": "answer_code",
+                                  "T1": "yes_no", "first_time": "yes_no",
+                                  "Success": "true_false", "passed": "true_false"})
+
     def test_batch_keeps_negative_answers(self):
         with tempfile.TemporaryDirectory() as tmpdir:
             tmp = Path(tmpdir)

@@ -1,0 +1,283 @@
+{
+  "n_dv_columns": 168,
+  "shortlists": {
+    "definition": {
+      "correct": 64,
+      "gold_in_shortlist": 114,
+      "precision_of_accepted_dv_mappings": {
+        "k": 64,
+        "n": 176,
+        "rate": 0.36363636363636365,
+        "ci95": [
+          0.2961832788629111,
+          0.4369149715919128
+        ]
+      },
+      "abstained_on_dv_columns": {
+        "k": 14,
+        "n": 168,
+        "rate": 0.08333333333333333,
+        "ci95": [
+          0.05028733507846082,
+          0.13500822187976255
+        ]
+      },
+      "curated_non_dv_mapped_to_a_dv": {
+        "k": 22,
+        "n": 144,
+        "rate": 0.1527777777777778,
+        "ci95": [
+          0.1031088593295453,
+          0.22049088868645247
+        ]
+      },
+      "true_mappings_lost_to_check_among_reached": 0,
+      "screened_before_llm": 2,
+      "correct_by_source": {
+        "agency_ux_tochi22": 4,
+        "hiaudio_eval_2026": 3,
+        "pxi_validation_chi24": 30,
+        "sonomancer_chiplay25": 2,
+        "tamago_supervision_2026": 14,
+        "vr_grab_techniques_icom20": 3,
+        "xai_trust_scales_chi23": 8
+      },
+      "vs_preregistered_run": {
+        "dv_columns_in_both": 168,
+        "correct_before": 55,
+        "correct_now": 64,
+        "new_only": 9,
+        "baseline_only": 0,
+        "p_two_sided": 0.00390625
+      },
+      "with_header_matching": {
+        "correct": 106,
+        "header_matched_dv_columns": 45,
+        "header_matched_correct": 45,
+        "header_matched_non_dv_columns": 0,
+        "precision_of_accepted_dv_mappings": {
+          "k": 106,
+          "n": 177,
+          "rate": 0.5988700564971752,
+          "ci95": [
+            0.5253044912629219,
+            0.6682351994044864
+          ]
+        },
+        "abstained_on_dv_columns": {
+          "k": 13,
+          "n": 168,
+          "rate": 0.07738095238095238,
+          "ci95": [
+            0.04577696410133537,
+            0.1278799579562912
+          ]
+        },
+        "curated_non_dv_mapped_to_a_dv": {
+          "k": 22,
+          "n": 144,
+          "rate": 0.1527777777777778,
+          "ci95": [
+            0.1031088593295453,
+            0.22049088868645247
+          ]
+        },
+        "vs_llm_only_new_only": 42,
+        "vs_llm_only_baseline_only": 0,
+        "vs_llm_only_p_two_sided": 4.547473508864641e-13
+      }
+    },
+    "dense_h": {
+      "correct": 54,
+      "gold_in_shortlist": 117,
+      "precision_of_accepted_dv_mappings": {
+        "k": 54,
+        "n": 181,
+        "rate": 0.2983425414364641,
+        "ci95": [
+          0.23644230276616768,
+          0.3686246531767963
+        ]
+      },
+      "abstained_on_dv_columns": {
+        "k": 17,
+        "n": 168,
+        "rate": 0.10119047619047619,
+        "ci95": [
+          0.06414204521491729,
+          0.15606941644509653
+        ]
+      },
+      "curated_non_dv_mapped_to_a_dv": {
+        "k": 30,
+        "n": 144,
+        "rate": 0.20833333333333334,
+        "ci95": [
+          0.1500109814745541,
+          0.281812806858884
+        ]
+      },
+      "true_mappings_lost_to_check_among_reached": 0,
+      "screened_before_llm": 2,
+      "correct_by_source": {
+        "agency_ux_tochi22": 1,
+        "hiaudio_eval_2026": 7,
+        "pxi_validation_chi24": 25,
+        "sonomancer_chiplay25": 2,
+        "tamago_supervision_2026": 15,
+        "vr_grab_techniques_icom20": 4,
+        "xai_trust_scales_chi23": 0
+      },
+      "vs_preregistered_run": {
+        "dv_columns_in_both": 168,
+        "correct_before": 53,
+        "correct_now": 54,
+        "new_only": 1,
+        "baseline_only": 0,
+        "p_two_sided": 1.0
+      },
+      "with_header_matching": {
+        "correct": 93,
+        "header_matched_dv_columns": 45,
+        "header_matched_correct": 45,
+        "header_matched_non_dv_columns": 0,
+        "precision_of_accepted_dv_mappings": {
+          "k": 93,
+          "n": 184,
+          "rate": 0.5054347826086957,
+          "ci95": [
+            0.4338250879497816,
+            0.5768221888151903
+          ]
+        },
+        "abstained_on_dv_columns": {
+          "k": 14,
+          "n": 168,
+          "rate": 0.08333333333333333,
+          "ci95": [
+            0.05028733507846082,
+            0.13500822187976255
+          ]
+        },
+        "curated_non_dv_mapped_to_a_dv": {
+          "k": 30,
+          "n": 144,
+          "rate": 0.20833333333333334,
+          "ci95": [
+            0.1500109814745541,
+            0.281812806858884
+          ]
+        },
+        "vs_llm_only_new_only": 39,
+        "vs_llm_only_baseline_only": 0,
+        "vs_llm_only_p_two_sided": 3.637978807091713e-12
+      }
+    },
+    "mixed_h": {
+      "correct": 57,
+      "gold_in_shortlist": 108,
+      "precision_of_accepted_dv_mappings": {
+        "k": 57,
+        "n": 184,
+        "rate": 0.30978260869565216,
+        "ci95": [
+          0.24743209417908357,
+          0.3799132190469004
+        ]
+      },
+      "abstained_on_dv_columns": {
+        "k": 14,
+        "n": 168,
+        "rate": 0.08333333333333333,
+        "ci95": [
+          0.05028733507846082,
+          0.13500822187976255
+        ]
+      },
+      "curated_non_dv_mapped_to_a_dv": {
+        "k": 30,
+        "n": 144,
+        "rate": 0.20833333333333334,
+        "ci95": [
+          0.1500109814745541,
+          0.281812806858884
+        ]
+      },
+      "true_mappings_lost_to_check_among_reached": 0,
+      "screened_before_llm": 2,
+      "correct_by_source": {
+        "agency_ux_tochi22": 4,
+        "hiaudio_eval_2026": 3,
+        "pxi_validation_chi24": 30,
+        "sonomancer_chiplay25": 3,
+        "tamago_supervision_2026": 14,
+        "vr_grab_techniques_icom20": 3,
+        "xai_trust_scales_chi23": 0
+      },
+      "vs_preregistered_run": {
+        "dv_columns_in_both": 168,
+        "correct_before": 56,
+        "correct_now": 57,
+        "new_only": 1,
+        "baseline_only": 0,
+        "p_two_sided": 1.0
+      },
+      "with_header_matching": {
+        "correct": 99,
+        "header_matched_dv_columns": 45,
+        "header_matched_correct": 45,
+        "header_matched_non_dv_columns": 0,
+        "precision_of_accepted_dv_mappings": {
+          "k": 99,
+          "n": 184,
+          "rate": 0.5380434782608695,
+          "ci95": [
+            0.46596580869305687,
+            0.6085651286617463
+          ]
+        },
+        "abstained_on_dv_columns": {
+          "k": 14,
+          "n": 168,
+          "rate": 0.08333333333333333,
+          "ci95": [
+            0.05028733507846082,
+            0.13500822187976255
+          ]
+        },
+        "curated_non_dv_mapped_to_a_dv": {
+          "k": 30,
+          "n": 144,
+          "rate": 0.20833333333333334,
+          "ci95": [
+            0.1500109814745541,
+            0.281812806858884
+          ]
+        },
+        "vs_llm_only_new_only": 42,
+        "vs_llm_only_baseline_only": 0,
+        "vs_llm_only_p_two_sided": 4.547473508864641e-13
+      }
+    }
+  },
+  "tests": {
+    "dense_h_vs_definition": {
+      "new_only": 8,
+      "baseline_only": 18,
+      "p_two_sided": 0.07551869750022888,
+      "p_holm": 0.15103739500045776
+    },
+    "mixed_h_vs_definition": {
+      "new_only": 5,
+      "baseline_only": 12,
+      "p_two_sided": 0.143463134765625,
+      "p_holm": 0.15103739500045776
+    }
+  },
+  "decision": {
+    "more_correct": false,
+    "p_below_0.05": false,
+    "precision_at_least_baseline": false,
+    "switch_default_to_hierarchical": false
+  }
+}

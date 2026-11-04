@@ -36,16 +36,18 @@ def load_uploaded_table(uploaded_file, sheet_name: str | int = 0) -> pd.DataFram
     if suffix in {".xlsx", ".xls"}:
         return pd.read_excel(io.BytesIO(raw), sheet_name=sheet_name)
 
-    # Mirror the CLI loader's robustness: detect encoding and delimiter so a
-    # semicolon-separated or latin-1 CSV parses the same here as in
-    # scripts/convert_dv.py instead of collapsing into a single column.
-    from opendv.data_loaders import _detect_delimiter
+    # Mirror the CLI loader's robustness: detect encoding, delimiter and
+    # decimal mark so a semicolon-separated, decimal-comma or latin-1 CSV
+    # parses the same here as in scripts/convert_dv.py instead of collapsing
+    # into a single column or into text.
+    from opendv.data_loaders import _detect_decimal, _detect_delimiter
     from opendv.encoding_utils import detect_text_encoding
 
     encoding = detect_text_encoding(raw)
     sample = raw[:16384].decode(encoding, errors="replace")
     delimiter = _detect_delimiter(sample, prefer=",")
-    return pd.read_csv(io.BytesIO(raw), sep=delimiter, encoding=encoding)
+    decimal = _detect_decimal(sample, delimiter)
+    return pd.read_csv(io.BytesIO(raw), sep=delimiter, decimal=decimal, encoding=encoding)
 
 
 def upload_csv():

@@ -4,6 +4,48 @@ This document logs human-readable updates to the repo's functionality, structure
 
 ---
 
+### [2026-11-04]
+
+- **Decimal commas.** A semicolon- or tab-separated file whose numbers use decimal commas (`24,825`, common in German or French spreadsheet exports) is now read with pandas' `decimal=","` (`opendv.data_loaders._detect_decimal`, also used by the UI uploader). The loader decides per file, and only when the sample has decimal-comma numbers and no decimal-point ones, because pandas would turn `1.5` into text under `decimal=","`.
+  - Before this, numeric coercion kept only the integer-valued cells of such columns, so summaries came from a biased subset. The confirmatory VR study's trial times were summarized from 259 of 8,640 trials (mean 29.3 s, mostly 30-s timeouts) instead of all of them (9.3 s).
+  - In the development studies the change reaches ROADS' and osf_cwd6h's log files: 1,779 files, no column losing numeric parsing. In the regenerated catalog only osf_cwd6h's 20 eye-tracking and sensor channels change (216 logs). They were summarized from 2.3 million of their 30.7 million cells, and 3,672 of the 4,318 summaries were empty. No DV changes.
+- **`True`/`False` columns** (as text, or as booleans in a column with gaps, which pandas keeps as object) are recoded to 1/0 by `recode_survey_answer_codes` (kind `true_false`). The VR study's per-trial `Success` now reaches the LLM.
+- **Failed LLM calls are no longer abstentions.**
+  - **Before:** a generation call that raised (e.g. CUDA out of memory while another job used the GPU) was logged at DEBUG and left the column unmapped, exactly like an abstention. In one development batch this silently removed all 32 FACT-AV LLM mappings.
+  - **Now:** failures are logged as warnings and collected (`llm_utils.generation_errors`), and an out-of-memory error is retried once after freeing cached GPU memory. The batch reports the count in `run_summary.json` (`llm_generation_errors`). The benchmark harness flags each affected item (`llm_error`) and exits with an error.
+  - **Earlier results:** no committed run shows the fast unanswered calls a failure leaves.
+- **Frozen manuscript context.** The prompt's repository context includes manuscript text fetched from the DOI's landing page, which can differ between requests: one confirmatory rerun got another PDF excerpt for Hi-Audio and changed 41 `mixed_h` answers.
+  - **Caching:** fetched text is now kept in a `joblib.Memory` cache under the source cache (`llm_context/`), shared by the batch and the benchmark harness. A failed fetch is retried on the next run rather than frozen.
+  - **Fingerprints:** each source's context fingerprint is recorded (`llm_context_sha256` in `run_summary.json`; `context_sha256` in the harness summary).
+  - **Earlier results:** the three pre-registered confirmatory runs logged the same PDF context.
+- **Confirmatory post hoc rerun** (not pre-registered), with the three shortlists run one after another on the shared context and no failed call: `definition` 64 correct (64 vs. 55 before, p = 0.004), `dense_h` 54, `mixed_h` 57, all because the VR `Success` column is now mapped correctly; otherwise identical to the 2026-11-03 rerun. With header matching first: 106 / 93 / 99 correct, precision 59.9% for `definition`.
+- **Development rerun.** The LLM batch, the analyses and the LLM benchmark of the three shortlists were rerun one after another on the shared context, with no failed call.
+  - Every benchmark item (470 per shortlist) is identical to the 2026-11-03 run, so the published development numbers stand.
+  - The LLM catalog differs only in the osf_cwd6h sensor channels above.
+  - Pooled estimates, multiverse ranges and figures are unchanged.
+
+### [2026-11-03]
+
+- **Survey answer codes recoded before screening.** `recode_survey_answer_codes` (`opendv/value_labels.py`) turns array-question answer codes into numbers before the non-numeric screen:
+  - LimeSurvey sub-questions (`Q[SQ001]`, `Q_sq001`) holding `A1`/`A01` codes;
+  - yes/no answers (`Y`/`N`, `Yes`/`No`, `Ja`/`Nein`) become 1/0.
+
+  Each recoding is recorded in the quality JSON (`survey_answer_codes_recoded`) and the data package. In the 11 development studies only six non-DV columns change: osf_cwd6h's four yes/no car-use questions and two constant "Y" flags (3D display `general`, FACT-AV `videoInfo`). No DV and no pooled estimate changes.
+- **Header matching against instrument item wording.** `opendv/header_matching.py` handles blocks of question-text headers (for example "How mentally demanding was the task? (0 = Low, 100 = High)"):
+  - it embeds the cleaned headers and the registered items' wording (`Item.wording` in `schemas/instruments.yaml`, for SUS and NASA-TLX) with `multilingual-e5-small`;
+  - it assigns them one-to-one (Hungarian assignment);
+  - it accepts a block only with at least 4 matches in a compact window and a similarity of at least 0.80.
+
+  It runs before the LLM. Its mappings get their own provenance (`header_match`, priority between repository and LLM mappings) and appear in the review queue. `--no-header-matching` turns it off. It maps nothing new in the development studies, whose headers are short codes.
+- **Keying check.** `opendv.instruments.keying_check` flags registered items whose loading on the first principal component of the item correlations runs against their key (key × loading ≤ −0.3, at least 20 complete rows and 3 items), in the manner of `psych::check.keys`. Warnings go to the log and `run_summary.json` (`instrument_keying_warnings`); nothing is reversed automatically. Run on the state before the 2026-10-26 fix, it finds Running into Traffic's reversed TLX performance item (−0.59, n = 288). It finds nothing in the current development studies.
+- **Indicator rule in the plausibility check.** Yes/no recoding first let the LLM map osf_cwd6h's yes/no demographics to `dali_total` and `tam_perceived_ease_of_use`, and the all-"Y" `general` flag to `trust_rating`, because 0–1 fits inside most response scales. A 0/1 column is now never accepted for a DV whose `measurement.category` is Likert or Score (`binary_for_rating_scale`; these five proposals are rejected). Binary and count DVs (`task_success`, `number_of_collisions`) are not affected. Plausibility rules are now version 1.2. LLM benchmark on the development studies: the rule also rejects Scrolling-in-the-Deep's `At_Home` indicator (proposed as `psychological_reactance`). Curated non-DV columns mapped to a DV drop from 35% to 30% and precision rises from 59% to 60% (52 of 87; `dense_h` 76%, `mixed_h` 78%). Correct mappings and E2 are unchanged. Regenerated LLM batch: `meta_view.csv` differs from the previous run only in the six recoded non-DV columns, which stay unmapped. Pooled estimates, multiverse ranges and the figures are unchanged.
+- **Post hoc rerun of the confirmatory test.** This is not pre-registered: two of the fixes were designed after seeing those data. The rerun uses `analyses/confirmatory/posthoc.sh`, the new `python -m opendv.analysis.confirmatory posthoc`, and outputs in `analyses/confirmatory/posthoc/`. Of the 168 DV columns:
+  - `definition` maps 63 correctly (55 before; 8 Hoffman trust items now reach the LLM; p = 0.008);
+  - `dense_h` and `mixed_h` are unchanged at 53 and 56, so `definition` stays the default;
+  - header matching assigns 45 question-text columns, all correct and with no non-DV column. Header matching first and the LLM for the rest gives 105 correct (precision 60%, was 36%).
+
+  The keying check flags AgencyUX's TLX performance item. The study's codebook confirms the reversal ("How successful were you…? low–high"). It also flags Hi-Audio's physical demand at n = 22, probably not a keying error. New studies are needed to confirm the gains (`docs/confirmatory_shortlist_results.md`).
+
 ### [2026-10-26]
 
 - **Lockfiles and documentation site.** `uv.lock` pins all 165 Python packages at the versions that produced the committed outputs (resolved with those versions as constraints, then kept as uv's preferences), `requirements-lock.txt` is its pip export, and `renv.lock` pins R 4.6.1 with lavaan 0.7-3 and jsonlite 2.0.0 for the invariance step. New `docs/reproducibility.md` lists them, the Hugging Face model snapshots of every committed run (`google/gemma-4-E2B-it` at `3e22461f`, the embedding models) and the commands to rerun. An MkDocs (Material) site builds the `docs/` pages with an API reference from the code (mkdocstrings); `pip install --group docs`, then `mkdocs serve`. CI checks that both lockfiles match `pyproject.toml` and builds the site with `--strict`. Fixed on the way: `opendv <command> --help` printed an empty usage for `standardize`, `batch`, `analyze` and `review` instead of the command's own options; broken links in the 2.1 release notes.

@@ -20,8 +20,11 @@ Supported input formats are the union of the keys registered by the
 
 from __future__ import annotations
 
+import csv
+import io
 import json
 import logging
+import re
 from pathlib import Path
 from typing import Any, Callable
 
@@ -164,6 +167,32 @@ def _detect_delimiter(sample: str, prefer: str | None = None) -> str:
     return _best(structured) or _best(whitespace_fallback) or (prefer or ",")
 
 
+_DECIMAL_COMMA_NUMBER = re.compile(r"[+-]?\d*,\d+")
+_DECIMAL_POINT_NUMBER = re.compile(r"[+-]?\d*\.\d+")
+
+
+def _detect_decimal(sample: str, delimiter: str) -> str:
+    """Return ``","`` for a file written with decimal commas, else ``"."``.
+
+    Spreadsheets in German, French and many other locales export
+    semicolon-separated CSV with decimal commas (``0,581``), which pandas
+    reads as text unless told ``decimal=","``. A file counts as decimal-comma
+    only when its delimiter is not a comma and the sample holds decimal-comma
+    numbers but no decimal-point ones: with ``decimal=","`` pandas would turn
+    ``1.5`` into text, so mixed or ambiguous files keep the default.
+    """
+    if delimiter == ",":
+        return "."
+    fields = [
+        field.strip()
+        for row in list(csv.reader(io.StringIO(sample), delimiter=delimiter))[1:]
+        for field in row
+    ]
+    has_comma = any(_DECIMAL_COMMA_NUMBER.fullmatch(f) for f in fields)
+    has_point = any(_DECIMAL_POINT_NUMBER.fullmatch(f) for f in fields)
+    return "," if has_comma and not has_point else "."
+
+
 # ---------------------------------------------------------------------------
 # Per-format loaders
 # ---------------------------------------------------------------------------
@@ -185,6 +214,7 @@ def _load_text_table(path: Path) -> pd.DataFrame:
         sample = ""
 
     delimiter = _detect_delimiter(sample, prefer=prefer_delim)
+    decimal = _detect_decimal(sample, delimiter)
 
     try:
         # The C engine is typically an order of magnitude faster; it handles
@@ -194,6 +224,7 @@ def _load_text_table(path: Path) -> pd.DataFrame:
             return pd.read_csv(
                 path,
                 sep=delimiter,
+                decimal=decimal,
                 encoding=encoding,
                 on_bad_lines="warn",
             )
@@ -201,6 +232,7 @@ def _load_text_table(path: Path) -> pd.DataFrame:
             return pd.read_csv(
                 path,
                 sep=delimiter,
+                decimal=decimal,
                 encoding=encoding,
                 engine="python",
                 on_bad_lines="warn",
@@ -454,6 +486,7 @@ __all__ = [
     "_sniff_format",
     "_detect_encoding",
     "_detect_delimiter",
+    "_detect_decimal",
     "_load_text_table",
     "_load_excel",
     "_load_pickle",

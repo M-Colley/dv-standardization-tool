@@ -35,6 +35,7 @@ from __future__ import annotations
 import argparse
 import json
 import logging
+import sys
 import time
 from datetime import datetime, timezone
 from pathlib import Path
@@ -60,6 +61,7 @@ from opendv.value_labels import (  # noqa: E402
     apply_reverse_keying,
     apply_value_labels,
     recode_negative_answer_codes,
+    recode_survey_answer_codes,
 )
 from opendv.llm_coordinator import _select_llm_candidate_shortlist  # noqa: E402
 from opendv.llm_plausibility import (  # noqa: E402
@@ -147,7 +149,7 @@ def _ask_llm(
     return candidates, top_score, suggestion
 
 
-def _source_context(source: dict[str, Any], base_dir: Path) -> str:
+def _source_context(source: dict[str, Any], base_dir: Path, cache_dir: Path | None = None) -> str:
     extra = _coerce_manifest_text_list(source.get("llm_context"))
     extra.extend(_coerce_manifest_text_list(source.get("publication_context")))
     return llm_utils.collect_repository_context(
@@ -157,7 +159,16 @@ def _source_context(source: dict[str, Any], base_dir: Path) -> str:
         explicit_pdf_urls=_coerce_manifest_text_list(source.get("publication_pdf_url"))
         + _coerce_manifest_text_list(source.get("pdf_url")),
         extra_context=extra,
+        cache_dir=cache_dir,
     )
+
+
+def _ask_llm_logged(*args: Any, **kwargs: Any) -> tuple[list[str], float, str | None, str | None]:
+    """``_ask_llm`` plus the generation error of this call, if one failed."""
+    before = len(llm_utils.generation_errors())
+    shortlist, top_score, suggestion = _ask_llm(*args, **kwargs)
+    errors = llm_utils.generation_errors()[before:]
+    return shortlist, top_score, suggestion, errors[-1]["error"] if errors else None
 
 
 def gold_items(meta_view: pd.DataFrame, dv_ids: set[str], max_per_source: int, seed: int) -> pd.DataFrame:
@@ -195,7 +206,10 @@ def run_e1(args, families: SchemaFamilies, dv_ids: set[str]) -> pd.DataFrame:
         for source_id, group in items.groupby("source_id", sort=True):
             source = sources[source_id]
             base_dir, _, _ = discover_source_files(source, Path(tmp), cache_root=Path(args.cache_dir))
-            context = _source_context(source, base_dir)
+            # The same cache as the batch runner, so every shortlist and rerun
+            # prompts with the same fetched manuscript text.
+            context = _source_context(source, base_dir, Path(args.cache_dir) / "llm_context")
+            context_sha256 = llm_utils.context_fingerprint(context)
             candidates_paths = _find_repository_mapping_candidates(base_dir)
             resolver = _MappingResolver(families, bool(source.get("override_standard_aliases", False)))
             requested = str(source["mapping_path"]).strip() if source.get("mapping_path") else None
@@ -214,6 +228,7 @@ def run_e1(args, families: SchemaFamilies, dv_ids: set[str]) -> pd.DataFrame:
                     raw, _ = apply_value_labels(raw, resolved.value_labels)
                     if dataset_type in llm_eligible_dataset_types():
                         raw, _ = recode_negative_answer_codes(raw)
+                        raw, _ = recode_survey_answer_codes(raw)
                     raw, _ = apply_reverse_keying(raw, resolved.reverse_items)
                     frames[item.dataset_id] = (raw, resolved.mapping)
                 df, mapping = frames[item.dataset_id]
@@ -221,12 +236,13 @@ def run_e1(args, families: SchemaFamilies, dv_ids: set[str]) -> pd.DataFrame:
                 alias = item.original_alias
                 profile = profile_columns(df, [alias]).get(alias)
                 t0 = time.perf_counter()
-                shortlist, top_score, suggestion = _ask_llm(
+                shortlist, top_score, suggestion, llm_error = _ask_llm_logged(
                     alias, _without_alias(mapping, alias), context, args.models, args.shortlist
                 )
                 pre = name_rejection_reason(alias, columns) or (data_rejection_reason(profile) if profile else None)
                 post = (
-                    check_llm_suggestion(alias, suggestion, profile, families.canonical_ranges)
+                    check_llm_suggestion(alias, suggestion, profile, families.canonical_ranges,
+                                         rating_scales=families.rating_scales)
                     if suggestion and not pre else None
                 )
                 rows.append({
@@ -246,6 +262,8 @@ def run_e1(args, families: SchemaFamilies, dv_ids: set[str]) -> pd.DataFrame:
                     "observed_min": profile.minimum if profile else None,
                     "observed_max": profile.maximum if profile else None,
                     "seconds": round(time.perf_counter() - t0, 3),
+                    "llm_error": llm_error,
+                    "context_sha256": context_sha256,
                 })
             logger.info("E1 %s: %d items", source_id, len(group))
     return pd.DataFrame(rows)
@@ -269,7 +287,7 @@ def run_e2(args, families: SchemaFamilies) -> pd.DataFrame:
     for index in sorted(picks):
         alias, gold = pairs[index]
         t0 = time.perf_counter()
-        shortlist, top_score, suggestion = _ask_llm(
+        shortlist, top_score, suggestion, llm_error = _ask_llm_logged(
             alias, _without_alias(base_mapping, alias), "", args.models, args.shortlist
         )
         pre = name_rejection_reason(alias)
@@ -286,6 +304,7 @@ def run_e2(args, families: SchemaFamilies) -> pd.DataFrame:
             "final_unchecked": suggestion,
             "final_checked": None if pre else suggestion,
             "seconds": round(time.perf_counter() - t0, 3),
+            "llm_error": llm_error,
         })
     return pd.DataFrame(rows)
 
@@ -372,10 +391,21 @@ def main() -> None:
         "e2_samples": args.e2_samples,
         "blocklist_size": len(NEVER_MAP_NORMALIZED_COLUMNS),
         "runtime_seconds": round(time.perf_counter() - started, 1),
+        "llm_generation_errors": int(items["llm_error"].notna().sum()),
+        "context_sha256": (
+            items.dropna(subset=["context_sha256"]).groupby("source_id")["context_sha256"].first().to_dict()
+            if "context_sha256" in items else {}
+        ),
         "results": summarize(items, dv_ids),
     }
     (output_dir / "llm_mapping_evaluation_summary.json").write_text(json.dumps(summary, indent=2), encoding="utf-8")
     print(json.dumps(summary["results"], indent=2))
+    if summary["llm_generation_errors"]:
+        # A failed call is not an abstention: these results must not be reported.
+        sys.exit(
+            f"{summary['llm_generation_errors']} LLM generation call(s) failed; their items count as "
+            "abstentions in the summary. Rerun when the GPU is free (llm_error column)."
+        )
 
 
 if __name__ == "__main__":

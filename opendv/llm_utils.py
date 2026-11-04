@@ -8,13 +8,14 @@ context extracted from README files and PDFs found in a source folder.
 from __future__ import annotations
 
 import gc
+import hashlib
 import io
 import logging
 import os
 import re
 from functools import lru_cache
 from pathlib import Path
-from typing import Any, Iterable
+from typing import Any, Callable, Iterable
 from urllib.parse import urljoin
 
 import httpx
@@ -553,12 +554,41 @@ def _fetch_pdf_text_from_doi(doi: str, max_chars: int = 3000) -> str:
     return _fetch_pdf_text_from_url(f"https://doi.org/{doi}", max_chars=max_chars)
 
 
+def _cached_fetch(fetch: Callable[[str], str], target: str, cache_dir: str | Path | None) -> str:
+    """Remote PDF text for *target*, kept on disk once fetched.
+
+    Publisher pages change between requests (cookie walls, rotating PDF
+    links), so a live fetch can give a rerun a different prompt: one run of
+    the confirmatory test got another PDF excerpt for the same DOI and
+    changed 41 answers. The first non-empty text is stored in a
+    ``joblib.Memory`` cache under *cache_dir* and reused; an empty result (a
+    failed fetch) is retried on the next run instead of being frozen.
+    """
+    if cache_dir is None:
+        return fetch(target)
+    from joblib import Memory
+
+    cached = Memory(str(cache_dir), verbose=0).cache(fetch)
+    if cached.check_call_in_cache(target):
+        text = cached(target)
+        if text:
+            return text
+    text, _ = cached.call(target)
+    return text
+
+
+def context_fingerprint(context: str) -> str:
+    """Short SHA-256 of a prompt context, recorded so reruns can be compared."""
+    return hashlib.sha256(context.encode("utf-8")).hexdigest()[:16]
+
+
 def collect_repository_context(
     source_root: str | Path,
     max_chars: int = 6000,
     explicit_dois: Iterable[str] | None = None,
     explicit_pdf_urls: Iterable[str] | None = None,
     extra_context: Iterable[str] | None = None,
+    cache_dir: str | Path | None = None,
 ) -> str:
     """Collect textual context from README + PDFs in a folder tree.
 
@@ -571,6 +601,8 @@ def collect_repository_context(
         explicit_dois: DOI values supplied externally (e.g., manifest metadata).
         explicit_pdf_urls: PDF URLs supplied externally.
         extra_context: Additional free-text context to pass to the prompt.
+        cache_dir: Where fetched remote PDF text is kept so reruns see the
+            same context (``_cached_fetch``); ``None`` fetches live.
     """
     root = Path(source_root)
     snippets: list[str] = []
@@ -609,14 +641,14 @@ def collect_repository_context(
     discovered_dois = _dedupe_case_insensitive(discovered_dois)
 
     for doi in discovered_dois[:3]:
-        remote_pdf_text = _fetch_pdf_text_from_doi(doi)
+        remote_pdf_text = _cached_fetch(_fetch_pdf_text_from_doi, doi, cache_dir)
         if remote_pdf_text:
             fetched_doi_pdfs.append(doi)
             snippets.append(f"[DOI_PDF:{doi}]\n{remote_pdf_text}")
 
     explicit_pdf_urls = _dedupe_case_insensitive(explicit_pdf_urls or [])
     for pdf_url in explicit_pdf_urls[:3]:
-        remote_pdf_text = _fetch_pdf_text_from_url(pdf_url)
+        remote_pdf_text = _cached_fetch(_fetch_pdf_text_from_url, pdf_url, cache_dir)
         if remote_pdf_text:
             fetched_explicit_pdfs.append(pdf_url)
             snippets.append(f"[REMOTE_PDF:{pdf_url}]\n{remote_pdf_text}")
@@ -693,6 +725,38 @@ _MODELS_USED: dict[str, None] = {}
 def models_used() -> list[str]:
     """Model ids the LLM fallback loaded in this process."""
     return list(_MODELS_USED)
+
+
+# Generation calls that raised (e.g. CUDA out of memory on a shared GPU), in
+# order. Such a column gets no suggestion, which would otherwise be
+# indistinguishable from the model abstaining; callers report the count.
+_GENERATION_ERRORS: list[dict[str, str]] = []
+
+
+def generation_errors() -> list[dict[str, str]]:
+    """Failed LLM generation calls in this process (model, column, error)."""
+    return list(_GENERATION_ERRORS)
+
+
+def _generate(model_name: str, prompt: str) -> str:
+    generator = _get_text_generation_pipeline(model_name)
+    tokenizer = getattr(generator, "tokenizer", None)
+    chat_template = getattr(tokenizer, "chat_template", None) if tokenizer else None
+    if chat_template:
+        model_input = tokenizer.apply_chat_template(
+            [{"role": "user", "content": prompt}],
+            add_generation_prompt=True,
+            tokenize=False,
+        )
+    else:
+        model_input = prompt
+    output = generator(
+        model_input,
+        max_new_tokens=64,
+        do_sample=False,
+        return_full_text=False,
+    )
+    return output[0].get("generated_text", "")
 
 
 def _get_text_generation_pipeline(model_name: str):
@@ -774,26 +838,19 @@ def deduce_standard_name_with_local_llm(
 
     for model_name in model_list:
         try:
-            generator = _get_text_generation_pipeline(model_name)
-            tokenizer = getattr(generator, "tokenizer", None)
-            chat_template = getattr(tokenizer, "chat_template", None) if tokenizer else None
-            if chat_template:
-                model_input = tokenizer.apply_chat_template(
-                    [{"role": "user", "content": prompt}],
-                    add_generation_prompt=True,
-                    tokenize=False,
-                )
-            else:
-                model_input = prompt
-            output = generator(
-                model_input,
-                max_new_tokens=64,
-                do_sample=False,
-                return_full_text=False,
-            )
-            text = output[0].get("generated_text", "")
+            try:
+                text = _generate(model_name, prompt)
+            except Exception as exc:
+                if type(exc).__name__ != "OutOfMemoryError":
+                    raise
+                # Shared GPU: free cached blocks and try once more.
+                _release_torch_memory()
+                text = _generate(model_name, prompt)
         except Exception as exc:  # noqa: BLE001
-            logger.debug("LLM deduction failed for model '%s': %s", model_name, exc)
+            error = f"{type(exc).__name__}: {exc}".splitlines()[0][:300]
+            _GENERATION_ERRORS.append({"model": model_name, "column": str(raw_column_name), "error": error})
+            logger.warning("LLM generation failed for '%s' (model %s): %s", raw_column_name, model_name, error)
+            _release_torch_memory()
             continue
 
         answer = _extract_candidate_from_llm_output(text, candidates)

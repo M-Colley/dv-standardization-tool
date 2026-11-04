@@ -111,15 +111,15 @@ their definitions: the mean of a name similarity (id, label, aliases,
 instruments) and a full-definition similarity (adding notes, cluster and
 unit). It needs no model download, only scikit-learn.
 
-Final evaluation (11 studies, rules v1.1, Gemma-4-E2B, check on; E1:
+Final evaluation (11 studies, rules v1.2, Gemma-4-E2B, check on; E1:
 106 real DV columns, 69 non-DV columns; E2: 300 schema aliases):
 
 | Metric | fuzzy shortlist | definition shortlist (default) |
 |---|---|---|
 | E1 recall@8 (gold DV among candidates) | 42% (44/106) | 83% (88/106) |
 | E1 accuracy on true DV columns | 18% | 49% |
-| E1 precision of accepted DV mappings | 23% (19/83) | 59% (52/88) |
-| E1 curated non-DVs mapped to a DV, unchecked → checked | 30% → 17% | 74% → 35% |
+| E1 precision of accepted DV mappings | 23% (19/83) | 60% (52/87) |
+| E1 curated non-DVs mapped to a DV, unchecked → checked | 30% → 17% | 74% → 30% |
 | E1 blocklisted non-DVs mapped to a DV, unchecked → checked | 41% → 4% | 54% → 7% |
 | E2 accuracy | 55% | 67% |
 | E2 precision | 62% | 75% |
@@ -276,7 +276,7 @@ corrected data (labelled post hoc: the pre-specified test above stands):
 |---|---|---|---|
 | Correct mappings | 52 | 65 | 69 |
 | Paired exact McNemar vs. definition | | p = 0.035 (23 vs. 10) | p < 0.001 (20 vs. 3) |
-| Precision of accepted mappings | 59% | 75% | 77% |
+| Precision of accepted mappings | 60% | 76% | 78% |
 | True mappings lost to the check | 0 | 0 | 0 |
 
 With the `PerSafe` columns now reaching the LLM, the "lost" mappings
@@ -299,12 +299,45 @@ shortlist: text answer codes screened out before the LLM, long
 question-text headers, and wrong choices although the right DV was offered
 (44 of 78 errors). Details: `docs/confirmatory_shortlist_results.md`.
 
+**Post hoc, after fixing two of those gaps (2026-11-03).** This is not part of the
+pre-registered test, and header matching was designed on these studies'
+headers. Answer codes and (since 2026-11-04) `True`/`False` columns are now
+recoded before the screen, so 29 of the 31 screened DV columns reach the
+LLM. `definition` then maps 64 columns correctly (8 more Hoffman trust items
+and the VR study's `Success`, none lost, p = 0.004), while `dense_h` and
+`mixed_h` reach 54 and 57, so the shortlist conclusion holds. Header
+matching against instrument item wording assigns 45 question-text columns
+(Hi-Audio, VR; English and German), all correct, with no non-DV column
+matched. Header matching first and the LLM for the rest gives 106 correct
+with `definition` (precision 60% [53, 67], up from 36%). New studies are
+needed to confirm both gains. Still open: the LLM's wrong choices among
+correct candidates, and the name rule that screens the VR study's `Time`.
+
+**Reproducibility of LLM results (2026-11-04).** Two ways for a rerun to
+change without any input changing were found and closed. (1) A failed
+generation call (e.g. CUDA out of memory on a shared GPU) was logged at
+DEBUG and counted as an abstention; in one development batch it silently
+removed all 32 FACT-AV LLM mappings. Failures are now recorded, retried once
+after an out-of-memory error, reported in `run_summary.json`, and make the
+benchmark harness exit with an error. (2) The prompt's manuscript context was
+fetched live from the DOI landing page, which served a different PDF excerpt
+for Hi-Audio in one run and changed 41 `mixed_h` answers. Fetched text is now
+cached per source and shared by the batch and every shortlist, and each
+source's context fingerprint is recorded. Neither problem affected the
+committed results: no committed run shows the fast unanswered calls a
+failure leaves, and the three pre-registered shortlist runs logged the same
+PDF context. A full development rerun with both fixes reproduced every
+benchmark item of the three shortlists.
+
 **Trade-off.** Because a plausible-looking candidate is always available, the
 model maps non-DV columns more often with the definition shortlist (74% of
-curated non-DVs, unchecked). The plausibility check halves that rate. In the
-deployed pipeline, where the older LLM-exclusion list also applies, 3 of 23
-curated non-DV columns end up mapped: Scrolling-in-the-Deep's binary context
-variables. No true DV column is blocked.
+curated non-DVs, unchecked). The plausibility check more than halves that
+rate (to 30%). In the deployed pipeline, where the older LLM-exclusion list
+also applies, 2 of 23 curated non-DV columns end up mapped:
+Scrolling-in-the-Deep's context variables `Current_Activity` and
+`Multitasking`. A third, the 0/1 indicator `At_Home`, has been rejected
+since rules v1.2, because a 0/1 column is never accepted for a rating-scale
+DV. No true DV column is blocked.
 
 **Caveat.** The 50/50 blend weight was chosen on the 10-study pilot items, so
 P1 must confirm it on a held-out split.

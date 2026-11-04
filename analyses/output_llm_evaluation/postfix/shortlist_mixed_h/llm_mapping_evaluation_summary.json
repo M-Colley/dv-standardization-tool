@@ -1,15 +1,28 @@
 {
-  "generated_at": "2026-10-25T13:28:47.012420+00:00",
+  "generated_at": "2026-11-04T14:53:15.355007+00:00",
   "models": [
     "google/gemma-4-E2B-it"
   ],
-  "plausibility_rules_version": "1.1",
+  "plausibility_rules_version": "1.2",
   "shortlist": "mixed_h",
   "seed": 20261017,
   "max_per_source": 40,
   "e2_samples": 300,
   "blocklist_size": 46,
-  "runtime_seconds": 231.7,
+  "runtime_seconds": 1243.6,
+  "llm_generation_errors": 0,
+  "context_sha256": {
+    "3d_display_comp_vehicle": "d38c20c6ff03745b",
+    "ehmi_for_all_chi26": "9af2f87fa01a5f21",
+    "ehmi_optimization_chi25": "c09163582cb9fabb",
+    "fact_av": "69a9758645a034ec",
+    "longitudinal_usa_germany_ehmi": "16dce62437b3d956",
+    "osf_cwd6h": "eef2ed14de20aac1",
+    "psych_conflict_handling": "bd1657d6df2300f9",
+    "roads_chi25": "724097e219a8d4b5",
+    "running_into_traffic_chi26": "3ad59c6109afdc84",
+    "scrolling_in_the_deep_chi25": "8099bc3eaf3b1fba"
+  },
   "results": {
     "E1": {
       "n_positive": 101,
@@ -109,11 +122,11 @@
         },
         "precision_of_accepted_dv_mappings": {
           "k": 69,
-          "n": 90,
-          "rate": 0.7666666666666667,
+          "n": 89,
+          "rate": 0.7752808988764045,
           "ci95": [
-            0.669482943542672,
-            0.8420180561563536
+            0.6782264081966249,
+            0.8495550444261124
           ]
         },
         "blocklisted_non_dv_mapped_to_a_dv": {
@@ -126,12 +139,12 @@
           ]
         },
         "curated_non_dv_mapped_to_a_dv": {
-          "k": 8,
+          "k": 7,
           "n": 23,
-          "rate": 0.34782608695652173,
+          "rate": 0.30434782608695654,
           "ci95": [
-            0.18811275938797734,
-            0.55109664622737
+            0.15604024453214022,
+            0.508657562687592
           ]
         }
       },
@@ -152,7 +165,8 @@
         "timestamp": 2,
         "demographic": 2,
         "event_time": 1,
-        "out_of_range": 1
+        "out_of_range": 1,
+        "binary_for_rating_scale": 1
       }
     },
     "E2": {

@@ -108,7 +108,62 @@ def recode_negative_answer_codes(df: pd.DataFrame) -> tuple[pd.DataFrame, dict[s
     return out, report
 
 
-__all__ = ["apply_value_labels", "recode_negative_answer_codes"]
+# LimeSurvey exports the answers of array (matrix) questions as answer codes
+# ("A1".."A7") unless "answer codes as numbers" is chosen. Array sub-questions
+# carry a bracketed or _SQnnn suffix (``TrustAutomation[SQ001]``); single
+# list questions such as gender also use A-codes but are nominal, so only
+# array sub-questions are recoded.
+_ARRAY_SUBQUESTION = re.compile(r"(\[[^\]]+\]|_sq\d+)$", re.IGNORECASE)
+_ANSWER_CODE = re.compile(r"^a0*(\d+)$", re.IGNORECASE)
+_YES_NO = {"y": 1, "yes": 1, "ja": 1, "j": 1, "n": 0, "no": 0, "nein": 0}
+# pandas reads True/False cells as booleans only when the column has no gaps;
+# with a missing cell the column stays text (object) and looks non-numeric.
+_TRUE_FALSE = {"true": 1, "false": 0}
+
+
+def recode_survey_answer_codes(df: pd.DataFrame) -> tuple[pd.DataFrame, dict[str, str]]:
+    """Turn survey answer codes into numbers: ``A1``.. -> 1.. and yes/no -> 1/0.
+
+    * LimeSurvey answer codes (``A1``..``An``) in array sub-question columns
+      become their number (the code order is the order of the answer scale).
+    * Columns holding only yes/no answers (``Y``/``N``, ``Yes``/``No``,
+      ``Ja``/``Nein``) become 1/0.
+    * Columns holding only ``True``/``False`` (as text or as booleans in a
+      column with gaps) become 1/0.
+
+    A column is recoded only when every non-empty cell is such a code, so
+    mixed or free-text columns are left alone. Returns the frame and
+    ``{column: "answer_code" | "yes_no" | "true_false"}``.
+    """
+    report: dict[str, str] = {}
+    out = df
+    for position, column in enumerate(df.columns):
+        series = df.iloc[:, position]
+        if not (pd.api.types.is_object_dtype(series.dtype) or pd.api.types.is_string_dtype(series.dtype)):
+            continue
+        text = series.dropna().astype(str).str.strip()
+        text = text[text != ""]
+        if text.empty:
+            continue
+        lowered = text.str.lower()
+        if lowered.isin(_YES_NO.keys()).all():
+            values, kind = lowered.map(_YES_NO), "yes_no"
+        elif lowered.isin(_TRUE_FALSE.keys()).all():
+            values, kind = lowered.map(_TRUE_FALSE), "true_false"
+        elif _ARRAY_SUBQUESTION.search(str(column)) and text.str.fullmatch(_ANSWER_CODE).all():
+            values, kind = text.str.extract(_ANSWER_CODE)[0].astype(float), "answer_code"
+        else:
+            continue
+        if out is df:
+            out = df.copy()
+        recoded = pd.Series(float("nan"), index=series.index)
+        recoded.loc[values.index] = values.astype(float)
+        out.isetitem(position, recoded)
+        report[str(column)] = kind
+    return out, report
+
+
+__all__ = ["apply_value_labels", "recode_negative_answer_codes", "recode_survey_answer_codes"]
 
 
 def apply_reverse_keying(

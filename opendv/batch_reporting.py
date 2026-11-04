@@ -8,7 +8,7 @@ from typing import Any
 
 def categorize_mapping_source(raw: object) -> str:
     """Coarse category of a raw ``mapping_source`` value from meta_view.csv:
-    ``schema``, ``repo_mapping``, ``llm_deduced``, ``blocked`` or ``unknown``."""
+    ``schema``, ``repo_mapping``, ``header_match``, ``llm_deduced``, ``blocked`` or ``unknown``."""
     if raw is None:
         return "unknown"
     try:
@@ -21,6 +21,8 @@ def categorize_mapping_source(raw: object) -> str:
         return "unknown"
     if text == "llm_deduction":
         return "llm_deduced"
+    if text.startswith("header_match"):
+        return "header_match"
     if text in {"never_map_blocklist", "blocked"}:
         return "blocked"
     if text == "in_memory_mapping":

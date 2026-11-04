@@ -1,0 +1,171 @@
+{
+  "generated_at": "2026-11-04T12:03:14.208078+00:00",
+  "models": [
+    "google/gemma-4-E2B-it"
+  ],
+  "plausibility_rules_version": "1.2",
+  "shortlist": "dense_h",
+  "seed": 20261017,
+  "max_per_source": 40,
+  "e2_samples": 0,
+  "blocklist_size": 46,
+  "runtime_seconds": 1757.8,
+  "llm_generation_errors": 0,
+  "context_sha256": {
+    "agency_ux_tochi22": "9cd0d7ccd86ec32d",
+    "hiaudio_eval_2026": "b54fb951b587d663",
+    "pxi_validation_chi24": "9934558668f59895",
+    "sonomancer_chiplay25": "efb1fa97ddfe8f24",
+    "tamago_supervision_2026": "a4c15b4d4dd65262",
+    "vr_grab_techniques_icom20": "ac3e77495d3a3734",
+    "xai_trust_scales_chi23": "d5cab34e62bc9045"
+  },
+  "results": {
+    "E1": {
+      "n_positive": 168,
+      "n_negative": 153,
+      "shortlist_contains_gold": {
+        "k": 117,
+        "n": 168,
+        "rate": 0.6964285714285714,
+        "ci95": [
+          0.6231505236977006,
+          0.760924428021994
+        ]
+      },
+      "unchecked": {
+        "accuracy_on_dv_columns": {
+          "k": 55,
+          "n": 168,
+          "rate": 0.3273809523809524,
+          "ci95": [
+            0.26097281598877425,
+            0.4015067718939183
+          ]
+        },
+        "wrong_dv_on_dv_columns": {
+          "k": 101,
+          "n": 168,
+          "rate": 0.6011904761904762,
+          "ci95": [
+            0.5256830337580041,
+            0.6721737595521418
+          ]
+        },
+        "abstained_on_dv_columns": {
+          "k": 12,
+          "n": 168,
+          "rate": 0.07142857142857142,
+          "ci95": [
+            0.04132923736196269,
+            0.12068904979506707
+          ]
+        },
+        "precision_of_accepted_dv_mappings": {
+          "k": 55,
+          "n": 289,
+          "rate": 0.1903114186851211,
+          "ci95": [
+            0.149231028757997,
+            0.2395167232821227
+          ]
+        },
+        "blocklisted_non_dv_mapped_to_a_dv": {
+          "k": 6,
+          "n": 9,
+          "rate": 0.6666666666666666,
+          "ci95": [
+            0.3542021355803963,
+            0.879416181613089
+          ]
+        },
+        "curated_non_dv_mapped_to_a_dv": {
+          "k": 133,
+          "n": 144,
+          "rate": 0.9236111111111112,
+          "ci95": [
+            0.8683956370822358,
+            0.956812670338247
+          ]
+        }
+      },
+      "checked": {
+        "accuracy_on_dv_columns": {
+          "k": 54,
+          "n": 168,
+          "rate": 0.32142857142857145,
+          "ci95": [
+            0.25547934264431293,
+            0.39536161033778294
+          ]
+        },
+        "wrong_dv_on_dv_columns": {
+          "k": 97,
+          "n": 168,
+          "rate": 0.5773809523809523,
+          "ci95": [
+            0.5017741762056336,
+            0.6495280775021248
+          ]
+        },
+        "abstained_on_dv_columns": {
+          "k": 17,
+          "n": 168,
+          "rate": 0.10119047619047619,
+          "ci95": [
+            0.06414204521491729,
+            0.15606941644509653
+          ]
+        },
+        "precision_of_accepted_dv_mappings": {
+          "k": 54,
+          "n": 181,
+          "rate": 0.2983425414364641,
+          "ci95": [
+            0.23644230276616768,
+            0.3686246531767963
+          ]
+        },
+        "blocklisted_non_dv_mapped_to_a_dv": {
+          "k": 0,
+          "n": 9,
+          "rate": 0.0,
+          "ci95": [
+            0.0,
+            0.29914504841954404
+          ]
+        },
+        "curated_non_dv_mapped_to_a_dv": {
+          "k": 30,
+          "n": 144,
+          "rate": 0.20833333333333334,
+          "ci95": [
+            0.1500109814745541,
+            0.281812806858884
+          ]
+        }
+      },
+      "true_mappings_lost_to_check": {
+        "k": 1,
+        "n": 55,
+        "rate": 0.01818181818181818,
+        "ci95": [
+          0.003216780454841077,
+          0.09605776062162397
+        ]
+      },
+      "rejections_by_reason": {
+        "non_numeric": 61,
+        "binary_for_rating_scale": 17,
+        "demographic": 15,
+        "out_of_range": 9,
+        "identifier": 8,
+        "no_values": 7,
+        "quality_control": 3,
+        "experimental_condition": 2,
+        "timestamp": 2,
+        "event_time": 1
+      }
+    }
+  }
+}

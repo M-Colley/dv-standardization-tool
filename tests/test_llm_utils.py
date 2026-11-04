@@ -4,12 +4,14 @@ from pathlib import Path
 from unittest import mock
 
 from scripts.llm_utils import (
+    _cached_fetch,
     _extract_dois,
     _fetch_pdf_text_from_doi,
     _select_pdf_context_excerpt,
     collect_repository_context,
-    select_local_model_candidates,
     deduce_standard_name_with_local_llm,
+    generation_errors,
+    select_local_model_candidates,
 )
 
 
@@ -220,6 +222,72 @@ class LLMUtilsTests(unittest.TestCase):
 
         mocked_context.assert_not_called()
         self.assertEqual(inferred, "task_completion_time")
+
+    def _deduce_with(self, pipeline):
+        with mock.patch("scripts.llm_utils.select_local_model_candidates", return_value=["fake/test-model"]), \
+                mock.patch("scripts.llm_utils._get_text_generation_pipeline", return_value=pipeline), \
+                mock.patch("scripts.llm_utils._release_torch_memory"):
+            return deduce_standard_name_with_local_llm(
+                raw_column_name="Duration", canonical_candidates=["task_completion_time", "trust_rating"],
+                repository_context="",
+            )
+
+    def test_failed_generation_is_recorded_not_silent(self):
+        def _broken(*args, **kwargs):
+            raise RuntimeError("CUDA error: device-side assert")
+
+        before = len(generation_errors())
+        self.assertIsNone(self._deduce_with(_broken))
+        errors = generation_errors()[before:]
+        self.assertEqual(len(errors), 1)
+        self.assertEqual(errors[0]["column"], "Duration")
+        self.assertIn("RuntimeError", errors[0]["error"])
+
+    def test_out_of_memory_is_retried_once(self):
+        class OutOfMemoryError(RuntimeError):  # stands in for torch.cuda.OutOfMemoryError
+            pass
+
+        calls = []
+
+        def _flaky(*args, **kwargs):
+            calls.append(1)
+            if len(calls) == 1:
+                raise OutOfMemoryError("CUDA out of memory")
+            return [{"generated_text": "task_completion_time"}]
+
+        before = len(generation_errors())
+        self.assertEqual(self._deduce_with(_flaky), "task_completion_time")
+        self.assertEqual(len(calls), 2)
+        self.assertEqual(generation_errors()[before:], [])
+
+
+_FETCHES: list[str] = []
+_PAGES = {"10.1/a": "manuscript text", "10.1/b": ""}
+
+
+def _fake_fetch(target: str) -> str:
+    _FETCHES.append(target)
+    return _PAGES[target]
+
+
+class CachedFetchTests(unittest.TestCase):
+    def test_fetched_text_is_reused_and_failures_are_retried(self):
+        _FETCHES.clear()
+        with tempfile.TemporaryDirectory() as tmp:
+            self.assertEqual(_cached_fetch(_fake_fetch, "10.1/a", tmp), "manuscript text")
+            _PAGES["10.1/a"] = "a different page"          # the publisher's page changes
+            self.assertEqual(_cached_fetch(_fake_fetch, "10.1/a", tmp), "manuscript text")
+            self.assertEqual(_cached_fetch(_fake_fetch, "10.1/b", tmp), "")
+            _PAGES["10.1/b"] = "now reachable"
+            self.assertEqual(_cached_fetch(_fake_fetch, "10.1/b", tmp), "now reachable")
+        self.assertEqual(_FETCHES, ["10.1/a", "10.1/b", "10.1/b"])
+        _PAGES.update({"10.1/a": "manuscript text", "10.1/b": ""})
+
+    def test_without_cache_dir_fetches_live(self):
+        _FETCHES.clear()
+        self.assertEqual(_cached_fetch(_fake_fetch, "10.1/a", None), "manuscript text")
+        self.assertEqual(_cached_fetch(_fake_fetch, "10.1/a", None), "manuscript text")
+        self.assertEqual(_FETCHES, ["10.1/a", "10.1/a"])
 
 
 class PipelineCacheTests(unittest.TestCase):

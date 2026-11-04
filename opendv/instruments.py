@@ -32,6 +32,7 @@ from functools import lru_cache
 from pathlib import Path
 from typing import Any
 
+import numpy as np
 import pandas as pd
 import yaml
 from opendv._paths import SCHEMAS_DIR
@@ -53,6 +54,7 @@ class Item:
     id: str
     aliases: tuple[str, ...]
     key: int
+    wording: tuple[str, ...] = ()  # the item's question text, for matching question-text headers
 
     @property
     def candidates(self) -> tuple[str, ...]:
@@ -96,7 +98,13 @@ def _parse_instrument(iid: str, raw: Mapping[str, Any]) -> Instrument:
         key = int(entry.get("key", 1))
         if key not in (1, -1):
             raise ValueError(f"{iid}/{entry.get('id')}: key must be +1 or -1")
-        item = Item(id=str(entry["id"]), aliases=tuple(str(a) for a in entry.get("aliases") or []), key=key)
+        wording = entry.get("wording") or ()
+        item = Item(
+            id=str(entry["id"]),
+            aliases=tuple(str(a) for a in entry.get("aliases") or []),
+            key=key,
+            wording=(str(wording),) if isinstance(wording, str) else tuple(str(w) for w in wording),
+        )
         if item.id in items:
             raise ValueError(f"{iid}: duplicate item {item.id}")
         items[item.id] = item
@@ -207,16 +215,82 @@ def construct_subitems(instruments: Iterable[Instrument]) -> dict[str, list[str]
     return mapping
 
 
-def _resolve_items(df: pd.DataFrame, instrument: Instrument) -> dict[str, pd.Series]:
+def _resolve_item_columns(df: pd.DataFrame, instrument: Instrument) -> dict[str, str]:
     lookup = {normalize_column_name(col): col for col in df.columns}
-    resolved: dict[str, pd.Series] = {}
+    resolved: dict[str, str] = {}
     for item in instrument.items.values():
         for candidate in item.candidates:
             col = lookup.get(normalize_column_name(candidate))
             if col is not None:
-                resolved[item.id] = pd.to_numeric(df[col], errors="coerce")
+                resolved[item.id] = col
                 break
     return resolved
+
+
+def _resolve_items(df: pd.DataFrame, instrument: Instrument) -> dict[str, pd.Series]:
+    return {
+        item_id: pd.to_numeric(df[col], errors="coerce")
+        for item_id, col in _resolve_item_columns(df, instrument).items()
+    }
+
+
+KEYING_MIN_ITEMS = 3
+KEYING_MIN_ROWS = 20
+KEYING_MIN_LOADING = 0.3
+
+
+def keying_check(
+    df: pd.DataFrame,
+    instruments: Iterable[Instrument] | None = None,
+    min_rows: int = KEYING_MIN_ROWS,
+    min_loading: float = KEYING_MIN_LOADING,
+) -> list[dict[str, Any]]:
+    """Items whose answers run against the registry's keying.
+
+    As in R's ``psych::check.keys``, the direction of each item is read off its
+    loading on the first principal component of the item correlations (for
+    every instrument with at least three items and ``min_rows`` complete rows).
+    The positively keyed items define the construct's direction (a higher
+    answer means a higher score), so the component is oriented to make their
+    loadings positive. An item whose loading has at least
+    ``min_loading`` against its ``key`` runs the other way: keyed opposite to
+    the standard (e.g. a NASA-TLX performance item anchored "failure" to
+    "success") or already reverse-scored in the data, as when all
+    negatively worded SUS items were reversed before export. Scores would then
+    be wrong, so each finding names the column and its observed range for a
+    ``reverse_items`` entry. In small samples an item can also load against
+    its key by chance, so ``n`` is reported for the reviewer.
+    """
+    if instruments is None:
+        instruments = load_instruments()
+    findings: list[dict[str, Any]] = []
+    for inst in instruments:
+        columns = _resolve_item_columns(df, inst)
+        if len(columns) < KEYING_MIN_ITEMS:
+            continue
+        values = pd.DataFrame({item_id: pd.to_numeric(df[col], errors="coerce") for item_id, col in columns.items()})
+        values = values.dropna()
+        values = values.loc[:, values.std(ddof=1) > 0]
+        if len(values) < min_rows or values.shape[1] < KEYING_MIN_ITEMS:
+            continue
+        eigenvalues, eigenvectors = np.linalg.eigh(values.corr().to_numpy())
+        loadings = eigenvectors[:, -1] * np.sqrt(max(eigenvalues[-1], 0.0))
+        keys = np.array([inst.items[i].key for i in values.columns])
+        direction = loadings[keys == 1].sum() if (keys == 1).any() else -loadings.sum()
+        if direction < 0:
+            loadings = -loadings
+        for item_id, key, loading in zip(values.columns, keys, loadings, strict=True):
+            if key * loading <= -min_loading:
+                findings.append({
+                    "instrument": inst.id,
+                    "item": item_id,
+                    "column": columns[item_id],
+                    "registry_key": int(key),
+                    "loading": round(float(loading), 3),
+                    "n": int(len(values)),
+                    "observed_range": [float(values[item_id].min()), float(values[item_id].max())],
+                })
+    return findings
 
 
 def choose_coding(
@@ -293,6 +367,7 @@ __all__ = [
     "choose_coding",
     "construct_subitems",
     "item_column_names",
+    "keying_check",
     "load_instruments",
     "normalize_column_name",
     "schema_errors",

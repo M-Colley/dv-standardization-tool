@@ -98,6 +98,21 @@ class ProfileAndRangeTests(unittest.TestCase):
         # DVs without a canonical range (e.g. times) cannot be range-checked.
         self.assertIsNone(lp.check_llm_suggestion("x", "task_completion_time", seed, ranges))
 
+    def test_yes_no_indicators_are_not_accepted_for_rating_scales(self):
+        schema = yaml.safe_load(SCHEMA.read_text(encoding="utf-8"))
+        ranges = lp.canonical_ranges_from_schema(schema)
+        scales = lp.rating_scale_dvs_from_schema(schema)
+        self.assertIn("trust_rating", scales)
+        self.assertNotIn("task_success", scales)
+        self.assertNotIn("number_of_collisions", scales)
+        indicator = lp.profile_column(pd.Series([1, 0, 0, 1, None]))
+        self.assertTrue(indicator.binary)
+        rejection = lp.check_llm_suggestion("Vacation", "trust_rating", indicator, ranges, rating_scales=scales)
+        self.assertEqual(rejection["reason"], "binary_for_rating_scale")
+        for dv in ("task_success", "number_of_collisions"):
+            self.assertIsNone(lp.check_llm_suggestion("T1", dv, indicator, ranges, rating_scales=scales))
+        self.assertFalse(lp.profile_column(pd.Series([1, 2, 3])).binary)
+
     def test_canonical_ranges_come_from_the_dv_schema(self):
         ranges = lp.canonical_ranges_from_schema(yaml.safe_load(SCHEMA.read_text(encoding="utf-8")))
         self.assertEqual(ranges["mental_demand"], (0.0, 20.0))

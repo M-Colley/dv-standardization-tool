@@ -21,6 +21,7 @@ from scripts.data_loaders import (
     _FORMAT_REGISTRY,
     _MAGIC_BYTES,
     _coerce_pickled_payload_to_dataframe,
+    _detect_decimal,
     _detect_delimiter,
     _detect_encoding,
     _register_format,
@@ -136,6 +137,24 @@ class DetectDelimiterTests(unittest.TestCase):
         self.assertEqual(_detect_delimiter("", prefer=None), ",")
 
 
+class DetectDecimalTests(unittest.TestCase):
+    def test_decimal_comma_in_semicolon_file(self):
+        sample = "Success;Time;Type\nTrue;24,825;Positioning,Rotating\nFalse;30;Rotating\n"
+        self.assertEqual(_detect_decimal(sample, ";"), ",")
+
+    def test_comma_delimited_file_keeps_decimal_point(self):
+        self.assertEqual(_detect_decimal('a,b\n"1,5",2\n', ","), ".")
+
+    def test_any_decimal_point_keeps_the_default(self):
+        # With decimal="," pandas would read 1.5 as text, so mixed files keep ".".
+        self.assertEqual(_detect_decimal("a;b\n0,5;1.5\n", ";"), ".")
+        self.assertEqual(_detect_decimal("a;b\n1;2\n", ";"), ".")
+
+    def test_header_and_vector_strings_are_ignored(self):
+        sample = "x,1;pos\n0,25;(0.00, -0.44, 0.00)\n"
+        self.assertEqual(_detect_decimal(sample, ";"), ",")
+
+
 class CoercePickledPayloadTests(unittest.TestCase):
     def test_dataframe_passthrough(self):
         df = pd.DataFrame({"a": [1, 2]})
@@ -172,6 +191,14 @@ class LoadInputFileTests(unittest.TestCase):
             out = load_input_file(str(p))
             self.assertEqual(list(out.columns), ["a", "b"])
             self.assertEqual(out.shape, (2, 2))
+
+    def test_loads_decimal_comma_csv_as_numbers(self):
+        with TemporaryDirectory() as tmp:
+            p = Path(tmp) / "x.csv"
+            p.write_text("UserID;Time;Type\n2;0,581;Selection\n2;24,825;Positioning,Rotating\n", encoding="utf-8")
+            out = load_input_file(str(p))
+            self.assertEqual(out["Time"].tolist(), [0.581, 24.825])
+            self.assertEqual(out["Type"].tolist(), ["Selection", "Positioning,Rotating"])
 
     def test_loads_json_records(self):
         with TemporaryDirectory() as tmp:
