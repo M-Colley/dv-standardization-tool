@@ -1,0 +1,69 @@
+# Source-specific column mapping for woz_adaptation_ijhcs24
+# Paper: Mohammad Sohorab Hossain, Alexandria Fong Sowers, Joshua Dean Clapp,
+#   Vesna Dominika Novak (International Journal of Human-Computer Studies 196, 2025).
+#   "Different adaptation error types in affective computing have different effects
+#    on user experience: A Wizard-of-Oz study."  DOI 10.1016/j.ijhcs.2024.103440
+# Data: Zenodo 10155676 (CC-BY-4.0), NSF2151464_Study2_ResearchData.xlsx.
+#
+# Covers NSF2151464_Study2_ResearchData.xlsx, sheet "Sheet1" (the only sheet),
+# header row 1 (0-based): {sheet: Sheet1, header: 1}. Row 0 holds block labels
+# ("Interval 1 (70% accuracy)", "Interval 2 (80% accuracy)", "Interval 3 (90%
+# accuracy)", "Relative liking at end of session") and is skipped; row 1 holds the
+# item names. One row per participant (97).
+#
+# Notes:
+# - Wide repeated measures. Each participant did three 11-minute intervals of a
+#   modified OpenMATB with induced adaptation accuracy 70 %, 80 %, 90 %. pandas
+#   suffixes the repeated block names: "TLX 1" = interval 1 (70 %), "TLX 1.1" =
+#   interval 2 (80 %), "TLX 1.2" = interval 3 (90 %); the same for IMI and Difficulty.
+# - NASA-TLX, six items, stored 0-10. The paper lists the subscales as mental
+#   demand, physical demand, temporal demand, performance, effort, frustration
+#   (Hart & Staveland order) and sums all six into the Task Load Index. The file
+#   only numbers the items; the order is taken from the paper and agrees with the
+#   data: TLX 4 correlates negatively with IMI perceived competence and not with
+#   the demand items (performance, higher = worse), TLX 2 correlates weakly with
+#   everything (physical demand), TLX 3 tracks IMI pressure/tension (temporal
+#   demand), TLX 6 tracks pressure/tension and TLX 4 (frustration). TLX 1 vs. TLX 5
+#   (mental demand vs. effort) rests on the canonical order alone.
+#   The plain sum of the six stored values reproduces the paper's Table 3 TLX
+#   tests exactly, so the performance item is already stored with high = poor
+#   performance (no reversal needed).
+# - "TLX 1.1" contains the text "round data missing" for one participant (whose
+#   whole interval-2 block is empty); the column loads as object dtype.
+# - Left out (see the report): IMI 1-8 (Intrinsic Motivation Inventory, 8-item
+#   version, 1-7; no schema id), Difficulty 1-11 (MATB difficulty level 1-12 set
+#   by the adaptation each minute; the paper analyses mean and final difficulty as
+#   outcomes; no schema id) and Interval 1-3 (relative liking VAS 0-100; no
+#   schema id).
+
+# --- Dependent measures: NASA-TLX, interval 1 (70 % accuracy), 0-10 -----------
+"TLX 1": mental_demand
+"TLX 2": physical_demand
+"TLX 3": temporal_demand
+"TLX 4": performance          # higher = worse performance
+"TLX 5": effort
+"TLX 6": frustration
+
+# --- Dependent measures: NASA-TLX, interval 2 (80 % accuracy), 0-10 -----------
+"TLX 1.1": mental_demand      # one cell holds the text "round data missing"
+"TLX 2.1": physical_demand
+"TLX 3.1": temporal_demand
+"TLX 4.1": performance        # higher = worse performance
+"TLX 5.1": effort
+"TLX 6.1": frustration
+
+# --- Dependent measures: NASA-TLX, interval 3 (90 % accuracy), 0-10 -----------
+"TLX 1.2": mental_demand
+"TLX 2.2": physical_demand
+"TLX 3.2": temporal_demand
+"TLX 4.2": performance        # higher = worse performance
+"TLX 5.2": effort
+"TLX 6.2": frustration
+
+# --- Conditions ---------------------------------------------------------------
+"Participant ID": meta_participant_id
+"Group": meta_condition_adaptation_behavior   # SingleSmall, SingleModerate, ImmediateLow, ImmediateHigh, IrreversibleHigh (between groups)
+
+# --- Demographics -------------------------------------------------------------
+"Age": meta_demographic_age
+"Gender": meta_demographic_gender             # "Male"/"male"/"Female"/"female" (mixed case)

@@ -1,0 +1,74 @@
+# Source-specific column mapping for av_acceptance_vr_ijhci24 (OSF y6fjr)
+# Paper: Derakhshan, Nosrat Nezami, Waechter, Stephan, Pipa, Koenig.
+#   "A Situated Inspection of Autonomous Vehicle Acceptance - A Population
+#    Study in Virtual Reality." International Journal of Human-Computer
+#    Interaction 2024. DOI 10.1080/10447318.2024.2358577
+# Data record: https://osf.io/y6fjr/ (VR study at Deutsches Museum Bonn).
+#
+# Covers: Questionnaire_data/raw_data/EEDA_Qdata.csv (comma-delimited, UTF-8,
+#   missing values written as the string NULL, which load_input_file reads as
+#   NaN). 517 rows, one per questionnaire response. The item wording and
+#   answer scales come from Questionnaire_data/items/EEDA_questionnaire.xlsx
+#   (codebook only, sheets english / german; not participant data).
+#
+# Instrument: Autonomous Vehicle Acceptance Model questionnaire (AVAM; Hewitt
+#   et al., IUI 2019), which combines the UTAUT factors with CTAM perceived
+#   safety. All rated items use a 7-point scale; the data range 1-7 (the
+#   codebook's answer cell shows the date 2020-07-01, most likely "1-7"
+#   auto-converted by Excel).
+#   Most respondents answered only part of the items (about 60 % missing per
+#   item). The file carries no condition column.
+#
+# Notes
+# - Perceived safety 1 ("using the vehicle would be dangerous") is
+#   reverse-keyed. Perceived safety 3 reads "I would trust the vehicle" but
+#   belongs to the AVAM perceived-safety factor. The schema's perceived_safety
+#   is defined on -3..+3; these items are 1-7 agreement ratings.
+# - Self-Efficacy 3 differs between languages: English "... if there was
+#   someone who could help me", German "only with the help of other people".
+# - gender, Driving licence and the Dilemma decision answers mix German and
+#   English labels (e.g. Maennlich/male, Ja/Yes; "Hund " has a trailing space).
+# - Left unmapped (no fitting schema DV): Attitude towards Technology 1-3,
+#   Self-Efficacy 1-3, Anxiety 1-3, Methods of Control 1-3 (importance of
+#   eyes / hands / feet, 1-7), Dilemma decision 1-4 (categorical choice of
+#   whom to save in an unavoidable collision).
+
+# --- Dependent measures: AVAM / UTAUT factors (1-7 agreement) -----------------
+Performance Expectancy 1: utaut_performance_expectancy   # reach destination quickly
+Performance Expectancy 2: utaut_performance_expectancy   # cost efficiently
+Performance Expectancy 3: utaut_performance_expectancy   # safely
+Effort Expectancy 1: utaut_effort_expectancy             # easy to use
+Effort Expectancy 2: utaut_effort_expectancy             # clear and understandable
+Effort Expectancy 3: utaut_effort_expectancy             # easy to learn
+Social Influence 1: utaut_social_influence               # proud to show it
+Social Influence 2: utaut_social_influence               # if widely used by others
+Social Influence 3: utaut_social_influence               # with other passengers
+Facilitating Conditions 1: utaut_facilitating_conditions # adequate control over the journey
+Facilitating Conditions 2: utaut_facilitating_conditions # necessary knowledge
+Facilitating Conditions 3: utaut_facilitating_conditions # vehicle and infrastructure feasible
+Behavioral Intention 1: utaut_behavioral_intention       # would use it given access
+Behavioral Intention 2: utaut_behavioral_intention       # plan to obtain and use it
+
+# --- Dependent measures: AVAM perceived safety (1-7 agreement) ----------------
+Perceived safety 1: perceived_safety         # "would be dangerous" - reverse-keyed
+Perceived safety 2: perceived_safety         # "would feel safe"
+Perceived safety 3: perceived_safety         # "would trust the vehicle"
+
+# --- Identifiers and bookkeeping ----------------------------------------------
+id: meta_response_id                         # running row number 1-517
+uid: meta_participant_id                     # 32-character hex participant key
+date: meta_timestamp                         # response date-time
+
+# --- Demographics and background ----------------------------------------------
+age: meta_demographic_age                    # years; 297 rows under 16, twelve 0s and one 99
+gender: meta_demographic_gender              # German/English labels incl. intersex
+Driving licence: meta_demographic_driving_licence          # Ja/Nein/Yes/No
+Driving experience: meta_demographic_driving_experience_years
+
+# --- Reverse-keyed items ------------------------------------------------------
+# AVAM perceived safety item 1 is worded negatively ("using the vehicle would be
+# dangerous"); reversed so that higher = safer, like items 2 and 3.
+reverse_items:
+  - columns: ["Perceived safety 1"]
+    scale_range: [1, 7]
+    reason: negatively worded AVAM perceived-safety item (Hewitt et al. 2019)

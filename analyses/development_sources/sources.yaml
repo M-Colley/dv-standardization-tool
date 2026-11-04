@@ -1,0 +1,140 @@
+# Studies added to the development set on 2026-11-04 (docs/open_data_candidates.md).
+# Only the files listed here are downloaded, into data/raw/development/<source_id>/, and each is
+# checked against the checksum its host publishes (MD5 for Zenodo, SHA-256 for OSF,
+# the git blob hash for files pinned to a GitHub commit):
+#   python -m opendv.analysis.confirmatory fetch --sources analyses/development_sources/sources.yaml \
+#     --data-dir data/raw/development
+sources:
+  - source_id: incar_vr_gain_chi24
+    title: "From Slow-Mo to Ludicrous Speed: Comfortably Manipulating the Perception of Linear In-Car VR Motion Through Vehicular Translational Gain and Attenuation"
+    venue: CHI 2024
+    doi: 10.1145/3613904.3642298
+    license: CC-BY-4.0
+    repository: https://zenodo.org/records/10138112
+    domain: automotive
+    files:
+      - {path: "FINAL_Questionnaires.csv", size: 34033, md5: b5c1127aa8ece1b6599368e0d861a73d, url: "https://zenodo.org/api/records/10138112/files/FINAL_Questionnaires.csv/content"}
+      - {path: "FinalQuestions.csv", size: 87736, md5: 8d0a878a9d0095fe2c3d955081d1c0d1, url: "https://zenodo.org/api/records/10138112/files/FinalQuestions.csv/content"}
+
+  - source_id: bvi_auditory_hav_autoui26
+    title: "Effects of Auditory Information for People With Visual Impairments in Highly Automated Vehicles"
+    venue: AutomotiveUI 2026
+    doi: 10.1145/3828157.3828774
+    license: "CC-BY-4.0 (data); MIT (analysis script)"
+    repository: https://zenodo.org/records/22145814
+    domain: automotive
+    files:
+      - {path: "bvi-auditory-hav.xlsx", size: 69674, md5: 8e3ba40c4723c5b8ebca430df6de98fa, url: "https://zenodo.org/api/records/22145814/files/bvi-auditory-hav.xlsx/content"}
+      - {path: "bvi-auditory-hav.R", size: 18085, git_blob: 633aef276b238cc338450e39ed63109aa032b913, role: codebook, url: "https://raw.githubusercontent.com/M-Colley/bvi-auditory-hav/cd15688e7545eea665cc20a16fe4348bd047de43/bvi-auditory-hav.R"}
+
+  - source_id: av_prevalence_ehmi_autoui24
+    title: "The Prevalence of Automated Vehicles (with eHMIs) May Influence Pedestrian-Vehicle Interactions"
+    venue: AutomotiveUI 2024
+    doi: 10.1145/3640792.3675723
+    license: CC-BY-4.0
+    repository: https://osf.io/cr3qm/
+    domain: automotive
+    files:
+      - {path: "data.csv", size: 212166, sha256: f9efaa7d685be6906b9c5281c7369f7b6fbd1dababdd8d12b924066d55d63e8b, url: "https://osf.io/download/sjhtv/"}
+      - {path: "readme.html", size: 44030, sha256: c3bb9438a21f47ba7ec1c8b212f79b1a85b392d5c9767eae7f7a665bfb023b8b, role: codebook, url: "https://osf.io/download/6aa1aa7577f331237daf92d9/"}
+
+  - source_id: ehmi_state_intent_mtap24
+    title: "Should automated vehicles communicate their state or intent? Effects of eHMI activations and non-activations on pedestrians’ trust formation and crossing behavior"
+    venue: Multimedia Tools and Applications 2024
+    doi: 10.1007/s11042-024-20497-0
+    license: CC-BY-4.0
+    repository: https://osf.io/w9mfv/
+    domain: automotive
+    files:
+      - {path: "data.csv", size: 19918, sha256: 4193116c1342ee3bfc591c4040249e0890c5b44ab5d4ccb47254e7494b0d2084, url: "https://osf.io/download/ts85u/"}
+      - {path: "README.html", size: 44606, sha256: 58e6a47dfee41b70f8e881540980e33cc483c5449ab8c65194b84150727de56e, role: codebook, url: "https://osf.io/download/d9n3f/"}
+
+  - source_id: av_acceptance_vr_ijhci24
+    title: "A Situated Inspection of Autonomous Vehicle Acceptance – A Population Study in Virtual Reality"
+    venue: International Journal of Human-Computer Interaction 2024
+    doi: 10.1080/10447318.2024.2358577
+    license: CC-BY-4.0
+    repository: https://osf.io/y6fjr/
+    domain: automotive
+    files:
+      - {path: "Questionnaire_data/raw_data/EEDA_Qdata.csv", size: 119089, sha256: a53c0286403907c1d9790267ed9213894f53f2839680b245fd341fee242003d8, url: "https://osf.io/download/kdn59/"}
+      - {path: "Questionnaire_data/items/EEDA_questionnaire.xlsx", size: 14167, sha256: 7be1844b411cd1b8a759674529fac2c2527c88efbab067962c3352bda21f12ab, role: codebook, url: "https://osf.io/download/63cdv/"}
+
+  - source_id: fido2_auth_chi23
+    title: "FIDO2 the Rescue? Platform vs. Roaming Authentication on Smartphones"
+    venue: CHI 2023
+    doi: 10.1145/3544548.3580993
+    license: CC-BY-4.0
+    repository: https://zenodo.org/records/7572697
+    domain: usable security
+    files:
+      - {path: "fido2-lab-study-code-and-dataset.zip", size: 94008, md5: ce7a38a042c3b2e1adf716c9affc92a3, url: "https://zenodo.org/api/records/7572697/files/fido2-lab-study-code-and-dataset.zip/content"}
+
+  - source_id: pairsonic_cscw24
+    title: "Sounds Good? Fast and Secure Contact Exchange in Groups"
+    venue: PACM HCI (CSCW) 2024
+    doi: 10.1145/3686964
+    license: CC-BY-4.0
+    repository: https://zenodo.org/records/13324112
+    domain: usable security
+    files:
+      - {path: "pairsonic-study-code-and-dataset.zip", size: 138893, md5: ad0e8e06c42d6035c26a059f2a292b82, url: "https://zenodo.org/api/records/13324112/files/pairsonic-study-code-and-dataset.zip/content"}
+
+  - source_id: curved_dragging_vr_ijhci26
+    title: "Exploring Dragging Interaction on Curved Displays in Virtual Reality"
+    venue: International Journal of Human-Computer Interaction 2026
+    doi: 10.1080/10447318.2026.2738094
+    license: CC-BY-4.0
+    repository: https://zenodo.org/records/21589932
+    domain: VR interaction
+    files:
+      - {path: "experiment_1_curvilinear_processed_condition_data.xlsx", size: 69347, md5: 1134d24bc07c0ba1de52591dd4cfd62f, url: "https://zenodo.org/api/records/21589932/files/experiment_1_curvilinear_processed_condition_data.xlsx/content"}
+      - {path: "experiment_2_angular_processed_condition_data.xlsx", size: 138639, md5: 65ddf16521f26e727e92ea4d7ae8153c, url: "https://zenodo.org/api/records/21589932/files/experiment_2_angular_processed_condition_data.xlsx/content"}
+      - {path: "subjective_workload_processed_condition_data.xlsx", size: 109942, md5: 267dd52fb4fb1b9e906b2b9d6e0bbc5c, url: "https://zenodo.org/api/records/21589932/files/subjective_workload_processed_condition_data.xlsx/content"}
+      - {path: "README.md", size: 5243, md5: a7f40e78eb17c87bc64b1c38f2a6bd4c, role: codebook, url: "https://zenodo.org/api/records/21589932/files/README.md/content"}
+
+  - source_id: fov_snapturn_tvcg24
+    title: "Field of View Restriction and Snap Turning as Cybersickness Mitigation Tools"
+    venue: IEEE Transactions on Visualization and Computer Graphics 2025
+    doi: 10.1109/TVCG.2024.3470214
+    license: CC-BY-4.0
+    repository: https://osf.io/d4zyf/
+    domain: VR cybersickness
+    files:
+      - {path: "Data/FOV&SnapTurnDataOSF_Revision.csv", size: 108810, sha256: 8823d624ef1fddf98860c7a00ee2c5b5f24a50ae7d019c5735b3a6550991d5b7, url: "https://osf.io/download/ue4pa/"}
+
+  - source_id: handsize_touch_mobilehci19
+    title: "The Influence of Hand Size on Touch Accuracy"
+    venue: MobileHCI 2019
+    doi: 10.1145/3338286.3340115
+    license: CC-BY-4.0
+    repository: https://github.com/henningpohl/hcidata
+    domain: touch input
+    files:
+      - {path: "data-raw/HandSize.csv", size: 2217469, git_blob: aa65d131b014fd9bdd86d064810a8628e2ccc3f2, url: "https://raw.githubusercontent.com/henningpohl/hcidata/fad8f707c9fbab3ea5f773dca5652d5d4d8f2067/data-raw/HandSize.csv"}
+      - {path: "R/HandSize.R", size: 2402, git_blob: e8927bdf326b14398a7a3ae5f285dba6f24338c9, role: codebook, url: "https://raw.githubusercontent.com/henningpohl/hcidata/fad8f707c9fbab3ea5f773dca5652d5d4d8f2067/R/HandSize.R"}
+      - {path: "data-raw/HandSize.R", size: 797, git_blob: 40d3551db936274d8e8d18a5778230295531d136, role: codebook, url: "https://raw.githubusercontent.com/henningpohl/hcidata/fad8f707c9fbab3ea5f773dca5652d5d4d8f2067/data-raw/HandSize.R"}
+      - {path: "man/HandSize.Rd", size: 2463, git_blob: b30aebe196577d0be0ab79d2b30276dc01ae6d2c, role: codebook, url: "https://raw.githubusercontent.com/henningpohl/hcidata/fad8f707c9fbab3ea5f773dca5652d5d4d8f2067/man/HandSize.Rd"}
+
+  - source_id: woz_adaptation_ijhcs24
+    title: "Different adaptation error types in affective computing have different effects on user experience: A Wizard-of-Oz study"
+    venue: International Journal of Human-Computer Studies 2025
+    doi: 10.1016/j.ijhcs.2024.103440
+    license: CC-BY-4.0
+    repository: https://zenodo.org/records/10155676
+    domain: affective computing
+    files:
+      - {path: "NSF2151464_Study2_ResearchData.xlsx", size: 40580, md5: 0b80f8c66d5ea1874e0820bd10850957, url: "https://zenodo.org/api/records/10155676/files/NSF2151464_Study2_ResearchData.xlsx/content"}
+
+  - source_id: gaze_platformer_chi24
+    title: "Effects of a Gaze-Based 2D Platform Game on User Enjoyment, Perceived Competence, and Digital Eye Strain"
+    venue: CHI 2024
+    doi: 10.1145/3613904.3641909
+    license: "MIT (LICENSE); CITATION.cff states CC-BY-4.0"
+    repository: https://github.com/M-Colley/shed-some-fear-data
+    domain: games
+    files:
+      - {path: "game-data.xlsx", size: 27664, git_blob: 6c61683271bd1f6aee660c3da3d9e37581c1b689, url: "https://raw.githubusercontent.com/M-Colley/shed-some-fear-data/bd47389c45bb5dc9f5a3beae1a3d07d571cae6de/game-data.xlsx"}
+      - {path: "game-demographic.xlsx", size: 7339, git_blob: c73463d889f4bf4aa6c0eedffb964aaa55ad3ae0, url: "https://raw.githubusercontent.com/M-Colley/shed-some-fear-data/bd47389c45bb5dc9f5a3beae1a3d07d571cae6de/game-demographic.xlsx"}
+      - {path: "game-final.xlsx", size: 12684, git_blob: a905243a5a9d13905ea69311f778c8ddcc571655, url: "https://raw.githubusercontent.com/M-Colley/shed-some-fear-data/bd47389c45bb5dc9f5a3beae1a3d07d571cae6de/game-final.xlsx"}
+      - {path: "CODEBOOK.md", size: 5673, git_blob: a6b6cbbfba7bf8c6542af71bced3dabdc52337b2, role: codebook, url: "https://raw.githubusercontent.com/M-Colley/shed-some-fear-data/bd47389c45bb5dc9f5a3beae1a3d07d571cae6de/CODEBOOK.md"}

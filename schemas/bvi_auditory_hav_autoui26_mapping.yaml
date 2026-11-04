@@ -1,0 +1,93 @@
+# Curated column mapping for bvi_auditory_hav_autoui26 (development set)
+#
+# Paper: Mark Colley, Tobias Aescht, Omid Rajabi, Max Rädler, Pascal Jansen,
+#   Enrico Rukzio (AutomotiveUI 2026). "Effects of Auditory Information for People
+#   With Visual Impairments in Highly Automated Vehicles." DOI 10.1145/3828157.3828774
+# Data: Zenodo record 22145814 (CC-BY-4.0), bvi-auditory-hav.xlsx. Analysis script:
+#   bvi-auditory-hav.R (github.com/M-Colley/bvi-auditory-hav, MIT), read as the codebook.
+# Table options: {file: bvi-auditory-hav.xlsx, sheet: Results, header: 0}
+#   The sheet "Results" is the long table the paper analyses: 105 rows = 35
+#   participants x 3 conditions. The script reads it with read_xlsx(sheet = "Results")
+#   for every within-subject test. Without a sheet option the loader picks the
+#   largest sheet ("original", the raw export of 39 respondents including the 4
+#   exclusions), which is the wrong table.
+#   The other sheets are original (raw export), demographics, cleaned (wide, N = 35,
+#   only used for the demographics) and Final (post-study questionnaire, one row
+#   per participant, between-group tests only). The Final labels are kept as
+#   comments at the end of this file. They can be used only if a second manifest
+#   entry reads the same file with sheet: Final.
+#
+# Notes (scales from the Zenodo record and the script)
+# - ConditionID / infoContent: 1 = Few (low), 2 = Medium, 3 = Most (high auditory
+#   information); within subjects.
+# - VIP: Y = blind or visually impaired, N = sighted; quasi-experimental between factor.
+# - tlx_mental: raw NASA-TLX mental demand, 1-20.
+# - perceivedSafety1-4: Faas et al. (2020) semantic differentials, -3..+3. The
+#   script averages them to ps_score.
+# - TiA_Trust1-2: the "Trust" subscale of Körber's Trust in Automation (1-5),
+#   mapped to its registry items tia_k09/tia_k14; the registry scores
+#   tia_trust_in_automation from them, as the script's overallTiATrust.
+# - ueqs1-8: UEQ-S items in standard order, 1-7 raw (the schema scores -3..+3).
+#   Pragmatic quality = items 1-4, hedonic quality = items 5-8. All 8 items
+#   correlate positively, so no reversal is needed. Mapped to the UEQ-S items of the instrument registry (ueq_s_1..8,
+#   schemas/instruments.yaml), which scores pragmatic and hedonic quality on
+#   -3..+3, as in schemas/running_into_traffic_mapping.yaml.
+# - SART1-10: 10-D SART items, 1-7. Demand = 1-3, Supply = 4-7, Understanding = 8-10,
+#   SA = U - (D - S) (computed in the script, not stored). The schema has no SART
+#   item ids, so the items take the subscale ids. The schema's subscale range
+#   (0-20) differs from the item range (1-7).
+
+# --- Dependent measures -----------------------------------------------------------
+tlx_mental: mental_demand                    # raw NASA-TLX mental demand, 1-20
+perceivedSafety1: perceived_safety_item_01   # Faas et al. 2020, -3..+3
+perceivedSafety2: perceived_safety_item_02   # -3..+3
+perceivedSafety3: perceived_safety_item_03   # -3..+3
+perceivedSafety4: perceived_safety_item_04   # -3..+3
+TiA_Trust1: tia_k09                       # Körber TiA item 9 ("I trust the system"), trust subscale, 1-5
+TiA_Trust2: tia_k14                       # Körber TiA item 14 ("I can rely on the system"), trust subscale, 1-5
+ueqs1: ueq_s_1                         # UEQ-S obstructive-supportive, 1-7
+ueqs2: ueq_s_2                         # UEQ-S complicated-easy, 1-7
+ueqs3: ueq_s_3                         # UEQ-S inefficient-efficient, 1-7
+ueqs4: ueq_s_4                         # UEQ-S confusing-clear, 1-7
+ueqs5: ueq_s_5                           # UEQ-S boring-exciting, 1-7
+ueqs6: ueq_s_6                           # UEQ-S not interesting-interesting, 1-7
+ueqs7: ueq_s_7                           # UEQ-S conventional-inventive, 1-7
+ueqs8: ueq_s_8                           # UEQ-S usual-leading edge, 1-7
+SART1: sart_demand                           # SART item, 1-7
+SART2: sart_demand                           # SART item, 1-7
+SART3: sart_demand                           # SART item, 1-7
+SART4: sart_supply                           # SART item, 1-7
+SART5: sart_supply                           # SART item, 1-7
+SART6: sart_supply                           # SART item, 1-7
+SART7: sart_supply                           # SART item, 1-7
+SART8: sart_understanding                    # SART item, 1-7
+SART9: sart_understanding                    # SART item, 1-7
+SART10: sart_understanding                   # SART item, 1-7
+
+# --- Conditions -------------------------------------------------------------------
+ConditionID: meta_condition                  # 1 low, 2 medium, 3 high information content
+infoContent: meta_condition_label            # Few / Medium / Most (same factor as ConditionID)
+VIP: meta_condition_visual_impairment        # Y = BVI, N = sighted (between-subjects group)
+
+# --- Identifiers ------------------------------------------------------------------
+UserID: meta_participant_id
+
+# --- Left out (not in the mapping) ------------------------------------------------
+# DV with no fitting schema id: informationCommunica ("All relevant information has
+#   been communicated.", 1-5).
+# Unresolved: Trust[SQ003], Trust[SQ004], Trust[SQ005]. These are three further
+#   items of the trust question group (1-5) and are not documented. SQ003 and SQ005
+#   correlate negatively with the trust items and SQ004 positively.
+#
+# --- Sheet "Final" (header 0), not loaded with sheet: Results -----------------------
+# UserID: meta_participant_id
+# VIP: meta_condition_visual_impairment
+# feedback: meta_free_text                   # free-text feedback (German/English)
+# DVs with no fitting schema id: reasonable, necessary (1-7); usefulness of the
+#   information types startEnd, drivingRelated, pedestrian, route, unforeseenEvents,
+#   poi, surroundings (1-5); ratings of the in-vehicle information system light,
+#   dashboard, sound, voice (1-5).
+# Doubtful: wouldUse ("intention to use", 1-7). It is closest to
+#   utaut_behavioral_intention, but it is a single item, not the UTAUT scale.
+# Unresolved: coulduse[SQ001]..coulduse[SQ004] (A1/A2, answered only by the 12 BVI
+#   participants, not documented).

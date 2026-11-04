@@ -1,0 +1,102 @@
+# Curated column mapping for incar_vr_gain_chi24 (development set)
+#
+# Paper: Katharina Pöhlmann, Graham Wilson, Gang Li, Mark McGill, Stephen Brewster
+#   (CHI 2024). "From Slow-Mo to Ludicrous Speed: Comfortably Manipulating the
+#   Perception of Linear In-Car VR Motion Through Vehicular Translational Gain and
+#   Attenuation." DOI 10.1145/3613904.3642298. The data are from Study 1 (on-road
+#   drive, VR reading-comprehension task, N = 17).
+# Data: Zenodo record 10138112 (CC-BY-4.0, Katharina Pöhlmann). The record holds three
+#   files; the pinned download has two (FinalJSONMS.csv, the OBD speed and continuous
+#   MISC log, is not part of it):
+#   - FINAL_Questionnaires.csv: 204 rows = 17 participants x 3 conditions x 4 Sections
+#   - FinalQuestions.csv: 2,720 rows, one per reading-comprehension question answered
+# Table options: none. Both files are comma-separated UTF-8 with the header in row 0;
+#   load_input_file reads them as they are.
+#
+# Notes
+# - Condition: 1 = Gain, 2 = Attenuation, 3 = Matched Motion. The codes are not
+#   documented. They are inferred from the data, which match the paper: condition 1
+#   has the highest estimated virtual speed and the lowest safety rating, and the
+#   answer-correctness rates per code (46.1 / 50.7 / 51.8 %) equal the paper's
+#   Gain / Attenuation / Matched values.
+# - Section 1-4: increasing gain (1.5, 2.5, 4.5, 7 x car speed) or attenuation
+#   (0.66, 0.4, 0.22, 0.14 x) within a condition.
+# - SSQ: Nausea / Oculomotor / Disorientation / SSQ_Total are the standard weighted
+#   SSQ scores (Kennedy et al. 1993) of each Section. The *_All columns are the mean
+#   of the four per-Section scores of the same participant x condition (verified to
+#   +/-0.005). Each *_All value is repeated on all four Section rows.
+# - NASA-TLX: six raw subscales on 0-20. NasaTLX_All is their sum (0-120, verified on
+#   every row), not a 0-100 score.
+# - Presence is the IPQ REAL2 item ("How much did your experience in the virtual
+#   environment seem consistent with your real world experience?"), 0-6 according
+#   to the paper. The observed values are 1-6.
+# - Safety / Relaxation / Excitment: ride-experience ratings for each Section on an
+#   11-point scale, 0 (not safe/exciting/relaxing at all) to 10 (extremely ...).
+# - MeanMS / MaxMS / MAXCondition: Misery Scale (MISC, 0-10) ratings given
+#   continuously during the drive. They hold the time-averaged and the maximum MISC
+#   per Section, and the maximum per condition. No schema DV fits MISC (fms_score is
+#   the FMS, 0-20), so these columns are left out.
+
+# --- Dependent measures: FINAL_Questionnaires.csv ------------------------------
+Nausea: ssq_nausea                    # SSQ nausea, weighted score per Section
+Oculomotor: ssq_oculomotor            # SSQ oculomotor, weighted score per Section
+Disorientation: ssq_disorientation    # SSQ disorientation, weighted score per Section
+SSQ_Total: ssq_total                  # SSQ total, weighted score per Section
+Nausea_All: meta_condition_mean           # condition mean of the 4 per-Section scores, repeated on each Section row
+Oculomotor_All: meta_condition_mean       # condition mean of the 4 per-Section scores, repeated on each Section row
+Disorientation_All: meta_condition_mean   # condition mean of the 4 per-Section scores, repeated on each Section row
+SSQ_Total_All: meta_condition_mean        # condition mean of the 4 per-Section scores, repeated on each Section row
+NasaTLX_All: TLX_SCORE                # raw TLX, sum of the six subscales (0-120)
+MentalDemand-NASA: mental_demand      # 0-20
+PhysicalDemand-NASA: physical_demand  # 0-20
+TemporalDemand-NASA: temporal_demand  # 0-20
+Performance-NASA: performance         # 0-20
+Effort-NASA: effort                   # 0-20
+Frustration-NASA: frustration         # 0-20
+Presence: ipq_experienced_realism     # IPQ REAL2 item (real-virtual consistency), 0-6
+Safety: perceived_safety              # ride safety, 0-10
+
+# --- Dependent measures: FinalQuestions.csv ------------------------------------
+Correct: task_success                 # reading-comprehension question answered correctly (1/0)
+
+# --- Conditions and design ----------------------------------------------------
+Condition: meta_condition             # 1 = Gain, 2 = Attenuation, 3 = Matched Motion (both files)
+Section: meta_section                 # journey Section 1-4 (increasing gain/attenuation)
+
+# --- Identifiers and task bookkeeping ------------------------------------------
+PID: meta_participant_id
+ActualParticipant: meta_participant_id   # FinalQuestions.csv; same ids as PID
+Participant: meta_participant_index      # FinalQuestions.csv; consecutive 1-17 re-index
+Example: meta_stimulus_id                # reading passage (UCAT verbal-reasoning example) id
+QuestionNr: meta_question_number         # question 1-4 within a passage
+AnswerTime: meta_timestamp               # time (s) in the session at which the answer was given
+
+# --- Timing --------------------------------------------------------------------
+DurationSection: meta_duration_section   # minutes
+DurationOfTask: meta_duration_task       # minutes, sum of the four Section durations
+TotalDuration: meta_duration_session     # minutes, whole session of the condition
+
+# --- Rankings ------------------------------------------------------------------
+Section_Ranking: meta_ranking_section       # rank of the four Sections within a condition
+Condition_Ranking: meta_ranking_condition   # rank of the condition (constant within condition)
+
+# --- Covariates, demographics and background ----------------------------------
+MSSQ: meta_motion_sickness_susceptibility   # MSSQ score, measured once (trait)
+Gender: meta_demographic_gender             # 1 = male, 2 = female, 3 = non-binary (counts 9/7/1 match the paper)
+Age: meta_demographic_age
+VRExperience: meta_experience_vr            # 1 never, 2 = 1-10 times, 3 regular (counts 7/7/3 match the paper)
+GamerGroup: meta_experience_gaming
+FPGamerGroup: meta_experience_first_person_gaming
+DriversLicense: meta_demographic_drivers_license
+HrsDriving: meta_experience_driving_hours
+HrsPassenger: meta_experience_passenger_hours
+HrsDrivingGlasgow: meta_experience_driving_glasgow
+
+# --- Left out (not in the mapping) --------------------------------------------
+# DVs with no fitting schema id:
+#   MeanMS, MaxMS, MAXCondition (MISC 0-10), MSOnsetTotal, MSOnsetDurationInTask
+#   (minutes to the first MISC > 0; empty when no sickness), Relaxation, Excitment
+#   (0-10), Time (estimated Section duration, min), Distance (estimated distance, km),
+#   SpeedReal, SpeedVR (estimated real / virtual speed, km/h), SpeedCompare (1-5,
+#   wording not documented).
+# Unresolved (FinalQuestions.csv): NewQuestion, ExampleNr, Chunk.

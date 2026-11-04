@@ -1,0 +1,76 @@
+# Source-specific column mapping for gaze_platformer_chi24
+# GitHub: https://github.com/M-Colley/shed-some-fear-data @ bd47389c
+# Paper: Colley et al. "Effects of a Gaze-Based 2D Platform Game on User
+#   Enjoyment, Perceived Competence, and Digital Eye Strain." CHI 2024.
+#   DOI 10.1145/3613904.3641909
+#
+# Covers three LimeSurvey extracts (codebook: CODEBOOK.md):
+#   game-data.xlsx        sheet "Results", header row 0 - one row per
+#                         participant x study day (103 rows, 22 IDs; the
+#                         paper analyses N = 17 who completed all 5 days)
+#   game-demographic.xlsx sheet "demo",    header row 0 - once per participant
+#   game-final.xlsx       sheet "final",   header row 0 - end-of-study survey
+# Design: input method (eye gaze vs. mouse, between subjects) x study day 1-5.
+#
+# Notes
+# - Visuals_* (PXI audiovisual appeal, 7-point) are keyed 1 = strongly agree
+#   .. 7 = strongly disagree: the paper states this anchoring for the
+#   enjoyment items, and the visuals items correlate +0.5..0.6 with them.
+#   Reverse (8 - x) before pooling with aesthetics_rating (higher = better).
+# - Competence_* (IMI perceived competence) correlate negatively with the
+#   enjoyment and visuals items, so they appear keyed the other way
+#   (1 = disagree). Competence_notGood is reverse-scored (8 - x) in game.R.
+# - DES symptom items: the codebook and paper give 1 = "Nothing at all" ..
+#   7 = "Very severe", but the data run 0-6.
+# - game-final submitdate is 1980-01-01 for every row (LimeSurvey date
+#   anonymisation). P18 and P19 are probably the same person (README).
+# - Left unmapped (no fitting schema DV): DESBefore_* / DESAfter_* (21 digital
+#   eye strain symptoms x 2), Enjoyment_* (PXI enjoyment, 5 items, plus the
+#   unused Enjoyment_boring), Competence_* (IMI perceived competence, 6 items),
+#   eyeQuality (end-of-study rating, scale not documented).
+#   Unresolved: Help (Y/N, question wording not documented).
+
+# --- Dependent measures: audiovisual appeal (PXI), 7-point, 1 = strongly agree -
+Visuals_styl: aesthetics_rating              # "I enjoyed the way the game was styled."
+Visuals_2lookFeel: aesthetics_rating         # "I liked the look and feel of the game."
+Visuals_aesthetics: aesthetics_rating        # "I appreciated the aesthetics of the game."
+
+# --- Participant, conditions and session --------------------------------------
+ID: meta_participant_id                      # game-data / game-final (P01-P24)
+ParticipantID: meta_participant_id           # game-demographic
+GazeMouse: meta_condition_input_method       # Eye / Mouse (between subjects)
+Days: meta_session_day                       # study day 1-5
+PlayGame: meta_empty_column                  # marker between before/after blocks; empty
+
+# --- LimeSurvey bookkeeping (all three files) ---------------------------------
+id: meta_response_id
+submitdate: meta_timestamp_submission
+lastpage: meta_last_page
+startlanguage: meta_survey_language
+seed: meta_survey_seed
+startdate: meta_timestamp_start
+datestamp: meta_timestamp_last_action
+
+# --- Demographics and gaming background (game-demographic.xlsx) --------------
+age: meta_demographic_age
+gender: meta_demographic_gender              # A1 = woman, A2 = man
+education: meta_demographic_education        # A2 middle school, A3 high school, A4 college (A1, one row, not in codebook)
+job: meta_demographic_profession             # A2 student, A3 employee, A4 self-employed
+screentime: meta_demographic_screen_time     # hours per day
+games: meta_gaming_frequency                 # video-game play frequency
+jumpnrun: meta_gaming_frequency_jump_n_run   # jump-'n'-run play frequency
+funGames: meta_gaming_enjoyment              # liking of video games in general, 1-5
+
+# --- Open feedback (game-final.xlsx) ------------------------------------------
+Like: meta_free_text_like
+Dislike: meta_free_text_dislike
+Advice: meta_free_text_advice
+
+# --- Reverse-keyed items ------------------------------------------------------
+# The PXI items were anchored 1 = strongly agree .. 7 = strongly disagree (paper,
+# method section); the visuals items correlate +0.5..0.6 with the enjoyment items,
+# so they share that anchoring. Reversed so that higher = more appealing.
+reverse_items:
+  - columns: [Visuals_styl, Visuals_2lookFeel, Visuals_aesthetics]
+    scale_range: [1, 7]
+    reason: PXI items anchored 1 = strongly agree in this study

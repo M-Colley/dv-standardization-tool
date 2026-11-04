@@ -1,0 +1,33 @@
+# Source-specific column mapping for handsize_touch_mobilehci19
+# Paper: Larsen et al. "The Influence of Hand Size on Touch Accuracy."
+#   MobileHCI 2019. DOI 10.1145/3338286.3340115
+# Data: GitHub henningpohl/hcidata @ fad8f707, CC-BY-4.0. Codebooks: R/HandSize.R,
+#   man/HandSize.Rd (roxygen field descriptions) and data-raw/HandSize.R (column types).
+#
+# File covered: data-raw/HandSize.csv (trial level; 27 participants x 2 phones x
+#   500 trials = 27,000 rows). No table options needed (UTF-8 CSV, comma).
+# Not in this source: data-raw/HandSizeParticipants.csv (hand measurements,
+#   demographics) and data-raw/HandSizeDevices.csv (screen size/dpi) are referenced
+#   by data-raw/HandSize.R but were not downloaded.
+#
+# Notes:
+#   - Phone is the within-subject device factor (Android / iPhone, 500 trials each).
+#   - Outlier (True/False) flags trials whose selection was too fast or too slow
+#     (703 of 27,000); SelectionTimeSeconds ranges 0.0006-27.4 s before exclusion.
+#   - TouchX/TouchY (touch position, px) and ErrorMM (offset of the touch from the
+#     target, mm) are DVs with no fitting schema id and are left out.
+
+# --- Dependent measures -------------------------------------------------------
+SelectionTimeSeconds: task_completion_time   # time to make the selection, seconds
+
+# --- Participants, trials, conditions -----------------------------------------
+PID: meta_participant_id
+Trial: meta_trial_number            # 0-499 within participant x phone
+Phone: meta_condition_device        # Android / iPhone
+
+# --- Stimulus ------------------------------------------------------------------
+TargetX: meta_target_position_x     # target centre, px
+TargetY: meta_target_position_y     # target centre, px
+
+# --- Data quality --------------------------------------------------------------
+Outlier: meta_outlier_flag          # trial excluded as too fast / too slow
