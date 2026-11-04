@@ -1,6 +1,8 @@
 # Open-data studies: candidates for new sources (2026-11-04)
 
-The confirmatory test and its post hoc rerun (`docs/confirmatory_shortlist_results.md`) left gains that only new, unseen studies can confirm. This list collects peer-reviewed HCI studies whose participant-level data are openly licensed. Nothing listed here has been downloaded, labelled or run yet; which set they join (development or a new held-out validation set) is still open.
+The confirmatory test and its post hoc rerun (`docs/confirmatory_shortlist_results.md`) left gains that only new, unseen studies can confirm. This list collects peer-reviewed HCI studies whose participant-level data are openly licensed.
+
+**Outcome (2026-11-04).** 12 of the 13 studies in the two tables were added to the development set. The exception is `acoustic_touch_blind_plosone23`, because Dryad refused automated downloads (HTTP 401/403). Their files are pinned in `analyses/development_sources/sources.yaml`, and each has a curated mapping, `schemas/<source_id>_mapping.yaml`. The mappings were written from the codebooks and papers before any LLM run on these studies. `sources_manifest_no4tu.yaml` lists them.
 
 ## Criteria
 
@@ -14,6 +16,7 @@ The confirmatory test and its post hoc rerun (`docs/confirmatory_shortlist_resul
 ## Search
 
 Searched on 2026-11-04:
+
 - **Repository indexes:**
   - the Zenodo REST API (datasets; instrument, topic, venue and creator terms);
   - the OSF SHARE index-card search, with files, licences and SHA-256 hashes taken from `api.osf.io/v2` including child components;
@@ -34,6 +37,7 @@ An AI research agent ran the search. Only metadata, READMEs, file listings and h
 | `av_acceptance_vr_ijhci24` | IJHCI 2024, [10.1080/10447318.2024.2358577](https://doi.org/10.1080/10447318.2024.2358577) | [OSF y6fjr](https://osf.io/y6fjr/) | CC BY 4.0 | `Questionnaire_data/raw_data/EEDA_Qdata.csv` 119,089; `items/EEDA_questionnaire.xlsx` 14,167 | AV acceptance (UTAUT/TAM-style), perceived safety | Fetch only these two files; the project also holds about 6 GB of eye-tracking zips |
 
 **Weaker (medium or low confidence, as reported by the agent; not re-checked):**
+
 - **OptiCarVis** (CHI 2025): data split across about 120 per-participant files.
 - **Japan–Germany eHMI** (IMWUT 2026): design close to `ehmi_optimization_chi25`.
 - **Remote AV takeover** (AVI 2026): composite scores only; licence mismatch.
@@ -42,7 +46,7 @@ An AI research agent ran the search. Only metadata, READMEs, file listings and h
 - **Hit and Run** (AutomotiveUI 2026): zip contents unknown.
 - **Cooperative AV AR trust** (AutomotiveUI 2025): Python pickle files only. Never load these unconverted: unpickling runs code.
 
-## Pool B: other HCI domains (candidates for a held-out set)
+## Pool B: other HCI domains
 
 | source_id (proposed) | Paper | Data | Licence | Files (bytes) | Instruments / DVs | Notes |
 |---|---|---|---|---|---|---|
@@ -56,6 +60,7 @@ An AI research agent ran the search. Only metadata, READMEs, file listings and h
 | `gaze_platformer_chi24` | Colley et al., CHI 2024, [10.1145/3613904.3641909](https://doi.org/10.1145/3613904.3641909) | [M-Colley/shed-some-fear-data @ bd47389c](https://github.com/M-Colley/shed-some-fear-data) | MIT (LICENSE) vs. CC BY 4.0 (CITATION.cff) | `game-data.xlsx` 27,664; `game-demographic.xlsx` 7,339; `game-final.xlsx` 12,684; `CODEBOOK.md` 5,673 | PXI enjoyment, IMI competence, digital eye strain (N = 17, 5 days) | The two licence statements should be made consistent |
 
 **Held back:**
+
 - **Zenodo 20574145** (AR television in a simulated train, McGill/Brewster group): the record describes a field-of-view × ornamentation study, not the IMX 2024 ARTV paper the search linked it to, and no matching paper was found.
 - **Not re-checked:**
   - MR airplane layouts (ISMAR 2021): partial NASA-TLX only.
@@ -73,7 +78,13 @@ An AI research agent ran the search. Only metadata, READMEs, file listings and h
 - **Only multi-GB sensor archives:** e.g. TD2D, AdVitam, VR-CARLA, TimelyTale.
 - **Design or measures:** qualitative only, custom single items, or surveys without a user study.
 
-## Next steps
+## Destination
 
-1. Decide the destination: the development set (grows the catalog and meta-analysis, but uses up the studies as test data) or a new held-out validation set (confirms the post hoc gains; gold labels frozen before any run, as in `docs/preregistration_confirmatory_shortlist.md`).
-2. Download only the listed files, pinned by checksum, as in `analyses/confirmatory/sources.yaml`.
+The two options were:
+
+- **The development set.** It grows the catalog and the meta-analysis, but the studies are then used up as test data.
+- **A new held-out validation set.** It would confirm the post hoc gains, with gold labels frozen before any run, as in `docs/preregistration_confirmatory_shortlist.md`.
+
+The studies went to the development set. Their first benchmark run is still informative, because none of the current methods was tuned on them; the harness reports them separately (`--subset`). Any change made after seeing that run uses them up like the other development studies. Confirming the post hoc gains therefore still needs a new held-out set.
+
+That first run is in `docs/research_agenda.md` §2.4. Adding the studies also exposed four errors in the analyses, each now fixed (§2.1 and the changelog): scale detection, reversed Van der Laan keying in two original studies, mixed time units, and invariance fits that failed with between-subject studies.

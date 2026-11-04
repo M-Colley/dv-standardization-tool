@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-04T14:32:28.651176+00:00",
+  "generated_at": "2026-11-04T16:06:43.040478+00:00",
   "models": [
     "google/gemma-4-E2B-it"
   ],
@@ -9,22 +9,428 @@
   "max_per_source": 40,
   "e2_samples": 300,
   "blocklist_size": 46,
-  "runtime_seconds": 1392.1,
+  "runtime_seconds": 1249.9,
   "llm_generation_errors": 0,
   "context_sha256": {
     "3d_display_comp_vehicle": "d38c20c6ff03745b",
+    "av_acceptance_vr_ijhci24": "8a468853a9761f4a",
+    "av_prevalence_ehmi_autoui24": "e55a18ec73d9f2b7",
+    "bvi_auditory_hav_autoui26": "a4dd36d6f7d41117",
+    "curved_dragging_vr_ijhci26": "1cf4dd348bdd676e",
     "ehmi_for_all_chi26": "9af2f87fa01a5f21",
     "ehmi_optimization_chi25": "c09163582cb9fabb",
+    "ehmi_state_intent_mtap24": "90e8d82473a890e0",
     "fact_av": "69a9758645a034ec",
+    "fido2_auth_chi23": "491c3e149266322c",
+    "fov_snapturn_tvcg24": "c59c6ffbb5a73eca",
+    "gaze_platformer_chi24": "3fed64427de5016b",
+    "handsize_touch_mobilehci19": "16b4de5b5e461819",
+    "incar_vr_gain_chi24": "c0ac7eaf6fd392c6",
     "longitudinal_usa_germany_ehmi": "16dce62437b3d956",
     "osf_cwd6h": "eef2ed14de20aac1",
+    "pairsonic_cscw24": "4722931f4418307b",
     "psych_conflict_handling": "bd1657d6df2300f9",
     "roads_chi25": "724097e219a8d4b5",
     "running_into_traffic_chi26": "3ad59c6109afdc84",
-    "scrolling_in_the_deep_chi25": "8099bc3eaf3b1fba"
+    "scrolling_in_the_deep_chi25": "8099bc3eaf3b1fba",
+    "woz_adaptation_ijhcs24": "251ec97978eb0e0e"
   },
   "results": {
     "E1": {
+      "n_positive": 265,
+      "n_negative": 288,
+      "shortlist_contains_gold": {
+        "k": 224,
+        "n": 265,
+        "rate": 0.8452830188679246,
+        "ci95": [
+          0.7968401689503557,
+          0.8838584137859224
+        ]
+      },
+      "unchecked": {
+        "accuracy_on_dv_columns": {
+          "k": 135,
+          "n": 265,
+          "rate": 0.5094339622641509,
+          "ci95": [
+            0.4495414764985327,
+            0.5690568454341526
+          ]
+        },
+        "wrong_dv_on_dv_columns": {
+          "k": 104,
+          "n": 265,
+          "rate": 0.39245283018867927,
+          "ci95": [
+            0.3356001441285696,
+            0.45237898583881914
+          ]
+        },
+        "abstained_on_dv_columns": {
+          "k": 26,
+          "n": 265,
+          "rate": 0.09811320754716982,
+          "ci95": [
+            0.06783683090484417,
+            0.1398746547627664
+          ]
+        },
+        "precision_of_accepted_dv_mappings": {
+          "k": 135,
+          "n": 432,
+          "rate": 0.3125,
+          "ci95": [
+            0.27060561426944973,
+            0.3576995946054887
+          ]
+        },
+        "blocklisted_non_dv_mapped_to_a_dv": {
+          "k": 40,
+          "n": 69,
+          "rate": 0.5797101449275363,
+          "ci95": [
+            0.46207405427966053,
+            0.6889388465887515
+          ]
+        },
+        "curated_non_dv_mapped_to_a_dv": {
+          "k": 193,
+          "n": 219,
+          "rate": 0.8812785388127854,
+          "ci95": [
+            0.8317313298564076,
+            0.9176803859158084
+          ]
+        }
+      },
+      "checked": {
+        "accuracy_on_dv_columns": {
+          "k": 135,
+          "n": 265,
+          "rate": 0.5094339622641509,
+          "ci95": [
+            0.4495414764985327,
+            0.5690568454341526
+          ]
+        },
+        "wrong_dv_on_dv_columns": {
+          "k": 75,
+          "n": 265,
+          "rate": 0.2830188679245283,
+          "ci95": [
+            0.2321831106778086,
+            0.3400554848704318
+          ]
+        },
+        "abstained_on_dv_columns": {
+          "k": 55,
+          "n": 265,
+          "rate": 0.20754716981132076,
+          "ci95": [
+            0.16306819006719964,
+            0.2603838300195592
+          ]
+        },
+        "precision_of_accepted_dv_mappings": {
+          "k": 135,
+          "n": 321,
+          "rate": 0.4205607476635514,
+          "ci95": [
+            0.3678097013403414,
+            0.4751906343152408
+          ]
+        },
+        "blocklisted_non_dv_mapped_to_a_dv": {
+          "k": 4,
+          "n": 69,
+          "rate": 0.057971014492753624,
+          "ci95": [
+            0.02277238888037121,
+            0.13979243357661653
+          ]
+        },
+        "curated_non_dv_mapped_to_a_dv": {
+          "k": 111,
+          "n": 219,
+          "rate": 0.5068493150684932,
+          "ci95": [
+            0.4410895082703782,
+            0.5723729776416976
+          ]
+        }
+      },
+      "true_mappings_lost_to_check": {
+        "k": 0,
+        "n": 135,
+        "rate": 0.0,
+        "ci95": [
+          0.0,
+          0.027667952017524908
+        ]
+      },
+      "rejections_by_reason": {
+        "non_numeric": 43,
+        "out_of_range": 41,
+        "identifier": 40,
+        "demographic": 23,
+        "binary_for_rating_scale": 23,
+        "randomization": 5,
+        "timestamp": 4,
+        "experimental_condition": 4,
+        "no_values": 1,
+        "event_time": 1
+      }
+    },
+    "E2": {
+      "n_positive": 300,
+      "n_negative": 0,
+      "shortlist_contains_gold": {
+        "k": 261,
+        "n": 300,
+        "rate": 0.87,
+        "ci95": [
+          0.8272195707065882,
+          0.9034246305872476
+        ]
+      },
+      "unchecked": {
+        "accuracy_on_dv_columns": {
+          "k": 201,
+          "n": 300,
+          "rate": 0.67,
+          "ci95": [
+            0.61493585339915,
+            0.7207655363845042
+          ]
+        },
+        "wrong_dv_on_dv_columns": {
+          "k": 69,
+          "n": 300,
+          "rate": 0.23,
+          "ci95": [
+            0.18597181807303015,
+            0.2808553863882247
+          ]
+        },
+        "abstained_on_dv_columns": {
+          "k": 30,
+          "n": 300,
+          "rate": 0.1,
+          "ci95": [
+            0.07094791459501534,
+            0.1391664623846215
+          ]
+        },
+        "precision_of_accepted_dv_mappings": {
+          "k": 201,
+          "n": 270,
+          "rate": 0.7444444444444445,
+          "ci95": [
+            0.6892413418306098,
+            0.7927893943788074
+          ]
+        }
+      },
+      "checked": {
+        "accuracy_on_dv_columns": {
+          "k": 201,
+          "n": 300,
+          "rate": 0.67,
+          "ci95": [
+            0.61493585339915,
+            0.7207655363845042
+          ]
+        },
+        "wrong_dv_on_dv_columns": {
+          "k": 69,
+          "n": 300,
+          "rate": 0.23,
+          "ci95": [
+            0.18597181807303015,
+            0.2808553863882247
+          ]
+        },
+        "abstained_on_dv_columns": {
+          "k": 30,
+          "n": 300,
+          "rate": 0.1,
+          "ci95": [
+            0.07094791459501534,
+            0.1391664623846215
+          ]
+        },
+        "precision_of_accepted_dv_mappings": {
+          "k": 201,
+          "n": 270,
+          "rate": 0.7444444444444445,
+          "ci95": [
+            0.6892413418306098,
+            0.7927893943788074
+          ]
+        }
+      },
+      "true_mappings_lost_to_check": {
+        "k": 0,
+        "n": 201,
+        "rate": 0.0,
+        "ci95": [
+          0.0,
+          0.01875332680605788
+        ]
+      },
+      "rejections_by_reason": {
+        "identifier": 1
+      }
+    }
+  },
+  "e1_by_subset": {
+    "added_2026_11_04": {
+      "n_positive": 164,
+      "n_negative": 219,
+      "shortlist_contains_gold": {
+        "k": 128,
+        "n": 164,
+        "rate": 0.7804878048780488,
+        "ci95": [
+          0.711120275229812,
+          0.8370160472641677
+        ]
+      },
+      "unchecked": {
+        "accuracy_on_dv_columns": {
+          "k": 70,
+          "n": 164,
+          "rate": 0.4268292682926829,
+          "ci95": [
+            0.35365662933457953,
+            0.5033512865365563
+          ]
+        },
+        "wrong_dv_on_dv_columns": {
+          "k": 89,
+          "n": 164,
+          "rate": 0.5426829268292683,
+          "ci95": [
+            0.46633286241134086,
+            0.61707918666383
+          ]
+        },
+        "abstained_on_dv_columns": {
+          "k": 5,
+          "n": 164,
+          "rate": 0.03048780487804878,
+          "ci95": [
+            0.013091444195411413,
+            0.0693760159777096
+          ]
+        },
+        "precision_of_accepted_dv_mappings": {
+          "k": 70,
+          "n": 334,
+          "rate": 0.20958083832335328,
+          "ci95": [
+            0.16935698917173037,
+            0.25640916552936127
+          ]
+        },
+        "blocklisted_non_dv_mapped_to_a_dv": {
+          "k": 17,
+          "n": 23,
+          "rate": 0.7391304347826086,
+          "ci95": [
+            0.5352999516257464,
+            0.8745138395501366
+          ]
+        },
+        "curated_non_dv_mapped_to_a_dv": {
+          "k": 175,
+          "n": 196,
+          "rate": 0.8928571428571429,
+          "ci95": [
+            0.8417632878806535,
+            0.9288475798981645
+          ]
+        }
+      },
+      "checked": {
+        "accuracy_on_dv_columns": {
+          "k": 70,
+          "n": 164,
+          "rate": 0.4268292682926829,
+          "ci95": [
+            0.35365662933457953,
+            0.5033512865365563
+          ]
+        },
+        "wrong_dv_on_dv_columns": {
+          "k": 60,
+          "n": 164,
+          "rate": 0.36585365853658536,
+          "ci95": [
+            0.2959895820419055,
+            0.44185826372184334
+          ]
+        },
+        "abstained_on_dv_columns": {
+          "k": 34,
+          "n": 164,
+          "rate": 0.2073170731707317,
+          "ci95": [
+            0.15232209315061404,
+            0.27570957033392895
+          ]
+        },
+        "precision_of_accepted_dv_mappings": {
+          "k": 70,
+          "n": 235,
+          "rate": 0.2978723404255319,
+          "ci95": [
+            0.24303381696285403,
+            0.359212792695817
+          ]
+        },
+        "blocklisted_non_dv_mapped_to_a_dv": {
+          "k": 1,
+          "n": 23,
+          "rate": 0.043478260869565216,
+          "ci95": [
+            0.007716666143453149,
+            0.20991155070258877
+          ]
+        },
+        "curated_non_dv_mapped_to_a_dv": {
+          "k": 105,
+          "n": 196,
+          "rate": 0.5357142857142857,
+          "ci95": [
+            0.46587875550092717,
+            0.6041767779335108
+          ]
+        }
+      },
+      "true_mappings_lost_to_check": {
+        "k": 0,
+        "n": 70,
+        "rate": 0.0,
+        "ci95": [
+          0.0,
+          0.05202306241026692
+        ]
+      },
+      "rejections_by_reason": {
+        "out_of_range": 40,
+        "binary_for_rating_scale": 22,
+        "demographic": 21,
+        "non_numeric": 21,
+        "identifier": 18,
+        "timestamp": 2,
+        "experimental_condition": 2,
+        "randomization": 1,
+        "no_values": 1
+      }
+    },
+    "not_added_2026_11_04": {
       "n_positive": 101,
       "n_negative": 69,
       "shortlist_contains_gold": {
@@ -167,107 +573,6 @@
         "event_time": 1,
         "out_of_range": 1,
         "binary_for_rating_scale": 1
-      }
-    },
-    "E2": {
-      "n_positive": 300,
-      "n_negative": 0,
-      "shortlist_contains_gold": {
-        "k": 261,
-        "n": 300,
-        "rate": 0.87,
-        "ci95": [
-          0.8272195707065882,
-          0.9034246305872476
-        ]
-      },
-      "unchecked": {
-        "accuracy_on_dv_columns": {
-          "k": 201,
-          "n": 300,
-          "rate": 0.67,
-          "ci95": [
-            0.61493585339915,
-            0.7207655363845042
-          ]
-        },
-        "wrong_dv_on_dv_columns": {
-          "k": 69,
-          "n": 300,
-          "rate": 0.23,
-          "ci95": [
-            0.18597181807303015,
-            0.2808553863882247
-          ]
-        },
-        "abstained_on_dv_columns": {
-          "k": 30,
-          "n": 300,
-          "rate": 0.1,
-          "ci95": [
-            0.07094791459501534,
-            0.1391664623846215
-          ]
-        },
-        "precision_of_accepted_dv_mappings": {
-          "k": 201,
-          "n": 270,
-          "rate": 0.7444444444444445,
-          "ci95": [
-            0.6892413418306098,
-            0.7927893943788074
-          ]
-        }
-      },
-      "checked": {
-        "accuracy_on_dv_columns": {
-          "k": 201,
-          "n": 300,
-          "rate": 0.67,
-          "ci95": [
-            0.61493585339915,
-            0.7207655363845042
-          ]
-        },
-        "wrong_dv_on_dv_columns": {
-          "k": 69,
-          "n": 300,
-          "rate": 0.23,
-          "ci95": [
-            0.18597181807303015,
-            0.2808553863882247
-          ]
-        },
-        "abstained_on_dv_columns": {
-          "k": 30,
-          "n": 300,
-          "rate": 0.1,
-          "ci95": [
-            0.07094791459501534,
-            0.1391664623846215
-          ]
-        },
-        "precision_of_accepted_dv_mappings": {
-          "k": 201,
-          "n": 270,
-          "rate": 0.7444444444444445,
-          "ci95": [
-            0.6892413418306098,
-            0.7927893943788074
-          ]
-        }
-      },
-      "true_mappings_lost_to_check": {
-        "k": 0,
-        "n": 201,
-        "rate": 0.0,
-        "ci95": [
-          0.0,
-          0.01875332680605788
-        ]
-      },
-      "rejections_by_reason": {
-        "identifier": 1
       }
     }
   }

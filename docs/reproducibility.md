@@ -46,7 +46,16 @@ Generation is greedy, so with the same snapshot and inputs the LLM's choices rep
 
 ## Data
 
-`sources_manifest_no4tu.yaml` lists the 11 benchmark studies. Each run records the source revision it read (git commit, or the repository record's version and file checksums) in `meta_view.csv` (`commit`) and in the RO-Crate and data packages written next to the outputs.
+`sources_manifest_no4tu.yaml` lists the 23 development studies.
+
+- **The first 11** are fetched from their repositories by the batch itself.
+- **The 12 added on 2026-11-04** are read from `data/raw/development/`. Download them first; each file is checked against its pinned checksum:
+
+    ```bash
+    python -m opendv.analysis.confirmatory fetch --sources analyses/development_sources/sources.yaml --data-dir data/raw/development
+    ```
+
+Each run records the source revision it read (git commit, or the repository record's version and file checksums) in `meta_view.csv` (`commit`) and in the RO-Crate and data packages written next to the outputs.
 
 ## Rerunning
 
