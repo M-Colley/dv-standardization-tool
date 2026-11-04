@@ -3162,14 +3162,24 @@ def main(argv: list[str] | None = None) -> None:
     except ValueError as e:
         print(f"\n[WARNING] Skipping composite index: {e}")
 
-    # LiNGAM causal discovery
+    # LiNGAM causal discovery. With --exclude-llm-deduced it runs without the
+    # LLM-deduced (study, DV) columns too: until 2026-11-04 it always used
+    # them, so the reported DAG could rest on a wrong LLM mapping.
+    causal_canonical = canonical
+    if args.exclude_llm_deduced and mapping_provenance:
+        causal_canonical = {
+            study: frame.drop(columns=[
+                c for c in frame.columns if mapping_provenance.get((study, c)) == "llm_deduced"
+            ])
+            for study, frame in canonical.items()
+        }
     causal_result = None
     try:
         causal_result = discover_causal_structure(
             studies,
             min_rows=args.causal_min_rows,
             refuse_synthetic=args.refuse_synthetic_causal,
-            canonical_studies=canonical,
+            canonical_studies=causal_canonical,
         )
         if causal_result is not None:
             causal_result["adjacency_matrix"].to_csv(output_dir / "causal_adjacency_matrix.csv")
@@ -3232,7 +3242,7 @@ def main(argv: list[str] | None = None) -> None:
         boot_df = (
             bootstrap_causal_stability(studies, n_bootstrap=50, data=causal_data)
             if causal_data is not None
-            else bootstrap_causal_stability(studies, n_bootstrap=50, canonical_studies=canonical)
+            else bootstrap_causal_stability(studies, n_bootstrap=50, canonical_studies=causal_canonical)
         )
         if not boot_df.empty:
             boot_df.to_csv(output_dir / "causal_bootstrap_stability.csv", index=False)
@@ -3249,7 +3259,7 @@ def main(argv: list[str] | None = None) -> None:
 
     # PC algorithm (alternative for Gaussian data)
     try:
-        pc_result = discover_causal_structure_pc(studies, canonical_studies=canonical, data=causal_data)
+        pc_result = discover_causal_structure_pc(studies, canonical_studies=causal_canonical, data=causal_data)
         if pc_result is not None:
             pc_result["skeleton"].to_csv(output_dir / "pc_skeleton_matrix.csv")
             if pc_result["removed_edges"]:
