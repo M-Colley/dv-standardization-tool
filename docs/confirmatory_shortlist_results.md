@@ -66,27 +66,28 @@ E1 has **168 DV columns** (the cap of 40 per source applied to Hi-Audio), plus 1
    - handle question-text headers, e.g. by matching against instrument item wording;
    - reduce the automotive bias in the shortlist and prompt.
 
-## Post hoc: after fixing the gaps (2026-11-03)
+## Post hoc: after fixing the gaps (2026-11-03, updated 2026-11-04)
 
 **Not part of the pre-registered test.** The first two gaps of consequence 3 were fixed after seeing these data, and header matching was designed while looking at these studies' headers. The numbers below are therefore optimistic and need new studies to confirm. The pre-registered results above are unchanged.
 
 What changed in the pipeline:
 - survey answer codes (LimeSurvey `A1`/`A01`, Y/N, Yes/No, Ja/Nein) are recoded before the non-numeric screen;
 - header matching assigns blocks of question-text headers to registered instrument items by their wording;
-- the post-LLM check never accepts a 0/1 column for a rating-scale DV.
+- the post-LLM check never accepts a 0/1 column for a rating-scale DV;
+- since 2026-11-04: `True`/`False` columns are recoded to 1/0, and semicolon-separated files with decimal commas are read as numbers.
 
-The E1 runs were repeated with the pre-registered settings on the same 168 DV columns (`analyses/confirmatory/posthoc.sh`; outputs in `analyses/confirmatory/posthoc/`).
+The E1 runs were repeated with the pre-registered settings on the same 168 DV columns (`analyses/confirmatory/posthoc.sh`; outputs in `analyses/confirmatory/posthoc/`). The three shortlists were run one after another with the same cached manuscript context (identical context fingerprints in each summary) and no failed model call.
 
 | | `definition` | `dense_h` | `mixed_h` |
 |---|---|---|---|
-| Correct, LLM only (pre-registered run) | 63 (55) | 53 (53) | 56 (56) |
-| vs. the pre-registered run, paired exact McNemar | 8 vs. 0, p = 0.008 | no change | no change |
-| Precision of accepted DV mappings | 36.0% [29.3, 43.3] | 29.4% [23.3, 36.5] | 30.6% [24.4, 37.6] |
-| Abstained on DV columns (pre-registered run) | 15 (35) | 18 (40) | 15 (38) |
+| Correct, LLM only (pre-registered run) | 64 (55) | 54 (53) | 57 (56) |
+| vs. the pre-registered run, paired exact McNemar | 9 vs. 0, p = 0.004 | 1 vs. 0, p = 1.0 | 1 vs. 0, p = 1.0 |
+| Precision of accepted DV mappings | 36.4% [29.6, 43.7] | 29.8% [23.6, 36.9] | 31.0% [24.7, 38.0] |
+| Abstained on DV columns (pre-registered run) | 14 (35) | 17 (40) | 14 (38) |
 | Curated non-DV columns mapped to a DV, of 144 (pre-registered run) | 22 (26) | 30 (33) | 30 (32) |
-| DV columns screened out before the LLM | 3 (31) | 3 (31) | 3 (31) |
-| **Header matching first, LLM for the rest: correct** | **105** | **92** | **98** |
-| Precision of accepted DV mappings | 59.7% [52.3, 66.6] | 50.3% [43.1, 57.4] | 53.6% [46.3, 60.6] |
+| DV columns screened out before the LLM | 2 (31) | 2 (31) | 2 (31) |
+| **Header matching first, LLM for the rest: correct** | **106** | **93** | **99** |
+| Precision of accepted DV mappings | 59.9% [52.5, 66.8] | 50.5% [43.4, 57.7] | 53.8% [46.6, 60.9] |
 | vs. LLM only, paired exact McNemar | 42 vs. 0, p < 0.001 | 39 vs. 0, p < 0.001 | 42 vs. 0, p < 0.001 |
 
 - **The shortlist conclusion holds.** On the rerun `dense_h` vs. `definition` is 8 vs. 18 discordant (p = 0.076, Holm 0.15) and `mixed_h` 5 vs. 12 (p = 0.14), so `definition` stays the default.
@@ -96,11 +97,12 @@ The E1 runs were repeated with the pre-registered settings on the same 168 DV co
   - of the 8 Hi-Audio task outcomes (Y/N), 7 get no answer, and for 1 the LLM proposed a rating-scale DV, which the indicator rule rejected.
 
   With the hierarchical shortlists none of the 28 is correct, and their precision falls, because more columns now reach the LLM and get wrong answers.
+- **`True`/`False` recoding** lets the VR study's per-trial `Success` reach the LLM; all three shortlists map it correctly to `task_success` (the only change from the 2026-11-03 rerun, which these runs otherwise reproduce exactly).
 - **Header matching** assigns 45 DV columns: Hi-Audio's TLX and SUS question headers, and the VR study's TLX and SUS headers in English and German. All 45 are correct, and no non-DV column is matched. With `definition`, the LLM alone got 3 of the 45 right. The matcher uses only the standard aliases and the instrument wording in `schemas/instruments.yaml`, never the gold labels or the studies' mapping files (`confirmatory.header_match_answers`).
-- **Still screened out (3):**
+- **Still screened out (2):**
   - Hi-Audio's free-text total time;
-  - the VR study's `Success`, which holds `True`/`False` and is not recoded;
-  - the VR study's `Time`, screened by name as an event time. Its values use decimal commas (`24,825`) and are read as text, like the study's other measurements.
+  - the VR study's `Time`, screened by name as an event time (the plausibility rule `event_time: exact [time]`). Its values are now read as numbers.
+- **Decimal commas biased summaries, not only screening.** The VR study's semicolon-separated measurements use decimal commas (`24,825`). Before the fix numeric coercion kept only the integer-valued cells, so the catalog summarized `task_completion_time` from 259 of 8,640 manipulation trials (mean 29.3 s, mostly 30-s timeouts) instead of all of them (mean 9.3 s), and from 26 of 8,100 selection trials (14.6 s instead of 1.6 s).
 - **Keying check** (registered items whose first-principal-component loading runs against their key):
   - **AgencyUX, TLX performance** (`NASA4`, loading −0.45, n = 126). This is a true positive. The study's codebook words the item "How successful were you in accomplishing what you were asked to do? low–high", the reverse of the TLX's perfect–failure scale.
   - **Hi-Audio, physical demand** (−0.59, n = 22; the same answers in two tables). This is probably not a keying error. With 22 people, physical demand correlates −0.55 with temporal demand. Hi-Audio's data dictionary also contradicts itself on the direction of its performance item, and the check cannot settle that either.
