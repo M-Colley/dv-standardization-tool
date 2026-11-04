@@ -1,0 +1,20 @@
+# Source-specific mapping for ehmi_for_all_chi26 (github.com/M-Colley/ehmi-for-all-chi26-data)
+# Paper: Colley et al. (CHI 2026), DOI 10.1145/3772318.3790585.
+#
+# Columns are mapped by the standard schema aliases; this file only declares
+# how the Van der Laan items are keyed.
+#
+# Van der Laan acceptance (aoa1..aoa9, LimeSurvey -2..2 with neg1/neg2): +2 is
+# the first word of each item (useful, pleasant, bad, ...), the opposite of the
+# instrument registry's [-2, 2] coding (-2 = first word,
+# schemas/instruments.yaml). Evidence:
+# - the study's analysis script scores usefulness as
+#   (aoa1 - aoa3 + aoa5 + aoa7 + aoa9) / 5, so high aoa1 = useful;
+# - aoa1 correlates +0.66 with the SUS score of the same answers, and the
+#   registry's usefulness and satisfying scores without this reversal
+#   correlate -0.72 and -0.76 with it.
+# Reversing all nine items puts them on the registry's coding.
+reverse_items:
+  - columns: [aoa1, aoa2, aoa3, aoa4, aoa5, aoa6, aoa7, aoa8, aoa9]
+    scale_range: [-2, 2]
+    reason: +2 = first word of each item; the registry's [-2, 2] coding has -2 = first word

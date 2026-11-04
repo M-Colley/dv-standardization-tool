@@ -5,6 +5,7 @@ sources:
     location: https://github.com/M-Colley/roads-chi25-data
     ref: main
     publication_doi: 10.1145/3706598.3713476
+    mapping_path: schemas/roads_chi25_mapping.yaml
     include_globs:
       - "**/*.csv"
       - "**/*.xlsx"
@@ -92,6 +93,7 @@ sources:
     location: https://github.com/M-Colley/ehmi-for-all-chi26-data
     ref: main
     publication_doi: 10.1145/3772318.3790585
+    mapping_path: schemas/ehmi_for_all_chi26_mapping.yaml
     include_globs:
       - "**/*.csv"
       - "**/*.xlsx"
