@@ -159,7 +159,12 @@ from opendv.item_composition import (
     is_item_suffixed,
     strip_item_suffix,
 )
-from opendv.llm_utils import collect_repository_context, deduce_standard_name_with_local_llm
+from opendv.llm_utils import (
+    collect_repository_context,
+    context_fingerprint,
+    deduce_standard_name_with_local_llm,
+    generation_errors,
+)
 from opendv.llm_plausibility import load_rules as load_plausibility_rules
 from opendv.value_labels import (
     apply_reverse_keying,
@@ -384,6 +389,9 @@ class SourceRunResult:
     # surface that distinction without digging into mapping_metrics_by_domain.
     mapped_dv_columns: int = 0
     mapping_domains: dict[str, int] | None = None
+    # Fingerprint of the repository context the LLM prompts used (None when
+    # the source needed no LLM call); equal values mean equal prompts' context.
+    llm_context_sha256: str | None = None
 
 
 def load_manifest(manifest_path: Path) -> list[dict[str, Any]]:
@@ -1976,14 +1984,22 @@ class _SourceLlmState:
         base_dir: Path,
         preferred_models: list[str] | None,
         shortlist: str = "definition",
+        context_cache_dir: Path | None = None,
     ) -> None:
         self._source = source
         self._shortlist = shortlist
         self._base_dir = base_dir
         self._preferred_models = preferred_models
+        self._context_cache_dir = context_cache_dir
         self._inference_cache: dict[str, str | None] = {}
         self._signature_cache: dict[tuple[Any, ...], dict[str, str]] = {}
         self._repository_context: str | None = None
+
+    @property
+    def context_fingerprint(self) -> str | None:
+        if self._repository_context is None:
+            return None
+        return context_fingerprint(self._repository_context)
 
     def deduce(
         self,
@@ -2026,6 +2042,7 @@ class _SourceLlmState:
                     + _coerce_manifest_text_list(source.get("pdf_url"))
                 ),
                 extra_context=extra_context,
+                cache_dir=self._context_cache_dir,
             )
         augmented = _augment_mapping_with_llm_deductions(
             resolved.mapping,
@@ -2248,6 +2265,7 @@ def run_batch(
     resolved_cache_root.mkdir(parents=True, exist_ok=True)
 
     sources = load_manifest(manifest_path)
+    llm_errors_before = len(generation_errors())
     run_results: list[SourceRunResult] = []
     meta_rows: list[dict[str, Any]] = []
     llm_deductions_by_key: dict[tuple[str, str], dict[str, Any]] = {}
@@ -2408,11 +2426,15 @@ def run_batch(
                 source_id = entry.source_job.source_id
                 source_output_dir = entry.source_job.output_dir
                 files = [task.file_path for task in entry.tasks]
+                llm_state = _SourceLlmState(
+                    source, entry.source_job.base_dir, entry.preferred_models, llm_shortlist,
+                    context_cache_dir=resolved_cache_root / "llm_context",
+                )
                 outcomes = _run_source_datasets(
                     entry.tasks,
                     families,
                     _MappingResolver(families, entry.source_job.overrides_standard),
-                    _SourceLlmState(source, entry.source_job.base_dir, entry.preferred_models, llm_shortlist),
+                    llm_state,
                     pool,
                     progress_desc=f"Datasets ({source_id})",
                     futures=entry.futures,
@@ -2523,6 +2545,7 @@ def run_batch(
                         message=message,
                         mapped_dv_columns=int(source_domain_metrics.get("dv", 0)),
                         mapping_domains=dict(sorted(source_domain_metrics.items())),
+                        llm_context_sha256=llm_state.context_fingerprint,
                     )
                 )
     finally:
@@ -2589,6 +2612,13 @@ def run_batch(
         else 0.0
     )
 
+    llm_errors = generation_errors()[llm_errors_before:]
+    if llm_errors:
+        logger.warning(
+            "%d LLM generation call(s) failed (first: %s); their columns are unmapped, not abstentions",
+            len(llm_errors), llm_errors[0]["error"],
+        )
+
     failed_sources = [r.source_id for r in run_results if r.status == "failed"]
     partial_sources = [r.source_id for r in run_results if r.status == "partial"]
     unavailable_sources = [
@@ -2643,6 +2673,10 @@ def run_batch(
         "output_format": output_format,
         "schema_version": families.schema_version,
         "llm_models_used": _llm_models_used() if llm_deduction_enabled else [],
+        # Failed generation calls leave a column unmapped exactly like an
+        # abstention; a non-zero count means the LLM mappings are incomplete.
+        "llm_generation_errors": len(llm_errors),
+        "llm_generation_error_examples": llm_errors[:5],
         "cache_root": str(resolved_cache_root),
         "results": [r.__dict__ for r in run_results],
     }
