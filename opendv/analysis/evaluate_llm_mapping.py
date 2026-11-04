@@ -354,6 +354,31 @@ def summarize(items: pd.DataFrame, dv_ids: set[str]) -> dict[str, Any]:
     return out
 
 
+def load_subsets(specs: list[str]) -> dict[str, set[str]]:
+    """``NAME=SOURCES_YAML`` -> {name: source ids listed under the file's ``sources:``}."""
+    import yaml
+
+    subsets: dict[str, set[str]] = {}
+    for spec in specs:
+        name, _, path = spec.partition("=")
+        if not name.strip() or not path.strip():
+            raise ValueError(f"--subset expects NAME=SOURCES_YAML, got {spec!r}")
+        data = yaml.safe_load(Path(path.strip()).read_text(encoding="utf-8")) or {}
+        subsets[name.strip()] = {str(source["source_id"]) for source in data.get("sources") or []}
+    return subsets
+
+
+def summarize_subsets(items: pd.DataFrame, dv_ids: set[str], subsets: dict[str, set[str]]) -> dict[str, Any]:
+    """E1 summarized separately for each subset of sources and for the remaining sources."""
+    e1 = items[items["experiment"] == "E1"]
+    out: dict[str, Any] = {}
+    for name, source_ids in subsets.items():
+        inside = e1["source_id"].isin(source_ids)
+        out[name] = summarize(e1[inside], dv_ids).get("E1")
+        out[f"not_{name}"] = summarize(e1[~inside], dv_ids).get("E1")
+    return out
+
+
 def main() -> None:
     logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s: %(message)s")
     for noisy in ("httpx", "urllib3", "huggingface_hub", "filelock"):
@@ -372,8 +397,14 @@ def main() -> None:
     parser.add_argument("--shortlist", choices=["fuzzy", *HARNESS_SHORTLISTS],
                         default="definition",
                         help="Candidate retrieval for the LLM (default: %(default)s).")
+    parser.add_argument("--subset", action="append", default=[], metavar="NAME=SOURCES_YAML",
+                        help="Also summarize E1 for the sources listed in this YAML and for the rest (repeatable).")
     args = parser.parse_args()
     args.models = [m.strip() for m in args.models.split(",") if m.strip()] if args.models else None
+    try:
+        subsets = load_subsets(args.subset)
+    except (OSError, ValueError, KeyError, TypeError) as exc:
+        parser.error(f"--subset: {exc}")
 
     run_summary = json.loads((Path(args.batch_dir) / "run_summary.json").read_text(encoding="utf-8"))
     if run_summary.get("llm_deductions_count"):
@@ -403,6 +434,8 @@ def main() -> None:
         ),
         "results": summarize(items, dv_ids),
     }
+    if subsets:
+        summary["e1_by_subset"] = summarize_subsets(items, dv_ids, subsets)
     (output_dir / "llm_mapping_evaluation_summary.json").write_text(json.dumps(summary, indent=2), encoding="utf-8")
     print(json.dumps(summary["results"], indent=2))
     if summary["llm_generation_errors"]:
