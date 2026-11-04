@@ -63,6 +63,29 @@ def test_item_names_survive_the_round_trip():
     assert items == {"SUS1", "mental_demand", "item3", "item4", "item5"}
 
 
+@needs_lavaan
+def test_a_between_subject_study_is_fitted_without_clusters():
+    # Group B answers once per participant; lavaan refuses cluster= then.
+    frame = _simulate(5)
+    between = _simulate(6, per_cluster=1)
+    frame = pd.concat([frame[frame["group"] == "A"], between[between["group"] == "B"]], ignore_index=True)
+    result = mi.fit_levels(frame, "sim", [f"item{i + 1}" for i in range(5)])
+    rows, reached = mi.decide(result)
+    assert result["cluster_robust"] is False and result["one_observation_per_cluster"] == ["B"]
+    assert reached == "scalar"
+    assert all("without participant clusters (B" in row["warning"] for row in rows)
+
+
+def test_a_fit_error_is_not_reported_as_non_invariance():
+    rows, reached = mi.decide({"levels": {"configural": {"error": "lavaan stopped"}}})
+    assert reached == "not_fitted" and rows[0]["warning"] == "lavaan stopped"
+    table = pd.DataFrame([
+        {"scale": "s1", "dv": "usability", "items": "SUS1", "level_reached": "not_fitted", "studies": "a; b"},
+        {"scale": "s2", "dv": "other", "items": "SUS1", "level_reached": "metric", "studies": "a; c"},
+    ])
+    assert mi.invariance_by_dv(table)["SUS1"] == "not_fitted (a; b)"
+
+
 def test_decision_rules():
     def level(cfi, rmsea, srmr, **extra):
         return {"cfi.robust": cfi, "tli.robust": cfi, "rmsea.robust": rmsea, "srmr": srmr,
