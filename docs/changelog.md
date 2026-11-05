@@ -4,6 +4,23 @@ This document logs human-readable updates to the repo's functionality, structure
 
 ---
 
+### [2026-11-05] Systematic search for open-data studies
+
+- **New script:** `analyses/candidate_search/search_open_data.py` searches the research-data repositories for open HCI user-study datasets.
+    - It sends 21 fixed queries to DataCite (Zenodo, OSF, figshare, Dryad, 4TU, Dataverse, Mendeley Data) and 17 to OSF's own index.
+    - It screens every record automatically: one record per dataset, an open licence, a peer-reviewed paper, not already a source, a file listing with tables.
+    - Every record keeps the stage it stopped at (`hits.csv`), and API responses are cached, so `--offline` reproduces the screen.
+- **Results** (`docs/open_data_candidates.md`, second search). 3,199 datasets gave 427 candidates for manual screening.
+    - 57 are verified: a user study with schema DVs, and the paper matched by its authors or title. 37 of them are automotive.
+    - 79 look eligible but are not yet verified.
+    - 291 were excluded, each with a reason (`screening_decisions.csv`).
+- **Split half and half.** `split_heldout.py` splits the 57 verified datasets from metadata, stratified, with seed 20261105:
+    - 29 are held out to confirm the exploratory relations, pre-registered in `docs/preregistration_heldout_relations.md`;
+    - 28 join the development set.
+- **Not done.** Nothing was downloaded.
+
+---
+
 ### [2026-11-04] Code review and cross-study relations
 
 A review of the whole pipeline (harmonization, LLM fallback and benchmark, cross-study analyses) found the defects below; each is fixed and has a regression test in `tests/test_review_fixes.py`.

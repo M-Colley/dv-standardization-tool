@@ -222,3 +222,5 @@ site/
 /data/raw/confirmatory/
 # Development studies pinned in analyses/development_sources/sources.yaml (same fetch command)
 /data/raw/development/
+# Cached API responses of the open-data search (analyses/candidate_search)
+/data/cache/

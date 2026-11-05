@@ -68,6 +68,7 @@ nav:
       - Confirmatory shortlist test: confirmatory_shortlist_results.md
       - Pre-registration: preregistration_confirmatory_shortlist.md
       - Open-data studies: open_data_candidates.md
+      - "Pre-registration: held-out relations": preregistration_heldout_relations.md
       - Summary: summary.md
       - Future plans: future_plans.md
   - Changelog: changelog.md
