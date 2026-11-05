@@ -51,3 +51,17 @@ def test_file_profile_flags_unsafe_and_archives() -> None:
     profile = s.file_profile([("data.csv", 10), ("bundle.zip", 100), ("model.pkl", 5), ("paper.pdf", 7)])
     assert profile["n_tabular"] == 1 and profile["has_archive"] and profile["has_unsafe"]
     assert profile["total_bytes"] == 122
+
+
+def test_file_rules_keep_tables_and_codebooks_and_leave_out_logs_and_code():
+    from analyses.candidate_search.build_sources import classify
+
+    assert classify("data/questionnaire.xlsx", 10_000) == ("table", "")
+    assert classify("Readme_data.xlsx", 10_000)[0] == "documentation"
+    assert classify("Questionnaires/Post-trial questionnaire.pdf", 10_000)[0] == "documentation"
+    assert classify("paper.pdf", 10_000)[0] == "skip"
+    assert classify("signals/raw_emg.csv", 10_000)[0] == "skip"
+    assert classify("big.csv", 60_000_000) == ("skip", "table over 50 MB")
+    assert classify("model.pkl", 10)[0] == "skip"
+    assert classify("__MACOSX/._q.csv", 10)[0] == "skip"
+    assert classify("Supplementary material.zip", 10) == ("archive", "")

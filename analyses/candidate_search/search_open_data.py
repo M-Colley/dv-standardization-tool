@@ -360,6 +360,19 @@ def record_keys(doi: str, attrs: dict[str, Any], papers: Iterable[str]) -> set[s
 
 def list_files(doi: str, attrs: dict[str, Any], offline: bool) -> tuple[list[tuple[str, int | None]], str]:
     """(files as (path, size), note) through the repository's API."""
+    records, note = file_records(doi, attrs, offline)
+    return [(r["path"], r["size"]) for r in records], note
+
+
+def _record(path: Any, size: Any, url: Any, **checksums: Any) -> dict[str, Any]:
+    """One file: path, size, download URL and the checksums the repository publishes."""
+    record: dict[str, Any] = {"path": str(path), "size": size, "url": url}
+    record.update({kind: str(value).lower() for kind, value in checksums.items() if value})
+    return record
+
+
+def file_records(doi: str, attrs: dict[str, Any], offline: bool) -> tuple[list[dict[str, Any]], str]:
+    """(files as dicts with path, size, url and md5/sha256, note) through the repository's API."""
     doi_l = doi.lower()
     url = str(attrs.get("url") or "")
     if m := re.match(r"10\.5281/zenodo\.(\d+)", doi_l):
@@ -375,14 +388,21 @@ def list_files(doi: str, attrs: dict[str, Any], offline: bool) -> tuple[list[tup
         if isinstance(entries, dict):
             entries = list((entries.get("entries") or {}).values())
         access = (body.get("metadata") or {}).get("access_right") or ""
-        return [(str(e.get("key")), e.get("size")) for e in entries], "" if entries else f"no public files ({access})"
+        files = []
+        for e in entries:
+            algorithm, _, digest = str(e.get("checksum") or "").partition(":")
+            files.append(_record(e.get("key"), e.get("size"), (e.get("links") or {}).get("self"),
+                                 **{algorithm: digest} if algorithm in ("md5", "sha256") else {}))
+        return files, "" if files else f"no public files ({access})"
     figshare_id = re.match(r"10\.6084/m9\.figshare\.(\d+)", doi_l)
     if figshare_id is None and not doi_l.startswith("10.4121/"):
         # Institutional figshare portals (Loughborough, Monash, UCL, Open University, ...).
         figshare_id = re.search(r"/articles/[^/]+/[^/]+/(\d+)(?:/\d+)?/?$", url)
     if figshare_id:
         body = cached_json(f"https://api.figshare.com/v2/articles/{figshare_id.group(1)}", offline)
-        files = [(str(e.get("name")), e.get("size")) for e in (body or {}).get("files") or []]
+        files = [_record(e.get("name"), e.get("size"), e.get("download_url"),
+                         md5=e.get("computed_md5") or e.get("supplied_md5"))
+                 for e in (body or {}).get("files") or [] if not e.get("is_link_only")]
         return files, "" if files else ("no public files" if body else "figshare article unavailable")
     if doi_l.startswith("10.4121/"):
         m = (re.search(r"data\.4tu\.nl/datasets/([0-9a-f-]{36})", url)
@@ -390,22 +410,32 @@ def list_files(doi: str, attrs: dict[str, Any], offline: bool) -> tuple[list[tup
         if not m:
             return [], "4TU id not found"
         body = cached_json(f"https://data.4tu.nl/v2/articles/{m.group(1)}/files", offline)
-        return ([(str(e.get("name")), e.get("size")) for e in body or []],
-                "" if body else "4TU listing unavailable")
+        files = [_record(e.get("name"), e.get("size"), e.get("download_url"),
+                         md5=e.get("computed_md5") or e.get("supplied_md5"))
+                 for e in body or [] if not e.get("is_link_only")]
+        return files, "" if body else "4TU listing unavailable"
     if doi_l.startswith("10.5061/dryad") or "datadryad.org" in url:
         body = cached_json(f"https://datadryad.org/api/v2/datasets/{quote('doi:' + doi, safe='')}", offline)
         version = (((body or {}).get("_links") or {}).get("stash:version") or {}).get("href")
         if not version:
             return [], "dryad dataset unavailable"
         listing = cached_json(f"https://datadryad.org{version}/files", offline)
-        files = ((listing or {}).get("_embedded") or {}).get("stash:files") or []
-        return [(str(f.get("path")), f.get("size")) for f in files], "" if listing else "dryad listing refused"
+        files = []
+        for f in ((listing or {}).get("_embedded") or {}).get("stash:files") or []:
+            download = ((f.get("_links") or {}).get("stash:download") or {}).get("href")
+            kind = {"sha-256": "sha256", "md5": "md5"}.get(str(f.get("digestType")).lower(), "")
+            files.append(_record(f.get("path"), f.get("size"), download and f"https://datadryad.org{download}",
+                                 **{kind: f.get("digest")} if kind else {}))
+        return files, "" if listing else "dryad listing refused"
     if m := re.match(r"10\.17605/osf\.io/([a-z0-9]{5})", doi_l):
         return osf_files(m.group(1), offline)
     if m := re.search(r"data\.mendeley\.com/datasets/([a-z0-9]+)/(\d+)", url):
         body = cached_json(f"https://data.mendeley.com/public-api/datasets/{m.group(1)}/files"
                            f"?folder_id=root&version={m.group(2)}", offline)
-        files = [(str(e.get("filename")), (e.get("content_details") or {}).get("size")) for e in body or []]
+        files = [_record(e.get("filename"), (e.get("content_details") or {}).get("size"),
+                         (e.get("content_details") or {}).get("download_url"),
+                         sha256=(e.get("content_details") or {}).get("sha256_hash"))
+                 for e in body or []]
         return files, "" if files else "mendeley listing unavailable"
     if "dataverse" in url or "persistentId=" in url or doi_l.startswith("10.7910/"):
         server = re.match(r"(https?://[^/]+)", url)
@@ -417,15 +447,27 @@ def list_files(doi: str, attrs: dict[str, Any], offline: bool) -> tuple[list[tup
         for entry in version.get("files") or []:
             data_file = entry.get("dataFile") or {}
             name = data_file.get("originalFileName") or data_file.get("filename") or entry.get("label")
-            files.append((str(name), data_file.get("originalFileSize") or data_file.get("filesize")))
+            folder = entry.get("directoryLabel")
+            # Ingested tables are served as .tab unless the original format is asked for; the
+            # published checksum is that of the original file.
+            original = "?format=original" if data_file.get("tabularData") else ""
+            checksum = data_file.get("checksum") or {}
+            kind = {"MD5": "md5", "SHA-256": "sha256"}.get(str(checksum.get("type")), "")
+            record = _record(f"{folder}/{name}" if folder else name,
+                             data_file.get("originalFileSize") or data_file.get("filesize"),
+                             f"{server.group(1)}/api/access/datafile/{data_file.get('id')}{original}",
+                             **{kind: checksum.get("value")} if kind else {})
+            if entry.get("restricted"):
+                record["restricted"] = True  # listed, but not downloadable without a request
+            files.append(record)
         return files, "" if body else "dataverse dataset unavailable"
     return [], "repository listing not supported"
 
 
-def osf_files(node: str, offline: bool, depth: int = 0) -> tuple[list[tuple[str, int | None]], str]:
+def osf_files(node: str, offline: bool, depth: int = 0) -> tuple[list[dict[str, Any]], str]:
     """Files of an OSF node and its components (OSF Storage only)."""
     base = "https://api.osf.io/v2"
-    files: list[tuple[str, int | None]] = []
+    files: list[dict[str, Any]] = []
     queue = [f"{base}/nodes/{node}/files/osfstorage/?page[size]=100"]
     seen = 0
     while queue and seen < 60:
@@ -443,8 +485,10 @@ def osf_files(node: str, offline: bool, depth: int = 0) -> tuple[list[tuple[str,
             for item in body.get("data") or []:
                 attrs = item.get("attributes") or {}
                 if attrs.get("kind") == "file":
-                    files.append((str(attrs.get("materialized_path") or attrs.get("name")).lstrip("/"),
-                                  attrs.get("size")))
+                    hashes = (attrs.get("extra") or {}).get("hashes") or {}
+                    files.append(_record(str(attrs.get("materialized_path") or attrs.get("name")).lstrip("/"),
+                                         attrs.get("size"), (item.get("links") or {}).get("download"),
+                                         sha256=hashes.get("sha256"), md5=hashes.get("md5")))
                 elif attrs.get("kind") == "folder":
                     href = (((item.get("relationships") or {}).get("files") or {}).get("links") or {}
                             ).get("related", {}).get("href")
