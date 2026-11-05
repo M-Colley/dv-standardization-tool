@@ -1,0 +1,178 @@
+{
+  "generated_at": "2026-11-05T20:04:02.923572+00:00",
+  "models": [
+    "google/gemma-4-E2B-it"
+  ],
+  "plausibility_rules_version": "1.3",
+  "shortlist": "definition",
+  "seed": 20261017,
+  "max_per_source": 1000,
+  "e2_samples": 0,
+  "blocklist_size": 46,
+  "runtime_seconds": 832.7,
+  "llm_generation_errors": 0,
+  "context_sha256": {
+    "ar_pedestrian_online_2023": "fede8cd5d6411c8e",
+    "artv_ornaments_2025": "dc41f79630d6d70a",
+    "concurrent_speech_2022": "f6ee34042e4c73f3",
+    "driving_style_automated_2021": "53bde89e938602b4",
+    "ehmi_car_body_2020": "1a33764a51992f77",
+    "ehmi_survey_crowd_2019": "c1e856d2d4826ae6",
+    "music_tempo_taskload_2022": "fffbc20ba51ae388",
+    "myocontrol_intent_2025": "810a5f2583eb50d2",
+    "nl2tap_filter_2026": "2444324811ab7900",
+    "perceived_risk_merging_2022": "d256e48d83355580",
+    "reflexion_mapping_2025": "c54ca48234fcd7db",
+    "sensecobot_fusion_2024": "30928491426cc90e",
+    "short_videos_memory_2023": "358ac08bc23ef743",
+    "tactile_sa_display_2022": "94d30f56140c8798",
+    "tlx_formats_uas_2023": "ed0d7f297e4362ca",
+    "visual_fidelity_curves_2015": "b0443391c92fa0a7"
+  },
+  "results": {
+    "E1": {
+      "n_positive": 414,
+      "n_negative": 354,
+      "shortlist_contains_gold": {
+        "k": 298,
+        "n": 414,
+        "rate": 0.7198067632850241,
+        "ci95": [
+          0.6746780561065112,
+          0.7608938483992612
+        ]
+      },
+      "unchecked": {
+        "accuracy_on_dv_columns": {
+          "k": 68,
+          "n": 414,
+          "rate": 0.1642512077294686,
+          "ci95": [
+            0.1316790586002574,
+            0.2029968235282881
+          ]
+        },
+        "wrong_dv_on_dv_columns": {
+          "k": 331,
+          "n": 414,
+          "rate": 0.7995169082125604,
+          "ci95": [
+            0.7582766814321069,
+            0.8352498697625719
+          ]
+        },
+        "abstained_on_dv_columns": {
+          "k": 15,
+          "n": 414,
+          "rate": 0.036231884057971016,
+          "ci95": [
+            0.02207789429932053,
+            0.058913252237950964
+          ]
+        },
+        "precision_of_accepted_dv_mappings": {
+          "k": 68,
+          "n": 695,
+          "rate": 0.09784172661870504,
+          "ci95": [
+            0.07791435338860218,
+            0.12219034425867074
+          ]
+        },
+        "blocklisted_non_dv_mapped_to_a_dv": {
+          "k": 8,
+          "n": 13,
+          "rate": 0.6153846153846154,
+          "ci95": [
+            0.3552289151266569,
+            0.8229029220223744
+          ]
+        },
+        "curated_non_dv_mapped_to_a_dv": {
+          "k": 296,
+          "n": 341,
+          "rate": 0.8680351906158358,
+          "ci95": [
+            0.8279788322086096,
+            0.8998918851302574
+          ]
+        }
+      },
+      "checked": {
+        "accuracy_on_dv_columns": {
+          "k": 68,
+          "n": 414,
+          "rate": 0.1642512077294686,
+          "ci95": [
+            0.1316790586002574,
+            0.2029968235282881
+          ]
+        },
+        "wrong_dv_on_dv_columns": {
+          "k": 326,
+          "n": 414,
+          "rate": 0.7874396135265701,
+          "ci95": [
+            0.7454804702890642,
+            0.8241135586800227
+          ]
+        },
+        "abstained_on_dv_columns": {
+          "k": 20,
+          "n": 414,
+          "rate": 0.04830917874396135,
+          "ci95": [
+            0.03148749103807824,
+            0.07343617772478514
+          ]
+        },
+        "precision_of_accepted_dv_mappings": {
+          "k": 68,
+          "n": 474,
+          "rate": 0.14345991561181434,
+          "ci95": [
+            0.1147657158270689,
+            0.17788670316943433
+          ]
+        },
+        "blocklisted_non_dv_mapped_to_a_dv": {
+          "k": 2,
+          "n": 13,
+          "rate": 0.15384615384615385,
+          "ci95": [
+            0.04325817835808121,
+            0.4223463101948254
+          ]
+        },
+        "curated_non_dv_mapped_to_a_dv": {
+          "k": 80,
+          "n": 341,
+          "rate": 0.23460410557184752,
+          "ci95": [
+            0.19273806534593751,
+            0.2823830508359951
+          ]
+        }
+      },
+      "true_mappings_lost_to_check": {
+        "k": 0,
+        "n": 68,
+        "rate": 0.0,
+        "ci95": [
+          0.0,
+          0.053471336520070537
+        ]
+      },
+      "rejections_by_reason": {
+        "non_numeric": 173,
+        "no_values": 25,
+        "demographic": 17,
+        "binary_for_rating_scale": 14,
+        "identifier": 12,
+        "out_of_range": 8,
+        "timestamp": 6,
+        "experimental_condition": 1
+      }
+    }
+  }
+}

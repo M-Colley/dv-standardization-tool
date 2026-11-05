@@ -46,13 +46,14 @@ Generation is greedy, so with the same snapshot and inputs the LLM's choices rep
 
 ## Data
 
-`sources_manifest_no4tu.yaml` lists the 23 development studies.
+`sources_manifest_no4tu.yaml` lists the 39 development studies.
 
 - **The first 11** are fetched from their repositories by the batch itself.
-- **The 12 added on 2026-11-04** are read from `data/raw/development/`. Download them first; each file is checked against its pinned checksum:
+- **The 12 added on 2026-11-04 and the 16 added on 2026-11-05** are read from `data/raw/development/`. Download them first; each file is checked against its pinned checksum:
 
     ```bash
     python -m opendv.analysis.confirmatory fetch --sources analyses/development_sources/sources.yaml --data-dir data/raw/development
+    python -m opendv.analysis.confirmatory fetch --sources analyses/development_sources/sources_search.yaml --data-dir data/raw/development
     ```
 
 Each run records the source revision it read (git commit, or the repository record's version and file checksums) in `meta_view.csv` (`commit`) and in the RO-Crate and data packages written next to the outputs.
@@ -76,9 +77,17 @@ for s in definition dense_h mixed_h; do
     --subset added_2026_11_04=analyses/development_sources/sources.yaml --shortlist "$s" --output-dir "$out"
 done
 
+# The same benchmark (E1 only) on the 16 studies added on 2026-11-05: MANIFEST_ADDED holds their
+# manifest entries (the last 16 of sources_manifest_no4tu.yaml), DET_ADDED a run of them without LLM.
+python -m opendv.analysis.evaluate_llm_mapping --manifest "$MANIFEST_ADDED" --batch-dir "$DET_ADDED" \
+  --cache-dir data/processed/cache16 --max-per-source 1000 --seed 20261017 --models google/gemma-4-E2B-it \
+  --e2-samples 0 --shortlist definition --output-dir analyses/output_llm_evaluation/added_2026_11_05
+
 # Cross-study relations, with the LLM standing in for the curated mappings
 python -m opendv.analysis.construct_relations --input-dir data/processed/catalog_meta_analysis/standardized \
-  --output-dir analyses/output_relations --llm-replay-items analyses/output_llm_evaluation/llm_mapping_evaluation_items.csv
+  --output-dir analyses/output_relations \
+  --llm-replay-items analyses/output_llm_evaluation/llm_mapping_evaluation_items.csv \
+                     analyses/output_llm_evaluation/added_2026_11_05/llm_mapping_evaluation_items.csv
 ```
 
-On the same environment this reproduces the committed tables exactly; figure PDFs differ only in their embedded timestamps.
+On the same environment this reproduces the committed tables exactly; figure PDFs differ only in their embedded timestamps. The relation tables of 2026-11-05 combine the 2026-11-04 batch run of the first 23 studies with a run of the 16 added ones (same code, settings and model; see `docs/cross_study_insights.md`). The other analyses (`analyses/output_python_full/`, `output_multiverse/`, `figures_chi/`) are still those of the 23 studies.

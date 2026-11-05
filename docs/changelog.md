@@ -4,6 +4,27 @@ This document logs human-readable updates to the repo's functionality, structure
 
 ---
 
+### [2026-11-05] Development half of the search mapped (39 development studies)
+
+- **16 new study mappings** (`schemas/<source_id>_mapping.yaml`), manifest entries in `sources_manifest_no4tu.yaml` and designs in `schemas/study_designs.yaml`, written from the codebooks and papers before any LLM run or cross-study relation on these studies. Of the 22 downloaded datasets, six are not added; the manifest lists each with its reason (DVs only in files over 50 MB or in .mat files, DVs outside the schema, or presentation-layout workbooks).
+- **Checked** with a batch run without the LLM: every mapping key reaches its column, every declared value transform applies (e.g. 78,046 survey labels recoded, none unmatched), and all 39 studies resolve their participant column in every file.
+- **Mapping decisions worth knowing.**
+    - Risk ratings stay `perceived_risk`; Van der Laan items keep their published order; NASA-TLX subscales on 1-7 or 1-10 are converted to the schema's 0-20.
+    - TLX columns whose order or direction is undocumented and contradicted by the data stay unlabelled (SenseCobot's cumulative performance item).
+    - Visual fidelity: the questionnaire's T1-T24 are recoded to the measures workbook's 1-24, verified on the TLX ratings both workbooks repeat.
+    - The AR online survey has no response id; `RecordedDate` keys respondents (10 pairs of the 1,155 respondents with ratings share one).
+    - NL2TAP's TOAST items are left out: their columns are named like its SUS items, and a mapping applies one target per name to every file of a source.
+- **`construct_relations --llm-replay-items`** accepts several item files (benchmark runs on disjoint sets of studies), concatenated; regression test in `tests/test_construct_relations.py`.
+- **LLM benchmark on the 16 added studies** (`analyses/output_llm_evaluation/added_2026_11_05/`, E1 only): the curated DV for 68 of 414 curated DV columns (16%, 41% on the first 23).
+- **Relations on 39 studies** (`analyses/output_relations/`, `docs/cross_study_insights.md`):
+    - 29 studies contribute at the deterministic levels (2,810 participants), 35 with the LLM.
+    - New: between persons, mental demand goes with lower SUS usability in four studies (r = −0.42, HKSJ [−0.51, −0.31], I² = 0%, prediction interval excludes 0); the NASA-TLX subscales now covary between persons over 10-12 studies.
+    - Unchanged: workload × perceived safety within persons (four studies, r = −0.44).
+    - Pooling by names and the shared schema now reaches NASA-TLX pairs in three or more studies, because several added studies name the subscales by their own words. Cross-construct relations still need the curated mappings.
+- **Not done.** The other analyses (`output_python_full`, multiverse, CHI figures, contrasts) still cover the 23 studies.
+
+---
+
 ### [2026-11-05] Held-out confirmation test
 
 The pre-registered test (`docs/preregistration_heldout_relations.md`); results in `docs/heldout_results.md`.
