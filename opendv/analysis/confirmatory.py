@@ -327,14 +327,19 @@ def _e1_items(run_dir: Path):
     return frame[frame["experiment"] == "E1"].set_index(["source_id", "dataset_id", "alias"]).sort_index()
 
 
-def header_match_answers(items, data_dir: Path = DATA_DIR) -> dict[tuple[str, str, str], str]:
+def header_match_answers(
+    items, data_dir: Path = DATA_DIR, table_options: dict[str, dict[str, Any]] | None = None
+) -> dict[tuple[str, str, str], str]:
     """DV that header matching gives each E1 item, as for a study without a mapping file.
 
     A table's columns that no standard alias maps go through
     :func:`opendv.header_matching.match_headers` with the standard aliases only,
     so neither the gold labels nor the study's mapping file are used.
+    ``table_options`` (``{source_id: manifest table_options}``) reads each table
+    as the batch did (sheet, header row).
     """
     from opendv._paths import SCHEMAS_DIR
+    from opendv.data_loaders import table_options_for
     from opendv.header_matching import match_headers
     from opendv.run_batch_standardization import _load_any_table, load_schema
 
@@ -342,7 +347,8 @@ def header_match_answers(items, data_dir: Path = DATA_DIR) -> dict[tuple[str, st
     known = {str(alias).lower() for alias in aliases}
     answers: dict[tuple[str, str, str], str] = {}
     for (source_id, dataset_id), group in items.reset_index().groupby(["source_id", "dataset_id"]):
-        columns = [str(c) for c in _load_any_table(data_dir / source_id / dataset_id).columns]
+        options = table_options_for((table_options or {}).get(source_id), dataset_id)
+        columns = [str(c) for c in _load_any_table(data_dir / source_id / dataset_id, options).columns]
         matches = match_headers(columns, [c for c in columns if c.lower() not in known], aliases)
         for alias in group["alias"].astype(str):
             if alias in matches:

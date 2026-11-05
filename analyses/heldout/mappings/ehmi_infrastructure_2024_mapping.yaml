@@ -1,0 +1,32 @@
+# Held-out mapping for ehmi_infrastructure_2024 (docs/preregistration_heldout_relations.md).
+# Paper: "eHMI on the vehicle or on the infrastructure? A driving simulator study", EJTIR 2024,
+#   DOI 10.59490/ejtir.2024.24.2.7273.
+# Data: 4TU (DOI 10.4121/8e1c6604-53c7-4905-8ef9-4a6b2acc4e7a.v1), CC-BY-4.0; codebook is readme.txt
+#   and the scale anchors in the column headers.
+# File: Supplementary material/Open data.xlsx, sheet "Subjective measures" (manifest
+#   table_options): one row = participant x condition (baseline, eHMI on the vehicle, eHMI on the
+#   infrastructure), 43 participants. The other sheets (demographics, trial-level and mean
+#   objective measures, sickness) cannot be read in the same run (one sheet per file).
+# Perceived criticality of the interaction (1 harmless - 10 dangerous) is a risk rating and is
+# mapped to perceived_risk, not reversed into perceived_safety (pre-registration).
+# Usefulness and Satisfaction are the Van der Laan scale scores (-2..2); Pleasure, Arousal,
+# Dominance the SAM ratings (1-9); the NASA-TLX subscales are on 1-10.
+
+Participant ID: meta_participant_id
+Condition (1. Baseline (no eHMI), 2. eHMIv, 3. eHMIi): meta_condition_ehmi
+Perceived criticality of the interaction, from 1 (harmless) to 10 (uncontrollable): perceived_risk
+Trust in the interacting vehicle, from 1 (no trust) to 10 (extremely): trust_rating
+Usefulness (-2 to 2): AOA_USEFULNESS
+Satisfaction (-2 to 2): AOA_SATISFYING
+Pleasure (1 to 9): valence
+Arousal (1 to 9): arousal
+Dominance (1 to 9): dominance
+Total workload (1 to 10): TLX_SCORE
+Mental demand (1 to 10): mental_demand
+Physical demand (1 to 10): physical_demand
+Temporal demand (1 to 10): temporal_demand
+Performance (1 to 10): performance
+Effort (1 to 10): effort
+Frustration (1 to 10): frustration
+
+# Left unlabelled: the ranking of the scenario experiences (1-3; no schema DV).

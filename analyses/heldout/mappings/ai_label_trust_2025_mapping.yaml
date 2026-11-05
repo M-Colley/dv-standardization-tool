@@ -1,0 +1,31 @@
+# Held-out mapping for ai_label_trust_2025 (docs/preregistration_heldout_relations.md).
+# Paper: "The impact of labeling automotive AI as trustworthy or reliable on user evaluation and
+#   technology acceptance", Scientific Reports 2025, DOI 10.1038/s41598-025-85558-2.
+# Data: OSF 6un4h (DOI 10.17605/osf.io/6un4h), CC-BY-4.0.
+# File: Data/ANON_Trust_in_AI_Main_Study.csv (Qualtrics export; two header rows inside the
+#   data). The pilot file is left out (a different item set on 64 respondents).
+# The vignette items (T-* for the "trustworthy" label, R-* for "reliable", items 1-4 per
+# assistance system) and the eight exit-questionnaire items are Likert answers in words; what
+# each item asks is in the study's questionnaire, which is not part of the downloaded files.
+# They are left unlabelled rather than guessed.
+
+StartDate: meta_timestamp_start
+EndDate: meta_timestamp_end
+RecordedDate: meta_timestamp_recorded
+Progress: meta_survey_progress
+Duration (in seconds): meta_survey_duration
+Finished: meta_survey_finished
+ResponseId: meta_participant_id
+ResponseID: meta_response_id
+UserLanguage: meta_survey_language
+Consent: meta_consent
+Language Check: meta_attention_check
+"Demo: Gender": meta_demographic_gender
+"Demo: Gender_5_TEXT": meta_demographic_gender_other
+"Demo: Age": meta_demographic_age
+"Demo: DL": meta_demographic_driving_license
+"Demo: Education": meta_demographic_education
+"Demo: Expertise": meta_demographic_expertise
+"Demo: Experience": meta_demographic_automation_experience
+"Induction: Trust": meta_manipulation_check_trust_label
+"Induction: Reliable": meta_manipulation_check_reliable_label

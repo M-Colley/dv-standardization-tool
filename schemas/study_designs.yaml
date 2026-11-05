@@ -341,3 +341,128 @@ studies:
         design: between
         columns: {meta_condition_input_method: null}
         reference: Mouse
+
+  # ── Held-out confirmation set (docs/preregistration_heldout_relations.md) ──
+  # Frozen with analyses/heldout/mappings/. Participant columns on the pipeline's
+  # never-map list (ID, participant_id, ...) keep their raw names and are listed
+  # after meta_participant_id. Factors are described in `source`
+  # and not declared: the held-out test uses only the participant column and
+  # the domain, and no held-out factor maps onto a canonical factor.
+  ai_label_trust_2025:
+    participant: [meta_participant_id, ResponseId]
+    domain: automotive
+    source: Online experiment, one row per respondent; label (trustworthy vs reliable) between subjects.
+    factors: []
+
+  ar_pedestrian_outdoor_2024:
+    participant: meta_participant_id
+    domain: automotive
+    source: Post-experiment questionnaire, one row per participant (28); four AR interfaces as wide blocks.
+    factors: []
+
+  av_acceptance_diverse_2025:
+    participant: [meta_participant_id, ID]
+    domain: automotive
+    source: Online survey, one row per participant (107).
+    factors: []
+
+  coupled_hmd_2022:
+    participant: meta_participant_id
+    domain: automotive
+    source: Post-block questionnaire of the 17 pedestrians, one row per pedestrian x eHMI mapping (baseline and two gaze mappings, within subjects).
+    factors: []
+
+  coupled_sim_2022:
+    participant: meta_participant_id
+    domain: automotive
+    source: Oral post-trial questions to the pedestrian, one row per participant pair x trial (20 pairs, scenarios within subjects); the intake file has one row per person and role.
+    factors: []
+
+  dev_creativity_eyetracking_2026:
+    participant: [meta_participant_id, participant_id, Participant_id, Participant ID]
+    domain: other
+    source: One row per developer (40) in the questionnaire files, per developer x area of interest in the eye-tracking files; participant ids are spelled differently between files (p100, P100).
+    factors: []
+
+  driving_style_takeover_2024:
+    participant: meta_participant_id
+    domain: automotive
+    source: One row per participant (38), measures aggregated over drives.
+    factors: []
+
+  ehmi_infrastructure_2024:
+    participant: [meta_participant_id, Participant ID]
+    domain: automotive
+    source: One row per participant x condition (baseline, eHMI on the vehicle, eHMI on the infrastructure; within subjects), 43 participants.
+    factors: []
+
+  function_allocation_hrc_2026:
+    participant: meta_participant_id
+    domain: other
+    source: README.md; one row per participant x function allocation (HH, HR, RH, RR; within subjects, balanced Latin square), 26 participants.
+    factors: []
+
+  midair_map_making_2026:
+    participant: [meta_participant_id, participant_id]
+    domain: other
+    source: One row per participant; touch vs mid-air gestures (within subjects) as wide columns.
+    factors: []
+
+  multiscale_teleport_2024:
+    participant: [meta_participant_id, ID]
+    domain: other
+    source: One row per participant (30); three techniques x two tasks (within subjects) as wide columns.
+    factors: []
+
+  music_intensity_driving_2021:
+    participant: meta_participant_id
+    domain: automotive
+    source: Simulated urban driving with music conditions (see the mapping file).
+    factors: []
+
+  ndrt_takeover_l3_2025:
+    participant: meta_participant_id
+    domain: automotive
+    source: Zenodo description; one row per participant (31), baseline drives and six NDRTs (within subjects) as wide columns.
+    factors: []
+
+  physio_hrc_2025:
+    participant: [meta_participant_id, participant_id]
+    participant_scope: file
+    domain: other
+    source: >-
+      README.md; five experiments, ids restart at 1 in each and are kept apart
+      per file. Experiments 1, 2, 4, 5: one row per participant x condition
+      (C1-C3, within subjects); experiment 3: one row per participant (TLX) or
+      per participant x terrain (trust index).
+    factors: []
+
+  proxemics_ar_agent_2022:
+    participant: meta_participant_id
+    domain: other
+    source: One row per trial (walking distance) or per participant x agent x task (skin conductance, liking); approach vs walk-through and six agents within subjects.
+    factors: []
+
+  robot_feeding_2025:
+    participant: meta_participant_id
+    domain: other
+    source: README.txt; a single participant (CR2) rated the NASA-TLX after each meal, so the file has no participant column and the study enters no correlation.
+    factors: []
+
+  robot_teaching_2023:
+    participant: meta_participant_id
+    domain: other
+    source: README.md; one row per participant x task x feedback condition (28 x 2 x 4, within subjects).
+    factors: []
+
+  shared_autonomy_2026:
+    participant: meta_participant_id
+    domain: other
+    source: Zenodo description; questionnaires per participant x control mode x session (11 participants, within subjects); trial file per TAC trial.
+    factors: []
+
+  tool_embodiment_2025:
+    participant: meta_participant_id
+    domain: other
+    source: One row per participant x NASA-TLX session (mid, post; feedback mode changes between sessions), 71 younger and older adults.
+    factors: []

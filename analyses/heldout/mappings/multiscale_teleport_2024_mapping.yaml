@@ -1,0 +1,54 @@
+# Held-out mapping for multiscale_teleport_2024 (docs/preregistration_heldout_relations.md).
+# Paper: "Try This for Size: Multi-Scale Teleportation in Immersive Virtual Reality",
+#   IEEE TVCG 2024, DOI 10.1109/TVCG.2024.3372043.
+# Data: Zenodo 10522829 (DOI 10.5281/zenodo.10522829), CC-BY-4.0; readme-technique-descriptors.txt
+#   gives the technique codes (A Simultaneous, B Two-Step, C Separate); column headers carry
+#   the scale anchors.
+# Files: one row per participant (30), wide: technique (A/B/C) x task (Route/Search) in columns.
+#   demographics.csv, tlx.csv, ueq.csv, technique-questions.csv, technique-ranking.csv,
+#   logging-route-task.csv, logging-search-task.csv.
+
+"﻿ID": meta_participant_id
+ID: meta_participant_id
+Age: meta_demographic_age
+Gender: meta_demographic_gender
+"ExperienceVR[1.least-4.most]": meta_demographic_vr_experience
+"ExperienceGame[1.least-4.most]": meta_demographic_gaming_experience
+TechniqueOrder: meta_condition_order
+
+# NASA-TLX overall score per technique and task, 0 best - 100 worst
+"TLX.A.Route[0.best-100.worst]": TLX_SCORE
+"TLX.A.Search[0.best-100.worst]": TLX_SCORE
+"TLX.B.Route[0.best-100.worst]": TLX_SCORE
+"TLX.B.Search[0.best-100.worst]": TLX_SCORE
+"TLX.C.Route[0.best-100.worst]": TLX_SCORE
+"TLX.C.Search[0.best-100.worst]": TLX_SCORE
+
+# UEQ scale means per technique, -3..3
+"Attractiveness.A[-3.worst-3.best]": ueq_attractiveness
+"Attractiveness.B[-3.worst-3.best]": ueq_attractiveness
+"Attractiveness.C[-3.worst-3.best]": ueq_attractiveness
+"Perspicuity.A[-3.worst-3.best]": ueq_perspicuity
+"Perspicuity.B[-3.worst-3.best]": ueq_perspicuity
+"Perspicuity.C[-3.worst-3.best]": ueq_perspicuity
+"Efficiency.A[-3.worst-3.best]": ueq_efficiency
+"Efficiency.B[-3.worst-3.best]": ueq_efficiency
+"Efficiency.C[-3.worst-3.best]": ueq_efficiency
+"Dependability.A[-3.worst-3.best]": ueq_dependability
+"Dependability.B[-3.worst-3.best]": ueq_dependability
+"Dependability.C[-3.worst-3.best]": ueq_dependability
+"Stimulation.A[-3.worst-3.best]": ueq_stimulation
+"Stimulation.B[-3.worst-3.best]": ueq_stimulation
+"Stimulation.C[-3.worst-3.best]": ueq_stimulation
+"Novelty.A[-3.worst-3.best]": ueq_novelty
+"Novelty.B[-3.worst-3.best]": ueq_novelty
+"Novelty.C[-3.worst-3.best]": ueq_novelty
+
+# Task completion time per technique (s); the two logging files hold the route and the search task
+TaskCompletionTime.A: task_completion_time
+TaskCompletionTime.B: task_completion_time
+TaskCompletionTime.C: task_completion_time
+
+# Left unlabelled (no schema DV): DCS.* (discomfort score, 0-10), EaseOfLearning.*, EaseOfUse.*,
+# Confusion.* (single 1-7 ratings), Rank*.* (technique rankings), and the teleport counts,
+# distances and selection times of the logging files.

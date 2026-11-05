@@ -1,0 +1,45 @@
+# Held-out mapping for shared_autonomy_2026 (docs/preregistration_heldout_relations.md).
+# Paper: "Co-Adaptive Velocity and Position Control of 3-DoFs Prosthesis via Incremental
+#   Learning", IEEE TNSRE 2026, DOI 10.1109/TNSRE.2026.3657400 (the Zenodo description names it).
+# Data: Zenodo 14198913 (DOI 10.5281/zenodo.14198913), CC-BY-4.0; the record description is
+#   the codebook. The raw EMG files are not downloaded.
+# Files:
+#   - ds_qs_zen.csv: SUS and NASA-TLX, one row = participant x control mode x session (88 rows,
+#     11 participants).
+#   - ds_run_info_zen.csv: one row per Target Achievement Control trial.
+#   - ds_target_pos_zen.csv: target configurations per trial (no measures).
+# NASA_TLX_RAW_C_1..6 are the six raw subscales rescaled to 0-1. Their order is not stated; the
+# standard NASA-TLX order (mental, physical, temporal, performance, effort, frustration) is
+# assumed. NASA_TLX_FAC_* are the pairwise-comparison weights (0-5), NASA_TLX_P1_C_* the
+# weighted subscales, NASA_TLX_SCORE the weighted total.
+
+"Unnamed: 0": meta_row_index
+participant: meta_participant_id
+control: meta_condition_control_mode       # position_ctrl / velocity_ctrl
+session_control: meta_session
+round: meta_round
+trial: meta_trial
+
+NASA_TLX_RAW_C_1: mental_demand
+NASA_TLX_RAW_C_2: physical_demand
+NASA_TLX_RAW_C_3: temporal_demand
+NASA_TLX_RAW_C_4: performance
+NASA_TLX_RAW_C_5: effort
+NASA_TLX_RAW_C_6: frustration
+NASA_TLX_SCORE: TLX_SCORE                  # weighted total, 0-1
+NASA_TLX_FAC_1: meta_tlx_weight_mental
+NASA_TLX_FAC_2: meta_tlx_weight_physical
+NASA_TLX_FAC_3: meta_tlx_weight_temporal
+NASA_TLX_FAC_4: meta_tlx_weight_performance
+NASA_TLX_FAC_5: meta_tlx_weight_effort
+NASA_TLX_FAC_6: meta_tlx_weight_frustration
+SUS_SCORE: usability                       # 0-100
+
+succeeded: task_success                    # 0/1 per trial
+time_run: task_completion_time             # trial duration, s
+combined_efficiency: efficiency
+
+# Left unlabelled: SUS_C_1..10 (0-4; whether these are raw answers or item contributions is not
+# stated), NASA_TLX_RAW_SCORE (unweighted total; NASA_TLX_SCORE is the total), NASA_TLX_P1_C_*,
+# LENGTH, Error_FE, Error_PS, Error_AC, combined_error (final position errors per degree of
+# freedom), FE, PS, AC (target configurations).

@@ -1,0 +1,36 @@
+# Held-out mapping for midair_map_making_2026 (docs/preregistration_heldout_relations.md).
+# Paper: "Mid-Air Gesture Interaction for Mobile Map-Making", Cartography and Geographic
+#   Information Science 2026, DOI 10.1080/15230406.2026.2619027.
+# Data: figshare 30833309 (DOI 10.6084/m9.figshare.30833309), CC-BY-4.0; codebook is README.md.
+# Files: SUS items per participant and technique (wide), per-participant pointing errors (wide),
+#   gesture voting results, and two files of agreement statistics (not participant data).
+
+"﻿Participant": meta_participant_id
+Participant: meta_participant_id
+participant_id: meta_participant_id
+
+# SUS items, 1-5, per technique (Mid-Air Gesture_Q1..Q10, Touch_Q1..Q10)
+Mid-Air Gesture_Q1: SUS1
+Mid-Air Gesture_Q2: SUS2
+Mid-Air Gesture_Q3: SUS3
+Mid-Air Gesture_Q4: SUS4
+Mid-Air Gesture_Q5: SUS5
+Mid-Air Gesture_Q6: SUS6
+Mid-Air Gesture_Q7: SUS7
+Mid-Air Gesture_Q8: SUS8
+Mid-Air Gesture_Q9: SUS9
+Mid-Air Gesture_Q10: SUS10
+Touch_Q1: SUS1
+Touch_Q2: SUS2
+Touch_Q3: SUS3
+Touch_Q4: SUS4
+Touch_Q5: SUS5
+Touch_Q6: SUS6
+Touch_Q7: SUS7
+Touch_Q8: SUS8
+Touch_Q9: SUS9
+Touch_Q10: SUS10
+
+# Left unlabelled (no schema DV): Avg/SD/Max touch and mid-air pointing errors (pixels),
+# the gesture votes per task, and the agreement statistics (rho_a_bar, rho_e_bar, kappa_macro,
+# AR, rho_e_i, kappa_i, band, n, task).

@@ -1,0 +1,41 @@
+# Held-out mapping for physio_hrc_2025 (docs/preregistration_heldout_relations.md).
+# Paper: Garcia Cardenas & Tapus, Physio-HRC 1.0 (IROS 2025), DOI 10.1109/IROS60139.2025.11245894.
+# Data: Zenodo 19040256 (DOI 10.5281/zenodo.19040256), CC-BY-4.0; codebook is PhysioHRC_1.0/README.md.
+# Files: PhysioHRC_1.0/Experiment<1-5>_*/questionnaires/{nasa_tlx,trust_hrts,demographics,performance}.csv
+#   (the physiological JSON signals are not downloaded). Experiments 1, 2, 4 and 5: one row =
+#   participant x condition (C1-C3); experiment 3: one row per participant (TLX) or per
+#   participant x terrain (trust index). Participant ids restart at 1 in every experiment.
+
+participant_id: meta_participant_id
+condition: meta_condition
+terrain: meta_condition_terrain
+experience_level: meta_group_experience_level
+age: meta_demographic_age
+gender: meta_demographic_gender
+robot_experience: meta_demographic_robot_experience
+controller_experience: meta_demographic_controller_experience
+attitude_toward_robots: meta_trait_attitude_toward_robots
+
+# NASA-TLX subscales (0-100; experiment 3 on 0-10) and the overall score
+mental_demand: mental_demand
+physical_demand: physical_demand
+temporal_demand: temporal_demand
+performance: performance
+effort: effort
+frustration: frustration
+overall_score: TLX_SCORE
+
+# Trust Perception Scale-HRI (1-7) overall score; experiment 3 reports a trust index (0-1)
+overall_trust: trust_rating
+trust_index: trust_rating
+
+# Task performance
+completion_time_s: task_completion_time
+total_completion_time_s: task_completion_time
+task_success: task_success                 # 0/1 per participant x condition
+collisions_per_run: number_of_collisions
+
+# Left unlabelled (no schema DV): the trust subscales reliability, competence, predictability
+# and transparency (the schema's TiA subscales belong to another instrument);
+# coverage_rectangular_pct, coverage_sinusoidal_pct, bottles_placed, cylinders_placed,
+# n_goals_reached.
