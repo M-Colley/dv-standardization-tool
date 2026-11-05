@@ -1,0 +1,42 @@
+# Source-specific column mapping for tlx_formats_uas_2023
+# Paper: Bolton, Biltekoff, Humphrey, IEEE Transactions on Human-Machine Systems (2023),
+#   DOI 10.1109/THMS.2023.3263482. Dataset: Bolton, Biltekoff, Taylor, Humphrey, "NASA-TLX
+#   Workload Ratings Collected with Multiple Response Types in a UAS Search-Tracking Task".
+# Data: UVA Dataverse (DOI 10.18130/V3/97ZJNL), CC-BY-4.0; codebook is README.md and
+#   data_dictionary.csv.
+#
+# File: nasa_tlx_multi_response.csv, one row per participant x trial x response type
+#   (36 participants x 36 trials x 3 response types = 3,888 rows). The header carries a UTF-8
+#   byte-order mark, which the loader removes. data_dictionary.csv and the READMEs are codebooks.
+#
+# Notes:
+#   - Within subjects: every participant rated all 36 trials with each response type (numeric
+#     entry "Ask", rotary "Knob", "Slider"), in counterbalanced blocks.
+#   - NASA-TLX subscales on 0-100, unweighted. Performance was reversed by the authors
+#     (performance = 100 - collected value) so that lower = better performance, as in the
+#     standard TLX. raw_overall_workload = mean of the six subscales.
+#   - participant_id is on the never-map list and keeps its raw name (study_designs.yaml).
+
+# --- Dependent measures: NASA-TLX ----------------------------------------------
+mental_demand: mental_demand
+physical_demand: physical_demand
+temporal_demand: temporal_demand
+performance: performance              # reversed by the authors: lower = better
+effort: effort
+frustration: frustration
+raw_overall_workload: TLX_SCORE       # raw TLX, mean of the six subscales, 0-100
+
+# --- Trial design (manipulated) -------------------------------------------------
+video_id: meta_stimulus_id                    # 1-36, video_id.mp4 in the record
+play_speed: meta_condition_play_speed         # Regular / Fast (1.6x)
+cursor_noise: meta_condition_cursor_noise     # Low / Medium / High
+view_radius: meta_condition_view_radius       # Small / Medium / Large
+path_visible: meta_condition_path_visible     # TRUE / FALSE
+num_points: meta_condition_num_points         # points searched by the UAS (0-6)
+response_type: meta_condition_response_type   # Ask / Knob / Slider
+searched_points: meta_stimulus_searched_points  # ground truth, ";"-separated point ids
+
+# --- Task response --------------------------------------------------------------
+# The points the participant selected (";"-separated). Tracking accuracy could be scored
+# against searched_points, but the file holds no accuracy column.
+selected_points: meta_response_selected_points

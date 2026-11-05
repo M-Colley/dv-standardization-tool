@@ -1,0 +1,98 @@
+# Source-specific column mapping for music_tempo_taskload_2022
+# Paper: "Interactive Effects of Task Load and Music Tempo on Psychological, Psychophysiological
+#   and Behavioural Outcomes During Simulated Driving." Ergonomics (2022).
+#   DOI 10.1080/00140139.2021.2003872
+# Data: figshare 13348046 (DOI 10.6084/m9.figshare.13348046), CC-BY-4.0. No codebook; written
+#   from the SPSS variable names (only the heart-rate variables and Personality carry labels)
+#   and value ranges, read with pyreadstat.
+#
+# File: Task Load and Music Tempo in Simulated Driving.sav, one row per driver (46), WIDE: six
+#   drives as column prefixes, task load (HL = high, LL = low) x music (FM = fast tempo, SM =
+#   slow tempo, NM = no music), within subjects. Because the drives are columns, the pipeline
+#   averages each measure over drives and the study enters between-person relations only.
+#
+# Notes (same lab and variable scheme as the held-out music_intensity_driving_2021):
+#   - <Drive>_TLX_MenD/PhyD/TemD/Perf/Eff/Frus: NASA-TLX subscales, 0-20 (values up to 17).
+#   - <Drive>_Aff_Ple / _Aff_Aro: affect-grid pleasure and arousal, 1-9 -> valence, arousal.
+#   - <Drive>HRAve, <Drive>RMSSD: mean heart rate (bpm) and RMSSD (ms) per drive.
+#   - HLNM*_A repeats the HLNM heart-rate block (HLNMHRMax_A has 986 where HLNMHRMax has a
+#     plausible value), so only the HLNM* block is mapped.
+#   - Beh_<Drive>_Ped/Garb/Traf/Car (0-4) are presumably behavioural responses to four
+#     hazard types (pedestrian, garbage, traffic light, car), and <Drive>_WordSrch the
+#     word-search score; neither is documented, so both are left unlabelled.
+
+# --- Participants and demographics ------------------------------------------------
+Pp: meta_participant_id
+Personality: meta_trait_extraversion_group     # 1 = introvert, 2 = extravert (variable label)
+AgeGroup: meta_demographic_age_group
+Age: meta_demographic_age
+Sex: meta_demographic_sex
+Height: meta_demographic_height
+Weight: meta_demographic_weight
+PreHR: meta_baseline_hr_pre
+RestHR: meta_baseline_hr_rest
+
+# Left unlabelled (no schema DV or undocumented): Beh_* hazard counts, *_WordSrch, the other
+# heart-rate statistics (*HRMin, *HRMax, *SDNN) and the duplicated HLNM*_A block.
+
+# --- Dependent measures per drive -------------------------------------------------
+HLFM_TLX_MenD: mental_demand
+HLFM_TLX_PhyD: physical_demand
+HLFM_TLX_TemD: temporal_demand
+HLFM_TLX_Perf: performance
+HLFM_TLX_Eff: effort
+HLFM_TLX_Frus: frustration
+HLFM_Aff_Ple: valence
+HLFM_Aff_Aro: arousal
+HLFMHRAve: hr_bpm
+HLFMRMSSD: hrv_rmssd
+HLSM_TLX_MenD: mental_demand
+HLSM_TLX_PhyD: physical_demand
+HLSM_TLX_TemD: temporal_demand
+HLSM_TLX_Perf: performance
+HLSM_TLX_Eff: effort
+HLSM_TLX_Frus: frustration
+HLSM_Aff_Ple: valence
+HLSM_Aff_Aro: arousal
+HLSMHRAve: hr_bpm
+HLSMRMSSD: hrv_rmssd
+HLNM_TLX_MenD: mental_demand
+HLNM_TLX_PhyD: physical_demand
+HLNM_TLX_TemD: temporal_demand
+HLNM_TLX_Perf: performance
+HLNM_TLX_Eff: effort
+HLNM_TLX_Frus: frustration
+HLNM_Aff_Ple: valence
+HLNM_Aff_Aro: arousal
+HLNMHRAve: hr_bpm
+HLNMRMSSD: hrv_rmssd
+LLFM_TLX_MenD: mental_demand
+LLFM_TLX_PhyD: physical_demand
+LLFM_TLX_TemD: temporal_demand
+LLFM_TLX_Perf: performance
+LLFM_TLX_Eff: effort
+LLFM_TLX_Frus: frustration
+LLFM_Aff_Ple: valence
+LLFM_Aff_Aro: arousal
+LLFMHRAve: hr_bpm
+LLFMRMSSD: hrv_rmssd
+LLSM_TLX_MenD: mental_demand
+LLSM_TLX_PhyD: physical_demand
+LLSM_TLX_TemD: temporal_demand
+LLSM_TLX_Perf: performance
+LLSM_TLX_Eff: effort
+LLSM_TLX_Frus: frustration
+LLSM_Aff_Ple: valence
+LLSM_Aff_Aro: arousal
+LLSMHRAve: hr_bpm
+LLSMRMSSD: hrv_rmssd
+LLNM_TLX_MenD: mental_demand
+LLNM_TLX_PhyD: physical_demand
+LLNM_TLX_TemD: temporal_demand
+LLNM_TLX_Perf: performance
+LLNM_TLX_Eff: effort
+LLNM_TLX_Frus: frustration
+LLNM_Aff_Ple: valence
+LLNM_Aff_Aro: arousal
+LLNMHRAve: hr_bpm
+LLNMRMSSD: hrv_rmssd

@@ -40,7 +40,7 @@
 # same d metric and can be pooled.
 
 version: "1.1"
-updated: "2026-11-04"
+updated: "2026-11-05"
 
 canonical_factors:
   ehmi_presence:
@@ -341,6 +341,144 @@ studies:
         design: between
         columns: {meta_condition_input_method: null}
         reference: Mouse
+
+  # --- Added 2026-11-05: development half of the 2026-11-05 search ---------------
+  # Participant columns on the never-map list (ID, id, user_id, participant_id,
+  # RecordedDate, ...) keep their raw names. Factors are described in `source` and
+  # not declared: none maps onto a canonical factor.
+  ehmi_car_body_2020:
+    participant: meta_participant_id
+    domain: automotive
+    source: >-
+      One row per participant (24); eight eHMI concepts (triangles, pictogram, both,
+      headlight flasher x AV detected / not detected the manual driver) within subjects as
+      wide columns.
+    factors: []
+
+  tlx_formats_uas_2023:
+    participant: participant_id
+    domain: other
+    source: >-
+      README.md; one row per participant x trial x NASA-TLX response type (36 x 36 x 3);
+      response type (Ask, Knob, Slider) and the five task-difficulty variables within
+      subjects.
+    factors: []
+
+  tactile_sa_display_2022:
+    participant: ID
+    domain: automotive
+    source: >-
+      DaRUS dataset page; one row per participant (21); tactile notifications of SA level 1
+      (Condition 1) or SA level 3 (Condition 2) between subjects.
+    factors: []
+
+  short_videos_memory_2023:
+    participant: meta_participant_id
+    domain: other
+    source: >-
+      One row per participant (q.csv), per participant x task x phase (acc.csv) or per trial
+      (rt.csv); break activity (rest, TikTok, Twitter, YouTube) between subjects, 15 each.
+    factors: []
+
+  driving_style_automated_2021:
+    participant: meta_participant_id
+    domain: automotive
+    source: >-
+      One row per participant (24); ten trajectory and eight deceleration trials within
+      subjects as wide columns.
+    factors: []
+
+  ar_pedestrian_online_2023:
+    participant: RecordedDate
+    domain: automotive
+    source: >-
+      Qualtrics export without a response id, one row per respondent; RecordedDate is unique
+      for all but 10 pairs of the 1,155 respondents with ratings (see the mapping file).
+      Nine AR interfaces within subjects as wide columns.
+    factors: []
+
+  perceived_risk_merging_2022:
+    participant: meta_participant_id
+    domain: automotive
+    source: >-
+      README.md; one row per participant x event (22 x 20); merging gap, braking intensity
+      and repetition within subjects.
+    factors: []
+
+  ehmi_survey_crowd_2019:
+    participant: id
+    participant_scope: file
+    domain: automotive
+    source: >-
+      Two independent crowdsourced surveys (1,770 and 2,000 respondents), one row per
+      respondent; `id` restarts at 1 in each file, so ids are kept apart per file. eHMI
+      concepts within subjects as wide columns.
+    factors: []
+
+  reflexion_mapping_2025:
+    participant: meta_participant_id
+    domain: other
+    source: >-
+      evalTLX.r; one row per participant (14); tasks with and without automated mapping
+      suggestions within subjects (order by Gruppe A / B) as wide columns.
+    factors: []
+
+  sensecobot_fusion_2024:
+    participant: meta_participant_id
+    domain: other
+    source: >-
+      Readme.txt; one row per participant (Labels.csv, 21) or per participant x task
+      (SenseCobotFusion.csv; baseline and five collaborative-robot tasks within subjects).
+    factors: []
+
+  myocontrol_intent_2025:
+    participant: meta_participant_id
+    domain: other
+    source: >-
+      One row per participant x TAC level (NASA TLX.csv, 8 participants) or per TAC test
+      trial (testResults.csv); TAC level and contraction intensity within subjects.
+    factors: []
+
+  artv_ornaments_2025:
+    participant: meta_participant_id
+    domain: other
+    source: >-
+      One row per participant x condition (20 x 4); baseline and three AR ornamentations of
+      a VR train interior within subjects.
+    factors: []
+
+  nl2tap_filter_2026:
+    participant: participant_id
+    domain: other
+    source: >-
+      README.md; one row per participant (questionnaires, 85) or per participant x scenario
+      (510); expert vs non-expert interface between subjects, scenario complexity within.
+    factors: []
+
+  visual_fidelity_curves_2015:
+    participant: meta_participant_id
+    domain: automotive
+    source: >-
+      One row per participant x run (TLX sheet) or per participant (SDLP sheet, fidelity
+      levels as wide columns); visual fidelity (low, medium, high) within subjects. The
+      questionnaire's T1-T24 are recoded to the measures workbook's 1-24 (mapping file).
+    factors: []
+
+  music_tempo_taskload_2022:
+    participant: meta_participant_id
+    domain: automotive
+    source: >-
+      One row per driver (46); task load (high, low) x music (fast, slow, none) within
+      subjects as wide columns.
+    factors: []
+
+  concurrent_speech_2022:
+    participant: user_id
+    domain: other
+    source: >-
+      One row per participant x stream combination after the manifest's pivot (40 x 16);
+      combinations and presentation (concurrent, sequential) within subjects.
+    factors: []
 
   # ── Held-out confirmation set (docs/preregistration_heldout_relations.md) ──
   # Frozen with analyses/heldout/mappings/. Participant columns on the pipeline's

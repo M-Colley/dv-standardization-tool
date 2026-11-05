@@ -1,0 +1,188 @@
+# Source-specific column mapping for ar_pedestrian_online_2023
+# Paper: Tabone, Happee, Garcia, Lee, Lupetti, Merat, De Winter. "Augmented reality interfaces
+#   for pedestrian-vehicle interactions: An online study." Transportation Research Part F
+#   (2023). DOI 10.1016/j.trf.2023.02.005
+# Data: 4TU (DOI 10.4121/21603678.v1), CC0-1.0; codebook is README.txt and the question texts
+#   in the second row of the Qualtrics export (Questionnaire.pdf, over 20 MB, not downloaded).
+#
+# File: raw_data.xlsx, one row per respondent (1,500; 1,155 rated at least one interface).
+#   The second row holds the question texts and is read as data (not numeric). WIDE: nine AR
+#   interfaces, each shown in a video and rated in a block of the same questions, within
+#   subjects. Because the interfaces are columns, the pipeline averages them per respondent
+#   and the study enters between-person relations only.
+#
+# Notes:
+#   - Same lab and item set as the held-out ar_pedestrian_outdoor_2024: "How clear
+#     (understandable) was the interface to you?" -> understanding_rating, "How visually
+#     attractive is this interface to you?" -> aesthetics_rating (both 1-5), and the nine
+#     acceptance differentials -> Van der Laan items in their published order (1-5, left word
+#     = 1: useful:useless, pleasant:unpleasant, bad:good, nice:annoying, effective:superfluous,
+#     irritating:likable, assisting:worthless, undesirable:desirable, raising
+#     alertness:sleep-inducing).
+#   - The export has no ResponseId. RecordedDate (on the never-map list, so it keeps its raw
+#     name) is the respondent key in study_designs.yaml: it is unique for all but 10 pairs of
+#     respondents with ratings who submitted in the same second (20 of 1,155), whose values are
+#     averaged as one.
+#   - Q14_1-9 are the nine ATI items (Franke et al., 2019), labelled "Technology openness".
+
+# --- Survey metadata ----------------------------------------------------------------
+# StartDate, EndDate, Status, Progress, Duration (in seconds), Finished and RecordedDate are
+# on the never-map list and keep their raw names.
+UserLanguage: meta_survey_language
+Q7: meta_check_instructions_understood        # 1 = yes, 2 = no
+
+# --- Demographics, experience and traits ---------------------------------------------
+Q8: meta_demographic_gender
+Q10: meta_demographic_age
+Q13: meta_demographic_country
+Q11: meta_demographic_education
+Q14_1: meta_ati_item_01
+Q14_2: meta_ati_item_02
+Q14_3: meta_ati_item_03
+Q14_4: meta_ati_item_04
+Q14_5: meta_ati_item_05
+Q14_6: meta_ati_item_06
+Q14_7: meta_ati_item_07
+Q14_8: meta_ati_item_08
+Q14_9: meta_ati_item_09
+QID1: meta_demographic_vr_experience
+Q15: meta_demographic_ar_experience
+Q18: meta_attitude_ar_glasses_use              # willingness before the interfaces, 1-5
+Q19: meta_attitude_ar_glasses_use_road
+Q20: meta_attitude_ar_glasses_use_crossing
+Q21: meta_demographic_av_encounter
+Q22: meta_demographic_walking_time
+Q23: meta_demographic_transport_mode
+Q24: meta_demographic_mobility_constraints
+# Colour-vision screening plates (number typed or "N")
+Q28: meta_screening_colour_vision
+Q57: meta_screening_colour_vision
+Q59: meta_screening_colour_vision
+Q61: meta_screening_colour_vision
+Q63: meta_screening_colour_vision
+Q65: meta_screening_colour_vision
+
+# --- Dependent measures per interface ---------------------------------------------------
+# Left unlabelled (no schema DV) in every block: the intuitiveness items ("The interface ... is
+# intuitive for signalling 'Please (do NOT) cross the road'", 1-7), the persuasion items ("...
+# convinced me (NOT) to cross the road", 1-7), timing ("triggered too early or too late") and
+# size ("too small or too large", 1-5 bipolar); and the closing questions Q43 (usefulness of AR
+# communication for crossing), Q45/Q47/Q50 (interface preferences), Q51 (customisation) and
+# Q52 (intention to use such interfaces).
+# interface block 1
+Q39_3: understanding_rating
+Q39_4: aesthetics_rating
+Q40_1: AOA1
+Q40_2: AOA2
+Q40_3: AOA3
+Q40_4: AOA4
+Q40_5: AOA5
+Q40_6: AOA6
+Q40_7: AOA7
+Q40_8: AOA8
+Q40_9: AOA9
+Q54: meta_free_text_comment
+# interface block 2
+Q92_3: understanding_rating
+Q92_4: aesthetics_rating
+Q93_1: AOA1
+Q93_2: AOA2
+Q93_3: AOA3
+Q93_4: AOA4
+Q93_5: AOA5
+Q93_6: AOA6
+Q93_7: AOA7
+Q93_8: AOA8
+Q93_9: AOA9
+Q94: meta_free_text_comment
+# interface block 3
+Q103_3: understanding_rating
+Q103_4: aesthetics_rating
+Q104_1: AOA1
+Q104_2: AOA2
+Q104_3: AOA3
+Q104_4: AOA4
+Q104_5: AOA5
+Q104_6: AOA6
+Q104_7: AOA7
+Q104_8: AOA8
+Q104_9: AOA9
+Q105: meta_free_text_comment
+# interface block 4
+Q114_3: understanding_rating
+Q114_4: aesthetics_rating
+Q115_1: AOA1
+Q115_2: AOA2
+Q115_3: AOA3
+Q115_4: AOA4
+Q115_5: AOA5
+Q115_6: AOA6
+Q115_7: AOA7
+Q115_8: AOA8
+Q115_9: AOA9
+Q116: meta_free_text_comment
+# interface block 5
+Q125_3: understanding_rating
+Q125_4: aesthetics_rating
+Q126_1: AOA1
+Q126_2: AOA2
+Q126_3: AOA3
+Q126_4: AOA4
+Q126_5: AOA5
+Q126_6: AOA6
+Q126_7: AOA7
+Q126_8: AOA8
+Q126_9: AOA9
+Q127: meta_free_text_comment
+# interface block 6
+Q136_3: understanding_rating
+Q136_4: aesthetics_rating
+Q137_1: AOA1
+Q137_2: AOA2
+Q137_3: AOA3
+Q137_4: AOA4
+Q137_5: AOA5
+Q137_6: AOA6
+Q137_7: AOA7
+Q137_8: AOA8
+Q137_9: AOA9
+Q138: meta_free_text_comment
+# interface block 7
+Q147_3: understanding_rating
+Q147_4: aesthetics_rating
+Q148_1: AOA1
+Q148_2: AOA2
+Q148_3: AOA3
+Q148_4: AOA4
+Q148_5: AOA5
+Q148_6: AOA6
+Q148_7: AOA7
+Q148_8: AOA8
+Q148_9: AOA9
+Q149: meta_free_text_comment
+# interface block 8
+Q158_3: understanding_rating
+Q158_4: aesthetics_rating
+Q159_1: AOA1
+Q159_2: AOA2
+Q159_3: AOA3
+Q159_4: AOA4
+Q159_5: AOA5
+Q159_6: AOA6
+Q159_7: AOA7
+Q159_8: AOA8
+Q159_9: AOA9
+Q160: meta_free_text_comment
+# interface block 9
+Q169_3: understanding_rating
+Q169_4: aesthetics_rating
+Q170_1: AOA1
+Q170_2: AOA2
+Q170_3: AOA3
+Q170_4: AOA4
+Q170_5: AOA5
+Q170_6: AOA6
+Q170_7: AOA7
+Q170_8: AOA8
+Q170_9: AOA9
+Q171: meta_free_text_comment

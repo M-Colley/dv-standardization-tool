@@ -1,0 +1,47 @@
+# Source-specific column mapping for short_videos_memory_2023
+# Paper: "Short-Form Videos Degrade Our Capacity to Retain Intentions: Effect of Context
+#   Switching On Prospective Memory." CHI 2023. DOI 10.1145/3544548.3580778
+# Data: DaRUS (DOI 10.18419/darus-3327), CC-BY-4.0; codebook is README.md and
+#   CHI23_Questionnaires.pdf (item wording and anchors).
+#
+# Files (data/):
+#   - acc.csv  one row per participant x task (LD = lexical decision, PM = prospective memory)
+#              x phase (pre, post the break): response accuracy, 0-1.
+#   - q.csv    one row per participant (60): questionnaires.
+#   - rt.csv   one row per trial (21,480): reaction time and correctness, including the
+#              training trials (measure = train).
+#   ddm.csv (drift-diffusion parameters fitted by the authors) is left out: no schema DV fits
+#   drift rate, boundary separation or non-decision time.
+#
+# Notes:
+#   - Between subjects: the break between the two task blocks was spent resting or watching
+#     TikTok, Twitter or YouTube (interrupt), 15 participants each.
+#   - folder_id identifies the participant in all three files.
+#   - rt.csv: the per-participant mean reaction time includes training trials and errors, so
+#     it is a general speed measure, not the paper's model-based RT. Accuracy is taken from
+#     acc.csv (the authors' aggregation), so the trial-level `correct` flag is locked as meta.
+#   - ENGAGE: "I felt engaged during the task break", 1 (completely disagree) - 5 (completely
+#     agree). SUQ, BSMAS and the metacognition subscales are trait questionnaires (controls).
+
+# --- Dependent measures --------------------------------------------------------
+accuracy: task_success            # acc.csv, proportion correct per task x phase, 0-1
+rt: task_completion_time          # rt.csv, reaction time per trial, s
+ENGAGE: engagement_level          # q.csv, engagement during the break, 1-5
+
+# --- Participants and design ----------------------------------------------------
+folder_id: meta_participant_id
+interrupt: meta_condition_interruption    # rest / tiktok / twitter / youtube (between)
+task: meta_task                           # LD / PM
+measure: meta_measurement_phase           # train / pre / post
+stimulus: meta_stimulus                   # word or non-word shown
+success: meta_trial_responded             # a response was given in the trial
+correct: meta_trial_correct               # accuracy per trial (aggregated in acc.csv)
+
+# --- Traits (questionnaires, controls) -------------------------------------------
+SUQ: meta_trait_smartphone_usage          # Smartphone Usage Questionnaire, mean of 10 items, 1-7
+BSMARS: meta_trait_social_media_addiction # Bergen Social Media Addiction Scale, sum
+META_CC: meta_trait_metacognition_cognitive_confidence
+META_POS: meta_trait_metacognition_positive_beliefs
+META_CSC: meta_trait_metacognition_cognitive_self_consciousness
+META_NEG: meta_trait_metacognition_negative_beliefs
+META_NC: meta_trait_metacognition_need_to_control
