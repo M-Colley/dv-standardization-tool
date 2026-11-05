@@ -72,7 +72,7 @@ from __future__ import annotations
 import argparse
 import json
 import logging
-from collections.abc import Iterable, Mapping
+from collections.abc import Iterable, Mapping, Sequence
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -898,8 +898,15 @@ def run(
     meta_view_path: Path | None = None,
     designs_path: Path = cma.DEFAULT_DESIGNS_PATH,
     levels: Iterable[str] = LEVELS,
-    llm_replay_items: Path | None = None,
+    llm_replay_items: Path | Sequence[Path] | None = None,
 ) -> dict:
+    """Relations per study and pooled, per harmonization level.
+
+    *llm_replay_items* are one or more llm_mapping_evaluation_items.csv
+    files of evaluate_llm_mapping; several files (e.g. benchmark runs on
+    disjoint sets of studies) are concatenated.
+    """
+    replay_files = [llm_replay_items] if isinstance(llm_replay_items, (str, Path)) else list(llm_replay_items or [])
     meta_view_path = meta_view_path or input_dir.parent / "meta_view.csv"
     meta_view = pd.read_csv(meta_view_path, low_memory=False)
     provenance = column_provenance(input_dir, meta_view)
@@ -924,8 +931,9 @@ def run(
         skipped_by_level[level] = skipped
         logger.info("%s: %d study correlations; no participant column: %s", level, len(rows), skipped)
     replay_counts = None
-    if llm_replay_items is not None:
-        replay, replay_counts = replay_map(input_dir, meta_view, provenance, pd.read_csv(llm_replay_items))
+    if replay_files:
+        e1_items = pd.concat([pd.read_csv(path) for path in replay_files], ignore_index=True)
+        replay, replay_counts = replay_map(input_dir, meta_view, provenance, e1_items)
         frames = level_frames(input_dir, provenance, REPLAY_LEVEL, replay)
         rows, _ = study_relations(frames, registry, REPLAY_LEVEL, domains, dv_levels)
         all_rows.append(rows)
@@ -957,7 +965,7 @@ def run(
     }
     if replay_counts is not None:
         summary["llm_replay"] = {
-            "e1_items": str(llm_replay_items),
+            "e1_items": str(replay_files[0]) if len(replay_files) == 1 else [str(p) for p in replay_files],
             "columns": replay_counts,
             "conclusions_vs_curated": conclusions.to_dict(orient="records"),
         }
@@ -972,16 +980,17 @@ def main(argv: list[str] | None = None) -> None:
     parser.add_argument("--meta-view", default=None, help="meta_view.csv (default: <input-dir>/../meta_view.csv)")
     parser.add_argument("--designs", default=str(cma.DEFAULT_DESIGNS_PATH))
     parser.add_argument(
-        "--llm-replay-items", default=None,
-        help="llm_mapping_evaluation_items.csv of evaluate_llm_mapping: also analyse the pipeline with the "
-             "LLM's leave-alias-out answers in place of the study mappings and compare the findings",
+        "--llm-replay-items", default=None, nargs="+",
+        help="llm_mapping_evaluation_items.csv of evaluate_llm_mapping (several files, e.g. runs on disjoint "
+             "sets of studies, are concatenated): also analyse the pipeline with the LLM's leave-alias-out "
+             "answers in place of the study mappings and compare the findings",
     )
     args = parser.parse_args(argv)
     logging.basicConfig(level=logging.INFO, format="%(levelname)s %(message)s")
     summary = run(
         Path(args.input_dir), Path(args.output_dir),
         Path(args.meta_view) if args.meta_view else None, Path(args.designs),
-        llm_replay_items=Path(args.llm_replay_items) if args.llm_replay_items else None,
+        llm_replay_items=[Path(p) for p in args.llm_replay_items] if args.llm_replay_items else None,
     )
     print(json.dumps(summary["ladder"], indent=2))
 
