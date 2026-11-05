@@ -254,3 +254,11 @@ They are in `screening_decisions.csv` with `decision = check`.
 **Downloads.** Only tables, codebooks, READMEs and questionnaires are fetched, each pinned with its repository checksum as in `analyses/development_sources/sources.yaml`. From archives over 1 GB, only the needed members are fetched, by HTTP range requests where the server supports them.
 
 `acoustic_touch_blind_plosone23` is among the 57 again. Dryad's API now lists its files, but the earlier download attempt was refused (HTTP 401/403), so it may still fail.
+
+**Outcome (2026-11-05).**
+- *Held-out.* 19 of the 29 datasets were downloaded, verified and analysed. Results are in `docs/heldout_results.md`; the 10 drops and their reasons are in `analyses/heldout/sources_manifest.yaml`.
+- *Development.* 22 of the 28 datasets were downloaded and verified (`analyses/development_sources/sources_search.yaml`, files in `data/raw/development/`).
+    - Two hold no table the pipeline reads.
+    - Three are on Dryad, which refused the download again (HTTP 401), `acoustic_touch_blind_plosone23` among them.
+    - One needs a Harvard Dataverse guestbook form.
+    - The 22 still need curated mappings.

@@ -1,0 +1,180 @@
+{
+  "generated_at": "2026-11-05T14:56:59.937731+00:00",
+  "models": [
+    "google/gemma-4-E2B-it"
+  ],
+  "plausibility_rules_version": "1.3",
+  "shortlist": "definition",
+  "seed": 20261017,
+  "max_per_source": 40,
+  "e2_samples": 0,
+  "blocklist_size": 46,
+  "runtime_seconds": 267.9,
+  "llm_generation_errors": 0,
+  "context_sha256": {
+    "ai_label_trust_2025": "b75be76ec3da97b9",
+    "ar_pedestrian_outdoor_2024": "0a69c276c5414643",
+    "av_acceptance_diverse_2025": "6c139cea45c69d16",
+    "coupled_hmd_2022": "806d4e03e1638886",
+    "coupled_sim_2022": "34f05d2daa4f7c28",
+    "dev_creativity_eyetracking_2026": "3a649c0e8fba17e7",
+    "driving_style_takeover_2024": "0fa05b4ec24e4501",
+    "ehmi_infrastructure_2024": "56e4f2e8d77585ed",
+    "function_allocation_hrc_2026": "9683be0f7ec311da",
+    "midair_map_making_2026": "60cb9c50debd8463",
+    "multiscale_teleport_2024": "8f1934d90cafa105",
+    "music_intensity_driving_2021": "f44ea0c3a51c73a6",
+    "ndrt_takeover_l3_2025": "18b73d71dcd0c906",
+    "physio_hrc_2025": "b634e1e0581b030c",
+    "proxemics_ar_agent_2022": "0b879917a146a31f",
+    "robot_feeding_2025": "aa9b443e59c24416",
+    "robot_teaching_2023": "e18659c94aabe6fd",
+    "shared_autonomy_2026": "8f9c101ed0bbeebb",
+    "tool_embodiment_2025": "6a6e10a21596ca1e"
+  },
+  "results": {
+    "E1": {
+      "n_positive": 238,
+      "n_negative": 227,
+      "shortlist_contains_gold": {
+        "k": 192,
+        "n": 238,
+        "rate": 0.8067226890756303,
+        "ci95": [
+          0.7518464369063085,
+          0.8518548503417442
+        ]
+      },
+      "unchecked": {
+        "accuracy_on_dv_columns": {
+          "k": 77,
+          "n": 238,
+          "rate": 0.3235294117647059,
+          "ci95": [
+            0.2673050185419975,
+            0.3853599942741913
+          ]
+        },
+        "wrong_dv_on_dv_columns": {
+          "k": 144,
+          "n": 238,
+          "rate": 0.6050420168067226,
+          "ci95": [
+            0.5417409586906365,
+            0.6650060574902035
+          ]
+        },
+        "abstained_on_dv_columns": {
+          "k": 17,
+          "n": 238,
+          "rate": 0.07142857142857142,
+          "ci95": [
+            0.04507155257124252,
+            0.11140062141093027
+          ]
+        },
+        "precision_of_accepted_dv_mappings": {
+          "k": 77,
+          "n": 380,
+          "rate": 0.2026315789473684,
+          "ci95": [
+            0.1652856861920865,
+            0.24592955695971547
+          ]
+        },
+        "blocklisted_non_dv_mapped_to_a_dv": {
+          "k": 22,
+          "n": 35,
+          "rate": 0.6285714285714286,
+          "ci95": [
+            0.4633693684359532,
+            0.7683418049663429
+          ]
+        },
+        "curated_non_dv_mapped_to_a_dv": {
+          "k": 159,
+          "n": 192,
+          "rate": 0.828125,
+          "ci95": [
+            0.768459776644899,
+            0.8749177837487937
+          ]
+        }
+      },
+      "checked": {
+        "accuracy_on_dv_columns": {
+          "k": 77,
+          "n": 238,
+          "rate": 0.3235294117647059,
+          "ci95": [
+            0.2673050185419975,
+            0.3853599942741913
+          ]
+        },
+        "wrong_dv_on_dv_columns": {
+          "k": 131,
+          "n": 238,
+          "rate": 0.5504201680672269,
+          "ci95": [
+            0.4869191128698754,
+            0.612319454896928
+          ]
+        },
+        "abstained_on_dv_columns": {
+          "k": 30,
+          "n": 238,
+          "rate": 0.12605042016806722,
+          "ci95": [
+            0.08973971007434443,
+            0.17424091232186517
+          ]
+        },
+        "precision_of_accepted_dv_mappings": {
+          "k": 77,
+          "n": 294,
+          "rate": 0.2619047619047619,
+          "ci95": [
+            0.21494878121188954,
+            0.31500248697511424
+          ]
+        },
+        "blocklisted_non_dv_mapped_to_a_dv": {
+          "k": 1,
+          "n": 35,
+          "rate": 0.02857142857142857,
+          "ci95": [
+            0.005061491855444189,
+            0.14533087233613676
+          ]
+        },
+        "curated_non_dv_mapped_to_a_dv": {
+          "k": 86,
+          "n": 192,
+          "rate": 0.4479166666666667,
+          "ci95": [
+            0.3792847122123896,
+            0.5185918655028973
+          ]
+        }
+      },
+      "true_mappings_lost_to_check": {
+        "k": 0,
+        "n": 77,
+        "rate": 0.0,
+        "ci95": [
+          0.0,
+          0.04751842528243408
+        ]
+      },
+      "rejections_by_reason": {
+        "non_numeric": 71,
+        "demographic": 32,
+        "out_of_range": 14,
+        "identifier": 12,
+        "timestamp": 7,
+        "experimental_condition": 4,
+        "binary_for_rating_scale": 2
+      }
+    }
+  }
+}

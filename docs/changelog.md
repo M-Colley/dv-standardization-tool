@@ -4,6 +4,25 @@ This document logs human-readable updates to the repo's functionality, structure
 
 ---
 
+### [2026-11-05] Held-out confirmation test
+
+The pre-registered test (`docs/preregistration_heldout_relations.md`); results in `docs/heldout_results.md`.
+
+- **Downloads.**
+    - `analyses/candidate_search/build_sources.py` pins every file by the repository's checksum, and every needed member of a zip archive by size and CRC-32. Archive contents are listed by HTTP range requests (`remotezip`, optional `fetch` extra).
+    - `confirmatory fetch` writes only those members. It reads archives over 1 GB member by member and retries rate limits.
+    - 19 of the 29 held-out datasets are analysed; 10 are dropped under the pre-registered rules.
+- **Mappings frozen** (`58f260a`) before any correlation or LLM answer: `analyses/heldout/mappings/`, `analyses/heldout/sources_manifest.yaml`, held-out entries in `schemas/study_designs.yaml`.
+- **Results.**
+    - **H1 (workload × perceived safety): not testable.** No held-out study measures both.
+    - **H2 (NASA-TLX core pairs): not supported, narrowly.** Pooled within-person r = 0.44, 0.60 and 0.42 over k = 5 studies; each one-sided p < .05, but p = 0.052 after Holm, because the studies disagree on the size of the correlation (I² ≈ 95%).
+    - **H2b (performance weakest): met.**
+    - **H3 (header matching before the LLM): supported.** 93 vs. 77 of 238 DV columns correct, 16 vs. 0 discordant, p = 3 × 10⁻⁵.
+- **New module:** `opendv.analysis.heldout` decides the hypotheses from the relations and the E1 run; `analyses/heldout/run.sh` runs the procedure.
+- **Not done.** The 28 development datasets of the search are downloaded (`analyses/development_sources/sources_search.yaml`, 22 verified) but not yet mapped.
+
+---
+
 ### [2026-11-05] Systematic search for open-data studies
 
 - **New script:** `analyses/candidate_search/search_open_data.py` searches the research-data repositories for open HCI user-study datasets.
