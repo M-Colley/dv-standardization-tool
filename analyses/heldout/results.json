@@ -1,0 +1,357 @@
+{
+  "preregistration": "docs/preregistration_heldout_relations.md",
+  "level": "curated",
+  "association": "within_person",
+  "alpha": 0.05,
+  "min_studies": 2,
+  "H1": {
+    "pair": [
+      "mental_demand",
+      "perceived_safety"
+    ],
+    "predicted_sign": "negative",
+    "k_studies": 0,
+    "studies": [],
+    "testable": false,
+    "decision": "not testable on this set"
+  },
+  "H2": {
+    "pairs": {
+      "effort x frustration": {
+        "pair": [
+          "effort",
+          "frustration"
+        ],
+        "predicted_sign": "positive",
+        "k_studies": 5,
+        "studies": [
+          {
+            "study": "ehmi_infrastructure_2024",
+            "domain": "automotive",
+            "n_participants": 43,
+            "n_rows": 129,
+            "r": 0.34424547582438,
+            "ci95": [
+              0.1440385688214064,
+              0.5173792124474448
+            ],
+            "p_value": 0.0010951693797398
+          },
+          {
+            "study": "function_allocation_hrc_2026",
+            "domain": "other",
+            "n_participants": 26,
+            "n_rows": 104,
+            "r": 0.2106528211824717,
+            "ci95": [
+              -0.0109725953893209,
+              0.4125511951645764
+            ],
+            "p_value": 0.0623991628631361
+          },
+          {
+            "study": "physio_hrc_2025",
+            "domain": "other",
+            "n_participants": 87,
+            "n_rows": 261,
+            "r": 0.8003105715290777,
+            "ci95": [
+              0.7397952674623669,
+              0.8479816892408787
+            ],
+            "p_value": 2.792000697053297e-40
+          },
+          {
+            "study": "shared_autonomy_2026",
+            "domain": "other",
+            "n_participants": 11,
+            "n_rows": 88,
+            "r": 0.3715354731321442,
+            "ci95": [
+              0.1624304379730064,
+              0.5487036199427439
+            ],
+            "p_value": 0.000810821126342
+          },
+          {
+            "study": "tool_embodiment_2025",
+            "domain": "other",
+            "n_participants": 69,
+            "n_rows": 138,
+            "r": 0.2609042739136125,
+            "ci95": [
+              0.0276193494360162,
+              0.4672376050373992
+            ],
+            "p_value": 0.0291454901911265
+          }
+        ],
+        "testable": true,
+        "pooled_r": 0.4407520959192945,
+        "hksj_ci95": [
+          0.0178926406836159,
+          0.7298625392466817
+        ],
+        "prediction_interval": [
+          -0.651630556246064,
+          0.9383972443070002
+        ],
+        "heterogeneity_i2_pct": 94.27309506361212,
+        "tau": 0.3561882140312139,
+        "n_total": 236,
+        "p_hksj_two_sided": 0.0447614987225644,
+        "p_one_sided": 0.0223807493612822,
+        "p_holm": 0.05214908960249895,
+        "significant": false
+      },
+      "effort x mental_demand": {
+        "pair": [
+          "effort",
+          "mental_demand"
+        ],
+        "predicted_sign": "positive",
+        "k_studies": 5,
+        "studies": [
+          {
+            "study": "ehmi_infrastructure_2024",
+            "domain": "automotive",
+            "n_participants": 43,
+            "n_rows": 129,
+            "r": 0.5980607724751681,
+            "ci95": [
+              0.443250683559163,
+              0.7182284226625711
+            ],
+            "p_value": 9.554031632813623e-10
+          },
+          {
+            "study": "function_allocation_hrc_2026",
+            "domain": "other",
+            "n_participants": 26,
+            "n_rows": 104,
+            "r": 0.4195028065463339,
+            "ci95": [
+              0.2186720780998532,
+              0.5862387548773388
+            ],
+            "p_value": 0.0001189351725497
+          },
+          {
+            "study": "physio_hrc_2025",
+            "domain": "other",
+            "n_participants": 87,
+            "n_rows": 261,
+            "r": 0.9062205755318232,
+            "ci95": [
+              0.8755828988999469,
+              0.9295969286646684
+            ],
+            "p_value": 1.402164229400745e-66
+          },
+          {
+            "study": "shared_autonomy_2026",
+            "domain": "other",
+            "n_participants": 11,
+            "n_rows": 88,
+            "r": 0.5303914316136387,
+            "ci95": [
+              0.3490559750678461,
+              0.6734397125348186
+            ],
+            "p_value": 5.898409180252207e-07
+          },
+          {
+            "study": "tool_embodiment_2025",
+            "domain": "other",
+            "n_participants": 70,
+            "n_rows": 140,
+            "r": 0.2081244059970226,
+            "ci95": [
+              -0.0264687001361473,
+              0.4209902221345609
+            ],
+            "p_value": 0.0815632823724229
+          }
+        ],
+        "testable": true,
+        "pooled_r": 0.600899475115668,
+        "hksj_ci95": [
+          0.0807169971615831,
+          0.8638229621601698
+        ],
+        "prediction_interval": [
+          -0.7639354434779134,
+          0.9835025306110756
+        ],
+        "heterogeneity_i2_pct": 96.7000137687019,
+        "tau": 0.485670545055319,
+        "n_total": 237,
+        "p_hksj_two_sided": 0.0347660597349993,
+        "p_one_sided": 0.01738302986749965,
+        "p_holm": 0.05214908960249895,
+        "significant": false
+      },
+      "frustration x mental_demand": {
+        "pair": [
+          "frustration",
+          "mental_demand"
+        ],
+        "predicted_sign": "positive",
+        "k_studies": 5,
+        "studies": [
+          {
+            "study": "ehmi_infrastructure_2024",
+            "domain": "automotive",
+            "n_participants": 43,
+            "n_rows": 129,
+            "r": 0.3866632072505308,
+            "ci95": [
+              0.1916188165216824,
+              0.5523273867881136
+            ],
+            "p_value": 0.0002161364858082
+          },
+          {
+            "study": "function_allocation_hrc_2026",
+            "domain": "other",
+            "n_participants": 26,
+            "n_rows": 104,
+            "r": 0.1874221275582426,
+            "ci95": [
+              -0.0351488315178961,
+              0.3922797132591718
+            ],
+            "p_value": 0.0981307313745002
+          },
+          {
+            "study": "physio_hrc_2025",
+            "domain": "other",
+            "n_participants": 87,
+            "n_rows": 261,
+            "r": 0.8268373742706845,
+            "ci95": [
+              0.7733488829000811,
+              0.8686379165969502
+            ],
+            "p_value": 4.236954281381216e-45
+          },
+          {
+            "study": "shared_autonomy_2026",
+            "domain": "other",
+            "n_participants": 11,
+            "n_rows": 88,
+            "r": 0.3378658220414974,
+            "ci95": [
+              0.1247074785271982,
+              0.5212122145931612
+            ],
+            "p_value": 0.0024840942048618
+          },
+          {
+            "study": "tool_embodiment_2025",
+            "domain": "other",
+            "n_participants": 69,
+            "n_rows": 138,
+            "r": 0.062980529355498,
+            "ci95": [
+              -0.1745812865641107,
+              0.2936135070756469
+            ],
+            "p_value": 0.6044863145234438
+          }
+        ],
+        "testable": true,
+        "pooled_r": 0.417250835489285,
+        "hksj_ci95": [
+          -0.1009550920694101,
+          0.7573698198772889
+        ],
+        "prediction_interval": [
+          -0.7868314812228315,
+          0.960457262928716
+        ],
+        "heterogeneity_i2_pct": 95.88893248935577,
+        "tau": 0.4301205591815279,
+        "n_total": 236,
+        "p_hksj_two_sided": 0.0865841544868268,
+        "p_one_sided": 0.0432920772434134,
+        "p_holm": 0.05214908960249895,
+        "significant": false
+      }
+    },
+    "decision": "not supported"
+  },
+  "H2b": {
+    "mean_r_with_other_subscales": {
+      "mental_demand": {
+        "mean_r": 0.39596825748611,
+        "n_pairs": 5,
+        "missing_pairs": []
+      },
+      "physical_demand": {
+        "mean_r": 0.4313736439400583,
+        "n_pairs": 5,
+        "missing_pairs": []
+      },
+      "temporal_demand": {
+        "mean_r": 0.3641726164456117,
+        "n_pairs": 5,
+        "missing_pairs": []
+      },
+      "performance": {
+        "mean_r": 0.013322303148678358,
+        "n_pairs": 5,
+        "missing_pairs": []
+      },
+      "effort": {
+        "mean_r": 0.4351341549448171,
+        "n_pairs": 5,
+        "missing_pairs": []
+      },
+      "frustration": {
+        "mean_r": 0.37418865888438085,
+        "n_pairs": 5,
+        "missing_pairs": []
+      }
+    },
+    "lowest": "performance",
+    "decision": "met"
+  },
+  "H3": {
+    "n_dv_columns": 238,
+    "n_non_dv_columns": 227,
+    "llm_only": {
+      "correct": 77,
+      "precision_of_accepted_dv_mappings": {
+        "k": 77,
+        "n": 294,
+        "rate": 0.2619047619047619,
+        "ci95": [
+          0.21494878121188954,
+          0.31500248697511424
+        ]
+      }
+    },
+    "header_matching_then_llm": {
+      "correct": 93,
+      "precision_of_accepted_dv_mappings": {
+        "k": 93,
+        "n": 295,
+        "rate": 0.3152542372881356,
+        "ci95": [
+          0.2648983329915547,
+          0.37035977199112663
+        ]
+      },
+      "header_matched_dv_columns": 21,
+      "header_matched_correct": 21,
+      "header_matched_non_dv_columns": 0
+    },
+    "mcnemar": {
+      "new_only": 16,
+      "baseline_only": 0,
+      "p_two_sided": 3.0517578125e-05
+    },
+    "decision": "supported"
+  }
+}

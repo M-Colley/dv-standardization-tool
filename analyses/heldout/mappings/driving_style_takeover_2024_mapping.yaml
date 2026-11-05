@@ -1,0 +1,29 @@
+# Held-out mapping for driving_style_takeover_2024 (docs/preregistration_heldout_relations.md).
+# Paper: De Winter, Verschoor, Doubek & Happee, "Once a driver, always a driver - Manual driving
+#   style persists in automated driving takeover", Applied Ergonomics 2024, DOI 10.1016/j.apergo.2024.104366.
+# Data: 4TU (DOI 10.4121/57e36cf2-4f74-4d2f-86e2-7fae7250438a.v1), CC-BY-4.0; codebook is readme.txt
+#   and the paper's Table (this file is "the data underlying Table").
+# File: Supplementary data/Table.xlsx, one row per participant (38): manual-driving measures
+#   (M1-M3), takeover measures in automated driving (A., z-scores, marked *) and the intake
+#   questionnaire (codes). The MATLAB figure files are left out.
+
+'Unnamed: 0': meta_participant_id
+Experience score (z-score): meta_trait_driving_experience_score
+M1. Headway (m): headway
+M2. Headway (m): headway
+A. Hands-on-wheel time (s)*: takeover_time
+A. Minimum TTC (s)*: ttc
+Age group: meta_demographic_age_group
+Gender: meta_demographic_gender
+Driver's licence: meta_demographic_driving_license
+Driving frequency: meta_demographic_driving_frequency
+Driving distance: meta_demographic_driving_distance
+Driving ability: meta_demographic_driving_ability
+Driving safety: meta_demographic_driving_safety
+Driving style: meta_demographic_driving_style
+Driving simulator experiments: meta_demographic_simulator_experience
+HAD driving simulator experiments: meta_demographic_had_simulator_experience
+HAD knowledge: meta_demographic_had_knowledge
+
+# Left unlabelled (no schema DV): M1. Lane change moment, M1. Lane change duration, M3. Mean speed,
+# A. Lane change duration, A. Minimum speed.

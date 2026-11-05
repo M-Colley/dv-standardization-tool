@@ -1,0 +1,25 @@
+# Held-out mapping for tool_embodiment_2025 (docs/preregistration_heldout_relations.md).
+# Paper: "Task Load Affects Tool Embodiment During Virtual Tool-use in Young and Older Adults",
+#   Frontiers in Virtual Reality 2025, DOI 10.3389/frvir.2025.1637212.
+# Data: OSF uxk58 (DOI 10.17605/osf.io/uxk58), CC-BY-4.0.
+# File: Tools_AR_Embodiement_TaskLoad_Performance_Datasets.csv. One row = participant x NASA-TLX
+#   session (NASA_Mid, NASA_Post); 71 participants, most with both sessions, feedback mode
+#   (Visual, Visuo-haptic) changes between the sessions.
+# Written from the column headers and value ranges; no README is published.
+
+Participant: meta_participant_id      # e.g. 2Y (Y = younger, O = older adult)
+Age_Group: meta_group_age              # Younger Adults / Older Adults
+Session: meta_condition_session        # NASA_Mid / NASA_Post
+Feedback: meta_condition_feedback      # Visual / Visuo-haptic
+
+# NASA-TLX, raw subscales on 0-100
+Mental: mental_demand
+Physical: physical_demand
+Temporal: temporal_demand
+Performance: performance
+Effort: effort
+Frustration: frustration
+
+# Left unlabelled (no schema DV): Ownership, Ownership-related, Agency, Agency-related
+# (embodiment questionnaire, -3..3), Slider, Time Reduction and "Time " (task measures whose
+# unit and definition are not documented).

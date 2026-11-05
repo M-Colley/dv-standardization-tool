@@ -1,0 +1,18 @@
+# Held-out mapping for robot_teaching_2023 (docs/preregistration_heldout_relations.md).
+# Paper: "Human-Robot Kinesthetic Teaching: An Evaluation of Post-Demonstration Feedback
+#   Modalities for Non-Expert Users", DOI 10.3850/978-981-18-8071-1_P241-cd.
+# Data: Zenodo 23417050 (DOI 10.5281/zenodo.23417050), CC-BY-4.0; codebook is README.md.
+# File: Multimodal-Human-Robot-Teaching-Dataset/analysis_dataset_deidentified.csv, one row =
+#   participant x task x feedback condition (28 x 2 x 4), means over three trials.
+# The metadata named NASA-TLX and SUS; the published file holds neither.
+
+Participant: meta_participant_id
+Task: meta_condition_task
+Condition: meta_condition_feedback       # NF, DF, VF, MF
+CompletionTime_s: task_completion_time
+FixationDuration_ms: fixation_duration
+VisitDuration_ms: dwell_time
+PupilDiameter_mm: pupil_dilation
+
+# Left unlabelled (no schema DV): PathLength_m, Smoothness_peaks_per_m, DTW_Distance,
+# FixationDispersion.

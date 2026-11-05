@@ -16,9 +16,12 @@ from __future__ import annotations
 
 import argparse
 import hashlib
+import io
 import json
 import logging
-from pathlib import Path
+import zipfile
+import zlib
+from pathlib import Path, PurePosixPath
 from typing import Any
 
 import httpx
@@ -53,27 +56,140 @@ def checksum_ok(content: bytes, spec: dict[str, Any]) -> bool:
     return True
 
 
+def member_ok(content: bytes, member: dict[str, Any]) -> bool:
+    """True when an archive member matches its pinned size and CRC-32."""
+    return len(content) == int(member["size"]) and f"{zlib.crc32(content):08x}" == member["crc32"]
+
+
+def _member_target(target_dir: Path, archive: str, member: str) -> Path | None:
+    """Where a member is written (``<archive stem>/<member path>``); ``None`` if it would leave that folder."""
+    root = (target_dir / PurePosixPath(archive).stem).resolve()
+    target = (root / member).resolve()
+    return target if target.is_relative_to(root) else None
+
+
+RETRY_STATUS = frozenset({429, 500, 502, 503, 504})
+RETRIES = 6
+
+
+def _wait(attempt: int, retry_after: str | None = None) -> None:
+    """Back off before a retry: the server's Retry-After if given, else 10, 20, 40, ... s."""
+    import time
+
+    seconds = float(retry_after) if retry_after and retry_after.isdigit() else 10.0 * 2**attempt
+    time.sleep(min(seconds, 300.0))
+
+
+def _download(client: httpx.Client, url: str) -> tuple[int, bytes]:
+    """(status, body) of a GET, streamed into memory; rate limits and server errors are retried."""
+    status = 0
+    for attempt in range(RETRIES):
+        with client.stream("GET", url) as response:
+            status = response.status_code
+            if status == 200:
+                buffer = io.BytesIO()
+                for chunk in response.iter_bytes(1 << 20):
+                    buffer.write(chunk)
+                return 200, buffer.getvalue()
+            retry_after = response.headers.get("retry-after")
+        if status not in RETRY_STATUS:
+            break
+        if attempt + 1 < RETRIES:
+            _wait(attempt, retry_after)
+    return status, b""
+
+
+def _range_session():
+    """A requests session for remotezip that retries rate limits and server errors."""
+    import requests
+    from requests.adapters import HTTPAdapter
+    from urllib3.util.retry import Retry
+
+    session = requests.Session()
+    retry = Retry(total=RETRIES, backoff_factor=10, status_forcelist=sorted(RETRY_STATUS),
+                  allowed_methods=["GET", "HEAD"], respect_retry_after_header=True)
+    session.mount("https://", HTTPAdapter(max_retries=retry))
+    return session
+
+
+def _fetch_members(client: httpx.Client, spec: dict[str, Any], target_dir: Path, issues: list[str]) -> None:
+    """Write the pinned members of a zip archive, read in memory (never extracted wholesale).
+
+    ``fetch: whole`` downloads the archive and checks it against its published checksum;
+    ``fetch: range`` (archives over 1 GB) reads only the members by HTTP range requests.
+    Each member is checked against its pinned size and CRC-32 either way.
+    """
+    targets = {m["path"]: _member_target(target_dir, spec["path"], m["path"]) for m in spec["members"]}
+    pending = [m for m in spec["members"]
+               if not (targets[m["path"]] and targets[m["path"]].is_file()
+                       and member_ok(targets[m["path"]].read_bytes(), m))]
+    if not pending:
+        return
+    if spec.get("fetch") == "range":
+        from remotezip import RemoteZip  # optional dependency: pip install opendv-hci[fetch]
+
+        archive: zipfile.ZipFile = RemoteZip(spec["url"], support_suffix_range=False, timeout=120,
+                                             session=_range_session())
+    else:
+        status, content = _download(client, spec["url"])
+        if status != 200:
+            issues.append(f"{spec['path']}: HTTP {status}")
+            return
+        if not checksum_ok(content, spec):
+            issues.append(f"{spec['path']}: checksum or size mismatch")
+            return
+        archive = zipfile.ZipFile(io.BytesIO(content))
+    with archive:
+        for member in pending:
+            target = targets[member["path"]]
+            if target is None:
+                issues.append(f"{spec['path']}!{member['path']}: path leaves the source folder")
+                continue
+            if archive.getinfo(member["path"]).file_size != int(member["size"]):
+                issues.append(f"{spec['path']}!{member['path']}: size differs from the pinned size")
+                continue
+            content = archive.read(member["path"])  # zipfile checks the CRC-32 while reading
+            if not member_ok(content, member):
+                issues.append(f"{spec['path']}!{member['path']}: CRC-32 or size mismatch")
+                continue
+            target.parent.mkdir(parents=True, exist_ok=True)
+            target.write_bytes(content)
+
+
 def fetch(data_dir: Path = DATA_DIR, sources_path: Path = SOURCES_PATH) -> dict[str, list[str]]:
-    """Download and verify every listed file; return ``{source_id: [problems]}``."""
+    """Download and verify every listed file; return ``{source_id: [problems]}``.
+
+    Sources marked ``dropped`` are skipped. A file with ``members`` is a zip archive of
+    which only those members are written, under ``<source_id>/<archive stem>/``.
+    """
     problems: dict[str, list[str]] = {}
     with httpx.Client(follow_redirects=True, timeout=120) as client:
         for source in load_sources(sources_path):
+            if source.get("dropped"):
+                continue
             target_dir = data_dir / source["source_id"]
             issues = problems.setdefault(source["source_id"], [])
             for spec in source["files"]:
-                target = target_dir / spec["path"]
-                if target.is_file() and checksum_ok(target.read_bytes(), spec):
+                try:
+                    if spec.get("members"):
+                        _fetch_members(client, spec, target_dir, issues)
+                        continue
+                    target = target_dir / spec["path"]
+                    if target.is_file() and checksum_ok(target.read_bytes(), spec):
+                        continue
+                    status, content = _download(client, spec["url"])
+                except Exception as error:  # a file that fails is reported, and the others are still fetched
+                    issues.append(f"{spec['path']}: {type(error).__name__}: {error}"[:300])
                     continue
-                response = client.get(spec["url"])
-                if response.status_code != 200:
-                    issues.append(f"{spec['path']}: HTTP {response.status_code}")
+                if status != 200:
+                    issues.append(f"{spec['path']}: HTTP {status}")
                     continue
-                if not checksum_ok(response.content, spec):
+                if not checksum_ok(content, spec):
                     issues.append(f"{spec['path']}: checksum or size mismatch")
                     continue
                 target.parent.mkdir(parents=True, exist_ok=True)
-                target.write_bytes(response.content)
-                logger.info("%s: %s (%d bytes)", source["source_id"], spec["path"], len(response.content))
+                target.write_bytes(content)
+                logger.info("%s: %s (%d bytes)", source["source_id"], spec["path"], len(content))
     return problems
 
 
@@ -211,14 +327,19 @@ def _e1_items(run_dir: Path):
     return frame[frame["experiment"] == "E1"].set_index(["source_id", "dataset_id", "alias"]).sort_index()
 
 
-def header_match_answers(items, data_dir: Path = DATA_DIR) -> dict[tuple[str, str, str], str]:
+def header_match_answers(
+    items, data_dir: Path = DATA_DIR, table_options: dict[str, dict[str, Any]] | None = None
+) -> dict[tuple[str, str, str], str]:
     """DV that header matching gives each E1 item, as for a study without a mapping file.
 
     A table's columns that no standard alias maps go through
     :func:`opendv.header_matching.match_headers` with the standard aliases only,
     so neither the gold labels nor the study's mapping file are used.
+    ``table_options`` (``{source_id: manifest table_options}``) reads each table
+    as the batch did (sheet, header row).
     """
     from opendv._paths import SCHEMAS_DIR
+    from opendv.data_loaders import table_options_for
     from opendv.header_matching import match_headers
     from opendv.run_batch_standardization import _load_any_table, load_schema
 
@@ -226,7 +347,8 @@ def header_match_answers(items, data_dir: Path = DATA_DIR) -> dict[tuple[str, st
     known = {str(alias).lower() for alias in aliases}
     answers: dict[tuple[str, str, str], str] = {}
     for (source_id, dataset_id), group in items.reset_index().groupby(["source_id", "dataset_id"]):
-        columns = [str(c) for c in _load_any_table(data_dir / source_id / dataset_id).columns]
+        options = table_options_for((table_options or {}).get(source_id), dataset_id)
+        columns = [str(c) for c in _load_any_table(data_dir / source_id / dataset_id, options).columns]
         matches = match_headers(columns, [c for c in columns if c.lower() not in known], aliases)
         for alias in group["alias"].astype(str):
             if alias in matches:

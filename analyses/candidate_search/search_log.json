@@ -1,0 +1,223 @@
+{
+  "date": "2026-11-05",
+  "sources": [
+    "DataCite REST API, resource type Dataset",
+    "OSF SHARE index-card search, resource types Project and ProjectComponent"
+  ],
+  "queries": {
+    "nasa_tlx": "\"NASA-TLX\" OR \"NASA TLX\" OR \"task load index\" OR \"raw TLX\"",
+    "sus": "\"system usability scale\"",
+    "ueq": "\"user experience questionnaire\" OR \"UEQ-S\"",
+    "attrakdiff": "AttrakDiff",
+    "ssq": "\"simulator sickness questionnaire\" OR \"simulator sickness\"",
+    "fms": "\"fast motion sickness\"",
+    "trust_automation": "\"trust in automation\" OR \"trust in automated\"",
+    "perceived_safety": "\"perceived safety\"",
+    "van_der_laan": "\"van der laan\" AND (acceptance OR usefulness OR satisfying)",
+    "situation_awareness": "\"situation awareness rating technique\" OR SAGAT OR (\"situation awareness\" AND questionnaire)",
+    "presence": "\"igroup presence\" OR \"presence questionnaire\"",
+    "pxi": "\"player experience inventory\"",
+    "tam_utaut": "\"technology acceptance model\" OR UTAUT",
+    "ati": "\"affinity for technology interaction\"",
+    "ehmi": "eHMI OR \"external human-machine interface\" OR \"external human machine interface\"",
+    "automated_driving": "(\"automated driving\" OR \"automated vehicle\" OR \"autonomous vehicle\" OR \"self-driving\") AND (participants OR questionnaire OR \"user study\")",
+    "takeover": "(\"take-over\" OR takeover) AND (driving OR driver) AND participants",
+    "driving_simulator": "\"driving simulator\" AND (participants OR questionnaire)",
+    "vr_user_study": "(\"virtual reality\" OR \"mixed reality\" OR \"augmented reality\") AND (\"user study\" OR \"within-subjects\" OR \"within-subject\" OR questionnaire)",
+    "hci_venue": "(\"Human Factors in Computing Systems\" OR AutomotiveUI OR \"Automotive User Interfaces\" OR \"CHI 20*\" OR UIST OR \"Human-Computer Interaction\") AND (participants OR questionnaire)",
+    "hri": "\"human-robot interaction\" AND (questionnaire OR participants)"
+  },
+  "records_per_query": {
+    "nasa_tlx": 400,
+    "sus": 433,
+    "ueq": 144,
+    "attrakdiff": 24,
+    "ssq": 77,
+    "fms": 1,
+    "trust_automation": 57,
+    "perceived_safety": 214,
+    "van_der_laan": 4,
+    "situation_awareness": 46,
+    "presence": 66,
+    "pxi": 2,
+    "tam_utaut": 1458,
+    "ati": 5,
+    "ehmi": 51,
+    "automated_driving": 241,
+    "takeover": 31,
+    "driving_simulator": 177,
+    "vr_user_study": 709,
+    "hci_venue": 1049,
+    "hri": 193
+  },
+  "osf_phrases": {
+    "nasa_tlx": [
+      "\"NASA-TLX\"",
+      "\"NASA TLX\"",
+      "\"task load index\""
+    ],
+    "sus": [
+      "\"system usability scale\""
+    ],
+    "ueq": [
+      "\"user experience questionnaire\"",
+      "\"UEQ-S\""
+    ],
+    "attrakdiff": [
+      "AttrakDiff"
+    ],
+    "ssq": [
+      "\"simulator sickness\""
+    ],
+    "trust_automation": [
+      "\"trust in automation\""
+    ],
+    "perceived_safety": [
+      "\"perceived safety\""
+    ],
+    "situation_awareness": [
+      "\"situation awareness\""
+    ],
+    "presence": [
+      "\"presence questionnaire\""
+    ],
+    "pxi": [
+      "\"player experience inventory\""
+    ],
+    "tam_utaut": [
+      "\"technology acceptance model\"",
+      "UTAUT"
+    ],
+    "ati": [
+      "\"affinity for technology interaction\""
+    ],
+    "ehmi": [
+      "eHMI",
+      "\"external human-machine interface\""
+    ],
+    "automated_driving": [
+      "\"automated vehicle\"",
+      "\"autonomous vehicle\"",
+      "\"automated driving\"",
+      "\"self-driving\""
+    ],
+    "takeover": [
+      "\"takeover request\"",
+      "\"take-over request\""
+    ],
+    "driving_simulator": [
+      "\"driving simulator\""
+    ],
+    "hri": [
+      "\"human-robot interaction\""
+    ]
+  },
+  "osf_projects_per_query": {
+    "nasa_tlx": 59,
+    "sus": 16,
+    "ueq": 6,
+    "attrakdiff": 1,
+    "ssq": 16,
+    "trust_automation": 16,
+    "perceived_safety": 36,
+    "situation_awareness": 42,
+    "presence": 13,
+    "pxi": 1,
+    "tam_utaut": 155,
+    "ati": 2,
+    "ehmi": 5,
+    "automated_driving": 111,
+    "takeover": 5,
+    "driving_simulator": 28,
+    "hri": 233
+  },
+  "unique_dois": 5427,
+  "unique_concepts": 3199,
+  "stage_counts": [
+    {
+      "stage": "candidate",
+      "reason": "",
+      "n": 427
+    },
+    {
+      "stage": "excluded",
+      "reason": "already a source",
+      "n": 10
+    },
+    {
+      "stage": "excluded",
+      "reason": "duplicate record of the same paper",
+      "n": 9
+    },
+    {
+      "stage": "excluded",
+      "reason": "licence restricts reuse (NC/ND)",
+      "n": 132
+    },
+    {
+      "stage": "excluded",
+      "reason": "no file listing ()",
+      "n": 1
+    },
+    {
+      "stage": "excluded",
+      "reason": "no file listing (dataverse dataset unavailable)",
+      "n": 3
+    },
+    {
+      "stage": "excluded",
+      "reason": "no file listing (figshare article unavailable)",
+      "n": 2
+    },
+    {
+      "stage": "excluded",
+      "reason": "no file listing (mendeley listing unavailable)",
+      "n": 1
+    },
+    {
+      "stage": "excluded",
+      "reason": "no file listing (no public files (embargoed))",
+      "n": 1
+    },
+    {
+      "stage": "excluded",
+      "reason": "no file listing (no public files (restricted))",
+      "n": 16
+    },
+    {
+      "stage": "excluded",
+      "reason": "no file listing (no public files)",
+      "n": 5
+    },
+    {
+      "stage": "excluded",
+      "reason": "no file listing (osf listing empty or unavailable)",
+      "n": 27
+    },
+    {
+      "stage": "excluded",
+      "reason": "no file listing (repository listing not supported)",
+      "n": 44
+    },
+    {
+      "stage": "excluded",
+      "reason": "no file listing (zenodo record unavailable)",
+      "n": 2
+    },
+    {
+      "stage": "excluded",
+      "reason": "no open licence stated",
+      "n": 749
+    },
+    {
+      "stage": "excluded",
+      "reason": "no peer-reviewed paper found",
+      "n": 1652
+    },
+    {
+      "stage": "excluded",
+      "reason": "no tabular file or archive",
+      "n": 118
+    }
+  ]
+}

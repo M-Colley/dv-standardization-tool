@@ -1,0 +1,33 @@
+# Held-out mapping for av_acceptance_diverse_2025 (docs/preregistration_heldout_relations.md).
+# Paper: "Diverse Future Mobility: The Influence of Gender, Age, Empathy and Ethics on the
+#   Anticipated Acceptance of Automated Driving", Mensch und Computer 2025, DOI 10.1145/3743049.3743051.
+# Data: OSF dvsbh (DOI 10.17605/osf.io/dvsbh), CC-BY-4.0. No codebook; written from the headers
+#   (item names carry the scale and its scoring) and value ranges.
+# File: supplementary material_data_MuC_DiverseFutureMobility.xlsx, one row per participant
+#   (107). The CSV next to it holds the same columns (semicolon-separated, Latin-1) and is left out.
+# QAAD items are 1-101 sliders, recoded_* are the same answers on 0-10; the *_Mean / *_Sum
+# columns are the scale scores the authors computed.
+
+ID: meta_participant_id
+Gender: meta_demographic_gender
+Age: meta_demographic_age
+Country: meta_demographic_country
+Other country, if not Germany: meta_demographic_country_other
+Place of Residence: meta_demographic_residence
+Driving License: meta_demographic_driving_license
+
+QAAD_overall Acceptance_17Items_Weighted Mean: acceptance_rating
+Perceived Safety_6Items_Mean: perceived_safety
+
+# Person characteristics measured as predictors of acceptance
+Empathy_5Items_Sum: meta_trait_empathy
+Utilitarianism_4Items_Mean: meta_trait_utilitarianism
+Deontology_4Items_Mean: meta_trait_deontology
+Absolutism_4Items_Mean: meta_trait_absolutism
+Relativism_4Items_Mean: meta_trait_relativism
+Pluralism_4Items_Mean: meta_trait_pluralism
+
+# Left unlabelled: the QAAD items and their recoded versions, the QAAD subscales (PRO, CON,
+# NDRTs; no schema DV), the six perceived-safety items and their emotional and cognitive
+# subscale means (the schema's perceived_safety_item_* belong to another 4-item scale), and the
+# items of the empathy and ethics scales.

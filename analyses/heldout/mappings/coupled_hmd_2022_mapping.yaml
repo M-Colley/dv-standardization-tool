@@ -1,0 +1,29 @@
+# Held-out mapping for coupled_hmd_2022 (docs/preregistration_heldout_relations.md).
+# Paper: Mok, Bazilinskyy & De Winter, "Stopping by looking: A driver-pedestrian interaction
+#   study in a coupled simulator using head-mounted displays with eye-tracking", Applied
+#   Ergonomics 2022, DOI 10.1016/j.apergo.2022.103825.
+# Data: 4TU (DOI 10.4121/20005565), CC0-1.0; codebook is readme.txt and the questionnaire PDFs.
+# File: Questionnaires/All_questionnaire_results.xlsx, sheet "Post-block pedestrian" (manifest
+#   table_options): one row = pedestrian x eHMI mapping (baseline, mapping 1, mapping 2), 17
+#   pedestrians. The workbook's other sheets (pre-experiment, driver post-block,
+#   post-experiment) cannot be read in the same run (one sheet per file); the pedestrian sheet
+#   holds the study's pedestrian-side measures.
+# The nine semantic differentials are the Van der Laan acceptance items in their published
+# order (1-5, the first-named pole = 1).
+
+Participant number? (Ask the instructor): meta_participant_id
+What mapping? (Ask the instructor): meta_condition_mapping
+It was clear to you when the vehicle was going to yield.: understanding_rating
+Anything you would like to share regarding this mapping?: meta_free_text_mapping
+Usefull/Useless: AOA1
+Pleasant/Unpleasant: AOA2
+Bad/Good: AOA3
+Nice/Annoying: AOA4
+Effective/Superfluous: AOA5
+Irritating/Likeable: AOA6
+Assisting/Worthless: AOA7
+Undesirable/Desirable: AOA8
+Raising Alertness/ Sleep Inducing: AOA9
+
+# Left unlabelled: the MISC (motion sickness) score and "You prefer the mapping over the baseline"
+# (no schema DV).
