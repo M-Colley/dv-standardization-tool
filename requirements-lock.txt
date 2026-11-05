@@ -331,9 +331,12 @@ referencing==0.37.0
     #   jsonschema-specifications
 regex==2026.9.29
     # via transformers
+remotezip==0.12.6
+    # via opendv-hci
 requests==2.34.2
     # via
     #   frictionless
+    #   remotezip
     #   rocrate
     #   streamlit
 rfc3986==2.0.0
