@@ -204,6 +204,7 @@ def build_data_package(
             "surveyAnswerCodesRecoded": quality.get("survey_answer_codes_recoded") or {},
             "reverseKeyed": quality.get("reverse_keyed_items") or {},
             "unitConversions": quality.get("unit_conversions") or {},
+            "scaleConversions": quality.get("scale_conversions") or {},
         }
         fields = [
             _field_descriptor(name, column_types[name], dvs, by_dataset.get(dataset_id or "", {}), recoding)

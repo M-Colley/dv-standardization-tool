@@ -44,6 +44,11 @@ harmonization decision moves the result.
    analytic choices (RQ3), seeded by `opendv/analysis/multiverse_analysis.py`.
 5. A taxonomy of silent failures with concrete instances from this
    pipeline (RQ4) and the guards that now catch them.
+6. A harmonization ladder and a conclusion-level evaluation of LLM
+   harmonization: which cross-study relations each step (identical names,
+   shared schema, curated mappings, LLM) makes estimable, and which
+   conclusions survive when the LLM stands in for curation (§2.5,
+   `opendv/analysis/construct_relations.py`).
 
 ---
 
@@ -72,6 +77,14 @@ mappings); "E2" holds out schema aliases. Model: `google/gemma-4-E2B-it`
 | Mixed units | One added study records crossing initiation times in ms, pooled with another study's seconds | A pooled estimate across units | `unit_conversions` in mapping files |
 | Fit errors reported as non-invariance | lavaan refuses participant clusters when a study has one observation per participant; the error was reported as level "none" | Every scale shared with an added study showed "none", like a real misfit | Such scales are fitted without clusters (noted per row); an unfittable model is `not_fitted` |
 | Anti-conservative intervals at small k | Most pooled DVs have k = 2–3 | Wald intervals far narrower than warranted | Hartung-Knapp-Sidik-Jonkman intervals reported next to Wald (validated against `metafor`, `test = "knha"`) |
+| Columns combined by the sign of their correlation | When several columns mapped to one DV, the batch averaged them and first flipped any that correlated negatively with an anchor column | AV Acceptance VR's three curated perceived-safety items were flipped to match LLM-mapped anxiety items; 28 column groups in the 23 studies would have been flipped | Never flip on the evidence of the data; leave such groups apart; never combine LLM columns with deterministic ones (2026-11-04 review) |
+| An optimizer's copy of an answer | eHMI Optimization logs each rating twice, the optimizer's mental demand inverted (11 − answer) | Participant means of the two cancelled out; pooled `mental_demand` (k = 13) shifted | Per-file `drop_columns` table option |
+| A score on the wrong scale | The registry scored raw NASA-TLX on its items' 0–20 coding; `TLX_SCORE` is 0–100 | Pooled `TLX_SCORE` (LLM-excluded) 5.95 instead of 34.7 | Subscales put on 0–100 before averaging; declared `scale_conversions` for narrower recording scales (WoZ's 0–10 TLX) |
+| A baseline as the study's value | FOV Snap-Turn's eight FMS time points mapped to one DV could not be averaged | The minute-0 rating (mean 0.18) stood for a 20-minute VR session | Session average mapped; uncomposed duplicates averaged |
+| The benchmark showed the answer | The prompt lists three aliases per candidate DV, including the held-out one | 86 of 265 E1 and 216 of 300 E2 items had it in view (E2 accuracy 0.82 vs. 0.74 without it) | Aliases equal to the queried column are hidden (no effect in the pipeline) |
+| LLM data in LLM-excluded outputs | Composite items were read as real scale items; scores computed from LLM-mapped items had no provenance | Pooled `perceived_safety_item_04` (LLM-excluded) rested on 5 studies instead of 3, two of them LLM composites with wrong item positions | Composite items not read as scale items; scores inherit their items' provenance |
+| Fixed-effect meta-regression | The slope test ignored residual heterogeneity | p < .05 for 60% of null slopes (τ = 0.5, k = 6); 36 of 50 DVs "significant" | Random-effects meta-regression with the Knapp-Hartung test |
+| Participant ids from the wrong column | Aggregation used the first ID-like column | eHMI for All lost every survey DV at the participant level | Declared participant columns for all 23 studies |
 
 ### 2.2 LLM mapping is weak on real columns; plausibility checks are cheap (RQ2)
 
@@ -114,6 +127,27 @@ Readings:
 their definitions: the mean of a name similarity (id, label, aliases,
 instruments) and a full-definition similarity (adding notes, cluster and
 unit). It needs no model download, only scikit-learn.
+
+**Rerun after the 2026-11-04 review.** Until then the prompt listed each
+candidate DV's first three schema aliases including the held-out one, for
+86 of 265 E1 and 216 of 300 E2 items, and E1 skipped the unit conversions
+the pipeline applies before the LLM step. The rerun on the 23 development
+studies (definition shortlist, rules v1.3, the default sample of 40 items
+per source and label kind) gives:
+
+| Metric | before the fix | rerun |
+|---|---|---|
+| E1 accuracy on true DV columns | 45% (120/265) | 41% (105/255) |
+| E1 precision of accepted DV mappings | 37% (120/323) | 31% (105/340) |
+| E1 curated non-DVs mapped to a DV (checked) | 52% | 50% |
+| E1 abstentions on DV columns (checked) | 21% | 10% |
+| E2 accuracy | 68% (203/300) | 60% (181/300) |
+| E2 precision | 74% | 65% |
+
+Fewer abstentions and more wrong answers on DV columns: with milliseconds
+converted to seconds, wrong suggestions for crossing times now pass the
+range check, as they do in the pipeline. The tables below are the earlier
+runs and overstate accuracy on columns whose name is a schema alias.
 
 Final evaluation (11 studies, rules v1.2, Gemma-4-E2B, check on; E1:
 106 real DV columns, 69 non-DV columns; E2: 300 schema aliases):
@@ -348,10 +382,30 @@ apart from the original 11 (`evaluate_llm_mapping.py --subset`):
 | Curated non-DVs mapped to a DV | 54% | 54% | 56% |
 | Original 11 studies: correct, of 101 | 52 | 65 | 69 |
 
-The original 11 studies' items are identical to the previous run. As in the
-confirmatory test, the filtered dense shortlists do not beat `definition` on
-studies they were not tuned on. Three patterns account for 80 of
-`definition`'s 96 errors:
+Rerun after the 2026-11-04 review (held-out alias no longer shown, unit and
+scale conversions applied, rules 1.3; the review fixes changed the DV
+columns of four studies, so there are 155 and 100):
+
+| E1, check on | definition | dense_h | mixed_h |
+|---|---|---|---|
+| 12 added studies: correct, of 155 | 57 (37%) | 63 (41%) | 62 (40%) |
+| Paired exact McNemar vs. definition | | p = 0.34 (17 vs. 11) | p = 0.27 (9 vs. 4) |
+| Precision of accepted mappings | 23% | 25% | 24% |
+| Original 11 studies: correct, of 100 | 48 | 63 (p = 0.011) | 60 (p = 0.023) |
+| All 23: correct, of 255 | 105 (41%) | 126 (49%, p = 0.009) | 122 (48%, p = 0.008) |
+| All 23: precision | 31% | 37% | 36% |
+| E2 accuracy, of 300 | 60% | 56% | 62% |
+
+The fix cost `definition` more than the filtered dense shortlists, which now
+lead over all 23 studies. The lead comes from the original 11 studies, on
+which they were designed; on the 12 added studies, as in the pre-registered
+confirmatory test, it is not significant. `definition` therefore stays the
+default.
+
+In the first run the original 11 studies' items were identical to the
+previous run, and, as in the confirmatory test, the filtered dense shortlists
+did not beat `definition` on studies they were not tuned on. Three patterns
+accounted for 80 of `definition`'s 96 errors:
 
 - **Item numbers misread (31).** Zero-based SUS items (`sus0`–`sus9`) are
   mapped one item too low, and the numbered NASA-TLX columns `TLX 2`–`TLX 6`
@@ -384,37 +438,83 @@ P1 must confirm it on a held-out split.
 ### 2.3 Pooled estimates depend on harmonization choices (RQ3)
 
 The multiverse crosses five binary choices (32 specifications). Results for
-the 23-study run (`analyses/output_multiverse/`; the 11-study values of
-2026-11-03 in parentheses):
+the 23-study run after the 2026-11-04 review fixes (`analyses/output_multiverse/`;
+the values before the fixes in parentheses):
 
-- **Robust:** NASA-TLX `mental_demand` (k = 5–13). All 32 estimates lie in
-  7.07–7.63 (6.88–7.77 with k = 3–7) and every interval covers the default
-  estimate.
+- **Robust:** NASA-TLX `mental_demand` (k = 7–13). All 32 estimates lie in
+  7.35–8.13 (7.07–7.63) and every interval covers the default estimate. It
+  moved up because WoZ Adaptation's 0–10 subscales are now on 0–20 and eHMI
+  Optimization contributes the participants' answers instead of the
+  optimizer's inverted copy.
 - **Fragile:**
-  - `perceived_safety` (k = 2–9) moves from 1.12 to 5.06 (−0.24 to 4.27),
-    entirely with scale harmonization (raw 4.82–5.06, harmonized 1.12–1.93);
-    half of the intervals miss the default;
-  - `understanding_rating` ranges from 3.71 to 7.56 (3.33 to 7.56);
-  - the NASA-TLX total `TLX_SCORE` from 5.95 to 11.49.
+  - `perceived_safety` (k = 4–11) moves from 0.93 to 4.04 (1.12 to 5.06),
+    entirely with scale harmonization (raw 3.75–4.04, harmonized 0.93–1.43);
+    28% of the intervals miss the default;
+  - `understanding_rating` ranges from 3.71 to 7.56, again by scale
+    harmonization alone;
+  - the NASA-TLX total `TLX_SCORE` now lies in 27.4–34.7 on its 0–100 scale
+    (5.95–11.49 before, when 0–20 totals were pooled as 0–100).
 - **Fragility from LLM rows:** with LLM-deduced columns included,
-  `task_completion_time` spans 0.65 to 1,287, because the LLM mapped an
-  added study's decision time in milliseconds, which its curated mapping
-  leaves out. `pedestrian_crossing_time` gains four LLM-mapped columns from
-  VR, game and authentication studies. The plausibility rules check names,
-  types and ranges, not whether a DV fits the study's domain.
+  `task_completion_time` spans 11 to 1,331 (0.70–0.90 without them), because
+  the LLM maps an added study's decision time in milliseconds, which its
+  curated mapping leaves out. `pedestrian_crossing_time` is pooled only with
+  LLM-mapped columns (5.6–13.9 over 6–7 studies); without them one study has
+  it. The plausibility rules check names, types and ranges, not whether a DV
+  fits the study's domain.
 - **Fragility that was a data error:** `performance` ranged from 8.73 to
   15.01, the widest range of any DV, until Running into Traffic's
   reverse-keyed "success" item was fixed (2026-10-26); it now lies in
-  5.59–6.49 (k = 4–7). Van der Laan usefulness was negative in every
+  6.31–7.30 (k = 5–7). Van der Laan usefulness was negative in every
   specification (−0.63) until the item keying of ROADS and eHMI-for-All was
-  fixed; it now lies in 0.81–2.30. A wide or implausible multiverse range
+  fixed; it now lies in 0.81–1.85. A wide or implausible multiverse range
   can flag a polarity error, not only a consequential harmonization choice.
 - **Interval width:** 95% interval widths differ by up to two orders of
-  magnitude between Wald and HKSJ at small k (e.g. `perceived_safety`: 0.25
-  to 61).
+  magnitude between Wald and HKSJ at small k (e.g. `perceived_safety`: 1.3
+  to 11.6; `TLX_SCORE` 12 to 143).
 
 The multiverse turns "we pooled k studies" into "this estimate survives N of
 32 defensible pipelines" — a reporting standard worth proposing (P5).
+
+### 2.5 Harmonization reveals relations no single study shows (RQ1, RQ3)
+
+Means need scalar invariance, which no shared scale reaches (§4);
+correlations do not change under rescaling. `opendv/analysis/construct_relations.py`
+therefore pools within-study correlations between harmonized constructs
+(Fisher z, REML, HKSJ, prediction intervals; between persons on participant
+means and within persons as repeated-measures correlations) and traces every
+column to the step that mapped it. Details and figures:
+[`docs/cross_study_insights.md`](cross_study_insights.md). Exploratory; the
+finding rule was fixed after a first look at the data.
+
+- **Harmonization ladder.** Pairs of constructs measured together in at
+  least three studies: 0 when studies are pooled by identical column names,
+  0 with the shared schema and header matching alone, 29 with the curated
+  study mappings, 54 with the LLM fallback (between persons; within persons
+  0 / 0 / 23 / 41).
+- **Workload and perceived safety.** Within persons, occasions with higher
+  mental demand are rated less safe in all four studies that measured both
+  repeatedly (pooled r = −0.44, HKSJ [−0.72, −0.05], BH q = .04; I² = 94%).
+  Between persons the relation is uncertain (r = −0.27 [−0.62, 0.16], five
+  studies): a state-level coupling, not a trait-level one.
+- **NASA-TLX structure.** The subscales covary within persons in every study
+  (four studies, automotive and VR interaction); *performance* is the weakest
+  link (r = 0.29–0.45), consistent with the TLX's one-factor misfit (§4).
+- **The LLM's contribution.** It reaches 21 studies (16 without it) and
+  reproduces the workload–safety relation in eight. Its new cross-construct
+  findings need review: perceived safety × TiA trust (four studies, r = 0.60)
+  rests on correct mappings in two studies, a partly wrong one in a third and
+  a wrong one (relaxation as trust) in the fourth, yet looks homogeneous.
+- **Can the LLM replace curation? No.** With the LLM's leave-alias-out
+  answers in place of the curated mappings, 46 of 161 curated DV columns
+  keep their DV (69 with `dense_h`), and none of the 16 within-person
+  findings survives (one with `dense_h`): the
+  NASA-TLX subscales are read as mental demand or the TLX total, and the
+  workload–safety relation keeps its size (r = −0.39 over eight studies,
+  p = .009) but not its finding status (q = .09). Where both pool a pair the
+  correlations agree closely (median |Δr| 0.06–0.09), so the cost is coverage
+  and misassignment, not distorted estimates. This is a conclusion-level
+  evaluation of LLM harmonization; column accuracy alone (41%) does not show
+  that every finding is lost.
 
 ---
 
@@ -567,14 +667,17 @@ shows when a question is answered and when more studies are futile.
   | Van der Laan satisfying | eHMI-for-All, ROADS, FIDO2 | metric | scalar fails (ΔCFI −0.022, ΔRMSEA +0.067): means are not comparable |
   | UEQ-S pragmatic | Running into Traffic, three added automotive studies | none | misfit (RMSEA 0.13) |
   | UEQ-S hedonic | Running into Traffic, three added automotive studies | none | misfit (RMSEA 0.28); item 7 (inventive) loads 0.44–0.58 in three of the four studies |
+  | Perceived safety (4 items, scored since 2026-11-04) | BVI auditory HAV, eHMI for All | none | misfit (RMSEA 0.21, CFI 0.97), participant-clustered |
 
   With the original two studies, Van der Laan *satisfying* reached scalar
   and *usefulness* metric invariance; adding FIDO2 removes both. No shared
-  scale now supports pooling means. Every scale includes a study with one
-  observation per participant (or no declared participant id), for which
-  lavaan refuses participant clusters, so these fits are robust MLR without
-  the cluster correction; declaring the added studies' participants in
-  `schemas/study_designs.yaml` would restore it where answers repeat.
+  scale now supports pooling means. All 23 studies now declare their
+  participants in `schemas/study_designs.yaml`; a scale is still fitted
+  without the cluster correction when one of its studies has one
+  observation per participant (FIDO2, PairSonic, WoZ Adaptation, AV
+  Prevalence, eHMI State/Intent), because lavaan refuses singleton clusters.
+  Correlations need less than means (metric invariance at most), which is
+  why §2.5 pools relations instead.
   The negative *performance* loading of the 2-study run revealed that Running
   into Traffic's "success" item is keyed opposite to the TLX performance
   scale (high = success rather than failure; mean 17.7 of 21, negative
@@ -602,9 +705,11 @@ shows when a question is answered and when more studies are futile.
 python -m opendv.run_batch_standardization --manifest sources_manifest_no4tu.yaml \
   --output-dir data/processed/det_run --cache-dir data/processed/cache --disable-llm-deduction
 
-# LLM mapping benchmark (E1 + E2)
+# LLM mapping benchmark (E1 + E2); --max-per-source 1000 asks about every
+# curated column, which the LLM replay of construct_relations needs
 python -m opendv.analysis.evaluate_llm_mapping --manifest sources_manifest_no4tu.yaml \
-  --batch-dir data/processed/det_run --cache-dir data/processed/cache
+  --batch-dir data/processed/det_run --cache-dir data/processed/cache --max-per-source 1000 \
+  --subset added_2026_11_04=analyses/development_sources/sources.yaml
 
 # Full LLM-assisted run, analysis, multiverse and figures
 python -m opendv.run_batch_standardization --manifest sources_manifest_no4tu.yaml \
@@ -613,4 +718,7 @@ python -m opendv.analysis.multi_study_analysis --input-dir data/processed/catalo
   --output-dir analyses/output_python_full --exclude-llm-deduced
 python -m opendv.analysis.multiverse_analysis --input-dir data/processed/catalog_meta_analysis/standardized
 python -m opendv.analysis.make_chi_figures
+python -m opendv.analysis.construct_relations --input-dir data/processed/catalog_meta_analysis/standardized \
+  --output-dir analyses/output_relations \
+  --llm-replay-items analyses/output_llm_evaluation/llm_mapping_evaluation_items.csv
 ```

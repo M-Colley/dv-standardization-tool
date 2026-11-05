@@ -698,519 +698,517 @@
       "woz_adaptation_ijhcs24": 97
     },
     "clusters": {
-      "curved_dragging_vr_ijhci26": 288,
-      "incar_vr_gain_chi24": 204,
+      "curved_dragging_vr_ijhci26": 24,
+      "incar_vr_gain_chi24": 17,
       "roads_chi25": 23,
       "running_into_traffic_chi26": 24,
       "woz_adaptation_ijhcs24": 97
     },
     "cluster_robust": false,
     "one_observation_per_cluster": [
-      "curved_dragging_vr_ijhci26",
-      "incar_vr_gain_chi24",
       "woz_adaptation_ijhcs24"
     ],
     "levels": {
       "configural": {
-        "chisq.scaled": 242.158271,
+        "chisq.scaled": 244.206515,
         "df.scaled": 45,
         "pvalue.scaled": 0,
-        "cfi.robust": 0.921462,
-        "tli.robust": 0.869103,
-        "rmsea.robust": 0.163265,
-        "srmr": 0.057264,
-        "aic": 35956.057008,
-        "bic": 36410.568035,
+        "cfi.robust": 0.919338,
+        "tli.robust": 0.865564,
+        "rmsea.robust": 0.166138,
+        "srmr": 0.058854,
+        "aic": 36939.608457,
+        "bic": 37394.119483,
         "converged": true,
         "warning": "",
         "std_loadings": [
           {
             "group": "curved_dragging_vr_ijhci26",
             "item": "mental_demand",
-            "std_loading": 0.825720835245858
+            "std_loading": 0.825724799153113
           },
           {
             "group": "curved_dragging_vr_ijhci26",
             "item": "physical_demand",
-            "std_loading": 0.817245894044701
+            "std_loading": 0.817247393273439
           },
           {
             "group": "curved_dragging_vr_ijhci26",
             "item": "temporal_demand",
-            "std_loading": 0.876580810391666
+            "std_loading": 0.876582145113583
           },
           {
             "group": "curved_dragging_vr_ijhci26",
             "item": "performance",
-            "std_loading": 0.589511984825928
+            "std_loading": 0.589514055813664
           },
           {
             "group": "curved_dragging_vr_ijhci26",
             "item": "effort",
-            "std_loading": 0.924477417022497
+            "std_loading": 0.92447839300753
           },
           {
             "group": "curved_dragging_vr_ijhci26",
             "item": "frustration",
-            "std_loading": 0.841167992673285
+            "std_loading": 0.841169606594859
           },
           {
             "group": "incar_vr_gain_chi24",
             "item": "mental_demand",
-            "std_loading": 0.425626647244208
+            "std_loading": 0.518999216744236
           },
           {
             "group": "incar_vr_gain_chi24",
             "item": "physical_demand",
-            "std_loading": 0.810296353105214
+            "std_loading": 0.808044318263487
           },
           {
             "group": "incar_vr_gain_chi24",
             "item": "temporal_demand",
-            "std_loading": 0.807155486376221
+            "std_loading": 0.804454747842821
           },
           {
             "group": "incar_vr_gain_chi24",
             "item": "performance",
-            "std_loading": 0.297404655334628
+            "std_loading": 0.323733242013905
           },
           {
             "group": "incar_vr_gain_chi24",
             "item": "effort",
-            "std_loading": 0.312079100329274
+            "std_loading": 0.328606923431709
           },
           {
             "group": "incar_vr_gain_chi24",
             "item": "frustration",
-            "std_loading": 0.882663223724043
+            "std_loading": 0.879032101819955
           },
           {
             "group": "roads_chi25",
             "item": "mental_demand",
-            "std_loading": 0.855887252027694
+            "std_loading": 0.855889248359509
           },
           {
             "group": "roads_chi25",
             "item": "physical_demand",
-            "std_loading": 0.862423116932858
+            "std_loading": 0.86242393933745
           },
           {
             "group": "roads_chi25",
             "item": "temporal_demand",
-            "std_loading": 0.898136681830866
+            "std_loading": 0.898137002458108
           },
           {
             "group": "roads_chi25",
             "item": "performance",
-            "std_loading": 0.248293057654312
+            "std_loading": 0.248292930223597
           },
           {
             "group": "roads_chi25",
             "item": "effort",
-            "std_loading": 0.889121390413361
+            "std_loading": 0.889121849061996
           },
           {
             "group": "roads_chi25",
             "item": "frustration",
-            "std_loading": 0.716040244398648
+            "std_loading": 0.716041082180515
           },
           {
             "group": "running_into_traffic_chi26",
             "item": "mental_demand",
-            "std_loading": 0.574025823387682
+            "std_loading": 0.574033511342399
           },
           {
             "group": "running_into_traffic_chi26",
             "item": "physical_demand",
-            "std_loading": 0.443372695301768
+            "std_loading": 0.443378986737455
           },
           {
             "group": "running_into_traffic_chi26",
             "item": "temporal_demand",
-            "std_loading": 0.443257717432132
+            "std_loading": 0.443256450845107
           },
           {
             "group": "running_into_traffic_chi26",
             "item": "performance",
-            "std_loading": 0.535135261080145
+            "std_loading": 0.535134395902973
           },
           {
             "group": "running_into_traffic_chi26",
             "item": "effort",
-            "std_loading": 0.772220068917694
+            "std_loading": 0.772222550585387
           },
           {
             "group": "running_into_traffic_chi26",
             "item": "frustration",
-            "std_loading": 0.830947612690453
+            "std_loading": 0.830944191568734
           },
           {
             "group": "woz_adaptation_ijhcs24",
             "item": "mental_demand",
-            "std_loading": 0.702297564232839
+            "std_loading": 0.702237304966876
           },
           {
             "group": "woz_adaptation_ijhcs24",
             "item": "physical_demand",
-            "std_loading": 0.329070752823996
+            "std_loading": 0.329051058433351
           },
           {
             "group": "woz_adaptation_ijhcs24",
             "item": "temporal_demand",
-            "std_loading": 0.808606381425875
+            "std_loading": 0.808596826279272
           },
           {
             "group": "woz_adaptation_ijhcs24",
             "item": "performance",
-            "std_loading": -0.0379576985027453
+            "std_loading": -0.0379608807073172
           },
           {
             "group": "woz_adaptation_ijhcs24",
             "item": "effort",
-            "std_loading": 0.884458722932332
+            "std_loading": 0.884447112428636
           },
           {
             "group": "woz_adaptation_ijhcs24",
             "item": "frustration",
-            "std_loading": 0.371898339829023
+            "std_loading": 0.3718773542738
           }
         ]
       },
       "metric": {
-        "chisq.scaled": 425.518494,
+        "chisq.scaled": 379.890643,
         "df.scaled": 65,
         "pvalue.scaled": 0,
-        "cfi.robust": 0.856845,
-        "tli.robust": 0.834821,
-        "rmsea.robust": 0.183402,
-        "srmr": 0.122124,
-        "aic": 36171.396744,
-        "bic": 36524.90532,
+        "cfi.robust": 0.875382,
+        "tli.robust": 0.85621,
+        "rmsea.robust": 0.171821,
+        "srmr": 0.113213,
+        "aic": 37082.337002,
+        "bic": 37435.845579,
         "converged": true,
         "warning": "",
         "std_loadings": [
           {
             "group": "curved_dragging_vr_ijhci26",
             "item": "mental_demand",
-            "std_loading": 0.80692469787318
+            "std_loading": 0.823810230657657
           },
           {
             "group": "curved_dragging_vr_ijhci26",
             "item": "physical_demand",
-            "std_loading": 0.824837423694018
+            "std_loading": 0.820976821129553
           },
           {
             "group": "curved_dragging_vr_ijhci26",
             "item": "temporal_demand",
-            "std_loading": 0.891631878507784
+            "std_loading": 0.889849602787137
           },
           {
             "group": "curved_dragging_vr_ijhci26",
             "item": "performance",
-            "std_loading": 0.502562157663849
+            "std_loading": 0.49973280120734
           },
           {
             "group": "curved_dragging_vr_ijhci26",
             "item": "effort",
-            "std_loading": 0.913787103489803
+            "std_loading": 0.91137834173646
           },
           {
             "group": "curved_dragging_vr_ijhci26",
             "item": "frustration",
-            "std_loading": 0.851307309271588
+            "std_loading": 0.851990224494744
           },
           {
             "group": "incar_vr_gain_chi24",
             "item": "mental_demand",
-            "std_loading": 0.72587948664701
+            "std_loading": 0.670676507297584
           },
           {
             "group": "incar_vr_gain_chi24",
             "item": "physical_demand",
-            "std_loading": 0.689763662753159
+            "std_loading": 0.775380210250262
           },
           {
             "group": "incar_vr_gain_chi24",
             "item": "temporal_demand",
-            "std_loading": 0.652162683526377
+            "std_loading": 0.739703909441052
           },
           {
             "group": "incar_vr_gain_chi24",
             "item": "performance",
-            "std_loading": 0.337314485456962
+            "std_loading": 0.399493417476028
           },
           {
             "group": "incar_vr_gain_chi24",
             "item": "effort",
-            "std_loading": 0.565915056628411
+            "std_loading": 0.609251208048504
           },
           {
             "group": "incar_vr_gain_chi24",
             "item": "frustration",
-            "std_loading": 0.641088554431488
+            "std_loading": 0.748697116845897
           },
           {
             "group": "roads_chi25",
             "item": "mental_demand",
-            "std_loading": 0.833566692051166
+            "std_loading": 0.849578776465604
           },
           {
             "group": "roads_chi25",
             "item": "physical_demand",
-            "std_loading": 0.853878637587938
+            "std_loading": 0.849541440423835
           },
           {
             "group": "roads_chi25",
             "item": "temporal_demand",
-            "std_loading": 0.872094573419597
+            "std_loading": 0.869576726530742
           },
           {
             "group": "roads_chi25",
             "item": "performance",
-            "std_loading": 0.40294888701171
+            "std_loading": 0.400360089904028
           },
           {
             "group": "roads_chi25",
             "item": "effort",
-            "std_loading": 0.904782154526603
+            "std_loading": 0.901702427517331
           },
           {
             "group": "roads_chi25",
             "item": "frustration",
-            "std_loading": 0.767585741667028
+            "std_loading": 0.767654066577926
           },
           {
             "group": "running_into_traffic_chi26",
             "item": "mental_demand",
-            "std_loading": 0.50659058434915
+            "std_loading": 0.530633253624023
           },
           {
             "group": "running_into_traffic_chi26",
             "item": "physical_demand",
-            "std_loading": 0.644355513663692
+            "std_loading": 0.640010894394703
           },
           {
             "group": "running_into_traffic_chi26",
             "item": "temporal_demand",
-            "std_loading": 0.685595250281112
+            "std_loading": 0.683140261136329
           },
           {
             "group": "running_into_traffic_chi26",
             "item": "performance",
-            "std_loading": 0.344592659885657
+            "std_loading": 0.344181400733897
           },
           {
             "group": "running_into_traffic_chi26",
             "item": "effort",
-            "std_loading": 0.692894096261693
+            "std_loading": 0.691867616040347
           },
           {
             "group": "running_into_traffic_chi26",
             "item": "frustration",
-            "std_loading": 0.600867936335856
+            "std_loading": 0.604766810283484
           },
           {
             "group": "woz_adaptation_ijhcs24",
             "item": "mental_demand",
-            "std_loading": 0.684804693250568
+            "std_loading": 0.705181804318024
           },
           {
             "group": "woz_adaptation_ijhcs24",
             "item": "physical_demand",
-            "std_loading": 0.468468250767053
+            "std_loading": 0.462087960638532
           },
           {
             "group": "woz_adaptation_ijhcs24",
             "item": "temporal_demand",
-            "std_loading": 0.784153439229325
+            "std_loading": 0.777797688418434
           },
           {
             "group": "woz_adaptation_ijhcs24",
             "item": "performance",
-            "std_loading": 0.343073933693092
+            "std_loading": 0.340424305756634
           },
           {
             "group": "woz_adaptation_ijhcs24",
             "item": "effort",
-            "std_loading": 0.82674165909536
+            "std_loading": 0.821965312714766
           },
           {
             "group": "woz_adaptation_ijhcs24",
             "item": "frustration",
-            "std_loading": 0.499102988259776
+            "std_loading": 0.498202193586028
           }
         ],
-        "lrt_chisq_diff": 183.9098162684,
+        "lrt_chisq_diff": 137.1763232542,
         "lrt_df_diff": 20,
-        "lrt_pvalue": 1.66372586792202e-28
+        "lrt_pvalue": 1.73399980283323e-19
       },
       "scalar": {
-        "chisq.scaled": 928.647903,
+        "chisq.scaled": 911.904219,
         "df.scaled": 85,
         "pvalue.scaled": 0,
-        "cfi.robust": 0.690491,
-        "tli.robust": 0.726904,
-        "rmsea.robust": 0.235822,
-        "srmr": 0.195519,
-        "aic": 36736.200684,
-        "bic": 36988.70681,
+        "cfi.robust": 0.698879,
+        "tli.robust": 0.734305,
+        "rmsea.robust": 0.233563,
+        "srmr": 0.176962,
+        "aic": 37687.65674,
+        "bic": 37940.162866,
         "converged": true,
         "warning": "",
         "std_loadings": [
           {
             "group": "curved_dragging_vr_ijhci26",
             "item": "mental_demand",
-            "std_loading": 0.785840212149204
+            "std_loading": 0.816522241355762
           },
           {
             "group": "curved_dragging_vr_ijhci26",
             "item": "physical_demand",
-            "std_loading": 0.786162821696355
+            "std_loading": 0.774505976650223
           },
           {
             "group": "curved_dragging_vr_ijhci26",
             "item": "temporal_demand",
-            "std_loading": 0.895508498295347
+            "std_loading": 0.891277154810246
           },
           {
             "group": "curved_dragging_vr_ijhci26",
             "item": "performance",
-            "std_loading": 0.570898429482903
+            "std_loading": 0.489506347493525
           },
           {
             "group": "curved_dragging_vr_ijhci26",
             "item": "effort",
-            "std_loading": 0.916371545936152
+            "std_loading": 0.92354414291762
           },
           {
             "group": "curved_dragging_vr_ijhci26",
             "item": "frustration",
-            "std_loading": 0.832282028642977
+            "std_loading": 0.81909471598463
           },
           {
             "group": "incar_vr_gain_chi24",
             "item": "mental_demand",
-            "std_loading": 0.716474318296826
+            "std_loading": 0.627431739037072
           },
           {
             "group": "incar_vr_gain_chi24",
             "item": "physical_demand",
-            "std_loading": 0.6331958880411
+            "std_loading": 0.723904723981105
           },
           {
             "group": "incar_vr_gain_chi24",
             "item": "temporal_demand",
-            "std_loading": 0.64366454751129
+            "std_loading": 0.752242823296214
           },
           {
             "group": "incar_vr_gain_chi24",
             "item": "performance",
-            "std_loading": 0.297470972412404
+            "std_loading": 0.318243972839307
           },
           {
             "group": "incar_vr_gain_chi24",
             "item": "effort",
-            "std_loading": 0.485822839811268
+            "std_loading": 0.550167998977717
           },
           {
             "group": "incar_vr_gain_chi24",
             "item": "frustration",
-            "std_loading": 0.578938407751423
+            "std_loading": 0.686572882733587
           },
           {
             "group": "roads_chi25",
             "item": "mental_demand",
-            "std_loading": 0.81922098341376
+            "std_loading": 0.846959425325977
           },
           {
             "group": "roads_chi25",
             "item": "physical_demand",
-            "std_loading": 0.857768109215785
+            "std_loading": 0.846698431479139
           },
           {
             "group": "roads_chi25",
             "item": "temporal_demand",
-            "std_loading": 0.873971120280015
+            "std_loading": 0.861022773865343
           },
           {
             "group": "roads_chi25",
             "item": "performance",
-            "std_loading": 0.438098555627956
+            "std_loading": 0.375673735942777
           },
           {
             "group": "roads_chi25",
             "item": "effort",
-            "std_loading": 0.904039365763068
+            "std_loading": 0.907111163120464
           },
           {
             "group": "roads_chi25",
             "item": "frustration",
-            "std_loading": 0.744290747156557
+            "std_loading": 0.729015835507583
           },
           {
             "group": "running_into_traffic_chi26",
             "item": "mental_demand",
-            "std_loading": 0.477530070283184
+            "std_loading": 0.524852066769638
           },
           {
             "group": "running_into_traffic_chi26",
             "item": "physical_demand",
-            "std_loading": 0.648117922082336
+            "std_loading": 0.638960354783182
           },
           {
             "group": "running_into_traffic_chi26",
             "item": "temporal_demand",
-            "std_loading": 0.692876866629807
+            "std_loading": 0.686595737755061
           },
           {
             "group": "running_into_traffic_chi26",
             "item": "performance",
-            "std_loading": 0.374811075077671
+            "std_loading": 0.300439497507884
           },
           {
             "group": "running_into_traffic_chi26",
             "item": "effort",
-            "std_loading": 0.664799328261744
+            "std_loading": 0.686798904312492
           },
           {
             "group": "running_into_traffic_chi26",
             "item": "frustration",
-            "std_loading": 0.517035718019361
+            "std_loading": 0.5128119049875
           },
           {
             "group": "woz_adaptation_ijhcs24",
             "item": "mental_demand",
-            "std_loading": 0.666039785463133
+            "std_loading": 0.666163495799543
           },
           {
             "group": "woz_adaptation_ijhcs24",
             "item": "physical_demand",
-            "std_loading": 0.45024365875193
+            "std_loading": 0.425607924424353
           },
           {
             "group": "woz_adaptation_ijhcs24",
             "item": "temporal_demand",
-            "std_loading": 0.796588224617679
+            "std_loading": 0.781579734665567
           },
           {
             "group": "woz_adaptation_ijhcs24",
             "item": "performance",
-            "std_loading": 0.270629381375568
+            "std_loading": 0.284448057789909
           },
           {
             "group": "woz_adaptation_ijhcs24",
             "item": "effort",
-            "std_loading": 0.842781985169698
+            "std_loading": 0.835534955186951
           },
           {
             "group": "woz_adaptation_ijhcs24",
             "item": "frustration",
-            "std_loading": 0.408261207825166
+            "std_loading": 0.3825793066883
           }
         ],
-        "lrt_chisq_diff": 639.1447085364,
+        "lrt_chisq_diff": 695.0491847706,
         "lrt_df_diff": 20,
-        "lrt_pvalue": 1.60404264812787e-122
+        "lrt_pvalue": 2.46862697327967e-134
       }
     },
     "items": [
@@ -1785,6 +1783,200 @@
     ]
   },
   {
+    "scale": "perceived_safety_score",
+    "lavaan": "0.7.3",
+    "n_obs": 825,
+    "groups": {
+      "bvi_auditory_hav_autoui26": 105,
+      "ehmi_for_all_chi26": 720
+    },
+    "clusters": {
+      "bvi_auditory_hav_autoui26": 35,
+      "ehmi_for_all_chi26": 40
+    },
+    "cluster_robust": true,
+    "one_observation_per_cluster": [],
+    "levels": {
+      "configural": {
+        "chisq.scaled": 19.755441,
+        "df.scaled": 4,
+        "pvalue.scaled": 0.000558,
+        "cfi.robust": 0.973854,
+        "tli.robust": 0.921563,
+        "rmsea.robust": 0.212794,
+        "srmr": 0.01993,
+        "aic": 9497.515818,
+        "bic": 9610.685019,
+        "converged": true,
+        "warning": "",
+        "std_loadings": [
+          {
+            "group": "bvi_auditory_hav_autoui26",
+            "item": "perceived_safety_item_01",
+            "std_loading": 0.851373947716069
+          },
+          {
+            "group": "bvi_auditory_hav_autoui26",
+            "item": "perceived_safety_item_02",
+            "std_loading": 0.856326772824647
+          },
+          {
+            "group": "bvi_auditory_hav_autoui26",
+            "item": "perceived_safety_item_03",
+            "std_loading": 0.921974284088212
+          },
+          {
+            "group": "bvi_auditory_hav_autoui26",
+            "item": "perceived_safety_item_04",
+            "std_loading": 0.93815484974572
+          },
+          {
+            "group": "ehmi_for_all_chi26",
+            "item": "perceived_safety_item_01",
+            "std_loading": 0.910306484569463
+          },
+          {
+            "group": "ehmi_for_all_chi26",
+            "item": "perceived_safety_item_02",
+            "std_loading": 0.877933801095027
+          },
+          {
+            "group": "ehmi_for_all_chi26",
+            "item": "perceived_safety_item_03",
+            "std_loading": 0.871045976991764
+          },
+          {
+            "group": "ehmi_for_all_chi26",
+            "item": "perceived_safety_item_04",
+            "std_loading": 0.88858834281607
+          }
+        ]
+      },
+      "metric": {
+        "chisq.scaled": 30.187508,
+        "df.scaled": 7,
+        "pvalue.scaled": 8.8e-05,
+        "cfi.robust": 0.972719,
+        "tli.robust": 0.953232,
+        "rmsea.robust": 0.164313,
+        "srmr": 0.028149,
+        "aic": 9499.327094,
+        "bic": 9598.350145,
+        "converged": true,
+        "warning": "",
+        "std_loadings": [
+          {
+            "group": "bvi_auditory_hav_autoui26",
+            "item": "perceived_safety_item_01",
+            "std_loading": 0.872773692251246
+          },
+          {
+            "group": "bvi_auditory_hav_autoui26",
+            "item": "perceived_safety_item_02",
+            "std_loading": 0.851476802431208
+          },
+          {
+            "group": "bvi_auditory_hav_autoui26",
+            "item": "perceived_safety_item_03",
+            "std_loading": 0.928998185510711
+          },
+          {
+            "group": "bvi_auditory_hav_autoui26",
+            "item": "perceived_safety_item_04",
+            "std_loading": 0.915650826956189
+          },
+          {
+            "group": "ehmi_for_all_chi26",
+            "item": "perceived_safety_item_01",
+            "std_loading": 0.907792793731687
+          },
+          {
+            "group": "ehmi_for_all_chi26",
+            "item": "perceived_safety_item_02",
+            "std_loading": 0.878113768569114
+          },
+          {
+            "group": "ehmi_for_all_chi26",
+            "item": "perceived_safety_item_03",
+            "std_loading": 0.869097212327454
+          },
+          {
+            "group": "ehmi_for_all_chi26",
+            "item": "perceived_safety_item_04",
+            "std_loading": 0.892772656341747
+          }
+        ],
+        "lrt_chisq_diff": 5.1318548552,
+        "lrt_df_diff": 3,
+        "lrt_pvalue": 0.162392810343675
+      },
+      "scalar": {
+        "chisq.scaled": 43.284055,
+        "df.scaled": 10,
+        "pvalue.scaled": 4e-06,
+        "cfi.robust": 0.967964,
+        "tli.robust": 0.961557,
+        "rmsea.robust": 0.148973,
+        "srmr": 0.030318,
+        "aic": 9510.883585,
+        "bic": 9595.760486,
+        "converged": true,
+        "warning": "",
+        "std_loadings": [
+          {
+            "group": "bvi_auditory_hav_autoui26",
+            "item": "perceived_safety_item_01",
+            "std_loading": 0.87535946705876
+          },
+          {
+            "group": "bvi_auditory_hav_autoui26",
+            "item": "perceived_safety_item_02",
+            "std_loading": 0.843819629856747
+          },
+          {
+            "group": "bvi_auditory_hav_autoui26",
+            "item": "perceived_safety_item_03",
+            "std_loading": 0.918611071588601
+          },
+          {
+            "group": "bvi_auditory_hav_autoui26",
+            "item": "perceived_safety_item_04",
+            "std_loading": 0.912556666182461
+          },
+          {
+            "group": "ehmi_for_all_chi26",
+            "item": "perceived_safety_item_01",
+            "std_loading": 0.907867205401045
+          },
+          {
+            "group": "ehmi_for_all_chi26",
+            "item": "perceived_safety_item_02",
+            "std_loading": 0.877397473454729
+          },
+          {
+            "group": "ehmi_for_all_chi26",
+            "item": "perceived_safety_item_03",
+            "std_loading": 0.869916281723268
+          },
+          {
+            "group": "ehmi_for_all_chi26",
+            "item": "perceived_safety_item_04",
+            "std_loading": 0.892420241749098
+          }
+        ],
+        "lrt_chisq_diff": 13.2680947079,
+        "lrt_df_diff": 3,
+        "lrt_pvalue": 0.00409128827296316
+      }
+    },
+    "items": [
+      "perceived_safety_item_01",
+      "perceived_safety_item_02",
+      "perceived_safety_item_03",
+      "perceived_safety_item_04"
+    ]
+  },
+  {
     "scale": "ueq_pragmatic",
     "lavaan": "0.7.3",
     "n_obs": 533,
@@ -1796,14 +1988,13 @@
     },
     "clusters": {
       "av_prevalence_ehmi_autoui24": 64,
-      "bvi_auditory_hav_autoui26": 105,
+      "bvi_auditory_hav_autoui26": 35,
       "ehmi_state_intent_mtap24": 87,
       "running_into_traffic_chi26": 24
     },
     "cluster_robust": false,
     "one_observation_per_cluster": [
       "av_prevalence_ehmi_autoui24",
-      "bvi_auditory_hav_autoui26",
       "ehmi_state_intent_mtap24"
     ],
     "levels": {
@@ -2118,14 +2309,13 @@
     },
     "clusters": {
       "av_prevalence_ehmi_autoui24": 64,
-      "bvi_auditory_hav_autoui26": 105,
+      "bvi_auditory_hav_autoui26": 35,
       "ehmi_state_intent_mtap24": 86,
       "running_into_traffic_chi26": 24
     },
     "cluster_robust": false,
     "one_observation_per_cluster": [
       "av_prevalence_ehmi_autoui24",
-      "bvi_auditory_hav_autoui26",
       "ehmi_state_intent_mtap24"
     ],
     "levels": {

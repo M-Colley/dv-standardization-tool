@@ -4,6 +4,55 @@ This document logs human-readable updates to the repo's functionality, structure
 
 ---
 
+### [2026-11-04] Code review and cross-study relations
+
+A review of the whole pipeline (harmonization, LLM fallback and benchmark, cross-study analyses) found the defects below; each is fixed and has a regression test in `tests/test_review_fixes.py`.
+
+**Harmonization**
+
+- **Columns combined by the sign of their correlation.** When several columns map to one DV, the batch averaged them into a composite and first flipped any column that correlated negatively with an anchor column. Columns that measure different things (a baseline next to later ratings, an LLM guess next to curated items) were thus sign-flipped and averaged. In AV Acceptance VR the three curated perceived-safety items were flipped to match LLM-mapped anxiety items. Items are now never flipped on the evidence of the data: a group with a negative correlation is left uncomposed (`skip_negative_item_correlation`), reverse keying comes only from a mapping file, and LLM-mapped columns are never combined with deterministically mapped ones (`skip_mixed_provenance`). Bookkeeping columns (`meta_*`) are not combined.
+- **Uncomposed duplicates.** When columns of one DV stayed uncomposed, the analysis used whichever came first and ignored the rest. It now averages them per row (repeated measurements of the DV).
+- **An optimizer's inverted copy of an answer.** eHMI Optimization stores each rating twice: the participant's answer (QuestionnaireResponses) and the Bayesian optimizer's objective (ObservationsPerEvaluation), where mental demand is inverted (11 − answer for 720 of 740 evaluations). Both were mapped to `mental_demand`, so participant means of the two cancelled out. The new manifest `table_options` key `drop_columns` drops the optimizer's copy; participant ids for the questionnaire files come from their folder names (`participant_from_file` in `study_designs.yaml`).
+- **Raw NASA-TLX on the wrong scale.** The registry scored the raw TLX on its items' coding, so studies with 0–20 subscales got 0–20 totals that were pooled as `TLX_SCORE` (0–100) next to 0–100 totals. Subscales are now put on 0–100 before averaging (`centering: proportion`).
+- **Recording scales inside the DV's range.** The analysis rescales a DV only when its values leave the DV's range, so a narrower scale inside it went unnoticed. New mapping block `scale_conversions` (linear, declared per column, validated, listed in `-quality.json` and the data package). Fixed: WoZ Adaptation's NASA-TLX on 0–10 (now 0–20); Curved Dragging's error rate as a proportion mapped to a percentage DV (now its percent column); In-car VR's TLX sum (0–120) mapped to `TLX_SCORE` (now left out; the score comes from the subscales).
+- **A baseline rating as the study's FMS.** FOV Snap-Turn's eight FMS time points were mapped to `fms_score` but could not be averaged (one exists only for withdrawers), so the minute-0 rating stood for the study. The session average ADS is now the score.
+- **Schema:** reverse-keyed SUS and Van der Laan items are `lower_is_better` (they were `higher_is_better`, so contrasts called a gain in usefulness unfavourable); `dwell_time` is no longer also an alias of `retention_time`; `total time` is no longer an alias of `pedestrian_crossing_time` (in eHMI for All it is the whole trial, averaged with the time on the intersection). Schema 3.2.
+- **Perceived safety scored from its items** (`perceived_safety_items` in the registry, as in the BVI study's analysis script), so studies that report only the four items contribute the scale.
+- **Header matching:** a header with a unit in parentheses ("Completion time (ms)") is no longer matched by its cleaned name to a DV in another unit; plain headers ("Mental Demand") now get the cleaned-alias lookup.
+- **Single-file conversion:** the automatic long-to-wide reshape no longer pivots a table whose other columns vary within a participant (it kept one DV of a wide within-subject table, or averaged two measures).
+
+**Provenance and the LLM fallback**
+
+- **The benchmark showed the model the answer.** The prompt lists the first three aliases of each candidate DV, and in the leave-alias-out benchmark the held-out alias was among them for 86 of 265 E1 and 216 of 300 E2 items. Aliases equal to the queried column are now left out (no effect in the pipeline, where such a column is mapped before the LLM is asked). All benchmark numbers below are from the rerun.
+- **E1 skipped unit conversions** the pipeline applies before the LLM step, so its range check saw milliseconds where the pipeline sees seconds (27 crossing-time items).
+- **LLM-derived values in "LLM-excluded" outputs.** Items of LLM-built composites were read as the scale's real items (`perceived_safety__item_2` as `perceived_safety_item_02`) without provenance, and questionnaire scores computed from LLM-mapped items counted as non-LLM. Composite items are no longer read as scale items, and scores inherit the most cautious provenance of their items.
+- **Study mappings labelled as the shared schema.** Every mapping file under `schemas/` counted as `schema`, so curated mappings could not be told from the shared vocabulary. Only the `standard_*_mapping.yaml` files count as `schema` now.
+- **`meta_view.csv`** marks LLM rows for review (`review_flag`, `mapping_confidence: llm_unreviewed`); they were `high`.
+- **Plausibility rules 1.3:** the 15% tolerance widens only the canonical range (on the alternative scales it accepted accelerations of −2.6..1.8 g as a −2..2 Van der Laan item); the LimeSurvey timing rule needs the question code itself (`reactionTime` next to `reactionCorrect` is a DV).
+
+**Analyses**
+
+- **Participant-level unit.** Aggregation used the first ID-like column, which dropped every survey DV of eHMI for All (its log files' `user_id` came first) and used survey response ids elsewhere. It now uses the participant columns declared in `study_designs.yaml`, now declared for all 23 studies (`participant_scope: file` where ids restart per file). Contrasts and invariance fits get row-level data even with `--repeated-measures`.
+- **Subgroups** counted an item and its own scale score as independent effects; items next to their score are dropped and each study counts once per cluster.
+- **Meta-regression** was fixed-effect: its slope test ignored residual heterogeneity (p < .05 for 60% of null slopes at τ = 0.5, k = 6). It is now a random-effects meta-regression with the Knapp-Hartung test (`statsmodels` WLS; intercept-only it equals the DL estimate with the HKSJ interval).
+- **Leave-one-out** rows show `k_remaining`, `pooling_method` and the HKSJ interval (at k = 3 the remaining two studies are pooled with fixed effects).
+- **Causal discovery ignored `--exclude-llm-deduced`.** LiNGAM, its bootstrap and the PC skeleton always ran on LLM-mapped columns, and the teaser figure's DAG came from In-car VR with its ride *relaxation* rating as TiA trust and a motion-sickness maximum as STS-AD trust. With the flag they now drop LLM-deduced columns; the DAG now rests on Running into Traffic's deterministic columns (n = 270).
+
+**New: cross-study relations** (`opendv/analysis/construct_relations.py`, `docs/cross_study_insights.md`). Correlations between harmonized constructs are pooled across studies (between persons and within persons; REML, HKSJ, prediction intervals, BH q), and every column is traced to the step that mapped it: identical names, shared schema, curated mapping or LLM.
+- **Ladder:** no pair of constructs is measured in three studies under the same names, or with the shared schema and header matching alone; 29 with the curated mappings and 54 with the LLM (between persons).
+- **Finding:** within persons, higher mental demand goes with lower perceived safety in all four studies that measured both repeatedly (r = −0.44, HKSJ [−0.72, −0.05], q = .04); between persons the relation is uncertain (r = −0.27, five studies). The NASA-TLX subscales covary within persons in every study, with *performance* the weakest link.
+- **LLM:** reaches 21 studies instead of 16; its new cross-construct findings rest partly on wrong mappings (a ride's relaxation rating as trust) and still look homogeneous.
+- **Replay** (`--llm-replay-items`): with the LLM's leave-alias-out answers in place of the curated mappings, 46 of 161 curated DV columns keep their DV and none of the 16 within-person findings survives (69 and one with `dense_h`); relations both versions pool agree closely (median |Δr| 0.06–0.09).
+
+**LLM benchmark rerun** (three shortlists, every curated column asked about with `--max-per-source 1000`; numbers on the default 40-per-source sample): `definition` 41% of 255 DV columns correct (45% before the leak fix), precision 31% (37%), E2 accuracy 60% (68%). `dense_h` and `mixed_h` 49% and 48% (p = 0.009, 0.008), but not better on the 12 added studies (p = 0.34, 0.27), so `definition` stays the default. The plausibility check now loses 1 of 106 correct mappings (a sampled file whose answers are all 1). The pre-registered confirmatory runs are not rerun: the leak touches 1 of their 168 items.
+
+**Regenerated outputs** (`analyses/output_python_full/`, `output_multiverse/`, `figures_chi/`, new `output_relations/`):
+- `TLX_SCORE` (LLM-excluded) is 34.7 on 0–100 (5.95 before); `mental_demand` 8.12 (7.39), with WoZ's subscales on 0–20 and eHMI Optimization's answers instead of the optimizer's copy.
+- `perceived_safety` is pooled over four studies (two), scored from the items of BVI and eHMI for All; its four items now rest on the two studies that report them (seven before: five through composite item columns that had no provenance).
+- Contrasts come from 14 studies (7). eHMI vs. none on perceived safety becomes estimable (+1.02 SD, two studies).
+- Invariance: perceived safety misfits configurally (RMSEA 0.21); scales whose studies all repeat answers are fitted participant-clustered again.
+- ROADS' SUS score leaves the LLM-excluded pooling: provenance is per study and DV, and the LLM mapped a "reality" item of another ROADS file to SUS item 1.
+
 ### [2026-11-04]
 
 - **Decimal commas.** A semicolon- or tab-separated file whose numbers use decimal commas (`24,825`, common in German or French spreadsheet exports) is now read with pandas' `decimal=","` (`opendv.data_loaders._detect_decimal`, also used by the UI uploader). The loader decides per file, and only when the sample has decimal-comma numbers and no decimal-point ones, because pandas would turn `1.5` into text under `decimal=","`.

@@ -142,10 +142,19 @@ def name_rejection_reason(
         if _rule_matches(rule, tokens, normalized):
             return str(rule.get("reason", "name_rule"))
 
-    others = [normalize_name(c) for c in other_columns if str(c) != str(column)]
+    raw_others = [str(c) for c in other_columns if str(c) != str(column)]
+    others = [normalize_name(c) for c in raw_others]
     if tokens and tokens[-1] == "time" and normalized.endswith("time") and rules.limesurvey_markers & set(others):
-        prefix = normalized[: -len("time")]
-        if prefix and any(other.startswith(prefix) for other in others):
+        # LimeSurvey writes the timing of question <code> as "<code>Time"; the
+        # question is a column <code> or has sub-questions "<code>[SQ001]" /
+        # "<code>_SQ001". A shared prefix alone ("reactionTime" next to
+        # "reactionCorrect") is not enough.
+        raw = str(column).strip().lower()
+        code = raw[: -len("time")] if raw.endswith("time") else ""
+        if code and any(
+            other == code or other.startswith((f"{code}[", f"{code}_", f"{code}."))
+            for other in (o.strip().lower() for o in raw_others)
+        ):
             return "survey_timing"
     return None
 
@@ -249,14 +258,21 @@ def range_is_compatible(
     canonical_range: tuple[float, float],
     rules: PlausibilityRules | None = None,
 ) -> bool:
-    """True when *observed* fits the canonical range or a standard alternative scale."""
+    """True when *observed* fits the canonical range (with the tolerance) or
+    lies within a standard alternative scale.
+
+    The tolerance applies to the canonical range only. Applied to the
+    alternative scales as well (until rules v1.2), it accepted values that
+    fit no response scale, e.g. accelerations of -2.6..1.8 g for a -2..2
+    item via 0-20 widened to -3..23.
+    """
     rules = rules or load_rules()
     lo_obs, hi_obs = observed
-    for lo, hi in (canonical_range, *rules.alternative_ranges):
-        tolerance = (hi - lo) * rules.range_tolerance
-        if lo_obs >= lo - tolerance and hi_obs <= hi + tolerance:
-            return True
-    return False
+    lo, hi = canonical_range
+    tolerance = (hi - lo) * rules.range_tolerance
+    if lo_obs >= lo - tolerance and hi_obs <= hi + tolerance:
+        return True
+    return any(lo <= lo_obs and hi_obs <= hi for lo, hi in rules.alternative_ranges)
 
 
 def check_llm_suggestion(

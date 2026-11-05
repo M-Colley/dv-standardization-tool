@@ -250,8 +250,52 @@ def apply_unit_conversions(
     return out, report
 
 
+def _linear_range(value: Any) -> tuple[float, float]:
+    lo, hi = (float(v) for v in value)
+    if not lo < hi:
+        raise ValueError(f"range must be [min, max] with min < max, got {value!r}")
+    return lo, hi
+
+
+def apply_scale_conversions(
+    df: pd.DataFrame,
+    specs: Iterable[dict[str, Any]],
+) -> tuple[pd.DataFrame, dict[str, str]]:
+    """Map declared columns linearly from the scale they were recorded on to
+    the DV's scale, e.g. NASA-TLX subscales stored on 0-10 to the schema's 0-20::
+
+        scale_conversions:
+          - columns: ["TLX 1", "TLX 2"]
+            from: [0, 10]
+            to: [0, 20]
+            reason: subscales stored 0-10 (codebook)
+
+    The analysis rescales a DV only when its values fall outside the DV's
+    range, so a narrower recording scale that fits inside it (0-10 within
+    0-20, a 0-1 proportion within 0-100 %) has to be declared. Numeric cells
+    are mapped, other cells are kept. Returns the frame and
+    ``{column: "[0, 10] -> [0, 20]"}``.
+    """
+    out = df
+    report: dict[str, str] = {}
+    for spec in specs or []:
+        if not isinstance(spec, dict):
+            continue
+        (a, b), (c, d) = _linear_range(spec["from"]), _linear_range(spec["to"])
+        for column in spec.get("columns") or []:
+            if column not in out.columns:
+                continue
+            if out is df:
+                out = df.copy()
+            numbers = pd.to_numeric(out[column], errors="coerce")
+            out[column] = (c + (numbers - a) * (d - c) / (b - a)).where(numbers.notna(), out[column])
+            report[str(column)] = f"[{a:g}, {b:g}] -> [{c:g}, {d:g}]"
+    return out, report
+
+
 __all__ = [
     "apply_missing_values",
+    "apply_scale_conversions",
     "apply_unit_conversions",
     "apply_value_labels",
     "recode_negative_answer_codes",

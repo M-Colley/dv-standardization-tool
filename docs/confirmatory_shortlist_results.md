@@ -2,6 +2,8 @@
 
 Run on 2026-10-26, as pre-registered in `docs/preregistration_confirmatory_shortlist.md`. The pre-registration was committed (33161d8) before any data were downloaded. The gold labels were frozen (e625980) before any shortlist or LLM run. The runs used the pre-registered settings without deviation. Outputs: `analyses/confirmatory/results.json` and `analyses/confirmatory/runs/<shortlist>/`.
 
+> **Note (2026-11-04).** A code review found that the benchmark prompt listed the held-out alias among the candidate DVs' aliases when it was one of their first three schema aliases (fixed in `llm_utils._format_candidate_reference`). In this test that applies to 1 of the 168 DV columns, so the results below stand; they were not rerun.
+
 ## Data
 
 The seven datasets were downloaded and verified against their published checksums, and none was dropped. Of the 522 columns:

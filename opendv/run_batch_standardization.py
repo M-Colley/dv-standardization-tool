@@ -173,6 +173,7 @@ from opendv.llm_plausibility import load_rules as load_plausibility_rules
 from opendv.value_labels import (
     apply_missing_values,
     apply_reverse_keying,
+    apply_scale_conversions,
     apply_unit_conversions,
     apply_value_labels,
     recode_negative_answer_codes,
@@ -1315,8 +1316,15 @@ def _summarize_dataset(
                 # Observed range, shown to reviewers next to the DV's canonical range.
                 "min": float(numeric_series.min()) if n_valid else None,
                 "max": float(numeric_series.max()) if n_valid else None,
-                "review_flag": base_canonical in unknown_column_set,
-                "mapping_confidence": "high" if base_canonical not in unknown_column_set else "unknown_alias",
+                # LLM rows are unreviewed suggestions, not high-confidence mappings.
+                "review_flag": (
+                    mapping_record.get("mapping_method") == "llm" or base_canonical in unknown_column_set
+                ),
+                "mapping_confidence": (
+                    "llm_unreviewed" if mapping_record.get("mapping_method") == "llm"
+                    else "unknown_alias" if base_canonical in unknown_column_set
+                    else "high"
+                ),
                 "item_of": item_of,
                 "composite_items": "; ".join(members) if members else None,
                 **provenance,
@@ -1539,6 +1547,7 @@ class _ResolvedMapping:
     reverse_items: tuple[dict[str, Any], ...] = ()
     missing_values: tuple[dict[str, Any], ...] = ()
     unit_conversions: tuple[dict[str, Any], ...] = ()
+    scale_conversions: tuple[dict[str, Any], ...] = ()
 
 
 class _MappingResolver:
@@ -1577,6 +1586,7 @@ class _MappingResolver:
                     tuple(raw_schema.get("reverse_items") or []) if isinstance(raw_schema, dict) else (),
                     tuple(raw_schema.get("missing_values") or []) if isinstance(raw_schema, dict) else (),
                     tuple(raw_schema.get("unit_conversions") or []) if isinstance(raw_schema, dict) else (),
+                    tuple(raw_schema.get("scale_conversions") or []) if isinstance(raw_schema, dict) else (),
                 )
         return self._custom[mapping_path]
 
@@ -1597,10 +1607,11 @@ class _MappingResolver:
         reverse_items: tuple[dict[str, Any], ...] = ()
         missing_values: tuple[dict[str, Any], ...] = ()
         unit_conversions: tuple[dict[str, Any], ...] = ()
+        scale_conversions: tuple[dict[str, Any], ...] = ()
         custom = self._load_custom(path_key, dataset_id) if path_key is not None else None
         if custom is not None:
             (custom_mapping, custom_aliases_ci, declared_scales, value_labels, reverse_items, missing_values,
-             unit_conversions) = custom
+             unit_conversions, scale_conversions) = custom
             # Only report a mapping path once a non-empty source mapping is
             # actually merged in.
             if custom_mapping:
@@ -1619,6 +1630,7 @@ class _MappingResolver:
             reverse_items=reverse_items,
             missing_values=missing_values,
             unit_conversions=unit_conversions,
+            scale_conversions=scale_conversions,
         )
         self._resolved[key] = resolved
         return resolved
@@ -1757,6 +1769,8 @@ def _process_dataset(
         original_df, reverse_report = apply_reverse_keying(original_df, resolved.reverse_items)
         # Columns recorded in another unit than their DV's (ms for seconds).
         original_df, unit_report = apply_unit_conversions(original_df, resolved.unit_conversions)
+        # Columns recorded on a narrower scale than their DV's (TLX on 0-10).
+        original_df, scale_report = apply_scale_conversions(original_df, resolved.scale_conversions)
         source_mapping = resolved.mapping
         dataset_mapping = source_mapping
         unknown_before_llm = _filter_llm_eligible_columns(
@@ -1876,12 +1890,22 @@ def _process_dataset(
                 target = dataset_mapping.get(orig_col.lower())
             target = target or orig_col
             canonical_to_originals_ordered.setdefault(target, []).append(orig_col)
+        # Standardized names of the LLM-mapped columns (same ordinal naming as
+        # standardize_columns), so composition never mixes them with others.
+        llm_originals = {alias for alias, _ in llm_inferred}
+        llm_columns = {
+            canonical if idx == 0 else f"{canonical}__dup_{idx + 1}"
+            for canonical, originals in canonical_to_originals_ordered.items()
+            for idx, original in enumerate(originals)
+            if original in llm_originals
+        }
         standardized_df, composite_records = compose_item_groups(
             standardized_df,
             dataset_type,
             eligible_dataset_types=item_composition_dataset_types(),
             declared_scales=list(resolved.declared_scales),
             canonical_to_originals=canonical_to_originals_ordered,
+            llm_columns=llm_columns,
         )
         if destination.suffix.lower() == ".tsv":
             standardized_df.to_csv(destination, sep="\t", index=False)
@@ -1913,6 +1937,8 @@ def _process_dataset(
             quality["value_labels_applied"] = value_label_report
         if unit_report:
             quality["unit_conversions"] = unit_report
+        if scale_report:
+            quality["scale_conversions"] = scale_report
         if answer_code_report:
             quality["negative_answer_codes_recoded"] = answer_code_report
         if survey_code_report:

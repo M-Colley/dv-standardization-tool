@@ -1,28 +1,9 @@
 from,to,conditioning_set,p_value
-jian_trust,sart_understanding,[],0.16886185436518697
-perceived_safety,sart_supply,[],0.5823859196652497
-sart_supply,tia_understanding_predictability,[],0.05758277172381465
-sart_supply,utaut_behavioral_intention,[],0.6243595944886158
-sart_supply,utaut_effort_expectancy,[],0.10970211404619157
-sart_understanding,utaut_behavioral_intention,[],0.12049414286051197
-jian_trust,sart_supply,['sts_ad_trust'],0.09827852555775451
-jian_trust,understanding_rating,['trust_rating'],0.38087922607505664
-perceived_safety,sts_ad_trust,['jian_trust'],0.32199539780311603
-perceived_safety,tia_understanding_predictability,['jian_trust'],0.7540777035108179
-perceived_safety,utaut_behavioral_intention,['jian_trust'],0.9262543432989565
-sart_supply,trust_rating,['sts_ad_trust'],0.5455412138666202
-sart_understanding,sts_ad_trust,['trust_rating'],0.12922988126302326
-sart_understanding,tia_understanding_predictability,['understanding_rating'],0.06599351813097565
-sart_understanding,trust_rating,['sart_supply'],0.08083996820549122
-sart_understanding,utaut_effort_expectancy,['sart_supply'],0.09983369443443735
-sts_ad_trust,tia_understanding_predictability,['jian_trust'],0.3292287903737803
-tia_understanding_predictability,utaut_behavioral_intention,['jian_trust'],0.10090441174682363
-tia_understanding_predictability,utaut_effort_expectancy,['jian_trust'],0.16561784776996946
-understanding_rating,tia_understanding_predictability,['sart_understanding'],0.08515936210155806
-understanding_rating,utaut_effort_expectancy,['trust_rating'],0.8908316768700992
-jian_trust,perceived_safety,"['tia_understanding_predictability', 'trust_rating']",0.11540151561402356
-perceived_safety,sart_understanding,"['understanding_rating', 'utaut_effort_expectancy']",0.26354729751839656
-sart_supply,sts_ad_trust,"['sart_understanding', 'understanding_rating']",0.5922967712207794
-sts_ad_trust,utaut_behavioral_intention,"['jian_trust', 'trust_rating']",0.0589444685887357
-understanding_rating,perceived_safety,"['sart_understanding', 'trust_rating']",0.6664031354379762
-understanding_rating,utaut_behavioral_intention,"['sart_supply', 'trust_rating']",0.4093447786279647
+TLX_SCORE,ueq_hedonic,['perceived_safety'],0.5636734989289938
+TLX_SCORE,ueq_pragmatic,['trust_rating'],0.1052275927619819
+perceived_safety,ueq_hedonic,['trust_rating'],0.9950244537262598
+ueq_hedonic,understanding_rating,['trust_rating'],0.5631186675654964
+TLX_SCORE,trust_rating,"['perceived_safety', 'understanding_rating']",0.3557258521832303
+perceived_safety,ueq_pragmatic,"['trust_rating', 'understanding_rating']",0.07371196036801919
+trust_rating,ueq_pragmatic,"['perceived_safety', 'understanding_rating']",0.07229171708494042
+understanding_rating,TLX_SCORE,"['perceived_safety', 'trust_rating']",0.1714364965601538

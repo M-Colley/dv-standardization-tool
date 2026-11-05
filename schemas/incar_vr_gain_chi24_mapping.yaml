@@ -46,7 +46,7 @@ Nausea_All: meta_condition_mean           # condition mean of the 4 per-Section 
 Oculomotor_All: meta_condition_mean       # condition mean of the 4 per-Section scores, repeated on each Section row
 Disorientation_All: meta_condition_mean   # condition mean of the 4 per-Section scores, repeated on each Section row
 SSQ_Total_All: meta_condition_mean        # condition mean of the 4 per-Section scores, repeated on each Section row
-NasaTLX_All: TLX_SCORE                # raw TLX, sum of the six subscales (0-120)
+NasaTLX_All: meta_tlx_sum             # sum of the six subscales (0-120); TLX_SCORE (0-100) is scored from the subscales
 MentalDemand-NASA: mental_demand      # 0-20
 PhysicalDemand-NASA: physical_demand  # 0-20
 TemporalDemand-NASA: temporal_demand  # 0-20

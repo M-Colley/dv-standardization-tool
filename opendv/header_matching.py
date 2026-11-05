@@ -49,6 +49,13 @@ MIN_QUESTION_WORDS = 3
 _HTML_TAG = re.compile(r"<[^>]+>")
 _ITEM_NUMBER = re.compile(r"^\s*\d{1,3}\s*[.):]\s*")
 _PARENTHESIZED = re.compile(r"\([^)]*\)")
+# A unit in parentheses ("Completion time (ms)") changes what the number means,
+# so such a header is not matched by its cleaned name (the DV may use seconds).
+_UNIT_IN_PARENTHESES = re.compile(
+    r"\(\s*(?:in\s+)?(?:ms|msec|millisec\w*|s|sec|secs|seconds?|min|mins|minutes?|h|hr|hrs|hours?|"
+    r"%|percent|px|pixels?|mm|cm|m|km|deg|degrees?|hz|bpm)\s*\)",
+    re.IGNORECASE,
+)
 
 
 @dataclass(frozen=True)
@@ -133,7 +140,9 @@ def match_headers(
         column = str(column)
         cleaned = clean_header(column)
         dv = None
-        if cleaned and cleaned != column:
+        # Plain headers ("Mental Demand") are tried too: the alias mapping only
+        # matched them case-insensitively, not with spaces read as underscores.
+        if cleaned and not _UNIT_IN_PARENTHESES.search(column):
             dv = lowered.get(cleaned.lower()) or lowered.get(_alias_key(cleaned))
         if dv:
             matches[column] = HeaderMatch(column, dv, "cleaned_alias", cleaned)

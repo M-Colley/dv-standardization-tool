@@ -1,0 +1,5 @@
+level,association,reference_findings,findings,confirmed,sign_flipped,unsupported,pairs_pooled_in_both,median_abs_difference_r
+automatic,between_person,0,0,0,0,0,9,0.09812730376159529
+automatic,within_person,16,0,0,0,0,6,0.033367786214551026
+llm_replay,between_person,0,0,0,0,0,31,0.08537792995461768
+llm_replay,within_person,16,1,0,0,1,22,0.060445826579813955

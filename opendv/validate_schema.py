@@ -292,6 +292,22 @@ def validate_dataset_mapping(schema: dict) -> tuple[list[str], list[str]]:
                 except (ValueError, TypeError):
                     errors.append(f"unit_conversions[{i}]: 'from' and 'to' must be time units such as ms, s, min")
             continue
+        if key == "scale_conversions":
+            from opendv.value_labels import _linear_range
+
+            if not isinstance(value, list):
+                errors.append("'scale_conversions' must be a list of {columns, from, to} blocks")
+                continue
+            for i, block in enumerate(value):
+                if not isinstance(block, dict) or not isinstance(block.get("columns"), list) or not block["columns"]:
+                    errors.append(f"scale_conversions[{i}]: 'columns' must be a non-empty list")
+                    continue
+                try:
+                    _linear_range(block.get("from"))
+                    _linear_range(block.get("to"))
+                except (ValueError, TypeError):
+                    errors.append(f"scale_conversions[{i}]: 'from' and 'to' must be [min, max] with min < max")
+            continue
         if not isinstance(key, str) or not key.strip():
             errors.append(f"Invalid raw column name: {key!r}")
         if not isinstance(value, str) or not value.strip():

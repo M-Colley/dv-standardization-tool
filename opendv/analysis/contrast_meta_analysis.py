@@ -42,6 +42,7 @@ from __future__ import annotations
 
 import argparse
 import logging
+import re
 from collections.abc import Iterable, Mapping
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -60,6 +61,8 @@ logger = logging.getLogger(__name__)
 
 DEFAULT_DESIGNS_PATH = SCHEMAS_DIR / "study_designs.yaml"
 VALID_DESIGNS = ("within", "between")
+VALID_PARTICIPANT_SCOPES = ("study", "file")
+SOURCE_FILE_COLUMN = "_source_file"
 DEFAULT_RHO = 0.5
 SENSITIVITY_RHOS = (0.2, 0.8)
 MIN_PARTICIPANTS = 3
@@ -113,16 +116,30 @@ class StudyDesign:
     trial: tuple[str, ...] = ()
     timepoint: tuple[str, ...] = ()
     source: str = ""
+    participant_scope: str = "study"
+    domain: str = "unknown"
+    participant_from_file: str | None = None
 
     def participant_series(self, df: pd.DataFrame) -> pd.Series | None:
         """Participant id of every row; the first listed column that has one
-        wins (files of one study may spell the column differently)."""
+        wins (files of one study may spell the column differently). Rows
+        without one take it from their file name when ``participant_from_file``
+        (a regular expression with one group) is set. With
+        ``participant_scope: file`` ids are only unique within a file, so they
+        are qualified by the ``_source_file`` column that ``load_studies`` adds."""
         present = [c for c in self.participant if c in df.columns]
-        if not present:
+        from_file = self.participant_from_file and SOURCE_FILE_COLUMN in df.columns
+        if not present and not from_file:
             return None
         out = pd.Series(np.nan, index=df.index, dtype=object)
         for column in present:
             out = out.where(out.notna(), df[column].map(_normalize_value))
+        if from_file:
+            ids = df[SOURCE_FILE_COLUMN].astype(str).str.extract(self.participant_from_file, expand=False)
+            out = out.where(out.notna(), ids.map(_normalize_value))
+        if self.participant_scope == "file" and SOURCE_FILE_COLUMN in df.columns:
+            files = df[SOURCE_FILE_COLUMN].astype(str)
+            out = (files + "::" + out.astype(str)).where(out.notna())
         return out
 
 
@@ -192,6 +209,15 @@ def _parse_factor(study: str, raw: dict, canonical_factors: Mapping[str, dict]) 
     )
 
 
+def _file_pattern(study: str, value: Any) -> str | None:
+    if value is None:
+        return None
+    pattern = str(value)
+    if re.compile(pattern).groups != 1:
+        raise ValueError(f"{study}: participant_from_file must be a regular expression with one group")
+    return pattern
+
+
 def load_study_designs(path: Path = DEFAULT_DESIGNS_PATH) -> DesignRegistry:
     """Parse and validate ``study_designs.yaml``."""
     with open(path, encoding="utf-8") as f:
@@ -211,6 +237,9 @@ def load_study_designs(path: Path = DEFAULT_DESIGNS_PATH) -> DesignRegistry:
         names = [f.name for f in factors]
         if len(names) != len(set(names)):
             raise ValueError(f"{study}: duplicate factor names {names}")
+        scope = str(raw.get("participant_scope", "study")).strip()
+        if scope not in VALID_PARTICIPANT_SCOPES:
+            raise ValueError(f"{study}: participant_scope must be one of {VALID_PARTICIPANT_SCOPES}, got {scope!r}")
         studies[str(study)] = StudyDesign(
             study=str(study),
             participant=participant,
@@ -218,6 +247,9 @@ def load_study_designs(path: Path = DEFAULT_DESIGNS_PATH) -> DesignRegistry:
             trial=_as_tuple(raw.get("trial")),
             timepoint=_as_tuple(raw.get("timepoint")),
             source=str(raw.get("source", "")).strip(),
+            participant_scope=scope,
+            domain=str(raw.get("domain", "unknown")).strip(),
+            participant_from_file=_file_pattern(study, raw.get("participant_from_file")),
         )
     return DesignRegistry(
         version=str(data.get("version", "")),

@@ -32,6 +32,8 @@ from sklearn.decomposition import PCA
 
 from opendv import instruments as instruments_registry  # noqa: E402
 from opendv.batch_reporting import categorize_mapping_source  # noqa: E402
+from opendv.convert_dv import strip_duplicate_suffix as _strip_dup_suffix  # noqa: E402
+from opendv.item_composition import is_item_suffixed  # noqa: E402
 from opendv._paths import SCHEMAS_DIR
 
 # libyaml's C parser is ~7x faster on the 2k-line DV schema and yields
@@ -158,12 +160,22 @@ def load_mapping_provenance(meta_view_path: Path) -> Dict[tuple, str]:
     # idxmax keeps the first row on ties, i.e. the earliest-seen category wins
     # unless a later one is strictly more cautious.
     winners = frame.loc[frame.groupby(["source_id", "canonical_dv"], sort=False)["priority"].idxmax()]
-    return {
+    provenance = {
         (source_id, canonical_dv): category
         for source_id, canonical_dv, category in zip(
             winners["source_id"], winners["canonical_dv"], winners["category"], strict=True
         )
     }
+    # Scores the analysis computes from items (SUS, raw TLX, ...) have no
+    # meta_view row of their own: they inherit the most cautious category of
+    # their items, so a score built from an LLM-mapped item is LLM-derived.
+    studies = {study for study, _ in provenance}
+    for score_dv, items in _build_construct_subitems().items():
+        for study in studies:
+            found = [provenance[(study, i)] for i in [score_dv, *items] if (study, i) in provenance]
+            if found:
+                provenance[(study, score_dv)] = max(found, key=lambda c: _MAPPING_SOURCE_PRIORITY.get(c, -1))
+    return provenance
 
 
 OVERLAP_DETAIL_COLUMNS = [
@@ -576,37 +588,62 @@ def load_studies(
 
         # Repeated-measures aggregation: collapse to participant-level means
         if project_key in rm_keys:
-            id_col = next(
-                (col for col in combined.columns if col.lower() in ID_LIKE_COLUMNS),
-                None,
-            )
-            if id_col is not None:
+            participant, id_name, id_source = _participant_ids(project_key, combined)
+            if participant is not None:
                 n_raw = len(combined)
-                numeric_cols = [
-                    c for c in combined.select_dtypes(include="number").columns
-                    if c != id_col
-                ]
-                agg_df = (
-                    combined.groupby(id_col)[numeric_cols]
-                    .mean()
-                    .reset_index()
-                )
-                n_agg = len(agg_df)
+                numeric_cols = [c for c in combined.select_dtypes(include="number").columns if c != id_name]
+                keep = participant.notna()
+                agg_df = combined.loc[keep, numeric_cols].groupby(participant[keep].rename(id_name), sort=True).mean()
+                agg_df = agg_df.reset_index()
                 _load_logger.info(
-                    "Study '%s': aggregated %d rows -> %d participant means (repeated measures)",
-                    project_key, n_raw, n_agg,
+                    "Study '%s': aggregated %d rows (%d without a participant id) -> %d participant means (%s)",
+                    project_key, n_raw, int((~keep).sum()), len(agg_df), id_source,
                 )
                 combined = agg_df
             else:
                 _load_logger.warning(
-                    "Study '%s': marked as repeated-measures but no participant ID column found "
-                    "(checked %s); skipping aggregation",
+                    "Study '%s': marked as repeated-measures but no participant column found "
+                    "(study_designs.yaml or %s); skipping aggregation",
                     project_key, sorted(ID_LIKE_COLUMNS),
                 )
 
         studies[project_key] = combined
 
     return studies
+
+
+@lru_cache(maxsize=1)
+def _study_designs():
+    # Imported lazily: contrast_meta_analysis imports this module.
+    from opendv.analysis.contrast_meta_analysis import load_study_designs
+
+    try:
+        return load_study_designs()
+    except (OSError, ValueError) as exc:
+        logging.getLogger(__name__).warning("study designs not loaded: %s", exc)
+        return None
+
+
+def _participant_ids(study: str, df: pd.DataFrame) -> tuple[pd.Series | None, str, str]:
+    """Participant id per row: the study's declared participant columns
+    (``schemas/study_designs.yaml``), else the first ID-like column.
+
+    The declared columns come first because the heuristic picks whichever
+    ID-like column comes first, which can be a survey's response id or a log
+    file's id column that the questionnaire rows lack (until 2026-11-04 this
+    dropped every survey DV of eHMI-for-All from the participant-level unit).
+    """
+    registry = _study_designs()
+    design = registry.studies.get(study) if registry is not None else None
+    if design is not None:
+        series = design.participant_series(df)
+        if series is not None and series.notna().any():
+            name = next((c for c in design.participant if c in df.columns), design.participant[0])
+            return series, name, "study_designs.yaml: " + ", ".join(design.participant)
+    id_col = next((col for col in df.columns if col.lower() in ID_LIKE_COLUMNS), None)
+    if id_col is None:
+        return None, "", ""
+    return df[id_col], id_col, f"column {id_col}"
 
 
 # ── Canonical DV extraction ──────────────────────────────────────────────────
@@ -619,23 +656,43 @@ def _canonical_series_priority(series: pd.Series, raw_name: str, canonical_name:
 
 
 def _canonical_numeric_frame(df: pd.DataFrame) -> pd.DataFrame:
+    """One numeric column per canonical DV.
+
+    Columns the batch suffixed ``__dup_N`` because several raw columns map to
+    the same DV, and that it did not compose (wide repeated measures with
+    gaps, mixed provenance), are averaged per row with their bare column:
+    they are repeated measurements of that DV. Until 2026-11-04 the dups were
+    ignored, so whichever raw column came first stood for the DV (e.g. a
+    minute-0 baseline rating instead of the session).
+    """
     selected: dict[str, pd.Series] = {}
     priorities: dict[str, tuple[int, int, int]] = {}
 
+    families: dict[str, list[str]] = {}
     for col in df.columns:
         lowered = col.lower()
         if lowered in ID_LIKE_COLUMNS or col == "_source_file":
+            continue
+        # ``<dv>__item_N`` columns are the inputs of a composite whose score is
+        # the bare ``<dv>`` column; N is their column order, not the scale's
+        # item number, so they must not be read as ``<dv>_item_0N``.
+        if is_item_suffixed(col):
             continue
         if pd.api.types.is_bool_dtype(df[col]):
             continue
         if not pd.api.types.is_numeric_dtype(df[col]):
             continue
+        families.setdefault(_strip_dup_suffix(col), []).append(col)
 
+    for col, members in families.items():
         canonical = _canonicalize_dv_name(col)
         if not canonical:
             continue
 
-        series = pd.to_numeric(df[col], errors="coerce")
+        if len(members) == 1:
+            series = pd.to_numeric(df[members[0]], errors="coerce")
+        else:
+            series = df[members].apply(pd.to_numeric, errors="coerce").mean(axis=1, skipna=True)
         if series.notna().sum() == 0:
             continue
 
@@ -1256,74 +1313,89 @@ def trim_and_fill(
 
 # ── Meta-regression ─────────────────────────────────────────────────────────
 
+def mixed_meta_regression(effects: np.ndarray, variances: np.ndarray, design: np.ndarray) -> dict | None:
+    """Random-effects meta-regression with the Knapp-Hartung test.
+
+    tau^2 is the method-of-moments (DerSimonian-Laird type) estimate for
+    meta-regression (Raudenbush 2009; metafor ``method = "DL"``); the
+    coefficients are weighted least squares with weights 1 / (v_i + tau^2)
+    (``statsmodels`` WLS), and their covariance is scaled by the weighted
+    residual variance and tested against t(k - p) (metafor ``test = "knha"``).
+    With an intercept-only design this is the DL random-effects mean with the
+    HKSJ interval of :func:`pool_effects`.
+    """
+    import statsmodels.api as sm
+
+    y = np.asarray(effects, dtype=float)
+    v = np.asarray(variances, dtype=float)
+    X = np.asarray(design, dtype=float)
+    k, p = X.shape
+    if k <= p or (v <= 0).any():
+        return None
+    w = 1.0 / v
+    fixed = sm.WLS(y, X, weights=w).fit()
+    q_e = float(np.sum(w * fixed.resid**2))
+    xtwx_inv = np.linalg.inv(X.T @ (w[:, None] * X))
+    trace = float(np.sum(w) - np.trace(xtwx_inv @ (X.T @ ((w**2)[:, None] * X))))
+    tau2 = max(0.0, (q_e - (k - p)) / trace) if trace > 0 else 0.0
+    w_re = 1.0 / (v + tau2)
+    fit = sm.WLS(y, X, weights=w_re).fit()
+    s2 = float(np.sum(w_re * fit.resid**2)) / (k - p)
+    cov = s2 * np.linalg.inv(X.T @ (w_re[:, None] * X))
+    se = np.sqrt(np.diag(cov))
+    t = fit.params / se
+    pvals = 2 * stats.t.sf(np.abs(t), k - p)
+    return {
+        "coef": fit.params, "se": se, "t": t, "p": pvals, "tau2": tau2,
+        "q_residual": q_e, "q_residual_p": float(stats.chi2.sf(q_e, k - p)), "df": k - p,
+    }
+
+
 def meta_regression(
     summary: pd.DataFrame,
     dv: str,
     moderator_col: str = "n",
 ) -> dict | None:
-    """Weighted least squares meta-regression of study-level means on a moderator.
+    """Random-effects meta-regression of study-level means on a moderator.
 
-    Default moderator is sample size (n). Returns slope, intercept, R², and
-    test of residual heterogeneity (QE).
+    Default moderator is sample size (n). Returns the slope with its
+    Knapp-Hartung test (:func:`mixed_meta_regression`), the residual
+    heterogeneity test (QE) and the share of between-study variance the
+    moderator explains (R^2 analog, tau^2 reduction). Until 2026-11-04 this
+    was a fixed-effect regression whose slope test ignored the residual
+    heterogeneity (p < .05 for 60% of null slopes at tau = 0.5, k = 6).
     """
     sub = summary[(summary["dv"] == dv) & (summary["n"] > 1) & (summary["sd"] > 0)].copy()
     if len(sub) < 3 or moderator_col not in sub.columns:
         return None
 
-    means = sub["mean"].values
+    means = sub["mean"].values.astype(float)
     variances = (sub["sd"].values ** 2) / sub["n"].values
     moderator = sub[moderator_col].values.astype(float)
-
-    if variances.min() <= 0 or np.any(np.isnan(moderator)):
+    if variances.min() <= 0 or np.any(np.isnan(moderator)) or np.ptp(moderator) == 0:
         return None
 
-    w = 1.0 / variances
     k = len(means)
-
-    # Weighted least squares: Y = a + b*X
-    xw = moderator * w
-    yw = means * w
-    sw = np.sum(w)
-    sx = np.sum(xw)
-    sy = np.sum(yw)
-    sxx = np.sum(moderator ** 2 * w)
-    sxy = np.sum(moderator * means * w)
-
-    denom = sw * sxx - sx ** 2
-    if abs(denom) < 1e-12:
+    fit = mixed_meta_regression(means, variances, np.column_stack([np.ones(k), moderator]))
+    if fit is None:
         return None
-
-    b = (sw * sxy - sx * sy) / denom
-    a = (sy - b * sx) / sw
-
-    # Predicted and residuals
-    predicted = a + b * moderator
-    residuals = means - predicted
-    q_residual = float(np.sum(w * residuals ** 2))
-    df_residual = k - 2
-    q_p = float(stats.chi2.sf(q_residual, df_residual)) if df_residual > 0 else np.nan
-
-    # R² analog: proportion of heterogeneity explained
-    q_total = float(np.sum(w * (means - np.sum(w * means) / sw) ** 2))
-    r2 = max(0.0, 1.0 - q_residual / q_total) if q_total > 0 else 0.0
-
-    # Standard error of slope
-    se_b = np.sqrt(sw / denom) if denom > 0 else np.nan
-    t_b = b / se_b if se_b > 0 else np.nan
-    p_b = float(2 * stats.t.sf(abs(t_b), df_residual)) if np.isfinite(t_b) and df_residual > 0 else np.nan
+    null = mixed_meta_regression(means, variances, np.ones((k, 1)))
+    tau2_total = null["tau2"] if null is not None else np.nan
+    r2 = max(0.0, 1.0 - fit["tau2"] / tau2_total) if tau2_total and tau2_total > 0 else 0.0
 
     return {
         "dv": dv,
         "moderator": moderator_col,
         "k": k,
-        "intercept": a,
-        "slope": b,
-        "se_slope": se_b,
-        "t_slope": t_b,
-        "p_slope": p_b,
+        "intercept": float(fit["coef"][0]),
+        "slope": float(fit["coef"][1]),
+        "se_slope": float(fit["se"][1]),
+        "t_slope": float(fit["t"][1]),
+        "p_slope": float(fit["p"][1]),
+        "tau2_residual": float(fit["tau2"]),
         "r2_analog": r2,
-        "q_residual": q_residual,
-        "q_residual_p": q_p,
+        "q_residual": float(fit["q_residual"]),
+        "q_residual_p": float(fit["q_residual_p"]),
     }
 
 
@@ -1638,7 +1710,14 @@ def leave_one_out_sensitivity(
     total_studies: int | None = None,
     estimator: str = "DL",
 ) -> pd.DataFrame:
-    """For each DV, iteratively remove each study and recompute the pooled estimate."""
+    """For each DV, iteratively remove each study and recompute the pooled estimate.
+
+    With k = 3 the remaining two studies are pooled with fixed effects (as
+    everywhere at k < 3), so the rows carry ``k_remaining``,
+    ``pooling_method`` and the HKSJ interval: a fixed-effect row reports tau2
+    = 0 whatever the heterogeneity, and its Wald interval is not comparable to
+    the random-effects one of the full set.
+    """
     rows = []
     for dv, sub in summary.groupby("dv"):
         sub = sub[(sub["n"] > 1) & (sub["sd"] > 0)].copy()
@@ -1652,16 +1731,14 @@ def leave_one_out_sensitivity(
             result["omitted_study"] = sub.loc[idx, "study"]
             rows.append(result)
 
+    columns = ["dv", "omitted_study", "k_remaining", "pooling_method", "random_effects_mean",
+               "random_effects_se", "ci95_low", "ci95_high", "hksj_ci95_low", "hksj_ci95_high",
+               "tau2", "heterogeneity_i2_pct"]
     if not rows:
-        return pd.DataFrame(columns=["dv", "omitted_study", "random_effects_mean",
-                                      "random_effects_se", "ci95_low", "ci95_high",
-                                      "tau2", "heterogeneity_i2_pct"])
+        return pd.DataFrame(columns=columns)
 
-    df = pd.DataFrame(rows)
-    return df[["dv", "omitted_study", "random_effects_mean", "random_effects_se",
-               "ci95_low", "ci95_high", "tau2", "heterogeneity_i2_pct"]].sort_values(
-        ["dv", "omitted_study"]
-    ).reset_index(drop=True)
+    df = pd.DataFrame(rows).rename(columns={"k_studies": "k_remaining"})
+    return df[columns].sort_values(["dv", "omitted_study"]).reset_index(drop=True)
 
 
 # ── Subgroup analysis by schema cluster ──────────────────────────────────────
@@ -1672,12 +1749,17 @@ def subgroup_meta_analysis(
 ) -> pd.DataFrame:
     """Pool standardized effects (Hedges' g) by schema cluster.
 
-    Returns between-cluster heterogeneity test when multiple clusters exist.
+    Within a study, an item whose scale score is also present (SUS1 next to
+    the SUS score, a NASA-TLX subscale next to the TLX total) is dropped, and
+    the study's remaining effects in a cluster are combined into one by GLS
+    under compound symmetry (rho = 0.5, as for dependent contrasts), so each
+    study counts once per cluster. Until 2026-11-04 every item and its own
+    composite entered as independent effects.
     """
+    columns = ["cluster", "k_studies", "k_dvs", "k_effects", "pooled_g", "se", "ci95_low", "ci95_high"]
     if effects_df.empty:
-        return pd.DataFrame(columns=[
-            "cluster", "k_dvs", "k_effects", "pooled_g", "se", "ci95_low", "ci95_high",
-        ])
+        return pd.DataFrame(columns=columns)
+    from opendv.analysis.contrast_meta_analysis import aggregate_dependent  # lazy: imports this module
 
     metadata = _load_dv_measurement_metadata(schema_path)
 
@@ -1694,17 +1776,29 @@ def subgroup_meta_analysis(
     mask = effects["direction"] == "lower_is_better"
     effects.loc[mask, "hedges_g"] = -effects.loc[mask, "hedges_g"]
 
+    keep = []
+    for _, grp in effects.groupby("study", sort=False):
+        present = set(grp["dv"])
+        items = {i for construct in present for i in CONSTRUCT_SUBITEMS.get(construct, [])}
+        keep.append(grp[~grp["dv"].isin(items)])
+    effects = pd.concat(keep, ignore_index=True)
+
     rows = []
     for cluster, grp in effects.groupby("cluster"):
         grp = grp[grp["var_g"] > 0].copy()
-        if len(grp) < 2:
+        per_study = [
+            aggregate_dependent(sub["hedges_g"], sub["var_g"], rho=0.5)
+            for _, sub in grp.groupby("study", sort=True)
+        ]
+        if len(per_study) < 2:
             continue
-        w = 1.0 / grp["var_g"].values
-        g = grp["hedges_g"].values
+        g = np.array([y for y, _ in per_study])
+        w = 1.0 / np.array([v for _, v in per_study])
         pooled = float(np.sum(w * g) / np.sum(w))
         se = float(np.sqrt(1.0 / np.sum(w)))
         rows.append({
             "cluster": cluster,
+            "k_studies": len(per_study),
             "k_dvs": grp["dv"].nunique(),
             "k_effects": len(grp),
             "pooled_g": pooled,
@@ -1713,7 +1807,9 @@ def subgroup_meta_analysis(
             "ci95_high": pooled + 1.96 * se,
         })
 
-    return pd.DataFrame(rows).sort_values("cluster").reset_index(drop=True)
+    if not rows:
+        return pd.DataFrame(columns=columns)
+    return pd.DataFrame(rows, columns=columns).sort_values("cluster").reset_index(drop=True)
 
 
 # ── PCA composite index ─────────────────────────────────────────────────────
@@ -2834,6 +2930,11 @@ def main(argv: list[str] | None = None) -> None:
         repeated_measures_studies=repeated_measures or None,
         skip_files_without_dvs=True,
     )
+    # Invariance fits and condition contrasts need the rows (conditions,
+    # repeated answers), not participant means.
+    row_studies = (
+        load_studies(input_dir, skip_files_without_dvs=True) if repeated_measures else studies
+    )
     # Canonicalize once; every analysis below reuses the same frames instead
     # of re-scanning all study columns per function call.
     canonical = _canonicalize_studies(studies)
@@ -2855,7 +2956,7 @@ def main(argv: list[str] | None = None) -> None:
     if not args.no_measurement_invariance:
         from opendv.analysis.measurement_invariance import invariance_by_dv, run_invariance
 
-        invariance = run_invariance(studies, output_dir)
+        invariance = run_invariance(row_studies, output_dir)
         invariance_levels = invariance_by_dv(invariance)
         if not invariance.empty:
             print("\nMeasurement invariance (level reached per shared scale):\n",
@@ -2901,7 +3002,7 @@ def main(argv: list[str] | None = None) -> None:
         from opendv.analysis.contrast_meta_analysis import run_contrast_analysis
 
         contrast_summary = run_contrast_analysis(
-            studies,
+            row_studies,
             output_dir,
             designs_path=Path(args.study_designs),
             mapping_provenance=mapping_provenance,
@@ -3061,14 +3162,24 @@ def main(argv: list[str] | None = None) -> None:
     except ValueError as e:
         print(f"\n[WARNING] Skipping composite index: {e}")
 
-    # LiNGAM causal discovery
+    # LiNGAM causal discovery. With --exclude-llm-deduced it runs without the
+    # LLM-deduced (study, DV) columns too: until 2026-11-04 it always used
+    # them, so the reported DAG could rest on a wrong LLM mapping.
+    causal_canonical = canonical
+    if args.exclude_llm_deduced and mapping_provenance:
+        causal_canonical = {
+            study: frame.drop(columns=[
+                c for c in frame.columns if mapping_provenance.get((study, c)) == "llm_deduced"
+            ])
+            for study, frame in canonical.items()
+        }
     causal_result = None
     try:
         causal_result = discover_causal_structure(
             studies,
             min_rows=args.causal_min_rows,
             refuse_synthetic=args.refuse_synthetic_causal,
-            canonical_studies=canonical,
+            canonical_studies=causal_canonical,
         )
         if causal_result is not None:
             causal_result["adjacency_matrix"].to_csv(output_dir / "causal_adjacency_matrix.csv")
@@ -3131,7 +3242,7 @@ def main(argv: list[str] | None = None) -> None:
         boot_df = (
             bootstrap_causal_stability(studies, n_bootstrap=50, data=causal_data)
             if causal_data is not None
-            else bootstrap_causal_stability(studies, n_bootstrap=50, canonical_studies=canonical)
+            else bootstrap_causal_stability(studies, n_bootstrap=50, canonical_studies=causal_canonical)
         )
         if not boot_df.empty:
             boot_df.to_csv(output_dir / "causal_bootstrap_stability.csv", index=False)
@@ -3148,7 +3259,7 @@ def main(argv: list[str] | None = None) -> None:
 
     # PC algorithm (alternative for Gaussian data)
     try:
-        pc_result = discover_causal_structure_pc(studies, canonical_studies=canonical, data=causal_data)
+        pc_result = discover_causal_structure_pc(studies, canonical_studies=causal_canonical, data=causal_data)
         if pc_result is not None:
             pc_result["skeleton"].to_csv(output_dir / "pc_skeleton_matrix.csv")
             if pc_result["removed_edges"]:

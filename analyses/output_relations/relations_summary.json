@@ -1,0 +1,177 @@
+{
+  "levels": {
+    "names": "identical raw column names",
+    "automatic": "+ shared schema, header matching, instrument scoring",
+    "curated": "+ study mapping files",
+    "llm": "+ local-LLM fallback"
+  },
+  "studies_without_participant_column": {
+    "names": [],
+    "automatic": [],
+    "curated": [],
+    "llm": []
+  },
+  "finding_rule": "k >= 3 studies, pair not scored from shared items, HKSJ 95% CI excludes 0, Benjamini-Hochberg q < 0.05 over these eligible pairs within level and association",
+  "ladder": [
+    {
+      "level": "names",
+      "level_label": "identical raw column names",
+      "association": "between_person",
+      "studies_with_relations": 14,
+      "pairs_pooled_k2": 16,
+      "pairs_pooled_k3": 0,
+      "cross_construct_pairs_k3": 0,
+      "participants": 1080,
+      "findings": 0,
+      "cross_construct_findings": 0,
+      "generalizing_findings": 0
+    },
+    {
+      "level": "names",
+      "level_label": "identical raw column names",
+      "association": "within_person",
+      "studies_with_relations": 10,
+      "pairs_pooled_k2": 1,
+      "pairs_pooled_k3": 0,
+      "cross_construct_pairs_k3": 0,
+      "participants": 429,
+      "findings": 0,
+      "cross_construct_findings": 0,
+      "generalizing_findings": 0
+    },
+    {
+      "level": "automatic",
+      "level_label": "+ shared schema, header matching, instrument scoring",
+      "association": "between_person",
+      "studies_with_relations": 8,
+      "pairs_pooled_k2": 9,
+      "pairs_pooled_k3": 0,
+      "cross_construct_pairs_k3": 0,
+      "participants": 367,
+      "findings": 0,
+      "cross_construct_findings": 0,
+      "generalizing_findings": 0
+    },
+    {
+      "level": "automatic",
+      "level_label": "+ shared schema, header matching, instrument scoring",
+      "association": "within_person",
+      "studies_with_relations": 8,
+      "pairs_pooled_k2": 6,
+      "pairs_pooled_k3": 0,
+      "cross_construct_pairs_k3": 0,
+      "participants": 358,
+      "findings": 0,
+      "cross_construct_findings": 0,
+      "generalizing_findings": 0
+    },
+    {
+      "level": "curated",
+      "level_label": "+ study mapping files",
+      "association": "between_person",
+      "studies_with_relations": 16,
+      "pairs_pooled_k2": 52,
+      "pairs_pooled_k3": 29,
+      "cross_construct_pairs_k3": 6,
+      "participants": 1233,
+      "findings": 0,
+      "cross_construct_findings": 0,
+      "generalizing_findings": 0
+    },
+    {
+      "level": "curated",
+      "level_label": "+ study mapping files",
+      "association": "within_person",
+      "studies_with_relations": 10,
+      "pairs_pooled_k2": 44,
+      "pairs_pooled_k3": 23,
+      "cross_construct_pairs_k3": 2,
+      "participants": 429,
+      "findings": 16,
+      "cross_construct_findings": 1,
+      "generalizing_findings": 4
+    },
+    {
+      "level": "llm",
+      "level_label": "+ local-LLM fallback",
+      "association": "between_person",
+      "studies_with_relations": 21,
+      "pairs_pooled_k2": 132,
+      "pairs_pooled_k3": 54,
+      "cross_construct_pairs_k3": 31,
+      "participants": 1420,
+      "findings": 0,
+      "cross_construct_findings": 0,
+      "generalizing_findings": 0
+    },
+    {
+      "level": "llm",
+      "level_label": "+ local-LLM fallback",
+      "association": "within_person",
+      "studies_with_relations": 14,
+      "pairs_pooled_k2": 88,
+      "pairs_pooled_k3": 41,
+      "cross_construct_pairs_k3": 20,
+      "participants": 537,
+      "findings": 10,
+      "cross_construct_findings": 3,
+      "generalizing_findings": 4
+    }
+  ],
+  "llm_replay": {
+    "e1_items": "analyses\\output_llm_evaluation\\llm_mapping_evaluation_items.csv",
+    "columns": {
+      "curated_dv_columns": 161,
+      "answered": 95,
+      "unanswered_or_rejected": 66,
+      "same_dv_as_curated": 46,
+      "curated_non_dv_mapped_by_llm": 910
+    },
+    "conclusions_vs_curated": [
+      {
+        "level": "automatic",
+        "association": "between_person",
+        "reference_findings": 0,
+        "findings": 0,
+        "confirmed": 0,
+        "sign_flipped": 0,
+        "unsupported": 0,
+        "pairs_pooled_in_both": 9,
+        "median_abs_difference_r": 0.09812730376159529
+      },
+      {
+        "level": "automatic",
+        "association": "within_person",
+        "reference_findings": 16,
+        "findings": 0,
+        "confirmed": 0,
+        "sign_flipped": 0,
+        "unsupported": 0,
+        "pairs_pooled_in_both": 6,
+        "median_abs_difference_r": 0.033367786214551026
+      },
+      {
+        "level": "llm_replay",
+        "association": "between_person",
+        "reference_findings": 0,
+        "findings": 0,
+        "confirmed": 0,
+        "sign_flipped": 0,
+        "unsupported": 0,
+        "pairs_pooled_in_both": 31,
+        "median_abs_difference_r": 0.08537792995461768
+      },
+      {
+        "level": "llm_replay",
+        "association": "within_person",
+        "reference_findings": 16,
+        "findings": 1,
+        "confirmed": 0,
+        "sign_flipped": 0,
+        "unsupported": 1,
+        "pairs_pooled_in_both": 22,
+        "median_abs_difference_r": 0.060445826579813955
+      }
+    ]
+  }
+}

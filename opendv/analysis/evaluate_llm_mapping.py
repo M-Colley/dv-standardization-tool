@@ -60,6 +60,8 @@ from opendv.dv_retrieval import (  # noqa: E402
 from opendv.value_labels import (  # noqa: E402
     apply_missing_values,
     apply_reverse_keying,
+    apply_scale_conversions,
+    apply_unit_conversions,
     apply_value_labels,
     recode_negative_answer_codes,
     recode_survey_answer_codes,
@@ -235,6 +237,10 @@ def run_e1(args, families: SchemaFamilies, dv_ids: set[str]) -> pd.DataFrame:
                         raw, _ = recode_negative_answer_codes(raw)
                         raw, _ = recode_survey_answer_codes(raw)
                     raw, _ = apply_reverse_keying(raw, resolved.reverse_items)
+                    # The pipeline converts units and scales before the LLM
+                    # step, so the plausibility check sees seconds, not ms.
+                    raw, _ = apply_unit_conversions(raw, resolved.unit_conversions)
+                    raw, _ = apply_scale_conversions(raw, resolved.scale_conversions)
                     frames[item.dataset_id] = (raw, resolved.mapping)
                 df, mapping = frames[item.dataset_id]
                 columns = [str(c) for c in df.columns]
