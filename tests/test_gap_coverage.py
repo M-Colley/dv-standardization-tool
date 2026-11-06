@@ -105,7 +105,9 @@ class BatchOutputFormatTests(unittest.TestCase):
         self.assertEqual(_resolve_output_suffix(".csv"), ".csv")
         self.assertEqual(_resolve_output_suffix(".TSV"), ".tsv")
         self.assertEqual(_resolve_output_suffix(".xlsx"), ".xlsx")
-        self.assertEqual(_resolve_output_suffix(".pkl"), ".pkl")
+        # Pickle inputs (allow_pickle) are written as Parquet, never as pickles
+        self.assertEqual(_resolve_output_suffix(".pkl"), ".parquet")
+        self.assertEqual(_resolve_output_suffix(".PICKLE"), ".parquet")
         self.assertEqual(_resolve_output_suffix(".parquet"), ".parquet")
         # pandas 2.x cannot write legacy .xls — upgraded to .xlsx
         self.assertEqual(_resolve_output_suffix(".xls"), ".xlsx")

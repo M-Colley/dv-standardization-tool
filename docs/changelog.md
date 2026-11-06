@@ -4,6 +4,20 @@ This document logs human-readable updates to the repo's functionality, structure
 
 ---
 
+### [2026-11-06] Pickled files are no longer unpickled
+
+Unpickling runs code from the file, and every batch run unpickled the four `.pkl` files of `road_bumps_touch` straight from GitHub. Pickles are now refused unless a source opts in (`docs/reproducibility.md`, "Pickled data files").
+
+- **Batch.** `.pkl`/`.pickle` files of any source are discovered but not loaded: a warning names them and `run_summary.json` lists them under `refused_pickle_files` (they count in `discovered_files`). A source with only pickles is `not_available`. `load_input_file` refuses pickles too (`PickleRefusedError`), as does the registry's `.pkl` loader, so no other path unpickles.
+- **Opt-in.** Manifest key `allow_pickle: true` (per source), `opendv convert --allow-pickle`, `opendv.standardize(..., allow_pickle=True)`. Only for files you created yourself. No shipped manifest sets it; `tests/test_run_batch_standardization.py` checks that none does or lists a pickle glob.
+- **Outputs.** The standardized table of a pickle input is written as Parquet instead of a pickle (`opendv convert` defaults to `<name>-standardized.parquet` for one). The analysis no longer reads pickles: `load_studies` skips them with a warning, so output folders written by older runs need a fresh batch run for their pickle-derived tables.
+- **road_bumps_touch** reads only its four CSV tables (`R_Count_Down`, `R_Count_Move`, `R_Offset`, `R_TCT`), the per-participant tables the paper's ANOVAs use, which the authors computed from the pickles. The pickles hold the raw touch and accelerometer logs. The manifests no longer list `*.pkl` globs. Checked on the cached clone (commit 24e00072) with `pd.read_pickle`, `pickle.load(s)` and the `pickle.find_class` audit event trapped: no unpickling, with the new entry and with the old one that still asked for `*.pkl` (four pickles refused, four CSVs standardized).
+
+**Do road_bumps_touch's results change?** Not in the LLM-excluded outputs: the study has no curated mapping, so all of its values were LLM-deduced and already excluded. In the outputs that include LLM mappings they do; the committed outputs are not regenerated in this change.
+- The study loses the five DVs that came only from the pickles. All five were wrong LLM mappings: `Speed` (the 10–50 km/h speed condition) as `task_completion_time`, `Diff` as `pedestrian_crossing_time`, `Bin` (0–51, rescaled as if 0–100) as `perceived_safety`, `AccDiff` as `attrakdiff_att` and `Take` as `task_feasibility_item_01`. Their 12 speed contrasts go too; the four of `interaction_events` are computed from the count tables.
+- `interaction_events` comes from the 320 rows of the two count tables instead of 216,391 rows, 216,071 of them touch-type codes from the pickles. `fixation_count` (an LLM mapping of the touch count) and the within-person relation of `fixation_count` with `interaction_events` used the CSV rows only and are unchanged.
+- Pooled estimates that include LLM mappings lose the study. The committed leave-one-out rows show the result: `pedestrian_crossing_time` 5.62 → 10.14 (k 7 → 6; the study's 8,512 near-zero values from its accelerometer log pulled the pool down), `perceived_safety` 1.01 → 1.34 (k 11 → 10), `task_completion_time` 19.05 → 14.82 (k 6 → 5).
+
 ### [2026-11-04] Code review and cross-study relations
 
 A review of the whole pipeline (harmonization, LLM fallback and benchmark, cross-study analyses) found the defects below; each is fixed and has a regression test in `tests/test_review_fixes.py`.

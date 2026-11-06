@@ -20,6 +20,7 @@ from scripts.convert_dv import (
     resolve_io_paths,
     standardize_columns,
     load_input_file,
+    PickleRefusedError,
 )
 
 
@@ -59,15 +60,26 @@ class ConvertDVTests(unittest.TestCase):
             self.assertEqual(df.loc[0, "Label"], "Café")
 
 
-    def test_load_input_file_reads_pickled_dataframe(self):
+    def test_load_input_file_reads_pickled_dataframe_only_with_allow_pickle(self):
         with tempfile.TemporaryDirectory() as tmpdir:
             pickle_path = Path(tmpdir) / "study.pkl"
             expected = pd.DataFrame({"DurationX": [1.0, 2.0], "Trust": [4.0, 5.0]})
             expected.to_pickle(pickle_path)
 
-            df = load_input_file(str(pickle_path))
+            with self.assertRaises(PickleRefusedError):
+                load_input_file(str(pickle_path))
+            df = load_input_file(str(pickle_path), allow_pickle=True)
 
             pd.testing.assert_frame_equal(df, expected)
+
+    def test_resolve_io_paths_writes_pickle_inputs_as_parquet(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            pickle_path = Path(tmpdir) / "study.pkl"
+            pd.DataFrame({"DurationX": [1.0]}).to_pickle(pickle_path)
+
+            _, output_path, _ = resolve_io_paths(str(pickle_path), None, None)
+
+        self.assertEqual(output_path.name, "study-standardized.parquet")
 
     def test_case_insensitive_mapping_works(self):
         schema_data = load_schema(str(SCHEMA_PATH))
