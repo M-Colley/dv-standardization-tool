@@ -31,7 +31,8 @@ captions is computed from the run artifacts.
 | NASA-TLX Mental Demand, all mappings (k = 21; 7 studies with LLM-mapped columns) | 7.44; Wald [5.66, 9.23]; HKSJ [5.91, 8.98]; I² = 99.9%, τ² = 17.2 | `meta_analysis_summary.csv` |
 | NASA-TLX Mental Demand, without LLM-deduced rows (k = 14) | 8.38; Wald [6.09, 10.68]; HKSJ [6.62, 10.15]; I² = 99.8% | `meta_analysis_summary_llm_excluded.csv` |
 | Multiverse range of the Mental Demand estimate (32 specifications) | 7.44–21.12 (harmonized scales: 7.44–8.41) | `output_multiverse/multiverse_summary.csv` |
-| Condition contrast: eHMI vs. none on Mental Demand (2 studies) | −0.51 SD; Wald [−0.70, −0.32]; HKSJ [−2.32, 1.31] | `contrast_meta_analysis.csv` |
+| Condition contrast: eHMI vs. none on Mental Demand (2 studies) | −0.54 SD; Wald [−0.73, −0.35]; HKSJ [−1.91, 0.84] | `contrast_meta_analysis.csv` |
+| Condition contrast: higher vs. lowest task demand on the NASA-TLX total (3 studies) | +0.97 SD; Wald [0.41, 1.53]; HKSJ [−0.10, 2.03]; I² = 88% | `contrast_meta_analysis.csv` |
 | Causal DAG (DirectLiNGAM) | fit on 270 complete-case rows, **all from Running into Traffic** (a within-study DAG) | `analysis_results.json` (`studies_used`) |
 
 ## Figures & suggested captions

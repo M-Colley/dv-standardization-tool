@@ -31,6 +31,10 @@
 #     levels:    {study level: canonical level}; required with `canonical`
 #     reference: study level that every other level is contrasted against;
 #                defaults to the level(s) mapped to the canonical reference
+#     exclude:   optional {column: [values]}: rows whose value in that column is
+#                listed carry no level of this factor, e.g. measurements taken
+#                before the manipulation, or events in which the factor was not
+#                crossed with the others (rows without a value are kept)
 #   source:      where the design information comes from
 #
 # Effects are condition contrasts (level minus reference) computed on
@@ -39,8 +43,8 @@
 # within-subjects factors (metafor measure "SMCRPH"), so both are on the
 # same d metric and can be pooled.
 
-version: "1.1"
-updated: "2026-11-05"
+version: "1.2"
+updated: "2026-11-06"
 
 canonical_factors:
   ehmi_presence:
@@ -54,12 +58,34 @@ canonical_factors:
     label: 3D vs. 2D in-vehicle display
     levels: [2d, 3d]
     reference: 2d
+  task_demand:
+    label: Higher vs. lowest task demand
+    levels: [lowest, higher]
+    reference: lowest
+    notes: >-
+      More of the same task at once, or a harder version of it: more vehicles requesting
+      remote help at once, two speech streams at once instead of one after the other, a
+      faster video, a noisier cursor, a smaller view or a hidden path, a more complex
+      scenario. Tagged only where the study's README, analysis script or paper states the
+      direction, never from the outcomes; whether the manipulation raised workload is what
+      the contrast estimates. Added distractions (another stimulus, not more of the task)
+      and levels the record does not define are not tagged. Added 2026-11-06.
+  situation_criticality:
+    label: More vs. least critical traffic encounter
+    levels: [lowest, higher]
+    reference: lowest
+    notes: >-
+      The other vehicle's behaviour brings the encounter closer to a collision: a smaller
+      merging gap, harder braking of the merging vehicle, an automated vehicle that does not
+      yield to a crossing pedestrian. Added 2026-11-06.
 
 studies:
   running_into_traffic_chi26:
     participant: participant
     domain: automotive
-    source: running_questionnaire.csv column names; every participant saw all 12 cells
+    source: >-
+      running_questionnaire.csv column names; every participant saw all 12 cells. An AV that
+      does not yield is tagged situation_criticality (2026-11-06).
     factors:
       - name: ehmi
         canonical: ehmi_presence
@@ -71,8 +97,10 @@ studies:
         columns: {meta_condition_speed: null}
         reference: Walking
       - name: av_yielding
+        canonical: situation_criticality
         design: within
         columns: {meta_condition_yielding: null}
+        levels: {Yielding: lowest, Not-Yielding: higher}
         reference: Yielding
 
   ehmi_for_all_chi26:
@@ -174,7 +202,9 @@ studies:
       ConditionID 1-12 coded as in the repository's Evaluation_CHI25_ROADS.R:
       interaction concept (1/4/7/10 Trajectory, 2/5/8/11 Path planning,
       3/6/9/12 Waypoint, the script's reference level) x number of requests
-      (1-3 One, 4-6 Two, 7-9 Three, 10-12 Four); every participant saw all 12.
+      (1-3 One, 4-6 Two, 7-9 Three, 10-12 Four); every participant saw all 12. The paper
+      has up to four vehicles sending requests at once, so the number of requests is tagged
+      task_demand (2026-11-06).
     factors:
       - name: interaction_concept
         design: within
@@ -184,10 +214,12 @@ studies:
                         "3": Waypoint, "6": Waypoint, "9": Waypoint, "12": Waypoint}
         reference: Waypoint
       - name: number_of_requests
+        canonical: task_demand
         design: within
         columns:
           ConditionID: {"1": One, "2": One, "3": One, "4": Two, "5": Two, "6": Two,
                         "7": Three, "8": Three, "9": Three, "10": Four, "11": Four, "12": Four}
+        levels: {One: lowest, Two: higher, Three: higher, Four: higher}
         reference: One
 
   ehmi_optimization_chi25:
@@ -344,8 +376,10 @@ studies:
 
   # --- Added 2026-11-05: development half of the 2026-11-05 search ---------------
   # Participant columns on the never-map list (ID, id, user_id, participant_id,
-  # RecordedDate, ...) keep their raw names. Factors are described in `source` and
-  # not declared: none maps onto a canonical factor.
+  # RecordedDate, ...) keep their raw names. Factors are declared (2026-11-06) where the
+  # condition is a column of long data; the seven studies that keep their conditions only
+  # as wide columns (one column per condition and measure) describe them in `source`, since
+  # a factor reads a row's level from a column.
   ehmi_car_body_2020:
     participant: meta_participant_id
     domain: automotive
@@ -359,26 +393,78 @@ studies:
     participant: participant_id
     domain: other
     source: >-
-      README.md; one row per participant x trial x NASA-TLX response type (36 x 36 x 3);
-      response type (Ask, Knob, Slider) and the five task-difficulty variables within
-      subjects.
-    factors: []
+      README.md and data_dictionary.csv; one row per participant x trial x NASA-TLX response
+      type (36 x 36 x 3), all within subjects. Every participant rated the same 36 videos
+      with each response type (numeric entry Ask, rotary Knob, Slider; counterbalanced
+      blocks). Task difficulty was manipulated across the videos by play speed (Regular,
+      Fast = 1.6x), cursor noise (Low 0 px, Medium +-6 px, High +-12 px), view radius
+      (Small 25 px, Medium 50 px, Large 75 px) and path visibility; these four are balanced
+      over the 36 videos (each pair of levels in equal numbers), so their marginal contrasts
+      are not confounded with one another. The fifth, the number of searched points (0-6),
+      is not declared: it is unbalanced (2-10 videos per value, 6 points only at Regular
+      speed). Reference levels are the easier ones; Slider for the response type.
+    factors:
+      - name: response_type
+        design: within
+        columns: {meta_condition_response_type: null}
+        reference: Slider
+      - name: play_speed
+        canonical: task_demand
+        design: within
+        columns: {meta_condition_play_speed: null}
+        levels: {Regular: lowest, Fast: higher}
+        reference: Regular
+      - name: cursor_noise
+        canonical: task_demand
+        design: within
+        columns: {meta_condition_cursor_noise: null}
+        levels: {Low: lowest, Medium: higher, High: higher}
+        reference: Low
+      - name: view_radius
+        canonical: task_demand
+        design: within
+        columns: {meta_condition_view_radius: null}
+        levels: {Large: lowest, Medium: higher, Small: higher}
+        reference: Large
+      - name: path_visible
+        canonical: task_demand
+        design: within
+        columns:
+          meta_condition_path_visible: {"True": visible, "False": hidden}
+        levels: {visible: lowest, hidden: higher}
+        reference: visible
 
   tactile_sa_display_2022:
     participant: ID
     domain: automotive
     source: >-
-      DaRUS dataset page; one row per participant (21); tactile notifications of SA level 1
-      (Condition 1) or SA level 3 (Condition 2) between subjects.
-    factors: []
+      DaRUS dataset page (quoted in the mapping file): "assigned condition (SA-L1 = 1,
+      SA-L3=2)"; one row per participant (21), between subjects: tactile notifications of
+      SA level 1 (positions of surrounding traffic; 12 participants) or SA level 3
+      (projection of the automated vehicle's future position; 9).
+    factors:
+      - name: sa_level
+        design: between
+        columns:
+          Condition: {"1": SA level 1, "2": SA level 3}
+        reference: SA level 1
 
   short_videos_memory_2023:
     participant: meta_participant_id
     domain: other
     source: >-
-      One row per participant (q.csv), per participant x task x phase (acc.csv) or per trial
-      (rt.csv); break activity (rest, TikTok, Twitter, YouTube) between subjects, 15 each.
-    factors: []
+      README.md and the mapping file; one row per participant (q.csv), per participant x
+      task x phase (acc.csv) or per trial (rt.csv); break activity (interrupt: rest, TikTok,
+      Twitter, YouTube) between subjects, 15 each (folder ids 1xx-4xx). The break lay between
+      the pre and post task blocks, so the contrast leaves out the training and pre-break
+      rows (exclude) and uses the post-break measurements and the questionnaire (engagement
+      during the break).
+    factors:
+      - name: break_activity
+        design: between
+        columns: {meta_condition_interruption: null}
+        exclude: {meta_measurement_phase: [train, pre]}
+        reference: rest
 
   driving_style_automated_2021:
     participant: meta_participant_id
@@ -401,9 +487,36 @@ studies:
     participant: meta_participant_id
     domain: automotive
     source: >-
-      README.md; one row per participant x event (22 x 20); merging gap, braking intensity
-      and repetition within subjects.
-    factors: []
+      README.md (REP, IMG, BI) and the data; one row per participant x event (22 x 20), all
+      within subjects: nine merging-and-hard-brake events, initial merging gap (5, 15, 25 m)
+      x braking intensity of the merging vehicle (-2, -5, -8 m/s^2), and one hard-braking
+      event without a merge (gap column 25, intensity -8; 0 in two rows), each driven twice
+      (REP 1 = first exposure, 2 = second). Gap and braking intensity are crossed only in the
+      merging events, so their contrasts leave out the hard-braking event (exclude); one
+      row has neither. References: the largest gap, the mildest braking, the first
+      exposure.
+    factors:
+      - name: merging_gap
+        canonical: situation_criticality
+        design: within
+        columns:
+          meta_condition_initial_merging_gap: {"5": 5 m, "15": 15 m, "25": 25 m}
+        exclude: {meta_condition_event_type: [Hard braking]}
+        levels: {25 m: lowest, 15 m: higher, 5 m: higher}
+        reference: 25 m
+      - name: braking_intensity
+        canonical: situation_criticality
+        design: within
+        columns:
+          meta_condition_braking_intensity: {"-2": -2 m/s2, "-5": -5 m/s2, "-8": -8 m/s2}
+        exclude: {meta_condition_event_type: [Hard braking]}
+        levels: {-2 m/s2: lowest, -5 m/s2: higher, -8 m/s2: higher}
+        reference: -2 m/s2
+      - name: repetition
+        design: within
+        columns:
+          meta_repetition: {"1": first, "2": second}
+        reference: first
 
   ehmi_survey_crowd_2019:
     participant: id
@@ -427,42 +540,120 @@ studies:
     participant: meta_participant_id
     domain: other
     source: >-
-      Readme.txt; one row per participant (Labels.csv, 21) or per participant x task
-      (SenseCobotFusion.csv; baseline and five collaborative-robot tasks within subjects).
-    factors: []
+      Readme.txt; one row per participant (Labels.csv, 21; the per-task NASA-TLX questions
+      are wide columns there) or per participant x task (SenseCobotFusion.csv; Baseline and
+      Tasks 1-5 with a collaborative robot, within subjects). The Baseline rows carry no
+      task rating (Label), so the task contrasts cover the physiological measures only.
+    factors:
+      - name: task
+        design: within
+        columns: {meta_condition_task: null}
+        reference: Baseline
 
   myocontrol_intent_2025:
     participant: meta_participant_id
     domain: other
     source: >-
       One row per participant x TAC level (NASA TLX.csv, 8 participants) or per TAC test
-      trial (testResults.csv); TAC level and contraction intensity within subjects.
-    factors: []
+      trial (testResults.csv); TAC level and contraction intensity (Full, Half) within
+      subjects. The record does not define the TAC levels; GestureDistribution.csv lists N
+      gestures at TAC N for TAC 3-5 (3-7 at TAC 6-7), so a higher level controls more
+      gestures. The files spell the levels "TAC 4" and "TAC_4". Not every participant reached
+      every level (TAC 3 only in the trials, TAC 7 by 3-4 participants), so the reference is
+      TAC 4, the lowest level in both files. Not tagged task_demand: the record does not
+      define the levels.
+    factors:
+      - name: tac_level
+        design: within
+        columns:
+          meta_condition_tac_level: {TAC 3: TAC 3, TAC_3: TAC 3, TAC 4: TAC 4, TAC_4: TAC 4,
+                                     TAC 5: TAC 5, TAC_5: TAC 5, TAC 6: TAC 6, TAC_6: TAC 6,
+                                     TAC 7: TAC 7, TAC_7: TAC 7}
+        reference: TAC 4
+      - name: contraction_intensity
+        design: within
+        columns: {meta_condition_contraction_intensity: null}
+        reference: Full intensity
 
   artv_ornaments_2025:
     participant: meta_participant_id
     domain: other
     source: >-
-      One row per participant x condition (20 x 4); baseline and three AR ornamentations of
-      a VR train interior within subjects.
-    factors: []
+      Mapping file (from the Qualtrics export's question "Which Condition did you
+      experience?"); one row per participant x condition (20 x 4), within subjects: the VR
+      train interior without ornamentation (Baseline) and three AR ornamentations (Constant
+      Generic Medieval, Constant Game of Thrones Objects, Interior Change With Scene). The
+      two header rows of the export (question text, import id) are not levels.
+    factors:
+      - name: ornamentation
+        design: within
+        columns:
+          meta_condition_ornamentation: {Baseline: Baseline, Constant Generic Medieval: Constant Generic Medieval,
+                                         Constant Game of Thrones Objects: Constant Game of Thrones Objects,
+                                         Interior Change With Scene: Interior Change With Scene}
+        reference: Baseline
 
   nl2tap_filter_2026:
     participant: participant_id
     domain: other
     source: >-
-      README.md; one row per participant (questionnaires, 85) or per participant x scenario
-      (510); expert vs non-expert interface between subjects, scenario complexity within.
-    factors: []
+      README.md and participants.csv; one row per participant (questionnaires, 85) or per
+      participant x scenario (510). user_type (between subjects, not randomized: the
+      interface followed the participant's expertise): non-experts (45, ids user_0001-0067)
+      only chatted with the system, experts (40, user_0101-0205) also saw and could edit the
+      generated code. user_type is only in participants.csv, which holds no DV, so the factor
+      reads it from the participant id. Non-experts did two scenarios of each complexity class
+      (S1-S2 = C1, M1-M2 = C2, C1-C2 = C3), experts six expert scenarios (E1-E6, all C3):
+      complexity varies within subjects for non-experts only, and the user_type contrast on
+      scenario measures compares C3 scenarios only (exclude).
+    factors:
+      - name: user_type
+        design: between
+        columns:
+          participant_id: {user_0001: non_expert, user_0002: non_expert, user_0003: non_expert, user_0004: non_expert,
+                           user_0005: non_expert, user_0006: non_expert, user_0007: non_expert, user_0008: non_expert,
+                           user_0009: non_expert, user_0010: non_expert, user_0011: non_expert, user_0013: non_expert,
+                           user_0015: non_expert, user_0016: non_expert, user_0017: non_expert, user_0018: non_expert,
+                           user_0019: non_expert, user_0020: non_expert, user_0021: non_expert, user_0022: non_expert,
+                           user_0023: non_expert, user_0024: non_expert, user_0026: non_expert, user_0027: non_expert,
+                           user_0028: non_expert, user_0029: non_expert, user_0031: non_expert, user_0032: non_expert,
+                           user_0033: non_expert, user_0034: non_expert, user_0037: non_expert, user_0039: non_expert,
+                           user_0042: non_expert, user_0043: non_expert, user_0045: non_expert, user_0046: non_expert,
+                           user_0047: non_expert, user_0048: non_expert, user_0049: non_expert, user_0050: non_expert,
+                           user_0051: non_expert, user_0055: non_expert, user_0061: non_expert, user_0065: non_expert,
+                           user_0067: non_expert,
+                           user_0101: expert, user_0102: expert, user_0103: expert, user_0104: expert, user_0105: expert,
+                           user_0106: expert, user_0107: expert, user_0108: expert, user_0109: expert, user_0110: expert,
+                           user_0113: expert, user_0114: expert, user_0115: expert, user_0116: expert, user_0118: expert,
+                           user_0119: expert, user_0120: expert, user_0121: expert, user_0123: expert, user_0124: expert,
+                           user_0125: expert, user_0126: expert, user_0127: expert, user_0128: expert, user_0129: expert,
+                           user_0130: expert, user_0131: expert, user_0132: expert, user_0133: expert, user_0134: expert,
+                           user_0150: expert, user_0152: expert, user_0153: expert, user_0158: expert, user_0170: expert,
+                           user_0171: expert, user_0201: expert, user_0203: expert, user_0204: expert, user_0205: expert}
+        exclude: {meta_condition_complexity: [C1, C2]}
+        reference: non_expert
+      - name: scenario_complexity
+        canonical: task_demand
+        design: within
+        columns: {meta_condition_complexity: null}
+        levels: {C1: lowest, C2: higher, C3: higher}
+        reference: C1
 
   visual_fidelity_curves_2015:
     participant: meta_participant_id
     domain: automotive
     source: >-
-      One row per participant x run (TLX sheet) or per participant (SDLP sheet, fidelity
-      levels as wide columns); visual fidelity (low, medium, high) within subjects. The
-      questionnaire's T1-T24 are recoded to the measures workbook's 1-24 (mapping file).
-    factors: []
+      Mapping file; one row per participant x run (TLX sheet, long: Level H / M / L) or per
+      participant (SDLP sheet, fidelity levels as wide columns); visual fidelity (low,
+      medium, high) within subjects, each level in each run position for 8 of the 24
+      participants. The questionnaire's T1-T24 are recoded to the measures workbook's 1-24
+      (mapping file). The factor covers the NASA-TLX only; SDLP stays in wide columns.
+    factors:
+      - name: visual_fidelity
+        design: within
+        columns:
+          meta_condition_visual_fidelity: {L: Low, M: Medium, H: High}
+        reference: Low
 
   music_tempo_taskload_2022:
     participant: meta_participant_id
@@ -476,9 +667,19 @@ studies:
     participant: user_id
     domain: other
     source: >-
-      One row per participant x stream combination after the manifest's pivot (40 x 16);
-      combinations and presentation (concurrent, sequential) within subjects.
-    factors: []
+      Mapping file and the data; one row per participant x stream combination after the
+      manifest's pivot (40 x 16), within subjects: 15 combinations of two streams presented
+      concurrently and one sequential baseline (combination 16, "Baseline"; stimulus_type
+      Concurrent / Sequential). The contrast is concurrent (mean of the 15) vs sequential;
+      the paper finds that workload depends on the types and amount of information
+      presented at once, so concurrency is tagged task_demand.
+    factors:
+      - name: presentation
+        canonical: task_demand
+        design: within
+        columns: {meta_condition_presentation: null}
+        levels: {Sequential: lowest, Concurrent: higher}
+        reference: Sequential
 
   # ── Held-out confirmation set (docs/preregistration_heldout_relations.md) ──
   # Frozen with analyses/heldout/mappings/. Participant columns on the pipeline's

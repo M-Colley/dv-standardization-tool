@@ -109,17 +109,19 @@ studies:
         levels: {Nothing: absent, LightRing: present, CyanBand: present}
 ```
 
-A factor can list several columns (e.g. a survey file that only has a condition code, `ConditionID: {A: None, B: Intention, ...}`); the first column with a value gives a row's level. Factors without `canonical` give within-study contrasts only and need a `reference`.
+A factor can list several columns (e.g. a survey file that only has a condition code, `ConditionID: {A: None, B: Intention, ...}`); the first column with a value gives a row's level. A column can also be the participant id, for a between-subjects group that is recorded only in a file without measures (NL2TAP's `user_type`). Factors without `canonical` give within-study contrasts only and need a `reference`.
+
+`exclude: {column: [values]}` takes rows out of one factor's contrasts: rows whose value in that column is listed carry no level (rows without a value keep theirs). It serves measurements taken before the manipulation (`meta_measurement_phase: [train, pre]` for a break activity that came between the pre and post blocks) and events in which the factor was not crossed with the others (`meta_condition_event_type: [Hard braking]`). A listed column that the study lacks is logged.
 
 Method:
 1. Rows are averaged per participant and level, so participants are the units.
-2. Each level is contrasted with the reference (level minus reference): Hedges' g for between-subjects factors (metafor `SMD`), and the standardized mean change with the average condition SD for within-subjects factors (metafor `SMCRPH`), which is on the same metric. The design used is the one observed in the data; a mismatch with the declaration is logged and reported (`design_declared`, `design_observed`).
-3. Several contrasts of one study against the same reference are combined by GLS under a compound-symmetric correlation (`rho = 0.5`; metafor `aggregate(struct = "CS")`), with `rho` = 0.2 and 0.8 as sensitivity columns.
+2. Each level is contrasted with the reference (level minus reference): Hedges' g for between-subjects factors (metafor `SMD`), and the standardized mean change with the average condition SD for within-subjects factors (metafor `SMCRPH`), which is on the same metric. The design used is the one observed in the data; a mismatch with the declaration is logged and reported (`design_declared`, `design_observed`). A within-subjects contrast whose change has no variance (every participant has the same value at both levels) is skipped: its sampling variance is 0 and no pooling can weight it.
+3. Several contrasts of one study on the same canonical factor and DV (levels against a shared reference, or several factors with the same canonical factor) are combined into their mean, with its variance under a compound-symmetric correlation (`1'V1 / k²`, `rho = 0.5`; Borenstein et al. 2009, ch. 24; metafor `aggregate(struct = "CS", weighted = FALSE)`). `rho` = 0.2 and 0.8 are sensitivity columns, and `estimate_gls` (`yi_gls` per study) gives the generalized-least-squares combination (`weighted = TRUE`, the default until 2026-11-06; `--aggregation gls`). GLS gives negative weights when correlated contrasts differ in variance by more than `1 / rho²`, which SMCRPH variances do because they grow with the effect, so it pulled study effects outside the range of their own contrasts.
 4. Study-level effects are pooled with the same estimators as the mean meta-analysis (fixed effects below k = 3, HKSJ intervals always reported).
 
 Participants are identified by the declared `participant` columns (the first present one wins). Two optional keys cover files that identify them differently: `participant_from_file` (a regular expression with one group that takes the id from the file name, for files that carry none) and `participant_scope: file` (ids that restart in every file, which are then qualified by the file name). Each study also records its research `domain`, which the relations analysis uses to split pooled relations.
 
-All formulas are checked against metafor 5.2.1 in `tests/test_contrast_meta_analysis.py`.
+The effect sizes, the GLS combination and the pooling are checked against metafor 5.2.1 in `tests/test_contrast_meta_analysis.py`; the mean combination against its closed form.
 
 Outputs: `contrast_effects.csv` (every contrast, with means, SDs, the within-person correlation, `favours_level` from the DV's direction and `mapping_source`), `contrast_study_effects.csv` (one effect per study × canonical factor × DV), `contrast_meta_analysis.csv` and `contrast_meta_analysis_llm_excluded.csv`.
 

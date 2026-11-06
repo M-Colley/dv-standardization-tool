@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-06T18:52:43.048199+00:00",
+  "generated_at": "2026-11-06T20:58:11.357596+00:00",
   "input_dir": "data\\processed\\catalog39_toast\\standardized",
   "n_studies": 39,
   "studies": [
@@ -2881,12 +2881,13 @@
     ]
   },
   "condition_contrasts": {
-    "designs_version": "1.1",
+    "designs_version": "1.2",
     "studies_with_design": 58,
-    "studies_with_contrasts": 14,
-    "n_contrast_effects": 831,
-    "n_pooled": 2,
+    "studies_with_contrasts": 24,
+    "n_contrast_effects": 1171,
+    "n_pooled": 11,
     "rho": 0.5,
+    "aggregation": "mean",
     "estimator": "DL"
   },
   "harmonized_summary": [
