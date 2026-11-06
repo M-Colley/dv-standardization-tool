@@ -1,3 +1,4 @@
+import contextlib
 import io
 import json
 import os
@@ -31,6 +32,18 @@ from scripts.run_batch_standardization import (
 REPO_ROOT = Path(__file__).resolve().parents[1]
 SCHEMA_PATH = REPO_ROOT / "schemas" / "standard_dv_mapping.yaml"
 EXAMPLE_MANIFEST_PATH = REPO_ROOT / "sources_manifest_example.yaml"
+
+
+@contextlib.contextmanager
+def _forbid_unpickling():
+    """Fail the test if anything unpickles while the block runs."""
+    def refuse(*_args, **_kwargs):
+        raise AssertionError("unpickling was attempted")
+
+    with mock.patch("pandas.read_pickle", side_effect=refuse), \
+            mock.patch("pickle.load", side_effect=refuse), \
+            mock.patch("pickle.loads", side_effect=refuse):
+        yield
 
 
 def _paths_equal(left: str | os.PathLike[str], right: str | os.PathLike[str]) -> bool:
@@ -418,47 +431,157 @@ class BatchStandardizationTests(unittest.TestCase):
         self.assertEqual(summary["results"][0]["status"], "login_required")
         self.assertEqual(summary["results"][0]["message"], "Dataset files require login.")
 
-    def test_run_batch_standardizes_pickle_datasets(self):
+    @staticmethod
+    def _write_pickle_source(input_dir: Path, with_csv: bool = False) -> None:
+        input_dir.mkdir()
+        pd.DataFrame({"DurationX": [1.0, 2.0]}).to_pickle(input_dir / "study.pkl")
+        if with_csv:
+            pd.DataFrame({"DurationX": [3.0, 4.0]}).to_csv(input_dir / "results.csv", index=False)
+        (input_dir / "source_mapping.yaml").write_text(
+            yaml.safe_dump({"dvs": [{"id": "task_completion_time", "aliases": ["DurationX"]}]}),
+            encoding="utf-8",
+        )
+
+    @staticmethod
+    def _write_manifest(tmp: Path, source: dict) -> Path:
+        manifest_path = tmp / "manifest.yaml"
+        manifest_path.write_text(yaml.safe_dump({"sources": [source]}), encoding="utf-8")
+        return manifest_path
+
+    def test_run_batch_refuses_pickles_by_default_without_unpickling(self):
         with tempfile.TemporaryDirectory() as tmpdir:
             tmp = Path(tmpdir)
             input_dir = tmp / "input"
-            input_dir.mkdir()
-            pd.DataFrame({"DurationX": [1.0, 2.0]}).to_pickle(input_dir / "study.pkl")
-            (input_dir / "source_mapping.yaml").write_text(
-                yaml.safe_dump(
-                    {
-                        "dvs": [
-                            {"id": "task_completion_time", "aliases": ["DurationX"]},
-                        ]
-                    }
-                ),
-                encoding="utf-8",
-            )
+            self._write_pickle_source(input_dir, with_csv=True)
+            manifest_path = self._write_manifest(tmp, {
+                "source_id": "pickle_source",
+                "source_type": "local_path",
+                "location": str(input_dir),
+                "include_globs": ["*.pkl", "*.csv"],
+            })
 
-            manifest_path = tmp / "manifest.yaml"
-            manifest_path.write_text(
-                yaml.safe_dump(
-                    {
-                        "sources": [
-                            {
-                                "source_id": "pickle_source",
-                                "source_type": "local_path",
-                                "location": str(input_dir),
-                                "include_globs": ["*.pkl"],
-                            }
-                        ]
-                    }
-                ),
-                encoding="utf-8",
-            )
+            with _forbid_unpickling(), self.assertLogs(
+                "opendv.run_batch_standardization", level="WARNING"
+            ) as logs:
+                summary = run_batch(manifest_path, tmp / "output", SCHEMA_PATH, llm_deduction_enabled=False)
+
+            source_dir = tmp / "output" / "standardized" / "pickle_source"
+            written = sorted(path.name for path in source_dir.iterdir())
+            csv_df = pd.read_csv(source_dir / "results_csv-standardized.csv")
+
+        result = summary["results"][0]
+        self.assertEqual(result["status"], "completed")
+        self.assertEqual(result["refused_pickle_files"], ["study.pkl"])
+        self.assertEqual(result["discovered_files"], 2)
+        self.assertEqual(result["processed_files"], 1)
+        self.assertTrue(any("Refused 1 pickled file(s) (study.pkl)" in line for line in logs.output))
+        self.assertFalse([name for name in written if name.startswith("study_pkl")])
+        self.assertEqual(csv_df["task_completion_time"].tolist(), [3.0, 4.0])
+
+    def test_run_batch_reports_a_pickle_only_source_as_not_available(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            tmp = Path(tmpdir)
+            input_dir = tmp / "input"
+            self._write_pickle_source(input_dir)
+            manifest_path = self._write_manifest(tmp, {
+                "source_id": "pickle_source",
+                "source_type": "local_path",
+                "location": str(input_dir),
+                "include_globs": ["*.pkl"],
+            })
+
+            with _forbid_unpickling():
+                summary = run_batch(manifest_path, tmp / "output", SCHEMA_PATH, llm_deduction_enabled=False)
+
+        result = summary["results"][0]
+        self.assertEqual(result["status"], "not_available")
+        self.assertIn("Only pickled files were discovered (1)", result["message"])
+        self.assertEqual(result["refused_pickle_files"], ["study.pkl"])
+        self.assertEqual(result["discovered_files"], 1)
+
+    def test_run_batch_refuses_pickles_from_remote_sources(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            tmp = Path(tmpdir)
+            checkout = tmp / "checkout"
+            self._write_pickle_source(checkout, with_csv=True)
+            manifest_path = self._write_manifest(tmp, {
+                "source_id": "remote_pickles",
+                "source_type": "github_repo",
+                "location": "https://github.com/example/repo",
+            })
+            discovered = (checkout, [checkout / "results.csv", checkout / "study.pkl"], "abc123")
+
+            with _forbid_unpickling(), mock.patch(
+                "scripts.run_batch_standardization.discover_source_files", return_value=discovered
+            ):
+                summary = run_batch(manifest_path, tmp / "output", SCHEMA_PATH, llm_deduction_enabled=False)
+
+        result = summary["results"][0]
+        self.assertEqual(result["status"], "completed")
+        self.assertEqual(result["refused_pickle_files"], ["study.pkl"])
+        self.assertEqual(result["processed_files"], 1)
+
+    def test_run_batch_reads_pickles_with_allow_pickle_and_writes_parquet(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            tmp = Path(tmpdir)
+            input_dir = tmp / "input"
+            self._write_pickle_source(input_dir)
+            manifest_path = self._write_manifest(tmp, {
+                "source_id": "pickle_source",
+                "source_type": "local_path",
+                "location": str(input_dir),
+                "include_globs": ["*.pkl"],
+                "allow_pickle": True,
+            })
 
             summary = run_batch(manifest_path, tmp / "output", SCHEMA_PATH, llm_deduction_enabled=False)
 
-            standardized_path = tmp / "output" / "standardized" / "pickle_source" / "study_pkl-standardized.pkl"
-            standardized_df = pd.read_pickle(standardized_path)
+            source_dir = tmp / "output" / "standardized" / "pickle_source"
+            standardized_df = pd.read_parquet(source_dir / "study_pkl-standardized.parquet")
+            pickled_outputs = list(source_dir.glob("*.pkl")) + list(source_dir.glob("*.pickle"))
 
         self.assertEqual(summary["results"][0]["status"], "completed")
-        self.assertIn("task_completion_time", standardized_df.columns)
+        self.assertEqual(summary["results"][0]["refused_pickle_files"], [])
+        self.assertEqual(standardized_df["task_completion_time"].tolist(), [1.0, 2.0])
+        self.assertEqual(pickled_outputs, [])
+
+    def test_allow_pickle_must_be_a_yaml_boolean(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            tmp = Path(tmpdir)
+            for value in ("false", "true", 1):
+                manifest_path = self._write_manifest(tmp, {
+                    "source_id": "pickle_source",
+                    "source_type": "local_path",
+                    "location": str(tmp),
+                    "allow_pickle": value,
+                })
+                with self.subTest(value=value), self.assertRaises(ValueError) as ctx:
+                    load_manifest(manifest_path)
+                self.assertIn("allow_pickle", str(ctx.exception))
+
+    def test_screen_pickled_files_ignores_truthy_non_booleans(self):
+        # Defence for runs without pydantic validation: only ``True`` opts in.
+        from scripts.run_batch_standardization import _screen_pickled_files
+
+        base = Path("root")
+        files = [base / "a.csv", base / "b.pkl"]
+        for value in ("false", "yes", 1, None):
+            with self.subTest(value=value):
+                kept, refused = _screen_pickled_files(
+                    {"source_id": "s", "allow_pickle": value}, base, files
+                )
+                self.assertEqual(kept, [base / "a.csv"])
+                self.assertEqual(refused, ["b.pkl"])
+        kept, refused = _screen_pickled_files({"source_id": "s", "allow_pickle": True}, base, files)
+        self.assertEqual((kept, refused), (files, []))
+
+    def test_shipped_manifests_never_read_pickles(self):
+        for manifest_path in [*REPO_ROOT.glob("sources_manifest*.yaml"), *REPO_ROOT.glob("analyses/**/*manifest*.yaml")]:
+            for source in load_manifest(manifest_path):
+                with self.subTest(manifest=manifest_path.name, source=source["source_id"]):
+                    self.assertFalse(source.get("allow_pickle", False))
+                    globs = [*source.get("include_globs", [])]
+                    self.assertFalse([glob for glob in globs if glob.lower().endswith((".pkl", ".pickle"))])
 
     def test_run_batch_passes_publication_hints_into_llm_context_collection(self):
         with tempfile.TemporaryDirectory() as tmpdir:

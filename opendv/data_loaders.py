@@ -14,8 +14,11 @@ Supported input formats are the union of the keys registered by the
 ``@_register_format`` decorators below: ``.csv``, ``.tsv``, ``.txt``,
 ``.dat``, ``.xlsx``, ``.xls``, ``.xlsm``, ``.ods``, ``.pkl``, ``.pickle``,
 ``.parquet``, ``.sav``, ``.zsav``, ``.dta``, ``.feather``, ``.arrow``,
-``.json``, ``.jsonl``, ``.ndjson``. Output formats supported by
-``save_output_file``: ``.csv``, ``.xlsx``, ``.xls``, ``.pkl``, ``.pickle``.
+``.json``, ``.jsonl``, ``.ndjson``. Pickles (``.pkl``, ``.pickle``) are
+discovered but refused unless the caller passes ``allow_pickle=True``:
+unpickling runs code from the file. Output formats supported by
+``save_output_file``: ``.csv``, ``.xlsx``, ``.parquet``, ``.pkl``,
+``.pickle``.
 """
 
 from __future__ import annotations
@@ -289,9 +292,40 @@ def _load_excel(path: Path) -> pd.DataFrame:
         return best_df
 
 
+# Unpickling runs code: a pickle stream names callables that ``pickle.load``
+# imports and calls, so loading a downloaded .pkl can execute anything its
+# author chose. Pickled tables are therefore refused unless the caller opts in
+# for files it trusts (a manifest source's ``allow_pickle: true``, ``opendv
+# convert --allow-pickle``). The suffixes stay registered so discovery finds
+# pickles and the batch can report which files it refused.
+PICKLE_SUFFIXES = frozenset({".pkl", ".pickle"})
+
+
+class PickleRefusedError(ValueError):
+    """A pickled table was not loaded because unpickling was not allowed."""
+
+
+def pickle_refusal_message(path: Path | str) -> str:
+    return (
+        f"Refusing to unpickle '{Path(path).name}': loading a pickle runs code embedded in the file. "
+        "Convert it to CSV or Parquet in an isolated environment (docs/reproducibility.md, "
+        "'Pickled data files'), or allow pickles only for files you created yourself "
+        "(manifest: allow_pickle: true; opendv convert: --allow-pickle)."
+    )
+
+
 @_register_format(".pkl", ".pickle")
 def _load_pickle(path: Path) -> pd.DataFrame:
-    """Load a pickle file and coerce its payload to a DataFrame."""
+    """Refuse a pickled table (see ``PICKLE_SUFFIXES``).
+
+    Only ``load_input_file(..., allow_pickle=True)`` unpickles, so code that
+    calls a loader from the registry by suffix never runs a pickle.
+    """
+    raise PickleRefusedError(pickle_refusal_message(path))
+
+
+def _unpickle_table(path: Path) -> pd.DataFrame:
+    """Unpickle *path* and coerce its payload to a DataFrame. Runs code from the file."""
     payload = pd.read_pickle(path)
     return _coerce_pickled_payload_to_dataframe(payload)
 
@@ -401,7 +435,9 @@ def _pivot_long_table(df: pd.DataFrame, index: list[str] | str, columns: str, va
     return wide.reset_index()
 
 
-def load_input_file(input_path: str, options: dict[str, Any] | None = None) -> pd.DataFrame:
+def load_input_file(
+    input_path: str, options: dict[str, Any] | None = None, *, allow_pickle: bool = False
+) -> pd.DataFrame:
     """Load tabular input data using the format registry.
 
     Format is determined first by file extension (registry lookup), then
@@ -411,6 +447,10 @@ def load_input_file(input_path: str, options: dict[str, Any] | None = None) -> p
     the 0-based ``header`` row; for any table a long-to-wide ``pivot`` and
     ``drop_columns`` (columns that must not be read as data, e.g. an
     optimizer's inverted copy of a questionnaire answer).
+
+    ``.pkl``/``.pickle`` files raise ``PickleRefusedError`` unless
+    *allow_pickle* is true: unpickling runs code from the file, so allow it
+    only for files you created yourself.
     """
     path = Path(input_path)
     options = dict(options or {})
@@ -421,6 +461,10 @@ def load_input_file(input_path: str, options: dict[str, Any] | None = None) -> p
         if path.suffix.lower() not in _SPREADSHEET_SUFFIXES:
             raise ValueError(f"'sheet' and 'header' apply to spreadsheets, not '{path.name}'")
         df = pd.read_excel(path, sheet_name=options.get("sheet", 0), header=options.get("header", 0))
+    elif path.suffix.lower() in PICKLE_SUFFIXES:
+        if allow_pickle is not True:  # a truthy non-boolean never opts in
+            raise PickleRefusedError(pickle_refusal_message(path))
+        df = _unpickle_table(path)
     else:
         df = _load_with_registry(path)
     if options.get("pivot"):
@@ -561,6 +605,10 @@ __all__ = [
     "_load_text_table",
     "_load_excel",
     "_load_pickle",
+    "_unpickle_table",
+    "PICKLE_SUFFIXES",
+    "PickleRefusedError",
+    "pickle_refusal_message",
     "_load_parquet",
     "_load_spss",
     "_load_stata",

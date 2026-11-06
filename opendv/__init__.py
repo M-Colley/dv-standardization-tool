@@ -32,19 +32,22 @@ def standardize(
     data: pd.DataFrame | str | Path,
     mapping: Mapping[str, str] | None = None,
     schema_path: str | Path | None = None,
+    *,
+    allow_pickle: bool = False,
 ) -> pd.DataFrame:
     """Rename a table's columns to canonical DV ids.
 
     ``data`` is a DataFrame or a path to any supported file format. Columns
     are matched case-insensitively against ``mapping`` (raw name -> DV id) when
     given, else against the aliases of the standard DV schema (or the schema at
-    ``schema_path``). Unmatched columns keep their names.
+    ``schema_path``). Unmatched columns keep their names. A ``.pkl`` path is
+    refused unless ``allow_pickle`` is true (unpickling runs code from the file).
     """
     from opendv._paths import SCHEMAS_DIR
     from opendv.convert_dv import load_schema, standardize_columns
     from opendv.data_loaders import load_input_file
 
-    frame = load_input_file(str(data)) if isinstance(data, (str, Path)) else data
+    frame = load_input_file(str(data), allow_pickle=allow_pickle) if isinstance(data, (str, Path)) else data
     if mapping is None:
         schema = schema_path or SCHEMAS_DIR / "standard_dv_mapping.yaml"
         mapping = load_schema(str(schema))["mapping"]

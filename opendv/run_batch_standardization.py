@@ -41,7 +41,7 @@ logger = logging.getLogger(__name__)
 # Optional Pydantic v2 manifest validation
 # ---------------------------------------------------------------------------
 try:
-    from pydantic import BaseModel, field_validator, model_validator
+    from pydantic import BaseModel, StrictBool, field_validator, model_validator
     _PYDANTIC_AVAILABLE = True
 except ImportError:
     _PYDANTIC_AVAILABLE = False
@@ -73,6 +73,11 @@ if _PYDANTIC_AVAILABLE:
         # Per-file loading options (sheet, header row, long-to-wide pivot), keyed by
         # path relative to the source root or a glob; see data_loaders.table_options_for.
         table_options: dict[str, dict[str, Any]] = {}
+        # Unpickle this source's .pkl/.pickle files. Off by default because
+        # unpickling runs code embedded in the file; set it only for files you
+        # created yourself (see docs/reproducibility.md, "Pickled data files").
+        # Strict: a quoted "false" is an error, not a truthy string.
+        allow_pickle: StrictBool = False
 
         @field_validator("source_type")
         @classmethod
@@ -155,7 +160,7 @@ from opendv.convert_dv import (
     standardize_columns,
     strip_duplicate_suffix,
 )
-from opendv.data_loaders import table_options_for
+from opendv.data_loaders import PICKLE_SUFFIXES, table_options_for
 from opendv.header_matching import HeaderMatch, match_headers
 from opendv.instruments import keying_check
 from opendv.item_composition import (
@@ -263,7 +268,6 @@ from opendv.http_utils import (
 # TABULAR_SUFFIXES is the historical alias for DATA_FILE_SUFFIXES used by
 # discovery code in this module. Kept as a re-export for backwards compat.
 TABULAR_SUFFIXES = DATA_FILE_SUFFIXES
-PICKLE_SUFFIXES = {".pkl", ".pickle"}
 DEFAULT_SENSOR_SCHEMA_PATH = SCHEMAS_DIR / "standard_sensor_mapping.yaml"
 DEFAULT_DETECTION_SCHEMA_PATH = SCHEMAS_DIR / "standard_detection_mapping.yaml"
 DEFAULT_METADATA_SCHEMA_PATH = SCHEMAS_DIR / "standard_metadata_mapping.yaml"
@@ -399,6 +403,9 @@ class SourceRunResult:
     # Fingerprint of the repository context the LLM prompts used (None when
     # the source needed no LLM call); equal values mean equal prompts' context.
     llm_context_sha256: str | None = None
+    # Pickled files discovered but not loaded (no ``allow_pickle: true``),
+    # relative to the source root. Counted in ``discovered_files``.
+    refused_pickle_files: list[str] = field(default_factory=list)
 
 
 def load_manifest(manifest_path: Path) -> list[dict[str, Any]]:
@@ -1001,11 +1008,14 @@ def discover_source_files(
     )
     return base_dir, files, provenance_id
 
-def _load_any_table(path: Path, options: dict[str, Any] | None = None) -> pd.DataFrame:
+def _load_any_table(
+    path: Path, options: dict[str, Any] | None = None, allow_pickle: bool = False
+) -> pd.DataFrame:
     # The format registry handles .tsv (with encoding + delimiter detection),
     # so every discovered file goes through the same robust loader. *options*
     # are the file's manifest table_options (sheet, header row, pivot).
-    df = load_input_file(str(path), options)
+    # Pickles are refused unless the source sets allow_pickle.
+    df = load_input_file(str(path), options, allow_pickle=allow_pickle)
     # Strip whitespace from headers — many real CSVs have " scenario", "id ",
     # etc. and the schema mapping is whitespace-sensitive.
     df.columns = [str(col).strip() for col in df.columns]
@@ -1013,10 +1023,12 @@ def _load_any_table(path: Path, options: dict[str, Any] | None = None) -> pd.Dat
 
 
 # Output suffixes ``save_output_file`` (or the dedicated .tsv branch) can
-# actually serialize. Inputs in any other discovered format (.parquet, .json,
-# .sav, .dta, .feather, .ods, .xlsm, ...) are written back as CSV; .xls is
-# upgraded to .xlsx because pandas 2.x dropped the xlwt writer.
-_WRITABLE_OUTPUT_SUFFIXES = {".csv", ".tsv", ".xlsx", ".pkl", ".pickle", ".parquet"}
+# actually serialize. Inputs in any other discovered format (.json, .sav,
+# .dta, .feather, .ods, .xlsm, ...) are written back as CSV; .xls is
+# upgraded to .xlsx because pandas 2.x dropped the xlwt writer. Pickle inputs
+# (``allow_pickle: true``) are written as Parquet, which keeps their column
+# types and can be read back without running code.
+_WRITABLE_OUTPUT_SUFFIXES = {".csv", ".tsv", ".xlsx", ".parquet"}
 
 
 def _resolve_output_suffix(input_suffix: str, output_format: str = "native") -> str:
@@ -1027,6 +1039,8 @@ def _resolve_output_suffix(input_suffix: str, output_format: str = "native") -> 
     suffix = input_suffix.lower()
     if suffix in _WRITABLE_OUTPUT_SUFFIXES:
         return suffix
+    if suffix in PICKLE_SUFFIXES:
+        return ".parquet"
     if suffix == ".xls":
         return ".xlsx"
     return ".csv"
@@ -1659,6 +1673,7 @@ class _SourceJob:
     output_format: str = "native"
     header_matching: bool = True
     table_options: dict[str, dict[str, Any]] = field(default_factory=dict)
+    allow_pickle: bool = False
 
 
 @dataclass
@@ -1740,7 +1755,9 @@ def _process_dataset(
     destination = source.output_dir / f"{artifact_prefix}-standardized{output_suffix}"
 
     try:
-        original_df = _load_any_table(task.file_path, table_options_for(source.table_options, dataset_id))
+        original_df = _load_any_table(
+            task.file_path, table_options_for(source.table_options, dataset_id), allow_pickle=source.allow_pickle
+        )
         raw_columns = [str(column) for column in original_df.columns]
         dataset_type = classify_dataset_type(relative_file, raw_columns)
         repository_mapping_path = _resolve_repository_mapping_path(
@@ -2122,6 +2139,7 @@ class _PreparedSource:
     tasks: list[_DatasetTask]
     preferred_models: list[str] | None
     futures: list[Future] | None = None  # first-pass futures when a pool is used
+    refused_pickle_files: list[str] = field(default_factory=list)
 
 
 def _run_source_datasets(
@@ -2238,12 +2256,50 @@ def _build_llm_rejection_log_lines(rejections: list[dict[str, Any]]) -> list[str
     return lines
 
 
+def _allows_pickle(source: dict[str, Any]) -> bool:
+    """Only a YAML boolean ``true`` opts in (never a truthy string)."""
+    return source.get("allow_pickle") is True
+
+
+def _screen_pickled_files(
+    source: dict[str, Any], base_dir: Path, files: list[Path]
+) -> tuple[list[Path], list[str]]:
+    """Drop pickled files unless the source sets ``allow_pickle: true``.
+
+    Returns the files to process and the refused pickles (relative to
+    ``base_dir``). Unpickling runs code embedded in the file, so a pickle
+    from a download is never loaded by default; ``load_input_file`` refuses
+    them as well, this step only keeps them out of the dataset tasks and
+    reports them.
+    """
+    source_id = source["source_id"]
+    pickled = [path for path in files if path.suffix.lower() in PICKLE_SUFFIXES]
+    if not pickled:
+        return files, []
+    names = [path.relative_to(base_dir).as_posix() for path in pickled]
+    preview = ", ".join(names[:5]) + (f", ... ({len(names) - 5} more)" if len(names) > 5 else "")
+    if _allows_pickle(source):
+        logger.warning(
+            "[%s] allow_pickle is set: unpickling %d file(s) (%s). This runs any code they contain.",
+            source_id, len(names), preview,
+        )
+        return files, []
+    logger.warning(
+        "[%s] Refused %d pickled file(s) (%s): unpickling runs code embedded in the file. "
+        "Convert them to CSV or Parquet in an isolated environment, or set allow_pickle: true "
+        "on this source only for files you created yourself.",
+        source_id, len(names), preview,
+    )
+    return [path for path in files if path.suffix.lower() not in PICKLE_SUFFIXES], names
+
+
 def _source_result(
     source_id: str,
     status: str,
     output_dir: Path,
     message: str | None,
     discovered_files: int = 0,
+    refused_pickle_files: list[str] | None = None,
 ) -> SourceRunResult:
     """Result row for a source that produced no datasets."""
     return SourceRunResult(
@@ -2258,6 +2314,7 @@ def _source_result(
         mapped_ratio=0.0,
         output_dir=str(output_dir),
         message=message,
+        refused_pickle_files=list(refused_pickle_files or []),
     )
 
 
@@ -2386,10 +2443,24 @@ def run_batch(
                     prepared.append(_source_result(source_id, "failed", source_output_dir, str(exc)))
                     continue
 
+                discovered_count = len(files)
+                files, refused_pickles = _screen_pickled_files(source, base_dir, files)
                 if not files:
-                    message = "No supported dataset files were discovered for this source."
+                    if refused_pickles:
+                        message = (
+                            f"Only pickled files were discovered ({len(refused_pickles)}); they were not "
+                            "loaded because unpickling runs code from the file. Convert them to CSV or "
+                            "Parquet, or set allow_pickle: true for files you created yourself."
+                        )
+                    else:
+                        message = "No supported dataset files were discovered for this source."
                     logger.warning("[NOT_AVAILABLE] %s: %s", source_id, message)
-                    prepared.append(_source_result(source_id, "not_available", source_output_dir, message))
+                    prepared.append(
+                        _source_result(
+                            source_id, "not_available", source_output_dir, message,
+                            discovered_files=discovered_count, refused_pickle_files=refused_pickles,
+                        )
+                    )
                     continue
 
                 # CLI --disable-llm-deduction is a hard off-switch: when LLM deduction is
@@ -2427,7 +2498,8 @@ def run_batch(
                         )
                         prepared.append(
                             _source_result(
-                                source_id, "failed", source_output_dir, str(exc), discovered_files=len(files)
+                                source_id, "failed", source_output_dir, str(exc),
+                                discovered_files=discovered_count, refused_pickle_files=refused_pickles,
                             )
                         )
                         continue
@@ -2448,12 +2520,17 @@ def run_batch(
                     output_format=output_format,
                     header_matching=header_matching,
                     table_options=dict(source.get("table_options") or {}),
+                    allow_pickle=_allows_pickle(source),
                 )
                 tasks = [
                     _DatasetTask(index=index, source=source_job, file_path=file_path)
                     for index, file_path in enumerate(files)
                 ]
-                prepared.append(_PreparedSource(source, source_job, tasks, source_preferred_models))
+                prepared.append(
+                    _PreparedSource(
+                        source, source_job, tasks, source_preferred_models, refused_pickle_files=refused_pickles
+                    )
+                )
 
             # Phase 2: process. With a pool, every dataset of every source is
             # submitted up front so small/single-file sources overlap with
@@ -2586,7 +2663,7 @@ def run_batch(
                     SourceRunResult(
                         source_id=source_id,
                         status=status,
-                        discovered_files=len(files),
+                        discovered_files=len(files) + len(entry.refused_pickle_files),
                         processed_files=processed,
                         failed_files=failed,
                         unknown_columns=total_unknown,
@@ -2598,6 +2675,7 @@ def run_batch(
                         mapped_dv_columns=int(source_domain_metrics.get("dv", 0)),
                         mapping_domains=dict(sorted(source_domain_metrics.items())),
                         llm_context_sha256=llm_state.context_fingerprint,
+                        refused_pickle_files=list(entry.refused_pickle_files),
                     )
                 )
     finally:

@@ -11,15 +11,19 @@ re-export path.
 from __future__ import annotations
 
 import json
+import pickle
 import unittest
 from pathlib import Path
 from tempfile import TemporaryDirectory
+from unittest import mock
 
 import pandas as pd
 
 from scripts.data_loaders import (
+    PICKLE_SUFFIXES,
     _FORMAT_REGISTRY,
     _MAGIC_BYTES,
+    PickleRefusedError,
     _coerce_pickled_payload_to_dataframe,
     _detect_decimal,
     _detect_delimiter,
@@ -222,6 +226,67 @@ class LoadInputFileTests(unittest.TestCase):
             p.write_text(json.dumps([{"a": 1}]), encoding="utf-8")
             out = load_input_file(str(p))
             self.assertEqual(out["a"].tolist(), [1])
+
+
+def _record_unpickle(value: str) -> str:
+    _RunsCodeWhenUnpickled.calls.append(value)
+    return value
+
+
+class _RunsCodeWhenUnpickled:
+    """Unpickling this object calls ``_record_unpickle`` (stands in for any callable)."""
+
+    calls: list[str] = []
+
+    def __reduce__(self):
+        return (_record_unpickle, ("ran",))
+
+
+class PickleRefusalTests(unittest.TestCase):
+    """Pickles are refused unless the caller opts in: unpickling runs code."""
+
+    def setUp(self):
+        _RunsCodeWhenUnpickled.calls.clear()
+
+    def _payload_file(self, tmp: str, name: str = "evil.pkl") -> Path:
+        path = Path(tmp) / name
+        path.write_bytes(pickle.dumps(_RunsCodeWhenUnpickled()))
+        return path
+
+    def test_payload_runs_code_when_unpickled(self):
+        # Guards the tests below: the payload really does call a function.
+        pickle.loads(pickle.dumps(_RunsCodeWhenUnpickled()))
+        self.assertEqual(_RunsCodeWhenUnpickled.calls, ["ran"])
+
+    def test_load_input_file_refuses_pickles_without_running_them(self):
+        with TemporaryDirectory() as tmp:
+            for name in ("evil.pkl", "evil.pickle", "EVIL.PKL"):
+                path = self._payload_file(tmp, name)
+                with self.subTest(name=name), mock.patch("pandas.read_pickle") as read_pickle:
+                    with self.assertRaises(PickleRefusedError) as ctx:
+                        load_input_file(str(path))
+                    read_pickle.assert_not_called()
+                    self.assertIn("runs code", str(ctx.exception))
+        self.assertEqual(_RunsCodeWhenUnpickled.calls, [])
+
+    def test_registry_loader_refuses_pickles(self):
+        with TemporaryDirectory() as tmp:
+            path = self._payload_file(tmp)
+            for suffix in PICKLE_SUFFIXES:
+                with self.subTest(suffix=suffix), self.assertRaises(PickleRefusedError):
+                    _FORMAT_REGISTRY[suffix](path)
+        self.assertEqual(_RunsCodeWhenUnpickled.calls, [])
+
+    def test_refusal_is_a_value_error(self):
+        # Callers that treat unreadable files as ValueError keep working.
+        self.assertTrue(issubclass(PickleRefusedError, ValueError))
+
+    def test_allow_pickle_reads_a_trusted_dataframe(self):
+        with TemporaryDirectory() as tmp:
+            path = Path(tmp) / "mine.pkl"
+            expected = pd.DataFrame({"a": [1, 2], "b": ["x", "y"]})
+            expected.to_pickle(path)
+            pd.testing.assert_frame_equal(load_input_file(str(path), allow_pickle=True), expected)
 
 
 class SaveOutputFileTests(unittest.TestCase):
