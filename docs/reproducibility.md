@@ -46,13 +46,14 @@ Generation is greedy, so with the same snapshot and inputs the LLM's choices rep
 
 ## Data
 
-`sources_manifest_no4tu.yaml` lists the 23 development studies.
+`sources_manifest_no4tu.yaml` lists the 39 development studies.
 
 - **The first 11** are fetched from their repositories by the batch itself.
-- **The 12 added on 2026-11-04** are read from `data/raw/development/`. Download them first; each file is checked against its pinned checksum:
+- **The 12 added on 2026-11-04 and the 16 added on 2026-11-05** are read from `data/raw/development/`. Download them first; each file is checked against its pinned checksum:
 
     ```bash
     python -m opendv.analysis.confirmatory fetch --sources analyses/development_sources/sources.yaml --data-dir data/raw/development
+    python -m opendv.analysis.confirmatory fetch --sources analyses/development_sources/sources_search.yaml --data-dir data/raw/development
     ```
 
 Each run records the source revision it read (git commit, or the repository record's version and file checksums) in `meta_view.csv` (`commit`) and in the RO-Crate and data packages written next to the outputs.
@@ -61,7 +62,11 @@ Each run records the source revision it read (git commit, or the repository reco
 
 ```bash
 export HF_HUB_OFFLINE=1 MPLBACKEND=Agg
-opendv batch --manifest sources_manifest_no4tu.yaml --output-dir data/processed/catalog_meta_analysis --snapshot-manifest --workers 8
+# --cache-dir keeps the 11 remote downloads (1.6 GB) for later runs; a run writes about 1 GB.
+# Eight workers took about 35 GB of memory (commit charge on Windows); with less free, use
+# fewer: a worker that runs out drops the file it was reading, and the number of workers does
+# not change the results otherwise. Keep the output path short (see below).
+opendv batch --manifest sources_manifest_no4tu.yaml --output-dir data/processed/catalog_meta_analysis --snapshot-manifest --workers 8 --cache-dir data/processed/cache
 opendv analyze --input-dir data/processed/catalog_meta_analysis/standardized --output-dir analyses/output_python_full --exclude-llm-deduced
 python -m opendv.analysis.multiverse_analysis --input-dir data/processed/catalog_meta_analysis/standardized --output-dir analyses/output_multiverse
 python -m opendv.analysis.make_chi_figures
@@ -76,9 +81,21 @@ for s in definition dense_h mixed_h; do
     --subset added_2026_11_04=analyses/development_sources/sources.yaml --shortlist "$s" --output-dir "$out"
 done
 
+# The same benchmark (E1 only) on the 16 studies added on 2026-11-05: MANIFEST_ADDED holds their
+# manifest entries (the last 16 of sources_manifest_no4tu.yaml), DET_ADDED a run of them without LLM.
+python -m opendv.analysis.evaluate_llm_mapping --manifest "$MANIFEST_ADDED" --batch-dir "$DET_ADDED" \
+  --cache-dir data/processed/cache16 --max-per-source 1000 --seed 20261017 --models google/gemma-4-E2B-it \
+  --e2-samples 0 --shortlist definition --output-dir analyses/output_llm_evaluation/added_2026_11_05
+
 # Cross-study relations, with the LLM standing in for the curated mappings
 python -m opendv.analysis.construct_relations --input-dir data/processed/catalog_meta_analysis/standardized \
-  --output-dir analyses/output_relations --llm-replay-items analyses/output_llm_evaluation/llm_mapping_evaluation_items.csv
+  --output-dir analyses/output_relations \
+  --llm-replay-items analyses/output_llm_evaluation/llm_mapping_evaluation_items.csv \
+                     analyses/output_llm_evaluation/added_2026_11_05/llm_mapping_evaluation_items.csv
 ```
 
 On the same environment this reproduces the committed tables exactly; figure PDFs differ only in their embedded timestamps.
+
+The committed `output_python_full/`, `output_multiverse/`, `figures_chi/` and `output_relations/` (2026-11-06) come from one batch run of all 39 studies with the commands above (3 workers, download cache of 2026-11-04), written to `data/processed/catalog39_toast` of the main checkout (hence the `input_dir` in `analysis_results.json`). It reads NL2TAP's TOAST items through the per-file `rename` option. Apart from that one added table, its 1,806 standardized tables have the same contents as a run of the same day without the TOAST items, which in turn reproduces the two runs behind the relation tables of 2026-11-05 (the 2026-11-04 run of the first 23 studies, 8 workers, and the 2026-11-05 run of the 16 added ones): identical table contents, `meta_view.csv` differing only in absolute paths and run timestamps, and the relation tables byte for byte. The benchmark of the added studies was rerun with the TOAST items too: the nine new items are the only change, every other answer repeats.
+
+**Keep the output path short.** The batch shortens a standardized file's name with a hash when its full path would exceed 240 characters, and eHMI Optimization's participant ids are read from its file names (`participant_from_file` in `schemas/study_designs.yaml`). With a shortened name those ids are lost, which changes participant-level estimates and the relations of that study, silently. The longest names need about 145 characters below the output folder, so keep `--output-dir` (as an absolute path) under about 90 characters; `C:\Users\<user>\Desktop\dv-standardization-tool\data\processed\catalog_meta_analysis` (86) is fine, the same folder inside a `.claude/worktrees/<name>` checkout is not.

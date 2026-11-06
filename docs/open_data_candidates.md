@@ -261,4 +261,4 @@ They are in `screening_decisions.csv` with `decision = check`.
     - Two hold no table the pipeline reads.
     - Three are on Dryad, which refused the download again (HTTP 401), `acoustic_touch_blind_plosone23` among them.
     - One needs a Harvard Dataverse guestbook form.
-    - The 22 still need curated mappings.
+    - 16 of the 22 have curated mappings (`schemas/<source_id>_mapping.yaml`) and joined `sources_manifest_no4tu.yaml` on 2026-11-05, written from the codebooks and papers before any LLM run on them. The other six hold no schema DV in the downloaded files; the manifest lists each with its reason.

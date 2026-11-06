@@ -177,7 +177,8 @@ Every rejection, with its reason, is written to `llm_rejected_suggestions.json` 
 - **Dense shortlists:** `dense_h` and `mixed_h` map 49% and 48% correctly (paired p = 0.009 and 0.008), but only on the original studies they were designed on. On the 12 added studies they are not better (63 and 62 vs. 57 of 155, p = 0.34 and 0.27), nor in a pre-registered confirmatory test on 168 DV columns of 7 new, non-automotive studies (53 and 56 vs. 55, [`docs/confirmatory_shortlist_results.md`](docs/confirmatory_shortlist_results.md)). `definition` stays the default.
 - **Error patterns** on the added studies: misread item numbers (`sus0`–`sus9`, `TLX 2`–`TLX 6`), an abbreviation missing from the shortlist (`CIT`), and a scale chosen for its subscale or item columns.
 - **Effect of the check:** non-DV columns mapped to a DV drop from 62% to 6% (blocklisted) and from 87% to 50% (curated non-DVs); 1 of 106 correct mappings is lost (a column whose sampled file holds only 1s).
-- **Conclusions, not columns:** with the LLM's answers in place of the curated mappings, none of the 16 within-person relations found with curated mappings survives (one with `dense_h`), while relations both pool agree closely (see [Cross-study relations](#cross-study-relations)).
+- **The 16 studies added on 2026-11-05:** the curated DV for 73 of 423 curated DV columns (17%; `analyses/output_llm_evaluation/added_2026_11_05/`). Qualtrics codes and semantic differentials defeat it.
+- **Conclusions, not columns:** with the LLM's answers in place of the curated mappings, the 39-study analysis recovers 13 of the 16 within-person relations found with curated mappings, but the shared schema alone recovers 14, and only one of the 19 between-person relations (with 23 studies it recovered none of the within-person relations); relations both pool agree closely (see [Cross-study relations](#cross-study-relations)).
 
 Treat LLM-deduced rows as provisional. `multi_study_analysis.py --exclude-llm-deduced` writes the `*_llm_excluded` sensitivity outputs that drop them. Details and further results are in [`docs/research_agenda.md`](docs/research_agenda.md).
 
@@ -207,13 +208,16 @@ sources:
       - "**/pilot/**"
     # Optional, per file (path relative to `location`, or a glob): which sheet,
     # which 0-based row holds the column names, pivoting a long table
-    # (one row per subscale) to one column per subscale, and columns to drop.
+    # (one row per subscale) to one column per subscale, columns to drop,
+    # and columns to rename (applied in this order).
     table_options:
       results.xlsx: {sheet: Results, header: 1}
       workload_*.xlsx:
         pivot: {index: [participant, condition], columns: subscale, values: score}
       "**/ObservationsPerEvaluation.csv":
         drop_columns: [MentalLoad]   # columns that must not be read as data
+      "**/trust_items.csv":
+        rename: {item_1: trust_1}    # another file of this source also has item_1
 ```
 
 Run it like this:
@@ -444,7 +448,7 @@ Add both to an existing run with `python -m opendv.fair_export <output dir> [--l
 ### Robustness analyses
 
 - `opendv/analysis/multi_study_analysis.py` reports Hartung-Knapp-Sidik-Jonkman intervals (`hksj_ci95_low/high`) next to the Wald intervals; with the k = 2–3 studies typical here, Wald intervals are far too narrow. All meta-analytic estimators (DL, REML, Egger, trim-and-fill, HKSJ) are validated against R's `metafor` in `tests/test_meta_analysis_reference.py`.
-- `opendv/analysis/measurement_invariance.py` tests whether shared scales measure the same thing in every study before their means are pooled: a one-factor multi-group CFA per scale (configural, metric, scalar) fitted with R's lavaan (MLR, participant-clustered unless a study has one observation per participant), with Chen's (2007) ΔCFI/ΔRMSEA/ΔSRMR rules. `meta_analysis_summary.csv` gets a `measurement_invariance` column (level reached and the studies tested). It needs `Rscript` with lavaan and jsonlite and is skipped otherwise (`--no-measurement-invariance` to turn it off). Of the seven scales testable in the 23 development studies, none reaches scalar invariance: Van der Laan *satisfying* reaches metric, *usefulness* configural, and SUS, NASA-TLX, perceived safety and both UEQ-S scales misfit already at the configural level.
+- `opendv/analysis/measurement_invariance.py` tests whether shared scales measure the same thing in every study before their means are pooled: a one-factor multi-group CFA per scale (configural, metric, scalar) fitted with R's lavaan (MLR, participant-clustered unless a study has one observation per participant), with Chen's (2007) ΔCFI/ΔRMSEA/ΔSRMR rules. `meta_analysis_summary.csv` gets a `measurement_invariance` column (level reached and the studies tested). It needs `Rscript` with lavaan and jsonlite and is skipped otherwise (`--no-measurement-invariance` to turn it off). Of the seven scales testable in the 39 development studies, none reaches even configural invariance: SUS, both Van der Laan scales, perceived safety and both UEQ-S scales misfit at the configural level, and NASA-TLX cannot be fitted because one study's physical demand has no variance (NL2TAP, a desk task, rates it 0 throughout). With 23 studies Van der Laan *satisfying* reached metric and *usefulness* configural invariance; the AR pedestrian survey (1,174 answers) breaks both.
 - `opendv/analysis/multiverse_analysis.py` re-runs the meta-analysis across every combination of 5 choices (32 specifications per DV) and writes specification curves:
   - LLM mappings included or excluded;
   - scale harmonization on or off;
@@ -465,18 +469,18 @@ Study means alone cannot say what a manipulation did. `schemas/study_designs.yam
 - combines dependent contrasts of a study by GLS (`rho` = 0.5, with 0.2 and 0.8 as sensitivity) and pools studies that share a canonical factor;
 - writes `contrast_effects.csv`, `contrast_study_effects.csv` and `contrast_meta_analysis.csv` (plus an `_llm_excluded` variant).
 
-All 23 development studies declare their participant columns, and 14 declare factors, each yielding contrasts (the ROADS and Psych-Conflict condition codes are taken from the studies' own analysis scripts). Two contrasts are shared by two studies, eHMI vs. none:
+All 39 development studies declare their participant columns, and 14 of the first 23 declare factors, each yielding contrasts (the ROADS and Psych-Conflict condition codes are taken from the studies' own analysis scripts). The 16 studies added on 2026-11-05 declare none yet: their designs are described in `study_designs.yaml`, but the factors are not coded (seven keep their conditions as wide columns). Two contrasts are shared by two studies, eHMI vs. none:
 - on mental demand: −0.51 SD, Wald [−0.70, −0.32], HKSJ [−2.32, 1.31];
 - on perceived safety: +1.02 SD, Wald [0.72, 1.32]; possible since perceived safety is scored from its four items. The two estimates agree so closely that the HKSJ interval (1.00–1.04) is narrower than Wald's, a known artefact of HKSJ at k = 2; read the Wald interval.
 
 ### Cross-study relations
 
-Because no shared scale supports pooling means, `opendv/analysis/construct_relations.py` pools what harmonized open data can support: correlations between constructs, which no linear rescaling changes. It computes them per study between persons (participant means) and within persons (repeated-measures r, Bakdash & Marusich 2017), pools them on Fisher's z (REML, HKSJ, prediction interval, Benjamini-Hochberg q), and traces every column to the step that mapped it: identical raw names, the shared schema, a curated study mapping, or the local LLM. In the 23 development studies:
+Because no shared scale supports pooling means, `opendv/analysis/construct_relations.py` pools what harmonized open data can support: correlations between constructs, which no linear rescaling changes. It computes them per study between persons (participant means) and within persons (repeated-measures r, Bakdash & Marusich 2017), pools them on Fisher's z (REML, HKSJ, prediction interval, Benjamini-Hochberg q), and traces every column to the step that mapped it: identical raw names, the shared schema, a curated study mapping, or the local LLM. In the 39 development studies (exploratory; the finding rule was fixed after a first look at the first 23):
 
-- **What each step makes estimable.** No pair of constructs is measured in three studies under the same column names. With the shared schema and header matching alone there are still none; with the curated mappings there are 29 (between persons), and 54 with the LLM fallback.
-- **A relation no single study shows (exploratory; the finding rule was fixed after a first look at the data).** Within persons, higher mental demand goes with lower perceived safety in all four studies that measured both repeatedly (r = −0.44, HKSJ [−0.72, −0.05], q = .04), while between persons the relation is uncertain (r = −0.27, five studies). The NASA-TLX subscales covary within persons in every study, with *performance* the weakest link.
-- **What the LLM adds, and its cost.** The LLM reaches studies no rule maps (21 instead of 16) and reproduces the workload–safety relation in eight. Its new cross-construct findings mix correct and wrong mappings (the ride's *relaxation* rating as trust), and still look homogeneous, so they need review first.
-- **The LLM does not replace curation.** `--llm-replay-items` runs the analysis with the LLM's leave-alias-out answers in place of the curated mappings: none of the 16 within-person findings survives, one with the dense shortlist (NASA-TLX subscales are read as mental demand), although relations both versions pool agree closely (median |Δr| 0.06–0.09). It compares conclusions, not single columns.
+- **What each step makes estimable.** Pooling by identical column names now reaches 14 pairs in three or more studies and the shared schema 21, but all of them are NASA-TLX subscale pairs that several added studies name by the subscale's own words. No pair of *different* constructs reaches three studies without the curated mappings; with them there are 12 (between persons), and 60 with the LLM fallback.
+- **Relations no single study shows.** Between persons, higher mental demand goes with lower SUS usability in all four studies that measured both (r = −0.42, HKSJ [−0.51, −0.31], I² = 0%, prediction interval [−0.66, −0.09]); frustration, effort, temporal demand and the TLX total do the same in three. Within persons, higher mental demand goes with lower perceived safety in the four studies that measured both repeatedly (r = −0.44, q = .04; no added study measured both). The NASA-TLX subscales covary within persons in eight studies and now between persons over 10–12, with *performance* the weakest link.
+- **What the LLM adds, and its cost.** The LLM reaches 35 studies instead of 29. Its extra cross-construct findings rest partly on wrong mappings (an immersion score and minimum heart rate read as trust), and on the 16 added studies it gives the curated DV for 17% of the curated columns (41% on the first 23).
+- **The LLM does not replace curation.** `--llm-replay-items` runs the analysis with the LLM's leave-alias-out answers in place of the curated mappings. It recovers 13 of the 16 within-person findings, but the shared schema alone recovers 14 of them; of the 19 between-person findings it recovers one, and none of the usability–workload relations. It compares conclusions, not single columns.
 
 Method and results: [`docs/cross_study_insights.md`](docs/cross_study_insights.md).
 
@@ -500,6 +504,15 @@ Method and results: [`docs/cross_study_insights.md`](docs/cross_study_insights.m
 - **Missing-value codes**: if a dataset stores "no answer" as a number (98, 99, −99), declare it in its mapping YAML under `missing_values:` (`columns:` a list or `"*"`, `values:`, `reason:`; see `schemas/fido2_auth_chi23_mapping.yaml`). These cells become missing before anything else is recoded, and are counted in `-quality.json` (`missing_value_codes`). Without this, a 99 inside a 1–5 SUS item is summarized as an answer.
 - **Units**: if a dataset records a time DV in another unit than the schema states (milliseconds where `crossing_initiation_time` is in seconds), declare it under `unit_conversions:` (`columns:`, `from:`, `to:`, `reason:`; any time unit pandas knows, e.g. `ms`, `s`, `min`; see `schemas/ehmi_state_intent_mtap24_mapping.yaml`). The values are converted before they are summarized and listed in `-quality.json` (`unit_conversions`).
 - **Scales**: the analysis rescales a DV only when its values leave the DV's range, so a narrower recording scale that fits inside it (NASA-TLX subscales stored 0–10 where the schema uses 0–20) must be declared under `scale_conversions:` (`columns:`, `from: [min, max]`, `to: [min, max]`, `reason:`; see `schemas/woz_adaptation_ijhcs24_mapping.yaml`). The mapping is linear and listed in `-quality.json` (`scale_conversions`).
+- **Same raw column names, different meanings**: a mapping file applies one target per column name to every file of its source. If two files of a source reuse names for different measures (NL2TAP's `sus_responses.csv` and `toast_responses.csv` both have `item_1`..), rename one file's columns in the manifest with the `rename` table option and map the new names (see `nl2tap_filter_2026` in `sources_manifest_no4tu.yaml`):
+
+  ```yaml
+  table_options:
+    "**/toast_responses.csv":
+      rename: {item_1: toast_1, item_2: toast_2}   # then `toast_1: trust_rating` in the mapping
+  ```
+
+  The renaming happens when the file is read, after `pivot` and `drop_columns`; the output, `meta_view.csv` and the data package carry the new names. A name in `rename` that the file lacks, or a rename that would duplicate a column, stops the run.
 - **Item-level DVs**: name item DVs `<construct id>_item_NN` (e.g. `perceived_safety_item_01`) or declare `subitem_of: <construct id>` in the schema entry. The causal analysis then drops the items whenever their construct is present, so item → scale edges cannot appear in the DAG.
 
 ```bash

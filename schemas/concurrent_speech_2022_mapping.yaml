@@ -1,0 +1,49 @@
+# Source-specific column mapping for concurrent_speech_2022
+# Paper: "Investigating cognitive workload in concurrent speech-based information
+#   communication." International Journal of Human-Computer Studies (2022).
+#   DOI 10.1016/j.ijhcs.2021.102728
+# Data: figshare 14743422 (DOI 10.6084/m9.figshare.14743422), CC-BY-4.0. No codebook; the
+#   question texts are in the column question_text.
+#
+# File: Investigating cognitive workload in concurrent speech-based information
+#   communication.csv, LONG: one row per participant x stream combination x question (40 x 16
+#   x 9 = 5,760). The manifest pivots it to one row per participant x combination (640) with
+#   one column per question (question_type), values from response_submitted:
+#     index:   [user_id, combination_id, stimulus_id, stimulus_type, stimulus_form,
+#               combination_title, baseline_type]   (constant within participant x combination)
+#     columns: question_type
+#     values:  response_submitted
+#   The pivot drops the per-row demographics and the per-participant NASA-TLX weights
+#   (columns mental_demand ... frustration, 0-5 tallies of the 15 pairwise comparisons), which
+#   carry the subscale names but are not ratings.
+#
+# Notes:
+#   - Within subjects: every participant heard all 16 combinations of two speech or music
+#     streams, presented concurrently or sequentially.
+#   - The six TLX questions are the standard subscales (wording adapted to listening), 0-100.
+#     Performance ("How successful were you in comprehending content?") is scored with high =
+#     poor: it correlates positively with effort (r = .39) and frustration across rows, like
+#     the other subscales.
+#   - "Index Score" ("Computed Index Score") is the weighted NASA-TLX: sum of rating x weight
+#     over the six subscales / 15 (checked on the data against the tally column), 0-100.
+#   - user_id is on the never-map list and keeps its raw name.
+
+# --- Dependent measures: NASA-TLX ------------------------------------------------
+Mental Demand: mental_demand
+Physical Demand: physical_demand
+Temporal Demand: temporal_demand
+Performance: performance
+Effort: effort
+Frustration: frustration
+Index Score: TLX_SCORE        # weighted NASA-TLX, 0-100
+
+# Left unlabelled (no schema DV): Like ("How much did you like this combination?") and
+# Frequent ("How frequently would you be using this combination of streams?"), 0-100.
+
+# --- Design ----------------------------------------------------------------------
+combination_id: meta_condition_combination
+combination_title: meta_condition_combination_title
+stimulus_id: meta_stimulus_id
+stimulus_type: meta_condition_presentation     # Concurrent / Sequential
+stimulus_form: meta_condition_stream_form      # Continuous / Intermittent
+baseline_type: meta_condition_baseline_stream  # Monolog, Interview, Commentary, ...

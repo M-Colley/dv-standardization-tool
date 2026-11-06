@@ -1,0 +1,57 @@
+# Source-specific column mapping for perceived_risk_merging_2022
+# Paper: He et al. "Modelling perceived risk and trust in driving automation
+#   reacting to merging and braking vehicles." Transportation Research Part F (2022).
+#   DOI 10.1016/j.trf.2022.02.016
+# Data: 4TU (DOI 10.4121/95a4bb4e-3ca4-4fcc-ba34-4be76a9ab578.v1), CC-BY-4.0; codebook is
+#   README.md.
+#
+# File: Data/SubjectiveRatings.xlsx, one row per participant x event (22 participants x 20
+#   events: nine merging-and-braking and one hard-braking event, each experienced twice; 440
+#   rows), within subjects. The kinetic .mat files are not read.
+#
+# Notes:
+#   - PR and TRU are the verbal ratings of perceived risk and trust given after each event
+#     (0-10). PR is a risk rating and maps to perceived_risk; it is not reversed into
+#     perceived safety.
+#   - The kinetic measures describe each event as driven by the automation (with the driver's
+#     braking, if any): min_TTC is the minimum time to collision with the lead vehicle
+#     (-> ttc), min_THW the minimum time headway (-> headway, s). The design factors are the
+#     initial merging gap (IMG) and the lead vehicle's braking intensity (BI).
+#   - virtual_* are dummy codes and log_* / inverse_* transforms the authors made for their
+#     regression models.
+
+# --- Dependent measures --------------------------------------------------------
+PR: perceived_risk             # perceived risk after the event, 0-10
+TRU: trust_rating              # trust after the event, 0-10
+min_TTC(s): ttc                # minimum time to collision during the event, s
+min_THW(s): headway            # minimum time headway during the event, s
+
+# Left unlabelled (no schema DV): min_gap (m), min_speed(m/s) and max_braking(0~1), the
+# driver's maximum brake-pedal position.
+
+# --- Participants and design ----------------------------------------------------
+Participant: meta_participant_id
+ET: meta_condition_event_type             # "Merging and hard brake" / "Hard braking"
+REP: meta_repetition                      # 1 = first exposure, 2 = second
+IMG(m): meta_condition_initial_merging_gap
+BI(m/s^2): meta_condition_braking_intensity
+
+# --- Demographics ---------------------------------------------------------------
+AGE(year): meta_demographic_age
+YDL(year): meta_demographic_years_driving_licence
+GEN: meta_demographic_gender                  # 1 = male, 2 = female
+AE: meta_demographic_automation_experience    # 0 none, 1 ACC, 2 lane centering, 3 both
+
+# --- Derived model predictors (authors' regression inputs) -----------------------
+virtual_ET: meta_derived_dummy_event_type
+virtual_GEN: meta_derived_dummy_gender
+virtual_AE: meta_derived_dummy_automation_experience
+virtual_REP: meta_derived_dummy_repetition
+log_min_gap: meta_derived_log_min_gap
+log_min_TTC: meta_derived_log_min_ttc
+log_min_THW: meta_derived_log_min_thw
+inverse_min_gap: meta_derived_inverse_min_gap
+inverse_min_TTC: meta_derived_inverse_min_ttc
+inverse_min_THW: meta_derived_inverse_min_thw
+log_IMG: meta_derived_log_initial_merging_gap
+inverse_IMG: meta_derived_inverse_initial_merging_gap

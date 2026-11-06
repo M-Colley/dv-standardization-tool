@@ -139,7 +139,7 @@ When several raw columns map to one DV and are composed into a per-row mean (`op
 
 Columns are composed only when they agree: a group in which one column correlates negatively with the others is left uncomposed (`skip_negative_item_correlation`), and LLM-mapped columns are never composed with others (`skip_mixed_provenance`). Reverse keying comes only from a mapping file. Uncomposed columns of one DV are averaged per row by the analysis.
 
-Provenance is assigned per study and DV, so an LLM-mapped column anywhere in a study quarantines the DV for that study in the `_llm_excluded` outputs, even when the values come from curated columns. In the 23 development studies this removes ROADS' SUS score, because the LLM mapped a "reality" item of another file to SUS item 1. `opendv/analysis/construct_relations.py` works column by column instead.
+Provenance is assigned per study and DV, so an LLM-mapped column anywhere in a study quarantines the DV for that study in the `_llm_excluded` outputs, even when the values come from curated columns. In the 39 development studies this removes ROADS' SUS score, because the LLM mapped a "reality" item of another file to SUS item 1, and SenseCobot's curated NASA-TLX mental demand, because the LLM mapped EEG beta/alpha ratios of another file to mental demand. `opendv/analysis/construct_relations.py` works column by column instead.
 
 Use these CLI flags for sensitivity runs:
 

@@ -1,7 +1,8 @@
-,TLX_SCORE,perceived_safety,trust_rating,ueq_hedonic,ueq_pragmatic,understanding_rating
-TLX_SCORE,0,1,0,0,0,0
-perceived_safety,1,0,1,0,0,1
-trust_rating,0,1,0,1,0,1
-ueq_hedonic,0,0,1,0,1,0
-ueq_pragmatic,0,0,0,1,0,1
-understanding_rating,0,1,1,0,1,0
+,TLX_SCORE,perceived_risk,perceived_safety,trust_rating,ueq_hedonic,ueq_pragmatic,understanding_rating
+TLX_SCORE,0,1,1,0,0,0,0
+perceived_risk,1,0,1,0,0,0,0
+perceived_safety,1,1,0,1,0,0,1
+trust_rating,0,0,1,0,1,0,1
+ueq_hedonic,0,0,0,1,0,1,0
+ueq_pragmatic,0,0,0,0,1,0,1
+understanding_rating,0,0,1,1,0,1,0

@@ -4,6 +4,67 @@ This document logs human-readable updates to the repo's functionality, structure
 
 ---
 
+### [2026-11-06] Outputs rerun with NL2TAP's TOAST items
+
+The two entries below were merged into one branch, and every output now comes from one batch run of all 39 studies that includes NL2TAP's TOAST items (`data/processed/catalog39_toast`; `docs/reproducibility.md`).
+
+- **Same run otherwise.** Apart from NL2TAP's added TOAST table, all 1,806 standardized tables have the same contents as the run without it, which reproduced the relation tables of 2026-11-05 byte for byte.
+- **Relations** (`analyses/output_relations/`): no finding changes at any level. Trust now meets the NASA-TLX scales in a second study (five more pairs pooled over two studies, 83 instead of 78 between persons), and mental demand × trust rests on four studies (r = −0.23, q = .25, not a finding). Replay: 68 of 312 curated DV columns keep their DV (67 of 311).
+- **LLM benchmark on the added studies** rerun: the nine TOAST items are the only new items (five answered correctly), every other answer repeats; 73 of 423 curated DV columns right (17%).
+- **Meta-analysis and multiverse:** only `trust_rating` changes, k = 10 (9) and 4 (3) without LLM rows; measurement invariance and contrasts are unchanged.
+
+---
+
+### [2026-11-06] Per-file column rename; NL2TAP's TOAST trust items mapped
+
+- **`rename` table option** (`{old: new}`, per file path or glob in the manifest, applied after `pivot` and `drop_columns`). A mapping file applies one target per column name to every file of its source, so two files that reuse names for different measures could not both be mapped. A name the file lacks, or a rename that would duplicate a column, stops the run. Tests in `tests/test_table_options.py`.
+- **NL2TAP's TOAST items** (`toast_responses.csv`, 9 items, 1-7) are now read: the manifest renames their `item_1..item_9` to `toast_1..toast_9`, and the mapping sends them to `trust_rating`. The batch composes them into their mean, the TOAST score (85 participants, Cronbach's α = .89, M = 5.14; the paper reports M = 5.1). The item wording (in the replication package's questionnaire figure) is all agree-keyed, so no item is reversed.
+- **Checked** with a batch run of the 16 added sources without the LLM: every mapping key reaches its column (NL2TAP: 51, the 42 before plus the nine TOAST items), and the SUS targets still come only from `sus_responses.csv`.
+- **Not done.** The cross-study relations (`analyses/output_relations/`, `docs/cross_study_insights.md`) and the LLM benchmark on the added studies (`analyses/output_llm_evaluation/added_2026_11_05/`, 414 curated DV columns) were not rerun, so neither includes the nine TOAST columns yet. (Rerun since, see the entry above.)
+
+---
+
+### [2026-11-06] Analyses rerun on the 39 development studies
+
+`analyses/output_python_full/` (with the contrasts), `output_multiverse/` and `figures_chi/` now cover all 39 studies of `sources_manifest_no4tu.yaml` (23 before). 23-study values in parentheses.
+
+- **One batch run of all 39 studies** (same code, settings and model; download cache of 2026-11-04). It reproduces the two runs behind the relation tables of 2026-11-05: all 1,806 standardized tables have identical contents, and `meta_view.csv` differs only in absolute paths and timestamps. Three workers instead of eight changed nothing.
+- **Results depend on the checkout path.** The batch shortens an output file name with a hash when its full path would pass 240 characters, and eHMI Optimization's participant ids are read from its file names (`participant_from_file`). From a worktree path the names lost the `_u_<id>_` part, which changed participant-level estimates and 84 relation rows. The committed run was written to a short folder; `docs/reproducibility.md` says how long the output path may be.
+- **Coverage:** 134 canonical DVs (118); 95 DVs pooled over at least two studies (78) and 66 over at least three (46); without LLM-deduced rows 49 (44) and 36 (32). Mean pairwise Jaccard overlap 0.085 (0.076).
+- **NASA-TLX mental demand:** k = 21 (13), 7.44, HKSJ [5.91, 8.98]; without LLM rows k = 14 (7), 8.38 [6.62, 10.15]. The TLX total without LLM rows rests on 11 studies (3): 38.7 [28.0, 49.4] instead of an interval from −37 to 106.
+- **An LLM error weighs heavily.** The LLM maps SenseCobot's EEG beta/alpha-ratio statistics to mental demand. Their values fit the range check, and the resulting study mean (0.39 of 20) carries 17.5% of the weight in the all-mappings pool (Fig. 4). Because provenance is per study and DV, SenseCobot's curated TLX also leaves the LLM-excluded pooling, as ROADS' SUS does.
+- **Invariance: no scale reaches even configural invariance.** The AR pedestrian survey (1,174 answers) breaks the Van der Laan models (satisfying: RMSEA 0.33; usefulness: 0.082 against the 0.08 limit; they reached metric and configural invariance before). SUS with NL2TAP still misfits (RMSEA 0.13). The NASA-TLX model cannot be fitted at all (`not_fitted`): NL2TAP's physical demand is 0 for every participant, and lavaan refuses a group whose item has no variance.
+- **Contrasts unchanged.** The 16 added studies declare their participants and describe their designs, but no factors are coded (seven keep their conditions as wide columns), so the same 14 studies yield contrasts and eHMI vs. none stays at −0.51 SD (mental demand) and +1.02 SD (perceived safety) over two studies.
+- **Multiverse:**
+    - The NASA-TLX subscales are no longer robust: mental demand ranges from 7.44 to 21.12 (7.35–8.13), and 47% of the intervals miss the default estimate. Scale harmonization alone causes this: harmonized 7.44–8.41, raw 13.0–21.1, because six added studies record the subscales on 0–100. The other five subscales behave the same; the TLX total (32.97–38.69) stays robust.
+    - `perceived_safety` 0.85–3.70 (0.93–4.04), again by harmonization.
+    - `task_completion_time` without LLM rows now spans 1.24 to 52.66 (0.70–0.90), by the τ² estimator alone: an NL2TAP scenario takes 209 s, a trial of the other three studies 0.6–2 s. Times of different tasks are not one quantity.
+- **CHI figures** regenerated from these outputs; `analyses/figures_chi/README.md` rewritten for the 39-study run (it still described the 11-study run of 2026-10-25).
+- **Docs:** README, `docs/research_agenda.md` (§2.3, §2.5, §4), `docs/multi_study_analysis_guide.md`, `docs/reproducibility.md`.
+
+---
+
+### [2026-11-05] Development half of the search mapped (39 development studies)
+
+- **16 new study mappings** (`schemas/<source_id>_mapping.yaml`), manifest entries in `sources_manifest_no4tu.yaml` and designs in `schemas/study_designs.yaml`, written from the codebooks and papers before any LLM run or cross-study relation on these studies. Of the 22 downloaded datasets, six are not added; the manifest lists each with its reason (DVs only in files over 50 MB or in .mat files, DVs outside the schema, or presentation-layout workbooks).
+- **Checked** with a batch run without the LLM: every mapping key reaches its column, every declared value transform applies (e.g. 78,046 survey labels recoded, none unmatched), and all 39 studies resolve their participant column in every file.
+- **Mapping decisions worth knowing.**
+    - Risk ratings stay `perceived_risk`; Van der Laan items keep their published order; NASA-TLX subscales on 1-7 or 1-10 are converted to the schema's 0-20.
+    - TLX columns whose order or direction is undocumented and contradicted by the data stay unlabelled (SenseCobot's cumulative performance item).
+    - Visual fidelity: the questionnaire's T1-T24 are recoded to the measures workbook's 1-24, verified on the TLX ratings both workbooks repeat.
+    - The AR online survey has no response id; `RecordedDate` keys respondents (10 pairs of the 1,155 respondents with ratings share one).
+    - NL2TAP's TOAST items are left out: their columns are named like its SUS items, and a mapping applies one target per name to every file of a source.
+- **`construct_relations --llm-replay-items`** accepts several item files (benchmark runs on disjoint sets of studies), concatenated; regression test in `tests/test_construct_relations.py`.
+- **LLM benchmark on the 16 added studies** (`analyses/output_llm_evaluation/added_2026_11_05/`, E1 only): the curated DV for 68 of 414 curated DV columns (16%, 41% on the first 23).
+- **Relations on 39 studies** (`analyses/output_relations/`, `docs/cross_study_insights.md`):
+    - 29 studies contribute at the deterministic levels (2,810 participants), 35 with the LLM.
+    - New: between persons, mental demand goes with lower SUS usability in four studies (r = −0.42, HKSJ [−0.51, −0.31], I² = 0%, prediction interval excludes 0); the NASA-TLX subscales now covary between persons over 10-12 studies.
+    - Unchanged: workload × perceived safety within persons (four studies, r = −0.44).
+    - Pooling by names and the shared schema now reaches NASA-TLX pairs in three or more studies, because several added studies name the subscales by their own words. Cross-construct relations still need the curated mappings.
+- **Not done.** The other analyses (`output_python_full`, multiverse, CHI figures, contrasts) still cover the 23 studies (rerun on 2026-11-06, above).
+
+---
+
 ### [2026-11-05] Held-out confirmation test
 
 The pre-registered test (`docs/preregistration_heldout_relations.md`); results in `docs/heldout_results.md`.

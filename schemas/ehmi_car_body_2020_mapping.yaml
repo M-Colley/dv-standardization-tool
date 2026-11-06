@@ -1,0 +1,40 @@
+# Source-specific column mapping for ehmi_car_body_2020
+# Paper: Schlackl, Weigl, Riener. "eHMI Visualization on the Entire Car Body: Results of a
+#   Comparative Evaluation of Concepts for the Communication between AVs and Manual Drivers."
+#   Mensch und Computer 2020. DOI 10.1145/3404983.3410011
+# Data: OSF psmrx (DOI 10.17605/osf.io/psmrx), CC-BY-4.0; codebook is the appendix PDF
+#   "AV-to-Manual driver communication clarity questionnaire and Cronbach's Alpha Results.pdf".
+#
+# File: data_MuC2020_AV-to-Manual driver communication clarity questionnaire.sav (SPSS, no
+#   value labels), one row per participant (24), WIDE: eight concepts as column blocks.
+#   Concept codes: E = the AV detected the manual driver, NE = it did not; D = triangles,
+#   P = pictogram, K = triangles + pictogram, L = headlight flasher (baseline). Within subjects.
+#
+# Notes:
+#   - Three items per concept on a six-point agreement scale (codebook: "I fully agree" to
+#     "I fully disagree"): Erkennbarkeit = "The signals can be seen clearly", GefuehlErkannt =
+#     "I have the feeling that the vehicle detected me", Eindeutigkeit = "The communication of
+#     the vehicle is unambiguous". The coding runs 1 = fully disagree to 6 = fully agree: the
+#     headlight flasher, the concept the paper finds least clear, has the lowest means on all
+#     three items (e.g. unambiguity 2.9 vs 5.5 for the combination).
+#   - *_Dim1 = sum of the three items (3-18), the paper's "communication clarity" score.
+#   - Because the concepts are columns, the pipeline averages them per participant and the
+#     study enters between-person relations only.
+
+# --- Dependent measures --------------------------------------------------------
+# "The communication of the vehicle is unambiguous" (1-6): comprehension of the eHMI message
+VFA_E1D_Eindeutigkeit: understanding_rating   # triangles, detected
+VFA_E1P_Eindeutigkeit: understanding_rating   # pictogram, detected
+VFA_E1K_Eindeutigkeit: understanding_rating   # triangles + pictogram, detected
+VFA_E1L_Eindeutigkeit: understanding_rating   # headlight flasher, detected
+VFA_NE1D_Eindeutigkeit: understanding_rating  # triangles, not detected
+VFA_NE1P_Eindeutigkeit: understanding_rating  # pictogram, not detected
+VFA_NE1K_Eindeutigkeit: understanding_rating  # triangles + pictogram, not detected
+VFA_NE1L_Eindeutigkeit: understanding_rating  # headlight flasher, not detected
+
+# Left unlabelled (no schema DV): VFA_*_Erkennbarkeit (visibility of the signal),
+# VFA_*_GefuehlErkannt (felt detected by the vehicle), and the clarity sums *_Dim1, which add
+# visibility and felt detection to the unambiguity item mapped above.
+
+# --- Participants ---------------------------------------------------------------
+Proband: meta_participant_id

@@ -363,7 +363,7 @@ def _load_jsonlines(path: Path) -> pd.DataFrame:
 # ---------------------------------------------------------------------------
 
 _SPREADSHEET_SUFFIXES = {".xlsx", ".xls", ".xlsm", ".ods"}
-TABLE_OPTION_KEYS = ("sheet", "header", "pivot", "drop_columns")
+TABLE_OPTION_KEYS = ("sheet", "header", "pivot", "drop_columns", "rename")
 
 
 def table_options_for(table_options: dict[str, Any] | None, dataset_id: str) -> dict[str, Any]:
@@ -379,6 +379,13 @@ def table_options_for(table_options: dict[str, Any] | None, dataset_id: str) -> 
             pivot: {index: [subject_id, curvature], columns: subscale, values: score}
           "**/ObservationsPerEvaluation.csv":
             drop_columns: [MentalLoad]   # a transformed copy of an answer kept elsewhere
+          "**/toast_responses.csv":
+            rename: {item_1: toast_1, item_2: toast_2}   # sus_responses.csv also has item_1..
+
+    ``rename`` (``{old: new}``, applied after ``pivot`` and ``drop_columns``)
+    lets two files of one source share raw column names with different
+    meanings: a mapping file applies one target per column name to every file
+    of its source, so the mapping names the renamed columns instead.
     """
     if not table_options:
         return {}
@@ -408,9 +415,12 @@ def load_input_file(input_path: str, options: dict[str, Any] | None = None) -> p
     by content-based magic-byte sniffing if the extension is unrecognised.
     *options* are a file's ``table_options`` (``table_options_for``): for a
     spreadsheet the ``sheet`` to read (instead of the most data-rich one) and
-    the 0-based ``header`` row; for any table a long-to-wide ``pivot`` and
+    the 0-based ``header`` row; for any table a long-to-wide ``pivot``,
     ``drop_columns`` (columns that must not be read as data, e.g. an
-    optimizer's inverted copy of a questionnaire answer).
+    optimizer's inverted copy of a questionnaire answer) and ``rename``
+    (``{old: new}`` column names, e.g. to tell apart two files' ``item_1``).
+    Columns named by ``drop_columns`` or ``rename`` must exist, so a changed
+    file fails loudly instead of passing unmapped.
     """
     path = Path(input_path)
     options = dict(options or {})
@@ -431,7 +441,25 @@ def load_input_file(input_path: str, options: dict[str, Any] | None = None) -> p
         if missing:
             raise ValueError(f"drop_columns {missing} not found in '{path.name}'")
         df = df.loc[:, [str(col).strip() not in drop for col in df.columns]]
+    if options.get("rename"):
+        df = _rename_columns(df, options["rename"], path.name)
     return df
+
+
+def _rename_columns(df: pd.DataFrame, rename: Any, file_name: str) -> pd.DataFrame:
+    """Apply a ``rename`` table option, matching headers as the batch does (stripped)."""
+    if not isinstance(rename, dict):
+        raise ValueError(f"rename for '{file_name}' must map old to new column names, not {type(rename).__name__}")
+    mapping = {str(old).strip(): str(new).strip() for old, new in rename.items()}
+    present = [str(col).strip() for col in df.columns]
+    missing = [old for old in mapping if old not in present]
+    if missing:
+        raise ValueError(f"rename {missing} not found in '{file_name}'")
+    renamed = [mapping.get(name, name) for name in present]
+    clashes = sorted({name for name in renamed if renamed.count(name) > 1} & set(mapping.values()))
+    if clashes:
+        raise ValueError(f"rename would give '{file_name}' duplicate columns {clashes}")
+    return df.set_axis([mapping.get(name, col) for name, col in zip(present, df.columns)], axis=1)
 
 
 def _load_with_registry(path: Path) -> pd.DataFrame:

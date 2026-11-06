@@ -225,3 +225,50 @@ def test_llm_replay_replaces_study_mappings_with_llm_answers(tmp_path):
     table = cr.compare_conclusions(pooled, candidates=(cr.REPLAY_LEVEL,)).set_index("association")
     between = table.loc["between_person"]
     assert between["reference_findings"] == 1 and between["findings"] == 0
+
+
+def test_llm_replay_reads_several_item_files(tmp_path):
+    """Benchmark runs on disjoint sets of studies are concatenated for the replay."""
+    rng = np.random.default_rng(6)
+    meta, designs = [], {}
+    for k, study in enumerate(["s1", "s2", "s3"]):
+        n = 40
+        trust = rng.normal(size=n)
+        frame = pd.DataFrame({
+            "pid": np.arange(n),
+            "trust_rating": trust,
+            "perceived_safety": 0.7 * trust + rng.normal(0, 0.5, n),
+        })
+        meta += _write_study(tmp_path, study, {"t": (frame, [
+            ("pid", "pid", "blocked", "never_map_blocklist"),
+            (f"Vertrauen{k}", "trust_rating", "mapping", f"schemas/{study}_mapping.yaml"),
+            ("PerceivedSafety", "perceived_safety", "mapping", "schemas/standard_dv_mapping.yaml"),
+        ], {})})
+        designs[study] = StudyDesign(study, ("pid",), domain="automotive")
+    pd.DataFrame(meta).to_csv(tmp_path / "meta_view.csv", index=False)
+    items = pd.DataFrame([
+        {"experiment": "E1", "source_id": f"s{k + 1}", "alias": f"Vertrauen{k}", "final_checked": "trust_rating"}
+        for k in range(3)
+    ])
+    items.iloc[:1].to_csv(tmp_path / "e1_a.csv", index=False)
+    items.iloc[1:].to_csv(tmp_path / "e1_b.csv", index=False)
+    items.to_csv(tmp_path / "e1_all.csv", index=False)
+    registry = DesignRegistry("t", {}, designs)
+
+    import opendv.analysis.contrast_meta_analysis as cma
+    original = cma.load_study_designs
+    cma.load_study_designs = lambda path=None: registry
+    try:
+        split = cr.run(tmp_path / "standardized", tmp_path / "out_split", levels=("curated",),
+                       llm_replay_items=[tmp_path / "e1_a.csv", tmp_path / "e1_b.csv"])
+        joined = cr.run(tmp_path / "standardized", tmp_path / "out_joined", levels=("curated",),
+                        llm_replay_items=tmp_path / "e1_all.csv")
+    finally:
+        cma.load_study_designs = original
+    assert split["llm_replay"]["columns"] == joined["llm_replay"]["columns"]
+    assert split["llm_replay"]["columns"]["same_dv_as_curated"] == 3
+    assert split["llm_replay"]["e1_items"] == [str(tmp_path / "e1_a.csv"), str(tmp_path / "e1_b.csv")]
+    assert joined["llm_replay"]["e1_items"] == str(tmp_path / "e1_all.csv")
+    a = pd.read_csv(tmp_path / "out_split" / "relations_pooled.csv")
+    b = pd.read_csv(tmp_path / "out_joined" / "relations_pooled.csv")
+    pd.testing.assert_frame_equal(a, b)
