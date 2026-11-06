@@ -423,7 +423,16 @@ def level_frames(
     # deterministic pipeline maps) but pools them by raw name only.
     limit = LEVEL_RANK["curated"] if rank == LEVEL_RANK["names"] else rank
     by_study: dict[str, list[pd.DataFrame]] = {}
-    for (study, file_name), infos in sorted(provenance.items()):
+    # As in msa.load_studies, rows carry their table's path in the source and
+    # files are read in the order of their unshortened names, so neither
+    # participant ids nor row order depend on the output path.
+    source_ids = {study: msa.dataset_ids_by_file(input_dir / study) for study, _ in provenance}
+
+    def order(item):
+        (study, file_name), _ = item
+        return study, msa.unshortened_file_name(file_name, source_ids[study].get(file_name)), file_name
+
+    for (study, file_name), infos in sorted(provenance.items(), key=order):
         if not infos:
             continue
         if file_name.lower().endswith(PICKLE_SUFFIXES):
@@ -438,6 +447,7 @@ def level_frames(
             continue
         df = msa._read_file(input_dir / study / file_name)
         df.columns = [str(c) for c in df.columns]
+        source_file = source_ids[study].get(file_name, file_name)
         if replaying:
             drop = [c for c in df.columns if c in infos and infos[c].level == LEVEL_RANK["curated"]
                     and not renames.get(c)]
@@ -449,7 +459,7 @@ def level_frames(
             stray = [c for c in df.columns if c not in infos and c not in renamed
                      and _is_dv(strip_duplicate_suffix(c)) and not is_item_suffixed(c)]
             df = df.drop(columns=stray)
-            df[STUDY_FILE_COLUMN] = file_name
+            df[STUDY_FILE_COLUMN] = source_file
             by_study.setdefault(study, []).append(df)
             continue
         drop = [c for c in df.columns if c in infos and infos[c].level > limit]
@@ -470,7 +480,7 @@ def level_frames(
             stray = [c for c in df.columns if c not in infos and _is_dv(strip_duplicate_suffix(c))
                      and not is_item_suffixed(c)]
             df = df.drop(columns=stray)
-        df[STUDY_FILE_COLUMN] = file_name
+        df[STUDY_FILE_COLUMN] = source_file
         by_study.setdefault(study, []).append(df)
     frames: dict[str, pd.DataFrame] = {}
     for study, parts in by_study.items():

@@ -45,6 +45,7 @@ import logging
 import re
 from collections.abc import Iterable, Mapping
 from dataclasses import dataclass, field
+from functools import cache
 from pathlib import Path
 from typing import Any
 
@@ -62,7 +63,7 @@ logger = logging.getLogger(__name__)
 DEFAULT_DESIGNS_PATH = SCHEMAS_DIR / "study_designs.yaml"
 VALID_DESIGNS = ("within", "between")
 VALID_PARTICIPANT_SCOPES = ("study", "file")
-SOURCE_FILE_COLUMN = "_source_file"
+SOURCE_FILE_COLUMN = msa.SOURCE_FILE_COLUMN
 DEFAULT_RHO = 0.5
 SENSITIVITY_RHOS = (0.2, 0.8)
 MIN_PARTICIPANTS = 3
@@ -123,10 +124,15 @@ class StudyDesign:
     def participant_series(self, df: pd.DataFrame) -> pd.Series | None:
         """Participant id of every row; the first listed column that has one
         wins (files of one study may spell the column differently). Rows
-        without one take it from their file name when ``participant_from_file``
-        (a regular expression with one group) is set. With
-        ``participant_scope: file`` ids are only unique within a file, so they
-        are qualified by the ``_source_file`` column that ``load_studies`` adds."""
+        without one take it from their file's path when
+        ``participant_from_file`` (a regular expression with one group) is
+        set. With ``participant_scope: file`` ids are only unique within a
+        file, so they are qualified by that path.
+
+        The path is the ``_source_file`` column that ``load_studies`` adds:
+        the table's path in its source (the batch's ``dataset_id``), never the
+        standardized file name, which the batch shortens with a hash when the
+        output path is long."""
         present = [c for c in self.participant if c in df.columns]
         from_file = self.participant_from_file and SOURCE_FILE_COLUMN in df.columns
         if not present and not from_file:
@@ -136,6 +142,9 @@ class StudyDesign:
             out = out.where(out.notna(), df[column].map(_normalize_value))
         if from_file:
             ids = df[SOURCE_FILE_COLUMN].astype(str).str.extract(self.participant_from_file, expand=False)
+            needed = out.isna()
+            if needed.any() and ids[needed].isna().all():
+                _warn_unmatched_file_pattern(self.study, self.participant_from_file)
             out = out.where(out.notna(), ids.map(_normalize_value))
         if self.participant_scope == "file" and SOURCE_FILE_COLUMN in df.columns:
             files = df[SOURCE_FILE_COLUMN].astype(str)
@@ -206,6 +215,15 @@ def _parse_factor(study: str, raw: dict, canonical_factors: Mapping[str, dict]) 
     return FactorSpec(
         name=name, design=design, columns=columns, canonical=canonical,
         levels=levels, reference=reference,
+    )
+
+
+@cache
+def _warn_unmatched_file_pattern(study: str, pattern: str) -> None:
+    """Warn once per study: rows that need an id from their file path got none."""
+    logger.warning(
+        "%s: participant_from_file %r matches the path of none of the files whose rows lack a "
+        "participant column; those rows have no participant id", study, pattern,
     )
 
 

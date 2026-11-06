@@ -10,11 +10,15 @@
 #                the first present column wins, so a study whose files use
 #                different spellings can list them all)
 #   participant_from_file: optional regular expression with one group that
-#                takes the participant id from the file name for rows that
-#                carry none (e.g. '_u_(\d+)_' for per-participant folders)
+#                takes the participant id from the file's path in its source
+#                (the batch's dataset_id, '/'-separated, e.g.
+#                'data/u_10/answers.csv') for rows that carry none (e.g.
+#                '(?:^|/)u_(\d+)/' for per-participant folders). Not the
+#                standardized file name: the batch shortens that with a hash
+#                when the output path is long.
 #   participant_scope: study (default) | file. With `file`, ids are only
 #                unique within one standardized file (e.g. "1"-"12" restart in
-#                every experiment's file) and are qualified by the file name.
+#                every experiment's file) and are qualified by the file's path.
 #   domain:      research area (automotive | other), used to split pooled
 #                construct relations (analyses/construct_relations.py)
 #   trial / timepoint: optional columns, recorded for provenance
@@ -192,7 +196,7 @@ studies:
 
   ehmi_optimization_chi25:
     participant: User_ID
-    participant_from_file: '_u_(\d+)_'   # QuestionnaireResponses files carry no id
+    participant_from_file: '(?:^|/)u_(\d+)/'   # QuestionnaireResponses files carry no id
     domain: automotive
     trial: meta_run
     factors: []

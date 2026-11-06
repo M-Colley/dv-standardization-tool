@@ -117,7 +117,7 @@ Method:
 3. Several contrasts of one study against the same reference are combined by GLS under a compound-symmetric correlation (`rho = 0.5`; metafor `aggregate(struct = "CS")`), with `rho` = 0.2 and 0.8 as sensitivity columns.
 4. Study-level effects are pooled with the same estimators as the mean meta-analysis (fixed effects below k = 3, HKSJ intervals always reported).
 
-Participants are identified by the declared `participant` columns (the first present one wins). Two optional keys cover files that identify them differently: `participant_from_file` (a regular expression with one group that takes the id from the file name, for files that carry none) and `participant_scope: file` (ids that restart in every file, which are then qualified by the file name). Each study also records its research `domain`, which the relations analysis uses to split pooled relations.
+Participants are identified by the declared `participant` columns (the first present one wins). Two optional keys cover files that identify them differently: `participant_from_file` (a regular expression with one group that takes the id from the file's path in its source, for files that carry none) and `participant_scope: file` (ids that restart in every file, which are then qualified by that path). The path is the batch's `dataset_id` (recorded in each `-quality.json` and in `meta_view.csv`, e.g. `eHMI-bo-participantdata/u_10/QuestionnaireData_10/QuestionnaireResponses.csv`), not the standardized file name, which the batch shortens with a hash when the output path is long. Each study also records its research `domain`, which the relations analysis uses to split pooled relations.
 
 All formulas are checked against metafor 5.2.1 in `tests/test_contrast_meta_analysis.py`.
 
