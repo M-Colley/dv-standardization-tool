@@ -62,7 +62,11 @@ Each run records the source revision it read (git commit, or the repository reco
 
 ```bash
 export HF_HUB_OFFLINE=1 MPLBACKEND=Agg
-opendv batch --manifest sources_manifest_no4tu.yaml --output-dir data/processed/catalog_meta_analysis --snapshot-manifest --workers 8
+# --cache-dir keeps the 11 remote downloads (1.6 GB) for later runs; a run writes about 1 GB.
+# Eight workers took about 35 GB of memory (commit charge on Windows); with less free, use
+# fewer: a worker that runs out drops the file it was reading, and the number of workers does
+# not change the results otherwise. Keep the output path short (see below).
+opendv batch --manifest sources_manifest_no4tu.yaml --output-dir data/processed/catalog_meta_analysis --snapshot-manifest --workers 8 --cache-dir data/processed/cache
 opendv analyze --input-dir data/processed/catalog_meta_analysis/standardized --output-dir analyses/output_python_full --exclude-llm-deduced
 python -m opendv.analysis.multiverse_analysis --input-dir data/processed/catalog_meta_analysis/standardized --output-dir analyses/output_multiverse
 python -m opendv.analysis.make_chi_figures
@@ -90,4 +94,8 @@ python -m opendv.analysis.construct_relations --input-dir data/processed/catalog
                      analyses/output_llm_evaluation/added_2026_11_05/llm_mapping_evaluation_items.csv
 ```
 
-On the same environment this reproduces the committed tables exactly; figure PDFs differ only in their embedded timestamps. The relation tables of 2026-11-05 combine the 2026-11-04 batch run of the first 23 studies with a run of the 16 added ones (same code, settings and model; see `docs/cross_study_insights.md`). The other analyses (`analyses/output_python_full/`, `output_multiverse/`, `figures_chi/`) are still those of the 23 studies.
+On the same environment this reproduces the committed tables exactly; figure PDFs differ only in their embedded timestamps.
+
+The committed `output_python_full/`, `output_multiverse/` and `figures_chi/` (2026-11-06) come from one batch run of all 39 studies with the commands above (3 workers, download cache of 2026-11-04), written to `data/processed/catalog39_gk` of the main checkout (hence the `input_dir` in `analysis_results.json`). That run reproduces the two runs behind the relation tables of 2026-11-05, the 2026-11-04 run of the first 23 studies (8 workers) and the 2026-11-05 run of the 16 added ones: all 1,806 standardized tables have identical contents, and `meta_view.csv` differs only in absolute paths and run timestamps. `construct_relations` on it reproduces the committed relation tables byte for byte.
+
+**Keep the output path short.** The batch shortens a standardized file's name with a hash when its full path would exceed 240 characters, and eHMI Optimization's participant ids are read from its file names (`participant_from_file` in `schemas/study_designs.yaml`). With a shortened name those ids are lost, which changes participant-level estimates and the relations of that study, silently. The longest names need about 145 characters below the output folder, so keep `--output-dir` (as an absolute path) under about 90 characters; `C:\Users\<user>\Desktop\dv-standardization-tool\data\processed\catalog_meta_analysis` (86) is fine, the same folder inside a `.claude/worktrees/<name>` checkout is not.

@@ -71,7 +71,7 @@ Outputs in `analyses/output_relations/`:
 | `llm_replay_conclusions.csv` | replay and automatic findings against the curated ones |
 | `relations_summary.json` | the ladder, the finding rule and the replay's column counts |
 
-**Inputs of the committed outputs (2026-11-05).** The standardized studies combine two batch runs with the same code, settings and model: the run of 2026-11-04 for the first 23 studies (with the current code it reproduces the committed 23-study relation tables exactly) and a run of 2026-11-05 for the 16 studies added that day. The replay uses the 23-study benchmark items of 2026-11-04 and a benchmark of the 16 added studies with the same settings (E1 only: `analyses/output_llm_evaluation/added_2026_11_05/`).
+**Inputs of the committed outputs (2026-11-05).** The standardized studies combine two batch runs with the same code, settings and model: the run of 2026-11-04 for the first 23 studies (with the current code it reproduces the committed 23-study relation tables exactly) and a run of 2026-11-05 for the 16 studies added that day. The replay uses the 23-study benchmark items of 2026-11-04 and a benchmark of the 16 added studies with the same settings (E1 only: `analyses/output_llm_evaluation/added_2026_11_05/`). A single batch run of all 39 studies on 2026-11-06 (the input of `analyses/output_python_full/`) gives identical standardized tables and reproduces these relation tables byte for byte.
 
 ## Results with 39 studies
 
