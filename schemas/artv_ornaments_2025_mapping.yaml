@@ -5,8 +5,10 @@
 #   texts are in the first data row of the Qualtrics export (second row: import ids).
 #
 # File: Study-2-Questionnaire_Cleaned.xlsx (the cleaned questionnaire with the authors' scale
-#   scores), one row per participant x condition (20 participants x 4 conditions; the first
-#   two rows are question texts and import ids and hold no numbers). Within subjects: Baseline,
+#   scores), one row per participant x condition (20 participants x 4 conditions). The two rows
+#   below the header are the question texts and import ids; the manifest skips them
+#   ({skip_rows: [0, 1]}), else they were read as a participant and a condition and made the
+#   item columns text. Within subjects: Baseline,
 #   Constant Generic Medieval, Constant Game of Thrones Objects, Interior Change With Scene.
 #   Left out: the .csv copy of the same table, the raw questionnaire export (same answers
 #   without the scores), and the demographics and end-of-study exports (rankings).
@@ -24,6 +26,10 @@
 #   - Q1_1-Q1_24: Film-IEQ items (immersive experience, 1-7; Q1_13 missing) and the IEQ_*
 #     scores: no schema DV. 5_Inverted, 6_Inverted and 7_inverted are the reversed copies (8 - x)
 #     of the real-world-awareness items Q1_5-Q1_7 (checked on the data).
+#   - Columns without a schema DV are locked as meta_* below: left unlabelled, the LLM mapped
+#     the Film-IEQ items to the SUS items SUS1-SUS10, the IEQ scores to ueq_stimulation,
+#     ssq_disorientation, understanding_rating and trust_rating, the reversed copies to
+#     sts_ad_item_05/06 and AOA7, and Q3_1/Q3_2 to SUS3 (batch of 2026-11-06).
 
 # --- Dependent measures ----------------------------------------------------------
 # UES-SF items, 1-7 (Q5_4-6 reverse-keyed)
@@ -43,11 +49,43 @@ Q5_12: engagement_level
 UEQ_SF_Pragmatic: ueq_pragmatic
 UEQ_SF_Hedonic: ueq_hedonic
 
-# Left unlabelled (no schema DV): IEQ_Score, IEQ_Captivation, IEQ_Real_World_Dissociation,
-# IEQ_Comprehension, IEQ_Transportation and the Film-IEQ items Q1_* (with the reversed copies
-# 5_Inverted, 6_Inverted, 7_inverted); Q3_1 "I was aware of
-# other passengers whilst watching the video" and Q3_2 "I was aware of the virtual
-# modifications" (1-5).
+# --- Measures without a schema DV (locked so the LLM cannot map them) ---------------
+# Film-IEQ (immersive experience): the authors' scores and the 24 items, 1-7 (Q1_13 is empty)
+IEQ_Score: meta_derived_film_ieq_score
+IEQ_Captivation: meta_derived_film_ieq_captivation
+IEQ_Real_World_Dissociation: meta_derived_film_ieq_real_world_dissociation
+IEQ_Comprehension: meta_derived_film_ieq_comprehension
+IEQ_Transportation: meta_derived_film_ieq_transportation
+Q1_1: meta_film_ieq_item
+Q1_2: meta_film_ieq_item
+Q1_3: meta_film_ieq_item
+Q1_4: meta_film_ieq_item
+Q1_5: meta_film_ieq_item
+Q1_6: meta_film_ieq_item
+Q1_7: meta_film_ieq_item
+Q1_8: meta_film_ieq_item
+Q1_9: meta_film_ieq_item
+Q1_10: meta_film_ieq_item
+Q1_11: meta_film_ieq_item
+Q1_12: meta_film_ieq_item
+Q1_13: meta_film_ieq_item
+Q1_14: meta_film_ieq_item
+Q1_15: meta_film_ieq_item
+Q1_16: meta_film_ieq_item
+Q1_17: meta_film_ieq_item
+Q1_18: meta_film_ieq_item
+Q1_19: meta_film_ieq_item
+Q1_20: meta_film_ieq_item
+Q1_21: meta_film_ieq_item
+Q1_22: meta_film_ieq_item
+Q1_23: meta_film_ieq_item
+Q1_24: meta_film_ieq_item
+5_Inverted: meta_film_ieq_item_reversed    # 8 - Q1_5
+6_Inverted: meta_film_ieq_item_reversed    # 8 - Q1_6
+7_inverted: meta_film_ieq_item_reversed    # 8 - Q1_7
+# Awareness, 1-5
+Q3_1: meta_aware_of_other_passengers       # "I was aware of other passengers whilst watching the video"
+Q3_2: meta_aware_of_virtual_modifications  # "I was aware of the virtual modifications"
 
 # --- Copies and derived scores of the mapped instruments --------------------------
 UES_SF: meta_derived_ues_sf_score          # authors' total, off the UES metric (see above)

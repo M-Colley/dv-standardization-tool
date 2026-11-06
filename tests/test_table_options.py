@@ -134,6 +134,86 @@ class RenameOptionTests(unittest.TestCase):
             self.assertAlmostEqual(meta.loc["trust_rating", "mean"], 6.0)
 
 
+def _qualtrics_rows() -> list[list[object]]:
+    """A Qualtrics export: variable names, question texts, import ids, then answers."""
+    return [
+        ["Q7", "Q4", "Q5_1"],
+        ["Enter Participant ID (number)", "Which Condition did you experience?", "Rate the following"],
+        ['{"ImportId":"QID7_TEXT"}', '{"ImportId":"QID4"}', '{"ImportId":"QID5_1"}'],
+        [1, "Baseline", 5],
+        [1, "Medieval", 6],
+        [2, "Baseline", 3],
+    ]
+
+
+class SkipRowsOptionTests(unittest.TestCase):
+    def test_qualtrics_rows_are_skipped_and_columns_stay_numeric(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            book, csv = Path(tmp) / "export.xlsx", Path(tmp) / "export.csv"
+            rows = _qualtrics_rows()
+            pd.DataFrame(rows[1:], columns=rows[0]).to_excel(book, index=False)
+            pd.DataFrame(rows[1:], columns=rows[0]).to_csv(csv, index=False)
+            for path in (book, csv):
+                plain = load_input_file(str(path))
+                self.assertFalse(pd.api.types.is_numeric_dtype(plain["Q5_1"]))  # the defect
+                df = load_input_file(str(path), {"skip_rows": [0, 1]})
+                self.assertEqual(len(df), 3, path.name)
+                self.assertTrue(pd.api.types.is_numeric_dtype(df["Q7"]), path.name)
+                self.assertTrue(pd.api.types.is_numeric_dtype(df["Q5_1"]), path.name)
+                self.assertEqual(df["Q5_1"].tolist(), [5, 6, 3])
+                self.assertEqual(df["Q4"].tolist(), ["Baseline", "Medieval", "Baseline"])
+
+    def test_rows_count_from_the_header_row(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            book = Path(tmp) / "book.xlsx"
+            rows = _qualtrics_rows()
+            with pd.ExcelWriter(book) as writer:
+                pd.DataFrame([["Study 2 questionnaire"]]).to_excel(writer, sheet_name="Data", index=False, header=False)
+                pd.DataFrame(rows[1:], columns=rows[0]).to_excel(writer, sheet_name="Data", index=False, startrow=1)
+                pd.DataFrame({f"raw{i}": range(9) for i in range(8)}).to_excel(writer, sheet_name="raw", index=False)
+            df = load_input_file(str(book), {"sheet": "Data", "header": 1, "skip_rows": [0, 1]})
+            self.assertEqual(list(df.columns), ["Q7", "Q4", "Q5_1"])
+            self.assertEqual(df["Q5_1"].tolist(), [5, 6, 3])
+            # Without a sheet the most data-rich sheet is still chosen.
+            self.assertEqual(list(load_input_file(str(book), {"skip_rows": [0]}).columns)[:2], ["raw0", "raw1"])
+
+    def test_skip_rows_fails_loudly(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            csv = Path(tmp) / "t.csv"
+            csv.write_text("a,b\n1,2\n3,4\n", encoding="utf-8")
+            with self.assertRaisesRegex(ValueError, r"skip_rows \[2\] not found"):
+                load_input_file(str(csv), {"skip_rows": [0, 2]})
+            for bad in (1, "0", [-1], [True], [0.0]):
+                with self.assertRaisesRegex(ValueError, "must be a list"):
+                    load_input_file(str(csv), {"skip_rows": bad})
+            parquet = Path(tmp) / "t.parquet"
+            pd.DataFrame({"a": [1, 2]}).to_parquet(parquet)
+            with self.assertRaisesRegex(ValueError, "spreadsheets and delimited text"):
+                load_input_file(str(parquet), {"skip_rows": [0]})
+            self.assertEqual(len(load_input_file(str(csv), {"skip_rows": []})), 2)
+
+    def test_batch_skips_the_rows(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            tmp = Path(tmpdir)
+            (tmp / "src").mkdir()
+            rows = _qualtrics_rows()
+            pd.DataFrame(rows[1:], columns=rows[0]).to_excel(tmp / "src" / "export.xlsx", index=False)
+            (tmp / "map.yaml").write_text(yaml.safe_dump(
+                {"Q7": "meta_participant_id", "Q4": "meta_condition", "Q5_1": "engagement_level"}
+            ), encoding="utf-8")
+            (tmp / "manifest.yaml").write_text(yaml.safe_dump({"sources": [{
+                "source_id": "s", "source_type": "local_path", "location": str(tmp / "src"),
+                "include_globs": ["*.xlsx"], "mapping_path": str(tmp / "map.yaml"),
+                "table_options": {"export.xlsx": {"skip_rows": [0, 1]}},
+            }]}), encoding="utf-8")
+            run_batch(tmp / "manifest.yaml", tmp / "out", SCHEMA, llm_deduction_enabled=False, cache_root=tmp / "cache")
+            out = pd.read_excel(next((tmp / "out" / "standardized" / "s").glob("*-standardized.xlsx")))
+            self.assertEqual(out["meta_participant_id"].tolist(), [1, 1, 2])
+            self.assertEqual(out["meta_condition"].tolist(), ["Baseline", "Medieval", "Baseline"])
+            meta = pd.read_csv(tmp / "out" / "meta_view.csv").set_index("canonical_dv")
+            self.assertAlmostEqual(meta.loc["engagement_level", "mean"], 14 / 3)
+
+
 class EncodingTests(unittest.TestCase):
     def test_stray_cp1252_byte_is_not_read_as_utf8(self):
         # charset-normalizer calls this sample "ascii"; UTF-8 cannot decode 0x92.

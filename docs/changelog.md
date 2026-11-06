@@ -4,6 +4,37 @@ This document logs human-readable updates to the repo's functionality, structure
 
 ---
 
+### [2026-11-06] ARTV's Qualtrics header rows skipped; unmapped measures of ARTV and tactile SA locked
+
+- **`skip_rows` table option** (manifest, per file; 0-based rows counted from the row below the header; spreadsheets and delimited text). A Qualtrics export has two rows under its header, the question texts and the import ids. `missing_values` only blanks cells and `header` only picks the header row, so neither could drop them. pandas skips the rows while parsing (`skiprows`), so the columns are typed from the answers alone. A listed row the file lacks stops the run. Tests in `tests/test_table_options.py`.
+- **ARTV ornamentations** (`artv_ornaments_2025`) now skips the two rows. Before, its standardized table had 82 rows: the question texts and import ids were read as two more participants ("Enter Participant ID (number)", `{"ImportId":"QID7_TEXT"}`) and two more condition levels, and 45 of its 74 columns held text. The analysis reads numeric columns only. No curated DV was lost: the `engagement_level` composite, `ueq_pragmatic` and `ueq_hedonic` were numeric and keep their values. The text columns it dropped were the LLM's SUS1–SUS10 (from Film-IEQ items) and copies locked as `meta_*`. Now 80 rows, 20 participants, four conditions; only the condition column is text.
+- **Measures without a schema DV are locked as `meta_*`**, so the LLM is no longer asked about them:
+    - ARTV: the 24 Film-IEQ items, its five scores, the three reversed item copies and the two awareness items (34 columns). Left unlabelled, the LLM had mapped 32 of them: the Film-IEQ items to SUS1–SUS10, Q3_1/Q3_2 with Q1_3 to a SUS3 composite, and the scores and reversed copies to `ueq_stimulation`, `ssq_disorientation`, `understanding_rating`, `trust_rating`, `sts_ad_item_05`/`06` and `AOA7`. Without these locks, skipping the rows would have made the ten SUS columns numeric and put Film-IEQ answers into the SUS pool.
+    - Tactile SA display (`tactile_sa_display_2022`): distance, Max intensity, Attention Interference and WM Interference, which the LLM had mapped to `headway`, `max_lateral_acceleration`, `dali_interference` and `pedestrian_crossing_time`.
+- **Checked** with a batch run of the two sources (LLM on; `docs/reproducibility.md` settings, short output path). The LLM is asked about nothing in either source. On the remaining rows every cell equals the committed run's; only the column names of the locked measures change, and ARTV's SUS3 composite is gone. In `meta_view.csv`, ARTV goes from 74 to 73 rows (33 LLM rows → 0), tactile SA keeps 9 (4 LLM rows → 0); their non-meta DVs are now only the curated ones (ARTV: `engagement_level`, `ueq_pragmatic`, `ueq_hedonic`; tactile SA: `ttc`, `TLX_SCORE`, `sart_total`).
+- **What changes in the outputs.** The committed outputs were not regenerated. `opendv analyze`, the multiverse and the relations were rerun in a scratch folder on the committed 39-study batch, with these two sources swapped for the new run. Only results that include LLM-deduced mappings move. `meta_analysis_summary_llm_excluded.csv`, the contrasts, causal discovery and measurement invariance are byte-identical.
+    - All-mappings meta-analysis: ten DVs lose a study, and `ueq_stimulation` (two LLM-mapped studies) is no longer pooled. 94 DVs are pooled over at least two studies (95) and 62 over at least three (66); without LLM rows still 49 and 36. Committed values in parentheses:
+        - `trust_rating`: k = 9 (10), 3.76 [3.46, 4.06] (3.55 [3.01, 4.09]).
+        - `understanding_rating`: k = 6 (7), 3.80 (3.51).
+        - `AOA7`: k = 4 (5), −0.90 (−0.72).
+        - `ssq_disorientation`: k = 2 (3), 14.9 (23.3).
+        - `max_lateral_acceleration`: k = 2 (3), 6.2 (65.4). Tactile SA's braking intensity, on 0–100, had been pooled as a lateral acceleration.
+        - `headway`: k = 2 (3), 0.55 (2.30).
+        - `SUS3`, `sts_ad_item_05` and `sts_ad_item_06` lose ARTV.
+    - `AOA7`, `understanding_rating` and `ssq_disorientation` now rest on curated mappings only, so they equal their LLM-excluded estimates.
+    - Multiverse: the same ten DVs (2,288 specifications, 2,304 before).
+    - Descriptive tables follow: DV overlap (mean Jaccard 0.0845, was 0.0855), the composite index (94 shared DVs, 95 before, so every study's composite moves in the last digits), and the Egger, trim-and-fill and meta-regression rows of the ten DVs.
+    - Relations: no finding appears or disappears at any level. The identical-name, automatic and curated levels are unchanged, and so are the LLM replay's conclusions.
+        - At the LLM level, 43 per-study correlations go. Eight pairs are no longer pooled (k = 2 → 1). Seven lose a study, e.g. trust × understanding between persons is now r = .65 over three studies (.56 over four). The other rows change only in their q-values.
+        - The ladder's LLM step pools 226 pairs between persons (232) and 119 within (121).
+        - The replay level loses the four pairs that rested on tactile SA's LLM-mapped braking measures.
+- **Not rerun:**
+    - The committed outputs.
+    - The LLM benchmark of the added studies (`analyses/output_llm_evaluation/added_2026_11_05/`). A rerun adds the 38 newly locked columns as curated negatives; in the batch the LLM had mapped 36 of them.
+- **Found, not fixed:** `mean_z_vs_global` in `harmonized_dv_summary_llm_excluded.csv` is computed against the pool with LLM rows, before they are filtered out (`multi_study_analysis.py`), so that column of the LLM-excluded file still moves when an LLM mapping changes.
+
+---
+
 ### [2026-11-06] Outputs rerun with NL2TAP's TOAST items
 
 The two entries below were merged into one branch, and every output now comes from one batch run of all 39 studies that includes NL2TAP's TOAST items (`data/processed/catalog39_toast`; `docs/reproducibility.md`).
