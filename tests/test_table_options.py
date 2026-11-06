@@ -1,4 +1,4 @@
-"""Per-file table options from the manifest: sheet, header row and long-to-wide pivot."""
+"""Per-file table options from the manifest: sheet, header row, long-to-wide pivot and rename."""
 
 from __future__ import annotations
 
@@ -78,6 +78,60 @@ class TableOptionsTests(unittest.TestCase):
             meta = pd.read_csv(tmp / "out" / "meta_view.csv")
             self.assertIn("tlx_mental", meta["original_alias"].tolist())
             self.assertNotIn("raw0", meta["original_alias"].tolist())
+
+
+class RenameOptionTests(unittest.TestCase):
+    def test_rename_runs_after_pivot_and_drop_columns(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            book = Path(tmp) / "book.xlsx"
+            _workbook(book)
+            wide = load_input_file(str(book), {
+                "sheet": "TLX", "header": 1,
+                "pivot": {"index": ["subject_id", "curvature"], "columns": "subscale", "values": "score"},
+                "drop_columns": ["curvature"],
+                "rename": {"Mental": "tlx_mental", " Physical ": "tlx_physical"},  # headers match stripped
+            })
+            self.assertEqual(list(wide.columns), ["subject_id", "tlx_mental", "tlx_physical"])
+            self.assertEqual(wide["tlx_physical"].tolist(), [4, 6])
+
+    def test_rename_fails_loudly(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            csv = Path(tmp) / "toast.csv"
+            csv.write_text("pid,item_1,item_2\n1,5,6\n", encoding="utf-8")
+            with self.assertRaisesRegex(ValueError, "not found"):
+                load_input_file(str(csv), {"rename": {"item_3": "toast_3"}})
+            with self.assertRaisesRegex(ValueError, "not found"):  # dropped first, then renamed
+                load_input_file(str(csv), {"drop_columns": ["item_1"], "rename": {"item_1": "toast_1"}})
+            with self.assertRaisesRegex(ValueError, "duplicate"):
+                load_input_file(str(csv), {"rename": {"item_1": "item_2"}})
+            with self.assertRaisesRegex(ValueError, "duplicate"):
+                load_input_file(str(csv), {"rename": {"item_1": "t", "item_2": "t"}})
+            with self.assertRaisesRegex(ValueError, "must map"):
+                load_input_file(str(csv), {"rename": ["item_1"]})
+            # A swap is not a clash.
+            swapped = load_input_file(str(csv), {"rename": {"item_1": "item_2", "item_2": "item_1"}})
+            self.assertEqual(swapped["item_1"].tolist(), [6])
+
+    def test_two_files_of_one_source_keep_same_raw_names_apart(self):
+        # NL2TAP: sus_responses.csv and toast_responses.csv both name their items item_1..
+        with tempfile.TemporaryDirectory() as tmpdir:
+            tmp = Path(tmpdir)
+            (tmp / "src").mkdir()
+            pd.DataFrame({"participant_id": [1, 2, 3], "item_1": [4, 5, 3]}).to_csv(tmp / "src" / "sus.csv", index=False)
+            pd.DataFrame({"participant_id": [1, 2, 3], "item_1": [6, 7, 5]}).to_csv(tmp / "src" / "toast.csv", index=False)
+            (tmp / "map.yaml").write_text(yaml.safe_dump({"item_1": "SUS1", "toast_1": "trust_rating"}), encoding="utf-8")
+            (tmp / "manifest.yaml").write_text(yaml.safe_dump({"sources": [{
+                "source_id": "s", "source_type": "local_path", "location": str(tmp / "src"),
+                "include_globs": ["*.csv"], "mapping_path": str(tmp / "map.yaml"),
+                "table_options": {"toast.csv": {"rename": {"item_1": "toast_1"}}},
+            }]}), encoding="utf-8")
+            run_batch(tmp / "manifest.yaml", tmp / "out", SCHEMA, llm_deduction_enabled=False, cache_root=tmp / "cache")
+            meta = pd.read_csv(tmp / "out" / "meta_view.csv").set_index("canonical_dv")
+            self.assertEqual(meta.loc["SUS1", "dataset_id"], "sus.csv")
+            self.assertAlmostEqual(meta.loc["SUS1", "mean"], 4.0)
+            self.assertEqual(meta.loc["trust_rating", "dataset_id"], "toast.csv")
+            self.assertEqual(meta.loc["trust_rating", "original_alias"], "toast_1")
+            self.assertAlmostEqual(meta.loc["trust_rating", "mean"], 6.0)
 
 
 class EncodingTests(unittest.TestCase):
