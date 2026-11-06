@@ -84,7 +84,7 @@ all,harmonized,observations,DL,wald,tia_item_05,2,3.5569190511504827,3.484454015
 all,harmonized,observations,DL,wald,tia_item_06,3,3.0908924429362896,2.2019338151048222,3.979851070767757,random_effects,True
 all,harmonized,observations,DL,wald,tia_trust_in_automation,6,3.5679485228256804,3.2069979489685245,3.9288990966828363,random_effects,True
 all,harmonized,observations,DL,wald,tia_understanding_predictability,3,3.0177542975174303,2.437394037520341,3.5981145575145197,random_effects,True
-all,harmonized,observations,DL,wald,trust_rating,9,3.524208074604676,2.9469462325833833,4.101469916625969,random_effects,True
+all,harmonized,observations,DL,wald,trust_rating,10,3.547680924625529,3.01387678296343,4.0814850662876285,random_effects,True
 all,harmonized,observations,DL,wald,ttc,3,5.898542473972084,-2.644834222801679,14.441919170745846,random_effects,True
 all,harmonized,observations,DL,wald,ueq_hedonic,5,1.1316819866548686,0.6017967079617915,1.6615672653479456,random_effects,False
 all,harmonized,observations,DL,wald,ueq_pragmatic,7,1.44282111149061,0.9246100326821827,1.9610321902990373,random_effects,True
@@ -179,7 +179,7 @@ all,harmonized,observations,DL,hksj,tia_item_05,2,3.5569190511504827,3.237476507
 all,harmonized,observations,DL,hksj,tia_item_06,3,3.0908924429362896,1.6422281818664843,4.539556704006095,random_effects,True
 all,harmonized,observations,DL,hksj,tia_trust_in_automation,6,3.5679485228256804,3.1707433727638517,3.965153672887509,random_effects,True
 all,harmonized,observations,DL,hksj,tia_understanding_predictability,3,3.0177542975174303,0.8877258902631668,5.147782704771694,random_effects,True
-all,harmonized,observations,DL,hksj,trust_rating,9,3.524208074604676,2.9134665328222313,4.134949616387121,random_effects,True
+all,harmonized,observations,DL,hksj,trust_rating,10,3.547680924625529,3.0091303739514883,4.08623147529957,random_effects,True
 all,harmonized,observations,DL,hksj,ttc,3,5.898542473972084,-13.623496574354549,25.42058152229872,random_effects,True
 all,harmonized,observations,DL,hksj,ueq_hedonic,5,1.1316819866548686,0.47259219929498963,1.7907717740147477,random_effects,False
 all,harmonized,observations,DL,hksj,ueq_pragmatic,7,1.44282111149061,0.8700235354978162,2.015618687483404,random_effects,True
@@ -274,7 +274,7 @@ all,harmonized,observations,REML,wald,tia_item_05,2,3.5569190511504827,3.4844540
 all,harmonized,observations,REML,wald,tia_item_06,3,3.090438516429786,2.4029838112427937,3.777893221616778,random_effects,True
 all,harmonized,observations,REML,wald,tia_trust_in_automation,6,3.569090636795589,3.263656494482999,3.8745247791081785,random_effects,True
 all,harmonized,observations,REML,wald,tia_understanding_predictability,3,3.026940078028069,2.054773064243261,3.9991070918128773,random_effects,True
-all,harmonized,observations,REML,wald,trust_rating,9,3.524236030671861,3.0043657814149833,4.044106279928739,random_effects,True
+all,harmonized,observations,REML,wald,trust_rating,10,3.547710464195456,3.080283132067394,4.015137796323518,random_effects,True
 all,harmonized,observations,REML,wald,ttc,3,5.8986316224972315,-2.9939595922699924,14.791222837264456,random_effects,True
 all,harmonized,observations,REML,wald,ueq_hedonic,5,1.1310585282998025,0.6608090706086234,1.6013079859909816,random_effects,False
 all,harmonized,observations,REML,wald,ueq_pragmatic,7,1.4428974320438046,0.981802985352674,1.9039918787349353,random_effects,True
@@ -369,7 +369,7 @@ all,harmonized,observations,REML,hksj,tia_item_05,2,3.5569190511504827,3.2374765
 all,harmonized,observations,REML,hksj,tia_item_06,3,3.090438516429786,1.6261594183121664,4.554717614547405,random_effects,True
 all,harmonized,observations,REML,hksj,tia_trust_in_automation,6,3.569090636795589,3.1712182555786184,3.9669630180125592,random_effects,True
 all,harmonized,observations,REML,hksj,tia_understanding_predictability,3,3.026940078028069,0.8881108390190198,5.165769317037118,random_effects,True
-all,harmonized,observations,REML,hksj,trust_rating,9,3.524236030671861,2.9133515303741206,4.135120530969601,random_effects,True
+all,harmonized,observations,REML,hksj,trust_rating,10,3.547710464195456,3.0089834533872617,4.086437475003651,random_effects,True
 all,harmonized,observations,REML,hksj,ttc,3,5.8986316224972315,-13.623476212332559,25.42073945732702,random_effects,True
 all,harmonized,observations,REML,hksj,ueq_hedonic,5,1.1310585282998025,0.4707773522560148,1.7913397043435901,random_effects,False
 all,harmonized,observations,REML,hksj,ueq_pragmatic,7,1.4428974320438046,0.8696254411633185,2.016169422924291,random_effects,True
@@ -464,7 +464,7 @@ all,harmonized,participants,DL,wald,tia_item_05,2,3.5463842035348234,3.385527419
 all,harmonized,participants,DL,wald,tia_item_06,3,3.090538309455375,2.2739980269195654,3.907078591991185,random_effects,True
 all,harmonized,participants,DL,wald,tia_trust_in_automation,6,3.5523571096806372,3.2401379956603398,3.8645762237009347,random_effects,True
 all,harmonized,participants,DL,wald,tia_understanding_predictability,3,3.509347128102122,2.7909631723573582,4.227731083846885,random_effects,True
-all,harmonized,participants,DL,wald,trust_rating,9,3.5237962861337753,2.8944284881445577,4.153164084122992,random_effects,True
+all,harmonized,participants,DL,wald,trust_rating,10,3.5472712336575016,2.9810862105381744,4.113456256776829,random_effects,True
 all,harmonized,participants,DL,wald,ttc,3,5.8889018296142215,-4.558908885123163,16.336712544351606,random_effects,True
 all,harmonized,participants,DL,wald,ueq_hedonic,5,1.154245656696012,0.7616908856704214,1.5468004277216025,random_effects,False
 all,harmonized,participants,DL,wald,ueq_pragmatic,7,1.4256376074051762,0.9563689863095315,1.894906228500821,random_effects,True
@@ -559,7 +559,7 @@ all,harmonized,participants,DL,hksj,tia_item_05,2,3.5463842035348234,3.175278414
 all,harmonized,participants,DL,hksj,tia_item_06,3,3.090538309455375,1.6418161678767549,4.539260451033996,random_effects,True
 all,harmonized,participants,DL,hksj,tia_trust_in_automation,6,3.5523571096806372,3.158468252291372,3.9462459670699026,random_effects,True
 all,harmonized,participants,DL,hksj,tia_understanding_predictability,3,3.509347128102122,2.1575428906938416,4.861151365510402,random_effects,True
-all,harmonized,participants,DL,hksj,trust_rating,9,3.5237962861337753,2.9137267236777924,4.133865848589759,random_effects,True
+all,harmonized,participants,DL,hksj,trust_rating,10,3.5472712336575016,3.009353985557958,4.085188481757045,random_effects,True
 all,harmonized,participants,DL,hksj,ttc,3,5.8889018296142215,-13.671218213500703,25.449021872729148,random_effects,True
 all,harmonized,participants,DL,hksj,ueq_hedonic,5,1.154245656696012,0.5154490478133829,1.793042265578641,random_effects,False
 all,harmonized,participants,DL,hksj,ueq_pragmatic,7,1.4256376074051762,0.823093208813852,2.0281820059965003,random_effects,True
@@ -654,7 +654,7 @@ all,harmonized,participants,REML,wald,tia_item_05,2,3.5463842035348234,3.3855274
 all,harmonized,participants,REML,wald,tia_item_06,3,3.090091854389385,2.407947867191092,3.7722358415876784,random_effects,True
 all,harmonized,participants,REML,wald,tia_trust_in_automation,6,3.5518232012601914,3.2480607965872665,3.855585605933116,random_effects,True
 all,harmonized,participants,REML,wald,tia_understanding_predictability,3,3.505229473255218,2.882457108212811,4.128001838297625,random_effects,True
-all,harmonized,participants,REML,wald,trust_rating,9,3.5233417024383207,3.004056763655229,4.042626641221412,random_effects,True
+all,harmonized,participants,REML,wald,trust_rating,10,3.546836836950212,3.0800742082739996,4.013599465626425,random_effects,True
 all,harmonized,participants,REML,wald,ttc,3,5.889531799136196,-3.0223847445408536,14.801448342813245,random_effects,True
 all,harmonized,participants,REML,wald,ueq_hedonic,5,1.1502997563728872,0.7011153609894738,1.5994841517563005,random_effects,False
 all,harmonized,participants,REML,wald,ueq_pragmatic,7,1.4250550738350987,0.9409410577306901,1.9091690899395073,random_effects,True
@@ -749,7 +749,7 @@ all,harmonized,participants,REML,hksj,tia_item_05,2,3.5463842035348234,3.1752784
 all,harmonized,participants,REML,hksj,tia_item_06,3,3.090091854389385,1.6311657998256475,4.549017908953123,random_effects,True
 all,harmonized,participants,REML,hksj,tia_trust_in_automation,6,3.5518232012601914,3.1577771468007994,3.9458692557195834,random_effects,True
 all,harmonized,participants,REML,hksj,tia_understanding_predictability,3,3.505229473255218,2.1506197314243565,4.85983921508608,random_effects,True
-all,harmonized,participants,REML,hksj,trust_rating,9,3.5233417024383207,2.913059579028915,4.133623825847726,random_effects,True
+all,harmonized,participants,REML,hksj,trust_rating,10,3.546836836950212,3.008726842012615,4.084946831887809,random_effects,True
 all,harmonized,participants,REML,hksj,ttc,3,5.889531799136196,-13.671356265985331,25.450419864257725,random_effects,True
 all,harmonized,participants,REML,hksj,ueq_hedonic,5,1.1502997563728872,0.5096835480092048,1.7909159647365696,random_effects,False
 all,harmonized,participants,REML,hksj,ueq_pragmatic,7,1.4250550738350987,0.8226096233375574,2.02750052433264,random_effects,True
@@ -844,7 +844,7 @@ all,raw,observations,DL,wald,tia_item_05,2,3.5569190511504827,3.484454015923191,
 all,raw,observations,DL,wald,tia_item_06,3,3.0908924429362896,2.2019338151048222,3.979851070767757,random_effects,True
 all,raw,observations,DL,wald,tia_trust_in_automation,6,11.204835757865554,9.470648566461872,12.939022949269237,random_effects,True
 all,raw,observations,DL,wald,tia_understanding_predictability,3,4.83156902692631,2.5038573062434444,7.159280747609175,random_effects,True
-all,raw,observations,DL,wald,trust_rating,9,8.867889481545683,8.029016613799463,9.706762349291903,random_effects,True
+all,raw,observations,DL,wald,trust_rating,10,8.435636956641364,7.649316335003563,9.221957578279165,random_effects,True
 all,raw,observations,DL,wald,ttc,3,5.898542473972084,-2.644834222801679,14.441919170745846,random_effects,True
 all,raw,observations,DL,wald,ueq_hedonic,5,1.1316819866548686,0.6017967079617915,1.6615672653479456,random_effects,False
 all,raw,observations,DL,wald,ueq_pragmatic,7,2.0155200427512896,0.818193097580014,3.212846987922565,random_effects,True
@@ -939,7 +939,7 @@ all,raw,observations,DL,hksj,tia_item_05,2,3.5569190511504827,3.2374765071323823
 all,raw,observations,DL,hksj,tia_item_06,3,3.0908924429362896,1.6422281818664843,4.539556704006095,random_effects,True
 all,raw,observations,DL,hksj,tia_trust_in_automation,6,11.204835757865554,-9.081142244537775,31.490813760268885,random_effects,True
 all,raw,observations,DL,hksj,tia_understanding_predictability,3,4.83156902692631,0.5870695125430148,9.076068541309606,random_effects,True
-all,raw,observations,DL,hksj,trust_rating,9,8.867889481545683,-2.308389897651928,20.044168860743294,random_effects,True
+all,raw,observations,DL,hksj,trust_rating,10,8.435636956641364,-1.3247626112534103,18.19603652453614,random_effects,True
 all,raw,observations,DL,hksj,ttc,3,5.898542473972084,-13.623496574354549,25.42058152229872,random_effects,True
 all,raw,observations,DL,hksj,ueq_hedonic,5,1.1316819866548686,0.47259219929498963,1.7907717740147477,random_effects,False
 all,raw,observations,DL,hksj,ueq_pragmatic,7,2.0155200427512896,0.7517348466642286,3.279305238838351,random_effects,True
@@ -1034,7 +1034,7 @@ all,raw,observations,REML,wald,tia_item_05,2,3.5569190511504827,3.48445401592319
 all,raw,observations,REML,wald,tia_item_06,3,3.090438516429786,2.4029838112427937,3.777893221616778,random_effects,True
 all,raw,observations,REML,wald,tia_trust_in_automation,6,12.868062311257985,-4.005001534132456,29.741126156648427,random_effects,True
 all,raw,observations,REML,wald,tia_understanding_predictability,3,4.829492493432287,2.8919991983723716,6.766985788492203,random_effects,True
-all,raw,observations,REML,wald,trust_rating,9,12.91265483461847,-0.48528058842005173,26.31059025765699,random_effects,True
+all,raw,observations,REML,wald,trust_rating,10,12.131600503086608,0.05822292313686184,24.20497808303635,random_effects,True
 all,raw,observations,REML,wald,ttc,3,5.8986316224972315,-2.9939595922699924,14.791222837264456,random_effects,True
 all,raw,observations,REML,wald,ueq_hedonic,5,1.1310585282998025,0.6608090706086234,1.6013079859909816,random_effects,False
 all,raw,observations,REML,wald,ueq_pragmatic,7,2.016127072463001,1.0022313871069288,3.030022757819073,random_effects,True
@@ -1129,7 +1129,7 @@ all,raw,observations,REML,hksj,tia_item_05,2,3.5569190511504827,3.23747650713238
 all,raw,observations,REML,hksj,tia_item_06,3,3.090438516429786,1.6261594183121664,4.554717614547405,random_effects,True
 all,raw,observations,REML,hksj,tia_trust_in_automation,6,12.868062311257985,-9.28303932526554,35.01916394778151,random_effects,True
 all,raw,observations,REML,hksj,tia_understanding_predictability,3,4.829492493432287,0.5829526875628144,9.07603229930176,random_effects,True
-all,raw,observations,REML,hksj,trust_rating,9,12.91265483461847,-2.8799611640155227,28.705270833252463,random_effects,True
+all,raw,observations,REML,hksj,trust_rating,10,12.131600503086608,-1.8329584302040125,26.096159436377228,random_effects,True
 all,raw,observations,REML,hksj,ttc,3,5.8986316224972315,-13.623476212332559,25.42073945732702,random_effects,True
 all,raw,observations,REML,hksj,ueq_hedonic,5,1.1310585282998025,0.4707773522560148,1.7913397043435901,random_effects,False
 all,raw,observations,REML,hksj,ueq_pragmatic,7,2.016127072463001,0.7519054634363265,3.2803486814896754,random_effects,True
@@ -1224,7 +1224,7 @@ all,raw,participants,DL,wald,tia_item_05,2,3.5463842035348234,3.385527419038578,
 all,raw,participants,DL,wald,tia_item_06,3,3.090538309455375,2.2739980269195654,3.907078591991185,random_effects,True
 all,raw,participants,DL,wald,tia_trust_in_automation,6,11.977226412226484,9.537456730321937,14.416996094131031,random_effects,True
 all,raw,participants,DL,wald,tia_understanding_predictability,3,4.792732004562439,2.5572524593398533,7.028211549785025,random_effects,True
-all,raw,participants,DL,wald,trust_rating,9,10.33174332338735,9.069383889093487,11.594102757681213,random_effects,True
+all,raw,participants,DL,wald,trust_rating,10,9.581919802874689,8.455471859257297,10.70836774649208,random_effects,True
 all,raw,participants,DL,wald,ttc,3,5.8889018296142215,-4.558908885123163,16.336712544351606,random_effects,True
 all,raw,participants,DL,wald,ueq_hedonic,5,1.154245656696012,0.7616908856704214,1.5468004277216025,random_effects,False
 all,raw,participants,DL,wald,ueq_pragmatic,7,1.9902615901869911,1.2817316036860777,2.6987915766879045,random_effects,True
@@ -1319,7 +1319,7 @@ all,raw,participants,DL,hksj,tia_item_05,2,3.5463842035348234,3.175278414083251,
 all,raw,participants,DL,hksj,tia_item_06,3,3.090538309455375,1.6418161678767549,4.539260451033996,random_effects,True
 all,raw,participants,DL,hksj,tia_trust_in_automation,6,11.977226412226484,-9.237466621088972,33.19191944554194,random_effects,True
 all,raw,participants,DL,hksj,tia_understanding_predictability,3,4.792732004562439,0.6297409186297962,8.955723090495082,random_effects,True
-all,raw,participants,DL,hksj,trust_rating,9,10.33174332338735,-2.917618409827007,23.581105056601707,random_effects,True
+all,raw,participants,DL,hksj,trust_rating,10,9.581919802874689,-1.8429621028627707,21.006801708612148,random_effects,True
 all,raw,participants,DL,hksj,ttc,3,5.8889018296142215,-13.671218213500703,25.449021872729148,random_effects,True
 all,raw,participants,DL,hksj,ueq_hedonic,5,1.154245656696012,0.5154490478133829,1.793042265578641,random_effects,False
 all,raw,participants,DL,hksj,ueq_pragmatic,7,1.9902615901869911,0.801316961196179,3.179206219177803,random_effects,True
@@ -1414,7 +1414,7 @@ all,raw,participants,REML,wald,tia_item_05,2,3.5463842035348234,3.38552741903857
 all,raw,participants,REML,wald,tia_item_06,3,3.090091854389385,2.407947867191092,3.7722358415876784,random_effects,True
 all,raw,participants,REML,wald,tia_trust_in_automation,6,12.866023767562455,-4.009383086341236,29.741430621466144,random_effects,True
 all,raw,participants,REML,wald,tia_understanding_predictability,3,4.7877274601652635,2.8828819418158487,6.692572978514678,random_effects,True
-all,raw,participants,REML,wald,trust_rating,9,12.912343958530341,-0.4875328722556631,26.312220789316346,random_effects,True
+all,raw,participants,REML,wald,trust_rating,10,12.131137730763324,0.05605028399565981,24.20622517753099,random_effects,True
 all,raw,participants,REML,wald,ttc,3,5.889531799136196,-3.0223847445408536,14.801448342813245,random_effects,True
 all,raw,participants,REML,wald,ueq_hedonic,5,1.1502997563728872,0.7011153609894738,1.5994841517563005,random_effects,False
 all,raw,participants,REML,wald,ueq_pragmatic,7,1.989095363878045,1.0368768846931842,2.9413138430629058,random_effects,True
@@ -1509,7 +1509,7 @@ all,raw,participants,REML,hksj,tia_item_05,2,3.5463842035348234,3.17527841408325
 all,raw,participants,REML,hksj,tia_item_06,3,3.090091854389385,1.6311657998256475,4.549017908953123,random_effects,True
 all,raw,participants,REML,hksj,tia_trust_in_automation,6,12.866023767562455,-9.287285596302896,35.01933313142781,random_effects,True
 all,raw,participants,REML,hksj,tia_understanding_predictability,3,4.7877274601652635,0.6208435263564969,8.95461139397403,random_effects,True
-all,raw,participants,REML,hksj,trust_rating,9,12.912343958530341,-2.8812977520806164,28.7059856691413,random_effects,True
+all,raw,participants,REML,hksj,trust_rating,10,12.131137730763324,-1.8343103914232266,26.096585852949875,random_effects,True
 all,raw,participants,REML,hksj,ttc,3,5.889531799136196,-13.671356265985331,25.450419864257725,random_effects,True
 all,raw,participants,REML,hksj,ueq_hedonic,5,1.1502997563728872,0.5096835480092048,1.7909159647365696,random_effects,False
 all,raw,participants,REML,hksj,ueq_pragmatic,7,1.989095363878045,0.79910115138044,3.17908957637565,random_effects,True
@@ -1562,7 +1562,7 @@ no_llm,harmonized,observations,DL,wald,ssq_total,2,21.09681269960608,18.70440339
 no_llm,harmonized,observations,DL,wald,task_completion_time,4,1.2386402256229228,0.8961927397173349,1.5810877115285105,random_effects,False
 no_llm,harmonized,observations,DL,wald,task_success,3,0.7791464592550021,0.5505716317463207,1.0077212867636836,random_effects,False
 no_llm,harmonized,observations,DL,wald,temporal_demand,12,6.834234686990483,4.755444399565626,8.91302497441534,random_effects,False
-no_llm,harmonized,observations,DL,wald,trust_rating,3,3.7604308490947425,3.288807260205132,4.232054437984353,random_effects,False
+no_llm,harmonized,observations,DL,wald,trust_rating,4,3.761789923823599,3.423960572673735,4.099619274973462,random_effects,False
 no_llm,harmonized,observations,DL,wald,ueq_hedonic,5,1.1316819866548686,0.6017967079617915,1.6615672653479456,random_effects,False
 no_llm,harmonized,observations,DL,wald,ueq_pragmatic,5,1.5643382186027703,0.8932567826757081,2.2354196545298324,random_effects,False
 no_llm,harmonized,observations,DL,wald,understanding_rating,6,3.7963626671038724,3.586552383943855,4.00617295026389,random_effects,False
@@ -1611,7 +1611,7 @@ no_llm,harmonized,observations,DL,hksj,ssq_total,2,21.09681269960608,-156.457618
 no_llm,harmonized,observations,DL,hksj,task_completion_time,4,1.2386402256229228,-4.962335102944053,7.439615554189899,random_effects,False
 no_llm,harmonized,observations,DL,hksj,task_success,3,0.7791464592550021,0.12084740281098083,1.4374455156990233,random_effects,False
 no_llm,harmonized,observations,DL,hksj,temporal_demand,12,6.834234686990483,4.792886998019943,8.875582375961022,random_effects,False
-no_llm,harmonized,observations,DL,hksj,trust_rating,3,3.7604308490947425,2.5976177753396543,4.923243922849831,random_effects,False
+no_llm,harmonized,observations,DL,hksj,trust_rating,4,3.761789923823599,3.1548789080349593,4.368700939612238,random_effects,False
 no_llm,harmonized,observations,DL,hksj,ueq_hedonic,5,1.1316819866548686,0.47259219929498963,1.7907717740147477,random_effects,False
 no_llm,harmonized,observations,DL,hksj,ueq_pragmatic,5,1.5643382186027703,0.7162268726401363,2.4124495645654043,random_effects,False
 no_llm,harmonized,observations,DL,hksj,understanding_rating,6,3.7963626671038724,3.3820704782668605,4.210654855940884,random_effects,False
@@ -1660,7 +1660,7 @@ no_llm,harmonized,observations,REML,wald,ssq_total,2,21.09681269960608,18.704403
 no_llm,harmonized,observations,REML,wald,task_completion_time,4,52.65735520390382,-48.5096816328829,153.82439204069055,random_effects,False
 no_llm,harmonized,observations,REML,wald,task_success,3,0.7788399730653024,0.4790136318369938,1.078666314293611,random_effects,False
 no_llm,harmonized,observations,REML,wald,temporal_demand,12,6.841716890604358,5.019357089712393,8.664076691496323,random_effects,False
-no_llm,harmonized,observations,REML,wald,trust_rating,3,3.7594108163287867,3.2304896997536137,4.28833193290396,random_effects,False
+no_llm,harmonized,observations,REML,wald,trust_rating,4,3.7608240467303626,3.3881199833084468,4.1335281101522785,random_effects,False
 no_llm,harmonized,observations,REML,wald,ueq_hedonic,5,1.1310585282998025,0.6608090706086234,1.6013079859909816,random_effects,False
 no_llm,harmonized,observations,REML,wald,ueq_pragmatic,5,1.5648848628424523,0.9629139656679788,2.166855760016926,random_effects,False
 no_llm,harmonized,observations,REML,wald,understanding_rating,6,3.8019175009412263,3.48450828010615,4.119326721776303,random_effects,False
@@ -1709,7 +1709,7 @@ no_llm,harmonized,observations,REML,hksj,ssq_total,2,21.09681269960608,-156.4576
 no_llm,harmonized,observations,REML,hksj,task_completion_time,4,52.65735520390382,-112.06796802675743,217.38267843456507,random_effects,False
 no_llm,harmonized,observations,REML,hksj,task_success,3,0.7788399730653024,0.12024857653650989,1.437431369594095,random_effects,False
 no_llm,harmonized,observations,REML,hksj,temporal_demand,12,6.841716890604358,4.799566902692073,8.883866878516644,random_effects,False
-no_llm,harmonized,observations,REML,hksj,trust_rating,3,3.7594108163287867,2.5959665435230903,4.922855089134483,random_effects,False
+no_llm,harmonized,observations,REML,hksj,trust_rating,4,3.7608240467303626,3.1534052686494114,4.368242824811314,random_effects,False
 no_llm,harmonized,observations,REML,hksj,ueq_hedonic,5,1.1310585282998025,0.4707773522560148,1.7913397043435901,random_effects,False
 no_llm,harmonized,observations,REML,hksj,ueq_pragmatic,5,1.5648848628424523,0.7160352997365274,2.4137344259483773,random_effects,False
 no_llm,harmonized,observations,REML,hksj,understanding_rating,6,3.8019175009412263,3.378956756692762,4.22487824518969,random_effects,False
@@ -1758,7 +1758,7 @@ no_llm,harmonized,participants,DL,wald,ssq_total,2,35.23612774259243,31.03343839
 no_llm,harmonized,participants,DL,wald,task_completion_time,4,1.2733224339292593,0.5978569764632239,1.9487878913952947,random_effects,False
 no_llm,harmonized,participants,DL,wald,task_success,3,0.7796637645040346,0.6066349536645439,0.9526925753435254,random_effects,False
 no_llm,harmonized,participants,DL,wald,temporal_demand,12,6.836302495107459,4.664772097544872,9.007832892670045,random_effects,False
-no_llm,harmonized,participants,DL,wald,trust_rating,3,3.759413382263509,3.2797998000760566,4.239026964450962,random_effects,False
+no_llm,harmonized,participants,DL,wald,trust_rating,4,3.760357645750014,3.445341263527922,4.075374027972106,random_effects,False
 no_llm,harmonized,participants,DL,wald,ueq_hedonic,5,1.154245656696012,0.7616908856704214,1.5468004277216025,random_effects,False
 no_llm,harmonized,participants,DL,wald,ueq_pragmatic,5,1.5808199486103678,1.0357200855747961,2.1259198116459395,random_effects,False
 no_llm,harmonized,participants,DL,wald,understanding_rating,6,3.7977750590175208,3.555279994771751,4.040270123263291,random_effects,False
@@ -1807,7 +1807,7 @@ no_llm,harmonized,participants,DL,hksj,ssq_total,2,35.23612774259243,-187.328214
 no_llm,harmonized,participants,DL,hksj,task_completion_time,4,1.2733224339292593,-6.6682532700054615,9.21489813786398,random_effects,False
 no_llm,harmonized,participants,DL,hksj,task_success,3,0.7796637645040346,0.11042125992237173,1.4489062690856975,random_effects,False
 no_llm,harmonized,participants,DL,hksj,temporal_demand,12,6.836302495107459,4.781295331326165,8.891309658888753,random_effects,False
-no_llm,harmonized,participants,DL,hksj,trust_rating,3,3.759413382263509,2.6116826088298897,4.907144155697129,random_effects,False
+no_llm,harmonized,participants,DL,hksj,trust_rating,4,3.760357645750014,3.1631982714324893,4.357517020067538,random_effects,False
 no_llm,harmonized,participants,DL,hksj,ueq_hedonic,5,1.154245656696012,0.5154490478133829,1.793042265578641,random_effects,False
 no_llm,harmonized,participants,DL,hksj,ueq_pragmatic,5,1.5808199486103678,0.7459470137641773,2.4156928834565585,random_effects,False
 no_llm,harmonized,participants,DL,hksj,understanding_rating,6,3.7977750590175208,3.3783967269301884,4.217153391104853,random_effects,False
@@ -1856,7 +1856,7 @@ no_llm,harmonized,participants,REML,wald,ssq_total,2,35.23612774259243,31.033438
 no_llm,harmonized,participants,REML,wald,task_completion_time,4,1.3845124506330662,0.3697005411919916,2.3993243600741407,random_effects,False
 no_llm,harmonized,participants,REML,wald,task_success,3,0.7763868285826531,0.4706658616870271,1.082107795478279,random_effects,False
 no_llm,harmonized,participants,REML,wald,temporal_demand,12,6.8494942663177465,4.998239133073794,8.7007493995617,random_effects,False
-no_llm,harmonized,participants,REML,wald,trust_rating,3,3.759114342744853,3.2372560548523017,4.280972630637404,random_effects,False
+no_llm,harmonized,participants,REML,wald,trust_rating,4,3.7597191501428697,3.3933152801270445,4.126123020158695,random_effects,False
 no_llm,harmonized,participants,REML,wald,ueq_hedonic,5,1.1502997563728872,0.7011153609894738,1.5994841517563005,random_effects,False
 no_llm,harmonized,participants,REML,wald,ueq_pragmatic,5,1.578783642397337,0.9878999678816028,2.169667316913071,random_effects,False
 no_llm,harmonized,participants,REML,wald,understanding_rating,6,3.801928105778786,3.4830164557181753,4.1208397558393965,random_effects,False
@@ -1905,7 +1905,7 @@ no_llm,harmonized,participants,REML,hksj,ssq_total,2,35.23612774259243,-187.3282
 no_llm,harmonized,participants,REML,hksj,task_completion_time,4,1.3845124506330662,-10.466598200858863,13.235623102124995,random_effects,False
 no_llm,harmonized,participants,REML,hksj,task_success,3,0.7763868285826531,0.10366017227324131,1.4491134848920648,random_effects,False
 no_llm,harmonized,participants,REML,hksj,temporal_demand,12,6.8494942663177465,4.78983852915132,8.909150003484173,random_effects,False
-no_llm,harmonized,participants,REML,hksj,trust_rating,3,3.759114342744853,2.610895149453368,4.9073335360363375,random_effects,False
+no_llm,harmonized,participants,REML,hksj,trust_rating,4,3.7597191501428697,3.1613180919882327,4.358120208297507,random_effects,False
 no_llm,harmonized,participants,REML,hksj,ueq_hedonic,5,1.1502997563728872,0.5096835480092048,1.7909159647365696,random_effects,False
 no_llm,harmonized,participants,REML,hksj,ueq_pragmatic,5,1.578783642397337,0.744223182114103,2.413344102680571,random_effects,False
 no_llm,harmonized,participants,REML,hksj,understanding_rating,6,3.801928105778786,3.378627772169638,4.225228439387934,random_effects,False
@@ -1954,7 +1954,7 @@ no_llm,raw,observations,DL,wald,ssq_total,2,21.09681269960608,18.70440339375039,
 no_llm,raw,observations,DL,wald,task_completion_time,4,1.2386402256229228,0.8961927397173349,1.5810877115285105,random_effects,False
 no_llm,raw,observations,DL,wald,task_success,3,0.7791464592550021,0.5505716317463207,1.0077212867636836,random_effects,False
 no_llm,raw,observations,DL,wald,temporal_demand,12,18.70390839714652,10.400580010937173,27.007236783355868,random_effects,False
-no_llm,raw,observations,DL,wald,trust_rating,3,5.471736349078175,2.765385643251298,8.178087054905053,random_effects,False
+no_llm,raw,observations,DL,wald,trust_rating,4,5.3884022984063495,3.4889313437743583,7.287873253038341,random_effects,False
 no_llm,raw,observations,DL,wald,ueq_hedonic,5,1.1316819866548686,0.6017967079617915,1.6615672653479456,random_effects,False
 no_llm,raw,observations,DL,wald,ueq_pragmatic,5,1.5643382186027703,0.8932567826757081,2.2354196545298324,random_effects,False
 no_llm,raw,observations,DL,wald,understanding_rating,6,5.732817754148471,3.8602551350698544,7.605380373227087,random_effects,False
@@ -2003,7 +2003,7 @@ no_llm,raw,observations,DL,hksj,ssq_total,2,21.09681269960608,-156.4576188312567
 no_llm,raw,observations,DL,hksj,task_completion_time,4,1.2386402256229228,-4.962335102944053,7.439615554189899,random_effects,False
 no_llm,raw,observations,DL,hksj,task_success,3,0.7791464592550021,0.12084740281098083,1.4374455156990233,random_effects,False
 no_llm,raw,observations,DL,hksj,temporal_demand,12,18.70390839714652,7.427787554689033,29.980029239604008,random_effects,False
-no_llm,raw,observations,DL,hksj,trust_rating,3,5.471736349078175,-0.24366392097808554,11.187136619134435,random_effects,False
+no_llm,raw,observations,DL,hksj,trust_rating,4,5.3884022984063495,2.3874361925146745,8.389368404298025,random_effects,False
 no_llm,raw,observations,DL,hksj,ueq_hedonic,5,1.1316819866548686,0.47259219929498963,1.7907717740147477,random_effects,False
 no_llm,raw,observations,DL,hksj,ueq_pragmatic,5,1.5643382186027703,0.7162268726401363,2.4124495645654043,random_effects,False
 no_llm,raw,observations,DL,hksj,understanding_rating,6,5.732817754148471,0.6892867830265255,10.776348725270417,random_effects,False
@@ -2052,7 +2052,7 @@ no_llm,raw,observations,REML,wald,ssq_total,2,21.09681269960608,18.7044033937503
 no_llm,raw,observations,REML,wald,task_completion_time,4,52.65735520390382,-48.5096816328829,153.82439204069055,random_effects,False
 no_llm,raw,observations,REML,wald,task_success,3,0.7788399730653024,0.4790136318369938,1.078666314293611,random_effects,False
 no_llm,raw,observations,REML,wald,temporal_demand,12,18.727447758832884,8.671808844089183,28.783086673576584,random_effects,False
-no_llm,raw,observations,REML,wald,trust_rating,3,5.471730123668163,2.868006008095253,8.075454239241072,random_effects,False
+no_llm,raw,observations,REML,wald,trust_rating,4,5.388396770974271,3.5400371406813136,7.236756401267229,random_effects,False
 no_llm,raw,observations,REML,wald,ueq_hedonic,5,1.1310585282998025,0.6608090706086234,1.6013079859909816,random_effects,False
 no_llm,raw,observations,REML,wald,ueq_pragmatic,5,1.5648848628424523,0.9629139656679788,2.166855760016926,random_effects,False
 no_llm,raw,observations,REML,wald,understanding_rating,6,5.733001929594851,1.8874561618071355,9.578547697382566,random_effects,False
@@ -2101,7 +2101,7 @@ no_llm,raw,observations,REML,hksj,ssq_total,2,21.09681269960608,-156.45761883125
 no_llm,raw,observations,REML,hksj,task_completion_time,4,52.65735520390382,-112.06796802675743,217.38267843456507,random_effects,False
 no_llm,raw,observations,REML,hksj,task_success,3,0.7788399730653024,0.12024857653650989,1.437431369594095,random_effects,False
 no_llm,raw,observations,REML,hksj,temporal_demand,12,18.727447758832884,7.463894977596718,29.991000540069052,random_effects,False
-no_llm,raw,observations,REML,hksj,trust_rating,3,5.471730123668163,-0.2436961467084675,11.187156394044793,random_effects,False
+no_llm,raw,observations,REML,hksj,trust_rating,4,5.388396770974271,2.387420080805043,8.3893734611435,random_effects,False
 no_llm,raw,observations,REML,hksj,ueq_hedonic,5,1.1310585282998025,0.4707773522560148,1.7913397043435901,random_effects,False
 no_llm,raw,observations,REML,hksj,ueq_pragmatic,5,1.5648848628424523,0.7160352997365274,2.4137344259483773,random_effects,False
 no_llm,raw,observations,REML,hksj,understanding_rating,6,5.733001929594851,0.6894945336270526,10.77650932556265,random_effects,False
@@ -2150,7 +2150,7 @@ no_llm,raw,participants,DL,wald,ssq_total,2,35.23612774259243,31.033438397611828
 no_llm,raw,participants,DL,wald,task_completion_time,4,1.2733224339292593,0.5978569764632239,1.9487878913952947,random_effects,False
 no_llm,raw,participants,DL,wald,task_success,3,0.7796637645040346,0.6066349536645439,0.9526925753435254,random_effects,False
 no_llm,raw,participants,DL,wald,temporal_demand,12,17.736727782930984,13.51946258972604,21.95399297613593,random_effects,False
-no_llm,raw,participants,DL,wald,trust_rating,3,5.466227985455358,3.2686186963056256,7.663837274605091,random_effects,False
+no_llm,raw,participants,DL,wald,trust_rating,4,5.380611108354065,3.9330611652280494,6.828161051480081,random_effects,False
 no_llm,raw,participants,DL,wald,ueq_hedonic,5,1.154245656696012,0.7616908856704214,1.5468004277216025,random_effects,False
 no_llm,raw,participants,DL,wald,ueq_pragmatic,5,1.5808199486103678,1.0357200855747961,2.1259198116459395,random_effects,False
 no_llm,raw,participants,DL,wald,understanding_rating,6,5.5933814831299,4.92885737022355,6.257905596036249,random_effects,False
@@ -2199,7 +2199,7 @@ no_llm,raw,participants,DL,hksj,ssq_total,2,35.23612774259243,-187.3282144950305
 no_llm,raw,participants,DL,hksj,task_completion_time,4,1.2733224339292593,-6.6682532700054615,9.21489813786398,random_effects,False
 no_llm,raw,participants,DL,hksj,task_success,3,0.7796637645040346,0.11042125992237173,1.4489062690856975,random_effects,False
 no_llm,raw,participants,DL,hksj,temporal_demand,12,17.736727782930984,6.496255036942774,28.977200528919195,random_effects,False
-no_llm,raw,participants,DL,hksj,trust_rating,3,5.466227985455358,-0.2256038020161677,11.158059772926883,random_effects,False
+no_llm,raw,participants,DL,hksj,trust_rating,4,5.380611108354065,2.3959540140393556,8.365268202668775,random_effects,False
 no_llm,raw,participants,DL,hksj,ueq_hedonic,5,1.154245656696012,0.5154490478133829,1.793042265578641,random_effects,False
 no_llm,raw,participants,DL,hksj,ueq_pragmatic,5,1.5808199486103678,0.7459470137641773,2.4156928834565585,random_effects,False
 no_llm,raw,participants,DL,hksj,understanding_rating,6,5.5933814831299,0.6962601617272748,10.490502804532525,random_effects,False
@@ -2248,7 +2248,7 @@ no_llm,raw,participants,REML,wald,ssq_total,2,35.23612774259243,31.0334383976118
 no_llm,raw,participants,REML,wald,task_completion_time,4,1.3845124506330662,0.3697005411919916,2.3993243600741407,random_effects,False
 no_llm,raw,participants,REML,wald,task_success,3,0.7763868285826531,0.4706658616870271,1.082107795478279,random_effects,False
 no_llm,raw,participants,REML,wald,temporal_demand,12,18.531050632433256,8.489150742256868,28.572950522609645,random_effects,False
-no_llm,raw,participants,REML,wald,trust_rating,3,5.4679874072758645,2.875942411882947,8.060032402668782,random_effects,False
+no_llm,raw,participants,REML,wald,trust_rating,4,5.383784350420725,3.546491788266535,7.221076912574914,random_effects,False
 no_llm,raw,participants,REML,wald,ueq_hedonic,5,1.1502997563728872,0.7011153609894738,1.5994841517563005,random_effects,False
 no_llm,raw,participants,REML,wald,ueq_pragmatic,5,1.578783642397337,0.9878999678816028,2.169667316913071,random_effects,False
 no_llm,raw,participants,REML,wald,understanding_rating,6,5.729410592444735,1.8911120161881771,9.567709168701292,random_effects,False
@@ -2297,7 +2297,7 @@ no_llm,raw,participants,REML,hksj,ssq_total,2,35.23612774259243,-187.32821449503
 no_llm,raw,participants,REML,hksj,task_completion_time,4,1.3845124506330662,-10.466598200858863,13.235623102124995,random_effects,False
 no_llm,raw,participants,REML,hksj,task_success,3,0.7763868285826531,0.10366017227324131,1.4491134848920648,random_effects,False
 no_llm,raw,participants,REML,hksj,temporal_demand,12,18.531050632433256,7.282518839421046,29.77958242544547,random_effects,False
-no_llm,raw,participants,REML,hksj,trust_rating,3,5.4679874072758645,-0.22495439514509474,11.160929209696825,random_effects,False
+no_llm,raw,participants,REML,hksj,trust_rating,4,5.383784350420725,2.396810442167219,8.37075825867423,random_effects,False
 no_llm,raw,participants,REML,hksj,ueq_hedonic,5,1.1502997563728872,0.5096835480092048,1.7909159647365696,random_effects,False
 no_llm,raw,participants,REML,hksj,ueq_pragmatic,5,1.578783642397337,0.744223182114103,2.413344102680571,random_effects,False
 no_llm,raw,participants,REML,hksj,understanding_rating,6,5.729410592444735,0.690920229477948,10.767900955411521,random_effects,False

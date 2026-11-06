@@ -3,7 +3,7 @@ names,identical raw column names,between_person,27,31,14,0,2657,4,0,2
 names,identical raw column names,within_person,18,16,12,0,684,9,0,2
 automatic,"+ shared schema, header matching, instrument scoring",between_person,13,26,21,0,612,6,0,3
 automatic,"+ shared schema, header matching, instrument scoring",within_person,11,23,21,0,458,14,0,1
-curated,+ study mapping files,between_person,29,78,35,12,2810,19,5,7
+curated,+ study mapping files,between_person,29,83,35,12,2810,19,5,7
 curated,+ study mapping files,within_person,18,46,24,2,684,16,1,9
 llm,+ local-LLM fallback,between_person,35,232,83,60,3021,20,7,7
 llm,+ local-LLM fallback,within_person,22,121,52,30,793,17,2,9

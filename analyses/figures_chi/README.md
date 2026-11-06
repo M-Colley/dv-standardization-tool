@@ -62,7 +62,7 @@ captions is computed from the run artifacts.
 
 1. **LLM-deduced mappings are provisional.** In the leave-alias-out benchmark
    the LLM gives the curated DV for 41% of the DV columns of the first 23
-   studies and 16% of the 16 added ones (`analyses/output_llm_evaluation/`).
+   studies and 17% of the 16 added ones (`analyses/output_llm_evaluation/`).
    82 of the 95 pooled DVs include LLM-deduced rows (`includes_llm_deduced`
    in `meta_analysis_summary.csv`). Example: the LLM maps SenseCobot's EEG
    beta/alpha-ratio statistics to mental demand; their values pass the range

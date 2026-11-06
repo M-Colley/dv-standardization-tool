@@ -71,7 +71,7 @@ Outputs in `analyses/output_relations/`:
 | `llm_replay_conclusions.csv` | replay and automatic findings against the curated ones |
 | `relations_summary.json` | the ladder, the finding rule and the replay's column counts |
 
-**Inputs of the committed outputs (2026-11-05).** The standardized studies combine two batch runs with the same code, settings and model: the run of 2026-11-04 for the first 23 studies (with the current code it reproduces the committed 23-study relation tables exactly) and a run of 2026-11-05 for the 16 studies added that day. The replay uses the 23-study benchmark items of 2026-11-04 and a benchmark of the 16 added studies with the same settings (E1 only: `analyses/output_llm_evaluation/added_2026_11_05/`). A single batch run of all 39 studies on 2026-11-06 (the input of `analyses/output_python_full/`) gives identical standardized tables and reproduces these relation tables byte for byte.
+**Inputs of the committed outputs (2026-11-06).** One batch run of all 39 studies, the same run as `analyses/output_python_full/` (`docs/reproducibility.md`), including NL2TAP's TOAST trust items. The replay uses the 23-study benchmark items of 2026-11-04 and a benchmark of the 16 added studies with the same settings (E1 only: `analyses/output_llm_evaluation/added_2026_11_05/`). Without the TOAST items, this run reproduces the relation tables of 2026-11-05, which combined a run of the first 23 studies with one of the 16 added ones, byte for byte.
 
 ## Results with 39 studies
 
@@ -87,7 +87,7 @@ Pairs of construct-level DVs measured together in at least two and at least thre
 |---|---|---|---|---|---|---|
 | Identical raw names | 31 (16) | 14 (0) | 4 (0) | 16 (1) | 12 (0) | 9 (0) |
 | + shared schema, header matching | 26 (9) | 21 (0) | 6 (0) | 23 (6) | 21 (0) | 14 (0) |
-| + study mapping files | 78 (52) | 35 (29) | 19 (0) | 46 (44) | 24 (23) | 16 (16) |
+| + study mapping files | 83 (52) | 35 (29) | 19 (0) | 46 (44) | 24 (23) | 16 (16) |
 | + local-LLM fallback | 232 (132) | 83 (54) | 20 (0) | 121 (88) | 52 (41) | 17 (10) |
 
 The new studies change the lower rungs. With 23 studies, pooling by column names reached no pair in three studies; now 14 pairs reach three, and the shared schema 21. **All of them are pairs of NASA-TLX subscales.** Four of the added studies (TLX formats, NL2TAP, concurrent speech, visual fidelity) name the subscales by their own words (`mental_demand`, "Mental Demand"), which the names baseline and the schema both recognize.
@@ -127,7 +127,7 @@ Figure: `analyses/output_relations/relations_findings.png` (per-study and pooled
 
   SenseCobot's cumulative performance item is left unlabelled because its scale direction is undocumented (see the mapping file).
 - **Same-instrument pairs.** Van der Laan satisfying × usefulness now rests on four studies (AR pedestrian online adds 1,164 respondents): r = 0.84 [0.67, 0.92], prediction interval above 0. UEQ-S hedonic × pragmatic: r = 0.50 [0.24, 0.70] over five studies. These are reported apart from cross-construct relations.
-- **Not established.** Van der Laan satisfying × SUS (r = 0.68, three studies, q = .052) and trust × understanding (r = 0.67, three studies, HKSJ interval including 0) gained no study: none of the added studies measured both.
+- **Not established.** Van der Laan satisfying × SUS (r = 0.68, three studies, q = .052) and trust × understanding (r = 0.67, three studies, HKSJ interval including 0) gained no study: none of the added studies measured both. NL2TAP's TOAST trust scale adds a fourth study to mental demand × trust, which stays weak and uncertain (r = −0.23, q = .25), and pairs trust with the other TLX scales in a second study.
 
 ### What the LLM fallback adds
 
@@ -137,7 +137,7 @@ The LLM extends coverage to 35 studies and 232 pairs. Beyond the curated finding
 - **Workload × perceived safety, within persons**, over eight studies: r = −0.38 [−0.59, −0.13], as before.
 - **Trust × UEQ-S hedonic quality** (new, four studies, r = 0.29): in ARTV ornaments the LLM maps the Film-IEQ *transportation* score, an immersion measure, to trust. It also maps minimum heart rate to trust in the music-tempo study.
 
-On the 16 added studies the LLM is weaker than on the first 23. In the leave-alias-out benchmark (`analyses/output_llm_evaluation/added_2026_11_05/`) it gives the curated DV for 68 of 414 curated DV columns (16%; 41% on the first 23). Where it fails:
+On the 16 added studies the LLM is weaker than on the first 23. In the leave-alias-out benchmark (`analyses/output_llm_evaluation/added_2026_11_05/`) it gives the curated DV for 73 of 423 curated DV columns (17%; 41% on the first 23). Where it fails:
 
 - the Qualtrics codes of AR pedestrian online (`Q39_3`, `Q40_1`, ...): 0 of 99 right, Van der Laan items read as SUS items;
 - the Godspeed differentials of driving style: 2 of 90 right, e.g. "Mechanical vs organic" read as skin conductance;
@@ -147,7 +147,7 @@ On the 16 added studies the LLM is weaker than on the first 23. In the leave-ali
 
 Still no. In the replay (`llm_replay_conclusions.csv`; definition shortlist, plausibility check on):
 
-- **Columns.** Of the 311 DV columns the study mappings decide (161 + 150 added), the LLM answers 239 and gives the curated DV for 67 (22%).
+- **Columns.** Of the 312 DV columns the study mappings decide (161 + 151 added), the LLM answers 240 and gives the curated DV for 68 (22%).
 - **Conclusions, within persons.** The replay has 15 findings; 13 confirm curated findings, 2 are unsupported. This is no gain of the LLM: the shared schema alone confirms 14 of the 16 curated within-person findings, because the added TLX studies name their subscales plainly. The one cross-construct pair, workload × perceived safety, is a replay finding now (r = −0.39 over eight studies, q = .03; q = .09 with 23 studies), because the false-discovery family holds more true TLX relations.
 - **Conclusions, between persons.** The replay has 2 findings against 19 curated ones: one confirmed TLX pair (mental × temporal demand) and one unsupported pair, SSQ oculomotor × STS-AD trust, which rests on wrong mappings. It recovers none of the five usability × workload findings, because it reaches only two of the studies that measured both.
 - **Estimates.** Where both pool the same pair, the pooled correlations agree closely (median |Δr| = 0.07 within, 0.06 between persons).

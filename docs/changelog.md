@@ -4,12 +4,23 @@ This document logs human-readable updates to the repo's functionality, structure
 
 ---
 
+### [2026-11-06] Outputs rerun with NL2TAP's TOAST items
+
+The two entries below were merged into one branch, and every output now comes from one batch run of all 39 studies that includes NL2TAP's TOAST items (`data/processed/catalog39_toast`; `docs/reproducibility.md`).
+
+- **Same run otherwise.** Apart from NL2TAP's added TOAST table, all 1,806 standardized tables have the same contents as the run without it, which reproduced the relation tables of 2026-11-05 byte for byte.
+- **Relations** (`analyses/output_relations/`): no finding changes at any level. Trust now meets the NASA-TLX scales in a second study (five more pairs pooled over two studies, 83 instead of 78 between persons), and mental demand × trust rests on four studies (r = −0.23, q = .25, not a finding). Replay: 68 of 312 curated DV columns keep their DV (67 of 311).
+- **LLM benchmark on the added studies** rerun: the nine TOAST items are the only new items (five answered correctly), every other answer repeats; 73 of 423 curated DV columns right (17%).
+- **Meta-analysis and multiverse:** only `trust_rating` changes, k = 10 (9) and 4 (3) without LLM rows; measurement invariance and contrasts are unchanged.
+
+---
+
 ### [2026-11-06] Per-file column rename; NL2TAP's TOAST trust items mapped
 
 - **`rename` table option** (`{old: new}`, per file path or glob in the manifest, applied after `pivot` and `drop_columns`). A mapping file applies one target per column name to every file of its source, so two files that reuse names for different measures could not both be mapped. A name the file lacks, or a rename that would duplicate a column, stops the run. Tests in `tests/test_table_options.py`.
 - **NL2TAP's TOAST items** (`toast_responses.csv`, 9 items, 1-7) are now read: the manifest renames their `item_1..item_9` to `toast_1..toast_9`, and the mapping sends them to `trust_rating`. The batch composes them into their mean, the TOAST score (85 participants, Cronbach's α = .89, M = 5.14; the paper reports M = 5.1). The item wording (in the replication package's questionnaire figure) is all agree-keyed, so no item is reversed.
 - **Checked** with a batch run of the 16 added sources without the LLM: every mapping key reaches its column (NL2TAP: 51, the 42 before plus the nine TOAST items), and the SUS targets still come only from `sus_responses.csv`.
-- **Not done.** The cross-study relations (`analyses/output_relations/`, `docs/cross_study_insights.md`) and the LLM benchmark on the added studies (`analyses/output_llm_evaluation/added_2026_11_05/`, 414 curated DV columns) were not rerun, so neither includes the nine TOAST columns yet.
+- **Not done.** The cross-study relations (`analyses/output_relations/`, `docs/cross_study_insights.md`) and the LLM benchmark on the added studies (`analyses/output_llm_evaluation/added_2026_11_05/`, 414 curated DV columns) were not rerun, so neither includes the nine TOAST columns yet. (Rerun since, see the entry above.)
 
 ---
 

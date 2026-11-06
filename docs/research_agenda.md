@@ -535,10 +535,10 @@ for the 39 development studies (2026-11-05); the 23-study values of
   fourth, yet looks homogeneous; trust × UEQ-S hedonic quality (new) rests
   partly on an immersion score read as trust (ARTV ornaments), and the LLM
   also reads minimum heart rate as trust (music tempo). On the 16 added
-  studies it gives the curated DV for 16% of the curated columns (41% on
+  studies it gives the curated DV for 17% of the curated columns (41% on
   the first 23).
 - **Can the LLM replace curation? No.** With the LLM's leave-alias-out
-  answers in place of the curated mappings, 67 of 311 curated DV columns
+  answers in place of the curated mappings, 68 of 312 curated DV columns
   keep their DV. Within persons the replay recovers 13 of the 16 curated
   findings, but the shared schema alone recovers 14, because the added
   TLX studies name their subscales plainly; between persons it recovers

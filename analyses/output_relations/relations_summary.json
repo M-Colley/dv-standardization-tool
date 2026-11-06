@@ -70,7 +70,7 @@
       "level_label": "+ study mapping files",
       "association": "between_person",
       "studies_with_relations": 29,
-      "pairs_pooled_k2": 78,
+      "pairs_pooled_k2": 83,
       "pairs_pooled_k3": 35,
       "cross_construct_pairs_k3": 12,
       "participants": 2810,
@@ -124,10 +124,10 @@
       "analyses\\output_llm_evaluation\\added_2026_11_05\\llm_mapping_evaluation_items.csv"
     ],
     "columns": {
-      "curated_dv_columns": 311,
-      "answered": 239,
+      "curated_dv_columns": 312,
+      "answered": 240,
       "unanswered_or_rejected": 72,
-      "same_dv_as_curated": 67,
+      "same_dv_as_curated": 68,
       "curated_non_dv_mapped_by_llm": 993
     },
     "conclusions_vs_curated": [
@@ -140,7 +140,7 @@
         "sign_flipped": 0,
         "unsupported": 0,
         "pairs_pooled_in_both": 26,
-        "median_abs_difference_r": 0.04066320575515914
+        "median_abs_difference_r": 0.04454100488740412
       },
       {
         "level": "automatic",
@@ -161,8 +161,8 @@
         "confirmed": 1,
         "sign_flipped": 0,
         "unsupported": 1,
-        "pairs_pooled_in_both": 41,
-        "median_abs_difference_r": 0.05764814067473589
+        "pairs_pooled_in_both": 44,
+        "median_abs_difference_r": 0.05944447605180564
       },
       {
         "level": "llm_replay",
