@@ -1,9 +1,13 @@
 from,to,conditioning_set,p_value
-TLX_SCORE,ueq_hedonic,['perceived_safety'],0.5636734989289938
+TLX_SCORE,ueq_hedonic,['perceived_risk'],0.5914775096107459
 TLX_SCORE,ueq_pragmatic,['trust_rating'],0.1052275927619819
+perceived_risk,ueq_hedonic,['perceived_safety'],0.7952630129427465
+perceived_risk,ueq_pragmatic,['perceived_safety'],0.6644933633465726
 perceived_safety,ueq_hedonic,['trust_rating'],0.9950244537262598
 ueq_hedonic,understanding_rating,['trust_rating'],0.5631186675654964
-TLX_SCORE,trust_rating,"['perceived_safety', 'understanding_rating']",0.3557258521832303
+TLX_SCORE,trust_rating,"['perceived_risk', 'understanding_rating']",0.22814503920575158
+perceived_risk,trust_rating,"['perceived_safety', 'understanding_rating']",0.18666387360606906
+perceived_risk,understanding_rating,"['TLX_SCORE', 'perceived_safety']",0.09371320471980016
 perceived_safety,ueq_pragmatic,"['trust_rating', 'understanding_rating']",0.07371196036801919
 trust_rating,ueq_pragmatic,"['perceived_safety', 'understanding_rating']",0.07229171708494042
 understanding_rating,TLX_SCORE,"['perceived_safety', 'trust_rating']",0.1714364965601538

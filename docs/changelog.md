@@ -13,6 +13,26 @@ This document logs human-readable updates to the repo's functionality, structure
 
 ---
 
+### [2026-11-06] Analyses rerun on the 39 development studies
+
+`analyses/output_python_full/` (with the contrasts), `output_multiverse/` and `figures_chi/` now cover all 39 studies of `sources_manifest_no4tu.yaml` (23 before). 23-study values in parentheses.
+
+- **One batch run of all 39 studies** (same code, settings and model; download cache of 2026-11-04). It reproduces the two runs behind the relation tables of 2026-11-05: all 1,806 standardized tables have identical contents, and `meta_view.csv` differs only in absolute paths and timestamps. Three workers instead of eight changed nothing.
+- **Results depend on the checkout path.** The batch shortens an output file name with a hash when its full path would pass 240 characters, and eHMI Optimization's participant ids are read from its file names (`participant_from_file`). From a worktree path the names lost the `_u_<id>_` part, which changed participant-level estimates and 84 relation rows. The committed run was written to a short folder; `docs/reproducibility.md` says how long the output path may be.
+- **Coverage:** 134 canonical DVs (118); 95 DVs pooled over at least two studies (78) and 66 over at least three (46); without LLM-deduced rows 49 (44) and 36 (32). Mean pairwise Jaccard overlap 0.085 (0.076).
+- **NASA-TLX mental demand:** k = 21 (13), 7.44, HKSJ [5.91, 8.98]; without LLM rows k = 14 (7), 8.38 [6.62, 10.15]. The TLX total without LLM rows rests on 11 studies (3): 38.7 [28.0, 49.4] instead of an interval from −37 to 106.
+- **An LLM error weighs heavily.** The LLM maps SenseCobot's EEG beta/alpha-ratio statistics to mental demand. Their values fit the range check, and the resulting study mean (0.39 of 20) carries 17.5% of the weight in the all-mappings pool (Fig. 4). Because provenance is per study and DV, SenseCobot's curated TLX also leaves the LLM-excluded pooling, as ROADS' SUS does.
+- **Invariance: no scale reaches even configural invariance.** The AR pedestrian survey (1,174 answers) breaks the Van der Laan models (satisfying: RMSEA 0.33; usefulness: 0.082 against the 0.08 limit; they reached metric and configural invariance before). SUS with NL2TAP still misfits (RMSEA 0.13). The NASA-TLX model cannot be fitted at all (`not_fitted`): NL2TAP's physical demand is 0 for every participant, and lavaan refuses a group whose item has no variance.
+- **Contrasts unchanged.** The 16 added studies declare their participants and describe their designs, but no factors are coded (seven keep their conditions as wide columns), so the same 14 studies yield contrasts and eHMI vs. none stays at −0.51 SD (mental demand) and +1.02 SD (perceived safety) over two studies.
+- **Multiverse:**
+    - The NASA-TLX subscales are no longer robust: mental demand ranges from 7.44 to 21.12 (7.35–8.13), and 47% of the intervals miss the default estimate. Scale harmonization alone causes this: harmonized 7.44–8.41, raw 13.0–21.1, because six added studies record the subscales on 0–100. The other five subscales behave the same; the TLX total (32.97–38.69) stays robust.
+    - `perceived_safety` 0.85–3.70 (0.93–4.04), again by harmonization.
+    - `task_completion_time` without LLM rows now spans 1.24 to 52.66 (0.70–0.90), by the τ² estimator alone: an NL2TAP scenario takes 209 s, a trial of the other three studies 0.6–2 s. Times of different tasks are not one quantity.
+- **CHI figures** regenerated from these outputs; `analyses/figures_chi/README.md` rewritten for the 39-study run (it still described the 11-study run of 2026-10-25).
+- **Docs:** README, `docs/research_agenda.md` (§2.3, §2.5, §4), `docs/multi_study_analysis_guide.md`, `docs/reproducibility.md`.
+
+---
+
 ### [2026-11-05] Development half of the search mapped (39 development studies)
 
 - **16 new study mappings** (`schemas/<source_id>_mapping.yaml`), manifest entries in `sources_manifest_no4tu.yaml` and designs in `schemas/study_designs.yaml`, written from the codebooks and papers before any LLM run or cross-study relation on these studies. Of the 22 downloaded datasets, six are not added; the manifest lists each with its reason (DVs only in files over 50 MB or in .mat files, DVs outside the schema, or presentation-layout workbooks).
@@ -30,7 +50,7 @@ This document logs human-readable updates to the repo's functionality, structure
     - New: between persons, mental demand goes with lower SUS usability in four studies (r = −0.42, HKSJ [−0.51, −0.31], I² = 0%, prediction interval excludes 0); the NASA-TLX subscales now covary between persons over 10-12 studies.
     - Unchanged: workload × perceived safety within persons (four studies, r = −0.44).
     - Pooling by names and the shared schema now reaches NASA-TLX pairs in three or more studies, because several added studies name the subscales by their own words. Cross-construct relations still need the curated mappings.
-- **Not done.** The other analyses (`output_python_full`, multiverse, CHI figures, contrasts) still cover the 23 studies.
+- **Not done.** The other analyses (`output_python_full`, multiverse, CHI figures, contrasts) still cover the 23 studies (rerun on 2026-11-06, above).
 
 ---
 
