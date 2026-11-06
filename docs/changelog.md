@@ -4,6 +4,22 @@ This document logs human-readable updates to the repo's functionality, structure
 
 ---
 
+### [2026-11-06] Curated mapping for road_bumps_touch
+
+`schemas/road_bumps_touch_mapping.yaml` maps all 23 columns of the study's four tables (Mayer et al., AutomotiveUI '18) and is registered in both manifests. The repository has no codebook; the mapping follows the authors' notebooks (Step01, Step10–Step12), which build the tables and run the paper's ANOVAs.
+
+- **`TCT` → `task_completion_time`**, converted from ms to s (`unit_conversions`): time from target onset to touch-up, per participant × bump ride × speed × target. The study's first deterministic DV.
+- **`TouchOffset`** (touch accuracy in px, the paper's main outcome) and **`Count`** (touch-downs or touch-moves per touch, depending on the file) have no schema DV. They get study-specific ids (`touch_offset_px`, `touch_events_per_touch`; the mapping review's `study_specific` decision): kept and named in the standardized tables, not pooled, not gold labels of the LLM benchmark, and no longer guessed by the LLM, which took `Count` for `fixation_count` and the constant `TouchType` code for `interaction_events`.
+- **Design columns** get `meta_*` ids. The two bump columns differ: `IsBump` (R_TCT) is the ride condition, `IsBumpVirtual` (the other tables) marks touches after the bump, so they get separate ids.
+- **`study_designs.yaml`:** participant and speed use the standardized names (`meta_participant_id`, `meta_condition_speed`; the raw names are gone once mapped), and the bump manipulation is declared as a within factor (`road_bump`, reference: no bump) that reads either bump column.
+- Tests: `test_road_bumps_touch_mapping_covers_its_tables` (the real mapping on the four tables' headers: every column mapped, TCT in seconds) and `test_road_bumps_bump_factor_reads_either_bump_column`.
+
+**What the study now contributes.** Batch of this source alone (cached clone at 24e00072, the remote's current commit; no LLM call, every column is mapped), then `opendv analyze --exclude-llm-deduced` on the committed 23-study run with this source's tables replaced, compared with the same input in the state of the pickle change above. The committed outputs are not regenerated.
+- **LLM-excluded:** `task_completion_time` goes from k = 2 (Handsize, Curved Dragging; fixed effect, 0.70 s) to k = 3, pooled with random effects: 1.33 s, HKSJ [−0.41, 3.08], I² 99.99 % (study means 0.65, 2.05 and 1.30 s for three different tasks).
+- **Contrasts:** five curated contrasts on TCT replace the eight LLM-deduced speed contrasts of `fixation_count` and `interaction_events`. None differs from zero, as in the paper's TCT ANOVA (bump F(1, 15) = 1.68, p = .21; speed F(4, 60) = 0.43, p = .79): bump vs. none 1.32 vs. 1.29 s, SMCRPH 0.12 [−0.08, 0.32]; 20–50 vs. 10 km/h between −0.04 and 0.14. Neither factor has a canonical id, so nothing pools across studies.
+- **With LLM mappings:** the study leaves `fixation_count` (k 1 → 0) and `interaction_events` (k 2 → 1, no longer pooled) and joins `task_completion_time` (k 5 → 6, pooled mean 14.82 → 9.54; three of the six studies are LLM-mapped).
+- No other study's estimates or contrasts change; the exploratory composite over all studies (`cross_study_composite_summary.csv`, a PCA of the shared DVs) is refit with one DV fewer. A rerun of the LLM benchmark gains this source's items: TCT as a DV and its seven `meta_*` columns as curated non-DVs.
+
 ### [2026-11-06] Pickled files are no longer unpickled
 
 Unpickling runs code from the file, and every batch run unpickled the four `.pkl` files of `road_bumps_touch` straight from GitHub. Pickles are now refused unless a source opts in (`docs/reproducibility.md`, "Pickled data files").

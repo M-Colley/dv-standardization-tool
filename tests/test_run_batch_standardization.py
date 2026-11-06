@@ -583,6 +583,54 @@ class BatchStandardizationTests(unittest.TestCase):
                     globs = [*source.get("include_globs", [])]
                     self.assertFalse([glob for glob in globs if glob.lower().endswith((".pkl", ".pickle"))])
 
+    def test_road_bumps_touch_mapping_covers_its_tables(self):
+        # The four R_*.csv tables of the source with their real headers (first rows).
+        shipped = {s["source_id"]: s for s in load_manifest(REPO_ROOT / "sources_manifest_no4tu.yaml")}
+        mapping_path = REPO_ROOT / shipped["road_bumps_touch"]["mapping_path"]
+        tables = {
+            "R_Count_Down.csv": "PId,IsBumpVirtual,SpeedCondition,TouchId,TouchType,Count\n"
+                                "1,0.0,10.0,57.958333,0.0,1.0\n1,1.0,10.0,59.328571,0.0,1.03125\n",
+            "R_Count_Move.csv": "PId,IsBumpVirtual,SpeedCondition,TouchId,TouchType,Count\n"
+                                "1,0.0,10.0,57.958333,1.0,9.479167\n1,1.0,10.0,59.328571,1.0,9.528571\n",
+            "R_Offset.csv": "PId,IsBumpVirtual,SpeedCondition,TouchId,TouchOffset\n"
+                            "1,0.0,10.0,57.958333,20.403875\n1,1.0,10.0,59.328571,18.753054\n",
+            "R_TCT.csv": "PId,IsBump,SpeedCondition,VisualStimuliId,TouchId,TCT\n"
+                         "1,0.0,10.0,0,22.0,1269.0\n1,1.0,10.0,1,101.0,1382.0\n",
+        }
+        with tempfile.TemporaryDirectory() as tmpdir:
+            tmp = Path(tmpdir)
+            input_dir = tmp / "input"
+            input_dir.mkdir()
+            for name, text in tables.items():
+                (input_dir / name).write_text(text, encoding="utf-8")
+            manifest_path = tmp / "manifest.yaml"
+            manifest_path.write_text(
+                yaml.safe_dump({"sources": [{
+                    "source_id": "road_bumps_touch",
+                    "source_type": "local_path",
+                    "location": str(input_dir),
+                    "include_globs": ["*.csv"],
+                    "mapping_path": str(mapping_path),
+                    "override_standard_aliases": True,
+                }]}),
+                encoding="utf-8",
+            )
+            summary = run_batch(manifest_path, tmp / "output", SCHEMA_PATH, llm_deduction_enabled=False, fair_export=False)
+            meta_view = pd.read_csv(tmp / "output" / "meta_view.csv")
+            tct = pd.read_csv(tmp / "output" / "standardized" / "road_bumps_touch" / "R_TCT_csv-standardized.csv")
+
+        result = summary["results"][0]
+        self.assertEqual((result["processed_files"], result["unknown_columns"]), (4, 0))  # nothing left for the LLM
+        self.assertEqual(set(meta_view["mapping_method"]), {"mapping"})
+        # TCT is the only column with a schema DV; it is stored in seconds.
+        self.assertEqual(meta_view.loc[meta_view["mapping_domain"] == "dv", "original_alias"].tolist(), ["TCT"])
+        self.assertEqual(tct["task_completion_time"].tolist(), [1.269, 1.382])
+        canonical = dict(zip(meta_view["original_alias"], meta_view["canonical_dv"]))
+        self.assertEqual(canonical["TouchOffset"], "touch_offset_px")
+        self.assertEqual(canonical["Count"], "touch_events_per_touch")
+        self.assertEqual(canonical["IsBump"], "meta_condition_bump_ride")
+        self.assertEqual(canonical["IsBumpVirtual"], "meta_condition_bump_at_touch")
+
     def test_run_batch_passes_publication_hints_into_llm_context_collection(self):
         with tempfile.TemporaryDirectory() as tmpdir:
             tmp = Path(tmpdir)

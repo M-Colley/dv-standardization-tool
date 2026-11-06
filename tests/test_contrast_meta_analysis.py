@@ -136,6 +136,21 @@ def test_documented_condition_codes_are_declared():
     assert psych["mechanism"].level_series(pd.DataFrame({"Condition": [12]})).tolist() == ["Politeness"]
 
 
+def test_road_bumps_bump_factor_reads_either_bump_column():
+    # R_TCT carries the ride condition, the other tables whether the touch came after the bump.
+    design = cma.load_study_designs().studies["road_bumps_touch"]
+    assert design.participant == ("meta_participant_id",)
+    factors = {f.name: f for f in design.factors}
+    frame = pd.DataFrame({
+        "meta_condition_bump_ride": [0.0, 1.0, None, None],
+        "meta_condition_bump_at_touch": [None, None, 0.0, 1.0],
+        "meta_condition_speed": [10.0, 50.0, 10.0, 30.0],
+    })
+    assert factors["road_bump"].level_series(frame).tolist() == ["none", "bump", "none", "bump"]
+    assert factors["road_bump"].reference == ("none",)
+    assert factors["speed"].level_series(frame).tolist() == ["10", "50", "10", "30"]
+
+
 def test_factor_levels_fall_back_to_code_column(designs_path):
     factor = cma.load_study_designs(designs_path).studies["study_within"].factors[0]
     df = pd.DataFrame({"ehmi": [" none", np.nan, "ring"], "code": [np.nan, "C", np.nan]})
