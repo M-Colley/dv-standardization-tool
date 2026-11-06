@@ -1746,17 +1746,26 @@ def leave_one_out_sensitivity(
 def subgroup_meta_analysis(
     effects_df: pd.DataFrame,
     schema_path: str = str(DEFAULT_DV_SCHEMA_PATH),
+    weighted: bool = False,
 ) -> pd.DataFrame:
     """Pool standardized effects (Hedges' g) by schema cluster.
 
     Within a study, an item whose scale score is also present (SUS1 next to
     the SUS score, a NASA-TLX subscale next to the TLX total) is dropped, and
-    the study's remaining effects in a cluster are combined into one by GLS
-    under compound symmetry (rho = 0.5, as for dependent contrasts), so each
-    study counts once per cluster. Until 2026-11-04 every item and its own
-    composite entered as independent effects.
+    the study's remaining effects in a cluster are combined into one, so each
+    study counts once per cluster: their mean, with its variance under
+    compound symmetry (rho = 0.5, ``1'V1 / k²``), as for dependent contrasts
+    (:func:`opendv.analysis.contrast_meta_analysis.aggregate_dependent`), or
+    by GLS with ``weighted=True``. ``pooled_g_gls`` pools the GLS-combined
+    study effects for comparison. Until 2026-11-04 every item and its own
+    composite entered as independent effects; until 2026-11-06 GLS was the
+    default. A one-group g's variance grows with g², so GLS gave a study's
+    largest deviations negative weights (variance ratios above 1 / rho² = 4)
+    and put 17 of 63 multi-effect study x cluster combinations of the
+    39-study batch outside the range of their own effects.
     """
-    columns = ["cluster", "k_studies", "k_dvs", "k_effects", "pooled_g", "se", "ci95_low", "ci95_high"]
+    columns = ["cluster", "k_studies", "k_dvs", "k_effects", "pooled_g", "se", "ci95_low", "ci95_high",
+               "aggregation", "pooled_g_gls"]
     if effects_df.empty:
         return pd.DataFrame(columns=columns)
     from opendv.analysis.contrast_meta_analysis import aggregate_dependent  # lazy: imports this module
@@ -1783,19 +1792,22 @@ def subgroup_meta_analysis(
         keep.append(grp[~grp["dv"].isin(items)])
     effects = pd.concat(keep, ignore_index=True)
 
+    def _pool(per_study: list[tuple[float, float]]) -> tuple[float, float]:
+        g = np.array([y for y, _ in per_study])
+        w = 1.0 / np.array([v for _, v in per_study])
+        return float(np.sum(w * g) / np.sum(w)), float(np.sqrt(1.0 / np.sum(w)))
+
     rows = []
     for cluster, grp in effects.groupby("cluster"):
         grp = grp[grp["var_g"] > 0].copy()
-        per_study = [
-            aggregate_dependent(sub["hedges_g"], sub["var_g"], rho=0.5)
-            for _, sub in grp.groupby("study", sort=True)
-        ]
-        if len(per_study) < 2:
+        studies = [sub for _, sub in grp.groupby("study", sort=True)]
+        if len(studies) < 2:
             continue
-        g = np.array([y for y, _ in per_study])
-        w = 1.0 / np.array([v for _, v in per_study])
-        pooled = float(np.sum(w * g) / np.sum(w))
-        se = float(np.sqrt(1.0 / np.sum(w)))
+        per_study = [aggregate_dependent(s["hedges_g"], s["var_g"], rho=0.5, weighted=weighted) for s in studies]
+        pooled, se = _pool(per_study)
+        pooled_gls = pooled if weighted else _pool(
+            [aggregate_dependent(s["hedges_g"], s["var_g"], rho=0.5, weighted=True) for s in studies]
+        )[0]
         rows.append({
             "cluster": cluster,
             "k_studies": len(per_study),
@@ -1805,6 +1817,8 @@ def subgroup_meta_analysis(
             "se": se,
             "ci95_low": pooled - 1.96 * se,
             "ci95_high": pooled + 1.96 * se,
+            "aggregation": "gls" if weighted else "mean",
+            "pooled_g_gls": pooled_gls,
         })
 
     if not rows:

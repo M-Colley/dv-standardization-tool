@@ -187,6 +187,36 @@ def test_subgroups_count_each_study_once():
     assert ux["pooled_g"] == pytest.approx(0.0, abs=1e-12)
 
 
+def test_subgroups_combine_a_studys_effects_by_their_mean():
+    # A one-group g's variance grows with g², so a study's largest deviation is
+    # its least precise one. With a variance ratio above 1 / rho² = 4, GLS gives
+    # it a negative weight: study a comes out at 0.23, below both its effects.
+    from opendv.analysis.contrast_meta_analysis import aggregate_dependent
+
+    y_a, v_a = [0.4, 3.0], [0.01, 0.08]
+    rows = [
+        {"study": "a", "dv": "usability", "hedges_g": y_a[0], "var_g": v_a[0]},
+        {"study": "a", "dv": "ueq_pragmatic", "hedges_g": y_a[1], "var_g": v_a[1]},
+        {"study": "b", "dv": "usability", "hedges_g": -0.5, "var_g": 0.01},
+    ]
+
+    def pooled_with_b(study_a):
+        g, v = study_a
+        w = np.array([1.0 / v, 1.0 / 0.01])
+        return float(w @ np.array([g, -0.5]) / w.sum())
+
+    gls_a = aggregate_dependent(y_a, v_a, 0.5, weighted=True)
+    assert gls_a[0] < min(y_a)
+    ux = msa.subgroup_meta_analysis(pd.DataFrame(rows)).set_index("cluster").loc["ux_satisfaction"]
+    assert ux["aggregation"] == "mean"
+    assert ux["pooled_g"] == pytest.approx(pooled_with_b(aggregate_dependent(y_a, v_a, 0.5, weighted=False)))
+    assert ux["pooled_g_gls"] == pytest.approx(pooled_with_b(gls_a))
+    assert ux["pooled_g"] > 0 > ux["pooled_g_gls"]
+    gls = msa.subgroup_meta_analysis(pd.DataFrame(rows), weighted=True).set_index("cluster").loc["ux_satisfaction"]
+    assert gls["aggregation"] == "gls"
+    assert gls["pooled_g"] == pytest.approx(ux["pooled_g_gls"])
+
+
 def test_meta_regression_intercept_only_equals_dl_with_hksj():
     y = np.array([1.2, 0.8, 2.1, 1.5, 0.3, 1.9])
     v = np.array([0.04, 0.09, 0.05, 0.12, 0.06, 0.08])

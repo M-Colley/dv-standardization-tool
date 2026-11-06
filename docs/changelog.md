@@ -4,6 +4,17 @@ This document logs human-readable updates to the repo's functionality, structure
 
 ---
 
+### [2026-11-06] Cluster pooling combines a study's effects by their mean
+
+`subgroup_meta_analysis.csv` (study-vs-pool deviations pooled per schema cluster) combined a study's effects in a cluster by GLS under compound symmetry (`rho = 0.5`), the default of `aggregate_dependent` that the condition contrasts left in the entry below. It misbehaves here too, so a study's effects are now combined by their mean with its CS variance (`1'V1 / k²`), and the GLS pool stays in `pooled_g_gls` (`subgroup_meta_analysis(..., weighted=True)`); an `aggregation` column says which.
+
+- **Why.** A one-group g's variance is `1/n + g²/2n`, so a study's largest deviations are its least precise, and with variances more than `1 / rho² = 4` apart GLS gives them negative weights. In the 39-study batch, 25 of the 63 study × cluster combinations with more than one effect had a negative weight and 17 fell outside the range of their own effects (10 of 20 in `safety_trust`): tactile SA display's safety and trust deviations of −1.87 and +8.51 combined to −2.67, ARTV ornaments' UX deviations of −8.52 to +0.49 to +0.72, Road Bumps' two interaction deviations of −0.30 and −0.02 to −0.003.
+- **What changes** (pooled g, mean vs. GLS): `behavioral_interaction` −0.110 [−0.121, −0.098] instead of +0.002 [−0.002, 0.006], `safety_trust` −0.444 instead of −0.528, `cognitive_load` −0.059 instead of −0.073; `performance`, `physiological_biometric` and `ux_satisfaction` move by less than 0.004 and `affective_emotion` (one effect per study) not at all.
+- **Not changed.** The pooling across studies is fixed-effect, and the study-vs-pool deviations use the row count as `n`, so Road Bumps (70,000–216,000 rows per DV) carries about 90% of the weight in `behavioral_interaction` and `safety_trust`; its two interaction deviations alone decide the sign of that cluster.
+- Rerun with `opendv analyze` on the committed 39-study batch (`data/processed/catalog39_toast`): `subgroup_meta_analysis.csv` is the only output that changes. Test of the mean combination and of GLS leaving the range in `tests/test_review_fixes.py`.
+
+---
+
 ### [2026-11-06] Factors of the 2026-11-05 studies; task demand and criticality pooled
 
 The condition contrasts (`analyses/output_python_full/contrast_*.csv`) now cover 24 studies instead of 14: the designs of 10 of the 16 studies added on 2026-11-05 are declared in `schemas/study_designs.yaml` (version 1.2). Rerun with `opendv analyze` on the committed 39-study batch (`data/processed/catalog39_toast`); no other output changes, and the 831 contrasts of the first 23 studies are identical.
