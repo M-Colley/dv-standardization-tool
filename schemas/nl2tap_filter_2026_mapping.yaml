@@ -9,15 +9,15 @@
 #   - participants.csv      one row per participant (85): expertise group, demographics.
 #   - sus_responses.csv     SUS items item_1..item_10 (1-5), one row per participant.
 #   - tlx_responses.csv     raw NASA-TLX subscales (0-100 sliders), one row per participant.
+#   - toast_responses.csv   TOAST trust items (1-7), one row per participant. The file names
+#                           them item_1..item_9 like the SUS file; the manifest renames them
+#                           toast_1..toast_9 (table_options rename), and this mapping uses those.
 #   - scenario_sessions.csv one row per participant x scenario (85 x 6 = 510): turns, time and
 #                           success of the LLM-assisted rule customization.
 #   The questionnaires were given after each experimental block; the files hold one value per
 #   participant (half points suggest an average over the blocks).
-#   Left out: toast_responses.csv (TOAST trust items, 1-7) because its columns are also named
-#   item_1..item_9 and a mapping file applies one target per column name to every file of a
-#   source, so they would be read as SUS items; and the corpus files of the automated
-#   evaluation (api_manual_validation_n50.csv, representativeness_*.csv), which hold no
-#   participant data.
+#   Left out: the corpus files of the automated evaluation (api_manual_validation_n50.csv,
+#   representativeness_*.csv), which hold no participant data.
 #
 # Notes:
 #   - Between subjects: expert participants saw and could edit the generated code, non-experts
@@ -44,6 +44,25 @@ temporal_demand: temporal_demand
 performance: performance
 effort: effort
 frustration: frustration
+
+# TOAST (Trust of Automated Systems Test), 1 = strongly disagree .. 7 = strongly agree. Wording
+# from the replication package's figures/questionnaire_ui_showcase.pdf: 1-4 system
+# understanding ("I understand what the system should do", "... the limitations of the
+# system", "... the capabilities of the system", "... how the system executes tasks"), 5-9
+# system performance ("The system helps me achieve my goals", "... performs consistently",
+# "... performs the way it should", "I am rarely surprised by how the system responds", "I feel
+# comfortable relying on the system"). All agree-keyed, none reversed; the item means average
+# 5.14, the paper's TOAST M = 5.1. The schema has no TOAST DV, so the items share
+# trust_rating and are composed into their mean (the TOAST score).
+toast_1: trust_rating
+toast_2: trust_rating
+toast_3: trust_rating
+toast_4: trust_rating
+toast_5: trust_rating
+toast_6: trust_rating
+toast_7: trust_rating
+toast_8: trust_rating
+toast_9: trust_rating
 
 # --- Dependent measures: scenario sessions ---------------------------------------
 success: task_success                 # correct / incorrect (value_labels)

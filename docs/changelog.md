@@ -4,6 +4,15 @@ This document logs human-readable updates to the repo's functionality, structure
 
 ---
 
+### [2026-11-06] Per-file column rename; NL2TAP's TOAST trust items mapped
+
+- **`rename` table option** (`{old: new}`, per file path or glob in the manifest, applied after `pivot` and `drop_columns`). A mapping file applies one target per column name to every file of its source, so two files that reuse names for different measures could not both be mapped. A name the file lacks, or a rename that would duplicate a column, stops the run. Tests in `tests/test_table_options.py`.
+- **NL2TAP's TOAST items** (`toast_responses.csv`, 9 items, 1-7) are now read: the manifest renames their `item_1..item_9` to `toast_1..toast_9`, and the mapping sends them to `trust_rating`. The batch composes them into their mean, the TOAST score (85 participants, Cronbach's α = .89, M = 5.14; the paper reports M = 5.1). The item wording (in the replication package's questionnaire figure) is all agree-keyed, so no item is reversed.
+- **Checked** with a batch run of the 16 added sources without the LLM: every mapping key reaches its column (NL2TAP: 51, the 42 before plus the nine TOAST items), and the SUS targets still come only from `sus_responses.csv`.
+- **Not done.** The cross-study relations (`analyses/output_relations/`, `docs/cross_study_insights.md`) and the LLM benchmark on the added studies (`analyses/output_llm_evaluation/added_2026_11_05/`, 414 curated DV columns) were not rerun, so neither includes the nine TOAST columns yet.
+
+---
+
 ### [2026-11-05] Development half of the search mapped (39 development studies)
 
 - **16 new study mappings** (`schemas/<source_id>_mapping.yaml`), manifest entries in `sources_manifest_no4tu.yaml` and designs in `schemas/study_designs.yaml`, written from the codebooks and papers before any LLM run or cross-study relation on these studies. Of the 22 downloaded datasets, six are not added; the manifest lists each with its reason (DVs only in files over 50 MB or in .mat files, DVs outside the schema, or presentation-layout workbooks).

@@ -207,13 +207,16 @@ sources:
       - "**/pilot/**"
     # Optional, per file (path relative to `location`, or a glob): which sheet,
     # which 0-based row holds the column names, pivoting a long table
-    # (one row per subscale) to one column per subscale, and columns to drop.
+    # (one row per subscale) to one column per subscale, columns to drop,
+    # and columns to rename (applied in this order).
     table_options:
       results.xlsx: {sheet: Results, header: 1}
       workload_*.xlsx:
         pivot: {index: [participant, condition], columns: subscale, values: score}
       "**/ObservationsPerEvaluation.csv":
         drop_columns: [MentalLoad]   # columns that must not be read as data
+      "**/trust_items.csv":
+        rename: {item_1: trust_1}    # another file of this source also has item_1
 ```
 
 Run it like this:
@@ -500,6 +503,15 @@ Method and results: [`docs/cross_study_insights.md`](docs/cross_study_insights.m
 - **Missing-value codes**: if a dataset stores "no answer" as a number (98, 99, −99), declare it in its mapping YAML under `missing_values:` (`columns:` a list or `"*"`, `values:`, `reason:`; see `schemas/fido2_auth_chi23_mapping.yaml`). These cells become missing before anything else is recoded, and are counted in `-quality.json` (`missing_value_codes`). Without this, a 99 inside a 1–5 SUS item is summarized as an answer.
 - **Units**: if a dataset records a time DV in another unit than the schema states (milliseconds where `crossing_initiation_time` is in seconds), declare it under `unit_conversions:` (`columns:`, `from:`, `to:`, `reason:`; any time unit pandas knows, e.g. `ms`, `s`, `min`; see `schemas/ehmi_state_intent_mtap24_mapping.yaml`). The values are converted before they are summarized and listed in `-quality.json` (`unit_conversions`).
 - **Scales**: the analysis rescales a DV only when its values leave the DV's range, so a narrower recording scale that fits inside it (NASA-TLX subscales stored 0–10 where the schema uses 0–20) must be declared under `scale_conversions:` (`columns:`, `from: [min, max]`, `to: [min, max]`, `reason:`; see `schemas/woz_adaptation_ijhcs24_mapping.yaml`). The mapping is linear and listed in `-quality.json` (`scale_conversions`).
+- **Same raw column names, different meanings**: a mapping file applies one target per column name to every file of its source. If two files of a source reuse names for different measures (NL2TAP's `sus_responses.csv` and `toast_responses.csv` both have `item_1`..), rename one file's columns in the manifest with the `rename` table option and map the new names (see `nl2tap_filter_2026` in `sources_manifest_no4tu.yaml`):
+
+  ```yaml
+  table_options:
+    "**/toast_responses.csv":
+      rename: {item_1: toast_1, item_2: toast_2}   # then `toast_1: trust_rating` in the mapping
+  ```
+
+  The renaming happens when the file is read, after `pivot` and `drop_columns`; the output, `meta_view.csv` and the data package carry the new names. A name in `rename` that the file lacks, or a rename that would duplicate a column, stops the run.
 - **Item-level DVs**: name item DVs `<construct id>_item_NN` (e.g. `perceived_safety_item_01`) or declare `subitem_of: <construct id>` in the schema entry. The causal analysis then drops the items whenever their construct is present, so item → scale edges cannot appear in the DAG.
 
 ```bash
