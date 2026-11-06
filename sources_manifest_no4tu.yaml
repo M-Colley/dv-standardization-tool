@@ -454,12 +454,18 @@ sources:
     source_type: local_path
     location: data/raw/development/nl2tap_filter_2026
     publication_doi: 10.1080/0144929X.2026.2711012
-    # toast_responses.csv is left out: its item_1..item_9 would take the SUS items' mapping
     include_globs:
       - "**/user_study/participants.csv"
       - "**/user_study/sus_responses.csv"
       - "**/user_study/tlx_responses.csv"
+      - "**/user_study/toast_responses.csv"
       - "**/user_study/scenario_sessions.csv"
+    table_options:
+      # The TOAST file names its items item_1..item_9 like the SUS file; renamed so the
+      # mapping can tell them apart.
+      "**/user_study/toast_responses.csv":
+        rename: {item_1: toast_1, item_2: toast_2, item_3: toast_3, item_4: toast_4, item_5: toast_5,
+                 item_6: toast_6, item_7: toast_7, item_8: toast_8, item_9: toast_9}
     mapping_path: schemas/nl2tap_filter_2026_mapping.yaml
     override_standard_aliases: true
     use_llm_deduction: true
