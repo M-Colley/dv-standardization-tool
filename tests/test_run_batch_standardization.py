@@ -624,7 +624,10 @@ class BatchStandardizationTests(unittest.TestCase):
         self.assertEqual(set(meta_view["mapping_method"]), {"mapping"})
         # TCT is the only column with a schema DV; it is stored in seconds.
         self.assertEqual(meta_view.loc[meta_view["mapping_domain"] == "dv", "original_alias"].tolist(), ["TCT"])
-        self.assertEqual(tct["task_completion_time"].tolist(), [1.269, 1.382])
+        # 1269 ms x 0.001 is 1.2690000000000001 in floating point, so compare with a tolerance.
+        self.assertEqual(len(tct), 2)
+        for seconds, expected in zip(tct["task_completion_time"], [1.269, 1.382]):
+            self.assertAlmostEqual(seconds, expected, places=9)
         canonical = dict(zip(meta_view["original_alias"], meta_view["canonical_dv"]))
         self.assertEqual(canonical["TouchOffset"], "touch_offset_px")
         self.assertEqual(canonical["Count"], "touch_events_per_touch")
