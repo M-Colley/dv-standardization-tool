@@ -618,18 +618,67 @@ class BatchStandardizationTests(unittest.TestCase):
             summary = run_batch(manifest_path, tmp / "output", SCHEMA_PATH, llm_deduction_enabled=False, fair_export=False)
             meta_view = pd.read_csv(tmp / "output" / "meta_view.csv")
             tct = pd.read_csv(tmp / "output" / "standardized" / "road_bumps_touch" / "R_TCT_csv-standardized.csv")
+            offset = pd.read_csv(tmp / "output" / "standardized" / "road_bumps_touch" / "R_Offset_csv-standardized.csv")
 
         result = summary["results"][0]
         self.assertEqual((result["processed_files"], result["unknown_columns"]), (4, 0))  # nothing left for the LLM
         self.assertEqual(set(meta_view["mapping_method"]), {"mapping"})
-        # TCT is the only column with a schema DV; it is stored in seconds.
-        self.assertEqual(meta_view.loc[meta_view["mapping_domain"] == "dv", "original_alias"].tolist(), ["TCT"])
+        # TCT and TouchOffset are the columns with a schema DV, stored in s and mm.
+        self.assertEqual(
+            sorted(meta_view.loc[meta_view["mapping_domain"] == "dv", "original_alias"]), ["TCT", "TouchOffset"]
+        )
         self.assertEqual(tct["task_completion_time"].tolist(), [1.269, 1.382])
+        # 0.19 mm per px (the authors' pxToMm)
+        for got, px in zip(offset["touch_offset"], [20.403875, 18.753054], strict=True):
+            self.assertAlmostEqual(got, px * 0.19, places=9)
         canonical = dict(zip(meta_view["original_alias"], meta_view["canonical_dv"]))
-        self.assertEqual(canonical["TouchOffset"], "touch_offset_px")
+        self.assertEqual(canonical["TouchOffset"], "touch_offset")
         self.assertEqual(canonical["Count"], "touch_events_per_touch")
         self.assertEqual(canonical["IsBump"], "meta_condition_bump_ride")
         self.assertEqual(canonical["IsBumpVirtual"], "meta_condition_bump_at_touch")
+
+    def test_touch_offset_pools_handsize_errormm_with_road_bumps(self):
+        # Handsize's ErrorMM is already in mm and maps to the DV that road_bumps'
+        # converted TouchOffset maps to (schema 3.3); first rows of HandSize.csv.
+        from opendv.analysis.multi_study_analysis import _load_dv_measurement_metadata
+
+        shipped = {s["source_id"]: s for s in load_manifest(REPO_ROOT / "sources_manifest_no4tu.yaml")}
+        mapping_path = REPO_ROOT / shipped["handsize_touch_mobilehci19"]["mapping_path"]
+        with tempfile.TemporaryDirectory() as tmpdir:
+            tmp = Path(tmpdir)
+            input_dir = tmp / "input"
+            input_dir.mkdir()
+            (input_dir / "HandSize.csv").write_text(
+                "PID,Trial,Phone,TouchX,TouchY,TargetX,TargetY,SelectionTimeSeconds,ErrorMM,Outlier\n"
+                "1,0,Android,100,200,103,200,1.284089,0.177774,False\n"
+                "1,1,iPhone,50,60,50,70,0.781912,0.727989,True\n",
+                encoding="utf-8",
+            )
+            manifest_path = tmp / "manifest.yaml"
+            manifest_path.write_text(
+                yaml.safe_dump({"sources": [{
+                    "source_id": "handsize_touch_mobilehci19",
+                    "source_type": "local_path",
+                    "location": str(input_dir),
+                    "include_globs": ["*.csv"],
+                    "mapping_path": str(mapping_path),
+                    "override_standard_aliases": True,
+                }]}),
+                encoding="utf-8",
+            )
+            summary = run_batch(manifest_path, tmp / "output", SCHEMA_PATH, llm_deduction_enabled=False, fair_export=False)
+            meta_view = pd.read_csv(tmp / "output" / "meta_view.csv")
+            table = pd.read_csv(tmp / "output" / "standardized" / "handsize_touch_mobilehci19" / "HandSize_csv-standardized.csv")
+
+        # Every column is mapped, so the LLM never sees TouchX/TouchY (px positions it
+        # could take for the offset, which would make the study's DV LLM-deduced).
+        self.assertEqual(summary["results"][0]["unknown_columns"], 0)
+        row = meta_view.set_index("original_alias").loc["ErrorMM"]
+        self.assertEqual((row["canonical_dv"], row["mapping_domain"], row["mapping_method"]), ("touch_offset", "dv", "mapping"))
+        self.assertEqual(table["touch_offset"].tolist(), [0.177774, 0.727989])  # unchanged: already mm
+        info = _load_dv_measurement_metadata()["touch_offset"]
+        self.assertEqual((info["cluster"], info["direction"]), ("performance", "lower_is_better"))
+        self.assertNotIn("canonical_range", info)  # unbounded: the analysis never rescales mm
 
     def test_run_batch_passes_publication_hints_into_llm_context_collection(self):
         with tempfile.TemporaryDirectory() as tmpdir:

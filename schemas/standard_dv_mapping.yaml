@@ -1,5 +1,5 @@
-version: "3.2"
-updated: "2026-10-18"
+version: "3.3"
+updated: "2026-11-07"
 
 # all `cluster` values must match an ID in thematic_clusters.yaml
 
@@ -95,6 +95,32 @@ dvs:
     instruments: []
     units: ["tasks/min", "actions/task"]
     notes: "Report how computed (e.g., tasks/min; actions/task)."
+
+  - id: touch_offset
+    label: "Touch Offset"
+    cluster: performance
+    measurement:
+      category: Continuous
+      primary_unit: millimeters
+      allowed_units: [mm]
+      scale_type: ratio
+      direction: lower_is_better
+    aliases:
+      - touch_offset_mm
+      - touch_error_mm
+      - tap_offset
+      - tap_offset_mm
+      - touch_distance_to_target
+      - pointing_offset_mm
+    instruments: []
+    units: ["mm"]
+    notes: >-
+      Touch accuracy: Euclidean distance between where a touch landed and the
+      target centre, in mm on the screen, averaged over touches. Offsets in px
+      need the display's pixel pitch (a scale_conversions block in the study
+      mapping). Not for one-dimensional or angular endpoint deviations along a
+      movement axis (Fitts' effective width) or for counts of missed targets
+      (error_rate).
 
   # ================================================================
   #  BEHAVIORAL / INTERACTION

@@ -25,28 +25,36 @@
 #   - TCT is the time from target onset to the touch-up event, in ms (Step01 prints
 #     it / 1000 as seconds); per touch, then averaged per participant x IsBump x
 #     speed x target. 547.5-6,066 ms. Converted to seconds below.
-#   - TouchOffset is the paper's touch-accuracy measure: distance between the final
-#     touch-up position and the target centre in px (Step13 axis "Touch Offset
-#     (px)"; Step15 uses 0.19 mm per px), per touch, averaged per cell. 14.6-89.1.
+#   - TouchOffset is the paper's touch-accuracy measure: Euclidean distance between
+#     the final touch-up position and the target centre in px (Step01:
+#     sqrt((TouchX - VisualStimuliPositionX)^2 + (TouchY - VisualStimuliPositionY)^2);
+#     Step13 axis "Touch Offset (px)"), per touch, averaged per cell with no outlier
+#     exclusion (Step10). 14.6-89.1 px. Converted to mm below with the authors'
+#     pixel pitch, 0.19 mm per px (pxToMm in Step03 and Step15; the paper's full
+#     text is not openly available to check it against the display's size). The
+#     paper's "19% less accurate" with bumps is (9.86 - 7.94) / 9.86 mm here.
 #   - Count is the mean number of touch events of the file's type per touch id
 #     (Step10): touch-downs in R_Count_Down (TouchType 0; 1-1.37, so some touch
 #     ids hold more than one touch-down), touch-move events in R_Count_Move
 #     (TouchType 1; 3-15.1). One header, two measures. TouchType 2 is touch-up.
-#   - TouchOffset and Count have no schema id (no touch-accuracy DV; interaction_events
-#     counts user actions, and one id for both Count files would average two
-#     measures). They get study-specific ids (the mapping review's `study_specific`
-#     decision, opendv/mapping_review.py): the analyses read only schema DVs, so they
-#     are kept and named but not pooled, the LLM benchmark leaves them out of its
-#     gold labels, and the LLM fallback no longer guesses them (it took Count for
-#     fixation_count and TouchType for interaction_events).
+#   - TouchOffset maps to touch_offset (schema 3.3, 2026-11-07), as does
+#     handsize_touch_mobilehci19's ErrorMM; before, it had the study-specific id
+#     touch_offset_px.
+#   - Count has no schema id (interaction_events counts user actions, and one id
+#     for both Count files would average two measures). It gets a study-specific
+#     id (the mapping review's `study_specific` decision, opendv/mapping_review.py):
+#     the analyses read only schema DVs, so it is kept and named but not pooled,
+#     the LLM benchmark leaves it out of its gold labels, and the LLM fallback no
+#     longer guesses it (it took Count for fixation_count and TouchType for
+#     interaction_events).
 #   - TouchId is the mean of the logger's touch sequence numbers in a cell, an
 #     artifact of the authors' groupby().mean(), not an identifier.
 
 # --- Dependent measures -------------------------------------------------------
 TCT: task_completion_time           # target onset to touch-up, ms (converted to s below)
+TouchOffset: touch_offset           # touch accuracy: distance to the target centre, px (converted to mm below)
 
 # --- Dependent measures with no schema id (study-specific, not pooled) -------
-TouchOffset: touch_offset_px        # touch accuracy: distance to the target centre, px
 Count: touch_events_per_touch       # touch-downs (R_Count_Down) or touch-moves (R_Count_Move) per touch
 
 # --- Participants, conditions, stimuli ----------------------------------------
@@ -66,3 +74,12 @@ unit_conversions:
     from: ms
     to: s
     reason: task completion time in milliseconds (Step01_Check_for_bump prints TCT / 1000 as seconds)
+
+# The schema states touch_offset in mm; TouchOffset is px. unit_conversions takes
+# time units only (pandas Timedelta factors), and px -> mm depends on the display,
+# so the authors' pitch is declared as a linear map through zero: 100 px = 19 mm.
+scale_conversions:
+  - columns: [TouchOffset]
+    from: [0, 100]
+    to: [0, 19]
+    reason: touch offset in px, 0.19 mm per px (pxToMm in Step03_Model_RF and Step15_Touch_destitution)
