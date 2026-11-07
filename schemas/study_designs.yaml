@@ -208,13 +208,24 @@ studies:
     factors: []
 
   road_bumps_touch:
-    participant: PId
+    participant: meta_participant_id
     domain: automotive
+    source: >-
+      schemas/road_bumps_touch_mapping.yaml and the authors' ANOVA notebooks
+      (Step11, Step12): 16 participants, speed x bump within subjects. The bump
+      level is the ride condition in R_TCT (IsBump) and whether the touch came
+      after the bump in the other tables (IsBumpVirtual), as in the paper.
     factors:
       - name: speed
         design: within
-        columns: {SpeedCondition: null}
+        columns: {meta_condition_speed: null}
         reference: "10"
+      - name: road_bump
+        design: within
+        columns:
+          meta_condition_bump_ride: {"0": none, "1": bump}
+          meta_condition_bump_at_touch: {"0": none, "1": bump}
+        reference: none
 
   # --- Added 2026-11-04 (development set; column names as standardized) -----
   incar_vr_gain_chi24:

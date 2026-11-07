@@ -59,6 +59,8 @@ sources:
     location: https://github.com/interactionlab/Touch-Interaction-with-Road-Bumps/tree/master/data
     include_globs:
       - "**/*.csv"
+    mapping_path: schemas/road_bumps_touch_mapping.yaml
+    override_standard_aliases: true
     use_llm_deduction: false
 
   # 4TU.ResearchData through its API (file list with md5 checksums). The

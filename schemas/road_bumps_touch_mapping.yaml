@@ -1,0 +1,68 @@
+# Source-specific column mapping for road_bumps_touch
+# Paper: Mayer, Le, Nesti, Henze, Bülthoff, Chuang. "The Effect of Road Bumps on
+#   Touch Interaction in Cars." AutomotiveUI 2018. DOI 10.1145/3239060.3239071
+# Data: GitHub interactionlab/Touch-Interaction-with-Road-Bumps @ 24e00072, MIT.
+#   No codebook; the notebooks Step01_Check_for_bump (R_TCT), Step10_Prepare_ANOVA_touch
+#   (R_Count_*, R_Offset), Step11_Touch_ANOVA_R and Step12_TCT_Anova (the paper's
+#   ANOVAs) show how the tables were built and analysed.
+#
+# Files covered (data/, the per-participant tables the paper's ANOVAs read; the
+#   raw touch and accelerometer logs are pickles, which the batch refuses):
+#   - R_TCT.csv         4,423 rows: participant x bump ride x speed x target (30
+#                       target positions; not every cell has a touch)
+#   - R_Offset.csv      160 rows: participant x IsBumpVirtual x speed
+#   - R_Count_Down.csv  160 rows, same cells
+#   - R_Count_Move.csv  160 rows, same cells
+#   16 participants (PId 1, 3, 5-18), all conditions within subjects: five speeds
+#   (10-50 km/h) x ride with / without a speed bump in a motion simulator.
+#
+# Notes:
+#   - Two bump columns that differ in meaning. IsBump (R_TCT) is the ride
+#     condition: the ride had a bump. IsBumpVirtual (the other three) is 1 for
+#     touches in a bump ride after the bump (TimeRelativ > 0); touches in a bump
+#     ride before the bump count as 0 (16.8% of bump-ride touches, Step01).
+#     They get separate ids; study_designs.yaml reads either as the bump factor.
+#   - TCT is the time from target onset to the touch-up event, in ms (Step01 prints
+#     it / 1000 as seconds); per touch, then averaged per participant x IsBump x
+#     speed x target. 547.5-6,066 ms. Converted to seconds below.
+#   - TouchOffset is the paper's touch-accuracy measure: distance between the final
+#     touch-up position and the target centre in px (Step13 axis "Touch Offset
+#     (px)"; Step15 uses 0.19 mm per px), per touch, averaged per cell. 14.6-89.1.
+#   - Count is the mean number of touch events of the file's type per touch id
+#     (Step10): touch-downs in R_Count_Down (TouchType 0; 1-1.37, so some touch
+#     ids hold more than one touch-down), touch-move events in R_Count_Move
+#     (TouchType 1; 3-15.1). One header, two measures. TouchType 2 is touch-up.
+#   - TouchOffset and Count have no schema id (no touch-accuracy DV; interaction_events
+#     counts user actions, and one id for both Count files would average two
+#     measures). They get study-specific ids (the mapping review's `study_specific`
+#     decision, opendv/mapping_review.py): the analyses read only schema DVs, so they
+#     are kept and named but not pooled, the LLM benchmark leaves them out of its
+#     gold labels, and the LLM fallback no longer guesses them (it took Count for
+#     fixation_count and TouchType for interaction_events).
+#   - TouchId is the mean of the logger's touch sequence numbers in a cell, an
+#     artifact of the authors' groupby().mean(), not an identifier.
+
+# --- Dependent measures -------------------------------------------------------
+TCT: task_completion_time           # target onset to touch-up, ms (converted to s below)
+
+# --- Dependent measures with no schema id (study-specific, not pooled) -------
+TouchOffset: touch_offset_px        # touch accuracy: distance to the target centre, px
+Count: touch_events_per_touch       # touch-downs (R_Count_Down) or touch-moves (R_Count_Move) per touch
+
+# --- Participants, conditions, stimuli ----------------------------------------
+PId: meta_participant_id            # 1, 3, 5-18
+SpeedCondition: meta_condition_speed          # vehicle speed, km/h (10, 20, 30, 40, 50)
+IsBump: meta_condition_bump_ride              # R_TCT: 1 = ride with a speed bump
+IsBumpVirtual: meta_condition_bump_at_touch   # R_Count_*, R_Offset: 1 = touch after the bump
+VisualStimuliId: meta_stimulus_id   # target position, 0-29
+
+# --- Bookkeeping ---------------------------------------------------------------
+TouchType: meta_touch_event_type    # constant per file: 0 = touch down, 1 = touch move
+TouchId: meta_touch_sequence_mean   # mean touch sequence number of the cell (not an id)
+
+# The schema states task_completion_time in seconds; TCT is ms.
+unit_conversions:
+  - columns: [TCT]
+    from: ms
+    to: s
+    reason: task completion time in milliseconds (Step01_Check_for_bump prints TCT / 1000 as seconds)

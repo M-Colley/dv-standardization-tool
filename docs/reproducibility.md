@@ -72,7 +72,7 @@ When a study's tables exist only as pickles, convert them once and pin the resul
 3. Convert in a disposable environment with no network, no credentials and none of your files (a fresh container or VM with pandas installed): `python -I -c "import sys, pandas as pd; pd.read_pickle(sys.argv[1]).to_parquet(sys.argv[2])" file.pkl file.parquet`. Pickled DataFrames depend on the pandas version that wrote them, so note the version that read them.
 4. Deposit the Parquet files where they can be fetched by checksum (an OSF or Zenodo record, or a commit in a repository you control), list them with their SHA-256 in `analyses/development_sources/sources.yaml`, fetch them with the `confirmatory fetch` command above, and read them as a `local_path` source. Keep the input checksums from step 1 next to them so the conversion can be traced.
 
-`road_bumps_touch` needs none of this. Its `data/` folder holds the four tables the paper's ANOVAs read (`R_Count_Down.csv`, `R_Count_Move.csv`, `R_Offset.csv`, `R_TCT.csv`: touch counts and touch offset per participant and condition, task completion time also per stimulus, computed by the authors from the pickles) and four pickles with the raw touch and accelerometer logs. The manifest reads the CSV tables only.
+`road_bumps_touch` needs none of this. Its `data/` folder holds the four tables the paper's ANOVAs read (`R_Count_Down.csv`, `R_Count_Move.csv`, `R_Offset.csv`, `R_TCT.csv`: touch counts and touch offset per participant and condition, task completion time also per stimulus, computed by the authors from the pickles) and four pickles with the raw touch and accelerometer logs. The manifest reads the CSV tables only, mapped by `schemas/road_bumps_touch_mapping.yaml`.
 
 ## Rerunning
 
