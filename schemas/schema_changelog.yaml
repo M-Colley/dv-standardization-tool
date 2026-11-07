@@ -27,3 +27,7 @@ v3.2:
   - Reverse-keyed items of SUS (2, 4, 6, 8, 10) and Van der Laan (1, 2, 4, 5, 7, 9 in the registry's position coding) are lower_is_better, matching their key in schemas/instruments.yaml
   - dwell_time is no longer also an alias of retention_time (the batch wrote dwell_time columns that the analysis read as retention_time)
   - total time and total_time are no longer aliases of pedestrian_crossing_time; in eHMI-for-All they are the whole trial, not the time on the intersection
+v3.3:
+  date: '2026-11-07'
+  changes:
+  - New DV touch_offset (performance, mm, lower_is_better), the Euclidean distance between a touch and the target centre; road_bumps_touch (TouchOffset, px converted with the authors' 0.19 mm per px) and handsize_touch_mobilehci19 (ErrorMM) map to it
