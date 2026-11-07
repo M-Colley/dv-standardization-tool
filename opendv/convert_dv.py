@@ -119,7 +119,8 @@ def _fuzzy_match_column(
 
 
 RESERVED_MAPPING_KEYS = frozenset(
-    {"scales", "value_labels", "reverse_items", "missing_values", "unit_conversions", "scale_conversions"}
+    {"scales", "value_labels", "reverse_items", "missing_values", "unit_conversions", "scale_conversions",
+     "exclude_rows"}
 )
 
 

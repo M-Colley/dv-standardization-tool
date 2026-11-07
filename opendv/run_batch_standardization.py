@@ -178,6 +178,7 @@ from opendv.llm_plausibility import load_rules as load_plausibility_rules
 from opendv.value_labels import (
     apply_missing_values,
     apply_reverse_keying,
+    apply_row_exclusions,
     apply_scale_conversions,
     apply_unit_conversions,
     apply_value_labels,
@@ -1562,6 +1563,7 @@ class _ResolvedMapping:
     missing_values: tuple[dict[str, Any], ...] = ()
     unit_conversions: tuple[dict[str, Any], ...] = ()
     scale_conversions: tuple[dict[str, Any], ...] = ()
+    exclude_rows: tuple[dict[str, Any], ...] = ()
 
 
 class _MappingResolver:
@@ -1601,6 +1603,7 @@ class _MappingResolver:
                     tuple(raw_schema.get("missing_values") or []) if isinstance(raw_schema, dict) else (),
                     tuple(raw_schema.get("unit_conversions") or []) if isinstance(raw_schema, dict) else (),
                     tuple(raw_schema.get("scale_conversions") or []) if isinstance(raw_schema, dict) else (),
+                    tuple(raw_schema.get("exclude_rows") or []) if isinstance(raw_schema, dict) else (),
                 )
         return self._custom[mapping_path]
 
@@ -1622,10 +1625,11 @@ class _MappingResolver:
         missing_values: tuple[dict[str, Any], ...] = ()
         unit_conversions: tuple[dict[str, Any], ...] = ()
         scale_conversions: tuple[dict[str, Any], ...] = ()
+        exclude_rows: tuple[dict[str, Any], ...] = ()
         custom = self._load_custom(path_key, dataset_id) if path_key is not None else None
         if custom is not None:
             (custom_mapping, custom_aliases_ci, declared_scales, value_labels, reverse_items, missing_values,
-             unit_conversions, scale_conversions) = custom
+             unit_conversions, scale_conversions, exclude_rows) = custom
             # Only report a mapping path once a non-empty source mapping is
             # actually merged in.
             if custom_mapping:
@@ -1645,6 +1649,7 @@ class _MappingResolver:
             missing_values=missing_values,
             unit_conversions=unit_conversions,
             scale_conversions=scale_conversions,
+            exclude_rows=exclude_rows,
         )
         self._resolved[key] = resolved
         return resolved
@@ -1767,7 +1772,10 @@ def _process_dataset(
             dataset_path=task.file_path,
         )
         resolved = resolver.resolve(dataset_type, repository_mapping_path, dataset_id)
-        # Declared missing-value codes (98/99 "no answer") go first, then
+        # Rows the authors flagged for exclusion (outlier trials) are dropped
+        # first, on the values as read, so nothing below sees them.
+        original_df, row_exclusion_report = apply_row_exclusions(original_df, resolved.exclude_rows)
+        # Declared missing-value codes (98/99 "no answer") go next, then
         # text-labelled responses declared in the repository mapping become
         # numbers before anything numeric (profiles, summaries) looks at them.
         original_df, missing_value_report = apply_missing_values(original_df, resolved.missing_values)
@@ -1948,6 +1956,8 @@ def _process_dataset(
             dataset_type,
             composite_records=composite_records,
         )
+        if row_exclusion_report:
+            quality["rows_excluded"] = row_exclusion_report
         if missing_value_report:
             quality["missing_value_codes"] = missing_value_report
         if value_label_report:
