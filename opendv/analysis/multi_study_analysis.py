@@ -64,7 +64,7 @@ ID_LIKE_COLUMNS = {
 }
 DEFAULT_DV_SCHEMA_PATH = SCHEMAS_DIR / "standard_dv_mapping.yaml"
 HARMONIZED_SUMMARY_COLUMNS = [
-    "study", "dv", "n", "mean", "sd", "mean_z_vs_global", "scale_note",
+    "study", "dv", "n", "n_participants", "mean", "sd", "mean_z_vs_global", "scale_note",
     "mapping_source",
 ]
 META_ANALYSIS_COLUMNS = [
@@ -99,7 +99,7 @@ META_ANALYSIS_COLUMNS = [
 MIN_K_FOR_RANDOM_EFFECTS = 3
 HIGH_HETEROGENEITY_I2_THRESHOLD = 75.0
 STANDARDIZED_EFFECTS_COLUMNS = [
-    "study", "dv", "cohens_d", "hedges_g", "var_g", "se_g", "mapping_source",
+    "study", "dv", "cohens_d", "hedges_g", "var_g", "se_g", "mapping_source", "n", "n_rows",
 ]
 
 # ── Mapping-source provenance ───────────────────────────────────────────────
@@ -646,6 +646,23 @@ def _participant_ids(study: str, df: pd.DataFrame) -> tuple[pd.Series | None, st
     return df[id_col], id_col, f"column {id_col}"
 
 
+def _participant_count(ids: pd.Series | None, rows: pd.Index) -> int:
+    """Number of participants behind ``rows`` of a study.
+
+    Without participant ids every row counts as one participant. A row
+    without an id counts as one more participant, but never beyond the
+    number of participants the study's ids name: a file of a study whose
+    other files carry ids is taken to record the same participants (Road
+    Bumps' 8,513 accelerometer samples carry no id; its 16 participants'
+    touch logs do).
+    """
+    if ids is None or ids.notna().sum() == 0:
+        return int(len(rows))
+    sub = ids.reindex(rows)
+    counted = int(sub.nunique(dropna=True)) + int(sub.isna().sum())
+    return min(counted, int(ids.nunique(dropna=True)))
+
+
 # ── Canonical DV extraction ──────────────────────────────────────────────────
 
 def _canonical_series_priority(series: pd.Series, raw_name: str, canonical_name: str) -> tuple[int, int, int]:
@@ -803,9 +820,19 @@ def harmonized_summary(
     mapping_provenance: Dict[tuple, str] | None = None,
     canonical_studies: Dict[str, pd.DataFrame] | None = None,
 ) -> pd.DataFrame:
+    """Mean, SD and size of every study x DV.
+
+    ``n`` counts the rows with a value; ``n_participants`` the participants
+    behind them (:func:`_participant_count`), which is what a study's
+    sampling error rests on when it repeats measures per participant.
+    """
     metadata = _load_dv_measurement_metadata() if harmonize_scales else {}
     rows = []
     for study, df in _resolve_canonical(studies, canonical_studies).items():
+        raw = studies.get(study)
+        ids = _participant_ids(study, raw)[0] if raw is not None and not raw.empty else None
+        if ids is not None and not ids.index.equals(df.index):
+            ids = None
         for dv in df.columns:
             s = df[dv].dropna()
             scale_note = ""
@@ -829,6 +856,7 @@ def harmonized_summary(
                     "study": study,
                     "dv": dv,
                     "n": s.shape[0],
+                    "n_participants": _participant_count(ids, s.index),
                     "mean": s.mean(),
                     "sd": s.std(ddof=1),
                     "scale_note": scale_note,
@@ -852,7 +880,7 @@ def harmonized_summary(
 
 # ── Standardized effect sizes ────────────────────────────────────────────────
 
-def compute_standardized_effects(summary: pd.DataFrame) -> pd.DataFrame:
+def compute_standardized_effects(summary: pd.DataFrame, unit: str = "participants") -> pd.DataFrame:
     """Compute the study-vs-pool standardized deviation (Hedges' g) per DV.
 
     IMPORTANT: this is a *descriptive* one-group effect size, **not** a
@@ -863,7 +891,22 @@ def compute_standardized_effects(summary: pd.DataFrame) -> pd.DataFrame:
     effect — treat them as a normalized view of between-study location shifts.
     The values are also written to ``study_vs_pool_standardized_deviation.csv``
     under that clearer name.
+
+    ``n`` (the grand mean's and pooled SD's weights, Hedges' correction and
+    ``var_g = 1/n + g²/2n``) is the number of participants
+    (``n_participants`` of :func:`harmonized_summary`) with
+    ``unit="participants"``, else, or where the summary has none, the row
+    count (``n_rows``). Means and SDs stay those of the rows. Until 2026-11-07
+    ``n`` was the row count, so a study that logs many rows per participant
+    set the grand mean and claimed a precision its sample does not have:
+    Road Bumps, 16 participants with 70,000-216,000 rows per DV, had SEs
+    around 0.004.
     """
+    if unit not in ("participants", "rows"):
+        raise ValueError(f"unit must be 'participants' or 'rows', got {unit!r}")
+    summary = summary.assign(n_rows=summary["n"])
+    if unit == "participants" and "n_participants" in summary.columns:
+        summary["n"] = summary["n_participants"].fillna(summary["n_rows"])
     rows = []
     for dv, sub in summary.groupby("dv"):
         if len(sub) < 2:
@@ -892,6 +935,8 @@ def compute_standardized_effects(summary: pd.DataFrame) -> pd.DataFrame:
                 "var_g": var_g,
                 "se_g": np.sqrt(var_g),
                 "mapping_source": row.get("mapping_source", "unknown"),
+                "n": int(n),
+                "n_rows": int(row["n_rows"]),
             })
     return pd.DataFrame(rows, columns=STANDARDIZED_EFFECTS_COLUMNS)
 
@@ -1747,6 +1792,7 @@ def subgroup_meta_analysis(
     effects_df: pd.DataFrame,
     schema_path: str = str(DEFAULT_DV_SCHEMA_PATH),
     weighted: bool = False,
+    estimator: str = "DL",
 ) -> pd.DataFrame:
     """Pool standardized effects (Hedges' g) by schema cluster.
 
@@ -1756,15 +1802,29 @@ def subgroup_meta_analysis(
     study counts once per cluster: their mean, with its variance under
     compound symmetry (rho = 0.5, ``1'V1 / k²``), as for dependent contrasts
     (:func:`opendv.analysis.contrast_meta_analysis.aggregate_dependent`), or
-    by GLS with ``weighted=True``. ``pooled_g_gls`` pools the GLS-combined
-    study effects for comparison. Until 2026-11-04 every item and its own
+    by GLS with ``weighted=True``. Until 2026-11-04 every item and its own
     composite entered as independent effects; until 2026-11-06 GLS was the
     default. A one-group g's variance grows with g², so GLS gave a study's
     largest deviations negative weights (variance ratios above 1 / rho² = 4)
     and put 17 of 63 multi-effect study x cluster combinations of the
     39-study batch outside the range of their own effects.
+
+    The study effects are pooled with random effects (:func:`pool_effects`:
+    DL or REML tau², Wald and HKSJ intervals, prediction interval; fixed
+    effects below ``MIN_K_FOR_RANDOM_EFFECTS`` studies, see
+    ``pooling_method``), as the mean and contrast meta-analyses are.
+    ``largest_weight_study`` and ``largest_weight_pct`` name the study with
+    the largest weight in that pool; ``fixed_effect_g``, ``fixed_effect_se``
+    and ``fixed_effect_largest_weight_pct`` are the fixed-effect pool (the
+    only one until 2026-11-07, in which Road Bumps carried about 90% of the
+    weight of two clusters). ``pooled_g_gls`` is ``pooled_g`` with the
+    study effects combined by GLS, i.e. with ``weighted=True``.
     """
-    columns = ["cluster", "k_studies", "k_dvs", "k_effects", "pooled_g", "se", "ci95_low", "ci95_high",
+    columns = ["cluster", "k_studies", "k_dvs", "k_effects", "pooling_method", "estimator",
+               "pooled_g", "se", "ci95_low", "ci95_high", "hksj_ci95_low", "hksj_ci95_high",
+               "prediction_interval_low", "prediction_interval_high", "tau2", "heterogeneity_i2_pct",
+               "largest_weight_study", "largest_weight_pct",
+               "fixed_effect_g", "fixed_effect_se", "fixed_effect_largest_weight_pct",
                "aggregation", "pooled_g_gls"]
     if effects_df.empty:
         return pd.DataFrame(columns=columns)
@@ -1792,10 +1852,9 @@ def subgroup_meta_analysis(
         keep.append(grp[~grp["dv"].isin(items)])
     effects = pd.concat(keep, ignore_index=True)
 
-    def _pool(per_study: list[tuple[float, float]]) -> tuple[float, float]:
-        g = np.array([y for y, _ in per_study])
-        w = 1.0 / np.array([v for _, v in per_study])
-        return float(np.sum(w * g) / np.sum(w)), float(np.sqrt(1.0 / np.sum(w)))
+    def _combine(studies: list[pd.DataFrame], gls: bool) -> tuple[np.ndarray, np.ndarray]:
+        combined = [aggregate_dependent(s["hedges_g"], s["var_g"], rho=0.5, weighted=gls) for s in studies]
+        return np.array([y for y, _ in combined]), np.array([v for _, v in combined])
 
     rows = []
     for cluster, grp in effects.groupby("cluster"):
@@ -1803,20 +1862,37 @@ def subgroup_meta_analysis(
         studies = [sub for _, sub in grp.groupby("study", sort=True)]
         if len(studies) < 2:
             continue
-        per_study = [aggregate_dependent(s["hedges_g"], s["var_g"], rho=0.5, weighted=weighted) for s in studies]
-        pooled, se = _pool(per_study)
-        pooled_gls = pooled if weighted else _pool(
-            [aggregate_dependent(s["hedges_g"], s["var_g"], rho=0.5, weighted=True) for s in studies]
-        )[0]
+        names = [s["study"].iloc[0] for s in studies]
+        g, v = _combine(studies, weighted)
+        pooled = pool_effects(g, v, estimator)
+        w = 1.0 / (v + pooled["tau2"])  # tau2 is 0 when pool_effects falls back to fixed effects
+        w_fixed = 1.0 / v
+        pooled_gls = (
+            pooled["random_effects_mean"] if weighted
+            else pool_effects(*_combine(studies, True), estimator)["random_effects_mean"]
+        )
         rows.append({
             "cluster": cluster,
-            "k_studies": len(per_study),
+            "k_studies": len(studies),
             "k_dvs": grp["dv"].nunique(),
             "k_effects": len(grp),
-            "pooled_g": pooled,
-            "se": se,
-            "ci95_low": pooled - 1.96 * se,
-            "ci95_high": pooled + 1.96 * se,
+            "pooling_method": pooled["pooling_method"],
+            "estimator": estimator,
+            "pooled_g": pooled["random_effects_mean"],
+            "se": pooled["random_effects_se"],
+            "ci95_low": pooled["ci95_low"],
+            "ci95_high": pooled["ci95_high"],
+            "hksj_ci95_low": pooled["hksj_ci95_low"],
+            "hksj_ci95_high": pooled["hksj_ci95_high"],
+            "prediction_interval_low": pooled["prediction_interval_low"],
+            "prediction_interval_high": pooled["prediction_interval_high"],
+            "tau2": pooled["tau2"],
+            "heterogeneity_i2_pct": pooled["heterogeneity_i2_pct"],
+            "largest_weight_study": names[int(np.argmax(w))],
+            "largest_weight_pct": 100.0 * float(w.max() / w.sum()),
+            "fixed_effect_g": float(np.sum(w_fixed * g) / np.sum(w_fixed)),
+            "fixed_effect_se": float(np.sqrt(1.0 / np.sum(w_fixed))),
+            "fixed_effect_largest_weight_pct": 100.0 * float(w_fixed.max() / w_fixed.sum()),
             "aggregation": "gls" if weighted else "mean",
             "pooled_g_gls": pooled_gls,
         })
@@ -3064,7 +3140,7 @@ def main(argv: list[str] | None = None) -> None:
         )
 
     # Subgroup analysis
-    subgroup = subgroup_meta_analysis(effects)
+    subgroup = subgroup_meta_analysis(effects, estimator=args.estimator)
     if not subgroup.empty:
         subgroup.to_csv(output_dir / "subgroup_meta_analysis.csv", index=False)
         print("\nSubgroup analysis by cluster:\n", subgroup.round(3).to_string(index=False))

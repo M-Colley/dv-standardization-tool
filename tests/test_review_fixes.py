@@ -217,6 +217,68 @@ def test_subgroups_combine_a_studys_effects_by_their_mean():
     assert gls["pooled_g"] == pytest.approx(ux["pooled_g_gls"])
 
 
+def test_summary_counts_participants_and_caps_rows_without_an_id(monkeypatch):
+    # Study "log" repeats measures: 3 participants, 300 rows, plus a file of 50
+    # rows without ids (Road Bumps' accelerometer trace); "survey" has 1 row each.
+    from opendv.analysis.contrast_meta_analysis import DesignRegistry, StudyDesign
+
+    registry = DesignRegistry("t", {}, {"log": StudyDesign("log", ("PId",)),
+                                        "survey": StudyDesign("survey", ("PId",))})
+    monkeypatch.setattr(msa, "_study_designs", lambda: registry)
+    rng = np.random.default_rng(3)
+    log = pd.DataFrame({"PId": np.repeat([1.0, 2.0, 3.0], 100), "mental_demand": rng.normal(5, 1, 300)})
+    log = pd.concat([log, pd.DataFrame({"pedestrian_crossing_time": rng.normal(2, 1, 50)})], ignore_index=True)
+    survey = pd.DataFrame({"PId": np.arange(1.0, 9.0), "mental_demand": rng.normal(6, 1, 8)})
+    summary = msa.harmonized_summary({"log": log, "survey": survey}).set_index(["study", "dv"])
+    assert summary.loc[("log", "mental_demand"), ["n", "n_participants"]].tolist() == [300, 3]
+    assert summary.loc[("log", "pedestrian_crossing_time"), ["n", "n_participants"]].tolist() == [50, 3]
+    assert summary.loc[("survey", "mental_demand"), ["n", "n_participants"]].tolist() == [8, 8]
+    assert msa._participant_count(None, pd.RangeIndex(5)) == 5
+
+
+def test_study_vs_pool_deviations_use_participants_as_n():
+    summary = pd.DataFrame([
+        {"study": "a", "dv": "mental_demand", "n": 100_000, "n_participants": 16, "mean": 4.0, "sd": 1.0},
+        {"study": "b", "dv": "mental_demand", "n": 30, "n_participants": 30, "mean": 6.0, "sd": 1.0},
+    ])
+    eff = msa.compute_standardized_effects(summary).set_index("study")
+    grand = (16 * 4.0 + 30 * 6.0) / 46
+    j = 1 - 3 / (4 * 15 - 1)
+    g = (4.0 - grand) * j
+    assert eff.loc["a", "hedges_g"] == pytest.approx(g)
+    assert eff.loc["a", "var_g"] == pytest.approx(1 / 16 + g ** 2 / 32)
+    assert eff.loc["a", ["n", "n_rows"]].tolist() == [16, 100_000]
+    rows = msa.compute_standardized_effects(summary, unit="rows").set_index("study")
+    assert rows.loc["a", "n"] == 100_000
+    assert abs(rows.loc["a", "hedges_g"]) < 1e-3  # the row-weighted pool sits on study a
+    without = msa.compute_standardized_effects(summary.drop(columns="n_participants"))
+    pd.testing.assert_frame_equal(without, msa.compute_standardized_effects(summary, unit="rows"))
+
+
+def test_subgroups_pool_studies_with_random_effects():
+    # One very precise study and three imprecise ones that disagree with it:
+    # the fixed-effect pool sits on the precise study, the random-effects pool does not.
+    rows = [{"study": "big", "dv": "usability", "hedges_g": 0.0, "var_g": 1e-5}]
+    rows += [{"study": s, "dv": "usability", "hedges_g": y, "var_g": 0.05}
+             for s, y in (("b", 1.0), ("c", 0.6), ("d", 1.4))]
+    ux = msa.subgroup_meta_analysis(pd.DataFrame(rows)).set_index("cluster").loc["ux_satisfaction"]
+    y = np.array([0.0, 1.0, 0.6, 1.4])
+    v = np.array([1e-5, 0.05, 0.05, 0.05])
+    expected = msa.pool_effects(y, v, "DL")
+    assert ux["pooling_method"] == "random_effects"
+    assert ux["pooled_g"] == pytest.approx(expected["random_effects_mean"])
+    assert ux["se"] == pytest.approx(expected["random_effects_se"])
+    assert ux["hksj_ci95_high"] == pytest.approx(expected["hksj_ci95_high"])
+    assert ux["tau2"] == pytest.approx(expected["tau2"]) and ux["tau2"] > 0
+    assert ux["fixed_effect_g"] == pytest.approx(float(np.sum(y / v) / np.sum(1 / v)))
+    assert ux["fixed_effect_largest_weight_pct"] > 99
+    assert ux["largest_weight_study"] == "big" and ux["largest_weight_pct"] < 30
+    assert ux["pooled_g"] > 0.5 > ux["fixed_effect_g"]
+    reml = msa.subgroup_meta_analysis(pd.DataFrame(rows), estimator="REML").set_index("cluster")
+    expected_reml = msa.pool_effects(y, v, "REML")["random_effects_mean"]
+    assert reml.loc["ux_satisfaction", "pooled_g"] == pytest.approx(expected_reml)
+
+
 def test_meta_regression_intercept_only_equals_dl_with_hksj():
     y = np.array([1.2, 0.8, 2.1, 1.5, 0.3, 1.9])
     v = np.array([0.04, 0.09, 0.05, 0.12, 0.06, 0.08])

@@ -478,7 +478,21 @@ Two canonical factors were added, each tagged only where a study's README, scrip
 
 None of these rests on an LLM-mapped column, so the `_llm_excluded` table is the same. The GLS combination was dropped because the new tags showed it misbehaving: with correlated contrasts of unequal precision (SMCRPH variances grow with the effect) it gives negative weights, and it put the response-format study's effect on the TLX total at −0.14, below five of its six demand contrasts (+0.19 to +1.40), and drivers' perceived risk at +0.19, below all four of theirs (+0.34 to +2.30). The eHMI estimates were −0.51 and +1.02 with it.
 
-The study-vs-pool deviations pooled per schema cluster (`subgroup_meta_analysis.csv`) combine a study's effects in a cluster the same way since then, with the GLS pool kept as `pooled_g_gls`. There GLS failed more often: a one-group g's variance grows with g², and 17 of the 63 study × cluster combinations with more than one effect fell outside the range of their own effects (tactile SA display's safety and trust deviations of −1.87 and +8.51 combined to −2.67). `behavioral_interaction` moves from +0.002 to −0.110 and `safety_trust` from −0.53 to −0.44. These pools are fixed-effect with the row count as `n`, so Road Bumps alone carries about 90% of the weight in both clusters; read them as a description of where large studies sit, not as cluster effects.
+The study-vs-pool deviations pooled per schema cluster (`subgroup_meta_analysis.csv`) combine a study's effects in a cluster the same way since then, with the GLS pool kept as `pooled_g_gls`. There GLS failed more often: a one-group g's variance grows with g², and 17 of the 63 study × cluster combinations with more than one effect fell outside the range of their own effects (tactile SA display's safety and trust deviations of −1.87 and +8.51 combined to −2.67; 4 of 63 with the participant counts below).
+
+Since 2026-11-07 the deviations count a study's participants as `n` (for the grand mean, the pooled SD and `var_g`), and the cluster pool is random-effects (DL, HKSJ, prediction interval) like the other pools, with the fixed-effect pool kept as `fixed_effect_g`. Before, `n` was the row count and the pool fixed-effect, so Road Bumps (16 participants, 70,000–216,000 rows per DV, all seven DVs LLM-mapped) set the grand mean of its DVs, had SEs around 0.004 and carried about 90% of the weight in `behavioral_interaction` and `safety_trust`. Now no study carries more than 20% of a cluster's weight, and no cluster's HKSJ interval excludes 0 (Wald 95% CI, fixed-effect with rows → random-effects with participants):
+
+| cluster | studies | before | after | HKSJ | I² |
+|---|---|---|---|---|---|
+| `affective_emotion` | 5 | −0.10 [−0.15, −0.04] | +0.11 [−0.81, 1.03] | [−1.33, 1.55] | 97% |
+| `behavioral_interaction` | 14 | −0.11 [−0.12, −0.10] | −0.02 [−0.59, 0.54] | [−1.04, 0.99] | 98% |
+| `cognitive_load` | 28 | −0.06 [−0.08, −0.04] | +0.08 [−0.14, 0.30] | [−0.27, 0.42] | 97% |
+| `performance` | 15 | +0.04 [0.03, 0.05] | −0.05 [−0.34, 0.23] | [−0.39, 0.28] | 90% |
+| `physiological_biometric` | 6 | +0.11 [0.04, 0.17] | +0.40 [0.01, 0.79] | [−0.11, 0.91] | 90% |
+| `safety_trust` | 24 | −0.44 [−0.45, −0.44] | +0.08 [−0.07, 0.24] | [−0.18, 0.35] | 93% |
+| `ux_satisfaction` | 27 | +0.00 [−0.004, 0.005] | −0.01 [−0.18, 0.16] | [−0.27, 0.25] | 94% |
+
+Both changes are needed. Random effects alone, on the row-count deviations, put `behavioral_interaction` at +1.13 and `safety_trust` at +0.68, because those deviations are measured from a grand mean that sat on Road Bumps. Participants alone, pooled with fixed effects, hand the weight to the largest surveys (eHMI crowd survey and AR pedestrian survey, 44–54% in `cognitive_load`, `safety_trust` and `ux_satisfaction`). With participant weights a study with many rows and a small SD no longer sets the pooled SD, so the extreme deviations shrink (NL2TAP's interaction events +9.24 → +0.52, tactile SA display's headway +8.51 → +1.87). A pooled deviation says where the typical study of a cluster sits relative to the participant-weighted grand mean of each DV (positive = better), and an I² of 90–98% says the studies do not share a location: read these as descriptions of spread, not as cluster effects.
 
 ### Cross-study relations
 
