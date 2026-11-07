@@ -627,7 +627,10 @@ class BatchStandardizationTests(unittest.TestCase):
         self.assertEqual(
             sorted(meta_view.loc[meta_view["mapping_domain"] == "dv", "original_alias"]), ["TCT", "TouchOffset"]
         )
-        self.assertEqual(tct["task_completion_time"].tolist(), [1.269, 1.382])
+        # 1269 ms x 0.001 is 1.2690000000000001 in floating point, so compare with a tolerance.
+        self.assertEqual(len(tct), 2)
+        for seconds, expected in zip(tct["task_completion_time"], [1.269, 1.382]):
+            self.assertAlmostEqual(seconds, expected, places=9)
         # 0.19 mm per px (the authors' pxToMm)
         for got, px in zip(offset["touch_offset"], [20.403875, 18.753054], strict=True):
             self.assertAlmostEqual(got, px * 0.19, places=9)
