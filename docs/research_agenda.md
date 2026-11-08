@@ -402,6 +402,17 @@ which they were designed; on the 12 added studies, as in the pre-registered
 confirmatory test, it is not significant. `definition` therefore stays the
 default.
 
+Rerun on 2026-11-08 with every column asked about (`--max-per-source 1000`,
+the committed `analyses/output_llm_evaluation/`), after schema 3.3 added
+`touch_offset` and road_bumps_touch got a curated mapping (102 and 156 DV
+columns): `definition` 105 of 258 (41%), `dense_h` 127 (49%; 41 vs. 19,
+p = 0.006), `mixed_h` 122 (47%; 27 vs. 10, p = 0.008). Original 11: 49,
+64 (p = 0.011) and 61 (p = 0.023) of 102; 12 added: 56, 63 (p = 0.27) and
+61 (p = 0.27) of 156. E2: 183, 184 and 192 of 300. The conclusion is the
+same. One added DV in the schema also changes the LLM's answers in studies
+whose mappings did not change: 19 column mappings of the 39-study batch in
+five studies (see the changelog).
+
 In the first run the original 11 studies' items were identical to the
 previous run, and, as in the confirmatory test, the filtered dense shortlists
 did not beat `definition` on studies they were not tuned on. Three patterns
@@ -455,19 +466,25 @@ the 39 development studies (2026-11-06, `analyses/output_multiverse/`; the
   0–100 scale (27.4–34.7), every interval covering the default; SUS
   `usability` (k = 5–6), 74.2–75.5.
 - **Fragile:**
-  - `perceived_safety` (k = 5–12) moves from 0.85 to 3.70 (0.93 to 4.04),
-    entirely with scale harmonization (raw 2.98–3.70, harmonized 0.85–1.13);
-    25% of the intervals miss the default (28%);
-  - `understanding_rating` ranges from 3.51 to 7.64 (3.71–7.56), again by
+  - `perceived_safety` (k = 5–11) moves from 1.12 to 2.99 (0.93 to 4.04),
+    entirely with scale harmonization (raw 2.84–2.99, harmonized
+    1.12–1.21); 25% of the intervals miss the default (28%);
+  - `understanding_rating` ranges from 3.80 to 5.73 (3.71–7.56), again by
     scale harmonization alone.
+
+  Before 2026-11-08 the two ranges were 0.85–3.70 and 3.51–7.64: wrong LLM
+  mappings of road_bumps_touch (a speed bin as perceived safety) and ARTV
+  ornaments widened them, and both studies' columns are no longer offered
+  to the LLM.
 - **Fragility from LLM rows:** with LLM-deduced columns included,
   `task_completion_time` spans 1.2 to 900 (to 1,331), because the LLM maps
   columns in milliseconds (AV Prevalence's decision times, myocontrol's test
   trials), which the curated mappings leave out. Without LLM rows it now
-  spans 1.24 to 52.66 (0.70–0.90) by the τ² estimator alone: an NL2TAP
-  scenario takes 209 s, a trial of the other three studies (VR dragging,
-  touch selection, memory reaction time) 0.6–2 s, and REML weights the four
-  studies nearly equally. Times of different tasks are
+  spans 1.25 to 42.27 (0.70–0.90 with 23 studies; 1.24–52.66 before
+  road_bumps_touch's curated task times joined on 2026-11-08) by the τ²
+  estimator alone: an NL2TAP scenario takes 209 s, a trial of the other
+  studies (VR dragging, touch selection on a phone and in a car, memory
+  reaction time) 0.6–2 s, and REML weights the studies nearly equally. Times of different tasks are
   not one quantity. `pedestrian_crossing_time` is still pooled only with
   LLM-mapped columns (6.2–13.9 over 7–8 studies). The plausibility rules
   check names, types and ranges, not whether a DV fits the study's domain:
@@ -482,7 +499,7 @@ the 39 development studies (2026-11-06, `analyses/output_multiverse/`; the
   lies in 0.73–1.57 (0.81–1.85). A wide or implausible multiverse range can
   flag a polarity error, not only a consequential harmonization choice.
 - **Interval width:** 95% interval widths differ by up to an order of
-  magnitude between Wald and HKSJ at small k (e.g. `perceived_safety`: 1.4
+  magnitude between Wald and HKSJ at small k (e.g. `perceived_safety`: 1.0
   to 8.9; `mental_demand` 2.7 to 22.5). More studies narrow the widest:
   `TLX_SCORE`'s widths, 12 to 143 over 3–5 studies, are 16 to 36 over 11–14.
 
@@ -528,17 +545,18 @@ for the 39 development studies (2026-11-05); the 23-study values of
   persons over 10–12 studies (12 of 15 pairs; none with 23 studies).
   *Performance* is the weakest link (between persons r = 0.13–0.24),
   consistent with the TLX's one-factor misfit (§4).
-- **The LLM's contribution.** It reaches 35 studies (29 without it). Its
+- **The LLM's contribution.** It reaches 37 studies (31 without it). Its
   extra cross-construct findings need review: perceived safety × TiA trust
   (four studies, r = 0.63) rests on correct mappings in two studies, a
   partly wrong one in a third and a wrong one (relaxation as trust) in the
-  fourth, yet looks homogeneous; trust × UEQ-S hedonic quality (new) rests
-  partly on an immersion score read as trust (ARTV ornaments), and the LLM
-  also reads minimum heart rate as trust (music tempo). On the 16 added
+  fourth, yet looks homogeneous; trust × UEQ-S hedonic quality (new, three
+  studies since ARTV ornaments' immersion score, read as trust, was marked
+  never-map on 2026-11-08), and the LLM also reads minimum heart rate as
+  trust (music tempo). On the 16 added
   studies it gives the curated DV for 17% of the curated columns (41% on
   the first 23).
 - **Can the LLM replace curation? No.** With the LLM's leave-alias-out
-  answers in place of the curated mappings, 68 of 312 curated DV columns
+  answers in place of the curated mappings, 67 of 314 curated DV columns
   keep their DV. Within persons the replay recovers 13 of the 16 curated
   findings, but the shared schema alone recovers 14, because the added
   TLX studies name their subscales plainly; between persons it recovers

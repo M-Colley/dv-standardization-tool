@@ -4,6 +4,43 @@ This document logs human-readable updates to the repo's functionality, structure
 
 ---
 
+### [2026-11-08] All open work combined; every output rerun
+
+The entries of 2026-11-05 to 2026-11-07 below were made on separate branches. Each branch computed its outputs without the others' changes, and most did not regenerate them, so no committed result held all of them. They are now merged into one branch, and every committed output was rerun once from it.
+
+- **Merged:**
+    - #39 (open-data search, held-out test), #40 (development mappings, 39-study outputs), #41 (pickle refusal), #42 (road_bumps_touch curated), #43 (`touch_offset`, schema 3.3);
+    - four branches without a PR: `exclude_rows` with Handsize's outliers, the factors of the 2026-11-05 studies with mean combination and random-effects cluster pooling, ARTV's Qualtrics header rows with the never-map locks of ARTV and tactile SA display, and participant ids read from source paths.
+- **Conflicts resolved:** the changelog and README kept both sides. In `opendv/data_loaders.py`, `skip_rows` and the pickle refusal are combined: a pickle with `skip_rows` stops with the `skip_rows` error, before anything is unpickled. In `opendv/analysis/multi_study_analysis.py`, the skipping of pickles and the source-path file order are both kept. Tests: 799 passed, 2 skipped.
+- **Rerun:** every command of `docs/reproducibility.md`. 39 of 39 sources standardized, no LLM generation errors.
+- **The LLM-excluded outputs change only where curated mappings changed:**
+    - `task_completion_time`: k 4 → 5 with road_bumps_touch's task times, 1.25, HKSJ [−2.89, 5.40];
+    - the new `touch_offset`: Handsize and road bumps, 3.21 mm (fixed effect, k = 2; HKSJ [−0.81, 7.22]).
+
+    Every other pooled DV, every contrast pool and the invariance results are unchanged.
+- **Relations at the deterministic levels: no pair and no finding changed.**
+    - One pair is new: task completion time × touch offset, between persons r = −0.43 in both studies (k = 2, so not tested).
+    - The curated level now covers 31 studies (2,853 participants).
+- **With LLM mappings**, 16 pooled DVs change and 3 drop out (`interaction_events`, `task_feasibility_item_01`, `ueq_stimulation`). Three causes:
+    - road_bumps_touch's LLM mappings of its pickle columns are gone;
+    - the unmapped columns of ARTV and tactile SA display are no longer offered to the LLM;
+    - **schema 3.3 changes the LLM's answers in studies whose mappings did not change:** 19 column mappings in five studies. Music tempo's maximum heart rates and two SenseCobot EEG statistics are now read as maximum lateral acceleration. Curved Dragging's mean absolute end-point deviation, in degrees, is read as `touch_offset`, so the all-mappings `touch_offset` pool (k = 3, 4.15) mixes degrees with millimetres. One added DV moves a small model's choices elsewhere in the schema.
+
+    Examples, old → new (k): `pedestrian_crossing_time` 6.22 → 10.86 (8 → 7), `perceived_safety` 0.92 → 1.21 (12 → 11), `task_completion_time` 9.94 → 5.12 (10), `trust_rating` 3.55 → 3.76 (10 → 9). The LLM level has the same 37 relation findings. Trust × UEQ-S hedonic quality now rests on three studies instead of four (ARTV's immersion score is no longer read as trust).
+- **Coverage:** 93 pooled DVs (95), 62 over at least three studies (66); without LLM rows 50 (49) and 36. Mean pairwise Jaccard 0.084 (0.085). The most similar pair is now Handsize and road bumps (1.0: both report only task completion time and touch offset).
+- **Contrasts:** 1,141 contrast effects (1,171). ARTV loses 24 and road bumps 10 (the speed contrasts of its pickle columns), tactile SA 2; myocontrol gains 5 (a new LLM mapping) and Handsize 1. The contrast pools are unchanged.
+- **Multiverse:** without LLM rows `task_completion_time` spans 1.25–42.27 (1.24–52.66). `perceived_safety` 1.12–2.99 (0.85–3.70) and `understanding_rating` 3.80–5.73 (3.51–7.64) are narrower, because the wrong LLM mappings of road bumps and ARTV are gone.
+- **Cluster pools** of the study-vs-pool deviations moved by at most 0.16. No HKSJ interval excludes 0.
+- **LLM benchmark** (`--max-per-source 1000`):
+    - first 23 studies: `definition` 105 of 258 DV columns (105 of 255), `dense_h` 127 (paired p = 0.006), `mixed_h` 122 (p = 0.008); on the 12 studies added on 2026-11-04 the differences stay non-significant (p = 0.27);
+    - 16 studies added on 2026-11-05: 71 of 423 (73); driving style's Godspeed items 0 of 90 (2).
+    - Replay: 67 of 314 curated DV columns keep their DV (68 of 312). Between persons the replay has one finding instead of two: SSQ oculomotor × STS-AD trust, unsupported, now pools two studies (FOV snap-turn's answers changed).
+- **Stale plots removed:** 18 forest, funnel, sensitivity and specification-curve plots that the rerun no longer draws. Their DVs dropped out of pooling, or fell to k = 2, where only the forest plot is drawn.
+- **Not rerun:** the held-out test (`analyses/heldout/`). It keeps the outputs of its pre-registered run at `5e266f5`. The older benchmark folders (`shortlist_*`, `definition_gpu_rerun`, rules 1.0) also stay as they were.
+- **Docs:** README, `docs/cross_study_insights.md`, `docs/research_agenda.md`, `docs/reproducibility.md`, `analyses/figures_chi/README.md`.
+
+---
+
 ### [2026-11-07] Rows flagged by the authors can be left out (`exclude_rows`)
 
 A mapping can now drop the rows a dataset's authors flagged for exclusion. Until now every row of a file was standardized, so trial-level exports that keep their excluded trials (and mark them in a column) were pooled with those trials. Handsize's 703 outlier trials are the first case.

@@ -135,10 +135,12 @@ ar_pedestrian_online_2023,aesthetics_rating,higher_is_better,ux_satisfaction,AOA
 ar_pedestrian_online_2023,aesthetics_rating,higher_is_better,ux_satisfaction,AOA5,-0.5411786733919186,possible reverse coding
 ar_pedestrian_online_2023,aesthetics_rating,higher_is_better,ux_satisfaction,AOA7,-0.5322584278420126,possible reverse coding
 ar_pedestrian_online_2023,aesthetics_rating,higher_is_better,ux_satisfaction,AOA9,-0.36888418712669335,possible reverse coding
-artv_ornaments_2025,AOA7,lower_is_better,ux_satisfaction,SUS3,-0.41806025549649195,possible reverse coding
-artv_ornaments_2025,SUS3,higher_is_better,ux_satisfaction,AOA7,-0.41806025549649195,possible reverse coding
 curved_dragging_vr_ijhci26,efficiency,higher_is_better,performance,task_completion_time,-0.529921666896587,possible reverse coding
+curved_dragging_vr_ijhci26,error_rate,lower_is_better,performance,touch_offset,-0.3877349869779986,possible reverse coding
 curved_dragging_vr_ijhci26,task_completion_time,lower_is_better,performance,efficiency,-0.529921666896587,possible reverse coding
+curved_dragging_vr_ijhci26,task_completion_time,lower_is_better,performance,touch_offset,-0.3228059445726146,possible reverse coding
+curved_dragging_vr_ijhci26,touch_offset,lower_is_better,performance,error_rate,-0.3877349869779986,possible reverse coding
+curved_dragging_vr_ijhci26,touch_offset,lower_is_better,performance,task_completion_time,-0.3228059445726146,possible reverse coding
 driving_style_automated_2021,godspeed_perceived_safety,higher_is_better,safety_trust,tia_item_06,-0.45953350004385407,possible reverse coding
 driving_style_automated_2021,tia_item_06,higher_is_better,safety_trust,godspeed_perceived_safety,-0.45953350004385407,possible reverse coding
 ehmi_for_all_chi26,AOA1,lower_is_better,ux_satisfaction,AOA3,-0.7447882503436114,possible reverse coding
@@ -486,6 +488,10 @@ incar_vr_gain_chi24,perceived_safety,higher_is_better,safety_trust,godspeed_perc
 incar_vr_gain_chi24,sts_ad_trust,higher_is_better,safety_trust,tia_trust_in_automation,-0.37262981204441264,possible reverse coding
 incar_vr_gain_chi24,tia_trust_in_automation,higher_is_better,safety_trust,sts_ad_trust,-0.37262981204441264,possible reverse coding
 music_tempo_taskload_2022,valence,higher_is_better,affective_emotion,arousal,-0.6101362160128768,possible reverse coding
+myocontrol_intent_2025,sdlp,lower_is_better,performance,takeover_time,-0.5072405833230946,possible reverse coding
+myocontrol_intent_2025,takeover_time,lower_is_better,performance,sdlp,-0.5072405833230946,possible reverse coding
+myocontrol_intent_2025,takeover_time,lower_is_better,performance,task_success,-0.6665592416964419,possible reverse coding
+myocontrol_intent_2025,task_success,higher_is_better,performance,takeover_time,-0.6665592416964419,possible reverse coding
 nl2tap_filter_2026,SUS10,lower_is_better,ux_satisfaction,usability,-0.33924431219456613,possible reverse coding
 nl2tap_filter_2026,SUS2,lower_is_better,ux_satisfaction,SUS3,-0.4509697385152823,possible reverse coding
 nl2tap_filter_2026,SUS2,lower_is_better,ux_satisfaction,SUS5,-0.31939417085432387,possible reverse coding

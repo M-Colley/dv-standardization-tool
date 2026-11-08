@@ -17,11 +17,11 @@
       "level": "names",
       "level_label": "identical raw column names",
       "association": "between_person",
-      "studies_with_relations": 27,
+      "studies_with_relations": 29,
       "pairs_pooled_k2": 31,
       "pairs_pooled_k3": 14,
       "cross_construct_pairs_k3": 0,
-      "participants": 2657,
+      "participants": 2700,
       "findings": 4,
       "cross_construct_findings": 0,
       "generalizing_findings": 2
@@ -30,11 +30,11 @@
       "level": "names",
       "level_label": "identical raw column names",
       "association": "within_person",
-      "studies_with_relations": 18,
+      "studies_with_relations": 19,
       "pairs_pooled_k2": 16,
       "pairs_pooled_k3": 12,
       "cross_construct_pairs_k3": 0,
-      "participants": 684,
+      "participants": 711,
       "findings": 9,
       "cross_construct_findings": 0,
       "generalizing_findings": 2
@@ -69,11 +69,11 @@
       "level": "curated",
       "level_label": "+ study mapping files",
       "association": "between_person",
-      "studies_with_relations": 29,
-      "pairs_pooled_k2": 83,
+      "studies_with_relations": 31,
+      "pairs_pooled_k2": 84,
       "pairs_pooled_k3": 35,
       "cross_construct_pairs_k3": 12,
-      "participants": 2810,
+      "participants": 2853,
       "findings": 19,
       "cross_construct_findings": 5,
       "generalizing_findings": 7
@@ -82,11 +82,11 @@
       "level": "curated",
       "level_label": "+ study mapping files",
       "association": "within_person",
-      "studies_with_relations": 18,
+      "studies_with_relations": 19,
       "pairs_pooled_k2": 46,
       "pairs_pooled_k3": 24,
       "cross_construct_pairs_k3": 2,
-      "participants": 684,
+      "participants": 711,
       "findings": 16,
       "cross_construct_findings": 1,
       "generalizing_findings": 9
@@ -95,11 +95,11 @@
       "level": "llm",
       "level_label": "+ local-LLM fallback",
       "association": "between_person",
-      "studies_with_relations": 35,
-      "pairs_pooled_k2": 232,
+      "studies_with_relations": 37,
+      "pairs_pooled_k2": 227,
       "pairs_pooled_k3": 83,
       "cross_construct_pairs_k3": 60,
-      "participants": 3021,
+      "participants": 3064,
       "findings": 20,
       "cross_construct_findings": 7,
       "generalizing_findings": 7
@@ -109,10 +109,10 @@
       "level_label": "+ local-LLM fallback",
       "association": "within_person",
       "studies_with_relations": 22,
-      "pairs_pooled_k2": 121,
-      "pairs_pooled_k3": 52,
-      "cross_construct_pairs_k3": 30,
-      "participants": 793,
+      "pairs_pooled_k2": 120,
+      "pairs_pooled_k3": 50,
+      "cross_construct_pairs_k3": 28,
+      "participants": 804,
       "findings": 17,
       "cross_construct_findings": 2,
       "generalizing_findings": 9
@@ -124,11 +124,11 @@
       "analyses\\output_llm_evaluation\\added_2026_11_05\\llm_mapping_evaluation_items.csv"
     ],
     "columns": {
-      "curated_dv_columns": 312,
-      "answered": 240,
-      "unanswered_or_rejected": 72,
-      "same_dv_as_curated": 68,
-      "curated_non_dv_mapped_by_llm": 993
+      "curated_dv_columns": 314,
+      "answered": 241,
+      "unanswered_or_rejected": 73,
+      "same_dv_as_curated": 67,
+      "curated_non_dv_mapped_by_llm": 1032
     },
     "conclusions_vs_curated": [
       {
@@ -157,12 +157,12 @@
         "level": "llm_replay",
         "association": "between_person",
         "reference_findings": 19,
-        "findings": 2,
+        "findings": 1,
         "confirmed": 1,
         "sign_flipped": 0,
-        "unsupported": 1,
-        "pairs_pooled_in_both": 44,
-        "median_abs_difference_r": 0.05944447605180564
+        "unsupported": 0,
+        "pairs_pooled_in_both": 41,
+        "median_abs_difference_r": 0.06278655930247057
       },
       {
         "level": "llm_replay",
@@ -173,7 +173,7 @@
         "sign_flipped": 0,
         "unsupported": 2,
         "pairs_pooled_in_both": 28,
-        "median_abs_difference_r": 0.06880606774356635
+        "median_abs_difference_r": 0.07061972836895125
       }
     ]
   }

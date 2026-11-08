@@ -24,10 +24,10 @@ captions is computed from the run artifacts.
 | LLM-deduced aliases accepted / rejected by the plausibility check | 525 / 286 | `llm_deductions.json`, `llm_rejected_suggestions.json` |
 | Canonical DVs surfaced | 134 | `dv_presence_matrix.csv` |
 | Datasets with ≥ 1 canonical DV | 39 of 39 | `dv_presence_matrix.csv` |
-| Meta-analyzable DVs (k ≥ 2): all mappings / without LLM-deduced rows | 95 / 49 | `meta_analysis_summary*.csv` |
-| DVs pooled across ≥ 3 studies: all / without LLM-deduced rows | 66 / 36 | `meta_analysis_summary*.csv` |
-| **Mean pairwise DV overlap** | **Jaccard = 0.085** | `dv_overlap_details.csv` |
-| Most similar pair | TLX formats ↔ visual fidelity (0.88; both report only the NASA-TLX) | `dv_overlap_details.csv` |
+| Meta-analyzable DVs (k ≥ 2): all mappings / without LLM-deduced rows | 93 / 50 | `meta_analysis_summary*.csv` |
+| DVs pooled across ≥ 3 studies: all / without LLM-deduced rows | 62 / 36 | `meta_analysis_summary*.csv` |
+| **Mean pairwise DV overlap** | **Jaccard = 0.084** | `dv_overlap_details.csv` |
+| Most similar pairs | Handsize ↔ road bumps (1.0; both report only task completion time and touch offset); TLX formats ↔ visual fidelity (0.88; both report only the NASA-TLX) | `dv_overlap_details.csv` |
 | NASA-TLX Mental Demand, all mappings (k = 21; 7 studies with LLM-mapped columns) | 7.44; Wald [5.66, 9.23]; HKSJ [5.91, 8.98]; I² = 99.9%, τ² = 17.2 | `meta_analysis_summary.csv` |
 | NASA-TLX Mental Demand, without LLM-deduced rows (k = 14) | 8.38; Wald [6.09, 10.68]; HKSJ [6.62, 10.15]; I² = 99.8% | `meta_analysis_summary_llm_excluded.csv` |
 | Multiverse range of the Mental Demand estimate (32 specifications) | 7.44–21.12 (harmonized scales: 7.44–8.41) | `output_multiverse/multiverse_summary.csv` |
@@ -39,12 +39,12 @@ captions is computed from the run artifacts.
 
 - **`fig0_teaser`** — 2×2 overview combining (a)–(d) for the paper's first page.
 - **`fig1_pipeline`** — *From an open catalog to comparable evidence.* Corpus
-  attrition through the pipeline: 39 sources, 134 canonical DVs, 95 poolable
-  DVs, of which 66 are pooled across ≥ 3 studies.
+  attrition through the pipeline: 39 sources, 134 canonical DVs, 93 poolable
+  DVs, of which 62 are pooled across ≥ 3 studies.
 - **`fig2_presence_matrix`** — *Dependent-variable coverage across 39 open HCI
   datasets.* Cells mark a canonical DV present in a dataset, colored by
   thematic cluster. Marginals show per-DV study count and per-dataset DV
-  count. Mean pairwise overlap is only Jaccard = 0.085. The figure's height
+  count. Mean pairwise overlap is only Jaccard = 0.084. The figure's height
   was set for 11 studies; at 39 the row labels overlap.
 - **`fig3_overlap_heatmap`** — *Pairwise DV-vocabulary overlap (Jaccard).*
 - **`fig4_forest_mental_demand`** — *Evidence synthesis unlocked by
@@ -64,13 +64,13 @@ captions is computed from the run artifacts.
 1. **LLM-deduced mappings are provisional.** In the leave-alias-out benchmark
    the LLM gives the curated DV for 41% of the DV columns of the first 23
    studies and 17% of the 16 added ones (`analyses/output_llm_evaluation/`).
-   82 of the 95 pooled DVs include LLM-deduced rows (`includes_llm_deduced`
+   77 of the 93 pooled DVs include LLM-deduced rows (`includes_llm_deduced`
    in `meta_analysis_summary.csv`). Example: the LLM maps SenseCobot's EEG
    beta/alpha-ratio statistics to mental demand; their values pass the range
    check, and the study mean (0.39 of 20) takes 17.5% of the weight in
    Fig. 4. All study × DV rows with `mapping_source = llm_deduced` are listed
    in `harmonized_dv_summary.csv`. For claims, prefer the `*_llm_excluded`
-   files (49 meta-analyzable DVs, 36 with k ≥ 3). Fig. 2, Fig. 3 and the PCA
+   files (50 meta-analyzable DVs, 36 with k ≥ 3). Fig. 2, Fig. 3 and the PCA
    composite use all mappings.
 2. **Observation-level n.** Meta-analysis weights use row counts, not
    participants, so large row-level exports (TLX formats with 3,888 rows,
@@ -78,8 +78,8 @@ captions is computed from the run artifacts.
    (`analyses/output_multiverse/`).
 3. **Scale harmonization decides many estimates.** Six of the added studies
    record the NASA-TLX on 0–100. Pooled on their raw scales the subscales
-   move from 6–8 to 13–23 on the schema's 0–20; `perceived_safety` ranges from 0.85 to
-   3.70 and `understanding_rating` from 3.51 to 7.64 depending on this one
+   move from 6–8 to 13–23 on the schema's 0–20; `perceived_safety` ranges from 1.12 to
+   2.99 and `understanding_rating` from 3.80 to 5.73 depending on this one
    choice.
 4. **Small k.** Many pooled DVs have k = 2–3. Use the HKSJ interval
    (`hksj_ci95_low/high`) rather than the Wald interval for inference.
