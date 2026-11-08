@@ -25,6 +25,7 @@ from __future__ import annotations
 import re
 from typing import Any, Iterable
 
+import numpy as np
 import pandas as pd
 
 
@@ -205,6 +206,89 @@ def apply_missing_values(
     return out, report
 
 
+_BOOLEAN_TEXT = {"true": True, "false": False}
+
+
+def _is_bool(value: Any) -> bool:
+    return isinstance(value, (bool, np.bool_))
+
+
+def _cells_matching(series: pd.Series, values: Iterable[Any]) -> pd.Series:
+    """Rows of *series* whose cell equals one of *values*; missing cells never match.
+
+    Booleans match boolean cells and the text ``true`` / ``false`` in any case
+    (a logical column with gaps is read as text; R writes ``TRUE``). Numbers
+    match numerically equal non-boolean cells. Text matches the trimmed cell.
+    """
+    values = list(values)
+    bool_values = {v for v in values if isinstance(v, bool)}
+    numeric_values = [float(v) for v in values if isinstance(v, (int, float)) and not isinstance(v, bool)]
+    text_values = {str(v).strip() for v in values if not isinstance(v, bool)}
+    present = series.notna()
+    hit = pd.Series(False, index=series.index)
+    if pd.api.types.is_bool_dtype(series.dtype):
+        if bool_values:
+            hit |= series.isin(list(bool_values)) & present
+        return hit
+    if bool_values:
+        as_bool = series.map(
+            lambda v: bool(v) if _is_bool(v) else _BOOLEAN_TEXT.get(str(v).strip().casefold())
+        )
+        hit |= as_bool.isin(list(bool_values)) & present
+    if numeric_values:
+        is_bool_cell = series.map(_is_bool)
+        hit |= pd.to_numeric(series.where(~is_bool_cell), errors="coerce").isin(numeric_values)
+    if text_values:
+        hit |= series.astype(str).str.strip().isin(text_values) & present
+    return hit
+
+
+def apply_row_exclusions(
+    df: pd.DataFrame,
+    specs: Iterable[dict[str, Any]],
+) -> tuple[pd.DataFrame, dict[str, Any]]:
+    """Drop the rows a dataset's authors flagged for exclusion.
+
+    Trial-level exports often keep the trials their authors left out of the
+    analysis (too fast, too slow, practice) and mark them in a column. A
+    mapping YAML declares which values of that column leave a row out::
+
+        exclude_rows:
+          - column: Outlier
+            values: [true]
+            reason: trials the authors flagged as too fast or too slow (man/HandSize.Rd)
+
+    Applied first, to the values as read, so nothing downstream (recodings,
+    summaries, the LLM's profiles) sees those rows. A row is dropped when any
+    block matches it; cells are compared as in ``_cells_matching``. Blocks
+    whose column the dataset lacks are skipped. Returns the frame (index
+    reset) and, if any block applied, ``{"rows_before", "rows_dropped",
+    "rules": [{column, values, reason, rows}]}`` with each block's own match
+    count, so blocks that overlap are visible.
+    """
+    drop = pd.Series(False, index=df.index)
+    rules: list[dict[str, Any]] = []
+    for spec in specs or []:
+        column = spec.get("column") if isinstance(spec, dict) else None
+        if not isinstance(column, str) or column not in df.columns:
+            continue
+        values = list(spec.get("values") or [])
+        hit = _cells_matching(df[column], values)
+        drop |= hit
+        rules.append({
+            "column": column,
+            "values": values,
+            "reason": str(spec.get("reason", "")),
+            "rows": int(hit.sum()),
+        })
+    if not rules:
+        return df, {}
+    report = {"rows_before": int(len(df)), "rows_dropped": int(drop.sum()), "rules": rules}
+    if not drop.any():
+        return df, report
+    return df.loc[~drop].reset_index(drop=True), report
+
+
 def unit_factor(source_unit: str, target_unit: str) -> float:
     """Multiplier from one time unit to another (``ms`` -> ``s`` is 0.001).
 
@@ -295,6 +379,7 @@ def apply_scale_conversions(
 
 __all__ = [
     "apply_missing_values",
+    "apply_row_exclusions",
     "apply_scale_conversions",
     "apply_unit_conversions",
     "apply_value_labels",

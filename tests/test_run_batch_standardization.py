@@ -642,7 +642,8 @@ class BatchStandardizationTests(unittest.TestCase):
 
     def test_touch_offset_pools_handsize_errormm_with_road_bumps(self):
         # Handsize's ErrorMM is already in mm and maps to the DV that road_bumps'
-        # converted TouchOffset maps to (schema 3.3); first rows of HandSize.csv.
+        # converted TouchOffset maps to (schema 3.3). Rows in HandSize.csv's format;
+        # the second and fourth are flagged outlier trials (one written as R does).
         from opendv.analysis.multi_study_analysis import _load_dv_measurement_metadata
 
         shipped = {s["source_id"]: s for s in load_manifest(REPO_ROOT / "sources_manifest_no4tu.yaml")}
@@ -654,7 +655,9 @@ class BatchStandardizationTests(unittest.TestCase):
             (input_dir / "HandSize.csv").write_text(
                 "PID,Trial,Phone,TouchX,TouchY,TargetX,TargetY,SelectionTimeSeconds,ErrorMM,Outlier\n"
                 "1,0,Android,100,200,103,200,1.284089,0.177774,False\n"
-                "1,1,iPhone,50,60,50,70,0.781912,0.727989,True\n",
+                "1,1,iPhone,50,60,50,70,0.781912,0.727989,True\n"
+                "1,2,iPhone,80,90,81,90,0.612,0.0779,False\n"
+                "1,3,Android,10,20,900,800,0.000595,58.1234,TRUE\n",
                 encoding="utf-8",
             )
             manifest_path = tmp / "manifest.yaml"
@@ -671,14 +674,23 @@ class BatchStandardizationTests(unittest.TestCase):
             )
             summary = run_batch(manifest_path, tmp / "output", SCHEMA_PATH, llm_deduction_enabled=False, fair_export=False)
             meta_view = pd.read_csv(tmp / "output" / "meta_view.csv")
-            table = pd.read_csv(tmp / "output" / "standardized" / "handsize_touch_mobilehci19" / "HandSize_csv-standardized.csv")
+            out_dir = tmp / "output" / "standardized" / "handsize_touch_mobilehci19"
+            table = pd.read_csv(out_dir / "HandSize_csv-standardized.csv")
+            quality = json.loads((out_dir / "HandSize_csv-quality.json").read_text(encoding="utf-8"))
 
         # Every column is mapped, so the LLM never sees TouchX/TouchY (px positions it
         # could take for the offset, which would make the study's DV LLM-deduced).
         self.assertEqual(summary["results"][0]["unknown_columns"], 0)
         row = meta_view.set_index("original_alias").loc["ErrorMM"]
         self.assertEqual((row["canonical_dv"], row["mapping_domain"], row["mapping_method"]), ("touch_offset", "dv", "mapping"))
-        self.assertEqual(table["touch_offset"].tolist(), [0.177774, 0.727989])  # unchanged: already mm
+        # Outlier trials are left out (exclude_rows); the rest is unchanged: already mm.
+        self.assertEqual(table["touch_offset"].tolist(), [0.177774, 0.0779])
+        self.assertEqual(table["task_completion_time"].tolist(), [1.284089, 0.612])
+        self.assertEqual(set(table["meta_outlier_flag"]), {False})
+        excluded = quality["rows_excluded"]
+        self.assertEqual((excluded["rows_before"], excluded["rows_dropped"]), (4, 2))
+        self.assertEqual([(r["column"], r["values"]) for r in excluded["rules"]], [("Outlier", [True])])
+        self.assertIn("too fast or too slow", excluded["rules"][0]["reason"])
         info = _load_dv_measurement_metadata()["touch_offset"]
         self.assertEqual((info["cluster"], info["direction"]), ("performance", "lower_is_better"))
         self.assertNotIn("canonical_range", info)  # unbounded: the analysis never rescales mm

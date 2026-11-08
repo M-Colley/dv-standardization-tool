@@ -516,6 +516,7 @@ Method and results: [`docs/cross_study_insights.md`](docs/cross_study_insights.m
   ```
 
   The renaming happens when the file is read, after `pivot` and `drop_columns`; the output, `meta_view.csv` and the data package carry the new names. A name in `rename` that the file lacks, or a rename that would duplicate a column, stops the run.
+- **Excluded rows**: if a trial-level file keeps rows its authors left out of their analysis and flags them in a column (outlier, practice trials), declare the filter under `exclude_rows:` (`column:`, `values:`, `reason:`, the reason being required; see `schemas/handsize_touch_mobilehci19_mapping.yaml`). Those rows are dropped before anything else, on the values as read (`true` also matches the text `TRUE`/`True`). `-quality.json` (`rows_excluded`) and the data package (`opendv:rowsExcluded`) record the rows before and dropped, per block. Without this, the flagged trials were pooled with the rest.
 - **Item-level DVs**: name item DVs `<construct id>_item_NN` (e.g. `perceived_safety_item_01`) or declare `subitem_of: <construct id>` in the schema entry. The causal analysis then drops the items whenever their construct is present, so item → scale edges cannot appear in the DAG.
 
 ```bash

@@ -262,6 +262,9 @@ def _aligned_files(input_dir: Path, meta_view: pd.DataFrame):
             if quality.get("dataset_id") == dataset_id:
                 target = quality.get("standardized_file")
                 transformed = _transformed_columns(qpath)
+                if (quality.get("rows_excluded") or {}).get("rows_dropped"):
+                    # The mapping's exclude_rows changed every column's values.
+                    transformed |= {str(alias) for alias in rows["original_alias"]}
                 break
         if not target or not (study_dir / target).is_file():
             continue
