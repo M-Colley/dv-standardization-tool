@@ -54,14 +54,20 @@ sources:
     mapping_path: schemas/osf_cwd6h_mapping.yaml
     llm_context: "ArduinoData1 encodes Perceived Risk on a 1-100 VAS scale."
 
+  # The data/ folder's four R_*.csv tables are the per-participant results the
+  # paper analyses (touch counts, touch offset, task completion time). Its .pkl
+  # files (raw touch and accelerometer logs) are not read: unpickling runs code
+  # from the file, and the batch refuses pickles unless a source sets
+  # allow_pickle: true (docs/reproducibility.md, "Pickled data files").
+  # The mapping covers every column of the four tables, so the LLM is not asked.
   - source_id: road_bumps_touch
     source_type: github_repo
     location: https://github.com/interactionlab/Touch-Interaction-with-Road-Bumps/tree/master/data
     publication_doi: 10.1145/3239060.3239071
     include_globs:
       - "**/*.csv"
-      - "**/*.pkl"
-      - "**/*.pickle"
+    mapping_path: schemas/road_bumps_touch_mapping.yaml
+    override_standard_aliases: true
     use_llm_deduction: true
 
   - source_id: 3d_display_comp_vehicle
@@ -314,5 +320,198 @@ sources:
     publication_doi: 10.1145/3613904.3641909
     include_globs: ["*.xlsx"]
     mapping_path: schemas/gaze_platformer_chi24_mapping.yaml
+    override_standard_aliases: true
+    use_llm_deduction: true
+
+  # --- Added 2026-11-05: development half of the 2026-11-05 repository search --------
+  # (analyses/candidate_search/heldout_split.csv). Pinned files:
+  # analyses/development_sources/sources_search.yaml. Download and verify them first:
+  #   python -m opendv.analysis.confirmatory fetch \
+  #     --sources analyses/development_sources/sources_search.yaml --data-dir data/raw/development
+  # 16 of the 28 development datasets are kept. Not added:
+  #   dropped before download (no participant-level table the pipeline reads):
+  #     ehmi_perspective_2021, bioinspired_intent_2021
+  #   download failed: cooperativity_scale_2026, llm_chatbot_care_2026, acoustic_touch_blv_2023
+  #     (Dryad HTTP 401), l2_transfer_control_2022 (Harvard Dataverse guestbook)
+  #   after download:
+  #     lateral_position_2021: the downloaded survey holds demographics only; the crossing
+  #       responses are in data_1.xlsx / data_2.xlsx (over 50 MB, not pinned) and .mat files
+  #     driver_eye_contact_2022: the downloaded survey holds demographics and attitudes only; the
+  #       perceived-safety keypresses are in AllHerokuData.mat and heroku*.txt (80-870 MB)
+  #     ped_woz_field_2018: the workbooks hold clock times of events and coded free text; the
+  #       critical gaps are computed from .mat speed logs and the questionnaire is in ini.m
+  #     passenger_certainty_2026, passenger_uncertainty_2026: every DV (certainty and uncertainty
+  #       sliders, 0-100) is outside the schema; both files come from one crowdsourced study
+  #       (shared worker codes)
+  #     car_sickness_physio_2023: the questionnaire workbooks are presentation layouts (SSQ
+  #       transposed with participants as columns, FMS as stacked blocks with shifting columns)
+  #       that sheet, header, pivot and drop_columns cannot turn into a participant table; the
+  #       physiological recordings are 0.7-2.1 GB archives
+  - source_id: ehmi_car_body_2020
+    source_type: local_path
+    location: data/raw/development/ehmi_car_body_2020
+    publication_doi: 10.1145/3404983.3410011
+    include_globs: ["*.sav"]
+    mapping_path: schemas/ehmi_car_body_2020_mapping.yaml
+    override_standard_aliases: true
+    use_llm_deduction: true
+
+  - source_id: tlx_formats_uas_2023
+    source_type: local_path
+    location: data/raw/development/tlx_formats_uas_2023
+    publication_doi: 10.1109/THMS.2023.3263482
+    include_globs: ["nasa_tlx_multi_response.csv"]   # data_dictionary.csv is the codebook
+    mapping_path: schemas/tlx_formats_uas_2023_mapping.yaml
+    override_standard_aliases: true
+    use_llm_deduction: true
+
+  - source_id: tactile_sa_display_2022
+    source_type: local_path
+    location: data/raw/development/tactile_sa_display_2022
+    publication_doi: 10.1109/CIVEMSA53371.2022.9853690
+    include_globs: ["Complete_dataset.csv"]
+    mapping_path: schemas/tactile_sa_display_2022_mapping.yaml
+    override_standard_aliases: true
+    use_llm_deduction: true
+
+  - source_id: short_videos_memory_2023
+    source_type: local_path
+    location: data/raw/development/short_videos_memory_2023
+    publication_doi: 10.1145/3544548.3580778
+    include_globs: ["data/acc.csv", "data/q.csv", "data/rt.csv"]   # not the fitted ddm.csv
+    mapping_path: schemas/short_videos_memory_2023_mapping.yaml
+    override_standard_aliases: true
+    use_llm_deduction: true
+
+  - source_id: driving_style_automated_2021
+    source_type: local_path
+    location: data/raw/development/driving_style_automated_2021
+    publication_doi: 10.1016/j.apergo.2021.103428
+    include_globs: ["supplementary materials/data.xlsx"]
+    mapping_path: schemas/driving_style_automated_2021_mapping.yaml
+    override_standard_aliases: true
+    use_llm_deduction: true
+
+  - source_id: ar_pedestrian_online_2023
+    source_type: local_path
+    location: data/raw/development/ar_pedestrian_online_2023
+    publication_doi: 10.1016/j.trf.2023.02.005
+    include_globs: ["raw_data.xlsx"]
+    mapping_path: schemas/ar_pedestrian_online_2023_mapping.yaml
+    override_standard_aliases: true
+    use_llm_deduction: true
+
+  - source_id: perceived_risk_merging_2022
+    source_type: local_path
+    location: data/raw/development/perceived_risk_merging_2022
+    publication_doi: 10.1016/j.trf.2022.02.016
+    include_globs: ["Data/SubjectiveRatings.xlsx"]
+    mapping_path: schemas/perceived_risk_merging_2022_mapping.yaml
+    override_standard_aliases: true
+    use_llm_deduction: true
+
+  - source_id: ehmi_survey_crowd_2019
+    source_type: local_path
+    location: data/raw/development/ehmi_survey_crowd_2019
+    publication_doi: 10.1016/j.trf.2019.10.013
+    include_globs: ["data/Survey 1/data_s1.xlsx", "data/Survey 2/data_s2.xlsx"]
+    mapping_path: schemas/ehmi_survey_crowd_2019_mapping.yaml
+    override_standard_aliases: true
+    use_llm_deduction: true
+
+  - source_id: reflexion_mapping_2025
+    source_type: local_path
+    location: data/raw/development/reflexion_mapping_2025
+    publication_doi: 10.1109/ICSA-C65153.2025.00068
+    include_globs: ["ProbandData.csv"]
+    mapping_path: schemas/reflexion_mapping_2025_mapping.yaml
+    override_standard_aliases: true
+    use_llm_deduction: true
+
+  - source_id: sensecobot_fusion_2024
+    source_type: local_path
+    location: data/raw/development/sensecobot_fusion_2024
+    publication_doi: 10.1145/3610977.3636440
+    # SenseCobotFusion_EMO.csv and _GSR.csv repeat columns of SenseCobotFusion.csv
+    include_globs: ["SenseCobotFusion/Labels.csv", "SenseCobotFusion/SenseCobotFusion.csv"]
+    mapping_path: schemas/sensecobot_fusion_2024_mapping.yaml
+    override_standard_aliases: true
+    use_llm_deduction: true
+
+  - source_id: myocontrol_intent_2025
+    source_type: local_path
+    location: data/raw/development/myocontrol_intent_2025
+    publication_doi: 10.1109/ICORR66766.2025.11063080
+    include_globs: ["NASA TLX.csv", "testResults.csv"]
+    mapping_path: schemas/myocontrol_intent_2025_mapping.yaml
+    override_standard_aliases: true
+    use_llm_deduction: true
+
+  - source_id: artv_ornaments_2025
+    source_type: local_path
+    location: data/raw/development/artv_ornaments_2025
+    publication_doi: 10.1145/3706370.3727854
+    include_globs: ["Study-2-Questionnaire_Cleaned.xlsx"]
+    table_options:
+      # Qualtrics export: the two rows below the header are the question texts and the import
+      # ids ({"ImportId":"QID7_TEXT"}), not answers.
+      Study-2-Questionnaire_Cleaned.xlsx: {skip_rows: [0, 1]}
+    mapping_path: schemas/artv_ornaments_2025_mapping.yaml
+    override_standard_aliases: true
+    use_llm_deduction: true
+
+  - source_id: nl2tap_filter_2026
+    source_type: local_path
+    location: data/raw/development/nl2tap_filter_2026
+    publication_doi: 10.1080/0144929X.2026.2711012
+    include_globs:
+      - "**/user_study/participants.csv"
+      - "**/user_study/sus_responses.csv"
+      - "**/user_study/tlx_responses.csv"
+      - "**/user_study/toast_responses.csv"
+      - "**/user_study/scenario_sessions.csv"
+    table_options:
+      # The TOAST file names its items item_1..item_9 like the SUS file; renamed so the
+      # mapping can tell them apart.
+      "**/user_study/toast_responses.csv":
+        rename: {item_1: toast_1, item_2: toast_2, item_3: toast_3, item_4: toast_4, item_5: toast_5,
+                 item_6: toast_6, item_7: toast_7, item_8: toast_8, item_9: toast_9}
+    mapping_path: schemas/nl2tap_filter_2026_mapping.yaml
+    override_standard_aliases: true
+    use_llm_deduction: true
+
+  - source_id: visual_fidelity_curves_2015
+    source_type: local_path
+    location: data/raw/development/visual_fidelity_curves_2015
+    publication_doi: 10.1080/00140139.2015.1005172
+    include_globs: ["*.xlsx"]
+    table_options:
+      Questionnaire DATA.xlsx: {sheet: TLX}               # one sheet per questionnaire
+      Dependent Measures.xlsx: {sheet: SDLP, header: 1}   # one sheet per measure; row 0 is a title
+    mapping_path: schemas/visual_fidelity_curves_2015_mapping.yaml
+    override_standard_aliases: true
+    use_llm_deduction: true
+
+  - source_id: music_tempo_taskload_2022
+    source_type: local_path
+    location: data/raw/development/music_tempo_taskload_2022
+    publication_doi: 10.1080/00140139.2021.2003872
+    include_globs: ["*.sav"]
+    mapping_path: schemas/music_tempo_taskload_2022_mapping.yaml
+    override_standard_aliases: true
+    use_llm_deduction: true
+
+  - source_id: concurrent_speech_2022
+    source_type: local_path
+    location: data/raw/development/concurrent_speech_2022
+    publication_doi: 10.1016/j.ijhcs.2021.102728
+    include_globs: ["*.csv"]
+    table_options:
+      "*.csv":
+        pivot:   # one row per participant x question -> one column per question
+          index: [user_id, combination_id, stimulus_id, stimulus_type, stimulus_form, combination_title, baseline_type]
+          columns: question_type
+          values: response_submitted
+    mapping_path: schemas/concurrent_speech_2022_mapping.yaml
     override_standard_aliases: true
     use_llm_deduction: true

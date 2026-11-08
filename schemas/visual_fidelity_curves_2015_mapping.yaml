@@ -1,0 +1,73 @@
+# Source-specific column mapping for visual_fidelity_curves_2015
+# Paper: "Effects of visual fidelity on curve negotiation, gaze behaviour and simulator
+#   discomfort." Ergonomics (2015). DOI 10.1080/00140139.2015.1005172
+# Data: figshare 1311647 (DOI 10.6084/m9.figshare.1311647.v1), CC-BY-4.0. No codebook; the
+#   sheet and column names carry the measures.
+#
+# Files and table options (one sheet per workbook can be read):
+#   - Questionnaire DATA.xlsx {sheet: TLX}: one row per participant x run (24 x 3), long:
+#     Level = visual fidelity of the run (H, M, L), within subjects, order counterbalanced.
+#     NASA-TLX subscales, 0-100 (steps of 5), unweighted.
+#   - Dependent Measures.xlsx {sheet: SDLP, header: 1}: one row per participant (1-24), WIDE:
+#     standard deviation of lateral position (m) in the Low, Medium and High fidelity runs.
+#     The two rows below the participants ("Fidelity level mean", "... std") are sheet
+#     summaries and are dropped (missing_values on the participant column).
+#   The other sheets (immersion and discomfort ratings, gaze, steering and speed measures, one
+#   sheet per measure in Dependent Measures.xlsx) are not read.
+#
+# Notes:
+#   - The questionnaire numbers participants T1-T24, the measures workbook 1-24. They are the
+#     same people: the MentalDemand sheet of the measures workbook repeats the TLX ratings
+#     (participant 1 Low/Medium/High = 95/75/70 = T1 L/M/H; likewise 2 = T2, 3 = T3). The
+#     T-ids are recoded to numbers (value_labels) so both files share one participant id.
+#   - Because fidelity levels are columns in the SDLP sheet and rows in the TLX sheet, SDLP
+#     and the TLX subscales meet only in participant means (between-person relations).
+
+# --- Dependent measures ----------------------------------------------------------
+Mental Demand: mental_demand
+Physical Demand: physical_demand
+Temporal Demand: temporal_demand
+Performance: performance
+Effort: effort
+Frustrations: frustration
+Low: sdlp            # m, low-fidelity run
+Medium: sdlp         # m, medium-fidelity run
+High: sdlp           # m, high-fidelity run
+
+# --- Participants and design ----------------------------------------------------
+Participant: meta_participant_id
+Run: meta_run_order                  # 1-3
+Level: meta_condition_visual_fidelity  # H / M / L
+
+missing_values:
+  - columns: [Participant]
+    values: ["Fidelity level mean", "Fidelity level std"]
+    reason: summary rows below the participants in the SDLP sheet
+
+value_labels:
+  - columns: [Participant]
+    labels:            # Questionnaire DATA.xlsx ids T1-T24 -> 1-24 (Dependent Measures.xlsx)
+      T1: 1
+      T2: 2
+      T3: 3
+      T4: 4
+      T5: 5
+      T6: 6
+      T7: 7
+      T8: 8
+      T9: 9
+      T10: 10
+      T11: 11
+      T12: 12
+      T13: 13
+      T14: 14
+      T15: 15
+      T16: 16
+      T17: 17
+      T18: 18
+      T19: 19
+      T20: 20
+      T21: 21
+      T22: 22
+      T23: 23
+      T24: 24

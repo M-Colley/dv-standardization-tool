@@ -65,7 +65,10 @@ ui = [
     "watchdog>=6.0.0",
 ]
 dev = ["pytest>=9.1.1", "ruff>=0.17.1"]
-all = ["opendv-hci[llm,ui,dev]"]
+# Reads single members of large remote zip archives by HTTP range requests
+# (`python -m opendv.analysis.confirmatory fetch` for sources with `fetch: range`).
+fetch = ["remotezip>=0.12.6"]
+all = ["opendv-hci[llm,ui,dev,fetch]"]
 
 [dependency-groups]
 # Documentation site (mkdocs.yml): pip install --group docs, then mkdocs serve.

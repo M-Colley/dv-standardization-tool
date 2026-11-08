@@ -1,3 +1,4 @@
+import contextlib
 import io
 import json
 import os
@@ -31,6 +32,18 @@ from scripts.run_batch_standardization import (
 REPO_ROOT = Path(__file__).resolve().parents[1]
 SCHEMA_PATH = REPO_ROOT / "schemas" / "standard_dv_mapping.yaml"
 EXAMPLE_MANIFEST_PATH = REPO_ROOT / "sources_manifest_example.yaml"
+
+
+@contextlib.contextmanager
+def _forbid_unpickling():
+    """Fail the test if anything unpickles while the block runs."""
+    def refuse(*_args, **_kwargs):
+        raise AssertionError("unpickling was attempted")
+
+    with mock.patch("pandas.read_pickle", side_effect=refuse), \
+            mock.patch("pickle.load", side_effect=refuse), \
+            mock.patch("pickle.loads", side_effect=refuse):
+        yield
 
 
 def _paths_equal(left: str | os.PathLike[str], right: str | os.PathLike[str]) -> bool:
@@ -418,47 +431,269 @@ class BatchStandardizationTests(unittest.TestCase):
         self.assertEqual(summary["results"][0]["status"], "login_required")
         self.assertEqual(summary["results"][0]["message"], "Dataset files require login.")
 
-    def test_run_batch_standardizes_pickle_datasets(self):
+    @staticmethod
+    def _write_pickle_source(input_dir: Path, with_csv: bool = False) -> None:
+        input_dir.mkdir()
+        pd.DataFrame({"DurationX": [1.0, 2.0]}).to_pickle(input_dir / "study.pkl")
+        if with_csv:
+            pd.DataFrame({"DurationX": [3.0, 4.0]}).to_csv(input_dir / "results.csv", index=False)
+        (input_dir / "source_mapping.yaml").write_text(
+            yaml.safe_dump({"dvs": [{"id": "task_completion_time", "aliases": ["DurationX"]}]}),
+            encoding="utf-8",
+        )
+
+    @staticmethod
+    def _write_manifest(tmp: Path, source: dict) -> Path:
+        manifest_path = tmp / "manifest.yaml"
+        manifest_path.write_text(yaml.safe_dump({"sources": [source]}), encoding="utf-8")
+        return manifest_path
+
+    def test_run_batch_refuses_pickles_by_default_without_unpickling(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            tmp = Path(tmpdir)
+            input_dir = tmp / "input"
+            self._write_pickle_source(input_dir, with_csv=True)
+            manifest_path = self._write_manifest(tmp, {
+                "source_id": "pickle_source",
+                "source_type": "local_path",
+                "location": str(input_dir),
+                "include_globs": ["*.pkl", "*.csv"],
+            })
+
+            with _forbid_unpickling(), self.assertLogs(
+                "opendv.run_batch_standardization", level="WARNING"
+            ) as logs:
+                summary = run_batch(manifest_path, tmp / "output", SCHEMA_PATH, llm_deduction_enabled=False)
+
+            source_dir = tmp / "output" / "standardized" / "pickle_source"
+            written = sorted(path.name for path in source_dir.iterdir())
+            csv_df = pd.read_csv(source_dir / "results_csv-standardized.csv")
+
+        result = summary["results"][0]
+        self.assertEqual(result["status"], "completed")
+        self.assertEqual(result["refused_pickle_files"], ["study.pkl"])
+        self.assertEqual(result["discovered_files"], 2)
+        self.assertEqual(result["processed_files"], 1)
+        self.assertTrue(any("Refused 1 pickled file(s) (study.pkl)" in line for line in logs.output))
+        self.assertFalse([name for name in written if name.startswith("study_pkl")])
+        self.assertEqual(csv_df["task_completion_time"].tolist(), [3.0, 4.0])
+
+    def test_run_batch_reports_a_pickle_only_source_as_not_available(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            tmp = Path(tmpdir)
+            input_dir = tmp / "input"
+            self._write_pickle_source(input_dir)
+            manifest_path = self._write_manifest(tmp, {
+                "source_id": "pickle_source",
+                "source_type": "local_path",
+                "location": str(input_dir),
+                "include_globs": ["*.pkl"],
+            })
+
+            with _forbid_unpickling():
+                summary = run_batch(manifest_path, tmp / "output", SCHEMA_PATH, llm_deduction_enabled=False)
+
+        result = summary["results"][0]
+        self.assertEqual(result["status"], "not_available")
+        self.assertIn("Only pickled files were discovered (1)", result["message"])
+        self.assertEqual(result["refused_pickle_files"], ["study.pkl"])
+        self.assertEqual(result["discovered_files"], 1)
+
+    def test_run_batch_refuses_pickles_from_remote_sources(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            tmp = Path(tmpdir)
+            checkout = tmp / "checkout"
+            self._write_pickle_source(checkout, with_csv=True)
+            manifest_path = self._write_manifest(tmp, {
+                "source_id": "remote_pickles",
+                "source_type": "github_repo",
+                "location": "https://github.com/example/repo",
+            })
+            discovered = (checkout, [checkout / "results.csv", checkout / "study.pkl"], "abc123")
+
+            with _forbid_unpickling(), mock.patch(
+                "scripts.run_batch_standardization.discover_source_files", return_value=discovered
+            ):
+                summary = run_batch(manifest_path, tmp / "output", SCHEMA_PATH, llm_deduction_enabled=False)
+
+        result = summary["results"][0]
+        self.assertEqual(result["status"], "completed")
+        self.assertEqual(result["refused_pickle_files"], ["study.pkl"])
+        self.assertEqual(result["processed_files"], 1)
+
+    def test_run_batch_reads_pickles_with_allow_pickle_and_writes_parquet(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            tmp = Path(tmpdir)
+            input_dir = tmp / "input"
+            self._write_pickle_source(input_dir)
+            manifest_path = self._write_manifest(tmp, {
+                "source_id": "pickle_source",
+                "source_type": "local_path",
+                "location": str(input_dir),
+                "include_globs": ["*.pkl"],
+                "allow_pickle": True,
+            })
+
+            summary = run_batch(manifest_path, tmp / "output", SCHEMA_PATH, llm_deduction_enabled=False)
+
+            source_dir = tmp / "output" / "standardized" / "pickle_source"
+            standardized_df = pd.read_parquet(source_dir / "study_pkl-standardized.parquet")
+            pickled_outputs = list(source_dir.glob("*.pkl")) + list(source_dir.glob("*.pickle"))
+
+        self.assertEqual(summary["results"][0]["status"], "completed")
+        self.assertEqual(summary["results"][0]["refused_pickle_files"], [])
+        self.assertEqual(standardized_df["task_completion_time"].tolist(), [1.0, 2.0])
+        self.assertEqual(pickled_outputs, [])
+
+    def test_allow_pickle_must_be_a_yaml_boolean(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            tmp = Path(tmpdir)
+            for value in ("false", "true", 1):
+                manifest_path = self._write_manifest(tmp, {
+                    "source_id": "pickle_source",
+                    "source_type": "local_path",
+                    "location": str(tmp),
+                    "allow_pickle": value,
+                })
+                with self.subTest(value=value), self.assertRaises(ValueError) as ctx:
+                    load_manifest(manifest_path)
+                self.assertIn("allow_pickle", str(ctx.exception))
+
+    def test_screen_pickled_files_ignores_truthy_non_booleans(self):
+        # Defence for runs without pydantic validation: only ``True`` opts in.
+        from scripts.run_batch_standardization import _screen_pickled_files
+
+        base = Path("root")
+        files = [base / "a.csv", base / "b.pkl"]
+        for value in ("false", "yes", 1, None):
+            with self.subTest(value=value):
+                kept, refused = _screen_pickled_files(
+                    {"source_id": "s", "allow_pickle": value}, base, files
+                )
+                self.assertEqual(kept, [base / "a.csv"])
+                self.assertEqual(refused, ["b.pkl"])
+        kept, refused = _screen_pickled_files({"source_id": "s", "allow_pickle": True}, base, files)
+        self.assertEqual((kept, refused), (files, []))
+
+    def test_shipped_manifests_never_read_pickles(self):
+        for manifest_path in [*REPO_ROOT.glob("sources_manifest*.yaml"), *REPO_ROOT.glob("analyses/**/*manifest*.yaml")]:
+            for source in load_manifest(manifest_path):
+                with self.subTest(manifest=manifest_path.name, source=source["source_id"]):
+                    self.assertFalse(source.get("allow_pickle", False))
+                    globs = [*source.get("include_globs", [])]
+                    self.assertFalse([glob for glob in globs if glob.lower().endswith((".pkl", ".pickle"))])
+
+    def test_road_bumps_touch_mapping_covers_its_tables(self):
+        # The four R_*.csv tables of the source with their real headers (first rows).
+        shipped = {s["source_id"]: s for s in load_manifest(REPO_ROOT / "sources_manifest_no4tu.yaml")}
+        mapping_path = REPO_ROOT / shipped["road_bumps_touch"]["mapping_path"]
+        tables = {
+            "R_Count_Down.csv": "PId,IsBumpVirtual,SpeedCondition,TouchId,TouchType,Count\n"
+                                "1,0.0,10.0,57.958333,0.0,1.0\n1,1.0,10.0,59.328571,0.0,1.03125\n",
+            "R_Count_Move.csv": "PId,IsBumpVirtual,SpeedCondition,TouchId,TouchType,Count\n"
+                                "1,0.0,10.0,57.958333,1.0,9.479167\n1,1.0,10.0,59.328571,1.0,9.528571\n",
+            "R_Offset.csv": "PId,IsBumpVirtual,SpeedCondition,TouchId,TouchOffset\n"
+                            "1,0.0,10.0,57.958333,20.403875\n1,1.0,10.0,59.328571,18.753054\n",
+            "R_TCT.csv": "PId,IsBump,SpeedCondition,VisualStimuliId,TouchId,TCT\n"
+                         "1,0.0,10.0,0,22.0,1269.0\n1,1.0,10.0,1,101.0,1382.0\n",
+        }
         with tempfile.TemporaryDirectory() as tmpdir:
             tmp = Path(tmpdir)
             input_dir = tmp / "input"
             input_dir.mkdir()
-            pd.DataFrame({"DurationX": [1.0, 2.0]}).to_pickle(input_dir / "study.pkl")
-            (input_dir / "source_mapping.yaml").write_text(
-                yaml.safe_dump(
-                    {
-                        "dvs": [
-                            {"id": "task_completion_time", "aliases": ["DurationX"]},
-                        ]
-                    }
-                ),
-                encoding="utf-8",
-            )
-
+            for name, text in tables.items():
+                (input_dir / name).write_text(text, encoding="utf-8")
             manifest_path = tmp / "manifest.yaml"
             manifest_path.write_text(
-                yaml.safe_dump(
-                    {
-                        "sources": [
-                            {
-                                "source_id": "pickle_source",
-                                "source_type": "local_path",
-                                "location": str(input_dir),
-                                "include_globs": ["*.pkl"],
-                            }
-                        ]
-                    }
-                ),
+                yaml.safe_dump({"sources": [{
+                    "source_id": "road_bumps_touch",
+                    "source_type": "local_path",
+                    "location": str(input_dir),
+                    "include_globs": ["*.csv"],
+                    "mapping_path": str(mapping_path),
+                    "override_standard_aliases": True,
+                }]}),
                 encoding="utf-8",
             )
+            summary = run_batch(manifest_path, tmp / "output", SCHEMA_PATH, llm_deduction_enabled=False, fair_export=False)
+            meta_view = pd.read_csv(tmp / "output" / "meta_view.csv")
+            tct = pd.read_csv(tmp / "output" / "standardized" / "road_bumps_touch" / "R_TCT_csv-standardized.csv")
+            offset = pd.read_csv(tmp / "output" / "standardized" / "road_bumps_touch" / "R_Offset_csv-standardized.csv")
 
-            summary = run_batch(manifest_path, tmp / "output", SCHEMA_PATH, llm_deduction_enabled=False)
+        result = summary["results"][0]
+        self.assertEqual((result["processed_files"], result["unknown_columns"]), (4, 0))  # nothing left for the LLM
+        self.assertEqual(set(meta_view["mapping_method"]), {"mapping"})
+        # TCT and TouchOffset are the columns with a schema DV, stored in s and mm.
+        self.assertEqual(
+            sorted(meta_view.loc[meta_view["mapping_domain"] == "dv", "original_alias"]), ["TCT", "TouchOffset"]
+        )
+        # 1269 ms x 0.001 is 1.2690000000000001 in floating point, so compare with a tolerance.
+        self.assertEqual(len(tct), 2)
+        for seconds, expected in zip(tct["task_completion_time"], [1.269, 1.382]):
+            self.assertAlmostEqual(seconds, expected, places=9)
+        # 0.19 mm per px (the authors' pxToMm)
+        for got, px in zip(offset["touch_offset"], [20.403875, 18.753054], strict=True):
+            self.assertAlmostEqual(got, px * 0.19, places=9)
+        canonical = dict(zip(meta_view["original_alias"], meta_view["canonical_dv"]))
+        self.assertEqual(canonical["TouchOffset"], "touch_offset")
+        self.assertEqual(canonical["Count"], "touch_events_per_touch")
+        self.assertEqual(canonical["IsBump"], "meta_condition_bump_ride")
+        self.assertEqual(canonical["IsBumpVirtual"], "meta_condition_bump_at_touch")
 
-            standardized_path = tmp / "output" / "standardized" / "pickle_source" / "study_pkl-standardized.pkl"
-            standardized_df = pd.read_pickle(standardized_path)
+    def test_touch_offset_pools_handsize_errormm_with_road_bumps(self):
+        # Handsize's ErrorMM is already in mm and maps to the DV that road_bumps'
+        # converted TouchOffset maps to (schema 3.3). Rows in HandSize.csv's format;
+        # the second and fourth are flagged outlier trials (one written as R does).
+        from opendv.analysis.multi_study_analysis import _load_dv_measurement_metadata
 
-        self.assertEqual(summary["results"][0]["status"], "completed")
-        self.assertIn("task_completion_time", standardized_df.columns)
+        shipped = {s["source_id"]: s for s in load_manifest(REPO_ROOT / "sources_manifest_no4tu.yaml")}
+        mapping_path = REPO_ROOT / shipped["handsize_touch_mobilehci19"]["mapping_path"]
+        with tempfile.TemporaryDirectory() as tmpdir:
+            tmp = Path(tmpdir)
+            input_dir = tmp / "input"
+            input_dir.mkdir()
+            (input_dir / "HandSize.csv").write_text(
+                "PID,Trial,Phone,TouchX,TouchY,TargetX,TargetY,SelectionTimeSeconds,ErrorMM,Outlier\n"
+                "1,0,Android,100,200,103,200,1.284089,0.177774,False\n"
+                "1,1,iPhone,50,60,50,70,0.781912,0.727989,True\n"
+                "1,2,iPhone,80,90,81,90,0.612,0.0779,False\n"
+                "1,3,Android,10,20,900,800,0.000595,58.1234,TRUE\n",
+                encoding="utf-8",
+            )
+            manifest_path = tmp / "manifest.yaml"
+            manifest_path.write_text(
+                yaml.safe_dump({"sources": [{
+                    "source_id": "handsize_touch_mobilehci19",
+                    "source_type": "local_path",
+                    "location": str(input_dir),
+                    "include_globs": ["*.csv"],
+                    "mapping_path": str(mapping_path),
+                    "override_standard_aliases": True,
+                }]}),
+                encoding="utf-8",
+            )
+            summary = run_batch(manifest_path, tmp / "output", SCHEMA_PATH, llm_deduction_enabled=False, fair_export=False)
+            meta_view = pd.read_csv(tmp / "output" / "meta_view.csv")
+            out_dir = tmp / "output" / "standardized" / "handsize_touch_mobilehci19"
+            table = pd.read_csv(out_dir / "HandSize_csv-standardized.csv")
+            quality = json.loads((out_dir / "HandSize_csv-quality.json").read_text(encoding="utf-8"))
+
+        # Every column is mapped, so the LLM never sees TouchX/TouchY (px positions it
+        # could take for the offset, which would make the study's DV LLM-deduced).
+        self.assertEqual(summary["results"][0]["unknown_columns"], 0)
+        row = meta_view.set_index("original_alias").loc["ErrorMM"]
+        self.assertEqual((row["canonical_dv"], row["mapping_domain"], row["mapping_method"]), ("touch_offset", "dv", "mapping"))
+        # Outlier trials are left out (exclude_rows); the rest is unchanged: already mm.
+        self.assertEqual(table["touch_offset"].tolist(), [0.177774, 0.0779])
+        self.assertEqual(table["task_completion_time"].tolist(), [1.284089, 0.612])
+        self.assertEqual(set(table["meta_outlier_flag"]), {False})
+        excluded = quality["rows_excluded"]
+        self.assertEqual((excluded["rows_before"], excluded["rows_dropped"]), (4, 2))
+        self.assertEqual([(r["column"], r["values"]) for r in excluded["rules"]], [("Outlier", [True])])
+        self.assertIn("too fast or too slow", excluded["rules"][0]["reason"])
+        info = _load_dv_measurement_metadata()["touch_offset"]
+        self.assertEqual((info["cluster"], info["direction"]), ("performance", "lower_is_better"))
+        self.assertNotIn("canonical_range", info)  # unbounded: the analysis never rescales mm
 
     def test_run_batch_passes_publication_hints_into_llm_context_collection(self):
         with tempfile.TemporaryDirectory() as tmpdir:

@@ -15,7 +15,8 @@ For the exact environment behind the published results, see [Reproducing the res
 
 ```bash
 python -m opendv.analysis.confirmatory fetch --sources analyses/development_sources/sources.yaml --data-dir data/raw/development
-opendv batch --manifest sources_manifest_no4tu.yaml --output-dir out     # fetch + standardize 23 studies
+python -m opendv.analysis.confirmatory fetch --sources analyses/development_sources/sources_search.yaml --data-dir data/raw/development
+opendv batch --manifest sources_manifest_no4tu.yaml --output-dir out     # fetch + standardize 39 studies
 opendv analyze --input-dir out/standardized --output-dir results         # cross-study analysis
 opendv review queue out                                                   # what needs a human decision
 ```

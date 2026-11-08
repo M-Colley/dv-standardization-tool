@@ -72,7 +72,7 @@ from __future__ import annotations
 import argparse
 import json
 import logging
-from collections.abc import Iterable, Mapping
+from collections.abc import Iterable, Mapping, Sequence
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -262,6 +262,9 @@ def _aligned_files(input_dir: Path, meta_view: pd.DataFrame):
             if quality.get("dataset_id") == dataset_id:
                 target = quality.get("standardized_file")
                 transformed = _transformed_columns(qpath)
+                if (quality.get("rows_excluded") or {}).get("rows_dropped"):
+                    # The mapping's exclude_rows changed every column's values.
+                    transformed |= {str(alias) for alias in rows["original_alias"]}
                 break
         if not target or not (study_dir / target).is_file():
             continue
@@ -423,7 +426,16 @@ def level_frames(
     # deterministic pipeline maps) but pools them by raw name only.
     limit = LEVEL_RANK["curated"] if rank == LEVEL_RANK["names"] else rank
     by_study: dict[str, list[pd.DataFrame]] = {}
-    for (study, file_name), infos in sorted(provenance.items()):
+    # As in msa.load_studies, rows carry their table's path in the source and
+    # files are read in the order of their unshortened names, so neither
+    # participant ids nor row order depend on the output path.
+    source_ids = {study: msa.dataset_ids_by_file(input_dir / study) for study, _ in provenance}
+
+    def order(item):
+        (study, file_name), _ = item
+        return study, msa.unshortened_file_name(file_name, source_ids[study].get(file_name)), file_name
+
+    for (study, file_name), infos in sorted(provenance.items(), key=order):
         if not infos:
             continue
         if file_name.lower().endswith(PICKLE_SUFFIXES):
@@ -438,6 +450,7 @@ def level_frames(
             continue
         df = msa._read_file(input_dir / study / file_name)
         df.columns = [str(c) for c in df.columns]
+        source_file = source_ids[study].get(file_name, file_name)
         if replaying:
             drop = [c for c in df.columns if c in infos and infos[c].level == LEVEL_RANK["curated"]
                     and not renames.get(c)]
@@ -449,7 +462,7 @@ def level_frames(
             stray = [c for c in df.columns if c not in infos and c not in renamed
                      and _is_dv(strip_duplicate_suffix(c)) and not is_item_suffixed(c)]
             df = df.drop(columns=stray)
-            df[STUDY_FILE_COLUMN] = file_name
+            df[STUDY_FILE_COLUMN] = source_file
             by_study.setdefault(study, []).append(df)
             continue
         drop = [c for c in df.columns if c in infos and infos[c].level > limit]
@@ -470,7 +483,7 @@ def level_frames(
             stray = [c for c in df.columns if c not in infos and _is_dv(strip_duplicate_suffix(c))
                      and not is_item_suffixed(c)]
             df = df.drop(columns=stray)
-        df[STUDY_FILE_COLUMN] = file_name
+        df[STUDY_FILE_COLUMN] = source_file
         by_study.setdefault(study, []).append(df)
     frames: dict[str, pd.DataFrame] = {}
     for study, parts in by_study.items():
@@ -898,8 +911,15 @@ def run(
     meta_view_path: Path | None = None,
     designs_path: Path = cma.DEFAULT_DESIGNS_PATH,
     levels: Iterable[str] = LEVELS,
-    llm_replay_items: Path | None = None,
+    llm_replay_items: Path | Sequence[Path] | None = None,
 ) -> dict:
+    """Relations per study and pooled, per harmonization level.
+
+    *llm_replay_items* are one or more llm_mapping_evaluation_items.csv
+    files of evaluate_llm_mapping; several files (e.g. benchmark runs on
+    disjoint sets of studies) are concatenated.
+    """
+    replay_files = [llm_replay_items] if isinstance(llm_replay_items, (str, Path)) else list(llm_replay_items or [])
     meta_view_path = meta_view_path or input_dir.parent / "meta_view.csv"
     meta_view = pd.read_csv(meta_view_path, low_memory=False)
     provenance = column_provenance(input_dir, meta_view)
@@ -924,8 +944,9 @@ def run(
         skipped_by_level[level] = skipped
         logger.info("%s: %d study correlations; no participant column: %s", level, len(rows), skipped)
     replay_counts = None
-    if llm_replay_items is not None:
-        replay, replay_counts = replay_map(input_dir, meta_view, provenance, pd.read_csv(llm_replay_items))
+    if replay_files:
+        e1_items = pd.concat([pd.read_csv(path) for path in replay_files], ignore_index=True)
+        replay, replay_counts = replay_map(input_dir, meta_view, provenance, e1_items)
         frames = level_frames(input_dir, provenance, REPLAY_LEVEL, replay)
         rows, _ = study_relations(frames, registry, REPLAY_LEVEL, domains, dv_levels)
         all_rows.append(rows)
@@ -957,7 +978,7 @@ def run(
     }
     if replay_counts is not None:
         summary["llm_replay"] = {
-            "e1_items": str(llm_replay_items),
+            "e1_items": str(replay_files[0]) if len(replay_files) == 1 else [str(p) for p in replay_files],
             "columns": replay_counts,
             "conclusions_vs_curated": conclusions.to_dict(orient="records"),
         }
@@ -972,16 +993,17 @@ def main(argv: list[str] | None = None) -> None:
     parser.add_argument("--meta-view", default=None, help="meta_view.csv (default: <input-dir>/../meta_view.csv)")
     parser.add_argument("--designs", default=str(cma.DEFAULT_DESIGNS_PATH))
     parser.add_argument(
-        "--llm-replay-items", default=None,
-        help="llm_mapping_evaluation_items.csv of evaluate_llm_mapping: also analyse the pipeline with the "
-             "LLM's leave-alias-out answers in place of the study mappings and compare the findings",
+        "--llm-replay-items", default=None, nargs="+",
+        help="llm_mapping_evaluation_items.csv of evaluate_llm_mapping (several files, e.g. runs on disjoint "
+             "sets of studies, are concatenated): also analyse the pipeline with the LLM's leave-alias-out "
+             "answers in place of the study mappings and compare the findings",
     )
     args = parser.parse_args(argv)
     logging.basicConfig(level=logging.INFO, format="%(levelname)s %(message)s")
     summary = run(
         Path(args.input_dir), Path(args.output_dir),
         Path(args.meta_view) if args.meta_view else None, Path(args.designs),
-        llm_replay_items=Path(args.llm_replay_items) if args.llm_replay_items else None,
+        llm_replay_items=[Path(p) for p in args.llm_replay_items] if args.llm_replay_items else None,
     )
     print(json.dumps(summary["ladder"], indent=2))
 

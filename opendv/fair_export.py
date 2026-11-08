@@ -222,6 +222,9 @@ def build_data_package(
             resource[_ns("originalFile")] = dataset_id
         if quality.get("dataset_type"):
             resource[_ns("datasetType")] = quality["dataset_type"]
+        if quality.get("rows_excluded"):
+            # Rows of the original file left out by the mapping's exclude_rows.
+            resource[_ns("rowsExcluded")] = quality["rows_excluded"]
         if fmt == "tsv":
             resource["format"] = "csv"
             resource["dialect"] = {"csv": {"delimiter": "\t"}}

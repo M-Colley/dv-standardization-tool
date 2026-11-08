@@ -1,0 +1,76 @@
+# Source-specific column mapping for sensecobot_fusion_2024
+# Paper: "Unlocking Human-Robot Dynamics: Introducing SenseCobot, a Novel Multimodal Dataset on
+#   Industry 4.0." HRI 2024. DOI 10.1145/3610977.3636440; the processed SenseCobotFusion data
+#   accompany "The SenseCobotFusion Dataset: Unlocking New Avenues for Stress Detection in
+#   Industry 5.0".
+# Data: Zenodo 14753191 (DOI 10.5281/zenodo.14753191), CC-BY-4.0; codebook is Readme.txt.
+#
+# Files (SenseCobotFusion.zip):
+#   - SenseCobotFusion/Labels.csv: one row per participant (21, P_01-P_21), WIDE: two NASA-TLX
+#     questions after each of five collaborative-robot tasks (TASK_k_A, TASK_k_B) and a
+#     cumulative NASA-TLX at the end (NASA_1, NASA_1, NASA_2, NASA_3, NASA_4, NASA_5; pandas
+#     reads the repeated NASA_1 as NASA_1.1, and "NASA_3 " has a trailing space), all on 1-7.
+#   - SenseCobotFusion/SenseCobotFusion.csv: one row per participant x task (baseline and
+#     tasks 1-5; 126 rows) with ECG, EEG, GSR and facial-emotion features (mean, std, min,
+#     max, median per task) and Label, the mean of A and B for the task.
+#   SenseCobotFusion_EMO.csv and _GSR.csv repeat columns of SenseCobotFusion.csv and are left
+#   out, as are the code archive and the pickled models.
+#
+# Notes:
+#   - A and B: the Readme labels A "perceived physical demand" and B "perceived general
+#     effort" but quotes the TLX effort wording for A and the physical-demand wording for B.
+#     The data side with the labels: across participants the mean of the A items correlates
+#     r = .86 with the cumulative physical-demand column (NASA_1.1) and .67 with effort
+#     (NASA_4), the B items .54 and .67. So A -> physical_demand, B -> effort.
+#   - The cumulative TLX columns are taken in the standard subscale order (mental, physical,
+#     temporal, performance, effort, frustration); the order is not stated. NASA_3
+#     (performance) is left unlabelled: its direction is undocumented, and its mean (5.3 of 7)
+#     and its weak, mostly negative correlations with the other subscales (r = -.24 to .11)
+#     suggest it was scored as success (high = good), the reverse of the TLX performance scale.
+#   - All TLX ratings are on 1-7 and converted to the schema's 0-20 (scale_conversions).
+#   - Because the tasks are columns in Labels.csv and rows in SenseCobotFusion.csv, the
+#     subjective and the physiological measures meet only in participant means
+#     (between-person relations).
+
+# --- Dependent measures: NASA-TLX (Labels.csv) -----------------------------------
+TASK_1_A: physical_demand
+TASK_2_A: physical_demand
+TASK_3_A: physical_demand
+TASK_4_A: physical_demand
+TASK_5_A: physical_demand
+TASK_1_B: effort
+TASK_2_B: effort
+TASK_3_B: effort
+TASK_4_B: effort
+TASK_5_B: effort
+NASA_1: mental_demand
+NASA_1.1: physical_demand
+NASA_2: temporal_demand
+NASA_4: effort
+NASA_5: frustration
+# Left unlabelled: NASA_3 (performance, direction undocumented; see above).
+
+# --- Dependent measures: physiology per task (SenseCobotFusion.csv) -------------------
+HR Mean: hr_bpm             # heart rate, beats per minute
+RMSSD: hrv_rmssd            # ms
+# SDNN is a schema alias of hrv_rmssd too; locked so the two HRV indices are not averaged
+SDNN: meta_hrv_sdnn         # ms
+Amplitude Mean: eda_gsr     # mean amplitude of skin-conductance responses, microsiemens
+
+# Left unlabelled (no schema DV, or not the schema DV's statistic): the other ECG features
+# (PNN50, PNN25, HR Std/Min/Max/Median, VLF, LF, HF, LF/HF, Higuchi FD, Shannon
+# Entropy), all EEG band powers, ratios, asymmetries and coherences, the other GSR features
+# (rise and recovery time, amplitude statistics other than the mean, band powers), the
+# facial-expression scores (Anger ... Attention, from video), and Label (mean of A and B).
+
+# --- Participants and design ----------------------------------------------------
+Participants: meta_participant_id
+Task: meta_condition_task                 # Baseline, Task 1 - Task 5
+
+scale_conversions:
+  - columns: [TASK_1_A, TASK_2_A, TASK_3_A, TASK_4_A, TASK_5_A,
+              TASK_1_B, TASK_2_B, TASK_3_B, TASK_4_B, TASK_5_B,
+              NASA_1, NASA_1.1, NASA_2, NASA_4, NASA_5]
+    from: [1, 7]
+    to: [0, 20]
+    reason: NASA-TLX questions answered on 1 (minimum) to 7 (maximum) (Readme.txt)

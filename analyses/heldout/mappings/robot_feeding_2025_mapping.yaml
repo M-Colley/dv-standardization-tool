@@ -1,0 +1,20 @@
+# Held-out mapping for robot_feeding_2025 (docs/preregistration_heldout_relations.md).
+# Paper: "Lessons Learned from Designing and Evaluating a Robot-assisted Feeding System for
+#   Out-of-lab Use", HRI 2025, DOI 10.1109/HRI61500.2025.10974182.
+# Data: OSF prsxt (DOI 10.17605/osf.io/prsxt), CC-BY-4.0; codebook is README.txt.
+# File: Study 2 Data/Quantitative/Subjective/NASA_TLX.csv, one row per meal of the single
+#   Study 2 user (NASA-TLX after every meal). One participant, so the study enters no
+#   correlation; it is kept for the mapping benchmark. Meal-event logs, goal attainment scales,
+#   quotes and the pre/post question list are left out (no measure in a column).
+
+Date: meta_date
+"Meal / Goal": meta_condition_meal
+NASA-TLX Total: TLX_SCORE
+
+# NASA-TLX subscales, 0-100 (question text as header; performance: 0 perfect - 100 failure)
+How mentally demanding was the task? (0 very low, 100 very high, increments of 10): mental_demand
+How physically demanding was the task? (0 very low, 100 very high, increments of 10): physical_demand
+How hurried or rushed was the pace of the task? (0 very low, 100 very high, increments of 10): temporal_demand
+How successful were you at accomplishing the task? (0 perfect, 100 failure, increments of 10): performance
+How hard did you have to work to accomplish your level of performance? (0 very low, 100 very high, increments of 10): effort
+How insecure, discouraged, irritated, stressed, or annoyed were you? (0 very low, 100 very high, increments of 10): frustration

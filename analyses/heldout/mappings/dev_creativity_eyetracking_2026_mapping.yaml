@@ -1,0 +1,76 @@
+# Held-out mapping for dev_creativity_eyetracking_2026 (docs/preregistration_heldout_relations.md).
+# Paper: "Creative Minds at the Keyboard: Eye-Tracking Insights into Developers' Creativity"
+#   (CHASE 2025/2026), DOI 10.1145/3794860.3794891.
+# Data: figshare 31198108 (DOI 10.6084/m9.figshare.31198108), CC-BY-4.0; codebook is README.md.
+# Files: post-questionnaire.csv (one row per participant, NASA-TLX subscales as question text),
+#   NASA_TLX_Scores.csv (raw TLX total), creativity-score-groups.csv, agg_metrics_codeGrits_*.csv
+#   (IDE interaction), task1-final.csv / task2-final.csv (eye tracking per area of interest).
+#   One row per participant except the eye-tracking files. task-metrics.xlsx (programming-strategy
+#   metrics) is left out by the manifest.
+# Post-questionnaire keys are copied from the file's header row (question text, stripped of
+# surrounding spaces as the pipeline reads it). Questions 15-20 are the NASA-TLX subscales on 0-100.
+# The creativity tests (DAT, RAT, TTCT) are person characteristics here (the study's grouping
+# variables) and get meta_trait_* / meta_group_* labels.
+
+Participant ID: meta_participant_id
+Participant_id: meta_participant_id
+participant_id: meta_participant_id
+Participant: meta_participant_id
+"\uFEFFParticipant": meta_participant_id
+1. What is your age?: meta_demographic_age
+2. What best describes your gender?: meta_demographic_gender
+'3. Select the population group(s) you identify with:': meta_demographic_ethnicity
+4. What is your native language?: meta_demographic_native_language
+5. Do you speak other languages? if yes, please specify.: meta_demographic_other_languages
+6.What is your English proficiency level?: meta_demographic_english_level
+7.  What is your highest level of formal education (educational attainment)?: meta_demographic_education
+8. What is your department?: meta_demographic_department
+? "9. On a scale from 1 to 10, how do you estimate your programming experience? \n(very inexperienced: 1 - very experienced: 10)"
+: meta_demographic_programming_experience
+10. For how many years have you been programming?: meta_demographic_programming_years
+11. For how many years have you been programming with Python?: meta_demographic_python_years
+? '12. On a scale from 1 to 10, How experienced are you with Python?
+
+  (very inexperienced: 1 - very experienced: 10)'
+: meta_demographic_python_experience
+13.Are you familiar with coding smells? If yes, name the ones that you are familiar with. (minimum 2): meta_free_text_code_smells
+? "15. Mental Demand : How much mental and perceptual activity was required (e.g., thinking, deciding, calculating, remembering, looking, searching, etc)? Was the mission easy or demanding, simple or complex, exacting or forgiving? \n (0 = Very Low –  100 = Very High)"
+: mental_demand
+? "16. Physical Demand : How much physical activity was required (e.g., pushing, pulling, turning, controlling, activating, etc.)? Was the mission easy or demanding, slow or brisk, slack or strenuous, restful or laborious? \n (0 = Very Low –  100 = Very High)"
+: physical_demand
+? "17. Temporal Demand : How much time pressure did you feel due to the rate or pace at which the mission occurred? Was the pace slow and leisurely or rapid and frantic? \n (0 = Very Low –  100 = Very High)"
+: temporal_demand
+? "18. Performance Demand : How successful do you think you were in accomplishing the goals of the mission? How satisfied were you with your performance in accomplishing these goals? \n (0 = Very Low –  100 = Very High)"
+: performance
+? "19. Effort : How hard did you have to work (mentally and physically) to accomplish your level of performance? \n (0 = Very Low –  100 = Very High)"
+: effort
+? "20. Frustration : How discouraged, stressed, irritated, and annoyed versus gratified, relaxed, content, and complacent did you feel during your mission? \n (0 = Very Low –  100 = Very High)"
+: frustration
+21. Having performed the tasks, would you do anything different the next time around? Please specify.: meta_free_text_next_time
+22. Any additional comments?: meta_free_text_comments
+Raw_TLX: TLX_SCORE
+DAT_score: meta_trait_dat_score
+dat_score: meta_trait_dat_score
+DAT_group: meta_group_dat
+dat_group: meta_group_dat
+dat_percentile: meta_trait_dat_percentile
+dat_duration: meta_trait_dat_duration
+RAT_score: meta_trait_rat_score
+rat_score: meta_trait_rat_score
+RAT_group: meta_group_rat
+rat_group: meta_group_rat
+rat_duration: meta_trait_rat_duration
+TTCY: meta_trait_ttct_score
+TTCT-group: meta_group_ttct
+total_time_s: task_completion_time
+avg_fixation_duration_s: fixation_duration
+Average_duration_of_fixations: fixation_duration
+Average_pupil_diameter: pupil_dilation
+Number_of_fixations: fixation_count
+n_fixations: fixation_count
+AOI: meta_aoi
+AOI_NO: meta_aoi_number
+
+# Left unlabelled: question 14, idle_time_s,
+# total_fixation_time_s, attention, navigation, ide_interaction (factor scores), and the other
+# eye-tracking columns of task1-final.csv / task2-final.csv.

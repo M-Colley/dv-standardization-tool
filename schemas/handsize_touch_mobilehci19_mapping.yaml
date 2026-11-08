@@ -13,21 +13,46 @@
 # Notes:
 #   - Phone is the within-subject device factor (Android / iPhone, 500 trials each).
 #   - Outlier (True/False) flags trials whose selection was too fast or too slow
-#     (703 of 27,000); SelectionTimeSeconds ranges 0.0006-27.4 s before exclusion.
-#   - TouchX/TouchY (touch position, px) and ErrorMM (offset of the touch from the
-#     target, mm) are DVs with no fitting schema id and are left out.
+#     (703 of 27,000: 647 on the Android, 56 on the iPhone; man/HandSize.Rd).
+#     SelectionTimeSeconds ranges 0.0006-27.4 s with them, 0.21-2.62 s without.
+#     Those trials are left out (exclude_rows below, applied before anything
+#     else), so 26,297 trials remain; the count is in the table's -quality.json
+#     (rows_excluded).
+#   - ErrorMM is the touch's offset from the target in mm: the Euclidean distance
+#     between (TouchX, TouchY) and (TargetX, TargetY) times a fixed pixel pitch per
+#     phone (checked on the data: 0.0493 mm per px on the Android, 0.0779 on the
+#     iPhone). It maps to touch_offset (schema 3.3, 2026-11-07), as does
+#     road_bumps_touch's TouchOffset; one value per trial.
+#   - With the outlier trials, the mean ErrorMM would be 4.47 mm instead of 3.19
+#     (flagged trials average 52.5 mm), mostly on the Android (5.78 instead of
+#     3.32 mm; iPhone 3.17 instead of 3.06 mm); mean SelectionTimeSeconds 0.647
+#     instead of 0.640 s.
+#   - TouchX/TouchY (touch position, px) are not DVs on their own. They get meta_*
+#     ids like the target position, so every column is mapped and the LLM is not
+#     asked: with touch_offset in the schema it could take a px position for the
+#     offset, and one LLM column of a DV makes the study's DV LLM-deduced.
 
 # --- Dependent measures -------------------------------------------------------
 SelectionTimeSeconds: task_completion_time   # time to make the selection, seconds
+ErrorMM: touch_offset               # distance of the touch from the target centre, mm
 
 # --- Participants, trials, conditions -----------------------------------------
 PID: meta_participant_id
 Trial: meta_trial_number            # 0-499 within participant x phone
 Phone: meta_condition_device        # Android / iPhone
 
-# --- Stimulus ------------------------------------------------------------------
+# --- Stimulus and response position --------------------------------------------
 TargetX: meta_target_position_x     # target centre, px
 TargetY: meta_target_position_y     # target centre, px
+TouchX: meta_touch_position_x       # touch position, px
+TouchY: meta_touch_position_y       # touch position, px
 
 # --- Data quality --------------------------------------------------------------
 Outlier: meta_outlier_flag          # trial excluded as too fast / too slow
+
+exclude_rows:
+  - column: Outlier
+    values: [true]
+    reason: >-
+      trials the authors flagged as outliers because the selection was too fast
+      or too slow (man/HandSize.Rd); 703 of 27,000

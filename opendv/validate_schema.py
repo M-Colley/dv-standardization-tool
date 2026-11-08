@@ -308,6 +308,28 @@ def validate_dataset_mapping(schema: dict) -> tuple[list[str], list[str]]:
                 except (ValueError, TypeError):
                     errors.append(f"scale_conversions[{i}]: 'from' and 'to' must be [min, max] with min < max")
             continue
+        if key == "exclude_rows":
+            if not isinstance(value, list):
+                errors.append("'exclude_rows' must be a list of {column, values, reason} blocks")
+                continue
+            for i, block in enumerate(value):
+                if not isinstance(block, dict):
+                    errors.append(f"exclude_rows[{i}]: must be a {{column, values, reason}} block")
+                    continue
+                column = block.get("column")
+                values = block.get("values")
+                reason = block.get("reason")
+                if not isinstance(column, str) or not column.strip():
+                    errors.append(f"exclude_rows[{i}]: 'column' must name one raw column")
+                if (
+                    not isinstance(values, list) or not values
+                    or not all(isinstance(v, (str, int, float)) for v in values)
+                ):
+                    errors.append(f"exclude_rows[{i}]: 'values' must be a non-empty list of text, numbers or booleans")
+                if not isinstance(reason, str) or not reason.strip():
+                    # Dropping data needs a stated reason; it is reported with the counts.
+                    errors.append(f"exclude_rows[{i}]: 'reason' must say why these rows are left out")
+            continue
         if not isinstance(key, str) or not key.strip():
             errors.append(f"Invalid raw column name: {key!r}")
         if not isinstance(value, str) or not value.strip():

@@ -60,6 +60,7 @@ from opendv.dv_retrieval import (  # noqa: E402
 from opendv.value_labels import (  # noqa: E402
     apply_missing_values,
     apply_reverse_keying,
+    apply_row_exclusions,
     apply_scale_conversions,
     apply_unit_conversions,
     apply_value_labels,
@@ -230,7 +231,9 @@ def run_e1(args, families: SchemaFamilies, dv_ids: set[str]) -> pd.DataFrame:
                         base_dir, candidates_paths, requested_mapping_path=requested, dataset_path=base_dir / relative
                     )
                     resolved = resolver.resolve(dataset_type, mapping_path, item.dataset_id)
-                    # Same response recoding as the pipeline, before profiling.
+                    # Same row filter and response recoding as the pipeline,
+                    # before profiling.
+                    raw, _ = apply_row_exclusions(raw, resolved.exclude_rows)
                     raw, _ = apply_missing_values(raw, resolved.missing_values)
                     raw, _ = apply_value_labels(raw, resolved.value_labels)
                     if dataset_type in llm_eligible_dataset_types():

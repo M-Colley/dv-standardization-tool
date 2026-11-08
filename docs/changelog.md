@@ -4,6 +4,296 @@ This document logs human-readable updates to the repo's functionality, structure
 
 ---
 
+### [2026-11-08] All open work combined; every output rerun
+
+The entries of 2026-11-05 to 2026-11-07 below were made on separate branches. Each branch computed its outputs without the others' changes, and most did not regenerate them, so no committed result held all of them. They are now merged into one branch, and every committed output was rerun once from it.
+
+- **Merged:**
+    - #39 (open-data search, held-out test), #40 (development mappings, 39-study outputs), #41 (pickle refusal), #42 (road_bumps_touch curated), #43 (`touch_offset`, schema 3.3);
+    - four branches without a PR: `exclude_rows` with Handsize's outliers, the factors of the 2026-11-05 studies with mean combination and random-effects cluster pooling, ARTV's Qualtrics header rows with the never-map locks of ARTV and tactile SA display, and participant ids read from source paths.
+- **Conflicts resolved:** the changelog and README kept both sides. In `opendv/data_loaders.py`, `skip_rows` and the pickle refusal are combined: a pickle with `skip_rows` stops with the `skip_rows` error, before anything is unpickled. In `opendv/analysis/multi_study_analysis.py`, the skipping of pickles and the source-path file order are both kept. Tests: 799 passed, 2 skipped.
+- **Rerun:** every command of `docs/reproducibility.md`. 39 of 39 sources standardized, no LLM generation errors.
+- **The LLM-excluded outputs change only where curated mappings changed:**
+    - `task_completion_time`: k 4 → 5 with road_bumps_touch's task times, 1.25, HKSJ [−2.89, 5.40];
+    - the new `touch_offset`: Handsize and road bumps, 3.21 mm (fixed effect, k = 2; HKSJ [−0.81, 7.22]).
+
+    Every other pooled DV, every contrast pool and the invariance results are unchanged.
+- **Relations at the deterministic levels: no pair and no finding changed.**
+    - One pair is new: task completion time × touch offset, between persons r = −0.43 in both studies (k = 2, so not tested).
+    - The curated level now covers 31 studies (2,853 participants).
+- **With LLM mappings**, 16 pooled DVs change and 3 drop out (`interaction_events`, `task_feasibility_item_01`, `ueq_stimulation`). Three causes:
+    - road_bumps_touch's LLM mappings of its pickle columns are gone;
+    - the unmapped columns of ARTV and tactile SA display are no longer offered to the LLM;
+    - **schema 3.3 changes the LLM's answers in studies whose mappings did not change:** 19 column mappings in five studies. Music tempo's maximum heart rates and two SenseCobot EEG statistics are now read as maximum lateral acceleration. Curved Dragging's mean absolute end-point deviation, in degrees, is read as `touch_offset`, so the all-mappings `touch_offset` pool (k = 3, 4.15) mixes degrees with millimetres. One added DV moves a small model's choices elsewhere in the schema.
+
+    Examples, old → new (k): `pedestrian_crossing_time` 6.22 → 10.86 (8 → 7), `perceived_safety` 0.92 → 1.21 (12 → 11), `task_completion_time` 9.94 → 5.12 (10), `trust_rating` 3.55 → 3.76 (10 → 9). The LLM level has the same 37 relation findings. Trust × UEQ-S hedonic quality now rests on three studies instead of four (ARTV's immersion score is no longer read as trust).
+- **Coverage:** 93 pooled DVs (95), 62 over at least three studies (66); without LLM rows 50 (49) and 36. Mean pairwise Jaccard 0.084 (0.085). The most similar pair is now Handsize and road bumps (1.0: both report only task completion time and touch offset).
+- **Contrasts:** 1,141 contrast effects (1,171). ARTV loses 24 and road bumps 10 (the speed contrasts of its pickle columns), tactile SA 2; myocontrol gains 5 (a new LLM mapping) and Handsize 1. The contrast pools are unchanged.
+- **Multiverse:** without LLM rows `task_completion_time` spans 1.25–42.27 (1.24–52.66). `perceived_safety` 1.12–2.99 (0.85–3.70) and `understanding_rating` 3.80–5.73 (3.51–7.64) are narrower, because the wrong LLM mappings of road bumps and ARTV are gone.
+- **Cluster pools** of the study-vs-pool deviations moved by at most 0.16. No HKSJ interval excludes 0.
+- **LLM benchmark** (`--max-per-source 1000`):
+    - first 23 studies: `definition` 105 of 258 DV columns (105 of 255), `dense_h` 127 (paired p = 0.006), `mixed_h` 122 (p = 0.008); on the 12 studies added on 2026-11-04 the differences stay non-significant (p = 0.27);
+    - 16 studies added on 2026-11-05: 71 of 423 (73); driving style's Godspeed items 0 of 90 (2).
+    - Replay: 67 of 314 curated DV columns keep their DV (68 of 312). Between persons the replay has one finding instead of two: SSQ oculomotor × STS-AD trust, unsupported, now pools two studies (FOV snap-turn's answers changed).
+- **Stale plots removed:** 18 forest, funnel, sensitivity and specification-curve plots that the rerun no longer draws. Their DVs dropped out of pooling, or fell to k = 2, where only the forest plot is drawn.
+- **Not rerun:** the held-out test (`analyses/heldout/`). It keeps the outputs of its pre-registered run at `5e266f5`. The older benchmark folders (`shortlist_*`, `definition_gpu_rerun`, rules 1.0) also stay as they were.
+- **Docs:** README, `docs/cross_study_insights.md`, `docs/research_agenda.md`, `docs/reproducibility.md`, `analyses/figures_chi/README.md`.
+
+---
+
+### [2026-11-07] Rows flagged by the authors can be left out (`exclude_rows`)
+
+A mapping can now drop the rows a dataset's authors flagged for exclusion. Until now every row of a file was standardized, so trial-level exports that keep their excluded trials (and mark them in a column) were pooled with those trials. Handsize's 703 outlier trials are the first case.
+
+- **New mapping block `exclude_rows`** (next to `missing_values`, `unit_conversions`, `scale_conversions`): a list of `{column, values, reason}`. A row is dropped when any block matches it. `reason` is required, since leaving data out has to be justified. Matching follows `missing_values`: numbers numerically, text trimmed; a boolean (`true`) matches logical cells and the text `true`/`TRUE`/`True` (a logical column with gaps is read as text, and R writes `TRUE`), but not 1/0. Missing cells never match, and a block whose column the file lacks is skipped (`opendv/value_labels.py`, `apply_row_exclusions`).
+- **Applied first**, on the values as read, before missing-value codes and every recoding, so summaries, the plausibility check's profiles and the standardized table see only the remaining rows. The LLM benchmark (`evaluate_llm_mapping`, E1) applies it at the same point, so its profiles match the batch's.
+- **Reported:** `-quality.json` gets `rows_excluded` (`rows_before`, `rows_dropped`, and per block its `column`, `values`, `reason` and matched `rows`, so overlapping blocks are visible); `standardized_rows` is the count after exclusion. The data package records the same under the table's `opendv:rowsExcluded`.
+- **Validated** by `validate_dataset_mapping` (a list; `column` one name; `values` a non-empty list of text, numbers or booleans; `reason` non-empty), and reserved, so the key is never read as a column alias.
+- **Cross-study relations:** in a file with dropped rows every column counts as curated (the harmonization ladder's `automatic` level would not have dropped them), as reverse-keyed or unit-converted columns already did.
+- **handsize_touch_mobilehci19:** `exclude_rows: Outlier = true`, the 703 of 27,000 trials flagged as outliers because the selection was too fast or too slow (`man/HandSize.Rd`; 647 on the Android, 56 on the iPhone). 26,297 trials remain; `SelectionTimeSeconds` then ranges 0.21–2.62 s instead of 0.0006–27.4 s, and the flagged trials' mean `ErrorMM` was 52.5 mm. The mapping's notes say so instead of "kept because the batch has no row filter".
+- Tests: `tests/test_row_exclusions.py` (matching rules, overlapping and absent blocks, validator errors, reserved key, batch summaries and `-quality.json`, data package, relations level, the benchmark's profile) and `test_touch_offset_pools_handsize_errormm_with_road_bumps` (the shipped mapping drops flagged rows, one written as `TRUE`, and reports them).
+
+**What it changes.** Batch of Handsize alone with the LLM disabled (every column is mapped; data from `data/raw/development`), then `opendv analyze --exclude-llm-deduced` on the input of the touch-offset entry below (the committed 23-study run with road_bumps_touch's and Handsize's tables replaced), with Handsize's table and `meta_view.csv` rows replaced again. Every other input file is byte-identical. The committed outputs are not regenerated.
+- **Handsize:** `touch_offset` 4.47 → 3.19 mm (SD 9.77 → 2.37, max 129.5 → 24.3 mm); `task_completion_time` 0.647 → 0.640 s (SD 0.394 → 0.266). The data-quality report still flags both for kurtosis above 7, but at 9.9 and 10.6 instead of 67.5 and 964.
+- **Pooled `touch_offset`** (k = 2, fixed effect; the same with LLM mappings): 4.69 mm [4.57, 4.80] → 3.21 mm [3.18, 3.24], HKSJ [−7.40, 16.78] → [−0.81, 7.22]. The two studies now differ more (3.19 vs. 8.90 mm; Q 269 → 469, I² 99.6 → 99.8 %), and Handsize's share of the weight grows from 95 % to 99.7 %, so the fixed-effect value is Handsize's mean. Only the HKSJ interval reflects how little two studies say.
+- **Pooled `task_completion_time`:** LLM-excluded (k = 3, random effects) 1.333 → 1.331 s, HKSJ [−0.41, 3.08] → [−0.42, 3.08]; with LLM mappings (k = 6) 9.54 → 9.49 s. Its Egger test, trim-and-fill, meta-regression and leave-one-out rows move in the second or third digit.
+- **Handsize contrasts**, iPhone vs. Android (participant means, SMCRPH; the device factor has no canonical id, so nothing pools across studies): `touch_offset` −0.84 [−1.36, −0.32] → −0.23 [−0.43, −0.04] (3.07 vs. 3.36 mm), so the large device difference came from the Android's 647 flagged trials; `task_completion_time` −1.41 [−1.84, −0.98] → −1.43 [−1.86, −1.00] (0.564 vs. 0.721 s).
+- **Elsewhere:** study-vs-pool deviations change for the studies of these two DVs (road_bumps' `touch_offset` g 0.45 → 2.38, LLM-excluded), and with them the performance subgroup (pooled g 0.341 → 0.361); the exploratory composite's first component explains 16.7 % of the variance instead of 17.1 % (still 77 DVs). No causal, invariance or contrast meta-analysis output changes, and no estimate of another DV.
+- **Cross-study relations:** unchanged for Handsize: both its DVs come from the study mapping already (neither raw name is a schema alias), so they were curated before the filter too.
+
+### [2026-11-07] Touch offset in the DV schema (3.3)
+
+The schema gains `touch_offset`, the distance of a touch from its target, so the two touch-accuracy studies among the 23 are pooled in the deterministic analyses. Their measures were kept out until now (road_bumps_touch as the study-specific `touch_offset_px`, Handsize's `ErrorMM` unmapped).
+
+- **New DV `touch_offset`:** cluster `performance`, unit mm, `lower_is_better`, no canonical range (the analysis never rescales it). Aliases `touch_offset_mm`, `touch_error_mm`, `tap_offset`, `tap_offset_mm`, `touch_distance_to_target`, `pointing_offset_mm`; none is used by another DV, and no column of the 23 studies other than the two mapped below resolves to it. Schema 3.3 (`schemas/schema_changelog.yaml`).
+- **Why the two measures are comparable.** Both are the Euclidean distance between where a touch landed and the target centre. road_bumps_touch computes it in px from the final touch-up event (Step01, Step10). Handsize's `ErrorMM` is the same distance times a fixed pixel pitch per phone (checked on the data: 0.0493 mm per px on the Android, 0.0779 on the iPhone). They differ in what a row is: one trial in Handsize (27,000 rows), the mean over the touches of one participant × bump × speed cell in road_bumps (160 rows). Averaged, both give the mean per-touch distance, so the study means have one definition; the rows' SDs differ (trial to trial vs. between cells), which affects only the within-study variance. The same holds for the two studies' `task_completion_time`, which the analysis already pools.
+- **Not mapped:** Curved Dragging's Exp. 2 `dx` and `avg_abs_dx` are the signed and absolute deviation of a VR controller drag's end point along the movement axis, in degrees (the inputs to the effective width); the comment in its mapping now says so. No other study of the 23 has an offset or end-point column (checked in the committed run's `meta_view.csv`).
+- **road_bumps_touch:** `TouchOffset` → `touch_offset`, converted from px with the authors' 0.19 mm per px (`pxToMm` in Step03 and Step15) as `scale_conversions: [0, 100] → [0, 19]`. `unit_conversions` cannot do it: it takes time units only (factors from pandas' `Timedelta`), and a pixel pitch belongs to one display. The conversion is listed in the table's `-quality.json`. The paper's full text is not openly available, so the pitch could not be checked against the display's size.
+- **handsize_touch_mobilehci19:** `ErrorMM` → `touch_offset` (already in mm). `TouchX`/`TouchY` get `meta_touch_position_x`/`_y`, so no column is left for the LLM. A px position could otherwise be taken for the offset (the DV has no range to reject it), and one LLM-mapped column marks the study's DV as LLM-deduced (`load_mapping_provenance`), which would drop it from the LLM-excluded pooling.
+- Tests: `test_road_bumps_touch_mapping_covers_its_tables` (TouchOffset in mm) and `test_touch_offset_pools_handsize_errormm_with_road_bumps` (ErrorMM unchanged, every Handsize column mapped, the DV's direction and missing range as the analysis reads them).
+
+**What it shows.** Batch of the two sources with the LLM disabled (every column is mapped; road_bumps from the cached clone at 24e00072, Handsize from `data/raw/development`), then `opendv analyze --exclude-llm-deduced` on the committed 23-study run with the two sources' tables replaced. The comparison is the same input in the state of the road_bumps mapping above. The committed outputs are not regenerated.
+- **Pooled `touch_offset`:** k = 2, so fixed effect: 4.69 mm, Wald [4.57, 4.80], HKSJ [−7.40, 16.78], Q = 269, I² 99.6 %. The same with LLM mappings (both studies are curated). The study means are 4.47 mm (Handsize, phones held in the hand) and 8.90 mm (road bumps, an in-car touchscreen in a motion simulator). The pooled value is not a typical touch offset: Handsize's 27,000 trial rows give it 95 % of the weight. With participant means (as `--repeated-measures` would give for both studies) it is 5.71 mm, HKSJ [−19.5, 31.0], with 72 % of the weight on Handsize. Only the HKSJ interval reflects how little two studies say.
+- **Handsize's outlier trials:** 703 trials flagged as too fast or too slow are kept, as for its `task_completion_time`, because the batch has no row filter. Without them Handsize's mean is 3.19 mm and the pooled value 3.21 mm (participant means: 3.70 mm).
+- **Contrasts** (participant means, SMCRPH; neither factor has a canonical id, so nothing pools across studies):
+  - Road bump vs. none: 9.86 vs. 7.94 mm, +0.60 [0.34, 0.87]. This is the paper's main result: touches after a bump are 19 % less accurate, (9.86 − 7.94) / 9.86 = 19.5 %.
+  - Speeds 20–50 vs. 10 km/h: between −0.18 and +0.14, every interval includes zero.
+  - Handsize iPhone vs. Android: −0.84 [−1.36, −0.32] (3.17 vs. 5.78 mm). The outlier trials drive it: without them it is −0.23 [−0.43, −0.04] (3.07 vs. 3.36 mm).
+- **Elsewhere:** the subgroup analysis of study-vs-pool deviations has three performance DVs instead of two (pooled g 0.74 → 0.34); the exploratory composite (PCA of the shared DVs) uses 77 DVs instead of 76 (first component 17.1 % of the variance, 19.5 % before); the data-quality report flags Handsize's `touch_offset` for extreme kurtosis (67.5, the outliers). No other pooled estimate, contrast, leave-one-out, meta-regression, invariance or causal output changes.
+- **LLM benchmark:** a rerun gains `TouchOffset` and `ErrorMM` as DV items and `TouchX`/`TouchY` as curated non-DVs; it is not rerun here.
+
+### [2026-11-06] Curated mapping for road_bumps_touch
+
+`schemas/road_bumps_touch_mapping.yaml` maps all 23 columns of the study's four tables (Mayer et al., AutomotiveUI '18) and is registered in both manifests. The repository has no codebook; the mapping follows the authors' notebooks (Step01, Step10–Step12), which build the tables and run the paper's ANOVAs.
+
+- **`TCT` → `task_completion_time`**, converted from ms to s (`unit_conversions`): time from target onset to touch-up, per participant × bump ride × speed × target. The study's first deterministic DV.
+- **`TouchOffset`** (touch accuracy in px, the paper's main outcome) and **`Count`** (touch-downs or touch-moves per touch, depending on the file) have no schema DV. They get study-specific ids (`touch_offset_px`, `touch_events_per_touch`; the mapping review's `study_specific` decision): kept and named in the standardized tables, not pooled, not gold labels of the LLM benchmark, and no longer guessed by the LLM, which took `Count` for `fixation_count` and the constant `TouchType` code for `interaction_events`.
+- **Design columns** get `meta_*` ids. The two bump columns differ: `IsBump` (R_TCT) is the ride condition, `IsBumpVirtual` (the other tables) marks touches after the bump, so they get separate ids.
+- **`study_designs.yaml`:** participant and speed use the standardized names (`meta_participant_id`, `meta_condition_speed`; the raw names are gone once mapped), and the bump manipulation is declared as a within factor (`road_bump`, reference: no bump) that reads either bump column.
+- Tests: `test_road_bumps_touch_mapping_covers_its_tables` (the real mapping on the four tables' headers: every column mapped, TCT in seconds) and `test_road_bumps_bump_factor_reads_either_bump_column`.
+
+**What the study now contributes.** Batch of this source alone (cached clone at 24e00072, the remote's current commit; no LLM call, every column is mapped), then `opendv analyze --exclude-llm-deduced` on the committed 23-study run with this source's tables replaced, compared with the same input in the state of the pickle change above. The committed outputs are not regenerated.
+- **LLM-excluded:** `task_completion_time` goes from k = 2 (Handsize, Curved Dragging; fixed effect, 0.70 s) to k = 3, pooled with random effects: 1.33 s, HKSJ [−0.41, 3.08], I² 99.99 % (study means 0.65, 2.05 and 1.30 s for three different tasks).
+- **Contrasts:** five curated contrasts on TCT replace the eight LLM-deduced speed contrasts of `fixation_count` and `interaction_events`. None differs from zero, as in the paper's TCT ANOVA (bump F(1, 15) = 1.68, p = .21; speed F(4, 60) = 0.43, p = .79): bump vs. none 1.32 vs. 1.29 s, SMCRPH 0.12 [−0.08, 0.32]; 20–50 vs. 10 km/h between −0.04 and 0.14. Neither factor has a canonical id, so nothing pools across studies.
+- **With LLM mappings:** the study leaves `fixation_count` (k 1 → 0) and `interaction_events` (k 2 → 1, no longer pooled) and joins `task_completion_time` (k 5 → 6, pooled mean 14.82 → 9.54; three of the six studies are LLM-mapped).
+- No other study's estimates or contrasts change; the exploratory composite over all studies (`cross_study_composite_summary.csv`, a PCA of the shared DVs) is refit with one DV fewer. A rerun of the LLM benchmark gains this source's items: TCT as a DV and its seven `meta_*` columns as curated non-DVs.
+
+### [2026-11-06] Pickled files are no longer unpickled
+
+Unpickling runs code from the file, and every batch run unpickled the four `.pkl` files of `road_bumps_touch` straight from GitHub. Pickles are now refused unless a source opts in (`docs/reproducibility.md`, "Pickled data files").
+
+- **Batch.** `.pkl`/`.pickle` files of any source are discovered but not loaded: a warning names them and `run_summary.json` lists them under `refused_pickle_files` (they count in `discovered_files`). A source with only pickles is `not_available`. `load_input_file` refuses pickles too (`PickleRefusedError`), as does the registry's `.pkl` loader, so no other path unpickles.
+- **Opt-in.** Manifest key `allow_pickle: true` (per source), `opendv convert --allow-pickle`, `opendv.standardize(..., allow_pickle=True)`. Only for files you created yourself. No shipped manifest sets it; `tests/test_run_batch_standardization.py` checks that none does or lists a pickle glob.
+- **Outputs.** The standardized table of a pickle input is written as Parquet instead of a pickle (`opendv convert` defaults to `<name>-standardized.parquet` for one). The analysis no longer reads pickles: `load_studies` skips them with a warning, so output folders written by older runs need a fresh batch run for their pickle-derived tables.
+- **road_bumps_touch** reads only its four CSV tables (`R_Count_Down`, `R_Count_Move`, `R_Offset`, `R_TCT`), the per-participant tables the paper's ANOVAs use, which the authors computed from the pickles. The pickles hold the raw touch and accelerometer logs. The manifests no longer list `*.pkl` globs. Checked on the cached clone (commit 24e00072) with `pd.read_pickle`, `pickle.load(s)` and the `pickle.find_class` audit event trapped: no unpickling, with the new entry and with the old one that still asked for `*.pkl` (four pickles refused, four CSVs standardized).
+
+**Do road_bumps_touch's results change?** Not in the LLM-excluded outputs: the study has no curated mapping, so all of its values were LLM-deduced and already excluded. In the outputs that include LLM mappings they do; the committed outputs are not regenerated in this change.
+- The study loses the five DVs that came only from the pickles. All five were wrong LLM mappings: `Speed` (the 10–50 km/h speed condition) as `task_completion_time`, `Diff` as `pedestrian_crossing_time`, `Bin` (0–51, rescaled as if 0–100) as `perceived_safety`, `AccDiff` as `attrakdiff_att` and `Take` as `task_feasibility_item_01`. Their 12 speed contrasts go too; the four of `interaction_events` are computed from the count tables.
+- `interaction_events` comes from the 320 rows of the two count tables instead of 216,391 rows, 216,071 of them touch-type codes from the pickles. `fixation_count` (an LLM mapping of the touch count) and the within-person relation of `fixation_count` with `interaction_events` used the CSV rows only and are unchanged.
+- Pooled estimates that include LLM mappings lose the study. The committed leave-one-out rows show the result: `pedestrian_crossing_time` 5.62 → 10.14 (k 7 → 6; the study's 8,512 near-zero values from its accelerometer log pulled the pool down), `perceived_safety` 1.01 → 1.34 (k 11 → 10), `task_completion_time` 19.05 → 14.82 (k 6 → 5).
+
+---
+
+### [2026-11-07] Study-vs-pool deviations count participants; cluster pooling is random-effects
+
+`study_vs_pool_standardized_deviation.csv` (and its alias `standardized_effects.csv`) used a study's row count as `n`: for the weights of the grand mean and the pooled SD, Hedges' correction and `var_g = 1/n + g²/2n`. `subgroup_meta_analysis.csv` then pooled the studies' cluster deviations with fixed effects. A study that logs many rows per participant therefore set the grand mean and pooled SD of its DVs and took almost all the weight: Road Bumps (16 participants, 70,000–216,000 rows per DV, all seven DVs LLM-mapped) had SEs of 0.002–0.011 and about 90% of the weight in `behavioral_interaction` and `safety_trust`.
+
+- **Participants as `n`.** `harmonized_dv_summary.csv` gains `n_participants`: the distinct ids, among a DV's rows, of the participant columns declared in `schemas/study_designs.yaml` (all 39 studies declare them). A row without an id counts as one more participant, but never beyond the study's own count, because Road Bumps' accelerometer file (8,513 samples, the source of its `task_completion_time` and `pedestrian_crossing_time`) carries no id; without ids the row count stays. 317 of the 492 study × DV rows have fewer participants than rows. `compute_standardized_effects` uses them as `n` (`unit="participants"`, the default; `unit="rows"` gives the old values); means and SDs stay those of the rows. The deviation tables gain `n` and `n_rows`.
+- **Random-effects cluster pool.** The per-study cluster effects (still the mean of a study's effects) are pooled with `pool_effects` (DL or REML from `--estimator`, Wald and HKSJ intervals, prediction interval, fixed effects below 3 studies), as the mean and contrast meta-analyses are. New columns: `pooling_method`, `estimator`, `hksj_ci95_low/high`, `prediction_interval_low/high`, `tau2`, `heterogeneity_i2_pct`, `largest_weight_study`, `largest_weight_pct`, and the fixed-effect pool as `fixed_effect_g`, `fixed_effect_se`, `fixed_effect_largest_weight_pct`. `pooled_g_gls` is still `pooled_g` with GLS-combined study effects, so it is random-effects too.
+- **What changes in the deviations.** 448 of the 452 change (median |Δg| 0.23; 103 by more than 0.5). With row weights a study with many rows and a small SD set the pooled SD, which inflated every other study's deviations, so the largest shrink: NL2TAP's `interaction_events` +9.24 → +0.52, ARTV ornaments' UEQ stimulation −8.52 → −1.54, tactile SA display's headway +8.51 → +1.87. Road Bumps' grow, since the grand mean no longer sits on it (perceived safety −0.56 → −2.70, SE 0.004 → 0.54). With these deviations GLS gives a negative weight in 14 of the 63 multi-effect study × cluster combinations and leaves the range of the study's effects in 4 (25 and 17 before), so the mean combination stays.
+- **What changes in the clusters** (pooled g with Wald 95% CI, fixed-effect with rows → random-effects with participants; HKSJ interval and I² after): `affective_emotion` −0.10 [−0.15, −0.04] → +0.11 [−0.81, 1.03] (HKSJ [−1.33, 1.55], I² 97%); `behavioral_interaction` −0.11 [−0.12, −0.10] → −0.02 [−0.59, 0.54] ([−1.04, 0.99], 98%); `cognitive_load` −0.06 [−0.08, −0.04] → +0.08 [−0.14, 0.30] ([−0.27, 0.42], 97%); `performance` +0.04 [0.03, 0.05] → −0.05 [−0.34, 0.23] ([−0.39, 0.28], 90%); `physiological_biometric` +0.11 [0.04, 0.17] → +0.40 [0.01, 0.79] ([−0.11, 0.91], 90%); `safety_trust` −0.44 [−0.45, −0.44] → +0.08 [−0.07, 0.24] ([−0.18, 0.35], 93%); `ux_satisfaction` +0.00 [−0.004, 0.005] → −0.01 [−0.18, 0.16] ([−0.27, 0.25], 94%). The largest study weight in a cluster is now 4–20%.
+- **Which change does what.** Random effects alone, on the row-count deviations, put `behavioral_interaction` at +1.13 and `safety_trust` at +0.68: those deviations are measured from a grand mean that sat on Road Bumps. Participants alone, pooled with fixed effects, give −0.38 and −0.12 and hand 44–54% of the weight in `cognitive_load`, `safety_trust` and `ux_satisfaction` to the eHMI crowd and AR pedestrian surveys (about 1,880 and 1,164 participants), and 71% of `physiological_biometric` to FOV snap-turn.
+- **How to read them.** A pooled deviation says where the typical study of a cluster sits relative to the participant-weighted grand mean of each DV (positive = better), so it depends on how that grand mean is weighted. No cluster's HKSJ interval excludes 0, and I² of 90–98% says the studies do not share a location: the pools describe spread, they are not cluster effects.
+- **Not changed.** `meta_analysis_summary.csv` still takes `sd² / n` with the row count as a study's sampling variance (random-effects, so tau² tempers it; the multiverse's participant unit is its sensitivity analysis). The cluster pool has no `_llm_excluded` variant, although all of Road Bumps' DVs are LLM-mapped.
+- Rerun with `opendv analyze --exclude-llm-deduced` on the committed 39-study batch (`data/processed/catalog39_toast`): `harmonized_dv_summary*.csv` (one added column), `study_vs_pool_standardized_deviation*.csv`, `standardized_effects.csv`, `subgroup_meta_analysis.csv` and `analysis_results.json` (the summary's new column) change; nothing else does. Tests of the participant count, the participant `n` and the random-effects pool in `tests/test_review_fixes.py`.
+
+---
+
+### [2026-11-06] Cluster pooling combines a study's effects by their mean
+
+`subgroup_meta_analysis.csv` (study-vs-pool deviations pooled per schema cluster) combined a study's effects in a cluster by GLS under compound symmetry (`rho = 0.5`), the default of `aggregate_dependent` that the condition contrasts left in the entry below. It misbehaves here too, so a study's effects are now combined by their mean with its CS variance (`1'V1 / k²`), and the GLS pool stays in `pooled_g_gls` (`subgroup_meta_analysis(..., weighted=True)`); an `aggregation` column says which.
+
+- **Why.** A one-group g's variance is `1/n + g²/2n`, so a study's largest deviations are its least precise, and with variances more than `1 / rho² = 4` apart GLS gives them negative weights. In the 39-study batch, 25 of the 63 study × cluster combinations with more than one effect had a negative weight and 17 fell outside the range of their own effects (10 of 20 in `safety_trust`): tactile SA display's safety and trust deviations of −1.87 and +8.51 combined to −2.67, ARTV ornaments' UX deviations of −8.52 to +0.49 to +0.72, Road Bumps' two interaction deviations of −0.30 and −0.02 to −0.003.
+- **What changes** (pooled g, mean vs. GLS): `behavioral_interaction` −0.110 [−0.121, −0.098] instead of +0.002 [−0.002, 0.006], `safety_trust` −0.444 instead of −0.528, `cognitive_load` −0.059 instead of −0.073; `performance`, `physiological_biometric` and `ux_satisfaction` move by less than 0.004 and `affective_emotion` (one effect per study) not at all.
+- **Not changed.** The pooling across studies is fixed-effect, and the study-vs-pool deviations use the row count as `n`, so Road Bumps (70,000–216,000 rows per DV) carries about 90% of the weight in `behavioral_interaction` and `safety_trust`; its two interaction deviations alone decide the sign of that cluster.
+- Rerun with `opendv analyze` on the committed 39-study batch (`data/processed/catalog39_toast`): `subgroup_meta_analysis.csv` is the only output that changes. Test of the mean combination and of GLS leaving the range in `tests/test_review_fixes.py`.
+
+---
+
+### [2026-11-06] Factors of the 2026-11-05 studies; task demand and criticality pooled
+
+The condition contrasts (`analyses/output_python_full/contrast_*.csv`) now cover 24 studies instead of 14: the designs of 10 of the 16 studies added on 2026-11-05 are declared in `schemas/study_designs.yaml` (version 1.2). Rerun with `opendv analyze` on the committed 39-study batch (`data/processed/catalog39_toast`); no other output changes, and the 831 contrasts of the first 23 studies are identical.
+
+- **Declared, each checked against the data and the README, codebook, mapping notes or paper:** tactile SA display (SA level 3 vs 1, between; Condition 1/2 from the DaRUS page), short videos (TikTok, Twitter, YouTube vs rest, between; post-break rows only), NL2TAP (experts vs non-experts, between; scenario complexity C2/C3 vs C1, within non-experts), ARTV ornaments (three ornamentations vs baseline), NASA-TLX response formats (Ask, Knob vs Slider, and four of the five difficulty variables: the number of searched points is unbalanced over the videos and left out), perceived risk in merging (gap, braking intensity, repetition), SenseCobot (Tasks 1-5 vs baseline), myocontrol (TAC level vs TAC 4, which both files contain; contraction intensity), concurrent speech (concurrent vs sequential) and visual fidelity (medium and high vs low; NASA-TLX only).
+- **Not declared:** six studies keep their conditions only as wide columns (eHMI car body, driving style, AR pedestrian online survey, eHMI crowd survey, reflexion mapping, music tempo); a factor reads a row's level from a column. Visual fidelity's NASA-TLX sheet is long, so it was declared after all, against the earlier count of seven.
+- **New `exclude` key** for a factor (`{column: [values]}`): rows with a listed value carry no level. Short videos' break came between the pre and post blocks, so the pre-break and training rows are left out; perceived risk's gap and braking are crossed only in the nine merging events, so the hard-braking event is left out of those two factors. NL2TAP's expertise group is recorded only in `participants.csv`, which holds no measure, so the factor maps the 85 participant ids (ids below 0100 are non-experts).
+- **Two canonical factors**, tagged only where the study states the direction, never from the outcomes: `task_demand` (ROADS' number of vehicles requesting help at once, concurrent vs sequential speech, the response-format study's play speed, cursor noise, view radius and path visibility, NL2TAP's complexity) and `situation_criticality` (merging gap and braking; running into traffic's non-yielding AV). Distraction in eHMI for all (an added stimulus, not more of the task) and myocontrol's TAC levels (undefined in the record) are not tagged. ROADS and running into traffic, of the first 23, gained the tags.
+- **Newly pooled** (Wald 95% CI): higher task demand raises every NASA-TLX measure over three studies, from +0.54 SD (physical demand) to +0.97 (TLX total, [0.41, 1.53]), with I² 62–92% and HKSJ intervals that all reach 0. A more critical encounter lowers trust over two studies (−0.75 [−1.03, −0.47]); perceived risk has no common effect (drivers +1.24, pedestrians −0.06; I² = 96%).
+- **A study's dependent contrasts are combined by their mean** (variance under `rho`; Borenstein et al. 2009, ch. 24; metafor `aggregate(weighted = FALSE)`) instead of by GLS, which stays in `estimate_gls` and `yi_gls` (`--aggregation gls`). With correlated contrasts of unequal precision GLS gives negative weights, and SMCRPH variances grow with the effect: it put the response-format study's effect on the TLX total at −0.14 although five of its six demand contrasts lie between +0.19 and +1.40. eHMI vs. none moves from −0.51 to −0.54 SD (mental demand) and from +1.02 to +1.05 (perceived safety).
+- **A within-subjects contrast whose change has no variance is skipped.** NL2TAP's non-experts all have the same task success at C3 as at C1, which gave a sampling variance of 0 that no pooling can weight (the pooling stopped on a singular matrix).
+- **Tests** for `exclude`, the declared levels (TAC spellings, NL2TAP ids, the hard-braking exclusion, the `task_demand` members), the mean combination against its closed form, GLS leaving the range of two contrasts, and the zero-variance skip.
+
+---
+
+### [2026-11-06] ARTV's Qualtrics header rows skipped; unmapped measures of ARTV and tactile SA locked
+
+- **`skip_rows` table option** (manifest, per file; 0-based rows counted from the row below the header; spreadsheets and delimited text). A Qualtrics export has two rows under its header, the question texts and the import ids. `missing_values` only blanks cells and `header` only picks the header row, so neither could drop them. pandas skips the rows while parsing (`skiprows`), so the columns are typed from the answers alone. A listed row the file lacks stops the run. Tests in `tests/test_table_options.py`.
+- **ARTV ornamentations** (`artv_ornaments_2025`) now skips the two rows. Before, its standardized table had 82 rows: the question texts and import ids were read as two more participants ("Enter Participant ID (number)", `{"ImportId":"QID7_TEXT"}`) and two more condition levels, and 45 of its 74 columns held text. The analysis reads numeric columns only. No curated DV was lost: the `engagement_level` composite, `ueq_pragmatic` and `ueq_hedonic` were numeric and keep their values. The text columns it dropped were the LLM's SUS1–SUS10 (from Film-IEQ items) and copies locked as `meta_*`. Now 80 rows, 20 participants, four conditions; only the condition column is text.
+- **Measures without a schema DV are locked as `meta_*`**, so the LLM is no longer asked about them:
+    - ARTV: the 24 Film-IEQ items, its five scores, the three reversed item copies and the two awareness items (34 columns). Left unlabelled, the LLM had mapped 32 of them: the Film-IEQ items to SUS1–SUS10, Q3_1/Q3_2 with Q1_3 to a SUS3 composite, and the scores and reversed copies to `ueq_stimulation`, `ssq_disorientation`, `understanding_rating`, `trust_rating`, `sts_ad_item_05`/`06` and `AOA7`. Without these locks, skipping the rows would have made the ten SUS columns numeric and put Film-IEQ answers into the SUS pool.
+    - Tactile SA display (`tactile_sa_display_2022`): distance, Max intensity, Attention Interference and WM Interference, which the LLM had mapped to `headway`, `max_lateral_acceleration`, `dali_interference` and `pedestrian_crossing_time`.
+- **Checked** with a batch run of the two sources (LLM on; `docs/reproducibility.md` settings, short output path). The LLM is asked about nothing in either source. On the remaining rows every cell equals the committed run's; only the column names of the locked measures change, and ARTV's SUS3 composite is gone. In `meta_view.csv`, ARTV goes from 74 to 73 rows (33 LLM rows → 0), tactile SA keeps 9 (4 LLM rows → 0); their non-meta DVs are now only the curated ones (ARTV: `engagement_level`, `ueq_pragmatic`, `ueq_hedonic`; tactile SA: `ttc`, `TLX_SCORE`, `sart_total`).
+- **What changes in the outputs.** The committed outputs were not regenerated. `opendv analyze`, the multiverse and the relations were rerun in a scratch folder on the committed 39-study batch, with these two sources swapped for the new run. Only results that include LLM-deduced mappings move. `meta_analysis_summary_llm_excluded.csv`, the contrasts, causal discovery and measurement invariance are byte-identical.
+    - All-mappings meta-analysis: ten DVs lose a study, and `ueq_stimulation` (two LLM-mapped studies) is no longer pooled. 94 DVs are pooled over at least two studies (95) and 62 over at least three (66); without LLM rows still 49 and 36. Committed values in parentheses:
+        - `trust_rating`: k = 9 (10), 3.76 [3.46, 4.06] (3.55 [3.01, 4.09]).
+        - `understanding_rating`: k = 6 (7), 3.80 (3.51).
+        - `AOA7`: k = 4 (5), −0.90 (−0.72).
+        - `ssq_disorientation`: k = 2 (3), 14.9 (23.3).
+        - `max_lateral_acceleration`: k = 2 (3), 6.2 (65.4). Tactile SA's braking intensity, on 0–100, had been pooled as a lateral acceleration.
+        - `headway`: k = 2 (3), 0.55 (2.30).
+        - `SUS3`, `sts_ad_item_05` and `sts_ad_item_06` lose ARTV.
+    - `AOA7`, `understanding_rating` and `ssq_disorientation` now rest on curated mappings only, so they equal their LLM-excluded estimates.
+    - Multiverse: the same ten DVs (2,288 specifications, 2,304 before).
+    - Descriptive tables follow: DV overlap (mean Jaccard 0.0845, was 0.0855), the composite index (94 shared DVs, 95 before, so every study's composite moves in the last digits), and the Egger, trim-and-fill and meta-regression rows of the ten DVs.
+    - Relations: no finding appears or disappears at any level. The identical-name, automatic and curated levels are unchanged, and so are the LLM replay's conclusions.
+        - At the LLM level, 43 per-study correlations go. Eight pairs are no longer pooled (k = 2 → 1). Seven lose a study, e.g. trust × understanding between persons is now r = .65 over three studies (.56 over four). The other rows change only in their q-values.
+        - The ladder's LLM step pools 226 pairs between persons (232) and 119 within (121).
+        - The replay level loses the four pairs that rested on tactile SA's LLM-mapped braking measures.
+- **Not rerun:**
+    - The committed outputs.
+    - The LLM benchmark of the added studies (`analyses/output_llm_evaluation/added_2026_11_05/`). A rerun adds the 38 newly locked columns as curated negatives; in the batch the LLM had mapped 36 of them.
+- **Found, not fixed:** `mean_z_vs_global` in `harmonized_dv_summary_llm_excluded.csv` is computed against the pool with LLM rows, before they are filtered out (`multi_study_analysis.py`), so that column of the LLM-excluded file still moves when an LLM mapping changes.
+
+---
+
+### [2026-11-06] Outputs rerun with NL2TAP's TOAST items
+
+The two entries below were merged into one branch, and every output now comes from one batch run of all 39 studies that includes NL2TAP's TOAST items (`data/processed/catalog39_toast`; `docs/reproducibility.md`).
+
+- **Same run otherwise.** Apart from NL2TAP's added TOAST table, all 1,806 standardized tables have the same contents as the run without it, which reproduced the relation tables of 2026-11-05 byte for byte.
+- **Relations** (`analyses/output_relations/`): no finding changes at any level. Trust now meets the NASA-TLX scales in a second study (five more pairs pooled over two studies, 83 instead of 78 between persons), and mental demand × trust rests on four studies (r = −0.23, q = .25, not a finding). Replay: 68 of 312 curated DV columns keep their DV (67 of 311).
+- **LLM benchmark on the added studies** rerun: the nine TOAST items are the only new items (five answered correctly), every other answer repeats; 73 of 423 curated DV columns right (17%).
+- **Meta-analysis and multiverse:** only `trust_rating` changes, k = 10 (9) and 4 (3) without LLM rows; measurement invariance and contrasts are unchanged.
+
+---
+
+### [2026-11-06] Results no longer depend on the output path
+
+- **The defect.** The batch shortens a standardized file's name with a hash when its full output path would pass 240 characters, and `participant_from_file` read participant ids from that name. From a 130-character output folder (a `.claude/worktrees/<name>` checkout), 740 of eHMI Optimization's 1,480 rows had no participant id: its participant-level means lost mental demand, and 20 of its 100 per-study correlations (all levels) were missing. No warning was given.
+- **Fix.** `load_studies` and the relations analysis now set `_source_file` to the table's path in its source (the `dataset_id` of the `-quality.json` next to each file; a file without one keeps its name). `participant_from_file` is matched against that path, and `participant_scope: file` qualifies ids with it. eHMI Optimization's pattern is now `(?:^|/)u_(\d+)/`, its per-participant folder. Files are read in the order of the names a short output path gives them, so row order, and with it the last digits of sums (up to 1.4e-15 in the correlations), no longer depends on the path either; on a short path the order is the one used so far.
+- **Warning.** A `participant_from_file` pattern that matches none of the files whose rows lack a participant column is now logged.
+- **Checked.** eHMI Optimization batched to a 71- and a 130-character folder (same code, no LLM): the same 37 participants, all 1,480 rows identified, identical study frames, participant means and per-study correlations byte for byte. With the old code the longer folder gives the losses above. On the committed 39-study run (a short folder), `construct_relations`, `opendv analyze` and the multiverse give byte-identical outputs with the old and the new code (`analysis_results.json` apart from its timestamp), so the committed tables stand. Tests: `tests/test_output_path_independence.py` (a batch whose names are all shortened gives the same frames, ids and participant means as one whose names are not).
+- **Docs.** `docs/reproducibility.md` no longer asks for a short output path; `docs/multi_study_analysis_guide.md` and `schemas/study_designs.yaml` say which path the pattern is matched against.
+- **Not changed.** `construct_relations.run` still fails on an input folder with a single study (`pool_relations` gets no pooled rows and looks for `k_studies`); the check above called its per-study step directly.
+
+---
+
+### [2026-11-06] Per-file column rename; NL2TAP's TOAST trust items mapped
+
+- **`rename` table option** (`{old: new}`, per file path or glob in the manifest, applied after `pivot` and `drop_columns`). A mapping file applies one target per column name to every file of its source, so two files that reuse names for different measures could not both be mapped. A name the file lacks, or a rename that would duplicate a column, stops the run. Tests in `tests/test_table_options.py`.
+- **NL2TAP's TOAST items** (`toast_responses.csv`, 9 items, 1-7) are now read: the manifest renames their `item_1..item_9` to `toast_1..toast_9`, and the mapping sends them to `trust_rating`. The batch composes them into their mean, the TOAST score (85 participants, Cronbach's α = .89, M = 5.14; the paper reports M = 5.1). The item wording (in the replication package's questionnaire figure) is all agree-keyed, so no item is reversed.
+- **Checked** with a batch run of the 16 added sources without the LLM: every mapping key reaches its column (NL2TAP: 51, the 42 before plus the nine TOAST items), and the SUS targets still come only from `sus_responses.csv`.
+- **Not done.** The cross-study relations (`analyses/output_relations/`, `docs/cross_study_insights.md`) and the LLM benchmark on the added studies (`analyses/output_llm_evaluation/added_2026_11_05/`, 414 curated DV columns) were not rerun, so neither includes the nine TOAST columns yet. (Rerun since, see the entry above.)
+
+---
+
+### [2026-11-06] Analyses rerun on the 39 development studies
+
+`analyses/output_python_full/` (with the contrasts), `output_multiverse/` and `figures_chi/` now cover all 39 studies of `sources_manifest_no4tu.yaml` (23 before). 23-study values in parentheses.
+
+- **One batch run of all 39 studies** (same code, settings and model; download cache of 2026-11-04). It reproduces the two runs behind the relation tables of 2026-11-05: all 1,806 standardized tables have identical contents, and `meta_view.csv` differs only in absolute paths and timestamps. Three workers instead of eight changed nothing.
+- **Results depend on the checkout path.** The batch shortens an output file name with a hash when its full path would pass 240 characters, and eHMI Optimization's participant ids are read from its file names (`participant_from_file`). From a worktree path the names lost the `_u_<id>_` part, which changed participant-level estimates and 84 relation rows. The committed run was written to a short folder. (Fixed later that day; see "Results no longer depend on the output path" above.)
+- **Coverage:** 134 canonical DVs (118); 95 DVs pooled over at least two studies (78) and 66 over at least three (46); without LLM-deduced rows 49 (44) and 36 (32). Mean pairwise Jaccard overlap 0.085 (0.076).
+- **NASA-TLX mental demand:** k = 21 (13), 7.44, HKSJ [5.91, 8.98]; without LLM rows k = 14 (7), 8.38 [6.62, 10.15]. The TLX total without LLM rows rests on 11 studies (3): 38.7 [28.0, 49.4] instead of an interval from −37 to 106.
+- **An LLM error weighs heavily.** The LLM maps SenseCobot's EEG beta/alpha-ratio statistics to mental demand. Their values fit the range check, and the resulting study mean (0.39 of 20) carries 17.5% of the weight in the all-mappings pool (Fig. 4). Because provenance is per study and DV, SenseCobot's curated TLX also leaves the LLM-excluded pooling, as ROADS' SUS does.
+- **Invariance: no scale reaches even configural invariance.** The AR pedestrian survey (1,174 answers) breaks the Van der Laan models (satisfying: RMSEA 0.33; usefulness: 0.082 against the 0.08 limit; they reached metric and configural invariance before). SUS with NL2TAP still misfits (RMSEA 0.13). The NASA-TLX model cannot be fitted at all (`not_fitted`): NL2TAP's physical demand is 0 for every participant, and lavaan refuses a group whose item has no variance.
+- **Contrasts unchanged.** The 16 added studies declare their participants and describe their designs, but no factors are coded (seven keep their conditions as wide columns), so the same 14 studies yield contrasts and eHMI vs. none stays at −0.51 SD (mental demand) and +1.02 SD (perceived safety) over two studies.
+- **Multiverse:**
+    - The NASA-TLX subscales are no longer robust: mental demand ranges from 7.44 to 21.12 (7.35–8.13), and 47% of the intervals miss the default estimate. Scale harmonization alone causes this: harmonized 7.44–8.41, raw 13.0–21.1, because six added studies record the subscales on 0–100. The other five subscales behave the same; the TLX total (32.97–38.69) stays robust.
+    - `perceived_safety` 0.85–3.70 (0.93–4.04), again by harmonization.
+    - `task_completion_time` without LLM rows now spans 1.24 to 52.66 (0.70–0.90), by the τ² estimator alone: an NL2TAP scenario takes 209 s, a trial of the other three studies 0.6–2 s. Times of different tasks are not one quantity.
+- **CHI figures** regenerated from these outputs; `analyses/figures_chi/README.md` rewritten for the 39-study run (it still described the 11-study run of 2026-10-25).
+- **Docs:** README, `docs/research_agenda.md` (§2.3, §2.5, §4), `docs/multi_study_analysis_guide.md`, `docs/reproducibility.md`.
+
+---
+
+### [2026-11-05] Development half of the search mapped (39 development studies)
+
+- **16 new study mappings** (`schemas/<source_id>_mapping.yaml`), manifest entries in `sources_manifest_no4tu.yaml` and designs in `schemas/study_designs.yaml`, written from the codebooks and papers before any LLM run or cross-study relation on these studies. Of the 22 downloaded datasets, six are not added; the manifest lists each with its reason (DVs only in files over 50 MB or in .mat files, DVs outside the schema, or presentation-layout workbooks).
+- **Checked** with a batch run without the LLM: every mapping key reaches its column, every declared value transform applies (e.g. 78,046 survey labels recoded, none unmatched), and all 39 studies resolve their participant column in every file.
+- **Mapping decisions worth knowing.**
+    - Risk ratings stay `perceived_risk`; Van der Laan items keep their published order; NASA-TLX subscales on 1-7 or 1-10 are converted to the schema's 0-20.
+    - TLX columns whose order or direction is undocumented and contradicted by the data stay unlabelled (SenseCobot's cumulative performance item).
+    - Visual fidelity: the questionnaire's T1-T24 are recoded to the measures workbook's 1-24, verified on the TLX ratings both workbooks repeat.
+    - The AR online survey has no response id; `RecordedDate` keys respondents (10 pairs of the 1,155 respondents with ratings share one).
+    - NL2TAP's TOAST items are left out: their columns are named like its SUS items, and a mapping applies one target per name to every file of a source.
+- **`construct_relations --llm-replay-items`** accepts several item files (benchmark runs on disjoint sets of studies), concatenated; regression test in `tests/test_construct_relations.py`.
+- **LLM benchmark on the 16 added studies** (`analyses/output_llm_evaluation/added_2026_11_05/`, E1 only): the curated DV for 68 of 414 curated DV columns (16%, 41% on the first 23).
+- **Relations on 39 studies** (`analyses/output_relations/`, `docs/cross_study_insights.md`):
+    - 29 studies contribute at the deterministic levels (2,810 participants), 35 with the LLM.
+    - New: between persons, mental demand goes with lower SUS usability in four studies (r = −0.42, HKSJ [−0.51, −0.31], I² = 0%, prediction interval excludes 0); the NASA-TLX subscales now covary between persons over 10-12 studies.
+    - Unchanged: workload × perceived safety within persons (four studies, r = −0.44).
+    - Pooling by names and the shared schema now reaches NASA-TLX pairs in three or more studies, because several added studies name the subscales by their own words. Cross-construct relations still need the curated mappings.
+- **Not done.** The other analyses (`output_python_full`, multiverse, CHI figures, contrasts) still cover the 23 studies (rerun on 2026-11-06, above).
+
+---
+
+### [2026-11-05] Held-out confirmation test
+
+The pre-registered test (`docs/preregistration_heldout_relations.md`); results in `docs/heldout_results.md`.
+
+- **Downloads.**
+    - `analyses/candidate_search/build_sources.py` pins every file by the repository's checksum, and every needed member of a zip archive by size and CRC-32. Archive contents are listed by HTTP range requests (`remotezip`, optional `fetch` extra).
+    - `confirmatory fetch` writes only those members. It reads archives over 1 GB member by member and retries rate limits.
+    - 19 of the 29 held-out datasets are analysed; 10 are dropped under the pre-registered rules.
+- **Mappings frozen** (`58f260a`) before any correlation or LLM answer: `analyses/heldout/mappings/`, `analyses/heldout/sources_manifest.yaml`, held-out entries in `schemas/study_designs.yaml`.
+- **Results.**
+    - **H1 (workload × perceived safety): not testable.** No held-out study measures both.
+    - **H2 (NASA-TLX core pairs): not supported, narrowly.** Pooled within-person r = 0.44, 0.60 and 0.42 over k = 5 studies; each one-sided p < .05, but p = 0.052 after Holm, because the studies disagree on the size of the correlation (I² ≈ 95%).
+    - **H2b (performance weakest): met.**
+    - **H3 (header matching before the LLM): supported.** 93 vs. 77 of 238 DV columns correct, 16 vs. 0 discordant, p = 3 × 10⁻⁵.
+- **New module:** `opendv.analysis.heldout` decides the hypotheses from the relations and the E1 run; `analyses/heldout/run.sh` runs the procedure.
+- **Not done.** The 28 development datasets of the search are downloaded (`analyses/development_sources/sources_search.yaml`, 22 verified) but not yet mapped.
+
+---
+
+### [2026-11-05] Systematic search for open-data studies
+
+- **New script:** `analyses/candidate_search/search_open_data.py` searches the research-data repositories for open HCI user-study datasets.
+    - It sends 21 fixed queries to DataCite (Zenodo, OSF, figshare, Dryad, 4TU, Dataverse, Mendeley Data) and 17 to OSF's own index.
+    - It screens every record automatically: one record per dataset, an open licence, a peer-reviewed paper, not already a source, a file listing with tables.
+    - Every record keeps the stage it stopped at (`hits.csv`), and API responses are cached, so `--offline` reproduces the screen.
+- **Results** (`docs/open_data_candidates.md`, second search). 3,199 datasets gave 427 candidates for manual screening.
+    - 57 are verified: a user study with schema DVs, and the paper matched by its authors or title. 37 of them are automotive.
+    - 79 look eligible but are not yet verified.
+    - 291 were excluded, each with a reason (`screening_decisions.csv`).
+- **Split half and half.** `split_heldout.py` splits the 57 verified datasets from metadata, stratified, with seed 20261105:
+    - 29 are held out to confirm the exploratory relations, pre-registered in `docs/preregistration_heldout_relations.md`;
+    - 28 join the development set.
+- **Not done.** Nothing was downloaded.
+
+---
+
 ### [2026-11-04] Code review and cross-study relations
 
 A review of the whole pipeline (harmonization, LLM fallback and benchmark, cross-study analyses) found the defects below; each is fixed and has a regression test in `tests/test_review_fixes.py`.

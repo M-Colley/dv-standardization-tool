@@ -1,0 +1,129 @@
+{
+  "levels": {
+    "names": "identical raw column names",
+    "automatic": "+ shared schema, header matching, instrument scoring",
+    "curated": "+ study mapping files",
+    "llm": "+ local-LLM fallback"
+  },
+  "studies_without_participant_column": {
+    "names": [
+      "robot_feeding_2025"
+    ],
+    "automatic": [
+      "robot_feeding_2025"
+    ],
+    "curated": [
+      "robot_feeding_2025"
+    ],
+    "llm": [
+      "robot_feeding_2025"
+    ]
+  },
+  "finding_rule": "k >= 3 studies, pair not scored from shared items, HKSJ 95% CI excludes 0, Benjamini-Hochberg q < 0.05 over these eligible pairs within level and association",
+  "ladder": [
+    {
+      "level": "names",
+      "level_label": "identical raw column names",
+      "association": "between_person",
+      "studies_with_relations": 13,
+      "pairs_pooled_k2": 3,
+      "pairs_pooled_k3": 0,
+      "cross_construct_pairs_k3": 0,
+      "participants": 585,
+      "findings": 0,
+      "cross_construct_findings": 0,
+      "generalizing_findings": 0
+    },
+    {
+      "level": "names",
+      "level_label": "identical raw column names",
+      "association": "within_person",
+      "studies_with_relations": 8,
+      "pairs_pooled_k2": 3,
+      "pairs_pooled_k3": 0,
+      "cross_construct_pairs_k3": 0,
+      "participants": 325,
+      "findings": 0,
+      "cross_construct_findings": 0,
+      "generalizing_findings": 0
+    },
+    {
+      "level": "automatic",
+      "level_label": "+ shared schema, header matching, instrument scoring",
+      "association": "between_person",
+      "studies_with_relations": 4,
+      "pairs_pooled_k2": 3,
+      "pairs_pooled_k3": 0,
+      "cross_construct_pairs_k3": 0,
+      "participants": 235,
+      "findings": 0,
+      "cross_construct_findings": 0,
+      "generalizing_findings": 0
+    },
+    {
+      "level": "automatic",
+      "level_label": "+ shared schema, header matching, instrument scoring",
+      "association": "within_person",
+      "studies_with_relations": 3,
+      "pairs_pooled_k2": 3,
+      "pairs_pooled_k3": 0,
+      "cross_construct_pairs_k3": 0,
+      "participants": 168,
+      "findings": 0,
+      "cross_construct_findings": 0,
+      "generalizing_findings": 0
+    },
+    {
+      "level": "curated",
+      "level_label": "+ study mapping files",
+      "association": "between_person",
+      "studies_with_relations": 14,
+      "pairs_pooled_k2": 61,
+      "pairs_pooled_k3": 23,
+      "cross_construct_pairs_k3": 1,
+      "participants": 642,
+      "findings": 12,
+      "cross_construct_findings": 0,
+      "generalizing_findings": 0
+    },
+    {
+      "level": "curated",
+      "level_label": "+ study mapping files",
+      "association": "within_person",
+      "studies_with_relations": 9,
+      "pairs_pooled_k2": 39,
+      "pairs_pooled_k3": 22,
+      "cross_construct_pairs_k3": 0,
+      "participants": 380,
+      "findings": 0,
+      "cross_construct_findings": 0,
+      "generalizing_findings": 0
+    },
+    {
+      "level": "llm",
+      "level_label": "+ local-LLM fallback",
+      "association": "between_person",
+      "studies_with_relations": 14,
+      "pairs_pooled_k2": 61,
+      "pairs_pooled_k3": 23,
+      "cross_construct_pairs_k3": 1,
+      "participants": 642,
+      "findings": 12,
+      "cross_construct_findings": 0,
+      "generalizing_findings": 0
+    },
+    {
+      "level": "llm",
+      "level_label": "+ local-LLM fallback",
+      "association": "within_person",
+      "studies_with_relations": 9,
+      "pairs_pooled_k2": 39,
+      "pairs_pooled_k3": 22,
+      "cross_construct_pairs_k3": 0,
+      "participants": 380,
+      "findings": 0,
+      "cross_construct_findings": 0,
+      "generalizing_findings": 0
+    }
+  ]
+}

@@ -1,0 +1,21 @@
+# Held-out mapping for ndrt_takeover_l3_2025 (docs/preregistration_heldout_relations.md).
+# Paper: "Effects of non-driving-related tasks on driving performance after takeover requests
+#   in level 3 automated driving", European Transport Research Review 2025,
+#   DOI 10.1186/s12544-025-00745-6.
+# Data: Zenodo 15281988 (DOI 10.5281/zenodo.15281988), CC-BY-4.0; the record description is the
+#   codebook (31 participants; baseline drives and six NDRTs).
+# File: data_Zenodo.xlsx, sheet "takeover time" (manifest table_options): one row per
+#   participant, takeover time per drive in columns (baseline 1-3, NDRT 1-6). The other sheets
+#   (speed after takeover, distance to the lane centre, situation awareness percentages per
+#   question) cannot be read in the same run: the manifest takes one sheet per file.
+
+person: meta_participant_id
+baseline1: takeover_time
+baseline 2: takeover_time
+baseline 3: takeover_time
+NDTR 1: takeover_time
+NDTR 2: takeover_time
+NDTR 3: takeover_time
+NDTR 4: takeover_time
+NDTR 5: takeover_time
+NDTR 6: takeover_time

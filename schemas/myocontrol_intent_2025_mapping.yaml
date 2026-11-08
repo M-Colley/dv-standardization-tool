@@ -1,0 +1,49 @@
+# Source-specific column mapping for myocontrol_intent_2025
+# Paper: ICORR 2025, DOI 10.1109/ICORR66766.2025.11063080. Dataset: "IntelliMan_WP4_Adaptive
+#   shared autonomy_T4_3. Human intent detection for autonomy arbitration_Unsupervised
+#   Incremental Higher Density sEMG" (myoelectric control of a robot).
+# Data: Zenodo 18834139 (DOI 10.5281/zenodo.18834139), CC-BY-4.0. No codebook: the record
+#   says only that "NASA TLX" holds "the subjects responses to the NASA TLX questionnaire";
+#   this mapping is written from the column names and values.
+#
+# Files:
+#   - NASA TLX.csv (semicolon-separated): one row per participant x TAC level (8
+#     participants, S1-S9 without S5; 27 rows), columns 1-6 = the six NASA-TLX subscales,
+#     0-100.
+#   - testResults.csv: one row per TAC test trial (632 rows; TAC is presumably the Target
+#     Achievement Control test of myoelectric control, not defined in the record):
+#     success (0/1), completion time and path measures, at full or half contraction intensity.
+#   GestureDistribution.csv (gestures used per participant and TAC level) holds no DV.
+#
+# Notes:
+#   - TLX columns 1-6 are taken in the standard order (mental, physical, temporal demand,
+#     performance, effort, frustration); the order is not stated (as for the held-out
+#     music_intensity_driving_2021).
+#   - table_completion_time: about 4-10 for successful trials and about 22 for failed ones,
+#     i.e. the time limit; the unit is not stated and is read as seconds.
+#   - TAC levels (TAC 3 - TAC 7; "TAC 4" in the TLX file, "TAC_4" in the trial file) are not
+#     defined in the record.
+
+# --- Dependent measures: NASA-TLX ------------------------------------------------
+"1": mental_demand
+"2": physical_demand
+"3": temporal_demand
+"4": performance
+"5": effort
+"6": frustration
+
+# --- Dependent measures: TAC test trials ----------------------------------------------
+table_successfull: task_success           # 0/1
+table_completion_time: task_completion_time  # s (failed trials at the time limit)
+
+# Left unlabelled (no schema DV, undefined in the record): table_final_mean,
+# table_enter_target_first_time, table_fine_gross_ratio, table_fine_mean, table_fine_std,
+# table_path_efficiency.
+
+# --- Participants and design ----------------------------------------------------
+Participant: meta_participant_id
+table_subject: meta_participant_id
+TAC: meta_condition_tac_level
+table_tac: meta_condition_tac_level
+table_task: meta_trial_index
+table_intensity: meta_condition_contraction_intensity   # Full / Half intensity

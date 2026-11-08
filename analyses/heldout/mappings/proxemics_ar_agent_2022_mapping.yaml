@@ -1,0 +1,36 @@
+# Held-out mapping for proxemics_ar_agent_2022 (docs/preregistration_heldout_relations.md).
+# Paper: "Proxemics for Human-Agent Interaction in Augmented Reality", CHI 2022,
+#   DOI 10.1145/3491102.3517593.
+# Data: DaRUS (DOI 10.18419/darus-2525), CC-BY-4.0. No codebook is published; written from the
+#   column headers and value ranges.
+# Files: df_holo.csv / df_holo_min.csv (one row per trial: walking distance to an AR agent),
+#   df_holo_eda.csv (skin conductance per participant x agent x condition), like_data.csv
+#   (liking of each agent, 1-5), Quest_Data_r2.csv (demographics), vote_perceived_gender.csv
+#   (perceived gender of each agent).
+
+pp: meta_participant_id
+filename: meta_source_file
+trial_count: meta_trial
+CurrentAvatar: meta_condition_agent_index
+device: meta_setup_device
+cond: meta_condition_task                # Approach / Walkthrough
+target: meta_condition_agent
+avatars: meta_condition_agent
+human_target: meta_condition_agent_human
+sex_target: meta_condition_agent_sex
+tukey_outlier: meta_quality_outlier_flag
+gender: meta_demographic_gender
+age: meta_demographic_age
+height: meta_demographic_height
+n_con: meta_count_trials
+F1: meta_manipulation_check_perceived_gender
+F2: meta_manipulation_check_perceived_gender
+M1: meta_manipulation_check_perceived_gender
+M2: meta_manipulation_check_perceived_gender
+Robot: meta_manipulation_check_perceived_gender
+Pillar: meta_manipulation_check_perceived_gender
+
+SCR_metric_mean: eda_gsr                 # mean skin conductance response
+
+# Left unlabelled (no schema DV): min_dist, mean_hallo_dist (interpersonal distance, m),
+# SCR_metric_max, value in like_data.csv (single liking rating, not the Godspeed scale).

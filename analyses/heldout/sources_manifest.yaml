@@ -1,0 +1,201 @@
+# Batch manifest of the held-out confirmation set (docs/preregistration_heldout_relations.md).
+# Files: analyses/heldout/sources.yaml, downloaded and verified with
+#   python -m opendv.analysis.confirmatory fetch --sources analyses/heldout/sources.yaml --data-dir data/raw/heldout
+# Mappings: analyses/heldout/mappings/ (frozen with this file). Study designs: schemas/study_designs.yaml.
+#
+# 19 of the 29 held-out datasets are kept. Dropped under the pre-registered rules:
+#   before download (no participant-level table the pipeline reads; analyses/heldout/sources.yaml):
+#     driver_trust_index_2026: no participant-level table the pipeline reads; other files: 28 .png
+#     ehmi_flash_text_2023: no participant-level table the pipeline reads; other files: 1512 .vcl, 216 .csv in log folders, 84 .mp4, 65 .png, 61 .pyd, 53 .dat
+#     ehmi_gimmick_2022: no participant-level table the pipeline reads; other files: 4 .png, 3 .mat, 2 .m
+#     ehmi_location_2019: no participant-level table the pipeline reads; other files: 73 .mp4, 61 .edf, 61 .txt, 5 .m, 1 .mat, 1 .docx
+#     partial_automation_ui_2024: no participant-level table the pipeline reads; other files: 110 .mat
+#   after download:
+#     cyclist_av_decisions_2022: the downloaded surveys hold no DV; the brake/continue decisions are only in raw jsPsych exports, and no schema DV fits them
+#     ehmi_behaviour_crowd_2021: the downloaded survey holds no DV; the keypress data are only in .mat files and raw exports over 50 MB
+#     ehmi_colours_crowd_2020: the downloaded survey holds no DV; the colour ratings are only in raw jsPsych exports without headers, and no schema DV fits them
+#     ped_gesture_vr_2021: every DV in the tables (difficulty of predicting the AV, assurance of being seen, rankings) is outside the schema
+#     tactile_dvi_braking_2026: cannot be downloaded (Dryad answers HTTP 401 to the API and 403 to the public link)
+sources:
+- source_id: ai_label_trust_2025
+  source_type: local_path
+  location: data/raw/heldout/ai_label_trust_2025
+  publication_doi: 10.1038/s41598-025-85558-2
+  license: CC-BY-4.0
+  include_globs:
+  - Data/ANON_Trust_in_AI_Main_Study.csv
+  mapping_path: analyses/heldout/mappings/ai_label_trust_2025_mapping.yaml
+  override_standard_aliases: true
+- source_id: ar_pedestrian_outdoor_2024
+  source_type: local_path
+  location: data/raw/heldout/ar_pedestrian_outdoor_2024
+  publication_doi: 10.3389/frobt.2024.1324060
+  license: CC-BY-4.0
+  include_globs:
+  - '*/Post-experiment questionnaire.xlsx'
+  mapping_path: analyses/heldout/mappings/ar_pedestrian_outdoor_2024_mapping.yaml
+  override_standard_aliases: true
+- source_id: av_acceptance_diverse_2025
+  source_type: local_path
+  location: data/raw/heldout/av_acceptance_diverse_2025
+  publication_doi: 10.1145/3743049.3743051
+  license: CC-BY-4.0
+  include_globs:
+  - '*.xlsx'
+  mapping_path: analyses/heldout/mappings/av_acceptance_diverse_2025_mapping.yaml
+  override_standard_aliases: true
+- source_id: coupled_hmd_2022
+  source_type: local_path
+  location: data/raw/heldout/coupled_hmd_2022
+  publication_doi: 10.1016/j.apergo.2022.103825
+  license: CC0-1.0
+  include_globs:
+  - '*/All_questionnaire_results.xlsx'
+  table_options:
+    '*All_questionnaire_results.xlsx':
+      sheet: Post-block pedestrian
+  mapping_path: analyses/heldout/mappings/coupled_hmd_2022_mapping.yaml
+  override_standard_aliases: true
+- source_id: coupled_sim_2022
+  source_type: local_path
+  location: data/raw/heldout/coupled_sim_2022
+  publication_doi: 10.1145/3543174.3546849
+  license: CC-BY-4.0
+  include_globs:
+  - '*/interim_questionnaire.xlsx'
+  - '*/opening_questionnaire.xlsx'
+  mapping_path: analyses/heldout/mappings/coupled_sim_2022_mapping.yaml
+  override_standard_aliases: true
+- source_id: dev_creativity_eyetracking_2026
+  source_type: local_path
+  location: data/raw/heldout/dev_creativity_eyetracking_2026
+  publication_doi: 10.1145/3794860.3794891
+  license: CC-BY-4.0
+  include_globs:
+  - '*.csv'
+  mapping_path: analyses/heldout/mappings/dev_creativity_eyetracking_2026_mapping.yaml
+  override_standard_aliases: true
+- source_id: driving_style_takeover_2024
+  source_type: local_path
+  location: data/raw/heldout/driving_style_takeover_2024
+  publication_doi: 10.1016/j.apergo.2024.104366
+  license: CC-BY-4.0
+  include_globs:
+  - '*/Table.xlsx'
+  mapping_path: analyses/heldout/mappings/driving_style_takeover_2024_mapping.yaml
+  override_standard_aliases: true
+- source_id: ehmi_infrastructure_2024
+  source_type: local_path
+  location: data/raw/heldout/ehmi_infrastructure_2024
+  publication_doi: 10.59490/ejtir.2024.24.2.7273
+  license: CC-BY-4.0
+  include_globs:
+  - '*/Open data.xlsx'
+  table_options:
+    '*Open data.xlsx':
+      sheet: Subjective measures
+  mapping_path: analyses/heldout/mappings/ehmi_infrastructure_2024_mapping.yaml
+  override_standard_aliases: true
+- source_id: function_allocation_hrc_2026
+  source_type: local_path
+  location: data/raw/heldout/function_allocation_hrc_2026
+  publication_doi: 10.1109/lra.2025.3632607
+  license: CC-BY-4.0
+  include_globs:
+  - '*.xlsx'
+  mapping_path: analyses/heldout/mappings/function_allocation_hrc_2026_mapping.yaml
+  override_standard_aliases: true
+- source_id: midair_map_making_2026
+  source_type: local_path
+  location: data/raw/heldout/midair_map_making_2026
+  publication_doi: 10.1080/15230406.2026.2619027
+  license: CC-BY-4.0
+  include_globs:
+  - '*.csv'
+  mapping_path: analyses/heldout/mappings/midair_map_making_2026_mapping.yaml
+  override_standard_aliases: true
+- source_id: multiscale_teleport_2024
+  source_type: local_path
+  location: data/raw/heldout/multiscale_teleport_2024
+  publication_doi: 10.1109/tvcg.2024.3372043
+  license: CC-BY-4.0
+  include_globs:
+  - '*.csv'
+  mapping_path: analyses/heldout/mappings/multiscale_teleport_2024_mapping.yaml
+  override_standard_aliases: true
+- source_id: music_intensity_driving_2021
+  source_type: local_path
+  location: data/raw/heldout/music_intensity_driving_2021
+  publication_doi: 10.1016/j.trf.2021.05.022
+  license: CC-BY-4.0
+  include_globs:
+  - '*.sav'
+  mapping_path: analyses/heldout/mappings/music_intensity_driving_2021_mapping.yaml
+  override_standard_aliases: true
+- source_id: ndrt_takeover_l3_2025
+  source_type: local_path
+  location: data/raw/heldout/ndrt_takeover_l3_2025
+  publication_doi: 10.1186/s12544-025-00745-6
+  license: CC-BY-4.0
+  include_globs:
+  - data_Zenodo.xlsx
+  table_options:
+    data_Zenodo.xlsx:
+      sheet: takeover time
+  mapping_path: analyses/heldout/mappings/ndrt_takeover_l3_2025_mapping.yaml
+  override_standard_aliases: true
+- source_id: physio_hrc_2025
+  source_type: local_path
+  location: data/raw/heldout/physio_hrc_2025
+  publication_doi: 10.1109/iros60139.2025.11245894
+  license: CC-BY-4.0
+  include_globs:
+  - '*/questionnaires/*.csv'
+  mapping_path: analyses/heldout/mappings/physio_hrc_2025_mapping.yaml
+  override_standard_aliases: true
+- source_id: proxemics_ar_agent_2022
+  source_type: local_path
+  location: data/raw/heldout/proxemics_ar_agent_2022
+  publication_doi: 10.1145/3491102.3517593
+  license: CC-BY-4.0
+  include_globs:
+  - '*.csv'
+  mapping_path: analyses/heldout/mappings/proxemics_ar_agent_2022_mapping.yaml
+  override_standard_aliases: true
+- source_id: robot_feeding_2025
+  source_type: local_path
+  location: data/raw/heldout/robot_feeding_2025
+  publication_doi: 10.1109/hri61500.2025.10974182
+  license: CC-BY-4.0
+  include_globs:
+  - Study 2 Data/Quantitative/Subjective/NASA_TLX.csv
+  mapping_path: analyses/heldout/mappings/robot_feeding_2025_mapping.yaml
+  override_standard_aliases: true
+- source_id: robot_teaching_2023
+  source_type: local_path
+  location: data/raw/heldout/robot_teaching_2023
+  publication_doi: 10.3850/978-981-18-8071-1_p241-cd
+  license: CC-BY-4.0
+  include_globs:
+  - '*.csv'
+  mapping_path: analyses/heldout/mappings/robot_teaching_2023_mapping.yaml
+  override_standard_aliases: true
+- source_id: shared_autonomy_2026
+  source_type: local_path
+  location: data/raw/heldout/shared_autonomy_2026
+  publication_doi: 10.1109/tnsre.2026.3657400
+  license: CC-BY-4.0
+  include_globs:
+  - ds_qs_zen.csv
+  - ds_run_info_zen.csv
+  mapping_path: analyses/heldout/mappings/shared_autonomy_2026_mapping.yaml
+  override_standard_aliases: true
+- source_id: tool_embodiment_2025
+  source_type: local_path
+  location: data/raw/heldout/tool_embodiment_2025
+  publication_doi: 10.3389/frvir.2025.1637212
+  license: CC-BY-4.0
+  include_globs:
+  - '*.csv'
+  mapping_path: analyses/heldout/mappings/tool_embodiment_2025_mapping.yaml
+  override_standard_aliases: true

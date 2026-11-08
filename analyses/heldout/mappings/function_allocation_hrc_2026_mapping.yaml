@@ -1,0 +1,34 @@
+# Held-out mapping for function_allocation_hrc_2026 (docs/preregistration_heldout_relations.md).
+# Paper: "Fitts' List Revisited: An Empirical Study on Function Allocation in a Two-Agent Physical
+#   Human-Robot Collaborative Position/Force Task", IEEE RA-L 2025, DOI 10.1109/LRA.2025.3632607.
+# Data: 4TU (DOI 10.4121/d55393f4-f6b6-4076-86c1-7bf351f16787.v1), CC-BY-4.0; codebook is README.md.
+#   Only the two spreadsheets were fetched from the 7.2 GB archive (HTTP range requests); the
+#   ROS bags are left out.
+# Files: data/data_fitts/Impact+of+roles+in+HRC.xlsx, one row = participant x condition (HH, HR,
+#   RH, RR), 26 participants: NASA-TLX (0-100), Van der Laan items (1-5, published order) and the
+#   Mol ACES items (1-21); Participant order.xlsx (presentation order).
+
+UUID: meta_participant_id
+Condition: meta_condition_allocation
+NASA_Mental_Demand_1: mental_demand
+NASA_Physical_Demand_1: physical_demand
+NASA_Temporal_Demand_1: temporal_demand
+NASA_Performance_1: performance
+NASA_Effort_1: effort
+NASA_Frustration_1: frustration
+VDL_Useful_1: AOA1
+VDL_Pleasant_1: AOA2
+VDL_Bad_1: AOA3
+VDL_Nice_1: AOA4
+VDL_Effective_1: AOA5
+VDL_Irritating_1: AOA6
+VDL_Assisting_1: AOA7
+VDL_Undesirable_1: AOA8
+VDL_Raising_Alertnes_1: AOA9
+'1': meta_condition_order
+'2': meta_condition_order
+'3': meta_condition_order
+'4': meta_condition_order
+
+# Left unlabelled: Mol_* (autonomy, competence, usefulness, engagement for the human and the robot
+# partner, 1-21; no schema DV).

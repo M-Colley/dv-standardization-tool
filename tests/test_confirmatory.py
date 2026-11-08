@@ -85,3 +85,46 @@ def test_posthoc_compares_with_the_preregistered_run_and_adds_header_matches(tmp
     # Every answer is a DV id, so all 10 count as accepted mappings, 7 of them correct.
     precision = combined["precision_of_accepted_dv_mappings"]
     assert (precision["k"], precision["n"]) == (7, 10)
+
+
+def _zip_bytes(members: dict[str, bytes]) -> bytes:
+    import io
+    import zipfile
+
+    buffer = io.BytesIO()
+    with zipfile.ZipFile(buffer, "w", zipfile.ZIP_DEFLATED) as archive:
+        for name, content in members.items():
+            archive.writestr(name, content)
+    return buffer.getvalue()
+
+
+def test_fetch_writes_only_the_pinned_members_of_a_whole_archive(tmp_path, monkeypatch):
+    import zlib
+
+    import httpx
+
+    table, other = b"participant,mental_demand\n1,40\n", b"not needed"
+    archive = _zip_bytes({"data/q.csv": table, "videos/v.csv": other})
+    sources = {"sources": [
+        {"source_id": "kept", "files": [{
+            "path": "Supplementary material.zip", "size": len(archive),
+            "md5": hashlib.md5(archive).hexdigest(), "url": "https://host/a.zip", "fetch": "whole",
+            "members": [{"path": "data/q.csv", "size": len(table), "crc32": f"{zlib.crc32(table):08x}"}]}]},
+        {"source_id": "gone", "dropped": "no table", "files": []},
+    ]}
+    path = tmp_path / "sources.yaml"
+    path.write_text(yaml.safe_dump(sources), encoding="utf-8")
+    transport = httpx.MockTransport(lambda request: httpx.Response(200, content=archive))
+    original = httpx.Client
+    monkeypatch.setattr(cf.httpx, "Client", lambda **kwargs: original(transport=transport, **kwargs))
+    problems = cf.fetch(tmp_path / "raw", path)
+    assert problems == {"kept": []}
+    written = sorted(p.relative_to(tmp_path / "raw").as_posix() for p in (tmp_path / "raw").rglob("*") if p.is_file())
+    assert written == ["kept/Supplementary material/data/q.csv"]
+
+
+def test_archive_members_cannot_leave_the_source_folder(tmp_path):
+    assert cf._member_target(tmp_path, "a.zip", "../../evil.csv") is None
+    assert cf._member_target(tmp_path, "a.zip", "x/y.csv") == (tmp_path / "a" / "x" / "y.csv").resolve()
+    assert cf.member_ok(b"abc", {"size": 3, "crc32": "352441c2"})
+    assert not cf.member_ok(b"abd", {"size": 3, "crc32": "352441c2"})

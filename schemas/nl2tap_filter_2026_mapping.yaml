@@ -1,0 +1,106 @@
+# Source-specific column mapping for nl2tap_filter_2026
+# Paper: "From Natural Language to Executable Filter Code: LLM-Assisted Behavioral Customization
+#   in Trigger-Action Platforms." Behaviour & Information Technology (2026).
+#   DOI 10.1080/0144929X.2026.2711012
+# Data: Zenodo 21411181 (DOI 10.5281/zenodo.21411181), CC-BY-4.0; codebook is the replication
+#   package's README.md (instruments, scales, file inventory).
+#
+# Files (replication_package/data/user_study/):
+#   - participants.csv      one row per participant (85): expertise group, demographics.
+#   - sus_responses.csv     SUS items item_1..item_10 (1-5), one row per participant.
+#   - tlx_responses.csv     raw NASA-TLX subscales (0-100 sliders), one row per participant.
+#   - toast_responses.csv   TOAST trust items (1-7), one row per participant. The file names
+#                           them item_1..item_9 like the SUS file; the manifest renames them
+#                           toast_1..toast_9 (table_options rename), and this mapping uses those.
+#   - scenario_sessions.csv one row per participant x scenario (85 x 6 = 510): turns, time and
+#                           success of the LLM-assisted rule customization.
+#   The questionnaires were given after each experimental block; the files hold one value per
+#   participant (half points suggest an average over the blocks).
+#   Left out: the corpus files of the automated evaluation (api_manual_validation_n50.csv,
+#   representativeness_*.csv), which hold no participant data.
+#
+# Notes:
+#   - Between subjects: expert participants saw and could edit the generated code, non-experts
+#     only chatted (user_type).
+#   - success = the final rule judged correct (96.5 %, the paper's "success rates above 95%");
+#     evaluator_1/2 and oracle_consensus are the raters' judgements behind it.
+#   - physical_demand is 0 for every participant (a desk task); it enters no correlation.
+#   - participant_id is on the never-map list and keeps its raw name.
+
+# --- Dependent measures: questionnaires ------------------------------------------
+item_1: SUS1
+item_2: SUS2
+item_3: SUS3
+item_4: SUS4
+item_5: SUS5
+item_6: SUS6
+item_7: SUS7
+item_8: SUS8
+item_9: SUS9
+item_10: SUS10
+mental_demand: mental_demand
+physical_demand: physical_demand
+temporal_demand: temporal_demand
+performance: performance
+effort: effort
+frustration: frustration
+
+# TOAST (Trust of Automated Systems Test), 1 = strongly disagree .. 7 = strongly agree. Wording
+# from the replication package's figures/questionnaire_ui_showcase.pdf: 1-4 system
+# understanding ("I understand what the system should do", "... the limitations of the
+# system", "... the capabilities of the system", "... how the system executes tasks"), 5-9
+# system performance ("The system helps me achieve my goals", "... performs consistently",
+# "... performs the way it should", "I am rarely surprised by how the system responds", "I feel
+# comfortable relying on the system"). All agree-keyed, none reversed; the item means average
+# 5.14, the paper's TOAST M = 5.1. The schema has no TOAST DV, so the items share
+# trust_rating and are composed into their mean (the TOAST score).
+toast_1: trust_rating
+toast_2: trust_rating
+toast_3: trust_rating
+toast_4: trust_rating
+toast_5: trust_rating
+toast_6: trust_rating
+toast_7: trust_rating
+toast_8: trust_rating
+toast_9: trust_rating
+
+# --- Dependent measures: scenario sessions ---------------------------------------
+success: task_success                 # correct / incorrect (value_labels)
+total_elapsed_s: task_completion_time # s
+total_turns: interaction_events       # chat turns to reach the final rule
+
+# Left unlabelled (no schema DV): eval_confidence, the participant's confidence that the
+# generated rule does what they intended (1-5).
+
+# --- Participants and design ----------------------------------------------------
+user_type: meta_group_expertise              # expert / non_expert (between)
+scenario_code: meta_condition_scenario
+complexity_class: meta_condition_complexity  # C1-C3
+scenario_index: meta_trial_index
+attempt_number: meta_attempt_number
+started_at: meta_timestamp_start
+completed_at: meta_timestamp_end
+l1_syntax_ok: meta_system_check_syntax
+l1_api_valid: meta_system_check_api
+exec_pass_rate: meta_system_check_execution
+sandbox_all_pass: meta_system_check_sandbox
+eval_behavioral_match: meta_participant_judgement_match
+eval_code_correct: meta_participant_judgement_code_correct
+evaluator_1: meta_rater_1_judgement
+evaluator_2: meta_rater_2_judgement
+oracle_consensus: meta_rater_consensus
+
+# --- Demographics and traits ----------------------------------------------------
+lang: meta_survey_language
+age: meta_demographic_age
+gender: meta_demographic_gender
+education: meta_demographic_education
+computer_skills: meta_trait_computer_skills       # 1-5
+ifttt_familiarity: meta_trait_ifttt_familiarity   # 1-5
+quality_flag: meta_quality_flag
+
+value_labels:
+  - columns: [success]
+    labels:
+      correct: 1
+      incorrect: 0

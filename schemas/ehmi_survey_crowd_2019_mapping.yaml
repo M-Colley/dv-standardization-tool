@@ -1,0 +1,263 @@
+# Source-specific column mapping for ehmi_survey_crowd_2019
+# Paper: Bazilinskyy, Dodou, De Winter. "Survey on eHMI concepts: The effect of text, color,
+#   and perspective." Transportation Research Part F (2019). DOI 10.1016/j.trf.2019.10.013
+# Data: 4TU (DOI 10.4121/uuid:9ea78136-3ffc-4194-84f7-3116b6a55758), CC0-1.0; codebook is
+#   data/readme.txt; the questions are the column names (Figure-Eight export).
+#
+# Files: data/Survey 1/data_s1.xlsx (1,770 respondents) and data/Survey 2/data_s2.xlsx (2,000
+#   respondents), one row per respondent, two independent crowdsourced surveys. Worker ids and
+#   IP addresses are masked; `id` numbers the respondents from 1 in each file, so participant
+#   ids are kept apart per file (study_designs.yaml, participant_scope: file).
+#
+# Notes:
+#   - Survey 1: 28 eHMI concepts (images and videos) in random order; per position N the
+#     column fileN records the concept shown, followed by "The instructions of the car in
+#     concept N above are clear to me" (5-point agreement, text labels; -> understanding_rating)
+#     and a free-text question on the message.
+#   - Survey 2: 15 text eHMIs varying in message, colour and perspective; per concept "Would
+#     you feel safe to cross in front of the car above?" (Yes / Not sure / No; ->
+#     perceived_safety on -1..1, value_labels below), a free-text explanation and a check of
+#     the text colour. Because the right answer depends on the message ("Walk" vs "Don't
+#     walk"), the respondent mean mixes feeling safe with following the message.
+#   - "I prefer not to respond" is read as missing (missing_values below).
+#   - The six statements on trusting machines are the propensity-to-trust scale (Merritt et
+#     al., 2013), measured once per respondent as a trait.
+
+# --- Dependent measures ----------------------------------------------------------
+the_instructions_of_the_car_in_concept_1_above_are_clear_to_me: understanding_rating
+the_instructions_of_the_car_in_concept_2_above_are_clear_to_me: understanding_rating
+the_instructions_of_the_car_in_concept_3_above_are_clear_to_me: understanding_rating
+the_instructions_of_the_car_in_concept_4_above_are_clear_to_me: understanding_rating
+the_instructions_of_the_car_in_concept_5_above_are_clear_to_me: understanding_rating
+the_instructions_of_the_car_in_concept_6_above_are_clear_to_me: understanding_rating
+the_instructions_of_the_car_in_concept_7_above_are_clear_to_me: understanding_rating
+the_instructions_of_the_car_in_concept_8_above_are_clear_to_me: understanding_rating
+the_instructions_of_the_car_in_concept_9_above_are_clear_to_me: understanding_rating
+the_instructions_of_the_car_in_concept_10_above_are_clear_to_me: understanding_rating
+the_instructions_of_the_car_in_concept_11_above_are_clear_to_me: understanding_rating
+the_instructions_of_the_car_in_concept_12_above_are_clear_to_me: understanding_rating
+the_instructions_of_the_car_in_concept_13_above_are_clear_to_me: understanding_rating
+the_instructions_of_the_car_in_concept_14_above_are_clear_to_me: understanding_rating
+the_instructions_of_the_car_in_concept_15_above_are_clear_to_me: understanding_rating
+the_instructions_of_the_car_in_concept_16_above_are_clear_to_me: understanding_rating
+the_instructions_of_the_car_in_concept_17_above_are_clear_to_me: understanding_rating
+the_instructions_of_the_car_in_concept_18_above_are_clear_to_me: understanding_rating
+the_instructions_of_the_car_in_concept_19_above_are_clear_to_me: understanding_rating
+the_instructions_of_the_car_in_concept_20_above_are_clear_to_me: understanding_rating
+the_instructions_of_the_car_in_concept_21_above_are_clear_to_me: understanding_rating
+the_instructions_of_the_car_in_concept_22_above_are_clear_to_me: understanding_rating
+the_instructions_of_the_car_in_concept_23_above_are_clear_to_me: understanding_rating
+the_instructions_of_the_car_in_concept_24_above_are_clear_to_me: understanding_rating
+the_instructions_of_the_car_in_concept_25_above_are_clear_to_me: understanding_rating
+the_instructions_of_the_car_in_concept_26_above_are_clear_to_me: understanding_rating
+the_instructions_of_the_car_in_concept_27_above_are_clear_to_me: understanding_rating
+the_instructions_of_the_car_in_concept_28_above_are_clear_to_me: understanding_rating
+
+question_1a_would_you_feel_safe_to_cross_in_front_of_the_car_above: perceived_safety
+question_2a_would_you_feel_safe_to_cross_in_front_of_the_car_above: perceived_safety
+question_3a_would_you_feel_safe_to_cross_in_front_of_the_car_above: perceived_safety
+question_4a_would_you_feel_safe_to_cross_in_front_of_the_car_above: perceived_safety
+question_5a_would_you_feel_safe_to_cross_in_front_of_the_car_above: perceived_safety
+question_6a_would_you_feel_safe_to_cross_in_front_of_the_car_above: perceived_safety
+question_7a_would_you_feel_safe_to_cross_in_front_of_the_car_above: perceived_safety
+question_8a_would_you_feel_safe_to_cross_in_front_of_the_car_above: perceived_safety
+question_9a_would_you_feel_safe_to_cross_in_front_of_the_car_above: perceived_safety
+question_10a_would_you_feel_safe_to_cross_in_front_of_the_car_above: perceived_safety
+question_11a_would_you_feel_safe_to_cross_in_front_of_the_car_above: perceived_safety
+question_12a_would_you_feel_safe_to_cross_in_front_of_the_car_above: perceived_safety
+question_13a_would_you_feel_safe_to_cross_in_front_of_the_car_above: perceived_safety
+question_14a_would_you_feel_safe_to_cross_in_front_of_the_car_above: perceived_safety
+question_15a_would_you_feel_safe_to_cross_in_front_of_the_car_above: perceived_safety
+
+# --- Stimuli and free-text answers -------------------------------------------------
+what_message_does_the_car_show_in_concept_1_above: meta_free_text_message
+file1: meta_stimulus_file
+what_message_does_the_car_show_in_concept_2_above: meta_free_text_message
+file2: meta_stimulus_file
+what_message_does_the_car_show_in_concept_3_above: meta_free_text_message
+file3: meta_stimulus_file
+what_message_does_the_car_show_in_concept_4_above: meta_free_text_message
+file4: meta_stimulus_file
+what_message_does_the_car_show_in_concept_5_above: meta_free_text_message
+file5: meta_stimulus_file
+what_message_does_the_car_show_in_concept_6_above: meta_free_text_message
+file6: meta_stimulus_file
+what_message_does_the_car_show_in_concept_7_above: meta_free_text_message
+file7: meta_stimulus_file
+what_message_does_the_car_show_in_concept_8_above: meta_free_text_message
+file8: meta_stimulus_file
+what_message_does_the_car_show_in_concept_9_above: meta_free_text_message
+file9: meta_stimulus_file
+what_message_does_the_car_show_in_concept_10_above: meta_free_text_message
+file10: meta_stimulus_file
+what_message_does_the_car_show_in_concept_11_above: meta_free_text_message
+file11: meta_stimulus_file
+what_message_does_the_car_show_in_concept_12_above: meta_free_text_message
+file12: meta_stimulus_file
+what_message_does_the_car_show_in_concept_13_above: meta_free_text_message
+file13: meta_stimulus_file
+what_message_does_the_car_show_in_concept_14_above: meta_free_text_message
+file14: meta_stimulus_file
+what_message_does_the_car_show_in_concept_15_above: meta_free_text_message
+file15: meta_stimulus_file
+what_message_does_the_car_show_in_concept_16_above: meta_free_text_message
+file16: meta_stimulus_file
+what_message_does_the_car_show_in_concept_17_above: meta_free_text_message
+file17: meta_stimulus_file
+what_message_does_the_car_show_in_concept_18_above: meta_free_text_message
+file18: meta_stimulus_file
+what_message_does_the_car_show_in_concept_19_above: meta_free_text_message
+file19: meta_stimulus_file
+what_message_does_the_car_show_in_concept_20_above: meta_free_text_message
+file20: meta_stimulus_file
+what_message_does_the_car_show_in_concept_21_above: meta_free_text_message
+file21: meta_stimulus_file
+what_message_does_the_car_show_in_concept_22_above: meta_free_text_message
+file22: meta_stimulus_file
+what_message_does_the_car_show_in_concept_23_above: meta_free_text_message
+file23: meta_stimulus_file
+what_message_does_the_car_show_in_concept_24_above: meta_free_text_message
+file24: meta_stimulus_file
+what_message_does_the_car_show_in_concept_25_above: meta_free_text_message
+file25: meta_stimulus_file
+what_message_does_the_car_show_in_concept_26_above: meta_free_text_message
+file26: meta_stimulus_file
+what_message_does_the_car_show_in_concept_27_above: meta_free_text_message
+file27: meta_stimulus_file
+what_message_does_the_car_show_in_concept_28_above: meta_free_text_message
+file28: meta_stimulus_file
+question_1b_if_you_think_that_the_message_on_the_car_above_is_unclear_please_explain_why: meta_free_text_explanation
+question_1c_what_is_the_color_of_the_textpixels_on_the_display_of_the_car_above: meta_check_text_colour
+question_2b_if_you_think_that_the_message_on_the_car_above_is_ambiguous_please_explain_why: meta_free_text_explanation
+question_2c_what_is_the_color_of_the_textpixels_on_the_display_of_the_car_above: meta_check_text_colour
+question_3b_if_you_think_that_the_message_on_the_car_above_is_ambiguous_please_explain_why: meta_free_text_explanation
+question_3c_what_is_the_color_of_the_textpixels_on_the_display_of_the_car_above: meta_check_text_colour
+question_4b_if_you_think_that_the_message_on_the_car_above_is_ambiguous_please_explain_why: meta_free_text_explanation
+question_4c_what_is_the_color_of_the_textpixels_on_the_display_of_the_car_above: meta_check_text_colour
+question_5b_if_you_think_that_the_message_on_the_car_above_is_ambiguous_please_explain_why: meta_free_text_explanation
+question_5c_what_is_the_color_of_the_textpixels_on_the_display_of_the_car_above: meta_check_text_colour
+question_6b_if_you_think_that_the_message_on_the_car_above_is_ambiguous_please_explain_why: meta_free_text_explanation
+question_6c_what_is_the_color_of_the_textpixels_on_the_display_of_the_car_above: meta_check_text_colour
+question_7b_if_you_think_that_the_message_on_the_car_above_is_ambiguous_please_explain_why: meta_free_text_explanation
+question_7c_what_is_the_color_of_the_textpixels_on_the_display_of_the_car_above: meta_check_text_colour
+question_8b_if_you_think_that_the_message_on_the_car_above_is_ambiguous_please_explain_why: meta_free_text_explanation
+question_8c_what_is_the_color_of_the_textpixels_on_the_display_of_the_car_above: meta_check_text_colour
+question_9b_if_you_think_that_the_message_on_the_car_above_is_ambiguous_please_explain_why: meta_free_text_explanation
+question_9c_what_is_the_color_of_the_textpixels_on_the_display_of_the_car_above: meta_check_text_colour
+question_10b_if_you_think_that_the_message_on_the_car_above_is_ambiguous_please_explain_why: meta_free_text_explanation
+question_10c_what_is_the_color_of_the_textpixels_on_the_display_of_the_car_above: meta_check_text_colour
+question_11b_if_you_think_that_the_message_on_the_car_above_is_ambiguous_please_explain_why: meta_free_text_explanation
+question_11c_what_is_the_color_of_the_textpixels_on_the_display_of_the_car_above: meta_check_text_colour
+question_12b_if_you_think_that_the_message_on_the_car_above_is_ambiguous_please_explain_why: meta_free_text_explanation
+question_12c_what_is_the_color_of_the_textpixels_on_the_display_of_the_car_above: meta_check_text_colour
+question_13b_if_you_think_that_the_message_on_the_car_above_is_ambiguous_please_explain_why: meta_free_text_explanation
+question_13c_what_is_the_color_of_the_textpixels_on_the_display_of_the_car_above: meta_check_text_colour
+question_14b_if_you_think_that_the_message_on_the_car_above_is_ambiguous_please_explain_why: meta_free_text_explanation
+question_14c_what_is_the_color_of_the_textpixels_on_the_display_of_the_car_above: meta_check_text_colour
+question_15b_if_you_think_that_the_message_on_the_car_above_is_ambiguous_please_explain_why: meta_free_text_explanation
+question_15c_what_is_the_color_of_the_textpixels_on_the_display_of_the_car_above: meta_check_text_colour
+
+# --- Crowdsourcing metadata (Figure-Eight) ------------------------------------------
+_unit_id: meta_crowd_unit_id
+_created_at: meta_timestamp_end
+_id: meta_crowd_judgment_id
+_started_at: meta_timestamp_start
+_tainted: meta_crowd_tainted
+_channel: meta_crowd_channel
+_trust: meta_crowd_worker_trust
+_worker_id: meta_crowd_worker_id          # masked
+_country: meta_demographic_country
+_region: meta_demographic_region
+_city: meta_demographic_city
+_ip: meta_crowd_ip                         # masked
+have_you_read_and_understood_the_above_instructions: meta_check_instructions_understood
+please_provide_any_suggestions_that_could_help_engineers_to_build_safe_and_enjoyable_automated_cars: meta_free_text_suggestions
+
+# --- Demographics and traits ----------------------------------------------------------
+what_is_your_age: meta_demographic_age
+what_is_your_gender: meta_demographic_gender
+what_is_your_primary_mode_of_transportation: meta_demographic_transport_mode
+on_average_how_often_did_you_drive_a_vehicle_in_the_last_12_months: meta_demographic_driving_frequency
+about_how_many_kilometers_miles_did_you_drive_in_the_last_12_months: meta_demographic_driving_distance
+at_which_age_did_you_obtain_your_first_license_for_driving_a_car_or_motorcycle: meta_demographic_licence_age
+how_many_accidents_were_you_involved_in_when_driving_a_car_in_the_last_3_years_please_include_all_accidents_regardless_of_how_they_were_caused_how_slight_they_were_or_where_they_happened: meta_demographic_accidents
+how_often_do_you_do_the_following_becoming_angered_by_a_particular_type_of_driver_and_indicate_your_hostility_by_whatever_means_you_can: meta_trait_dbq_violation
+how_often_do_you_do_the_following_disregarding_the_speed_limit_on_a_motorway: meta_trait_dbq_violation
+how_often_do_you_do_the_following_disregarding_the_speed_limit_on_a_residential_road: meta_trait_dbq_violation
+how_often_do_you_do_the_following_driving_so_close_to_the_car_in_front_that_it_would_be_difficult_to_stop_in_an_emergency: meta_trait_dbq_violation
+how_often_do_you_do_the_following_racing_away_from_traffic_lights_with_the_intention_of_beating_the_driver_next_to_you: meta_trait_dbq_violation
+how_often_do_you_do_the_following_sounding_your_horn_to_indicate_your_annoyance_with_another_road_user: meta_trait_dbq_violation
+how_often_do_you_do_the_following_using_a_mobile_phone_without_a_hands_free_kit: meta_trait_dbq_violation
+in_which_year_do_you_think_that_most_cars_will_be_able_to_drive_fully_automatically_in_your_country_of_residence: meta_attitude_automation_year
+i_would_trust_a_car_that_drives_automatically: meta_attitude_trust_automated_car
+for_the_most_part_i_distrust_machines: meta_trait_propensity_to_trust_item_01
+i_am_likely_to_trust_a_machine_even_when_i_have_little_knowledge_about_it: meta_trait_propensity_to_trust_item_02
+i_usually_trust_machines_until_there_is_a_reason_not_to: meta_trait_propensity_to_trust_item_03
+in_general_i_would_rely_on_a_machine_to_assist_me: meta_trait_propensity_to_trust_item_04
+it_is_easy_for_me_to_trust_machines_to_do_their_job: meta_trait_propensity_to_trust_item_05
+my_tendency_to_trust_machines_is_high: meta_trait_propensity_to_trust_item_06
+when_i_start_using_a_new_device_i_usually_need_some_time_to_learn_how_it_works: meta_trait_new_device_learning_time
+when_i_use_a_new_device_for_the_first_time_i_usually_read_the_manual_before_using_it: meta_trait_reads_manual
+
+# --- Value coding ---------------------------------------------------------------------
+missing_values:
+  - columns: "*"
+    values: ["I prefer not to respond"]
+    reason: explicit non-response option of every question
+
+value_labels:
+  - columns:
+      - the_instructions_of_the_car_in_concept_1_above_are_clear_to_me
+      - the_instructions_of_the_car_in_concept_2_above_are_clear_to_me
+      - the_instructions_of_the_car_in_concept_3_above_are_clear_to_me
+      - the_instructions_of_the_car_in_concept_4_above_are_clear_to_me
+      - the_instructions_of_the_car_in_concept_5_above_are_clear_to_me
+      - the_instructions_of_the_car_in_concept_6_above_are_clear_to_me
+      - the_instructions_of_the_car_in_concept_7_above_are_clear_to_me
+      - the_instructions_of_the_car_in_concept_8_above_are_clear_to_me
+      - the_instructions_of_the_car_in_concept_9_above_are_clear_to_me
+      - the_instructions_of_the_car_in_concept_10_above_are_clear_to_me
+      - the_instructions_of_the_car_in_concept_11_above_are_clear_to_me
+      - the_instructions_of_the_car_in_concept_12_above_are_clear_to_me
+      - the_instructions_of_the_car_in_concept_13_above_are_clear_to_me
+      - the_instructions_of_the_car_in_concept_14_above_are_clear_to_me
+      - the_instructions_of_the_car_in_concept_15_above_are_clear_to_me
+      - the_instructions_of_the_car_in_concept_16_above_are_clear_to_me
+      - the_instructions_of_the_car_in_concept_17_above_are_clear_to_me
+      - the_instructions_of_the_car_in_concept_18_above_are_clear_to_me
+      - the_instructions_of_the_car_in_concept_19_above_are_clear_to_me
+      - the_instructions_of_the_car_in_concept_20_above_are_clear_to_me
+      - the_instructions_of_the_car_in_concept_21_above_are_clear_to_me
+      - the_instructions_of_the_car_in_concept_22_above_are_clear_to_me
+      - the_instructions_of_the_car_in_concept_23_above_are_clear_to_me
+      - the_instructions_of_the_car_in_concept_24_above_are_clear_to_me
+      - the_instructions_of_the_car_in_concept_25_above_are_clear_to_me
+      - the_instructions_of_the_car_in_concept_26_above_are_clear_to_me
+      - the_instructions_of_the_car_in_concept_27_above_are_clear_to_me
+      - the_instructions_of_the_car_in_concept_28_above_are_clear_to_me
+    labels:            # 5-point agreement
+      Disagree strongly: 1
+      Disagree a little: 2
+      Neither agree nor disagree: 3
+      Agree a little: 4
+      Agree strongly: 5
+  - columns:
+      - question_1a_would_you_feel_safe_to_cross_in_front_of_the_car_above
+      - question_2a_would_you_feel_safe_to_cross_in_front_of_the_car_above
+      - question_3a_would_you_feel_safe_to_cross_in_front_of_the_car_above
+      - question_4a_would_you_feel_safe_to_cross_in_front_of_the_car_above
+      - question_5a_would_you_feel_safe_to_cross_in_front_of_the_car_above
+      - question_6a_would_you_feel_safe_to_cross_in_front_of_the_car_above
+      - question_7a_would_you_feel_safe_to_cross_in_front_of_the_car_above
+      - question_8a_would_you_feel_safe_to_cross_in_front_of_the_car_above
+      - question_9a_would_you_feel_safe_to_cross_in_front_of_the_car_above
+      - question_10a_would_you_feel_safe_to_cross_in_front_of_the_car_above
+      - question_11a_would_you_feel_safe_to_cross_in_front_of_the_car_above
+      - question_12a_would_you_feel_safe_to_cross_in_front_of_the_car_above
+      - question_13a_would_you_feel_safe_to_cross_in_front_of_the_car_above
+      - question_14a_would_you_feel_safe_to_cross_in_front_of_the_car_above
+      - question_15a_would_you_feel_safe_to_cross_in_front_of_the_car_above
+    labels:            # feel safe to cross: bipolar, 0 = not sure
+      "No": -1
+      "Not sure": 0
+      "Yes": 1

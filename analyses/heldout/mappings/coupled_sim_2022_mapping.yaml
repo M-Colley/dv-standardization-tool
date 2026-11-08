@@ -1,0 +1,35 @@
+# Held-out mapping for coupled_sim_2022 (docs/preregistration_heldout_relations.md).
+# Paper: Bazilinskyy, Kooijman, ... & De Winter, "Get out of the way! Examining eHMIs in critical
+#   driver-pedestrian encounters in a coupled simulator", AutomotiveUI 2022, DOI 10.1145/3543174.3546849.
+# Data: 4TU (DOI 10.4121/20224281.v2), CC-BY-4.0; codebook is readme.txt.
+# Files: data/data/interim_questionnaire.xlsx (oral post-trial questions to the pedestrian, in
+#   Dutch; one row = participant pair x trial, 20 pairs) and data/data/opening_questionnaire.xlsx
+#   (intake). The per-trial Unity logs (data/SessionX) are left out (log folders), and
+#   post_questionnaire.xlsx holds no measure with a schema DV.
+# "Hoe veilig voelde jij je in dit scenario op een schaal van 1 tot 7" = "How safe did you feel in
+# this scenario (1-7)"; "Begrijpt u wat de auto van plan is" = "Do you understand what the car
+# intends to do (1-7)".
+
+Nummer: meta_participant_id
+experiment: meta_condition_scenario
+'ZELF: Is de eHMI aangegaan en zo ja welke kant?': meta_experimenter_note_ehmi
+Hoe veilig voelde jij je in dit scenario op een schaal van 1 tot 7? Waarin 1 heel onveilig is en 7 heel veilig.: perceived_safety
+Heb je een eHMI gezien?: meta_manipulation_check_ehmi_seen
+ja -> Heb je de eHMI opgevolgd?: meta_followed_ehmi
+Begrijpt u wat de auto van plan is op een schaal van 1 tot 7? ( 1 begrijp het niet - 7 begrijp het): understanding_rating
+Missing file: meta_quality_missing_file
+Role: meta_role
+Nationality: meta_demographic_nationality
+Age: meta_demographic_age
+Gender: meta_demographic_gender
+Do you have a driving license?: meta_demographic_driving_license
+On average, how often did you drive your car in the last 12 months?: meta_demographic_driving_frequency
+How many kilometres did you travel by car in the last 12 months?: meta_demographic_driving_distance
+How often did you participate in traffic as a pedestrian in the last 12 months?: meta_demographic_walking_frequency
+As a pedestrian,  with which of the following statements do you agree?: meta_demographic_walking_attitude
+Are you currently wearing glasses?: meta_demographic_glasses
+Are you colourblind?: meta_demographic_colour_blindness
+Do you have experience in computer gaming?: meta_demographic_gaming_experience
+Have you previously worn a head-mounted display?: meta_demographic_hmd_experience
+
+# Left unlabelled: the MISC (motion sickness) ratings of the pedestrian and the driver (no schema DV).

@@ -1,0 +1,86 @@
+# Held-out mapping for ar_pedestrian_outdoor_2024 (docs/preregistration_heldout_relations.md).
+# Paper: Aleva, Tabone, Dodou & De Winter, "Augmented reality for supporting the interaction
+#   between pedestrians and automated vehicles: an experimental outdoor study", Frontiers in
+#   Robotics and AI 2024, DOI 10.3389/frobt.2024.1324060.
+# Data: 4TU (DOI 10.4121/a1f9f15c-1213-4657-8e4d-a154a725d747.v1), CC-BY-4.0; codebook is readme.txt;
+#   question texts are in the second row of the Qualtrics export.
+# File: Data/Questionnaires-Interviews/Post-experiment questionnaire.xlsx, one row per
+#   participant; the four AR interfaces are asked in four blocks of the same questions (Q12.x,
+#   Q35-Q41, Q42-Q48, Q49-Q55). The second row (question texts) is read as data and is not numeric.
+#   Left out: the button-press logs (log folders), Participant means.xlsx (derived, two-row
+#   header), Post-hoc comparisons.xlsx (test statistics), the per-participant intuitiveness
+#   sheets, the MISC and pre-experiment workbooks.
+# Q*_5 "I trust the interface to make a decision ..." -> trust_rating; "How clear (understandable)
+# was the interface" -> understanding_rating; "How visually attractive" -> aesthetics_rating;
+# the nine acceptance differentials -> Van der Laan items in their published order.
+
+StartDate: meta_timestamp_start
+EndDate: meta_timestamp_end
+Status: meta_survey_status
+IPAddress: meta_ip_address
+Progress: meta_survey_progress
+Duration (in seconds): meta_survey_duration
+Finished: meta_survey_finished
+RecordedDate: meta_timestamp_recorded
+ResponseId: meta_response_id
+RecipientLastName: meta_recipient
+RecipientFirstName: meta_recipient
+RecipientEmail: meta_recipient
+ExternalReference: meta_external_reference
+LocationLatitude: meta_location
+LocationLongitude: meta_location
+DistributionChannel: meta_survey_channel
+UserLanguage: meta_survey_language
+Q1: meta_participant_id
+Q12.1_5: trust_rating
+Q12.4_1: understanding_rating
+Q12.5_1: aesthetics_rating
+Q12.6_1: AOA1
+Q12.6_2: AOA2
+Q12.6_3: AOA3
+Q12.6_4: AOA4
+Q12.6_5: AOA5
+Q12.6_6: AOA6
+Q12.6_7: AOA7
+Q12.6_8: AOA8
+Q12.6_9: AOA9
+Q35_5: trust_rating
+Q38_1: understanding_rating
+Q39_1: aesthetics_rating
+Q40_1: AOA1
+Q40_2: AOA2
+Q40_3: AOA3
+Q40_4: AOA4
+Q40_5: AOA5
+Q40_6: AOA6
+Q40_7: AOA7
+Q40_8: AOA8
+Q40_9: AOA9
+Q42_5: trust_rating
+Q45_1: understanding_rating
+Q46_1: aesthetics_rating
+Q47_1: AOA1
+Q47_2: AOA2
+Q47_3: AOA3
+Q47_4: AOA4
+Q47_5: AOA5
+Q47_6: AOA6
+Q47_7: AOA7
+Q47_8: AOA8
+Q47_9: AOA9
+Q49_5: trust_rating
+Q52_1: understanding_rating
+Q53_1: aesthetics_rating
+Q54_1: AOA1
+Q54_2: AOA2
+Q54_3: AOA3
+Q54_4: AOA4
+Q54_5: AOA5
+Q54_6: AOA6
+Q54_7: AOA7
+Q54_8: AOA8
+Q54_9: AOA9
+
+# Left unlabelled: the AR-experience (presence) items Q2-Q8, the interface ranking Q11, the
+# intuitiveness and persuasion items Q*_1-Q*_4, timing and size (Q12.2, Q12.3 and their
+# counterparts), the general AR items Q60_*, and the free-text answers.

@@ -1,0 +1,96 @@
+# Source-specific column mapping for reflexion_mapping_2025
+# Paper: Ehrhardt, Koschke. "A Controlled Experiment on the Usability of Automated Reflexion
+#   Mapping Suggestions Integrated in Code Cities." ICSA-C 2025 (SAEroCon workshop).
+#   DOI 10.1109/ICSA-C65153.2025.00068
+# Data: Zenodo 14718505 (DOI 10.5281/zenodo.14718505), CC-BY-4.0; codebook is README.txt and
+#   the record's R scripts evalTLX.r, evalSUS.r and evalDuration.r (read on the record page,
+#   not downloaded).
+#
+# File: ProbandData.csv (KoboToolbox export, German headers, quoted fields with line breaks),
+#   one row per participant (14). Two tasks within subjects: with (T_S) and without (T_NS)
+#   automated mapping suggestions; group A did T_S first, group B T_NS first (evalTLX.r).
+#   tlx_1_* rate the first task, tlx_2_* the second, so the condition of each block depends on
+#   Gruppe. Because both tasks are columns, the pipeline averages them per participant and the
+#   study enters between-person relations only. The authors exclude subject 14 ("tired");
+#   the mapping keeps every row.
+#
+# Notes:
+#   - NASA-TLX: tlx_*_1..6 = mental, physical, temporal demand, performance, effort,
+#     frustration (evalTLX.r), each on 1-10; the script uses them unweighted and does not
+#     reverse performance. Converted to the schema's 0-20 (scale_conversions below).
+#   - SUS: sus1-sus10, 1-5, standard order (evalSUS.r scores odd items x-1, even items 5-x).
+#   - Task duration is see_task*_done_update minus see_task*_start_update (evalDuration.r);
+#     the file holds only the two time stamps, so no duration column is mapped.
+#   - Free-text and instruction columns: the instruction texts (one header contains a line
+#     break) are empty and left unmapped.
+
+# --- Dependent measures: NASA-TLX (first and second task) ---------------------------
+tlx_1_1: mental_demand
+tlx_1_2: physical_demand
+tlx_1_3: temporal_demand
+tlx_1_4: performance
+tlx_1_5: effort
+tlx_1_6: frustration
+tlx_2_1: mental_demand
+tlx_2_2: physical_demand
+tlx_2_3: temporal_demand
+tlx_2_4: performance
+tlx_2_5: effort
+tlx_2_6: frustration
+
+# --- Dependent measures: System Usability Scale (1-5) --------------------------------
+sus1: SUS1
+sus2: SUS2
+sus3: SUS3
+sus4: SUS4
+sus5: SUS5
+sus6: SUS6
+sus7: SUS7
+sus8: SUS8
+sus9: SUS9
+sus10: SUS10
+
+# --- Participants and design ----------------------------------------------------
+_index: meta_participant_id
+Gruppe: meta_condition_order_group        # A = suggestions first, B = no suggestions first
+"Bitte wähle deine Gruppe./A": meta_condition_order_group_a
+"Bitte wähle deine Gruppe./B": meta_condition_order_group_b
+see_task1_start_update: meta_timestamp_task1_start
+see_task1_done_update: meta_timestamp_task1_done
+see_task2_start_update: meta_timestamp_task2_start
+see_task2_done_update: meta_timestamp_task2_done
+see_task2a_ready_update: meta_timestamp_task2_ready
+
+# --- Demographics and background -------------------------------------------------
+"Mein Alter ist:": meta_demographic_age
+Ich bin: meta_demographic_gender
+"Mein höchster Abschluss ist:": meta_demographic_education
+Meine Erfahrungen mit SEE sind: meta_demographic_see_experience
+Ich habe einen beruflichen Hintergrund im Bereich der Informatik.: meta_demographic_cs_background
+Ich bin an der Entwicklung der Software SEE beteiligt.: meta_demographic_see_developer
+Ich habe Erfahrungen mit Java-Entwicklung.: meta_demographic_java_experience
+Ich habe Erfahrungen mit Java-Entwicklung./Ja: meta_demographic_java_experience_yes
+Ich habe Erfahrungen mit Java-Entwicklung./Nein: meta_demographic_java_experience_no
+Ich habe Erfahrungen mit Spring Entwicklung.: meta_demographic_spring_experience
+Ich habe Erfahrungen mit Spring Entwicklung./Ja: meta_demographic_spring_experience_yes
+Ich habe Erfahrungen mit Spring Entwicklung./Nein: meta_demographic_spring_experience_no
+
+# --- Survey metadata (KoboToolbox) ------------------------------------------------
+start: meta_timestamp_start
+end: meta_timestamp_end
+"Bitte bestätige, dass du mit der Verarbeitung deiner Daten in anonymisierter Form einverstanden bist. Eine Teilnahme ist freiwillig.": meta_consent
+"Gibt es sonst noch etwas, was du gerne anmerken willst?": meta_free_text_comment
+_submission_time: meta_survey_submission_time
+_validation_status: meta_survey_validation_status
+_notes: meta_survey_notes
+_status: meta_survey_status
+_submitted_by: meta_survey_submitted_by
+__version__: meta_survey_form_version
+_tags: meta_survey_tags
+
+scale_conversions:
+  - columns: [tlx_1_1, tlx_1_2, tlx_1_3, tlx_1_4, tlx_1_5, tlx_1_6,
+              tlx_2_1, tlx_2_2, tlx_2_3, tlx_2_4, tlx_2_5, tlx_2_6]
+    from: [1, 10]
+    to: [0, 20]
+    reason: NASA-TLX subscales rated on 1-10 (evalTLX.r maps them linearly to 0-100)

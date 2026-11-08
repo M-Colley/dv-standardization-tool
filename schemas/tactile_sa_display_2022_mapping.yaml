@@ -1,0 +1,43 @@
+# Source-specific column mapping for tactile_sa_display_2022
+# Paper: "Design of On-body Tactile Displays to Enhance Situation Awareness in Automated
+#   Vehicles." IEEE CIVEMSA 2022. DOI 10.1109/CIVEMSA53371.2022.9853690
+# Data: DaRUS (DOI 10.18419/darus-2824), CC-BY-4.0. No codebook file; the dataset page lists
+#   the columns: "Participant ID, assigned condition (SA-L1 = 1, SA-L3=2), distance, Max
+#   Braking intensitiy, TTC, Attention Interference, WM Interference, NASA scores, SART score",
+#   with units "Distance (m)", "TTC" and "Braking Intensity".
+#
+# File: Complete_dataset.csv, one row per participant (21), between subjects: tactile
+#   notifications of SA level 1 (positions of surrounding traffic, Condition = 1) or SA level 3
+#   (projection of the automated vehicle's future position, Condition = 2). The non-driving task
+#   was an operation-span task.
+#
+# Notes:
+#   - distance, Max intensity and TTC describe the driver's intervention ("intervention
+#     performance"). Nine of the 21 rows hold 0 in all three at once; the dataset does not
+#     explain them. A TTC of 0 s with no braking and no distance is no intervention, not a
+#     collision, so the zeros are read as missing (missing_values below).
+#   - TTC is in seconds (the dataset page writes "m/s"; the values 0.3-4.0 are times).
+#   - Attention Interference and WM Interference are proportions written with a decimal comma.
+#   - ID and Condition are on the never-map list and keep their raw names.
+#   - distance, Max intensity and the two interference measures have no schema DV and are
+#     locked as meta_* below: left unlabelled, the LLM mapped them to headway,
+#     max_lateral_acceleration, dali_interference and pedestrian_crossing_time (batch of
+#     2026-11-06).
+
+# --- Dependent measures --------------------------------------------------------
+TTC: ttc                    # time to collision at the intervention, s
+NASA Overall: TLX_SCORE     # NASA-TLX overall score, 0-100
+SART: sart_total            # SART score
+
+# --- Measures without a schema DV (locked so the LLM cannot map them) ---------------
+distance: meta_intervention_distance                  # m, distance at the intervention
+Max intensity: meta_intervention_max_braking          # maximum braking intensity
+Attention Interference: meta_ndrt_attention_interference  # proportion (decimal comma)
+WM Interference: meta_ndrt_wm_interference            # proportion (decimal comma)
+
+missing_values:
+  - columns: [distance, Max intensity, TTC]
+    values: [0]
+    reason: >-
+      9 of 21 rows hold 0 in distance, maximum braking intensity and TTC at once, i.e. no
+      intervention was recorded; a TTC of 0 s would otherwise read as a collision.

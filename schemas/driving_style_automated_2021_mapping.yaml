@@ -1,0 +1,145 @@
+# Source-specific column mapping for driving_style_automated_2021
+# Paper: Bazilinskyy, Sakuma, De Winter. "What driving style makes pedestrians think a passing
+#   vehicle is driving automatically?" Applied Ergonomics (2021). DOI 10.1016/j.apergo.2021.103428
+# Data: 4TU (DOI 10.4121/14077352.v2), CC0-1.0; codebook is readme.txt and the questionnaire
+#   forms (forms/2. Questionnaire after trajectory trial.pdf, forms/4. ... deceleration trial.pdf).
+#
+# File: supplementary materials/data.xlsx, one row per participant (24), WIDE: ten trajectory
+#   trials (t1-t10) and eight deceleration trials (d1-d8) as column blocks, within subjects.
+#   Rows 25-38 hold the code legends (e.g. "1 = Male") and no participant. The comment files,
+#   the t-test tables (stats_*.xlsx) and the trial order (trials_mapping.xlsx) are left out.
+#
+# Notes:
+#   - After each trial the pedestrian rated, on five-point semantic differentials, how
+#     automated the car was and five Godspeed items (Bartneck et al., 2009): machine-like vs
+#     human-like (anthropomorphism), mechanical vs organic (animacy), dislike vs like
+#     (likeability), unintelligent vs intelligent (perceived intelligence) and anxious vs
+#     relaxed (perceived safety). Each item is mapped to its Godspeed subscale; one item per
+#     subscale and trial.
+#   - Header spelling is kept as in the file ("oganic"); trailing spaces are stripped by the
+#     batch, so "How automated was the car ? " is listed without them.
+#   - Because the trials are columns, the pipeline averages them per participant and the study
+#     enters between-person relations only.
+
+# --- Participants and demographics ------------------------------------------------
+Participant: meta_participant_id
+Session: meta_session                                         # 1-3, groups of participants
+Gender (1=male, 2=female): meta_demographic_gender
+Age: meta_demographic_age
+Primory mode of transportation: meta_demographic_transport_mode
+"Transportation: other": meta_demographic_transport_mode_other
+How often did you drive a vehicle in the last 12 months?: meta_demographic_driving_frequency
+How many km did you drive in the last 12 months?: meta_demographic_driving_distance
+
+# Left unlabelled (no schema DV): "tN. / dN. How automated was the car ?" (perceived
+# automation, 1-5).
+
+# --- Dependent measures per trial: Godspeed items (1-5) ----------------------------
+t1. Machine-like vs human-like: godspeed_anthropomorphism
+t1. Mechanical vs oganic: godspeed_animacy
+t1. Dislike vs like: godspeed_likeability
+t1. Unintelligent vs Intelligent: godspeed_perceived_intelligence
+t1. Anxious vs Relaxed: godspeed_perceived_safety
+t1. Explain your answer.: meta_free_text_explanation
+t2. Machine-like vs human-like: godspeed_anthropomorphism
+t2. Mechanical vs oganic: godspeed_animacy
+t2. Dislike vs like: godspeed_likeability
+t2. Unintelligent vs Intelligent: godspeed_perceived_intelligence
+t2. Anxious vs Relaxed: godspeed_perceived_safety
+t2. Explain your answer.: meta_free_text_explanation
+t3. Machine-like vs human-like: godspeed_anthropomorphism
+t3. Mechanical vs oganic: godspeed_animacy
+t3. Dislike vs like: godspeed_likeability
+t3. Unintelligent vs Intelligent: godspeed_perceived_intelligence
+t3. Anxious vs Relaxed: godspeed_perceived_safety
+t3. Explain your answer.: meta_free_text_explanation
+t4. Machine-like vs human-like: godspeed_anthropomorphism
+t4. Mechanical vs oganic: godspeed_animacy
+t4. Dislike vs like: godspeed_likeability
+t4. Unintelligent vs Intelligent: godspeed_perceived_intelligence
+t4. Anxious vs Relaxed: godspeed_perceived_safety
+t4. Explain your answer.: meta_free_text_explanation
+t5. Machine-like vs human-like: godspeed_anthropomorphism
+t5. Mechanical vs oganic: godspeed_animacy
+t5. Dislike vs like: godspeed_likeability
+t5. Unintelligent vs Intelligent: godspeed_perceived_intelligence
+t5. Anxious vs Relaxed: godspeed_perceived_safety
+t5. Explain your answer.: meta_free_text_explanation
+t6. Machine-like vs human-like: godspeed_anthropomorphism
+t6. Mechanical vs oganic: godspeed_animacy
+t6. Dislike vs like: godspeed_likeability
+t6. Unintelligent vs Intelligent: godspeed_perceived_intelligence
+t6. Anxious vs Relaxed: godspeed_perceived_safety
+t6. Explain your answer.: meta_free_text_explanation
+t7. Machine-like vs human-like: godspeed_anthropomorphism
+t7. Mechanical vs oganic: godspeed_animacy
+t7. Dislike vs like: godspeed_likeability
+t7. Unintelligent vs Intelligent: godspeed_perceived_intelligence
+t7. Anxious vs Relaxed: godspeed_perceived_safety
+t7. Explain your answer.: meta_free_text_explanation
+t8. Machine-like vs human-like: godspeed_anthropomorphism
+t8. Mechanical vs oganic: godspeed_animacy
+t8. Dislike vs like: godspeed_likeability
+t8. Unintelligent vs Intelligent: godspeed_perceived_intelligence
+t8. Anxious vs Relaxed: godspeed_perceived_safety
+t8. Explain your answer.: meta_free_text_explanation
+t9. Machine-like vs human-like: godspeed_anthropomorphism
+t9. Mechanical vs oganic: godspeed_animacy
+t9. Dislike vs like: godspeed_likeability
+t9. Unintelligent vs Intelligent: godspeed_perceived_intelligence
+t9. Anxious vs Relaxed: godspeed_perceived_safety
+t9. Explain your answer.: meta_free_text_explanation
+t10. Machine-like vs human-like: godspeed_anthropomorphism
+t10. Mechanical vs oganic: godspeed_animacy
+t10. Dislike vs like: godspeed_likeability
+t10. Unintelligent vs Intelligent: godspeed_perceived_intelligence
+t10. Anxious vs Relaxed: godspeed_perceived_safety
+t10. Explain your answer.: meta_free_text_explanation
+d1. Machine-like vs human-like: godspeed_anthropomorphism
+d1. Mechanical vs oganic: godspeed_animacy
+d1. Dislike vs like: godspeed_likeability
+d1. Unintelligent vs Intelligent: godspeed_perceived_intelligence
+d1. Anxious vs Relaxed: godspeed_perceived_safety
+d1. Explain your answer.: meta_free_text_explanation
+d2. Machine-like vs human-like: godspeed_anthropomorphism
+d2. Mechanical vs oganic: godspeed_animacy
+d2. Dislike vs like: godspeed_likeability
+d2. Unintelligent vs Intelligent: godspeed_perceived_intelligence
+d2. Anxious vs Relaxed: godspeed_perceived_safety
+d2. Explain your answer.: meta_free_text_explanation
+d3. Machine-like vs human-like: godspeed_anthropomorphism
+d3. Mechanical vs oganic: godspeed_animacy
+d3. Dislike vs like: godspeed_likeability
+d3. Unintelligent vs Intelligent: godspeed_perceived_intelligence
+d3. Anxious vs Relaxed: godspeed_perceived_safety
+d3. Explain your answer.: meta_free_text_explanation
+d4. Machine-like vs human-like: godspeed_anthropomorphism
+d4. Mechanical vs oganic: godspeed_animacy
+d4. Dislike vs like: godspeed_likeability
+d4. Unintelligent vs Intelligent: godspeed_perceived_intelligence
+d4. Anxious vs Relaxed: godspeed_perceived_safety
+d4. Explain your answer.: meta_free_text_explanation
+d5. Machine-like vs human-like: godspeed_anthropomorphism
+d5. Mechanical vs oganic: godspeed_animacy
+d5. Dislike vs like: godspeed_likeability
+d5. Unintelligent vs Intelligent: godspeed_perceived_intelligence
+d5. Anxious vs Relaxed: godspeed_perceived_safety
+d5. Explain your answer.: meta_free_text_explanation
+d6. Machine-like vs human-like: godspeed_anthropomorphism
+d6. Mechanical vs oganic: godspeed_animacy
+d6. Dislike vs like: godspeed_likeability
+d6. Unintelligent vs Intelligent: godspeed_perceived_intelligence
+d6. Anxious vs Relaxed: godspeed_perceived_safety
+d6. Explain your answer.: meta_free_text_explanation
+d7. Machine-like vs human-like: godspeed_anthropomorphism
+d7. Mechanical vs oganic: godspeed_animacy
+d7. Dislike vs like: godspeed_likeability
+d7. Unintelligent vs Intelligent: godspeed_perceived_intelligence
+d7. Anxious vs Relaxed: godspeed_perceived_safety
+d7. Explain your answer.: meta_free_text_explanation
+d8. Machine-like vs human-like: godspeed_anthropomorphism
+d8. Mechanical vs oganic: godspeed_animacy
+d8. Dislike vs like: godspeed_likeability
+d8. Unintelligent vs Intelligent: godspeed_perceived_intelligence
+d8. Anxious vs Relaxed: godspeed_perceived_safety
+d8. Explain your answer.: meta_free_text_explanation

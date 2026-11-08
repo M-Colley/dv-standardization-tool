@@ -25,11 +25,20 @@ Method
    The design actually used is the one observed in the data (participants
    seen at more than one level → within); a mismatch with the declared design
    is reported, not silently accepted.
-3. Several contrasts from one study against the same reference are
-   dependent. They are combined into one study-level effect by generalized
-   least squares under a compound-symmetric correlation ``rho`` (metafor
-   ``aggregate.escalc(struct = "CS")``); ``rho`` is varied as a sensitivity
-   analysis.
+3. Several contrasts of one study on the same canonical factor and DV (levels
+   against a shared reference, or several factors tagged with the same
+   canonical factor) are dependent. They are combined into one study-level
+   effect: their mean, with its variance under a compound-symmetric
+   correlation ``rho`` (``1'V1 / k²``; Borenstein et al. 2009, ch. 24; metafor
+   ``aggregate.escalc(struct = "CS", weighted = FALSE)``). ``rho`` is varied as
+   a sensitivity analysis, and the generalized-least-squares combination
+   (``weighted = TRUE``) is reported alongside. GLS is not the default since
+   2026-11-06: with correlated contrasts whose variances differ by more than
+   a factor of ``1 / rho²`` it gives negative weights, and SMCRPH variances
+   grow with the effect, so the strongest manipulations pulled study effects
+   outside the range of their own contrasts (e.g. a study with five of six
+   demand contrasts between +0.19 and +1.40 SD on the NASA-TLX total came
+   out at -0.14).
 4. Study-level effects are pooled with the same estimator code as the mean
    meta-analysis (:func:`analyses.multi_study_analysis.pool_effects`: DL or
    REML, Wald and Hartung-Knapp-Sidik-Jonkman intervals).
@@ -45,6 +54,7 @@ import logging
 import re
 from collections.abc import Iterable, Mapping
 from dataclasses import dataclass, field
+from functools import cache
 from pathlib import Path
 from typing import Any
 
@@ -62,10 +72,13 @@ logger = logging.getLogger(__name__)
 DEFAULT_DESIGNS_PATH = SCHEMAS_DIR / "study_designs.yaml"
 VALID_DESIGNS = ("within", "between")
 VALID_PARTICIPANT_SCOPES = ("study", "file")
-SOURCE_FILE_COLUMN = "_source_file"
+SOURCE_FILE_COLUMN = msa.SOURCE_FILE_COLUMN
 DEFAULT_RHO = 0.5
 SENSITIVITY_RHOS = (0.2, 0.8)
 MIN_PARTICIPANTS = 3
+# Combine a study's dependent contrasts by their mean (False) or by GLS (True);
+# see step 3 of the module docstring.
+DEFAULT_WEIGHTED = False
 
 CONTRAST_EFFECT_COLUMNS = [
     "study", "factor", "canonical_factor", "level", "canonical_level", "reference",
@@ -78,8 +91,9 @@ CONTRAST_POOLED_COLUMNS = [
     "canonical_factor", "dv", "k_studies", "studies", "n_total",
     *msa.META_ANALYSIS_COLUMNS[msa.META_ANALYSIS_COLUMNS.index("pooling_method"):
                                 msa.META_ANALYSIS_COLUMNS.index("h2") + 1],
-    "estimator", "rho", "direction", "k_llm_deduced", "includes_llm_deduced",
+    "estimator", "rho", "aggregation", "direction", "k_llm_deduced", "includes_llm_deduced",
     *(f"estimate_rho_{r:g}" for r in SENSITIVITY_RHOS),
+    "estimate_gls",
 ]
 
 
@@ -95,9 +109,11 @@ class FactorSpec:
     canonical: str | None = None
     levels: Mapping[str, str] = field(default_factory=dict)
     reference: tuple[str, ...] = ()
+    exclude: Mapping[str, frozenset[str]] = field(default_factory=dict)
 
     def level_series(self, df: pd.DataFrame) -> pd.Series:
-        """Study level of every row; the first listed column that has one wins."""
+        """Study level of every row; the first listed column that has one wins.
+        Rows whose value in an ``exclude`` column is listed there carry none."""
         out = pd.Series(np.nan, index=df.index, dtype=object)
         for column, mapping in self.columns.items():
             if column not in df.columns:
@@ -105,6 +121,9 @@ class FactorSpec:
             raw = df[column].map(_normalize_value)
             values = raw if mapping is None else raw.map(mapping)
             out = out.where(out.notna(), values)
+        for column, values in self.exclude.items():
+            if column in df.columns:
+                out = out.where(~df[column].map(_normalize_value).isin(values))
         return out
 
 
@@ -123,10 +142,15 @@ class StudyDesign:
     def participant_series(self, df: pd.DataFrame) -> pd.Series | None:
         """Participant id of every row; the first listed column that has one
         wins (files of one study may spell the column differently). Rows
-        without one take it from their file name when ``participant_from_file``
-        (a regular expression with one group) is set. With
-        ``participant_scope: file`` ids are only unique within a file, so they
-        are qualified by the ``_source_file`` column that ``load_studies`` adds."""
+        without one take it from their file's path when
+        ``participant_from_file`` (a regular expression with one group) is
+        set. With ``participant_scope: file`` ids are only unique within a
+        file, so they are qualified by that path.
+
+        The path is the ``_source_file`` column that ``load_studies`` adds:
+        the table's path in its source (the batch's ``dataset_id``), never the
+        standardized file name, which the batch shortens with a hash when the
+        output path is long."""
         present = [c for c in self.participant if c in df.columns]
         from_file = self.participant_from_file and SOURCE_FILE_COLUMN in df.columns
         if not present and not from_file:
@@ -136,6 +160,9 @@ class StudyDesign:
             out = out.where(out.notna(), df[column].map(_normalize_value))
         if from_file:
             ids = df[SOURCE_FILE_COLUMN].astype(str).str.extract(self.participant_from_file, expand=False)
+            needed = out.isna()
+            if needed.any() and ids[needed].isna().all():
+                _warn_unmatched_file_pattern(self.study, self.participant_from_file)
             out = out.where(out.notna(), ids.map(_normalize_value))
         if self.participant_scope == "file" and SOURCE_FILE_COLUMN in df.columns:
             files = df[SOURCE_FILE_COLUMN].astype(str)
@@ -185,6 +212,13 @@ def _parse_factor(study: str, raw: dict, canonical_factors: Mapping[str, dict]) 
         str(col): (None if mapping is None else {str(k).strip(): str(v).strip() for k, v in mapping.items()})
         for col, mapping in columns_raw.items()
     }
+    exclude_raw = raw.get("exclude") or {}
+    if not isinstance(exclude_raw, dict):
+        raise ValueError(f"{study}/{name}: 'exclude' must map columns to the values whose rows are left out")
+    exclude = {
+        str(col): frozenset(str(v).strip() for v in (vals if isinstance(vals, (list, tuple)) else [vals]))
+        for col, vals in exclude_raw.items()
+    }
     canonical = raw.get("canonical")
     levels = {str(k).strip(): str(v).strip() for k, v in (raw.get("levels") or {}).items()}
     reference = _as_tuple(raw.get("reference"))
@@ -205,7 +239,16 @@ def _parse_factor(study: str, raw: dict, canonical_factors: Mapping[str, dict]) 
         raise ValueError(f"{study}/{name}: no reference level")
     return FactorSpec(
         name=name, design=design, columns=columns, canonical=canonical,
-        levels=levels, reference=reference,
+        levels=levels, reference=reference, exclude=exclude,
+    )
+
+
+@cache
+def _warn_unmatched_file_pattern(study: str, pattern: str) -> None:
+    """Warn once per study: rows that need an id from their file path got none."""
+    logger.warning(
+        "%s: participant_from_file %r matches the path of none of the files whose rows lack a "
+        "participant column; those rows have no participant id", study, pattern,
     )
 
 
@@ -288,9 +331,16 @@ def smcrph_within(m1, m2, sd1, sd2, r, n) -> tuple[float, float]:
     return yi, float(vi)
 
 
-def aggregate_dependent(yi: Iterable[float], vi: Iterable[float], rho: float) -> tuple[float, float]:
-    """GLS combination of dependent effects under compound symmetry
-    (metafor ``aggregate(..., struct = "CS", rho = rho)``)."""
+def aggregate_dependent(
+    yi: Iterable[float], vi: Iterable[float], rho: float, weighted: bool = True,
+) -> tuple[float, float]:
+    """Combine dependent effects under compound symmetry (metafor
+    ``aggregate(..., struct = "CS", rho = rho, weighted = weighted)``).
+
+    ``weighted=True``: the GLS estimate ``1'V⁻¹y / 1'V⁻¹1`` with variance
+    ``1 / 1'V⁻¹1``. ``weighted=False``: the mean of the effects with variance
+    ``1'V1 / k²`` (Borenstein et al. 2009, ch. 24), which stays within the
+    range of the effects whatever their variances."""
     y = np.asarray(list(yi), dtype=float)
     v = np.asarray(list(vi), dtype=float)
     if len(y) == 1:
@@ -298,6 +348,8 @@ def aggregate_dependent(yi: Iterable[float], vi: Iterable[float], rho: float) ->
     sd = np.sqrt(v)
     cov = rho * np.outer(sd, sd)
     np.fill_diagonal(cov, v)
+    if not weighted:
+        return float(y.mean()), float(cov.sum() / len(y) ** 2)
     w = np.linalg.solve(cov, np.ones_like(y))
     var = 1.0 / float(np.sum(w))
     return float(var * np.dot(w, y)), var
@@ -344,6 +396,10 @@ def _contrast_rows(
                 continue
             sd1, sd2 = float(pair["t"].std(ddof=1)), float(pair["c"].std(ddof=1))
             if sd1 <= 0 or sd2 <= 0:
+                continue
+            if float((pair["t"] - pair["c"]).std(ddof=1)) <= 1e-12 * max(sd1, sd2):
+                # Every participant has the same value at both levels: the
+                # change has no sampling variance (vi = 0) and cannot be weighted.
                 continue
             r = float(np.corrcoef(pair["t"], pair["c"])[0, 1])
             m1, m2 = float(pair["t"].mean()), float(pair["c"].mean())
@@ -392,6 +448,11 @@ def compute_contrast_effects(
             continue
         canonical = msa._canonical_numeric_frame(df)
         for factor in design.factors:
+            absent = sorted(set(factor.exclude) - set(df.columns))
+            if absent:
+                logger.warning(
+                    "%s/%s: exclude columns %s not found; no rows left out by them", study, factor.name, absent,
+                )
             level = factor.level_series(df)
             if level.notna().sum() == 0:
                 logger.warning("%s/%s: no rows carry a level of this factor", study, factor.name)
@@ -437,18 +498,28 @@ def compute_contrast_effects(
 
 # ── Synthesis across studies ─────────────────────────────────────────────────
 
-def study_level_effects(effects: pd.DataFrame, rho: float = DEFAULT_RHO) -> pd.DataFrame:
-    """One effect per study × canonical factor × DV (dependent contrasts combined)."""
+def _aggregation_name(weighted: bool) -> str:
+    return "gls" if weighted else "mean"
+
+
+def study_level_effects(
+    effects: pd.DataFrame, rho: float = DEFAULT_RHO, weighted: bool = DEFAULT_WEIGHTED,
+) -> pd.DataFrame:
+    """One effect per study × canonical factor × DV (dependent contrasts
+    combined by their mean, or by GLS with ``weighted=True``). ``yi_gls`` is
+    the GLS combination for comparison."""
     canonical = effects[effects["canonical_factor"].notna()]
     rows = []
     for (factor, dv, study), group in canonical.groupby(["canonical_factor", "dv", "study"], sort=True):
-        yi, vi = aggregate_dependent(group["yi"], group["vi"], rho)
+        yi, vi = aggregate_dependent(group["yi"], group["vi"], rho, weighted=weighted)
+        yi_gls, _ = aggregate_dependent(group["yi"], group["vi"], rho, weighted=True)
         sources = sorted(set(group["mapping_source"].astype(str)))
         rows.append({
             "canonical_factor": factor,
             "dv": dv,
             "study": study,
             "n_contrasts": len(group),
+            "factors": "+".join(sorted(set(group["factor"].astype(str)))),
             "levels": "+".join(sorted(group["level"].astype(str))),
             "n": int(group["n"].max()),
             "measure": "+".join(sorted(set(group["measure"]))),
@@ -456,6 +527,8 @@ def study_level_effects(effects: pd.DataFrame, rho: float = DEFAULT_RHO) -> pd.D
             "vi": vi,
             "se": float(np.sqrt(vi)),
             "rho": rho if len(group) > 1 else np.nan,
+            "aggregation": _aggregation_name(weighted) if len(group) > 1 else "",
+            "yi_gls": yi_gls,
             "mapping_source": "llm_deduced" if "llm_deduced" in sources else "; ".join(sources),
             "direction": group["direction"].iloc[0],
         })
@@ -467,12 +540,15 @@ def pool_contrasts(
     estimator: str = "REML",
     rho: float = DEFAULT_RHO,
     sensitivity_rhos: Iterable[float] = SENSITIVITY_RHOS,
+    weighted: bool = DEFAULT_WEIGHTED,
 ) -> pd.DataFrame:
-    """Pool study-level contrast effects across studies (k >= 2)."""
-    per_study = study_level_effects(effects, rho)
+    """Pool study-level contrast effects across studies (k >= 2).
+    ``estimate_gls`` pools the GLS-combined study effects instead."""
+    per_study = study_level_effects(effects, rho, weighted)
     if per_study.empty:
         return pd.DataFrame(columns=CONTRAST_POOLED_COLUMNS)
-    sensitivity = {r: study_level_effects(effects, r) for r in sensitivity_rhos}
+    sensitivity = {r: study_level_effects(effects, r, weighted) for r in sensitivity_rhos}
+    gls = per_study if weighted else study_level_effects(effects, rho, weighted=True)
     rows = []
     for (factor, dv), group in per_study.groupby(["canonical_factor", "dv"], sort=True):
         if len(group) < 2:
@@ -487,6 +563,7 @@ def pool_contrasts(
             **pooled,
             "estimator": estimator,
             "rho": rho,
+            "aggregation": _aggregation_name(weighted),
             "direction": group["direction"].iloc[0],
             "k_llm_deduced": int((group["mapping_source"] == "llm_deduced").sum()),
         }
@@ -496,6 +573,10 @@ def pool_contrasts(
             row[f"estimate_rho_{r:g}"] = msa.pool_effects(
                 sub["yi"].to_numpy(), sub["vi"].to_numpy(), estimator
             )["random_effects_mean"]
+        sub = gls[(gls["canonical_factor"] == factor) & (gls["dv"] == dv)]
+        row["estimate_gls"] = msa.pool_effects(
+            sub["yi"].to_numpy(), sub["vi"].to_numpy(), estimator
+        )["random_effects_mean"]
         rows.append(row)
     return pd.DataFrame(rows, columns=CONTRAST_POOLED_COLUMNS)
 
@@ -508,6 +589,7 @@ def run_contrast_analysis(
     estimator: str = "REML",
     rho: float = DEFAULT_RHO,
     exclude_llm_deduced: bool = True,
+    weighted: bool = DEFAULT_WEIGHTED,
 ) -> dict:
     """Write contrast_effects.csv, contrast_study_effects.csv and
     contrast_meta_analysis.csv (plus ``*_llm_excluded`` siblings)."""
@@ -515,9 +597,9 @@ def run_contrast_analysis(
     effects = compute_contrast_effects(studies, registry, mapping_provenance)
     output_dir.mkdir(parents=True, exist_ok=True)
     effects.to_csv(output_dir / "contrast_effects.csv", index=False)
-    study_effects = study_level_effects(effects, rho)
+    study_effects = study_level_effects(effects, rho, weighted)
     study_effects.to_csv(output_dir / "contrast_study_effects.csv", index=False)
-    pooled = pool_contrasts(effects, estimator=estimator, rho=rho)
+    pooled = pool_contrasts(effects, estimator=estimator, rho=rho, weighted=weighted)
     pooled.to_csv(output_dir / "contrast_meta_analysis.csv", index=False)
     summary = {
         "designs_version": registry.version,
@@ -526,11 +608,12 @@ def run_contrast_analysis(
         "n_contrast_effects": len(effects),
         "n_pooled": len(pooled),
         "rho": rho,
+        "aggregation": _aggregation_name(weighted),
         "estimator": estimator,
     }
     if exclude_llm_deduced:
         clean = effects[effects["mapping_source"] != "llm_deduced"]
-        pool_contrasts(clean, estimator=estimator, rho=rho).to_csv(
+        pool_contrasts(clean, estimator=estimator, rho=rho, weighted=weighted).to_csv(
             output_dir / "contrast_meta_analysis_llm_excluded.csv", index=False
         )
     return summary
@@ -544,6 +627,10 @@ def main() -> None:
     parser.add_argument("--meta-view", default=None, help="meta_view.csv (default: <input-dir>/../meta_view.csv)")
     parser.add_argument("--estimator", choices=["DL", "REML"], default="REML")
     parser.add_argument("--rho", type=float, default=DEFAULT_RHO)
+    parser.add_argument(
+        "--aggregation", choices=["mean", "gls"], default=_aggregation_name(DEFAULT_WEIGHTED),
+        help="How a study's dependent contrasts are combined (default: mean; gls is reported alongside)",
+    )
     args = parser.parse_args()
     logging.basicConfig(level=logging.INFO, format="%(levelname)s %(message)s")
 
@@ -557,6 +644,7 @@ def main() -> None:
         mapping_provenance=msa.load_mapping_provenance(meta_view),
         estimator=args.estimator,
         rho=args.rho,
+        weighted=args.aggregation == "gls",
     )
     print(summary)
 

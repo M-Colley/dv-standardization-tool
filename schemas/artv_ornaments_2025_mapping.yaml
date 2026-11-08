@@ -1,0 +1,121 @@
+# Source-specific column mapping for artv_ornaments_2025
+# Paper: "Genre-Based, Show-Specific, and Biome-Specific ARTV Ornamentations" (VR-simulated
+#   passenger-train study). ACM IMX 2025. DOI 10.1145/3706370.3727854
+# Data: Zenodo 20574410 (DOI 10.5281/zenodo.20574410), CC-BY-4.0. No codebook; the question
+#   texts are in the first data row of the Qualtrics export (second row: import ids).
+#
+# File: Study-2-Questionnaire_Cleaned.xlsx (the cleaned questionnaire with the authors' scale
+#   scores), one row per participant x condition (20 participants x 4 conditions). The two rows
+#   below the header are the question texts and import ids; the manifest skips them
+#   ({skip_rows: [0, 1]}), else they were read as a participant and a condition and made the
+#   item columns text. Within subjects: Baseline,
+#   Constant Generic Medieval, Constant Game of Thrones Objects, Interior Change With Scene.
+#   Left out: the .csv copy of the same table, the raw questionnaire export (same answers
+#   without the scores), and the demographics and end-of-study exports (rankings).
+#
+# Notes:
+#   - User Engagement Scale, short form (UES-SF; O'Brien et al., 2018), 12 items on 1-7:
+#     Q5_1-3 focused attention, Q5_4-6 perceived usability (negatively worded: frustrated,
+#     confusing, taxing; reverse-keyed below), Q5_7-9 aesthetic appeal, Q5_10-12 reward.
+#     engagement_level is scored from the 12 items. The authors' UES scores are locked as
+#     meta: their perceived-usability score is the negated item mean (not reversed on 1-7), and
+#     their total is no fixed function of the subscale means.
+#   - UEQ-S: UEQ_SF_Pragmatic and UEQ_SF_Hedonic are the means of the centred items UEQ_1-4
+#     and UEQ_5-8 (-3..3; checked on the data); the headers in the export's text row are
+#     shifted by one column and are not used.
+#   - Q1_1-Q1_24: Film-IEQ items (immersive experience, 1-7; Q1_13 missing) and the IEQ_*
+#     scores: no schema DV. 5_Inverted, 6_Inverted and 7_inverted are the reversed copies (8 - x)
+#     of the real-world-awareness items Q1_5-Q1_7 (checked on the data).
+#   - Columns without a schema DV are locked as meta_* below: left unlabelled, the LLM mapped
+#     the Film-IEQ items to the SUS items SUS1-SUS10, the IEQ scores to ueq_stimulation,
+#     ssq_disorientation, understanding_rating and trust_rating, the reversed copies to
+#     sts_ad_item_05/06 and AOA7, and Q3_1/Q3_2 to SUS3 (batch of 2026-11-06).
+
+# --- Dependent measures ----------------------------------------------------------
+# UES-SF items, 1-7 (Q5_4-6 reverse-keyed)
+Q5_1: engagement_level
+Q5_2: engagement_level
+Q5_3: engagement_level
+Q5_4: engagement_level
+Q5_5: engagement_level
+Q5_6: engagement_level
+Q5_7: engagement_level
+Q5_8: engagement_level
+Q5_9: engagement_level
+Q5_10: engagement_level
+Q5_11: engagement_level
+Q5_12: engagement_level
+# UEQ-S scale means, -3..3
+UEQ_SF_Pragmatic: ueq_pragmatic
+UEQ_SF_Hedonic: ueq_hedonic
+
+# --- Measures without a schema DV (locked so the LLM cannot map them) ---------------
+# Film-IEQ (immersive experience): the authors' scores and the 24 items, 1-7 (Q1_13 is empty)
+IEQ_Score: meta_derived_film_ieq_score
+IEQ_Captivation: meta_derived_film_ieq_captivation
+IEQ_Real_World_Dissociation: meta_derived_film_ieq_real_world_dissociation
+IEQ_Comprehension: meta_derived_film_ieq_comprehension
+IEQ_Transportation: meta_derived_film_ieq_transportation
+Q1_1: meta_film_ieq_item
+Q1_2: meta_film_ieq_item
+Q1_3: meta_film_ieq_item
+Q1_4: meta_film_ieq_item
+Q1_5: meta_film_ieq_item
+Q1_6: meta_film_ieq_item
+Q1_7: meta_film_ieq_item
+Q1_8: meta_film_ieq_item
+Q1_9: meta_film_ieq_item
+Q1_10: meta_film_ieq_item
+Q1_11: meta_film_ieq_item
+Q1_12: meta_film_ieq_item
+Q1_13: meta_film_ieq_item
+Q1_14: meta_film_ieq_item
+Q1_15: meta_film_ieq_item
+Q1_16: meta_film_ieq_item
+Q1_17: meta_film_ieq_item
+Q1_18: meta_film_ieq_item
+Q1_19: meta_film_ieq_item
+Q1_20: meta_film_ieq_item
+Q1_21: meta_film_ieq_item
+Q1_22: meta_film_ieq_item
+Q1_23: meta_film_ieq_item
+Q1_24: meta_film_ieq_item
+5_Inverted: meta_film_ieq_item_reversed    # 8 - Q1_5
+6_Inverted: meta_film_ieq_item_reversed    # 8 - Q1_6
+7_inverted: meta_film_ieq_item_reversed    # 8 - Q1_7
+# Awareness, 1-5
+Q3_1: meta_aware_of_other_passengers       # "I was aware of other passengers whilst watching the video"
+Q3_2: meta_aware_of_virtual_modifications  # "I was aware of the virtual modifications"
+
+# --- Copies and derived scores of the mapped instruments --------------------------
+UES_SF: meta_derived_ues_sf_score          # authors' total, off the UES metric (see above)
+UES_SF_FA: meta_derived_ues_sf_focused_attention
+UES_SF_PU: meta_derived_ues_sf_perceived_usability
+UES_SF_AE: meta_derived_ues_sf_aesthetic_appeal
+UES_SF_RW: meta_derived_ues_sf_reward
+UEQ_SF: meta_derived_ueq_s_overall         # mean of the pragmatic and hedonic scores
+UEQ_1: meta_ueq_s_item                     # centred items, scored in UEQ_SF_Pragmatic/Hedonic
+UEQ_2: meta_ueq_s_item
+UEQ_3: meta_ueq_s_item
+UEQ_4: meta_ueq_s_item
+UEQ_5: meta_ueq_s_item
+UEQ_6: meta_ueq_s_item
+UEQ_7: meta_ueq_s_item
+UEQ_8: meta_ueq_s_item
+Q6_1: meta_ueq_s_item_raw                  # the same items on 1-7
+Q6_2: meta_ueq_s_item_raw
+Q6_3: meta_ueq_s_item_raw
+Q6_4: meta_ueq_s_item_raw
+Q6_5: meta_ueq_s_item_raw
+Q6_6: meta_ueq_s_item_raw
+Q6_7: meta_ueq_s_item_raw
+Q6_8: meta_ueq_s_item_raw
+
+# --- Participants and design ----------------------------------------------------
+Q7: meta_participant_id
+Q4: meta_condition_ornamentation
+
+reverse_items:
+  - columns: [Q5_4, Q5_5, Q5_6]
+    scale_range: [1, 7]
+    reason: negatively worded UES-SF perceived-usability items (frustrated, confusing, taxing)
