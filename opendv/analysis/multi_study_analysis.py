@@ -459,6 +459,7 @@ def add_derived_scale_scores(df: pd.DataFrame) -> pd.DataFrame:
 # Standardized tables are read as CSV, XLSX or Parquet. Pickles are never
 # read: unpickling runs code from the file, and the batch writes pickle inputs
 # as Parquet. ``load_studies`` skips pickles left over from older runs.
+
 # Column ``load_studies`` adds to every row: the path of the row's table in its
 # source (see ``dataset_ids_by_file``).
 SOURCE_FILE_COLUMN = "_source_file"
