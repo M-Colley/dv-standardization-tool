@@ -202,8 +202,12 @@ def _detect_decimal(sample: str, delimiter: str) -> str:
 # ---------------------------------------------------------------------------
 
 @_register_format(".csv", ".tsv", ".txt", ".dat")
-def _load_text_table(path: Path) -> pd.DataFrame:
-    """Load a delimited text file with robust encoding and delimiter auto-detection."""
+def _load_text_table(path: Path, **read_kwargs: Any) -> pd.DataFrame:
+    """Load a delimited text file with robust encoding and delimiter auto-detection.
+
+    *read_kwargs* go to ``pandas.read_csv`` (the ``skip_rows`` table option
+    passes ``skiprows``).
+    """
     # For .tsv/.dat/.txt prefer tab first; for .csv prefer comma first.
     suffix = path.suffix.lower()
     prefer_delim: str | None = "\t" if suffix in {".tsv", ".dat", ".txt"} else ","
@@ -225,12 +229,15 @@ def _load_text_table(path: Path) -> pd.DataFrame:
         # single-character separators fine. Fall back to the lenient python
         # engine only when the C parser rejects the file.
         try:
-            return pd.read_csv(path, sep=delimiter, decimal=decimal, encoding=encoding, on_bad_lines="warn")
+            return pd.read_csv(
+                path, sep=delimiter, decimal=decimal, encoding=encoding, on_bad_lines="warn", **read_kwargs
+            )
         except UnicodeDecodeError:
             raise
         except (pd.errors.ParserError, ValueError):
             return pd.read_csv(
-                path, sep=delimiter, decimal=decimal, encoding=encoding, engine="python", on_bad_lines="warn"
+                path, sep=delimiter, decimal=decimal, encoding=encoding, engine="python", on_bad_lines="warn",
+                **read_kwargs,
             )
 
     try:
@@ -253,8 +260,12 @@ def _load_text_table(path: Path) -> pd.DataFrame:
 
 
 @_register_format(".xlsx", ".xls", ".xlsm", ".ods")
-def _load_excel(path: Path) -> pd.DataFrame:
-    """Load an Excel workbook, auto-selecting the most data-rich sheet."""
+def _load_excel(path: Path, **parse_kwargs: Any) -> pd.DataFrame:
+    """Load an Excel workbook, auto-selecting the most data-rich sheet.
+
+    *parse_kwargs* go to ``pandas.ExcelFile.parse`` for every sheet (the
+    ``skip_rows`` table option passes ``skiprows``).
+    """
     try:
         xl = pd.ExcelFile(path)
     except ImportError as exc:
@@ -265,7 +276,7 @@ def _load_excel(path: Path) -> pd.DataFrame:
     # Closed on exit: an open workbook stays locked on Windows.
     with xl:
         if len(xl.sheet_names) == 1:
-            return xl.parse(xl.sheet_names[0])
+            return xl.parse(xl.sheet_names[0], **parse_kwargs)
 
         # Multiple sheets: pick the one with the most non-empty cells. Keep each
         # parsed frame so the winner is returned without a second parse pass.
@@ -274,7 +285,7 @@ def _load_excel(path: Path) -> pd.DataFrame:
         best_count = -1
         best_df: pd.DataFrame | None = None
         for name in xl.sheet_names:
-            df = xl.parse(name)
+            df = xl.parse(name, **parse_kwargs)
             count = int(df.notna().sum().sum())
             if count > best_count:
                 best_count = count
@@ -397,7 +408,8 @@ def _load_jsonlines(path: Path) -> pd.DataFrame:
 # ---------------------------------------------------------------------------
 
 _SPREADSHEET_SUFFIXES = {".xlsx", ".xls", ".xlsm", ".ods"}
-TABLE_OPTION_KEYS = ("sheet", "header", "pivot", "drop_columns", "rename")
+_TEXT_TABLE_SUFFIXES = {".csv", ".tsv", ".txt", ".dat"}
+TABLE_OPTION_KEYS = ("sheet", "header", "skip_rows", "pivot", "drop_columns", "rename")
 
 
 def table_options_for(table_options: dict[str, Any] | None, dataset_id: str) -> dict[str, Any]:
@@ -411,6 +423,8 @@ def table_options_for(table_options: dict[str, Any] | None, dataset_id: str) -> 
             sheet: NASA_TLX_Data
             header: 1                # 0-based row holding the column names
             pivot: {index: [subject_id, curvature], columns: subscale, values: score}
+          survey_export.xlsx:
+            skip_rows: [0, 1]        # Qualtrics: question-text and import-id rows
           "**/ObservationsPerEvaluation.csv":
             drop_columns: [MentalLoad]   # a transformed copy of an answer kept elsewhere
           "**/toast_responses.csv":
@@ -420,6 +434,11 @@ def table_options_for(table_options: dict[str, Any] | None, dataset_id: str) -> 
     lets two files of one source share raw column names with different
     meanings: a mapping file applies one target per column name to every file
     of its source, so the mapping names the renamed columns instead.
+
+    ``skip_rows`` lists data rows (0-based, counted from the row below the
+    header) that are not records, such as the question-text and import-id
+    rows of a Qualtrics export. They are skipped while the file is parsed, so
+    the columns get the types of the remaining cells.
     """
     if not table_options:
         return {}
@@ -442,6 +461,47 @@ def _pivot_long_table(df: pd.DataFrame, index: list[str] | str, columns: str, va
     return wide.reset_index()
 
 
+class _SkippedRows:
+    """The ``skip_rows`` table option as a pandas ``skiprows`` callable.
+
+    Skips the listed data rows (0-based, counted from the row below the
+    header) while pandas parses the file, so a column whose only text cells
+    sit in those rows is read as numbers. Records the rows it met; ``check``
+    raises for listed rows the file does not have.
+    """
+
+    def __init__(self, rows: Any, header: Any, file_name: str) -> None:
+        rows = [] if rows is None else rows
+        if not isinstance(rows, list) or not all(
+            isinstance(row, int) and not isinstance(row, bool) and row >= 0 for row in rows
+        ):
+            raise ValueError(f"skip_rows for '{file_name}' must be a list of 0-based row numbers, not {rows!r}")
+        if header is None:
+            first_data_row = 0
+        elif isinstance(header, int) and not isinstance(header, bool):
+            first_data_row = header + 1
+        elif rows:
+            raise ValueError(f"skip_rows for '{file_name}' needs one header row, not {header!r}")
+        else:
+            first_data_row = 0
+        self.rows = frozenset(rows)
+        self._first_data_row = first_data_row
+        self._file_name = file_name
+        self._met: set[int] = set()
+
+    def __call__(self, file_row: int) -> bool:
+        row = file_row - self._first_data_row
+        if row in self.rows:
+            self._met.add(row)
+            return True
+        return False
+
+    def check(self) -> None:
+        missing = sorted(self.rows - self._met)
+        if missing:
+            raise ValueError(f"skip_rows {missing} not found in '{self._file_name}'")
+
+
 def load_input_file(
     input_path: str, options: dict[str, Any] | None = None, *, allow_pickle: bool = False
 ) -> pd.DataFrame:
@@ -451,11 +511,14 @@ def load_input_file(
     by content-based magic-byte sniffing if the extension is unrecognised.
     *options* are a file's ``table_options`` (``table_options_for``): for a
     spreadsheet the ``sheet`` to read (instead of the most data-rich one) and
-    the 0-based ``header`` row; for any table a long-to-wide ``pivot``,
-    ``drop_columns`` (columns that must not be read as data, e.g. an
-    optimizer's inverted copy of a questionnaire answer) and ``rename``
-    (``{old: new}`` column names, e.g. to tell apart two files' ``item_1``).
-    Columns named by ``drop_columns`` or ``rename`` must exist, so a changed
+    the 0-based ``header`` row; for a spreadsheet or delimited text file the
+    ``skip_rows`` below the header that hold no records (0-based data rows,
+    e.g. ``[0, 1]`` for a Qualtrics export's question texts and import ids);
+    for any table a long-to-wide ``pivot``, ``drop_columns`` (columns that
+    must not be read as data, e.g. an optimizer's inverted copy of a
+    questionnaire answer) and ``rename`` (``{old: new}`` column names, e.g.
+    to tell apart two files' ``item_1``). Columns named by ``drop_columns``
+    or ``rename``, and rows named by ``skip_rows``, must exist, so a changed
     file fails loudly instead of passing unmapped.
 
     ``.pkl``/``.pickle`` files raise ``PickleRefusedError`` unless
@@ -463,20 +526,31 @@ def load_input_file(
     only for files you created yourself.
     """
     path = Path(input_path)
+    suffix = path.suffix.lower()
     options = dict(options or {})
     unknown = sorted(set(options) - set(TABLE_OPTION_KEYS))
     if unknown:
         raise ValueError(f"Unknown table option(s) {unknown} for '{path.name}'; allowed: {list(TABLE_OPTION_KEYS)}")
+    header = options.get("header", 0)
+    skipped = _SkippedRows(options.get("skip_rows"), header, path.name)
+    read_kwargs: dict[str, Any] = {"skiprows": skipped} if skipped.rows else {}
     if "sheet" in options or "header" in options:
-        if path.suffix.lower() not in _SPREADSHEET_SUFFIXES:
+        if suffix not in _SPREADSHEET_SUFFIXES:
             raise ValueError(f"'sheet' and 'header' apply to spreadsheets, not '{path.name}'")
-        df = pd.read_excel(path, sheet_name=options.get("sheet", 0), header=options.get("header", 0))
-    elif path.suffix.lower() in PICKLE_SUFFIXES:
+        df = pd.read_excel(path, sheet_name=options.get("sheet", 0), header=header, **read_kwargs)
+    elif read_kwargs and suffix in _SPREADSHEET_SUFFIXES:
+        df = _load_excel(path, **read_kwargs)
+    elif read_kwargs and suffix in _TEXT_TABLE_SUFFIXES:
+        df = _load_text_table(path, **read_kwargs)
+    elif read_kwargs:
+        raise ValueError(f"'skip_rows' applies to spreadsheets and delimited text files, not '{path.name}'")
+    elif suffix in PICKLE_SUFFIXES:
         if allow_pickle is not True:  # a truthy non-boolean never opts in
             raise PickleRefusedError(pickle_refusal_message(path))
         df = _unpickle_table(path)
     else:
         df = _load_with_registry(path)
+    skipped.check()
     if options.get("pivot"):
         df = _pivot_long_table(df, **options["pivot"])
     drop = [str(c) for c in options.get("drop_columns") or []]

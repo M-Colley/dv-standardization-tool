@@ -19,15 +19,21 @@
 #   - TTC is in seconds (the dataset page writes "m/s"; the values 0.3-4.0 are times).
 #   - Attention Interference and WM Interference are proportions written with a decimal comma.
 #   - ID and Condition are on the never-map list and keep their raw names.
+#   - distance, Max intensity and the two interference measures have no schema DV and are
+#     locked as meta_* below: left unlabelled, the LLM mapped them to headway,
+#     max_lateral_acceleration, dali_interference and pedestrian_crossing_time (batch of
+#     2026-11-06).
 
 # --- Dependent measures --------------------------------------------------------
 TTC: ttc                    # time to collision at the intervention, s
 NASA Overall: TLX_SCORE     # NASA-TLX overall score, 0-100
 SART: sart_total            # SART score
 
-# Left unlabelled (no schema DV): distance (m) and Max intensity (maximum braking intensity)
-# of the intervention, and the interference of the non-driving task with attention and with
-# working memory (Attention Interference, WM Interference; proportions, decimal comma).
+# --- Measures without a schema DV (locked so the LLM cannot map them) ---------------
+distance: meta_intervention_distance                  # m, distance at the intervention
+Max intensity: meta_intervention_max_braking          # maximum braking intensity
+Attention Interference: meta_ndrt_attention_interference  # proportion (decimal comma)
+WM Interference: meta_ndrt_wm_interference            # proportion (decimal comma)
 
 missing_values:
   - columns: [distance, Max intensity, TTC]

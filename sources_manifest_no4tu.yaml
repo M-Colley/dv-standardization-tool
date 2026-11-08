@@ -452,6 +452,10 @@ sources:
     location: data/raw/development/artv_ornaments_2025
     publication_doi: 10.1145/3706370.3727854
     include_globs: ["Study-2-Questionnaire_Cleaned.xlsx"]
+    table_options:
+      # Qualtrics export: the two rows below the header are the question texts and the import
+      # ids ({"ImportId":"QID7_TEXT"}), not answers.
+      Study-2-Questionnaire_Cleaned.xlsx: {skip_rows: [0, 1]}
     mapping_path: schemas/artv_ornaments_2025_mapping.yaml
     override_standard_aliases: true
     use_llm_deduction: true

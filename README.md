@@ -207,11 +207,13 @@ sources:
     exclude_globs:
       - "**/pilot/**"
     # Optional, per file (path relative to `location`, or a glob): which sheet,
-    # which 0-based row holds the column names, pivoting a long table
-    # (one row per subscale) to one column per subscale, columns to drop,
-    # and columns to rename (applied in this order).
+    # which 0-based row holds the column names, rows below it that are not
+    # records, pivoting a long table (one row per subscale) to one column per
+    # subscale, columns to drop, and columns to rename (applied in this order).
     table_options:
       results.xlsx: {sheet: Results, header: 1}
+      qualtrics_export.csv:
+        skip_rows: [0, 1]            # question texts and import ids under the header
       workload_*.xlsx:
         pivot: {index: [participant, condition], columns: subscale, values: score}
       "**/ObservationsPerEvaluation.csv":
@@ -525,6 +527,7 @@ Method and results: [`docs/cross_study_insights.md`](docs/cross_study_insights.m
 - **Survey answer codes**: array sub-questions (`Q[SQ001]`, `Q_sq001`) whose answers are all LimeSurvey answer codes (`A1`, `A01`, …) become their numbers, and yes/no columns (`Y`/`N`, `Yes`/`No`, `Ja`/`Nein`) and `True`/`False` columns become 1/0 (`survey_answer_codes_recoded` in `-quality.json`). Without this, such items were screened out as non-numeric before the LLM.
 - **Decimal commas**: a semicolon- or tab-separated file whose numbers use decimal commas (`24,825`, common in German or French spreadsheet exports) is read with `decimal=","`. The loader decides per file, and only when the sample has decimal-comma numbers and no decimal-point ones. Before this, numeric coercion kept only the integer-valued cells of such columns, so summaries came from a biased subset (in one VR study, 259 of 8,640 trial times, mostly 30 s timeouts).
 - **Text-labelled responses**: if a dataset stores Likert answers as labels ("Rather agree"), declare the codes once in its mapping YAML under `value_labels:` (columns + label → number; see `schemas/psych_conflict_handling_mapping.yaml`). Cells are recoded before standardization; labels that are not declared become missing and are counted in the dataset's `-quality.json` (`value_labels_applied`). Without this, such a dataset contributes no numeric DV.
+- **Rows that are not records**: a Qualtrics export has two rows under its header, the question texts and the import ids (`{"ImportId":"QID7_TEXT"}`). Read as data, they become a participant and a condition level, and every item column holds text, so the analysis (which reads only numeric columns) drops it. Skip them in the manifest with the `skip_rows` table option (0-based rows counted from the row below the header; spreadsheets and delimited text; see `artv_ornaments_2025` in `sources_manifest_no4tu.yaml`). They are skipped while the file is parsed, so the columns are typed from the answers alone. A listed row the file lacks stops the run.
 - **Missing-value codes**: if a dataset stores "no answer" as a number (98, 99, −99), declare it in its mapping YAML under `missing_values:` (`columns:` a list or `"*"`, `values:`, `reason:`; see `schemas/fido2_auth_chi23_mapping.yaml`). These cells become missing before anything else is recoded, and are counted in `-quality.json` (`missing_value_codes`). Without this, a 99 inside a 1–5 SUS item is summarized as an answer.
 - **Units**: if a dataset records a time DV in another unit than the schema states (milliseconds where `crossing_initiation_time` is in seconds), declare it under `unit_conversions:` (`columns:`, `from:`, `to:`, `reason:`; any time unit pandas knows, e.g. `ms`, `s`, `min`; see `schemas/ehmi_state_intent_mtap24_mapping.yaml`). The values are converted before they are summarized and listed in `-quality.json` (`unit_conversions`).
 - **Scales**: the analysis rescales a DV only when its values leave the DV's range, so a narrower recording scale that fits inside it (NASA-TLX subscales stored 0–10 where the schema uses 0–20) must be declared under `scale_conversions:` (`columns:`, `from: [min, max]`, `to: [min, max]`, `reason:`; see `schemas/woz_adaptation_ijhcs24_mapping.yaml`). The mapping is linear and listed in `-quality.json` (`scale_conversions`).
