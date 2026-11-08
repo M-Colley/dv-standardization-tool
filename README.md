@@ -218,6 +218,9 @@ sources:
         drop_columns: [MentalLoad]   # columns that must not be read as data
       "**/trust_items.csv":
         rename: {item_1: trust_1}    # another file of this source also has item_1
+    # Optional: read this source's .pkl/.pickle files. Off by default, because
+    # unpickling runs code from the file; only for files you created yourself.
+    # allow_pickle: true
 ```
 
 Run it like this:
@@ -367,7 +370,7 @@ The included `sources_manifest_example.yaml` is preconfigured for:
 ### Process overview
 
 1. The runner validates the manifest and iterates through each source with a `tqdm` progress tracker.
-2. For each source, supported datasets (`.csv`, `.tsv`, `.xls`, `.xlsx`, `.pkl`, `.pickle`) are discovered and processed with a per-dataset progress tracker.
+2. For each source, supported datasets (`.csv`, `.tsv`, `.xls`, `.xlsx`, `.parquet`, `.sav`, `.dta`, `.json`, ...) are discovered and processed with a per-dataset progress tracker. Pickled files (`.pkl`, `.pickle`) are refused and listed under `refused_pickle_files` in `run_summary.json`: unpickling runs code from the file. `allow_pickle: true` on a source reads them, for files you created yourself only (see [docs/reproducibility.md](docs/reproducibility.md#pickled-data-files)).
 3. Each dataset is classified into `results_table`, `questionnaire`, `sensor_stream`, `object_detection`, or `process_log`.
 4. If a source/repository includes a mapping YAML, the runner first uses the requested `mapping_path` or the nearest matching mapping file for that dataset.
 5. Built-in schema families are then applied as appropriate:

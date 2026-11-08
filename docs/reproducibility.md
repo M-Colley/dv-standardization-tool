@@ -58,6 +58,23 @@ Generation is greedy, so with the same snapshot and inputs the LLM's choices rep
 
 Each run records the source revision it read (git commit, or the repository record's version and file checksums) in `meta_view.csv` (`commit`) and in the RO-Crate and data packages written next to the outputs.
 
+## Pickled data files
+
+Downloaded data is untrusted, and unpickling runs code: a pickle names functions that `pickle.load` imports and calls, so loading a `.pkl` from a repository runs whatever its author put there. The pipeline therefore never unpickles by default.
+
+- **Batch.** `.pkl` and `.pickle` files are discovered but not loaded. The run logs a warning naming them and lists them under `refused_pickle_files` in `run_summary.json`; a source whose files are all pickles is reported as `not_available`. This holds for every source type, local folders included.
+- **Opt-in.** `allow_pickle: true` on a manifest source unpickles its pickles (`opendv convert --allow-pickle` for one file, `opendv.standardize(..., allow_pickle=True)` in Python). Set it only for files you created yourself. No shipped manifest sets it, and a test checks that none does.
+- **Outputs.** The standardized table of a pickle input is written as Parquet (it keeps the column types), so nothing downstream needs to unpickle. The analysis skips pickles left in an output folder from older runs, with a warning.
+
+When a study's tables exist only as pickles, convert them once and pin the result:
+
+1. Record the checksum of each pickle as published (the git blob hash at a pinned commit, or the repository's SHA-256 or MD5).
+2. Optionally list what the file would import: `python -m pickletools file.pkl` disassembles it without running it. Globals other than pandas, NumPy and builtins constructors are a reason to stop.
+3. Convert in a disposable environment with no network, no credentials and none of your files (a fresh container or VM with pandas installed): `python -I -c "import sys, pandas as pd; pd.read_pickle(sys.argv[1]).to_parquet(sys.argv[2])" file.pkl file.parquet`. Pickled DataFrames depend on the pandas version that wrote them, so note the version that read them.
+4. Deposit the Parquet files where they can be fetched by checksum (an OSF or Zenodo record, or a commit in a repository you control), list them with their SHA-256 in `analyses/development_sources/sources.yaml`, fetch them with the `confirmatory fetch` command above, and read them as a `local_path` source. Keep the input checksums from step 1 next to them so the conversion can be traced.
+
+`road_bumps_touch` needs none of this. Its `data/` folder holds the four tables the paper's ANOVAs read (`R_Count_Down.csv`, `R_Count_Move.csv`, `R_Offset.csv`, `R_TCT.csv`: touch counts and touch offset per participant and condition, task completion time also per stimulus, computed by the authors from the pickles) and four pickles with the raw touch and accelerometer logs. The manifest reads the CSV tables only, mapped by `schemas/road_bumps_touch_mapping.yaml`.
+
 ## Rerunning
 
 ```bash

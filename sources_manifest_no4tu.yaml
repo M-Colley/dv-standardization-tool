@@ -54,14 +54,20 @@ sources:
     mapping_path: schemas/osf_cwd6h_mapping.yaml
     llm_context: "ArduinoData1 encodes Perceived Risk on a 1-100 VAS scale."
 
+  # The data/ folder's four R_*.csv tables are the per-participant results the
+  # paper analyses (touch counts, touch offset, task completion time). Its .pkl
+  # files (raw touch and accelerometer logs) are not read: unpickling runs code
+  # from the file, and the batch refuses pickles unless a source sets
+  # allow_pickle: true (docs/reproducibility.md, "Pickled data files").
+  # The mapping covers every column of the four tables, so the LLM is not asked.
   - source_id: road_bumps_touch
     source_type: github_repo
     location: https://github.com/interactionlab/Touch-Interaction-with-Road-Bumps/tree/master/data
     publication_doi: 10.1145/3239060.3239071
     include_globs:
       - "**/*.csv"
-      - "**/*.pkl"
-      - "**/*.pickle"
+    mapping_path: schemas/road_bumps_touch_mapping.yaml
+    override_standard_aliases: true
     use_llm_deduction: true
 
   - source_id: 3d_display_comp_vehicle

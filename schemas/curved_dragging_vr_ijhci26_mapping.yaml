@@ -39,7 +39,11 @@ ER: meta_derived_proportion         # Exp. 1 error rate as a proportion 0-1 (= E
 ER_pct: error_rate                  # Exp. 1 error rate in percent; the schema's error_rate is 0-100 %
 error_rate: meta_derived_proportion   # Exp. 2 error rate as a proportion 0-1 (= error_rate_pct / 100)
 error_rate_pct: error_rate          # Exp. 2 error rate in percent
-# Exp. 2 endpoint measures with no schema id (left out): dx, avg_abs_dx, avg_Ae, We
+# Exp. 2 endpoint measures with no schema id (left out): dx, avg_abs_dx, avg_Ae, We.
+# dx and avg_abs_dx are not touch_offset (schema 3.3): they are the signed and the
+# mean absolute deviation of the drag's end point along the movement axis, in
+# degrees (the inputs to the effective width We), not the 2-D distance in mm of a
+# touch from the target centre, and condition means of a VR controller drag.
 
 # --- Dependent measures: NASA-TLX (pivoted NASA_TLX_Data) ---------------------
 Mental: mental_demand               # 0-20, unweighted

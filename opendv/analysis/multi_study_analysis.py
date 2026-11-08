@@ -33,6 +33,8 @@ from sklearn.decomposition import PCA
 from opendv import instruments as instruments_registry  # noqa: E402
 from opendv.batch_reporting import categorize_mapping_source  # noqa: E402
 from opendv.convert_dv import strip_duplicate_suffix as _strip_dup_suffix  # noqa: E402
+from opendv.data_loaders import PICKLE_SUFFIXES as _PICKLE_SUFFIXES  # noqa: E402
+from opendv.data_loaders import PickleRefusedError, pickle_refusal_message  # noqa: E402
 from opendv.item_composition import is_item_suffixed  # noqa: E402
 from opendv._paths import SCHEMAS_DIR
 
@@ -454,14 +456,16 @@ def add_derived_scale_scores(df: pd.DataFrame) -> pd.DataFrame:
 
 # ── Study loading ────────────────────────────────────────────────────────────
 
-_PICKLE_SUFFIXES = {".pkl", ".pickle"}
+# Standardized tables are read as CSV, XLSX or Parquet. Pickles are never
+# read: unpickling runs code from the file, and the batch writes pickle inputs
+# as Parquet. ``load_studies`` skips pickles left over from older runs.
 
 
 def _read_file(path: Path) -> pd.DataFrame:
     if path.suffix.lower() == ".csv":
         return pd.read_csv(path)
     if path.suffix.lower() in _PICKLE_SUFFIXES:
-        return pd.read_pickle(path)
+        raise PickleRefusedError(pickle_refusal_message(path))
     if path.suffix.lower() == ".parquet":
         return pd.read_parquet(path)
     return pd.read_excel(path)
@@ -529,17 +533,22 @@ def load_studies(
     files = sorted(
         list(input_dir.rglob("*.csv"))
         + list(input_dir.rglob("*.xlsx"))
-        + list(input_dir.rglob("*.pkl"))
         + list(input_dir.rglob("*.parquet"))
-        + list(input_dir.rglob("*.pickle"))
     )
+    pickled = sorted(path for suffix in _PICKLE_SUFFIXES for path in input_dir.rglob(f"*{suffix}"))
+    if pickled:
+        _load_logger.warning(
+            "Skipped %d pickled file(s) (%s): unpickling runs code from the file. Rerun the batch, "
+            "which writes pickle inputs as Parquet.",
+            len(pickled), ", ".join(str(path.relative_to(input_dir)) for path in pickled[:5]),
+        )
 
     print(f"Found {len(files)} file(s):")
     for f in files:
         print(f"  {f}")
 
     if not files:
-        raise FileNotFoundError(f"No CSV/XLSX/PKL/Parquet files found in {input_dir}")
+        raise FileNotFoundError(f"No CSV/XLSX/Parquet files found in {input_dir}")
 
     # Group files by their immediate parent directory relative to input_dir.
     # Files sitting directly in input_dir are treated as separate studies.
@@ -557,7 +566,7 @@ def load_studies(
     _load_standard_dv_lookup()
 
     def _load(path: Path) -> pd.DataFrame | None:
-        if skip_files_without_dvs and path.suffix.lower() not in _PICKLE_SUFFIXES:
+        if skip_files_without_dvs:
             if not any(_is_analysis_column(col, derived_items) for col in _read_header(path)):
                 return None
         return _read_file(path)

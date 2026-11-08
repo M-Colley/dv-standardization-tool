@@ -64,8 +64,10 @@ except ImportError:
 # ``from opendv.convert_dv import _FORMAT_REGISTRY``) keep working after the
 # Wave C extraction.
 from opendv.data_loaders import (
+    PICKLE_SUFFIXES,
     _FORMAT_REGISTRY,
     _MAGIC_BYTES,
+    PickleRefusedError,
     _coerce_pickled_payload_to_dataframe,
     _detect_delimiter,
     _detect_encoding,
@@ -75,6 +77,7 @@ from opendv.data_loaders import (
     _load_jsonlines,
     _load_parquet,
     _load_pickle,
+    _unpickle_table,
     _load_spss,
     _load_stata,
     _load_text_table,
@@ -402,7 +405,9 @@ def resolve_io_paths(input_arg: str, output_arg: str | None, schema_arg: str | N
     if output_arg:
         resolved_output = Path(output_arg)
     else:
-        resolved_output = resolved_input.with_name(f"{resolved_input.stem}-standardized{resolved_input.suffix}")
+        # A pickle input is written as Parquet so the output can be read without unpickling.
+        suffix = ".parquet" if resolved_input.suffix.lower() in PICKLE_SUFFIXES else resolved_input.suffix
+        resolved_output = resolved_input.with_name(f"{resolved_input.stem}-standardized{suffix}")
 
     return resolved_input, resolved_output, resolved_schema
 
@@ -806,6 +811,16 @@ Examples:
         ),
     )
     parser.add_argument(
+        "--allow-pickle",
+        action="store_true",
+        default=False,
+        help=(
+            "Read a .pkl/.pickle input. Unpickling runs code embedded in the file, so use "
+            "this only for files you created yourself; convert other pickles to CSV or "
+            "Parquet in an isolated environment first."
+        ),
+    )
+    parser.add_argument(
         "--no-reshape",
         action="store_true",
         default=False,
@@ -836,7 +851,7 @@ Examples:
 
     # Load input file
     print(f"Loading input file: {resolved_input}")
-    df = load_input_file(str(resolved_input))
+    df = load_input_file(str(resolved_input), allow_pickle=args.allow_pickle)
     print(f"  Loaded {len(df)} rows, {len(df.columns)} columns")
 
     # Auto-detect and reshape long-format data to wide format

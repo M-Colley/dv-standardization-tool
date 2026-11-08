@@ -1,6 +1,7 @@
 import tempfile
 import unittest
 from pathlib import Path
+from unittest import mock
 
 import numpy as np
 import pandas as pd
@@ -42,15 +43,28 @@ class MultiStudyAnalysisTests(unittest.TestCase):
         self.assertEqual(len(studies["study_a"]), 2)
         self.assertEqual(len(studies["study_b"]), 2)
 
-    def test_load_studies_reads_pickled_standardized_files(self):
+    def test_load_studies_skips_pickled_files_without_unpickling(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            root = Path(tmpdir)
+            (root / "study_a").mkdir()
+            pd.DataFrame({"task_success": [0.8, 0.9]}).to_pickle(root / "study_a" / "old-standardized.pkl")
+            pd.DataFrame({"task_success": [0.7]}).to_parquet(root / "study_a" / "new-standardized.parquet")
+
+            with mock.patch("pandas.read_pickle", side_effect=AssertionError("unpickled")), \
+                    self.assertLogs("opendv.analysis.multi_study_analysis", level="WARNING") as logs:
+                studies = load_studies(root)
+
+        self.assertEqual(studies["study_a"]["task_success"].tolist(), [0.7])
+        self.assertTrue(any("Skipped 1 pickled file(s)" in line for line in logs.output))
+
+    def test_load_studies_fails_when_only_pickles_are_present(self):
         with tempfile.TemporaryDirectory() as tmpdir:
             root = Path(tmpdir)
             pd.DataFrame({"task_success": [0.8, 0.9]}).to_pickle(root / "study_a.pkl")
 
-            studies = load_studies(root)
-
-        self.assertEqual(set(studies.keys()), {"study_a"})
-        self.assertEqual(studies["study_a"]["task_success"].tolist(), [0.8, 0.9])
+            with mock.patch("pandas.read_pickle", side_effect=AssertionError("unpickled")), \
+                    self.assertRaises(FileNotFoundError):
+                load_studies(root)
 
     def test_meta_analysis_summary_returns_random_effects_metrics(self):
         summary = pd.DataFrame(
