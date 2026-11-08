@@ -459,6 +459,54 @@ def add_derived_scale_scores(df: pd.DataFrame) -> pd.DataFrame:
 # Standardized tables are read as CSV, XLSX or Parquet. Pickles are never
 # read: unpickling runs code from the file, and the batch writes pickle inputs
 # as Parquet. ``load_studies`` skips pickles left over from older runs.
+# Column ``load_studies`` adds to every row: the path of the row's table in its
+# source (see ``dataset_ids_by_file``).
+SOURCE_FILE_COLUMN = "_source_file"
+QUALITY_SIDECAR_SUFFIX = "-quality.json"
+
+
+def dataset_ids_by_file(directory: Path) -> dict[str, str]:
+    """``{standardized file name: dataset_id}`` from the batch's quality
+    sidecars (``<prefix>-quality.json``) in *directory*.
+
+    The dataset id is the table's path in its source, e.g.
+    ``eHMI-bo-participantdata/u_10/QuestionnaireData_10/QuestionnaireResponses.csv``.
+    The standardized file name is not a stable substitute: the batch replaces
+    part of it with a hash when the full output path would pass 240
+    characters, so it depends on where the output was written.
+    """
+    out: dict[str, str] = {}
+    for sidecar in sorted(directory.glob(f"*{QUALITY_SIDECAR_SUFFIX}")):
+        try:
+            quality = json.loads(sidecar.read_text(encoding="utf-8"))
+        except (OSError, ValueError):
+            continue
+        if not isinstance(quality, dict):
+            continue
+        name, dataset_id = quality.get("standardized_file"), quality.get("dataset_id")
+        if isinstance(name, str) and isinstance(dataset_id, str) and dataset_id:
+            out[name] = dataset_id
+    return out
+
+
+def unshortened_file_name(name: str, dataset_id: str | None) -> str:
+    """The name the batch gives a standardized file when its output path is
+    short enough not to need a hash, from the file's *dataset_id*.
+
+    Files are read in this order, so the order of rows, and with it the last
+    digits of floating-point sums, does not depend on the output path either.
+    It is the order of every run written to a short path, which keeps their
+    results unchanged. Names without a dataset id are returned as they are.
+    """
+    suffix = Path(name).suffix
+    standardized = f"-standardized{suffix}"
+    if not dataset_id or not name.endswith(standardized):
+        return name
+    # The naming rule is the batch's own. Imported where it is used, as in
+    # opendv.plugins, so the analysis modules never form an import cycle with it.
+    from opendv.run_batch_standardization import _build_artifact_prefix
+
+    return _build_artifact_prefix(Path(dataset_id)) + standardized
 
 
 def _read_file(path: Path) -> pd.DataFrame:
@@ -514,6 +562,14 @@ def load_studies(
     Files directly in input_dir are treated as separate studies by file stem.
     Derived scale scores are computed after grouping.
 
+    Every row gets a ``_source_file`` column: its table's path in the source
+    (the ``dataset_id`` in the batch's quality sidecar), or the file name for
+    a file without a sidecar. Participant ids taken from file paths
+    (``participant_from_file`` in study_designs.yaml) are read from it, so
+    they do not depend on where the batch wrote its output. For the same
+    reason files are read in the order of their unshortened names
+    (``unshortened_file_name``).
+
     Parameters
     ----------
     repeated_measures_studies:
@@ -530,7 +586,7 @@ def load_studies(
         Threads used to read files (default: up to 8).
     """
     _load_logger = logging.getLogger(__name__)
-    files = sorted(
+    files = (
         list(input_dir.rglob("*.csv"))
         + list(input_dir.rglob("*.xlsx"))
         + list(input_dir.rglob("*.parquet"))
@@ -542,6 +598,16 @@ def load_studies(
             "which writes pickle inputs as Parquet.",
             len(pickled), ", ".join(str(path.relative_to(input_dir)) for path in pickled[:5]),
         )
+
+    source_ids: dict[Path, dict[str, str]] = {
+        parent: dataset_ids_by_file(parent) for parent in {path.parent for path in files}
+    }
+
+    def _order(path: Path) -> tuple[Path, str]:
+        dataset_id = source_ids[path.parent].get(path.name)
+        return path.with_name(unshortened_file_name(path.name, dataset_id)), path.name
+
+    files = sorted(files, key=_order)
 
     print(f"Found {len(files)} file(s):")
     for f in files:
@@ -584,7 +650,7 @@ def load_studies(
             df = loaded[path]
             if df is None:
                 continue
-            df["_source_file"] = path.name  # traceability column
+            df[SOURCE_FILE_COLUMN] = source_ids[path.parent].get(path.name, path.name)
             frames.append(df)
             print(f"  [{project_key}] loaded {path.name} ({len(df)} rows)")
 
@@ -697,7 +763,7 @@ def _canonical_numeric_frame(df: pd.DataFrame) -> pd.DataFrame:
     families: dict[str, list[str]] = {}
     for col in df.columns:
         lowered = col.lower()
-        if lowered in ID_LIKE_COLUMNS or col == "_source_file":
+        if lowered in ID_LIKE_COLUMNS or col == SOURCE_FILE_COLUMN:
             continue
         # ``<dv>__item_N`` columns are the inputs of a composite whose score is
         # the bare ``<dv>`` column; N is their column order, not the scale's
