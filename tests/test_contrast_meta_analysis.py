@@ -46,6 +46,31 @@ def test_aggregate_dependent_matches_metafor_cs(rho):
         assert vi == pytest.approx(expected["vi"][i], rel=1e-10)
 
 
+@pytest.mark.parametrize("rho", [0.2, 0.5, 0.8])
+def test_aggregate_dependent_mean_is_the_composite_of_borenstein(rho):
+    # Mean of the effects, variance (sum of variances + covariances) / k²
+    # (Borenstein et al. 2009, ch. 24; metafor aggregate(weighted = FALSE)).
+    data = pd.DataFrame(FIXTURE["aggregate"]["input"])
+    for _, group in data.groupby("study", sort=True):
+        y, v = group["yi"].to_numpy(), group["vi"].to_numpy()
+        k = len(y)
+        cov = sum(v) + sum(rho * np.sqrt(v[i] * v[j]) for i in range(k) for j in range(k) if i != j)
+        yi, vi = cma.aggregate_dependent(y, v, rho, weighted=False)
+        assert yi == pytest.approx(y.mean(), rel=1e-12)
+        assert vi == pytest.approx(cov / k**2, rel=1e-12)
+
+
+def test_gls_leaves_the_range_of_unequally_precise_contrasts_the_mean_does_not():
+    # Two contrasts against one reference (perceived risk at a 15 m and a 5 m
+    # merging gap vs 25 m): with rho = 0.5 and a variance ratio above 4 the
+    # GLS weight of the less precise one is negative.
+    y, v = [0.751, 2.300], [0.029, 0.125]
+    gls, _ = cma.aggregate_dependent(y, v, 0.5)
+    mean, _ = cma.aggregate_dependent(y, v, 0.5, weighted=False)
+    assert gls < min(y)
+    assert min(y) < mean < max(y)
+
+
 def test_pool_effects_matches_metafor_reml_knha():
     yi = np.array(FIXTURE["smcrph"]["yi"])
     vi = np.array(FIXTURE["smcrph"]["vi"])
@@ -155,6 +180,78 @@ def test_factor_levels_fall_back_to_code_column(designs_path):
     factor = cma.load_study_designs(designs_path).studies["study_within"].factors[0]
     df = pd.DataFrame({"ehmi": [" none", np.nan, "ring"], "code": [np.nan, "C", np.nan]})
     assert factor.level_series(df).tolist() == ["none", "band", "ring"]
+
+
+def test_exclude_leaves_listed_rows_without_a_level(tmp_path):
+    path = tmp_path / "designs.yaml"
+    path.write_text(DESIGN_YAML.replace(
+        "        columns: {group: null}\n",
+        "        columns: {group: null}\n        exclude: {phase: [pre, train], block: 2}\n",
+    ), encoding="utf-8")
+    factor = cma.load_study_designs(path).studies["study_between"].factors[0]
+    assert factor.exclude == {"phase": frozenset({"pre", "train"}), "block": frozenset({"2"})}
+    df = pd.DataFrame({
+        "group": ["control", "display", "display", "control", "display"],
+        "phase": ["pre", "post", "train", np.nan, "post"],
+        "block": [1.0, 1.0, 1.0, 1.0, 2.0],
+    })
+    levels = factor.level_series(df)
+    # pre/train rows and block 2 drop out; a row without a phase keeps its level
+    assert levels.isna().tolist() == [True, False, True, False, True]
+    assert levels.dropna().tolist() == ["display", "control"]
+
+
+def test_exclude_must_map_columns(tmp_path):
+    path = tmp_path / "designs.yaml"
+    path.write_text(DESIGN_YAML.replace(
+        "        columns: {group: null}\n", "        columns: {group: null}\n        exclude: [pre]\n",
+    ), encoding="utf-8")
+    with pytest.raises(ValueError, match="'exclude' must map columns"):
+        cma.load_study_designs(path)
+
+
+def test_declared_factors_of_the_2026_11_05_studies():
+    designs = cma.load_study_designs().studies
+    tac = designs["myocontrol_intent_2025"].factors[0]
+    # the two files spell the TAC levels differently
+    assert tac.level_series(pd.DataFrame({"meta_condition_tac_level": ["TAC 4", "TAC_4", "TAC_3"]})).tolist() == [
+        "TAC 4", "TAC 4", "TAC 3"]
+    user_type = {f.name: f for f in designs["nl2tap_filter_2026"].factors}["user_type"]
+    nl2tap = pd.DataFrame({
+        "participant_id": ["user_0001", "user_0067", "user_0101", "user_0205", "user_0101"],
+        "meta_condition_complexity": [np.nan, "C3", "C3", np.nan, "C1"],
+    })
+    assert user_type.level_series(nl2tap).tolist()[:4] == ["non_expert", "non_expert", "expert", "expert"]
+    assert pd.isna(user_type.level_series(nl2tap).iloc[4])  # scenario of another complexity class
+    assert len(user_type.columns["participant_id"]) == 85
+    gap = {f.name: f for f in designs["perceived_risk_merging_2022"].factors}["merging_gap"]
+    risk = pd.DataFrame({
+        "meta_condition_initial_merging_gap": [5.0, 25.0, 25.0],
+        "meta_condition_event_type": ["Merging and hard brake", "Merging and hard brake", "Hard braking"],
+    })
+    assert gap.level_series(risk).tolist()[:2] == ["5 m", "25 m"]
+    assert pd.isna(gap.level_series(risk).iloc[2])
+    assert gap.canonical == "situation_criticality" and gap.reference == ("25 m",)
+    path = {f.name: f for f in designs["tlx_formats_uas_2023"].factors}["path_visible"]
+    assert path.level_series(pd.DataFrame({"meta_condition_path_visible": [True, False]})).tolist() == [
+        "visible", "hidden"]
+    canonical = {
+        (study, f.name): f.canonical for study, d in designs.items() for f in d.factors if f.canonical
+    }
+    assert {k for k, v in canonical.items() if v == "task_demand"} == {
+        ("tlx_formats_uas_2023", "play_speed"), ("tlx_formats_uas_2023", "cursor_noise"),
+        ("tlx_formats_uas_2023", "view_radius"), ("tlx_formats_uas_2023", "path_visible"),
+        ("concurrent_speech_2022", "presentation"), ("nl2tap_filter_2026", "scenario_complexity"),
+        ("roads_chi25", "number_of_requests"),
+    }
+
+
+def test_within_contrast_without_variance_of_the_change_is_skipped():
+    # Every participant has the same value at both levels: SMCRPH would give
+    # vi = 0, which no pooling can weight.
+    means = pd.DataFrame({"C1": [1.0, 1.0, 0.5, 1.0], "C3": [1.0, 1.0, 0.5, 1.0], "C2": [1.0, 0.5, 0.5, 1.0]})
+    rows = cma._contrast_rows(means, ("C1",), "within", 3)
+    assert [r["level"] for r in rows] == ["C2"]
 
 
 # ── End to end on synthetic studies ──────────────────────────────────────────
