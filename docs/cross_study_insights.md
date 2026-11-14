@@ -17,10 +17,12 @@ Correlations need less. They do not change under a linear rescaling, so they sta
     | `names` | nothing: studies are pooled by identical raw column names (the baseline without harmonization) |
     | `automatic` | the shared DV schema (the raw name is a schema alias of the same DV), question-text header matching, or the instrument registry's scoring of such items |
     | `curated` | a study's own mapping file, including the value labels, reverse keying, missing-value codes and unit and scale conversions only a mapping file declares |
-    | `llm` | the local-LLM fallback, for the columns no mapping covers |
+    | `llm` | the local-LLM fallback, for the DVs a study has no column of from the steps above |
 
     Each level includes the ones above it. At `names` the baseline is told which columns are DVs (those the deterministic pipeline maps), which favours it.
-2. **Participants.** Columns mapped to the same DV within a study (wide repeated measures, items of one construct) are averaged per row, then per participant. Participant columns for all 39 studies are declared in `schemas/study_designs.yaml`. At the `llm` level this also averages a study's LLM-mapped column with its curated column of the same DV. The pooled-means analysis stopped doing that on 2026-11-14, when it began to exclude LLM-mapped columns one by one, as the levels here always have; that change left every relation table unchanged (see the changelog).
+
+    At `llm` the LLM fills gaps only. A study's LLM-mapped column of a DV is set aside when the study has a column of that DV mapped by its study mapping, the shared schema or a header match, whether in the same table (a `__dup_N` column) or in another table. A registry score computed from such columns is kept before an LLM-mapped column of the score's DV. This is the rule the pooled-means analysis applies with all mappings (`llm_columns="prefer_curated"`). The columns set aside are listed in `relations_llm_columns_set_aside.csv`. Until 2026-11-14 they were averaged with the curated column row by row, or stacked below it, so an LLM column could change a DV the study had measured without it (see the changelog).
+2. **Participants.** Columns mapped to the same DV within a study (wide repeated measures, items of one construct) are averaged per row, then per participant. Participant columns for all 39 studies are declared in `schemas/study_designs.yaml`.
 3. **Per study.** The analysis computes two correlations for every pair of construct-level DVs:
     - the Pearson correlation over participants (between-person r, `scipy.stats.pearsonr`);
     - for repeated-measures studies, the repeated-measures correlation of Bakdash & Marusich (2017) on the rows (within-person r).
@@ -39,7 +41,7 @@ Correlations need less. They do not change under a linear rescaling, so they sta
 
 The ladder above shows what the LLM adds on top of curated mappings. A tool for new datasets needs a different answer: what happens without curated mappings, with the LLM in their place.
 
-`--llm-replay-items` answers it from the leave-alias-out benchmark (`evaluate_llm_mapping.py`, E1). There, every column a study mapping decided is shown to the pipeline's LLM step with that mapping hidden. The *replay* keeps the automatic and LLM columns. Every column a study mapping decided takes the LLM's answer: a DV column the DV the LLM chose, or nothing when it abstained or the plausibility check rejected the answer; a column the mapping locked as non-DV (`meta_*`) the DV the LLM gave it. The replay's findings are then compared with the curated findings (`llm_replay_conclusions.csv`):
+`--llm-replay-items` answers it from the leave-alias-out benchmark (`evaluate_llm_mapping.py`, E1). There, every column a study mapping decided is shown to the pipeline's LLM step with that mapping hidden. The *replay* keeps the automatic and LLM columns. Every column a study mapping decided takes the LLM's answer: a DV column the DV the LLM chose, or nothing when it abstained or the plausibility check rejected the answer; a column the mapping locked as non-DV (`meta_*`) the DV the LLM gave it. As at the `llm` level, the LLM's columns of a DV are then set aside where the study has an automatic (schema or header-match) column of it (since 2026-11-14). The replay's findings are compared with the curated findings (`llm_replay_conclusions.csv`):
 
 - **confirmed:** the same pair is a curated finding with the same sign;
 - **sign flipped:** the same pair is a curated finding with the opposite sign;
@@ -67,11 +69,12 @@ Outputs in `analyses/output_relations/`:
 | `relations_pooled.csv` | pooled relations with HKSJ and prediction intervals, BH q, heterogeneity, the domain split and the single-study comparison |
 | `harmonization_ladder.csv` / `.png` | pairs pooled and findings per level |
 | `relations_attribution.csv` | per pair: k at each level and the first level at which it is pooled and becomes a finding |
+| `relations_llm_columns_set_aside.csv` | the LLM-mapped columns the `llm` level and the replay set aside, with the table, the raw column and what was kept instead |
 | `relations_findings.png` | per-study and pooled r of the curated cross-construct relations pooled over at least three studies, findings highlighted |
 | `llm_replay_conclusions.csv` | replay and automatic findings against the curated ones |
-| `relations_summary.json` | the ladder, the finding rule and the replay's column counts |
+| `relations_summary.json` | the ladder, the finding rule, the counts of LLM columns set aside and the replay's column counts |
 
-**Inputs of the committed outputs (2026-11-06).** One batch run of all 39 studies, the same run as `analyses/output_python_full/` (`docs/reproducibility.md`), including NL2TAP's TOAST trust items. The replay uses the 23-study benchmark items of 2026-11-04 and a benchmark of the 16 added studies with the same settings (E1 only: `analyses/output_llm_evaluation/added_2026_11_05/`). Without the TOAST items, this run reproduces the relation tables of 2026-11-05, which combined a run of the first 23 studies with one of the 16 added ones, byte for byte.
+**Inputs of the committed outputs (2026-11-14).** The batch run of all 39 studies behind `analyses/output_python_full/` (`data/processed/percol39`, `docs/reproducibility.md`). The replay uses the 23-study benchmark items of 2026-11-04 and a benchmark of the 16 added studies with the same settings (E1 only: `analyses/output_llm_evaluation/added_2026_11_05/`). The run of 2026-11-06 added NL2TAP's TOAST trust items; without them it reproduced the relation tables of 2026-11-05, which combined a run of the first 23 studies with one of the 16 added ones, byte for byte.
 
 ## Results with 39 studies
 
@@ -88,7 +91,7 @@ Pairs of construct-level DVs measured together in at least two and at least thre
 | Identical raw names | 31 (16) | 14 (0) | 4 (0) | 16 (1) | 12 (0) | 9 (0) |
 | + shared schema, header matching | 26 (9) | 21 (0) | 6 (0) | 23 (6) | 21 (0) | 14 (0) |
 | + study mapping files | 84 (52) | 35 (29) | 19 (0) | 46 (44) | 24 (23) | 16 (16) |
-| + local-LLM fallback | 226 (132) | 82 (54) | 20 (0) | 119 (88) | 49 (41) | 17 (10) |
+| + local-LLM fallback | 226 (132) | 82 (54) | 21 (0) | 108 (88) | 42 (41) | 18 (10) |
 
 The new studies change the lower rungs. With 23 studies, pooling by column names reached no pair in three studies; now 14 pairs reach three, and the shared schema 21. **All of them are pairs of NASA-TLX subscales.** Four of the added studies (TLX formats, NL2TAP, concurrent speech, visual fidelity) name the subscales by their own words (`mental_demand`, "Mental Demand"), which the names baseline and the schema both recognize.
 
@@ -99,7 +102,7 @@ Relations between different constructs still come only from curated mappings:
 | Identical raw names | 0 / 0 |
 | + shared schema, header matching | 0 / 0 |
 | + study mapping files | 12 / 2 |
-| + local-LLM fallback | 59 / 27 |
+| + local-LLM fallback | 59 / 20 |
 
 Naming conventions decide what the cheap steps reach: a measure that studies already call by one name pools without harmonization, a construct that each study names its own way does not.
 
@@ -131,11 +134,17 @@ Figure: `analyses/output_relations/relations_findings.png` (per-study and pooled
 
 ### What the LLM fallback adds
 
-The LLM extends coverage to 37 studies and 226 pairs. Beyond the curated findings it adds three cross-construct findings; the fourth of the 23-study analysis (performance × STS-AD trust, from wrong mappings) no longer passes (q = .31):
+The LLM extends coverage to 37 studies and 226 pairs. Since 2026-11-14 it only fills gaps (Method, step 1): 213 LLM-mapped columns of 11 studies that share a DV with a curated, schema or header-match column of their study are set aside (`relations_llm_columns_set_aside.csv`). Most are eHMI Optimization's questionnaire items (178), whose scale scores the schema maps in another table, and SenseCobot's EEG features read as NASA-TLX demands and skin conductance, and heart-rate statistics beside its curated heart rate (15). That moved 138 pooled pairs, and the within-person pairs pooled over three or more studies fall from 49 to 42 (see the changelog).
+
+Beyond the curated findings the LLM level has five cross-construct findings; the fourth of the 23-study analysis (performance × STS-AD trust, from wrong mappings) no longer passes (q = .31):
 
 - **Perceived safety × trust in automation** (TiA): r = 0.63 between and 0.61 within persons over the same four studies as before, which include the wrong mappings described in the 23-study analysis (TiA understanding items averaged into trust in 3D Display, the ride's relaxation rating as trust in in-car VR).
-- **Workload × perceived safety, within persons**, over eight studies: r = −0.38 [−0.59, −0.13], as before.
-- **Trust × UEQ-S hedonic quality** (new, three studies, r = 0.28, HKSJ [0.22, 0.35], q = .02): BVI auditory HAV, eHMI state and intent, and Running into Traffic. It rested on four until 2026-11-08, when ARTV ornaments' unmapped measures were marked never-map: there the LLM had mapped the Film-IEQ *transportation* score, an immersion measure, to trust. The LLM still maps minimum heart rate to trust in the music-tempo study, which measures no UEQ-S.
+- **Workload × perceived safety, within persons**, over seven studies: r = −0.40 [−0.58, −0.17]. It rested on eight until 2026-11-14 (r = −0.38). eHMI Optimization's mental-load rating shares a table only with its perceived-safety items, which are LLM-mapped and now set aside in favour of the schema-mapped scale score in another table, so the two no longer share rows.
+- **Trust × UEQ-S hedonic quality** (three studies, r = 0.28, HKSJ [0.22, 0.35], q = .02): BVI auditory HAV, eHMI state and intent, and Running into Traffic. It rested on four until 2026-11-08, when ARTV ornaments' unmapped measures were marked never-map: there the LLM had mapped the Film-IEQ *transportation* score, an immersion measure, to trust. The LLM still maps minimum heart rate to trust in the music-tempo study, which measures no UEQ-S.
+- **Mental demand × SSQ oculomotor, between persons** (new on 2026-11-14, three studies, r = −0.23, HKSJ [−0.27, −0.19], q = .01): FOV snap-turn, in-car VR gain and SenseCobot. It became a finding when in-car VR gain's and SenseCobot's mental demand became their NASA-TLX ratings alone. Two of the three studies rest on LLM mappings that look wrong: FOV snap-turn's mechanics ratings (`Mechanics1_2`–`Mechanics1_5`) as mental demand, and SenseCobot's `O2_theta Max`, an EEG feature, as SSQ oculomotor.
+- **Mental demand × trust in automation, within persons** (new on 2026-11-14, four studies, r = −0.35 [−0.51, −0.16], q = .02): 3D Display, BVI auditory HAV, in-car VR gain and Longitudinal US/DE. 3D Display's mental demand no longer averages in two LLM-mapped columns (its r −0.06 → −0.24). Three of the four TiA columns are LLM-mapped, including the two wrong mappings above.
+
+At the LLM level, Van der Laan satisfying × usefulness (four studies, r = 0.84) is now a finding as at the curated level, since ROADS' satisfying score is computed from its items instead of averaged with the LLM's `gaming` column. NASA-TLX performance × physical demand between persons is no longer one (q = .052), since SenseCobot's physical demand is its rating and no longer EEG ratios.
 
 On the 16 added studies the LLM is weaker than on the first 23. In the leave-alias-out benchmark (`analyses/output_llm_evaluation/added_2026_11_05/`) it gives the curated DV for 71 of 423 curated DV columns (17%; 41% on the first 23). Where it fails:
 
@@ -148,9 +157,9 @@ On the 16 added studies the LLM is weaker than on the first 23. In the leave-ali
 Still no. In the replay (`llm_replay_conclusions.csv`; definition shortlist, plausibility check on):
 
 - **Columns.** Of the 314 DV columns the study mappings decide, the LLM answers 241 and gives the curated DV for 67 (21%).
-- **Conclusions, within persons.** The replay has 15 findings; 13 confirm curated findings, 2 are unsupported. This is no gain of the LLM: the shared schema alone confirms 14 of the 16 curated within-person findings, because the added TLX studies name their subscales plainly. The one cross-construct pair, workload × perceived safety, is a replay finding now (r = −0.39 over eight studies, q = .03; q = .09 with 23 studies), because the false-discovery family holds more true TLX relations.
+- **Conclusions, within persons.** The replay has 15 findings; 13 confirm curated findings, 2 are unsupported (perceived safety × TiA trust, and since 2026-11-14 mental demand × TiA trust instead of mental demand × SART total). This is no gain of the LLM: the shared schema alone confirms 14 of the 16 curated within-person findings, because the added TLX studies name their subscales plainly. The one confirmed cross-construct pair, workload × perceived safety, is a replay finding now (r = −0.41 over seven studies, q = .02; q = .09 with 23 studies), because the false-discovery family holds more true TLX relations.
 - **Conclusions, between persons.** The replay has 1 finding against 19 curated ones, a confirmed TLX pair (mental × temporal demand). Until 2026-11-08 it had a second, unsupported one, SSQ oculomotor × STS-AD trust, which rested on wrong mappings; the LLM's answers for FOV snap-turn changed with schema 3.3, and the pair now pools only two studies. It recovers none of the five usability × workload findings, because it reaches only two of the studies that measured both.
-- **Estimates.** Where both pool the same pair, the pooled correlations agree closely (median |Δr| = 0.07 within, 0.06 between persons).
+- **Estimates.** Where both pool the same pair, the pooled correlations agree closely (median |Δr| = 0.05 within and between persons; 0.07 and 0.06 before the LLM's columns of schema-mapped DVs were set aside on 2026-11-14).
 
 So the cheap steps reach a construct when the studies already name it alike; the LLM does not add reliable relations on top, and the cross-construct findings need the curated (or reviewed) mappings.
 
