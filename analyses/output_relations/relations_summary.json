@@ -3,7 +3,7 @@
     "names": "identical raw column names",
     "automatic": "+ shared schema, header matching, instrument scoring",
     "curated": "+ study mapping files",
-    "llm": "+ local-LLM fallback"
+    "llm": "+ local-LLM fallback, for DVs a study has no other column of"
   },
   "studies_without_participant_column": {
     "names": [],
@@ -93,31 +93,42 @@
     },
     {
       "level": "llm",
-      "level_label": "+ local-LLM fallback",
+      "level_label": "+ local-LLM fallback, for DVs a study has no other column of",
       "association": "between_person",
       "studies_with_relations": 37,
       "pairs_pooled_k2": 226,
       "pairs_pooled_k3": 82,
       "cross_construct_pairs_k3": 59,
-      "participants": 3064,
-      "findings": 20,
-      "cross_construct_findings": 7,
+      "participants": 3043,
+      "findings": 21,
+      "cross_construct_findings": 8,
       "generalizing_findings": 7
     },
     {
       "level": "llm",
-      "level_label": "+ local-LLM fallback",
+      "level_label": "+ local-LLM fallback, for DVs a study has no other column of",
       "association": "within_person",
       "studies_with_relations": 22,
-      "pairs_pooled_k2": 119,
-      "pairs_pooled_k3": 49,
-      "cross_construct_pairs_k3": 27,
+      "pairs_pooled_k2": 108,
+      "pairs_pooled_k3": 42,
+      "cross_construct_pairs_k3": 20,
       "participants": 804,
-      "findings": 17,
-      "cross_construct_findings": 2,
+      "findings": 18,
+      "cross_construct_findings": 3,
       "generalizing_findings": 9
     }
   ],
+  "llm_columns_set_aside": {
+    "rule": "a study's LLM-mapped column of a DV is set aside when the study has a column of that DV mapped without the LLM (a study mapping, the shared schema or a header match; in the replay the study mappings are hidden), or a registry score computed from such columns",
+    "llm": {
+      "columns": 213,
+      "studies": 11
+    },
+    "llm_replay": {
+      "columns": 195,
+      "studies": 10
+    }
+  },
   "llm_replay": {
     "e1_items": [
       "analyses\\output_llm_evaluation\\llm_mapping_evaluation_items.csv",
@@ -162,7 +173,7 @@
         "sign_flipped": 0,
         "unsupported": 0,
         "pairs_pooled_in_both": 41,
-        "median_abs_difference_r": 0.06278655930247057
+        "median_abs_difference_r": 0.05408099218355447
       },
       {
         "level": "llm_replay",
@@ -173,7 +184,7 @@
         "sign_flipped": 0,
         "unsupported": 2,
         "pairs_pooled_in_both": 28,
-        "median_abs_difference_r": 0.07061972836895125
+        "median_abs_difference_r": 0.05429879719594685
       }
     ]
   }
