@@ -759,7 +759,7 @@ def load_studies(
         When a study key is in this set, rows are aggregated to participant-level
         means (detected by ID_LIKE_COLUMNS) before storing in the output dict.
     skip_files_without_dvs:
-        Read each CSV/XLSX header first and skip files with no canonical DV
+        Read each table's header first and skip files with no canonical DV
         (or derived-scale item) column — typically per-trial telemetry logs.
         Such files only contribute rows in which every DV is missing, which no
         analysis uses, so results are unchanged while loading gets much
@@ -818,6 +818,10 @@ def load_study_variants(
         list(input_dir.rglob("*.csv"))
         + list(input_dir.rglob("*.xlsx"))
         + list(input_dir.rglob("*.parquet"))
+        # The batch writes a .tsv input back as .tsv; until 2026-11-14 the
+        # readers handled it but these files were never listed, so such a
+        # table was missing from every analysis that loads studies.
+        + list(input_dir.rglob("*.tsv"))
     )
     pickled = sorted(path for suffix in _PICKLE_SUFFIXES for path in input_dir.rglob(f"*{suffix}"))
     if pickled:
@@ -842,7 +846,7 @@ def load_study_variants(
         print(f"  {f}")
 
     if not files:
-        raise FileNotFoundError(f"No CSV/XLSX/Parquet files found in {input_dir}")
+        raise FileNotFoundError(f"No CSV/TSV/XLSX/Parquet files found in {input_dir}")
 
     # Group files by their immediate parent directory relative to input_dir.
     # Files sitting directly in input_dir are treated as separate studies.
