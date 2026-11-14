@@ -4,6 +4,24 @@ This document logs human-readable updates to the repo's functionality, structure
 
 ---
 
+### [2026-11-14] Second held-out test pre-registered; MATLAB files readable
+
+- **Pre-registration** (`docs/preregistration_heldout_relations_2.md`), committed before any participant data were downloaded.
+    - It tests the curated-level findings of the development analysis and of the first held-out test (37 targets, `analyses/heldout_2/targets.csv`) on 36 datasets that played no part in either.
+    - H1, H2, H2b and H3 repeat the first test, decided by the same functions. The new H4 tests every other target, with Benjamini-Hochberg over the testable ones.
+    - Decision code: `opendv/analysis/heldout_replication.py`, with tests. Run script: `analyses/heldout_2/run.sh`. Power of H2: `analyses/heldout_2/power_h2.py`.
+- **Screening of the 79 "to check" datasets** and of the five datasets the first test dropped before download.
+    - Done from metadata, READMEs, zip listings and papers only (`analyses/candidate_search/check_candidates.py`).
+    - Result: 36 qualify, 48 do not. Every reason is in `analyses/candidate_search/check_decisions.csv`.
+    - The five first-test drops could join, since their data were never seen and they were dropped for a technical reason. None qualifies: PNG figures, raw time series, and a re-analysis of earlier experiments.
+- **Pinned files:** `analyses/candidate_search/build_sources_2.py` writes `analyses/heldout_2/sources.yaml` (42.4 MB in all). Zip archives over 100 MB are read member by member.
+- **MATLAB `.mat` files** (v4 to v7.2) are in the reader registry, read with `scipy.io.loadmat`.
+    - The table options `variable` (a dotted path into structs), `columns` and `dims` say which variable becomes the table and how.
+    - Structs become one column per field, struct arrays stacked rows, and arrays with `dims` long tables.
+    - MATLAB objects and v7.3/HDF5 files are refused with a clear error.
+    - `.mat`, `.txt` and `.dat` files are now read only when a source's own `include_globs` name them; no existing manifest is affected.
+    - Tests: `tests/test_matlab_loader.py`.
+
 ### [2026-11-08] All open work combined; every output rerun
 
 The entries of 2026-11-05 to 2026-11-07 below were made on separate branches. Each branch computed its outputs without the others' changes, and most did not regenerate them, so no committed result held all of them. They are now merged into one branch, and every committed output was rerun once from it.

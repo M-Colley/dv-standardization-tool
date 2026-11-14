@@ -228,6 +228,8 @@ These look like eligible user studies, but their archives were not listed or the
 
 They are in `screening_decisions.csv` with `decision = check`.
 
+**Outcome (2026-11-14).** All 79, and the five datasets the first held-out test dropped before download, were checked from metadata, READMEs, archive listings and papers, without opening participant data (`analyses/candidate_search/check_candidates.py`). 36 qualify and form the second held-out set (`docs/preregistration_heldout_relations_2.md`); 48 do not, most because their files hold fewer than two schema DVs (30) or because they are surveys without a user study (10). Every decision and its reason is in `analyses/candidate_search/check_decisions.csv`. None of the five first-test drops qualifies.
+
 ### Limits
 
 - **Recall.**
