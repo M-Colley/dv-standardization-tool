@@ -224,5 +224,7 @@ site/
 /data/raw/development/
 # Held-out studies pinned in analyses/heldout/sources.yaml (same fetch command)
 /data/raw/heldout/
+# Second held-out test, pinned in analyses/heldout_2/sources.yaml (same fetch command)
+/data/raw/heldout_2/
 # Cached API responses of the open-data search (analyses/candidate_search)
 /data/cache/

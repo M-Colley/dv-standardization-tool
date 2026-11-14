@@ -1,0 +1,17 @@
+# Second held-out test mapping for vr_spirit_ataxia_2023 (docs/preregistration_heldout_relations_2.md).
+# Paper: "Is Social Training Delivered with a Head-Mounted Display Suitable for Patients with Hereditary
+#   Ataxia?", Brain Sciences 2023, DOI 10.3390/brainsci13071017.
+# Data: Zenodo 10.5281/zenodo.8139260, CC-BY-4.0; the record description lists the sheets.
+# File: Zenodo_Malerbaetal2023.xlsx, one sheet per instrument, one row per patient (10, single session).
+#   The manifest stacks the SUS and SSQ sheets (column `sheet`), so each patient's scores combine by ID.
+#   SUS "Sum" = SUS score (0-100) -> usability; SSQ nausea, oculomotor and disorientation subscale scores
+#   -> ssq_nausea, ssq_oculomotor, ssq_disorientation.
+# Not read: SEQ (Suitability Evaluation Questionnaire), ITC-SOPI (no schema DV), Performance (stored as
+#   "mean (SD)" text), Characteristics. The record mentions PANAS, but the workbook has no PANAS sheet.
+
+ID: meta_participant_id
+sheet: meta_sheet
+Sum: usability
+nausea: ssq_nausea
+oculomotor disturbancies: ssq_oculomotor
+disorientation: ssq_disorientation

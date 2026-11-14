@@ -1,0 +1,20 @@
+# Second held-out test mapping for handover_reaction_time_2025 (docs/preregistration_heldout_relations_2.md).
+# Paper: "Understanding Preferred Robot Reaction Times for Human-Robot Handovers Supported by a Deep
+#   Learning System", HRI 2025, DOI 10.1109/HRI61500.2025.10973851.
+# Data: OSF 10.17605/osf.io/gn49s, CC-BY-4.0; README.md and the evaluation notebooks.
+# File: 03_evaluation/export/data_Questions.csv, one row per participant x robot reaction-time condition
+#   (20 participants, five conditions, within subjects), with the authors' subscale scores (1-7):
+#   trust (two items), fluency (three items; Hoffman's fluency), working alliance (three items), and
+#   RoSAS warmth, competence and discomfort; plus comfort and perceived delay.
+#   trust -> trust_rating; fluency -> collaboration_quality.
+# Not read: the raw Qualtrics export and per-trial logs.
+
+PId: meta_participant_id
+ConditionName: meta_condition_reaction_time
+ReactionTiming: meta_condition_reaction_time_s
+trust: trust_rating
+fluency: collaboration_quality
+
+# Left unlabelled: the item columns behind the scores (trust-*, fluency-*, alliance-*), alliance (a
+# second collaboration construct; not averaged with fluency), RoSAS warmth, competence, discomfort,
+# comfort and delay (no schema DV).

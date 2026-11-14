@@ -1,0 +1,83 @@
+# Second held-out test mapping for ar_telepresence_arm_2023 (docs/preregistration_heldout_relations_2.md).
+# Paper: "AR-based telepresence in a robotic manipulation task: An experimental evaluation", IET
+#   Collaborative Intelligent Manufacturing 2023, DOI 10.1049/cim2.12085.
+# Data: 4TU.ResearchData 10.4121/8e458097-bc95-4a62-9b03-6f36fc8faedb.v1, CC-BY-4.0; readme.txt.
+# Files:
+#   - Data/responses.csv: one row per participant, wide over six condition blocks (A manual, B-F
+#     gesture-controlled robot; order counterbalanced, the block's condition in "Which condition was
+#     played?"). The manifest's wide_to_long option makes one row per participant x block with the
+#     block's four UMUX items (umux1-umux4). UMUX answers are stored as labels on a 7-point scale:
+#     "Strongly disagree", ".", "..", "...", "....", ".....", "Strongly agree" (value_labels -> 1-7).
+#     UMUX items 2 ("frustrating experience") and 4 ("too much time correcting") are negatively worded
+#     and reversed. The schema lists UMUX under user_satisfaction.
+#   - Data/blocks_count.csv: blocks transferred per 60-s trial, one row per participant, columns A1-F3
+#     (condition x trial) -> efficiency (blocks per minute; averaged per participant). Its conditions
+#     are columns while responses.csv has blocks in presentation order, so the two files combine only
+#     between persons.
+# readme.txt: participants 0 (pilot), 5 and 8 are excluded (exclude_rows).
+
+'Participant number:': meta_participant_id
+Participant Number: meta_participant_id
+block: meta_block
+condition: meta_condition_control_method
+umux1: user_satisfaction
+umux2: user_satisfaction
+umux3: user_satisfaction
+umux4: user_satisfaction
+A1: efficiency
+A2: efficiency
+A3: efficiency
+B1: efficiency
+B2: efficiency
+B3: efficiency
+C1: efficiency
+C2: efficiency
+C3: efficiency
+D1: efficiency
+D2: efficiency
+D3: efficiency
+E1: efficiency
+E2: efficiency
+E3: efficiency
+F1: efficiency
+F2: efficiency
+F3: efficiency
+
+# Left unlabelled: the experimenter's per-trial ease ratings (Single Ease Question; no schema DV),
+# demographics and comments.
+
+value_labels:
+- columns:
+  - umux1
+  - umux2
+  - umux3
+  - umux4
+  labels:
+    Strongly disagree: 1
+    .: 2
+    ..: 3
+    '...': 4
+    '....': 5
+    '.....': 6
+    Strongly agree: 7
+reverse_items:
+- columns:
+  - umux2
+  - umux4
+  scale_range:
+  - 1
+  - 7
+  reason: negatively worded UMUX items
+exclude_rows:
+- column: 'Participant number:'
+  values:
+  - 0
+  - 5
+  - 8
+  reason: 'readme.txt: 0 is a pilot, 5 and 8 are excluded as described in the paper'
+- column: Participant Number
+  values:
+  - 0
+  - 5
+  - 8
+  reason: 'readme.txt: 0 is a pilot, 5 and 8 are excluded as described in the paper'
