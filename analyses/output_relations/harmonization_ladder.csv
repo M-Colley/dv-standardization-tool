@@ -5,5 +5,5 @@ automatic,"+ shared schema, header matching, instrument scoring",between_person,
 automatic,"+ shared schema, header matching, instrument scoring",within_person,11,23,21,0,458,14,0,1
 curated,+ study mapping files,between_person,31,84,35,12,2853,19,5,7
 curated,+ study mapping files,within_person,19,46,24,2,711,16,1,9
-llm,+ local-LLM fallback,between_person,37,227,83,60,3064,20,7,7
-llm,+ local-LLM fallback,within_person,22,120,50,28,804,17,2,9
+llm,+ local-LLM fallback,between_person,37,226,82,59,3064,20,7,7
+llm,+ local-LLM fallback,within_person,22,119,49,27,804,17,2,9

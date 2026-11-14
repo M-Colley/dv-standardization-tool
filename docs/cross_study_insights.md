@@ -88,7 +88,7 @@ Pairs of construct-level DVs measured together in at least two and at least thre
 | Identical raw names | 31 (16) | 14 (0) | 4 (0) | 16 (1) | 12 (0) | 9 (0) |
 | + shared schema, header matching | 26 (9) | 21 (0) | 6 (0) | 23 (6) | 21 (0) | 14 (0) |
 | + study mapping files | 84 (52) | 35 (29) | 19 (0) | 46 (44) | 24 (23) | 16 (16) |
-| + local-LLM fallback | 227 (132) | 83 (54) | 20 (0) | 120 (88) | 50 (41) | 17 (10) |
+| + local-LLM fallback | 226 (132) | 82 (54) | 20 (0) | 119 (88) | 49 (41) | 17 (10) |
 
 The new studies change the lower rungs. With 23 studies, pooling by column names reached no pair in three studies; now 14 pairs reach three, and the shared schema 21. **All of them are pairs of NASA-TLX subscales.** Four of the added studies (TLX formats, NL2TAP, concurrent speech, visual fidelity) name the subscales by their own words (`mental_demand`, "Mental Demand"), which the names baseline and the schema both recognize.
 
@@ -99,7 +99,7 @@ Relations between different constructs still come only from curated mappings:
 | Identical raw names | 0 / 0 |
 | + shared schema, header matching | 0 / 0 |
 | + study mapping files | 12 / 2 |
-| + local-LLM fallback | 60 / 30 |
+| + local-LLM fallback | 59 / 27 |
 
 Naming conventions decide what the cheap steps reach: a measure that studies already call by one name pools without harmonization, a construct that each study names its own way does not.
 
@@ -131,7 +131,7 @@ Figure: `analyses/output_relations/relations_findings.png` (per-study and pooled
 
 ### What the LLM fallback adds
 
-The LLM extends coverage to 37 studies and 227 pairs. Beyond the curated findings it adds three cross-construct findings; the fourth of the 23-study analysis (performance × STS-AD trust, from wrong mappings) no longer passes (q = .31):
+The LLM extends coverage to 37 studies and 226 pairs. Beyond the curated findings it adds three cross-construct findings; the fourth of the 23-study analysis (performance × STS-AD trust, from wrong mappings) no longer passes (q = .31):
 
 - **Perceived safety × trust in automation** (TiA): r = 0.63 between and 0.61 within persons over the same four studies as before, which include the wrong mappings described in the 23-study analysis (TiA understanding items averaged into trust in 3D Display, the ride's relaxation rating as trust in in-car VR).
 - **Workload × perceived safety, within persons**, over eight studies: r = −0.38 [−0.59, −0.13], as before.
