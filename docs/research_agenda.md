@@ -84,7 +84,7 @@ mappings); "E2" holds out schema aliases. Model: `google/gemma-4-E2B-it`
 | The benchmark showed the answer | The prompt lists three aliases per candidate DV, including the held-out one | 86 of 265 E1 and 216 of 300 E2 items had it in view (E2 accuracy 0.82 vs. 0.74 without it) | Aliases equal to the queried column are hidden (no effect in the pipeline) |
 | LLM data in LLM-excluded outputs | Composite items were read as real scale items; scores computed from LLM-mapped items had no provenance | Pooled `perceived_safety_item_04` (LLM-excluded) rested on 5 studies instead of 3, two of them LLM composites with wrong item positions | Composite items not read as scale items; scores inherit their items' provenance |
 | Curated data dropped with an LLM column | Provenance was one category per study × DV, so one LLM-mapped column marked a DV whose other columns were curated; when several columns stood for one DV, the one with more rows won | 20 study × DV pairs: the LLM-excluded `mental_demand` pool left out five studies that report it (k = 14 instead of 19); with all mappings SenseCobot's EEG ratios were stacked with its NASA-TLX ratings (study mean 0.39 of 20, 17.5% of Fig. 4's weight) | Provenance per column; LLM columns left out column by column, and a study's curated column of a DV preferred over its LLM columns (2026-11-14, `tests/test_llm_column_exclusion.py`) |
-| Another questionnaire read as the NASA-TLX | The plausibility rules check names, types and ranges, not the instrument. The LLM composed four VRNQ game-mechanics items of FOV Snap-Turn (physical movement, picking up items, using items, two-handed interaction; 1–7, higher = better) and two PXI enjoyment items of Gaze Platformer into NASA-TLX mental demand; neither study used the NASA-TLX | Fig. 4 (all mappings) pooled 21 studies, 7.73 [6.41, 9.05] (HKSJ), with FOV Snap-Turn at 28.9% of the weight; 55 more columns of the two studies were read as other DVs (e.g. eye-strain symptoms as pedestrian crossing time, IMI competence as TiA reliability) | Every column of the two studies without a schema DV locked as `meta_*` in its mapping (2026-11-14). Fig. 4 is now 19 curated studies, 8.14 [6.83, 9.45], the same pool as without LLM mappings |
+| Another questionnaire read as the NASA-TLX | The plausibility rules check names, types and ranges, not the instrument. The LLM composed four VRNQ game-mechanics items of FOV Snap-Turn (physical movement, picking up items, using items, two-handed interaction; 1–7, higher = better) and two PXI enjoyment items of Gaze Platformer into NASA-TLX mental demand; neither study used the NASA-TLX | Fig. 4 (all mappings) pooled 21 studies, 7.73 [6.41, 9.05] (HKSJ), with FOV Snap-Turn at 28.9% of the weight; 55 more columns of the two studies were read as other DVs (e.g. eye-strain symptoms as pedestrian crossing time, IMI competence as TiA reliability) | Every column of the two studies without a schema DV locked as `meta_*` in its mapping (2026-11-14). Fig. 4 is now 19 curated studies, 8.14 [6.83, 9.45], the same pool as without LLM mappings, and is drawn from the LLM-excluded pool |
 | Fixed-effect meta-regression | The slope test ignored residual heterogeneity | p < .05 for 60% of null slopes (τ = 0.5, k = 6); 36 of 50 DVs "significant" | Random-effects meta-regression with the Knapp-Hartung test |
 | Participant ids from the wrong column | Aggregation used the first ID-like column | eHMI for All lost every survey DV at the participant level | Declared participant columns for all studies (23 then, 39 now) |
 
@@ -414,6 +414,17 @@ p = 0.006), `mixed_h` 122 (47%; 27 vs. 10, p = 0.008). Original 11: 49,
 same. One added DV in the schema also changes the LLM's answers in studies
 whose mappings did not change: 19 column mappings of the 39-study batch in
 five studies (see the changelog).
+
+Rerun on 2026-11-14 after every column of FOV Snap-Turn and Gaze Platformer
+without a schema DV was locked (VRNQ, PXI, IMI and eye-strain items, exposure
+time): the DV results repeat, and no other answer changed. The 76 columns
+become curated non-DV items. Unchecked, the LLM maps all 76 to a DV; the
+check stops 1 (`definition`, `dense_h`) or 2 (`mixed_h`). The VRNQ
+game-mechanics and PXI enjoyment items become mental demand, eye-strain
+symptoms the SSQ total or pedestrian crossing time. With `definition`,
+curated non-DVs mapped to a DV rise from 59% (196 of 332) to 66% (271 of
+408) and precision falls from 25% to 21%: more of the pattern described
+below, questionnaires the schema does not cover.
 
 In the first run the original 11 studies' items were identical to the
 previous run, and, as in the confirmatory test, the filtered dense shortlists
