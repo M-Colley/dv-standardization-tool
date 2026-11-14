@@ -4,6 +4,24 @@ This document logs human-readable updates to the repo's functionality, structure
 
 ---
 
+### [2026-11-14] Second held-out test: results
+
+The test pre-registered below was run on 30 of its 36 datasets (`docs/heldout_results_2.md`; outputs in `analyses/heldout_2/`).
+
+- **H1** (mental demand × perceived safety): not testable; no study of this set measures both, as expected.
+- **H2** (the three core NASA-TLX pairs, within persons): **supported**, r = 0.46 to 0.59 over 7 or 8 studies, Holm-corrected one-sided p ≤ .005; all 22 study correlations are positive. In the first held-out test it missed narrowly (p = .052).
+- **H2b** (performance the weakest-linked subscale): not met; physical demand is (mean r 0.22, performance 0.31).
+- **H3** (header matching before the LLM): **supported**, 84 vs. 65 of 273 DV columns correct, 19 vs. 0 discordant (McNemar p = 4 × 10⁻⁶). Header matching answered 28 SUS and NASA-TLX columns in three studies, all correctly.
+- **H4** (the other 33 findings): 27 of the 32 testable targets replicate (BH q < .05), and all 32 have the predicted sign. The misses: SUS × effort and SUS × mental demand (three studies each), and three pairs with the performance subscale.
+- **Reader options added before the freeze**, with tests (`tests/test_wide_to_long.py`):
+    - `wide_to_long` turns repeated measures stored side by side (one column per condition) into one row per participant and condition;
+    - `sheet` may list several sheets, which are stacked with a `sheet` column;
+    - `row_id` adds a row number as the participant id of tables without one.
+- **Fault fixed:** `multi_study_analysis` read standardized `.tsv` files as Excel. They are now read as tab-separated text, and the run was repeated.
+- **Deviations** (all listed in the results doc): three datasets dropped where a new reader would have served only DVs that bear on no target; the NASA-TLX performance item left unlabelled where its direction is undocumented; one item order inferred from a paper; SUS-DE-Pos's 25 excluded respondents not identifiable.
+- **Exploratory:** pooled over the development and both held-out sets, all 37 targets have the predicted sign and 36 have one-sided p < .05. `analyses/heldout_2/exploratory.py` writes these, H2 without each study in turn, and both held-out sets pooled.
+- **Not changed:** the first held-out test's outputs (`analyses/heldout/`).
+
 ### [2026-11-14] Second held-out test pre-registered; MATLAB files readable
 
 - **Pre-registration** (`docs/preregistration_heldout_relations_2.md`), committed before any participant data were downloaded.

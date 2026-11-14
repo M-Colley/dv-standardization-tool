@@ -1,0 +1,519 @@
+experiment,source_id,dataset_id,alias,label_kind,gold,gold_in_shortlist,shortlist_top_score,suggestion,pre_llm_rejection,post_llm_rejection,final_unchecked,final_checked,observed_min,observed_max,seconds,llm_error,context_sha256
+E1,ar_telepresence_arm_2023,Supplementary Material/Data/responses.csv,condition,blocklisted_non_dv,,False,90.0,utaut_facilitating_conditions,experimental_condition,,utaut_facilitating_conditions,,,,37.974,,c439eb2803278578
+E1,ar_telepresence_arm_2023,Supplementary Material/Data/blocks_count.csv,Participant Number,curated_non_dv,,False,85.5,,,,,,1.0,26.0,0.633,,c439eb2803278578
+E1,ar_telepresence_arm_2023,Supplementary Material/Data/responses.csv,Participant number:,curated_non_dv,,False,85.5,,,,,,1.0,26.0,0.669,,c439eb2803278578
+E1,ar_telepresence_arm_2023,Supplementary Material/Data/responses.csv,block,curated_non_dv,,False,60.0,,,,,,1.0,6.0,0.052,,c439eb2803278578
+E1,ar_telepresence_arm_2023,Supplementary Material/Data/blocks_count.csv,A1,dv,efficiency,False,90.0,mental_demand,,,mental_demand,mental_demand,47.0,82.0,0.484,,c439eb2803278578
+E1,ar_telepresence_arm_2023,Supplementary Material/Data/blocks_count.csv,A2,dv,efficiency,False,90.0,physical_demand,,,physical_demand,physical_demand,53.0,89.0,0.439,,c439eb2803278578
+E1,ar_telepresence_arm_2023,Supplementary Material/Data/blocks_count.csv,A3,dv,efficiency,False,90.0,temporal_demand,,,temporal_demand,temporal_demand,56.0,92.0,0.475,,c439eb2803278578
+E1,ar_telepresence_arm_2023,Supplementary Material/Data/blocks_count.csv,B1,dv,efficiency,False,60.0,,,,,,2.0,12.0,0.069,,c439eb2803278578
+E1,ar_telepresence_arm_2023,Supplementary Material/Data/blocks_count.csv,B2,dv,efficiency,False,60.0,,,,,,2.0,13.0,0.065,,c439eb2803278578
+E1,ar_telepresence_arm_2023,Supplementary Material/Data/blocks_count.csv,B3,dv,efficiency,False,60.0,,,,,,2.0,14.0,0.051,,c439eb2803278578
+E1,ar_telepresence_arm_2023,Supplementary Material/Data/blocks_count.csv,C1,dv,efficiency,False,60.0,,,,,,1.0,14.0,0.062,,c439eb2803278578
+E1,ar_telepresence_arm_2023,Supplementary Material/Data/blocks_count.csv,C2,dv,efficiency,False,60.0,,,,,,2.0,13.0,0.053,,c439eb2803278578
+E1,ar_telepresence_arm_2023,Supplementary Material/Data/blocks_count.csv,C3,dv,efficiency,False,60.0,,,,,,2.0,14.0,0.05,,c439eb2803278578
+E1,ar_telepresence_arm_2023,Supplementary Material/Data/blocks_count.csv,D1,dv,efficiency,False,60.0,,,,,,2.0,10.0,0.05,,c439eb2803278578
+E1,ar_telepresence_arm_2023,Supplementary Material/Data/blocks_count.csv,D2,dv,efficiency,False,60.0,,,,,,1.0,11.0,0.063,,c439eb2803278578
+E1,ar_telepresence_arm_2023,Supplementary Material/Data/blocks_count.csv,D3,dv,efficiency,False,60.0,,,,,,1.0,9.0,0.064,,c439eb2803278578
+E1,ar_telepresence_arm_2023,Supplementary Material/Data/blocks_count.csv,E1,dv,efficiency,False,60.0,,,,,,1.0,10.0,0.049,,c439eb2803278578
+E1,ar_telepresence_arm_2023,Supplementary Material/Data/blocks_count.csv,E2,dv,efficiency,False,60.0,,,,,,2.0,11.0,0.063,,c439eb2803278578
+E1,ar_telepresence_arm_2023,Supplementary Material/Data/blocks_count.csv,E3,dv,efficiency,False,60.0,,,,,,2.0,10.0,0.048,,c439eb2803278578
+E1,ar_telepresence_arm_2023,Supplementary Material/Data/blocks_count.csv,F1,dv,efficiency,False,60.0,,,,,,0.0,8.0,0.058,,c439eb2803278578
+E1,ar_telepresence_arm_2023,Supplementary Material/Data/blocks_count.csv,F2,dv,efficiency,False,60.0,,,,,,1.0,8.0,0.046,,c439eb2803278578
+E1,ar_telepresence_arm_2023,Supplementary Material/Data/blocks_count.csv,F3,dv,efficiency,False,60.0,,,,,,1.0,8.0,0.064,,c439eb2803278578
+E1,ar_telepresence_arm_2023,Supplementary Material/Data/responses.csv,umux1,dv,user_satisfaction,True,80.0,task_feasibility_item_01,,,task_feasibility_item_01,task_feasibility_item_01,1.0,7.0,0.879,,c439eb2803278578
+E1,ar_telepresence_arm_2023,Supplementary Material/Data/responses.csv,umux2,dv,user_satisfaction,True,80.0,task_feasibility_item_02,,,task_feasibility_item_02,task_feasibility_item_02,1.0,7.0,0.825,,c439eb2803278578
+E1,ar_telepresence_arm_2023,Supplementary Material/Data/responses.csv,umux3,dv,user_satisfaction,True,80.0,user_satisfaction,,,user_satisfaction,user_satisfaction,1.0,7.0,0.437,,c439eb2803278578
+E1,ar_telepresence_arm_2023,Supplementary Material/Data/responses.csv,umux4,dv,user_satisfaction,True,80.0,performance,,,performance,performance,1.0,7.0,0.239,,c439eb2803278578
+E1,build_3d_mr_2025,Data_NASA-TLX.xlsx,EF-PD,curated_non_dv,,False,90.0,paas_mental_effort,non_numeric,,paas_mental_effort,,0.0,60.0,0.538,,bf3592304dad3183
+E1,build_3d_mr_2025,Data_NASA-TLX.xlsx,EF-PE,curated_non_dv,,False,90.0,effort,non_numeric,,effort,,0.0,60.0,0.22,,bf3592304dad3183
+E1,build_3d_mr_2025,Data_NASA-TLX.xlsx,FL-EF,curated_non_dv,,False,90.0,paas_mental_effort,non_numeric,,paas_mental_effort,,0.0,60.0,0.495,,bf3592304dad3183
+E1,build_3d_mr_2025,Data_NASA-TLX.xlsx,FL-PE,curated_non_dv,,False,90.0,utaut_performance_expectancy,non_numeric,,utaut_performance_expectancy,,0.0,60.0,0.533,,bf3592304dad3183
+E1,build_3d_mr_2025,Data_NASA-TLX.xlsx,FL-TD,curated_non_dv,,False,90.0,task_feasibility,non_numeric,,task_feasibility,,0.0,60.0,0.432,,bf3592304dad3183
+E1,build_3d_mr_2025,Data_NASA-TLX.xlsx,MD-EF,curated_non_dv,,False,90.0,paas_mental_effort,non_numeric,,paas_mental_effort,,0.0,60.0,0.525,,bf3592304dad3183
+E1,build_3d_mr_2025,Data_NASA-TLX.xlsx,MD-FL,curated_non_dv,,False,90.0,task_feasibility,non_numeric,,task_feasibility,,0.0,60.0,0.412,,bf3592304dad3183
+E1,build_3d_mr_2025,Data_NASA-TLX.xlsx,MD-PD,curated_non_dv,,False,90.0,task_feasibility,non_numeric,,task_feasibility,,0.0,60.0,0.396,,bf3592304dad3183
+E1,build_3d_mr_2025,Data_NASA-TLX.xlsx,MD-PE,curated_non_dv,,False,90.0,utaut_performance_expectancy,non_numeric,,utaut_performance_expectancy,,0.0,60.0,0.527,,bf3592304dad3183
+E1,build_3d_mr_2025,Data_NASA-TLX.xlsx,MD-TD,curated_non_dv,,False,90.0,,non_numeric,,,,0.0,60.0,0.386,,bf3592304dad3183
+E1,build_3d_mr_2025,Data_NASA-TLX.xlsx,PD-FL,curated_non_dv,,False,90.0,task_feasibility,non_numeric,,task_feasibility,,0.0,60.0,0.375,,bf3592304dad3183
+E1,build_3d_mr_2025,Data_NASA-TLX.xlsx,PD-PE,curated_non_dv,,False,90.0,utaut_performance_expectancy,non_numeric,,utaut_performance_expectancy,,0.0,60.0,0.567,,bf3592304dad3183
+E1,build_3d_mr_2025,Data_NASA-TLX.xlsx,PD-TD,curated_non_dv,,False,90.0,task_feasibility,non_numeric,,task_feasibility,,0.0,60.0,0.41,,bf3592304dad3183
+E1,build_3d_mr_2025,Data_NASA-TLX.xlsx,PE-TD,curated_non_dv,,False,90.0,utaut_performance_expectancy,non_numeric,,utaut_performance_expectancy,,0.0,60.0,0.585,,bf3592304dad3183
+E1,build_3d_mr_2025,Data_NASA-TLX.xlsx,TD-EF,curated_non_dv,,False,90.0,paas_mental_effort,non_numeric,,paas_mental_effort,,0.0,60.0,0.539,,bf3592304dad3183
+E1,build_3d_mr_2025,Data_NASA-TLX.xlsx,Unnamed: 0,curated_non_dv,,False,88.9,sart_understanding,,,sart_understanding,sart_understanding,1.0,60.0,0.423,,bf3592304dad3183
+E1,build_3d_mr_2025,Data_NASA-TLX.xlsx,EF,dv,effort,True,90.0,paas_mental_effort,,,paas_mental_effort,paas_mental_effort,1.0,9.0,0.532,,bf3592304dad3183
+E1,build_3d_mr_2025,Data_NASA-TLX.xlsx,FL,dv,frustration,False,90.0,task_feasibility,,,task_feasibility,task_feasibility,1.0,4.0,0.454,,bf3592304dad3183
+E1,build_3d_mr_2025,Data_NASA-TLX.xlsx,MD,dv,mental_demand,False,90.0,task_feasibility,,,task_feasibility,task_feasibility,2.0,9.0,0.379,,bf3592304dad3183
+E1,build_3d_mr_2025,Data_NASA-TLX.xlsx,PD,dv,physical_demand,False,90.0,task_feasibility,,,task_feasibility,task_feasibility,1.0,3.0,0.432,,bf3592304dad3183
+E1,build_3d_mr_2025,Data_NASA-TLX.xlsx,PE,dv,utaut_performance_expectancy,True,90.0,utaut_performance_expectancy,,,utaut_performance_expectancy,utaut_performance_expectancy,10.0,18.0,0.573,,bf3592304dad3183
+E1,build_3d_mr_2025,Data_NASA-TLX.xlsx,TD,dv,temporal_demand,False,90.0,task_feasibility,,,task_feasibility,task_feasibility,1.0,9.0,0.391,,bf3592304dad3183
+E1,build_pc_mar_2026,NASA_MAR.xlsx,EF-PD,curated_non_dv,,False,90.0,rsme,non_numeric,,rsme,,0.0,60.0,0.26,,2d6dd52aeb80c4d1
+E1,build_pc_mar_2026,NASA_MAR.xlsx,EF-PE,curated_non_dv,,False,90.0,utaut_effort_expectancy,non_numeric,,utaut_effort_expectancy,,0.0,60.0,0.61,,2d6dd52aeb80c4d1
+E1,build_pc_mar_2026,NASA_MAR.xlsx,FL-EF,curated_non_dv,,False,90.0,rsme,non_numeric,,rsme,,0.0,60.0,0.251,,2d6dd52aeb80c4d1
+E1,build_pc_mar_2026,NASA_MAR.xlsx,FL-PE,curated_non_dv,,False,90.0,perceived_safety,non_numeric,,perceived_safety,,0.0,60.0,0.35,,2d6dd52aeb80c4d1
+E1,build_pc_mar_2026,NASA_MAR.xlsx,FL-TD,curated_non_dv,,False,90.0,perceived_vehicle_influence,non_numeric,,perceived_vehicle_influence,,0.0,60.0,0.477,,2d6dd52aeb80c4d1
+E1,build_pc_mar_2026,NASA_MAR.xlsx,Genero,curated_non_dv,,False,81.8,trust_rating,non_numeric,,trust_rating,,,,0.316,,2d6dd52aeb80c4d1
+E1,build_pc_mar_2026,NASA_MAR.xlsx,MD-EF,curated_non_dv,,False,90.0,rsme,non_numeric,,rsme,,0.0,60.0,0.243,,2d6dd52aeb80c4d1
+E1,build_pc_mar_2026,NASA_MAR.xlsx,MD-FL,curated_non_dv,,False,90.0,perceived_vehicle_influence,non_numeric,,perceived_vehicle_influence,,0.0,60.0,0.531,,2d6dd52aeb80c4d1
+E1,build_pc_mar_2026,NASA_MAR.xlsx,MD-PD,curated_non_dv,,False,90.0,perceived_vehicle_influence,non_numeric,,perceived_vehicle_influence,,0.0,60.0,0.556,,2d6dd52aeb80c4d1
+E1,build_pc_mar_2026,NASA_MAR.xlsx,MD-PE,curated_non_dv,,False,90.0,perceived_safety,non_numeric,,perceived_safety,,0.0,60.0,0.37,,2d6dd52aeb80c4d1
+E1,build_pc_mar_2026,NASA_MAR.xlsx,MD-TD,curated_non_dv,,False,90.0,perceived_vehicle_influence,non_numeric,,perceived_vehicle_influence,,0.0,60.0,0.572,,2d6dd52aeb80c4d1
+E1,build_pc_mar_2026,NASA_MAR.xlsx,PD-FL,curated_non_dv,,False,90.0,perceived_vehicle_influence,non_numeric,,perceived_vehicle_influence,,0.0,60.0,0.566,,2d6dd52aeb80c4d1
+E1,build_pc_mar_2026,NASA_MAR.xlsx,PD-PE,curated_non_dv,,False,90.0,utaut_performance_expectancy,non_numeric,,utaut_performance_expectancy,,0.0,60.0,0.633,,2d6dd52aeb80c4d1
+E1,build_pc_mar_2026,NASA_MAR.xlsx,PD-TD,curated_non_dv,,False,90.0,perceived_vehicle_influence,non_numeric,,perceived_vehicle_influence,,0.0,60.0,0.557,,2d6dd52aeb80c4d1
+E1,build_pc_mar_2026,NASA_MAR.xlsx,PE-TD,curated_non_dv,,False,90.0,utaut_performance_expectancy,non_numeric,,utaut_performance_expectancy,,0.0,60.0,0.594,,2d6dd52aeb80c4d1
+E1,build_pc_mar_2026,NASA_MAR.xlsx,TD-EF,curated_non_dv,,False,90.0,rsme,non_numeric,,rsme,,0.0,60.0,0.289,,2d6dd52aeb80c4d1
+E1,build_pc_mar_2026,NASA_MAR.xlsx,Unnamed: 0,curated_non_dv,,False,88.9,perceived_safety,,,perceived_safety,perceived_safety,1.0,60.0,0.454,,2d6dd52aeb80c4d1
+E1,build_pc_mar_2026,NASA_MAR.xlsx,edad,curated_non_dv,,False,85.7,sts_ad_item_01,,,sts_ad_item_01,sts_ad_item_01,18.0,19.0,0.676,,2d6dd52aeb80c4d1
+E1,build_pc_mar_2026,NASA_MAR.xlsx,EF,dv,effort,True,90.0,rsme,,,rsme,rsme,1.0,5.0,0.267,,2d6dd52aeb80c4d1
+E1,build_pc_mar_2026,NASA_MAR.xlsx,FL,dv,frustration,False,90.0,task_feasibility,,,task_feasibility,task_feasibility,1.0,4.0,0.395,,2d6dd52aeb80c4d1
+E1,build_pc_mar_2026,NASA_MAR.xlsx,MD,dv,mental_demand,False,90.0,sts_ad_item_06,,,sts_ad_item_06,sts_ad_item_06,5.0,9.0,0.678,,2d6dd52aeb80c4d1
+E1,build_pc_mar_2026,NASA_MAR.xlsx,PD,dv,physical_demand,False,90.0,task_feasibility,,binary_for_rating_scale,task_feasibility,,1.0,1.0,0.46,,2d6dd52aeb80c4d1
+E1,build_pc_mar_2026,NASA_MAR.xlsx,PE,dv,utaut_performance_expectancy,True,90.0,tam_perceived_ease_of_use,,,tam_perceived_ease_of_use,tam_perceived_ease_of_use,10.0,19.0,0.792,,2d6dd52aeb80c4d1
+E1,build_pc_mar_2026,NASA_MAR.xlsx,TD,dv,temporal_demand,False,90.0,task_feasibility,,,task_feasibility,task_feasibility,1.0,4.0,0.47,,2d6dd52aeb80c4d1
+E1,chatgpt_roleplay_2025,Usability of ChatGPT(1-20).xlsx,ID,blocklisted_non_dv,,False,90.0,,identifier,,,,1.0,20.0,0.369,,7d9a7fb48661d2e8
+E1,chatgpt_roleplay_2025,Usability of ChatGPT(1-20).xlsx,Correo electrónico,curated_non_dv,,False,90.0,ueq_hedonic,non_numeric,,ueq_hedonic,,,,0.617,,7d9a7fb48661d2e8
+E1,chatgpt_roleplay_2025,Usability of ChatGPT(1-20).xlsx,Hora de finalización,curated_non_dv,,False,85.5,temporal_demand,non_numeric,,temporal_demand,,,,0.425,,7d9a7fb48661d2e8
+E1,chatgpt_roleplay_2025,Usability of ChatGPT(1-20).xlsx,Hora de inicio,curated_non_dv,,False,76.5,crossing_initiation_time,non_numeric,,crossing_initiation_time,,,,0.694,,7d9a7fb48661d2e8
+E1,chatgpt_roleplay_2025,Usability of ChatGPT(1-20).xlsx,Rate your Listening English language knowledge level,curated_non_dv,,False,94.1,engagement_level,demographic,,engagement_level,,2.0,5.0,0.453,,7d9a7fb48661d2e8
+E1,chatgpt_roleplay_2025,Usability of ChatGPT(1-20).xlsx,Rate your Reading English language knowledge level,curated_non_dv,,False,95.0,understanding_rating,demographic,,understanding_rating,,2.0,5.0,0.476,,7d9a7fb48661d2e8
+E1,chatgpt_roleplay_2025,Usability of ChatGPT(1-20).xlsx,Rate your Speaking English language knowledge level,curated_non_dv,,False,95.0,engagement_level,demographic,,engagement_level,,2.0,5.0,0.503,,7d9a7fb48661d2e8
+E1,chatgpt_roleplay_2025,Usability of ChatGPT(1-20).xlsx,Rate your Writing English language knowledge level,curated_non_dv,,False,94.1,engagement_level,demographic,,engagement_level,,2.0,5.0,0.498,,7d9a7fb48661d2e8
+E1,chatgpt_roleplay_2025,Usability of ChatGPT(1-20).xlsx,Select your gender,curated_non_dv,,False,85.5,ipq_general_presence,demographic,,ipq_general_presence,,,,0.667,,7d9a7fb48661d2e8
+E1,chatgpt_roleplay_2025,Usability of ChatGPT(1-20).xlsx,I am satisfied with it,dv,user_satisfaction,True,85.5,user_satisfaction,,,user_satisfaction,user_satisfaction,3.0,5.0,0.557,,7d9a7fb48661d2e8
+E1,chatgpt_roleplay_2025,Usability of ChatGPT(1-20).xlsx,I feel I need to have it,dv,user_satisfaction,True,85.5,user_satisfaction,,,user_satisfaction,user_satisfaction,2.0,5.0,0.547,,7d9a7fb48661d2e8
+E1,chatgpt_roleplay_2025,Usability of ChatGPT(1-20).xlsx,I felt very confident using the platform,dv,SUS9,False,85.5,attrakdiff_hqi,,,attrakdiff_hqi,attrakdiff_hqi,3.0,5.0,0.654,,7d9a7fb48661d2e8
+E1,chatgpt_roleplay_2025,Usability of ChatGPT(1-20).xlsx,I found the platform unnecessarily complex,dv,SUS2,False,85.5,task_completion_time,,,task_completion_time,task_completion_time,1.0,5.0,0.608,,7d9a7fb48661d2e8
+E1,chatgpt_roleplay_2025,Usability of ChatGPT(1-20).xlsx,I found the platform very cumbersome to use,dv,SUS8,False,85.5,tam_perceived_ease_of_use,,,tam_perceived_ease_of_use,tam_perceived_ease_of_use,1.0,5.0,0.953,,7d9a7fb48661d2e8
+E1,chatgpt_roleplay_2025,Usability of ChatGPT(1-20).xlsx,I found the various functions in this platform were well integrated,dv,SUS5,False,85.5,performance,,,performance,performance,2.0,5.0,0.336,,7d9a7fb48661d2e8
+E1,chatgpt_roleplay_2025,Usability of ChatGPT(1-20).xlsx,I needed to learn a lot of things before I could get going with this platform,dv,SUS10,False,85.5,performance,,,performance,performance,1.0,5.0,0.356,,7d9a7fb48661d2e8
+E1,chatgpt_roleplay_2025,Usability of ChatGPT(1-20).xlsx,I think that I would like to use this platform frequently,dv,SUS1,False,85.5,tam_perceived_ease_of_use,,,tam_perceived_ease_of_use,tam_perceived_ease_of_use,4.0,5.0,0.967,,7d9a7fb48661d2e8
+E1,chatgpt_roleplay_2025,Usability of ChatGPT(1-20).xlsx,I think that I would need the support of a technical person to be able to use this platform,dv,SUS4,False,85.5,tam_perceived_ease_of_use,,,tam_perceived_ease_of_use,tam_perceived_ease_of_use,1.0,5.0,0.951,,7d9a7fb48661d2e8
+E1,chatgpt_roleplay_2025,Usability of ChatGPT(1-20).xlsx,I thought the platform was easy to use,dv,SUS3,False,85.5,tam_perceived_ease_of_use,,,tam_perceived_ease_of_use,tam_perceived_ease_of_use,1.0,5.0,1.033,,7d9a7fb48661d2e8
+E1,chatgpt_roleplay_2025,Usability of ChatGPT(1-20).xlsx,I thought there was too much inconsistency in the platform,dv,SUS6,False,85.5,ueq_efficiency,,,ueq_efficiency,ueq_efficiency,1.0,5.0,0.544,,7d9a7fb48661d2e8
+E1,chatgpt_roleplay_2025,Usability of ChatGPT(1-20).xlsx,I would imagine that most people would learn to use this platform very quickly,dv,SUS7,False,85.5,tam_perceived_ease_of_use,,,tam_perceived_ease_of_use,tam_perceived_ease_of_use,3.0,5.0,1.043,,7d9a7fb48661d2e8
+E1,chatgpt_roleplay_2025,Usability of ChatGPT(1-20).xlsx,I would recommend it to a friend,dv,user_satisfaction,False,85.5,,,,,,3.0,5.0,0.624,,7d9a7fb48661d2e8
+E1,chatgpt_roleplay_2025,Usability of ChatGPT(1-20).xlsx,It is fun to use,dv,user_satisfaction,False,85.5,tam_perceived_ease_of_use,,,tam_perceived_ease_of_use,tam_perceived_ease_of_use,3.0,5.0,0.992,,7d9a7fb48661d2e8
+E1,chatgpt_roleplay_2025,Usability of ChatGPT(1-20).xlsx,It is pleasant to use,dv,user_satisfaction,False,85.5,tam_perceived_ease_of_use,,,tam_perceived_ease_of_use,tam_perceived_ease_of_use,3.0,5.0,0.983,,7d9a7fb48661d2e8
+E1,chatgpt_roleplay_2025,Usability of ChatGPT(1-20).xlsx,It is wonderful,dv,user_satisfaction,False,85.5,tam_perceived_usefulness,,,tam_perceived_usefulness,tam_perceived_usefulness,4.0,5.0,0.748,,7d9a7fb48661d2e8
+E1,chatgpt_roleplay_2025,Usability of ChatGPT(1-20).xlsx,It works the way I want it to work,dv,user_satisfaction,False,85.5,mental_demand,,,mental_demand,mental_demand,3.0,5.0,0.443,,7d9a7fb48661d2e8
+E1,citizen_science_tutorial_2021,ORIGINALDATA_JAMZ20200527_Artenvielfalt_Tutorialstudie.csv,DistributionChannel,blocklisted_non_dv,,False,65.5,pedestrian_crossing_time,non_numeric,,pedestrian_crossing_time,,,,0.567,,1dfadd0f7cb85cd0
+E1,citizen_science_tutorial_2021,ORIGINALDATA_JAMZ20200527_Artenvielfalt_Tutorialstudie.csv,Duration (in seconds),blocklisted_non_dv,,False,90.0,task_completion_time,,,task_completion_time,task_completion_time,8.0,588366.0,0.469,,1dfadd0f7cb85cd0
+E1,citizen_science_tutorial_2021,ORIGINALDATA_JAMZ20200527_Artenvielfalt_Tutorialstudie.csv,EndDate,blocklisted_non_dv,,False,60.0,,timestamp,,,,,,0.069,,1dfadd0f7cb85cd0
+E1,citizen_science_tutorial_2021,ORIGINALDATA_JAMZ20200527_Artenvielfalt_Tutorialstudie.csv,ExternalReference,blocklisted_non_dv,,False,66.7,ipq_general_presence,non_numeric,,ipq_general_presence,,,,0.544,,1dfadd0f7cb85cd0
+E1,citizen_science_tutorial_2021,ORIGINALDATA_JAMZ20200527_Artenvielfalt_Tutorialstudie.csv,Finished,blocklisted_non_dv,,False,51.4,,,,,,0.0,1.0,0.053,,1dfadd0f7cb85cd0
+E1,citizen_science_tutorial_2021,ORIGINALDATA_JAMZ20200527_Artenvielfalt_Tutorialstudie.csv,IPAddress,blocklisted_non_dv,,False,90.0,ipq_general_presence,non_numeric,,ipq_general_presence,,,,0.592,,1dfadd0f7cb85cd0
+E1,citizen_science_tutorial_2021,ORIGINALDATA_JAMZ20200527_Artenvielfalt_Tutorialstudie.csv,LocationLatitude,blocklisted_non_dv,,False,67.5,saccade_rate,non_numeric,,saccade_rate,,,,0.506,,1dfadd0f7cb85cd0
+E1,citizen_science_tutorial_2021,ORIGINALDATA_JAMZ20200527_Artenvielfalt_Tutorialstudie.csv,LocationLongitude,blocklisted_non_dv,,False,67.5,retention_time,non_numeric,,retention_time,,,,0.441,,1dfadd0f7cb85cd0
+E1,citizen_science_tutorial_2021,ORIGINALDATA_JAMZ20200527_Artenvielfalt_Tutorialstudie.csv,Progress,blocklisted_non_dv,,False,60.0,,,,,,1.0,100.0,0.054,,1dfadd0f7cb85cd0
+E1,citizen_science_tutorial_2021,ORIGINALDATA_JAMZ20200527_Artenvielfalt_Tutorialstudie.csv,RecipientEmail,blocklisted_non_dv,,False,60.0,,non_numeric,,,,,,0.054,,1dfadd0f7cb85cd0
+E1,citizen_science_tutorial_2021,ORIGINALDATA_JAMZ20200527_Artenvielfalt_Tutorialstudie.csv,RecipientFirstName,blocklisted_non_dv,,False,60.0,,non_numeric,,,,,,0.051,,1dfadd0f7cb85cd0
+E1,citizen_science_tutorial_2021,ORIGINALDATA_JAMZ20200527_Artenvielfalt_Tutorialstudie.csv,RecipientLastName,blocklisted_non_dv,,False,67.5,retention_time,non_numeric,,retention_time,,,,0.436,,1dfadd0f7cb85cd0
+E1,citizen_science_tutorial_2021,ORIGINALDATA_JAMZ20200527_Artenvielfalt_Tutorialstudie.csv,RecordedDate,blocklisted_non_dv,,False,60.0,,timestamp,,,,,,0.077,,1dfadd0f7cb85cd0
+E1,citizen_science_tutorial_2021,ORIGINALDATA_JAMZ20200527_Artenvielfalt_Tutorialstudie.csv,ResponseId,blocklisted_non_dv,,False,80.0,task_completion_time,identifier,,task_completion_time,,,,0.5,,1dfadd0f7cb85cd0
+E1,citizen_science_tutorial_2021,ORIGINALDATA_JAMZ20200527_Artenvielfalt_Tutorialstudie.csv,StartDate,blocklisted_non_dv,,False,90.0,task_success,timestamp,,task_success,,,,0.36,,1dfadd0f7cb85cd0
+E1,citizen_science_tutorial_2021,ORIGINALDATA_JAMZ20200527_Artenvielfalt_Tutorialstudie.csv,Status,blocklisted_non_dv,,False,72.0,SUS1,,binary_for_rating_scale,SUS1,,0.0,0.0,0.3,,1dfadd0f7cb85cd0
+E1,citizen_science_tutorial_2021,ORIGINALDATA_JAMZ20200527_Artenvielfalt_Tutorialstudie.csv,Einwilligung,curated_non_dv,,False,54.4,,,,,,1.0,2.0,0.05,,1dfadd0f7cb85cd0
+E1,citizen_science_tutorial_2021,ORIGINALDATA_JAMZ20200527_Artenvielfalt_Tutorialstudie.csv,UserLanguage,curated_non_dv,,False,67.5,user_satisfaction,demographic,,user_satisfaction,,,,0.412,,1dfadd0f7cb85cd0
+E1,citizen_science_tutorial_2021,ORIGINALDATA_JAMZ20200527_Artenvielfalt_Tutorialstudie.csv,TLX_effort_1,dv,effort,True,95.0,mental_demand,,,mental_demand,mental_demand,0.0,18.0,0.378,,1dfadd0f7cb85cd0
+E1,citizen_science_tutorial_2021,ORIGINALDATA_JAMZ20200527_Artenvielfalt_Tutorialstudie.csv,TLX_frustration_1,dv,frustration,True,95.0,mental_demand,,,mental_demand,mental_demand,0.0,19.0,0.372,,1dfadd0f7cb85cd0
+E1,citizen_science_tutorial_2021,ORIGINALDATA_JAMZ20200527_Artenvielfalt_Tutorialstudie.csv,TLX_mental_1,dv,mental_demand,True,86.4,mental_demand,,,mental_demand,mental_demand,0.0,19.0,0.364,,1dfadd0f7cb85cd0
+E1,citizen_science_tutorial_2021,ORIGINALDATA_JAMZ20200527_Artenvielfalt_Tutorialstudie.csv,TLX_time_1,dv,temporal_demand,False,85.5,mental_demand,,,mental_demand,mental_demand,0.0,15.0,0.361,,1dfadd0f7cb85cd0
+E1,debugging_cps_ar_vr_2026,ismar26a-sub1461-i9.csv,condition,blocklisted_non_dv,,False,90.0,utaut_facilitating_conditions,experimental_condition,,utaut_facilitating_conditions,,,,0.595,,0f0ecaa64d40757e
+E1,debugging_cps_ar_vr_2026,ismar26a-sub1461-i9.csv,scenario,blocklisted_non_dv,,False,56.2,,non_numeric,,,,,,0.069,,0f0ecaa64d40757e
+E1,debugging_cps_ar_vr_2026,ismar26a-sub1461-i9.csv,Age,curated_non_dv,,False,90.0,retention_time,demographic,,retention_time,,21.0,40.0,0.431,,0f0ecaa64d40757e
+E1,debugging_cps_ar_vr_2026,ismar26a-sub1461-i9.csv,Gender,curated_non_dv,,False,81.8,ipq_general_presence,demographic,,ipq_general_presence,,,,0.591,,0f0ecaa64d40757e
+E1,debugging_cps_ar_vr_2026,ismar26a-sub1461-i9.csv,rttttttttt,curated_non_dv,,False,90.0,task_completion_time,non_numeric,,task_completion_time,,,,0.454,,0f0ecaa64d40757e
+E1,debugging_cps_ar_vr_2026,ismar26a-sub1461-i9.csv,defect_resolved,dv,task_success,False,60.0,,,,,,0.0,1.0,0.057,,0f0ecaa64d40757e
+E1,debugging_cps_ar_vr_2026,ismar26a-sub1461-i9.csv,failure_identified,dv,task_success,False,85.5,error_rate,,,error_rate,error_rate,0.0,1.0,0.324,,0f0ecaa64d40757e
+E1,debugging_cps_ar_vr_2026,ismar26a-sub1461-i9.csv,numruns,dv,interaction_events,True,90.0,interaction_events,,,interaction_events,interaction_events,2.0,10.0,0.393,,0f0ecaa64d40757e
+E1,debugging_cps_ar_vr_2026,ismar26a-sub1461-i9.csv,sus,dv,usability,False,90.0,,,,,,32.5,97.5,0.204,,0f0ecaa64d40757e
+E1,debugging_cps_ar_vr_2026,ismar26a-sub1461-i9.csv,tasktime,dv,task_completion_time,True,80.0,task_completion_time,,,task_completion_time,task_completion_time,487.0,1631.0,0.544,,0f0ecaa64d40757e
+E1,debugging_cps_ar_vr_2026,ismar26a-sub1461-i9.csv,tlx,dv,TLX_SCORE,True,90.0,mental_demand,,,mental_demand,mental_demand,5.0,70.8333333333333,0.365,,0f0ecaa64d40757e
+E1,debugging_cps_ar_vr_2026,ismar26a-sub1461-i9.csv,ueqs_hed,dv,ueq_hedonic,True,75.0,ueq_hedonic,,,ueq_hedonic,ueq_hedonic,-2.75,3.0,0.506,,0f0ecaa64d40757e
+E1,debugging_cps_ar_vr_2026,ismar26a-sub1461-i9.csv,ueqs_prag,dv,ueq_pragmatic,True,75.0,ueq_pragmatic,,,ueq_pragmatic,ueq_pragmatic,-2.0,3.0,0.514,,0f0ecaa64d40757e
+E1,developers_prompt_docgen_2024,kruse-icsme-2024-replication-package-v130/kruse-icsme-2024-replication-package/results/RQ2/UEQ/UEQ-results-all.xlsx,respondent,curated_non_dv,,False,72.0,engagement_level,,,engagement_level,engagement_level,1.0,50.0,0.365,,93d2fdfd56e5f853
+E1,developers_prompt_docgen_2024,kruse-icsme-2024-replication-package-v130/kruse-icsme-2024-replication-package/results/RQ2/UEQ/UEQ-results-all.xlsx,sheet,curated_non_dv,,False,90.0,intervention_responsiveness,non_numeric,,intervention_responsiveness,,,,0.377,,93d2fdfd56e5f853
+E1,developers_prompt_docgen_2024,kruse-icsme-2024-replication-package-v130/kruse-icsme-2024-replication-package/results/RQ2/UEQ/UEQ-results-all.xlsx,ueq01,dv,ueq_attractiveness,True,80.0,ueq_dependability,,,ueq_dependability,ueq_dependability,3.0,7.0,0.456,,93d2fdfd56e5f853
+E1,developers_prompt_docgen_2024,kruse-icsme-2024-replication-package-v130/kruse-icsme-2024-replication-package/results/RQ2/UEQ/UEQ-results-all.xlsx,ueq03,dv,ueq_hedonic,True,80.0,ueq_pragmatic,,,ueq_pragmatic,ueq_pragmatic,1.0,7.0,0.605,,93d2fdfd56e5f853
+E1,developers_prompt_docgen_2024,kruse-icsme-2024-replication-package-v130/kruse-icsme-2024-replication-package/results/RQ2/UEQ/UEQ-results-all.xlsx,ueq04,dv,ueq_pragmatic,True,80.0,ueq_pragmatic,,,ueq_pragmatic,ueq_pragmatic,4.0,7.0,0.588,,93d2fdfd56e5f853
+E1,developers_prompt_docgen_2024,kruse-icsme-2024-replication-package-v130/kruse-icsme-2024-replication-package/results/RQ2/UEQ/UEQ-results-all.xlsx,ueq05,dv,ueq_hedonic,True,80.0,ueq_dependability,,,ueq_dependability,ueq_dependability,2.0,7.0,0.434,,93d2fdfd56e5f853
+E1,developers_prompt_docgen_2024,kruse-icsme-2024-replication-package-v130/kruse-icsme-2024-replication-package/results/RQ2/UEQ/UEQ-results-all.xlsx,ueq06,dv,ueq_hedonic,True,80.0,ueq_dependability,,,ueq_dependability,ueq_dependability,2.0,7.0,0.425,,93d2fdfd56e5f853
+E1,developers_prompt_docgen_2024,kruse-icsme-2024-replication-package-v130/kruse-icsme-2024-replication-package/results/RQ2/UEQ/UEQ-results-all.xlsx,ueq07,dv,ueq_hedonic,True,80.0,ueq_dependability,,,ueq_dependability,ueq_dependability,2.0,7.0,0.386,,93d2fdfd56e5f853
+E1,developers_prompt_docgen_2024,kruse-icsme-2024-replication-package-v130/kruse-icsme-2024-replication-package/results/RQ2/UEQ/UEQ-results-all.xlsx,ueq08,dv,ueq_pragmatic,True,80.0,ueq_pragmatic,,,ueq_pragmatic,ueq_pragmatic,1.0,7.0,0.424,,93d2fdfd56e5f853
+E1,developers_prompt_docgen_2024,kruse-icsme-2024-replication-package-v130/kruse-icsme-2024-replication-package/results/RQ2/UEQ/UEQ-results-all.xlsx,ueq09,dv,ueq_pragmatic,True,80.0,ueq_dependability,,,ueq_dependability,ueq_dependability,1.0,7.0,0.404,,93d2fdfd56e5f853
+E1,developers_prompt_docgen_2024,kruse-icsme-2024-replication-package-v130/kruse-icsme-2024-replication-package/results/RQ2/UEQ/UEQ-results-all.xlsx,ueq10,dv,ueq_hedonic,True,80.0,ueq_attractiveness,,,ueq_attractiveness,ueq_attractiveness,1.0,7.0,0.495,,93d2fdfd56e5f853
+E1,developers_prompt_docgen_2024,kruse-icsme-2024-replication-package-v130/kruse-icsme-2024-replication-package/results/RQ2/UEQ/UEQ-results-all.xlsx,ueq11,dv,ueq_pragmatic,True,80.0,ueq_dependability,,,ueq_dependability,ueq_dependability,2.0,7.0,0.426,,93d2fdfd56e5f853
+E1,developers_prompt_docgen_2024,kruse-icsme-2024-replication-package-v130/kruse-icsme-2024-replication-package/results/RQ2/UEQ/UEQ-results-all.xlsx,ueq12,dv,ueq_attractiveness,True,80.0,ueq_dependability,,,ueq_dependability,ueq_dependability,1.0,7.0,0.411,,93d2fdfd56e5f853
+E1,developers_prompt_docgen_2024,kruse-icsme-2024-replication-package-v130/kruse-icsme-2024-replication-package/results/RQ2/UEQ/UEQ-results-all.xlsx,ueq13,dv,ueq_pragmatic,True,80.0,ueq_dependability,,,ueq_dependability,ueq_dependability,2.0,7.0,0.396,,93d2fdfd56e5f853
+E1,developers_prompt_docgen_2024,kruse-icsme-2024-replication-package-v130/kruse-icsme-2024-replication-package/results/RQ2/UEQ/UEQ-results-all.xlsx,ueq14,dv,ueq_attractiveness,True,80.0,ueq_dependability,,,ueq_dependability,ueq_dependability,3.0,7.0,0.448,,93d2fdfd56e5f853
+E1,developers_prompt_docgen_2024,kruse-icsme-2024-replication-package-v130/kruse-icsme-2024-replication-package/results/RQ2/UEQ/UEQ-results-all.xlsx,ueq15,dv,ueq_hedonic,True,80.0,ueq_dependability,,,ueq_dependability,ueq_dependability,1.0,7.0,0.413,,93d2fdfd56e5f853
+E1,developers_prompt_docgen_2024,kruse-icsme-2024-replication-package-v130/kruse-icsme-2024-replication-package/results/RQ2/UEQ/UEQ-results-all.xlsx,ueq16,dv,ueq_attractiveness,True,80.0,ueq_dependability,,,ueq_dependability,ueq_dependability,2.0,7.0,0.401,,93d2fdfd56e5f853
+E1,developers_prompt_docgen_2024,kruse-icsme-2024-replication-package-v130/kruse-icsme-2024-replication-package/results/RQ2/UEQ/UEQ-results-all.xlsx,ueq17,dv,ueq_pragmatic,True,80.0,ueq_dependability,,,ueq_dependability,ueq_dependability,2.0,7.0,0.419,,93d2fdfd56e5f853
+E1,developers_prompt_docgen_2024,kruse-icsme-2024-replication-package-v130/kruse-icsme-2024-replication-package/results/RQ2/UEQ/UEQ-results-all.xlsx,ueq18,dv,ueq_hedonic,True,80.0,ueq_dependability,,,ueq_dependability,ueq_dependability,2.0,7.0,0.42,,93d2fdfd56e5f853
+E1,developers_prompt_docgen_2024,kruse-icsme-2024-replication-package-v130/kruse-icsme-2024-replication-package/results/RQ2/UEQ/UEQ-results-all.xlsx,ueq19,dv,ueq_pragmatic,True,80.0,ueq_dependability,,,ueq_dependability,ueq_dependability,2.0,7.0,0.421,,93d2fdfd56e5f853
+E1,developers_prompt_docgen_2024,kruse-icsme-2024-replication-package-v130/kruse-icsme-2024-replication-package/results/RQ2/UEQ/UEQ-results-all.xlsx,ueq20,dv,ueq_pragmatic,True,80.0,ueq_dependability,,,ueq_dependability,ueq_dependability,2.0,7.0,0.403,,93d2fdfd56e5f853
+E1,developers_prompt_docgen_2024,kruse-icsme-2024-replication-package-v130/kruse-icsme-2024-replication-package/results/RQ2/UEQ/UEQ-results-all.xlsx,ueq21,dv,ueq_pragmatic,True,80.0,ueq_dependability,,,ueq_dependability,ueq_dependability,2.0,7.0,0.401,,93d2fdfd56e5f853
+E1,developers_prompt_docgen_2024,kruse-icsme-2024-replication-package-v130/kruse-icsme-2024-replication-package/results/RQ2/UEQ/UEQ-results-all.xlsx,ueq22,dv,ueq_pragmatic,True,80.0,ueq_dependability,,,ueq_dependability,ueq_dependability,1.0,7.0,0.441,,93d2fdfd56e5f853
+E1,developers_prompt_docgen_2024,kruse-icsme-2024-replication-package-v130/kruse-icsme-2024-replication-package/results/RQ2/UEQ/UEQ-results-all.xlsx,ueq23,dv,ueq_pragmatic,True,80.0,ueq_dependability,,,ueq_dependability,ueq_dependability,2.0,7.0,0.379,,93d2fdfd56e5f853
+E1,developers_prompt_docgen_2024,kruse-icsme-2024-replication-package-v130/kruse-icsme-2024-replication-package/results/RQ2/UEQ/UEQ-results-all.xlsx,ueq24,dv,ueq_attractiveness,True,80.0,ueq_dependability,,,ueq_dependability,ueq_dependability,2.0,7.0,0.403,,93d2fdfd56e5f853
+E1,developers_prompt_docgen_2024,kruse-icsme-2024-replication-package-v130/kruse-icsme-2024-replication-package/results/RQ2/UEQ/UEQ-results-all.xlsx,ueq25,dv,ueq_attractiveness,True,80.0,ueq_dependability,,,ueq_dependability,ueq_dependability,3.0,7.0,0.392,,93d2fdfd56e5f853
+E1,developers_prompt_docgen_2024,kruse-icsme-2024-replication-package-v130/kruse-icsme-2024-replication-package/results/RQ2/UEQ/UEQ-results-all.xlsx,ueq26,dv,ueq_hedonic,True,80.0,ueq_dependability,,,ueq_dependability,ueq_dependability,1.0,7.0,0.416,,93d2fdfd56e5f853
+E1,exergame_children_2025,Processed_Data/NASA-TLX.csv,id,blocklisted_non_dv,,False,90.0,task_feasibility_item_02,identifier,,task_feasibility_item_02,,1.0,21.0,0.614,,62364138c5fffef8
+E1,exergame_children_2025,Processed_Data/NASA-TLX.csv,age,curated_non_dv,,False,90.0,,demographic,,,,5.0,17.0,0.175,,62364138c5fffef8
+E1,exergame_children_2025,Processed_Data/NASA-TLX.csv,level,curated_non_dv,,False,90.0,ueq_novelty,non_numeric,,ueq_novelty,,,,0.399,,62364138c5fffef8
+E1,exergame_children_2025,Processed_Data/NASA-TLX.csv,effort,dv,effort,True,90.0,rsme,,,rsme,rsme,0.0,100.0,0.218,,62364138c5fffef8
+E1,exergame_children_2025,Processed_Data/NASA-TLX.csv,frustration,dv,frustration,True,95.0,frustration,,,frustration,frustration,0.0,100.0,0.238,,62364138c5fffef8
+E1,exergame_children_2025,Processed_Data/NASA-TLX.csv,mental,dv,mental_demand,True,90.0,TLX_SCORE,,,TLX_SCORE,TLX_SCORE,0.0,100.0,0.33,,62364138c5fffef8
+E1,exergame_children_2025,Processed_Data/NASA-TLX.csv,physical,dv,physical_demand,True,90.0,ssq_total,,,ssq_total,ssq_total,0.0,100.0,0.36,,62364138c5fffef8
+E1,exergame_children_2025,Processed_Data/NASA-TLX.csv,temporal,dv,temporal_demand,True,90.0,TLX_SCORE,,,TLX_SCORE,TLX_SCORE,0.0,100.0,0.328,,62364138c5fffef8
+E1,handover_reaction_time_2025,03_evaluation/export/data_Questions.csv,ConditionName,curated_non_dv,,False,70.4,takeover_time,non_numeric,,takeover_time,,,,0.421,,efb1d10e1021f34a
+E1,handover_reaction_time_2025,03_evaluation/export/data_Questions.csv,PId,curated_non_dv,,False,72.0,,identifier,,,,0.0,19.0,0.279,,efb1d10e1021f34a
+E1,handover_reaction_time_2025,03_evaluation/export/data_Questions.csv,ReactionTiming,curated_non_dv,,False,81.5,takeover_time,,,takeover_time,takeover_time,2.398375,6.034625,0.443,,efb1d10e1021f34a
+E1,handover_reaction_time_2025,03_evaluation/export/data_Questions.csv,fluency,dv,collaboration_quality,False,77.1,efficiency,,,efficiency,efficiency,1.0,7.0,0.267,,efb1d10e1021f34a
+E1,handover_reaction_time_2025,03_evaluation/export/data_Questions.csv,trust,dv,trust_rating,True,90.0,trust_rating,,,trust_rating,trust_rating,1.0,7.0,0.395,,efb1d10e1021f34a
+E1,human_swarm_pfm_2025,form_data_e1.csv,scenario,blocklisted_non_dv,,False,90.0,task_success,,,task_success,task_success,0.0,1.0,0.473,,5edf6935dc616611
+E1,human_swarm_pfm_2025,form_data_e1.csv,a3,curated_non_dv,,False,90.0,,,,,,2.0,5.0,0.375,,5edf6935dc616611
+E1,human_swarm_pfm_2025,form_data_e1.csv,bfg_chk1,curated_non_dv,,False,87.5,task_feasibility_item_01,,out_of_range,task_feasibility_item_01,,-1.0,9.0,0.841,,5edf6935dc616611
+E1,human_swarm_pfm_2025,form_data_e1.csv,bfg_chk2,curated_non_dv,,False,87.5,,,,,,2.0,61.0,0.589,,5edf6935dc616611
+E1,human_swarm_pfm_2025,form_data_e1.csv,bfg_chk3,curated_non_dv,,False,87.5,,,,,,6.0,10.0,0.722,,5edf6935dc616611
+E1,human_swarm_pfm_2025,form_data_e1.csv,date_added,curated_non_dv,,False,62.5,,timestamp,,,,,,0.079,,5edf6935dc616611
+E1,human_swarm_pfm_2025,form_data_e1.csv,j7,curated_non_dv,,False,60.0,,,,,,4.0,4.0,0.059,,5edf6935dc616611
+E1,human_swarm_pfm_2025,form_data_e1.csv,pcpt_c1,curated_non_dv,,False,85.7,,,,,,1.0,1.0,0.71,,5edf6935dc616611
+E1,human_swarm_pfm_2025,form_data_e1.csv,pcpt_c2,curated_non_dv,,False,85.7,,,,,,1.0,1.0,0.761,,5edf6935dc616611
+E1,human_swarm_pfm_2025,form_data_e1.csv,pcpt_c3,curated_non_dv,,False,85.7,,,,,,1.0,1.0,0.701,,5edf6935dc616611
+E1,human_swarm_pfm_2025,form_data_e1.csv,pcpt_f1,curated_non_dv,,False,85.7,,non_numeric,,,,,,0.701,,5edf6935dc616611
+E1,human_swarm_pfm_2025,form_data_e1.csv,pcpt_f2,curated_non_dv,,False,85.7,physical_demand,non_numeric,,physical_demand,,,,0.572,,5edf6935dc616611
+E1,human_swarm_pfm_2025,form_data_e1.csv,pcpt_f3,curated_non_dv,,False,85.7,,non_numeric,,,,,,0.709,,5edf6935dc616611
+E1,human_swarm_pfm_2025,form_data_e1.csv,pcpt_f4,curated_non_dv,,False,85.7,performance,non_numeric,,performance,,,,0.425,,5edf6935dc616611
+E1,human_swarm_pfm_2025,form_data_e1.csv,pcpt_f5,curated_non_dv,,False,85.7,,non_numeric,,,,,,0.703,,5edf6935dc616611
+E1,human_swarm_pfm_2025,form_data_e1.csv,pcpt_p1,curated_non_dv,,False,85.7,,non_numeric,,,,,,0.686,,5edf6935dc616611
+E1,human_swarm_pfm_2025,form_data_e1.csv,pcpt_p2,curated_non_dv,,False,93.3,physical_demand,non_numeric,,physical_demand,,,,0.56,,5edf6935dc616611
+E1,human_swarm_pfm_2025,form_data_e1.csv,pcpt_p2m,curated_non_dv,,False,93.3,physical_demand,non_numeric,,physical_demand,,,,0.546,,5edf6935dc616611
+E1,human_swarm_pfm_2025,form_data_e1.csv,pcpt_p3,curated_non_dv,,False,85.7,temporal_demand,non_numeric,,temporal_demand,,,,0.547,,5edf6935dc616611
+E1,human_swarm_pfm_2025,form_data_e1.csv,pcpt_p4,curated_non_dv,,False,85.7,performance,non_numeric,,performance,,,,0.419,,5edf6935dc616611
+E1,human_swarm_pfm_2025,form_data_e1.csv,ptcpt_id,curated_non_dv,,False,67.5,task_feasibility_item_02,identifier,,task_feasibility_item_02,,,,1.028,,5edf6935dc616611
+E1,human_swarm_pfm_2025,form_data_e1.csv,study_alias,curated_non_dv,,False,73.3,,non_numeric,,,,,,0.557,,5edf6935dc616611
+E1,human_swarm_pfm_2025,form_data_e1.csv,study_end_time,curated_non_dv,,False,85.5,task_completion_time,non_numeric,,task_completion_time,,,,0.742,,5edf6935dc616611
+E1,human_swarm_pfm_2025,form_data_e1.csv,study_scenario,curated_non_dv,,False,66.7,,non_numeric,,,,,,0.51,,5edf6935dc616611
+E1,human_swarm_pfm_2025,form_data_e1.csv,study_start_time,curated_non_dv,,False,90.0,task_completion_time,non_numeric,,task_completion_time,,,,0.724,,5edf6935dc616611
+E1,human_swarm_pfm_2025,form_data_e1.csv,txt_pcpt_p5,curated_non_dv,,False,85.5,,non_numeric,,,,,,0.712,,5edf6935dc616611
+E1,human_swarm_pfm_2025,form_data_e1.csv,a1,dv,AOA1,True,90.0,,,,,,1.0,5.0,0.483,,5edf6935dc616611
+E1,human_swarm_pfm_2025,form_data_e1.csv,a10,dv,AOA9,False,90.0,SUS10,,,SUS10,SUS10,1.0,4.0,0.544,,5edf6935dc616611
+E1,human_swarm_pfm_2025,form_data_e1.csv,a2,dv,AOA2,True,90.0,,,,,,1.0,4.0,0.464,,5edf6935dc616611
+E1,human_swarm_pfm_2025,form_data_e1.csv,a4,dv,AOA3,False,90.0,,,,,,2.0,5.0,0.477,,5edf6935dc616611
+E1,human_swarm_pfm_2025,form_data_e1.csv,a5,dv,AOA4,False,90.0,SUS5,,,SUS5,SUS5,1.0,5.0,0.448,,5edf6935dc616611
+E1,human_swarm_pfm_2025,form_data_e1.csv,a6,dv,AOA5,False,90.0,,,,,,1.0,5.0,0.512,,5edf6935dc616611
+E1,human_swarm_pfm_2025,form_data_e1.csv,a7,dv,AOA6,False,90.0,,,,,,1.0,5.0,0.472,,5edf6935dc616611
+E1,human_swarm_pfm_2025,form_data_e1.csv,a8,dv,AOA7,False,90.0,SUS8,,,SUS8,SUS8,1.0,4.0,0.491,,5edf6935dc616611
+E1,human_swarm_pfm_2025,form_data_e1.csv,a9,dv,AOA8,False,90.0,SUS9,,,SUS9,SUS9,1.0,5.0,0.47,,5edf6935dc616611
+E1,human_swarm_pfm_2025,form_data_e1.csv,ef,dv,effort,True,90.0,effort,,,effort,effort,1.0,10.0,0.42,,5edf6935dc616611
+E1,human_swarm_pfm_2025,form_data_e1.csv,fr,dv,frustration,True,90.0,,,,,,1.0,10.0,0.425,,5edf6935dc616611
+E1,human_swarm_pfm_2025,form_data_e1.csv,j10,dv,jian_trust,False,72.0,,,,,,1.0,7.0,0.578,,5edf6935dc616611
+E1,human_swarm_pfm_2025,form_data_e1.csv,j11,dv,jian_trust,False,45.0,,,,,,1.0,7.0,0.063,,5edf6935dc616611
+E1,human_swarm_pfm_2025,form_data_e1.csv,j12,dv,jian_trust,True,45.0,,,,,,1.0,7.0,0.047,,5edf6935dc616611
+E1,human_swarm_pfm_2025,form_data_e1.csv,j13,dv,jian_trust,False,45.0,,,,,,1.0,7.0,0.061,,5edf6935dc616611
+E1,human_swarm_pfm_2025,form_data_e1.csv,j6,dv,jian_trust,False,60.0,,,,,,1.0,7.0,0.049,,5edf6935dc616611
+E1,human_swarm_pfm_2025,form_data_e1.csv,j8,dv,jian_trust,False,60.0,,,,,,1.0,7.0,0.06,,5edf6935dc616611
+E1,human_swarm_pfm_2025,form_data_e1.csv,j9,dv,jian_trust,False,60.0,,,,,,1.0,7.0,0.062,,5edf6935dc616611
+E1,human_swarm_pfm_2025,form_data_e1.csv,md,dv,mental_demand,False,90.0,,,,,,1.0,10.0,0.505,,5edf6935dc616611
+E1,human_swarm_pfm_2025,form_data_e1.csv,pd,dv,physical_demand,False,60.0,,,,,,1.0,7.0,0.062,,5edf6935dc616611
+E1,human_swarm_pfm_2025,form_data_e1.csv,pf,dv,performance,False,60.0,,,,,,1.0,10.0,0.047,,5edf6935dc616611
+E1,human_swarm_pfm_2025,form_data_e1.csv,td,dv,temporal_demand,False,90.0,intervention_responsiveness,,,intervention_responsiveness,intervention_responsiveness,1.0,10.0,0.647,,5edf6935dc616611
+E1,human_swarm_pfm_2025,form_data_e1.csv,u1,dv,SUS1,True,66.7,SUS1,,,SUS1,SUS1,1.0,5.0,0.431,,5edf6935dc616611
+E1,human_swarm_pfm_2025,form_data_e1.csv,u10,dv,SUS10,True,90.0,,,,,,1.0,5.0,0.669,,5edf6935dc616611
+E1,human_swarm_pfm_2025,form_data_e1.csv,u2,dv,SUS2,True,66.7,,,,,,1.0,5.0,0.386,,5edf6935dc616611
+E1,human_swarm_pfm_2025,form_data_e1.csv,u3,dv,SUS3,True,66.7,,,,,,1.0,5.0,0.376,,5edf6935dc616611
+E1,human_swarm_pfm_2025,form_data_e1.csv,u4,dv,SUS4,True,66.7,,,,,,1.0,5.0,0.417,,5edf6935dc616611
+E1,human_swarm_pfm_2025,form_data_e1.csv,u5,dv,SUS5,True,66.7,,,,,,1.0,5.0,0.357,,5edf6935dc616611
+E1,human_swarm_pfm_2025,form_data_e1.csv,u6,dv,SUS6,True,66.7,,,,,,1.0,5.0,0.397,,5edf6935dc616611
+E1,human_swarm_pfm_2025,form_data_e1.csv,u7,dv,SUS7,True,66.7,SUS7,,,SUS7,SUS7,1.0,5.0,0.393,,5edf6935dc616611
+E1,human_swarm_pfm_2025,form_data_e1.csv,u8,dv,SUS8,True,66.7,SUS8,,,SUS8,SUS8,1.0,5.0,0.404,,5edf6935dc616611
+E1,human_swarm_pfm_2025,form_data_e1.csv,u9,dv,SUS9,True,66.7,SUS9,,,SUS9,SUS9,1.0,5.0,0.386,,5edf6935dc616611
+E1,layer_interaction_elastic_2022,reflex-avi2022-results-1.1/reflex-avi2022-results-1.1/data/questionnaires/NASA_RTLX_complete.tsv,Block,curated_non_dv,,False,60.0,,,,,,1.0,3.0,0.057,,6348232df65b948c
+E1,layer_interaction_elastic_2022,reflex-avi2022-results-1.1/reflex-avi2022-results-1.1/data/questionnaires/NASA_RTLX_complete.tsv,PID,curated_non_dv,,False,72.0,perceived_vehicle_influence,identifier,,perceived_vehicle_influence,,1.0,24.0,0.561,,6348232df65b948c
+E1,layer_interaction_elastic_2022,reflex-avi2022-results-1.1/reflex-avi2022-results-1.1/data/questionnaires/NASA_RTLX_complete.tsv,effort,dv,effort,True,90.0,rsme,,,rsme,rsme,5.0,90.0,0.259,,6348232df65b948c
+E1,layer_interaction_elastic_2022,reflex-avi2022-results-1.1/reflex-avi2022-results-1.1/data/questionnaires/NASA_RTLX_complete.tsv,frustration,dv,frustration,True,95.0,frustration,,,frustration,frustration,0.0,95.0,0.309,,6348232df65b948c
+E1,layer_interaction_elastic_2022,reflex-avi2022-results-1.1/reflex-avi2022-results-1.1/data/questionnaires/NASA_RTLX_complete.tsv,mental effort,dv,mental_demand,True,95.0,mental_demand,,,mental_demand,mental_demand,5.0,90.0,0.386,,6348232df65b948c
+E1,layer_interaction_elastic_2022,reflex-avi2022-results-1.1/reflex-avi2022-results-1.1/data/questionnaires/NASA_RTLX_complete.tsv,performance,dv,performance,True,95.0,error_rate,,,error_rate,error_rate,0.0,85.0,0.342,,6348232df65b948c
+E1,layer_interaction_elastic_2022,reflex-avi2022-results-1.1/reflex-avi2022-results-1.1/data/questionnaires/NASA_RTLX_complete.tsv,physical effort,dv,physical_demand,True,90.0,rsme,,,rsme,rsme,0.0,90.0,0.267,,6348232df65b948c
+E1,layer_interaction_elastic_2022,reflex-avi2022-results-1.1/reflex-avi2022-results-1.1/data/questionnaires/NASA_RTLX_complete.tsv,temporal effort,dv,temporal_demand,True,90.0,effort,,,effort,effort,0.0,80.0,0.255,,6348232df65b948c
+E1,mr_airplane_layouts_2021,dataForR.csv,inputTechnique,curated_non_dv,,False,90.0,temporal_demand,non_numeric,,temporal_demand,,,,0.36,,dac0219d80195ad6
+E1,mr_airplane_layouts_2021,dataForR.csv,inputtechnique,curated_non_dv,,False,90.0,rsme,,,rsme,rsme,1.0,9.0,0.279,,dac0219d80195ad6
+E1,mr_airplane_layouts_2021,dataForR.csv,layouts,curated_non_dv,,False,60.0,,non_numeric,,,,,,0.059,,dac0219d80195ad6
+E1,mr_airplane_layouts_2021,dataForR.csv,part,curated_non_dv,,False,90.0,sart_total,non_numeric,,sart_total,,,,0.476,,dac0219d80195ad6
+E1,mr_airplane_layouts_2021,dataForR.csv,user,curated_non_dv,,False,90.0,tam_perceived_usefulness,non_numeric,,tam_perceived_usefulness,,,,0.604,,dac0219d80195ad6
+E1,mr_airplane_layouts_2021,dataForR.csv,copresence,dv,social_presence,True,80.0,social_presence,,,social_presence,social_presence,1.0,9.0,0.37,,dac0219d80195ad6
+E1,mr_airplane_layouts_2021,dataForR.csv,effort,dv,effort,True,90.0,rsme,,,rsme,rsme,1.0,9.0,0.297,,dac0219d80195ad6
+E1,mr_airplane_layouts_2021,dataForR.csv,mentaldemand,dv,mental_demand,True,82.8,mental_demand,,,mental_demand,mental_demand,1.0,9.0,0.354,,dac0219d80195ad6
+E1,mr_airplane_layouts_2021,dataForR.csv,physicaldemand,dv,physical_demand,True,90.0,mental_demand,,,mental_demand,mental_demand,1.0,9.0,0.374,,dac0219d80195ad6
+E1,mr_airplane_layouts_2021,dataForR.csv,planeusage,dv,acceptance_rating,False,90.0,sdlp,,,sdlp,sdlp,1.0,9.0,0.274,,dac0219d80195ad6
+E1,mr_airplane_layouts_2021,dataForR.csv,tlxscore,dv,TLX_SCORE,True,78.8,TLX_SCORE,,,TLX_SCORE,TLX_SCORE,3.0,9.0,0.44,,dac0219d80195ad6
+E1,navigable_wim_2026,Study_Data/Study_Data/Questionnaires/Fragebogen_Daten.csv,condition,blocklisted_non_dv,,False,90.0,utaut_facilitating_conditions,experimental_condition,,utaut_facilitating_conditions,,1.0,3.0,0.608,,99aae4bbdd9c83c7
+E1,navigable_wim_2026,Study_Data/Study_Data/Questionnaires/Fragebogen_Daten.csv,block,curated_non_dv,,False,60.0,,,,,,1.0,3.0,0.053,,99aae4bbdd9c83c7
+E1,navigable_wim_2026,Study_Data/Study_Data/Questionnaires/Fragebogen_Daten.csv,v_1,curated_non_dv,,False,85.5,SUS1,non_numeric,,SUS1,,,,0.273,,99aae4bbdd9c83c7
+E1,navigable_wim_2026,Study_Data/Study_Data/Questionnaires/Fragebogen_Daten.csv,v_2,curated_non_dv,,False,85.5,SUS2,,,SUS2,SUS2,19.0,35.0,0.258,,99aae4bbdd9c83c7
+E1,navigable_wim_2026,Study_Data/Study_Data/Questionnaires/Fragebogen_Daten.csv,v_3,curated_non_dv,,False,85.5,sts_ad_item_03,,,sts_ad_item_03,sts_ad_item_03,1.0,2.0,0.708,,99aae4bbdd9c83c7
+E1,navigable_wim_2026,Study_Data/Study_Data/Questionnaires/Fragebogen_Daten.csv,ef,dv,effort,True,90.0,rsme,,,rsme,rsme,2.0,19.0,0.247,,99aae4bbdd9c83c7
+E1,navigable_wim_2026,Study_Data/Study_Data/Questionnaires/Fragebogen_Daten.csv,fr,dv,frustration,True,90.0,frustration,,,frustration,frustration,1.0,17.0,0.324,,99aae4bbdd9c83c7
+E1,navigable_wim_2026,Study_Data/Study_Data/Questionnaires/Fragebogen_Daten.csv,ipq03,dv,ipq_spatial_presence,True,80.0,ipq_spatial_presence,,,ipq_spatial_presence,ipq_spatial_presence,1.0,7.0,0.588,,99aae4bbdd9c83c7
+E1,navigable_wim_2026,Study_Data/Study_Data/Questionnaires/Fragebogen_Daten.csv,ipq06,dv,ipq_spatial_presence,True,80.0,ipq_general_presence,,,ipq_general_presence,ipq_general_presence,1.0,7.0,0.598,,99aae4bbdd9c83c7
+E1,navigable_wim_2026,Study_Data/Study_Data/Questionnaires/Fragebogen_Daten.csv,ipq07,dv,ipq_involvement,True,80.0,ipq_general_presence,,,ipq_general_presence,ipq_general_presence,1.0,7.0,0.578,,99aae4bbdd9c83c7
+E1,navigable_wim_2026,Study_Data/Study_Data/Questionnaires/Fragebogen_Daten.csv,ipq08,dv,ipq_general_presence,True,80.0,ipq_general_presence,,,ipq_general_presence,ipq_general_presence,1.0,7.0,0.585,,99aae4bbdd9c83c7
+E1,navigable_wim_2026,Study_Data/Study_Data/Questionnaires/Fragebogen_Daten.csv,ipq09,dv,ipq_spatial_presence,True,80.0,ipq_general_presence,,,ipq_general_presence,ipq_general_presence,1.0,7.0,0.533,,99aae4bbdd9c83c7
+E1,navigable_wim_2026,Study_Data/Study_Data/Questionnaires/Fragebogen_Daten.csv,ipq10,dv,ipq_spatial_presence,True,80.0,ipq_general_presence,,,ipq_general_presence,ipq_general_presence,1.0,7.0,0.591,,99aae4bbdd9c83c7
+E1,navigable_wim_2026,Study_Data/Study_Data/Questionnaires/Fragebogen_Daten.csv,ipq11,dv,ipq_involvement,True,80.0,ipq_general_presence,,,ipq_general_presence,ipq_general_presence,1.0,7.0,0.587,,99aae4bbdd9c83c7
+E1,navigable_wim_2026,Study_Data/Study_Data/Questionnaires/Fragebogen_Daten.csv,ipq13,dv,ipq_spatial_presence,True,80.0,ipq_general_presence,,,ipq_general_presence,ipq_general_presence,1.0,7.0,0.562,,99aae4bbdd9c83c7
+E1,navigable_wim_2026,Study_Data/Study_Data/Questionnaires/Fragebogen_Daten.csv,ipq14,dv,ipq_involvement,True,80.0,ipq_general_presence,,,ipq_general_presence,ipq_general_presence,1.0,7.0,0.555,,99aae4bbdd9c83c7
+E1,navigable_wim_2026,Study_Data/Study_Data/Questionnaires/Fragebogen_Daten.csv,md,dv,mental_demand,False,90.0,task_feasibility,,,task_feasibility,task_feasibility,1.0,18.0,0.457,,99aae4bbdd9c83c7
+E1,navigable_wim_2026,Study_Data/Study_Data/Questionnaires/Fragebogen_Daten.csv,pd,dv,physical_demand,False,60.0,,,,,,1.0,19.0,0.06,,99aae4bbdd9c83c7
+E1,navigable_wim_2026,Study_Data/Study_Data/Questionnaires/Fragebogen_Daten.csv,pf,dv,performance,False,60.0,,,,,,2.0,20.0,0.053,,99aae4bbdd9c83c7
+E1,navigable_wim_2026,Study_Data/Study_Data/Questionnaires/Fragebogen_Daten.csv,sus1,dv,SUS1,True,88.9,SUS1,,,SUS1,SUS1,1.0,5.0,0.311,,99aae4bbdd9c83c7
+E1,navigable_wim_2026,Study_Data/Study_Data/Questionnaires/Fragebogen_Daten.csv,sus10,dv,SUS10,True,88.9,SUS10,,,SUS10,SUS10,1.0,5.0,0.332,,99aae4bbdd9c83c7
+E1,navigable_wim_2026,Study_Data/Study_Data/Questionnaires/Fragebogen_Daten.csv,sus2,dv,SUS2,True,77.1,SUS2,,,SUS2,SUS2,1.0,4.0,0.288,,99aae4bbdd9c83c7
+E1,navigable_wim_2026,Study_Data/Study_Data/Questionnaires/Fragebogen_Daten.csv,sus3,dv,SUS3,True,77.1,SUS3,,,SUS3,SUS3,1.0,5.0,0.224,,99aae4bbdd9c83c7
+E1,navigable_wim_2026,Study_Data/Study_Data/Questionnaires/Fragebogen_Daten.csv,sus4,dv,SUS4,True,77.1,SUS4,,,SUS4,SUS4,1.0,5.0,0.253,,99aae4bbdd9c83c7
+E1,navigable_wim_2026,Study_Data/Study_Data/Questionnaires/Fragebogen_Daten.csv,sus5,dv,SUS5,True,77.1,SUS5,,,SUS5,SUS5,2.0,5.0,0.308,,99aae4bbdd9c83c7
+E1,navigable_wim_2026,Study_Data/Study_Data/Questionnaires/Fragebogen_Daten.csv,sus6,dv,SUS6,True,77.1,SUS6,,,SUS6,SUS6,1.0,4.0,0.253,,99aae4bbdd9c83c7
+E1,navigable_wim_2026,Study_Data/Study_Data/Questionnaires/Fragebogen_Daten.csv,sus7,dv,SUS7,True,77.1,SUS7,,,SUS7,SUS7,1.0,5.0,0.23,,99aae4bbdd9c83c7
+E1,navigable_wim_2026,Study_Data/Study_Data/Questionnaires/Fragebogen_Daten.csv,sus8,dv,SUS8,True,77.1,SUS8,,,SUS8,SUS8,1.0,5.0,0.237,,99aae4bbdd9c83c7
+E1,navigable_wim_2026,Study_Data/Study_Data/Questionnaires/Fragebogen_Daten.csv,sus9,dv,SUS9,True,77.1,SUS9,,,SUS9,SUS9,1.0,5.0,0.229,,99aae4bbdd9c83c7
+E1,navigable_wim_2026,Study_Data/Study_Data/Questionnaires/Fragebogen_Daten.csv,td,dv,temporal_demand,False,90.0,task_feasibility,,,task_feasibility,task_feasibility,1.0,18.0,0.377,,99aae4bbdd9c83c7
+E1,p300_attention_bci_2024,Questionnaire scores.csv,Subject ID,blocklisted_non_dv,,False,85.5,,identifier,,,,1.0,47.0,0.248,,4b50b3799e042881
+E1,p300_attention_bci_2024,Questionnaire scores.csv,Alertness Post-training,curated_non_dv,,False,88.9,tam_perceived_usefulness,,,tam_perceived_usefulness,tam_perceived_usefulness,1.0,10.0,0.517,,4b50b3799e042881
+E1,p300_attention_bci_2024,Questionnaire scores.csv,Alertness Pre-training,curated_non_dv,,False,88.9,sleepiness,,,sleepiness,sleepiness,0.0,10.0,0.247,,4b50b3799e042881
+E1,p300_attention_bci_2024,Questionnaire scores.csv,Boredom Post-training,curated_non_dv,,False,87.8,stress,,,stress,stress,0.0,8.0,0.212,,4b50b3799e042881
+E1,p300_attention_bci_2024,Questionnaire scores.csv,Boredom Pre-training,curated_non_dv,,False,87.8,ipq_general_presence,,,ipq_general_presence,ipq_general_presence,0.0,6.0,0.453,,4b50b3799e042881
+E1,p300_attention_bci_2024,Questionnaire scores.csv,Eye Fatigue Post-training,curated_non_dv,,False,95.0,fixation_count,,,fixation_count,fixation_count,0.0,10.0,0.348,,4b50b3799e042881
+E1,p300_attention_bci_2024,Questionnaire scores.csv,Eye Fatigue Pre-training,curated_non_dv,,False,95.0,fixation_count,,,fixation_count,fixation_count,0.0,8.0,0.367,,4b50b3799e042881
+E1,p300_attention_bci_2024,Questionnaire scores.csv,Fatigue Post-training,curated_non_dv,,False,95.0,trust_rating,,,trust_rating,trust_rating,0.0,9.0,0.294,,4b50b3799e042881
+E1,p300_attention_bci_2024,Questionnaire scores.csv,Fatigue Pre-training,curated_non_dv,,False,95.0,stress,,,stress,stress,0.0,8.0,0.194,,4b50b3799e042881
+E1,p300_attention_bci_2024,Questionnaire scores.csv,Effort (NASA TLX),dv,effort,True,90.0,mental_demand,,,mental_demand,mental_demand,7.0,20.0,0.323,,4b50b3799e042881
+E1,p300_attention_bci_2024,Questionnaire scores.csv,Frustration (NASA TLX),dv,frustration,True,95.0,frustration,,,frustration,frustration,1.0,18.0,0.25,,4b50b3799e042881
+E1,p300_attention_bci_2024,Questionnaire scores.csv,Mental Demand (NASA TLX),dv,mental_demand,True,95.0,mental_demand,,,mental_demand,mental_demand,2.0,20.0,0.285,,4b50b3799e042881
+E1,p300_attention_bci_2024,Questionnaire scores.csv,Performance (NASA TLX),dv,performance,True,95.0,mental_demand,,,mental_demand,mental_demand,1.0,16.0,0.28,,4b50b3799e042881
+E1,p300_attention_bci_2024,Questionnaire scores.csv,Physical Demand (NASA TLX),dv,physical_demand,True,90.0,physical_demand,,,physical_demand,physical_demand,1.0,20.0,0.316,,4b50b3799e042881
+E1,p300_attention_bci_2024,Questionnaire scores.csv,Temporal Demand (NASA TLX),dv,temporal_demand,True,90.0,temporal_demand,,,temporal_demand,temporal_demand,2.0,19.0,0.288,,4b50b3799e042881
+E1,pipeblocks_cicd_2025,reproducibility/reproducibility/datasetsvisualcicd/NASA TLX.csv/NASA TLX.csv,"Effort vs. Performance
+Effort: ""How hard did you have to work (mentally and physically)?""
+Performance: ""How successful were you in accomplishing the task’s goals?""",curated_non_dv,,False,85.5,effort,non_numeric,,effort,,,,0.205,,91ab10a04c5ed304
+E1,pipeblocks_cicd_2025,reproducibility/reproducibility/datasetsvisualcicd/NASA TLX.csv/NASA TLX.csv,"Effort vs. Physical Demand
+Effort: ""How hard you had to work.""
+Physical Demand: ""Physical activity required.""",curated_non_dv,,False,90.0,mental_demand,non_numeric,,mental_demand,,,,0.293,,91ab10a04c5ed304
+E1,pipeblocks_cicd_2025,reproducibility/reproducibility/datasetsvisualcicd/NASA TLX.csv/NASA TLX.csv,"Frustration vs. Effort
+Frustration: ""How stressed or annoyed you felt.""
+Effort: ""How hard you had to work.""",curated_non_dv,,False,85.5,paas_mental_effort,non_numeric,,paas_mental_effort,,,,0.531,,91ab10a04c5ed304
+E1,pipeblocks_cicd_2025,reproducibility/reproducibility/datasetsvisualcicd/NASA TLX.csv/NASA TLX.csv,"Frustration vs. Mental Demand
+Frustration: ""How stressed or annoyed you felt.""
+Mental Demand: ""Mental activity required.""",curated_non_dv,,False,90.6,,non_numeric,,,,,,0.487,,91ab10a04c5ed304
+E1,pipeblocks_cicd_2025,reproducibility/reproducibility/datasetsvisualcicd/NASA TLX.csv/NASA TLX.csv,"Mental Demand vs. Effort
+Mental Demand: ""Mental activity required.""
+Effort: ""How hard you had to work.""",curated_non_dv,,False,90.0,mental_demand,non_numeric,,mental_demand,,,,0.308,,91ab10a04c5ed304
+E1,pipeblocks_cicd_2025,reproducibility/reproducibility/datasetsvisualcicd/NASA TLX.csv/NASA TLX.csv,"Mental Demand vs. Physical Demand
+Mental Demand: ""Mental activity required.""
+Physical Demand: ""Physical activity required.""",curated_non_dv,,False,90.0,mental_demand,non_numeric,,mental_demand,,,,0.326,,91ab10a04c5ed304
+E1,pipeblocks_cicd_2025,reproducibility/reproducibility/datasetsvisualcicd/NASA TLX.csv/NASA TLX.csv,"Performance vs. Frustration
+Performance: ""How successful you were in the task.""
+Frustration: ""How stressed or annoyed you felt.""",curated_non_dv,,False,85.5,performance,non_numeric,,performance,,,,0.188,,91ab10a04c5ed304
+E1,pipeblocks_cicd_2025,reproducibility/reproducibility/datasetsvisualcicd/NASA TLX.csv/NASA TLX.csv,"Performance vs. Mental Demand
+Performance: ""How successful you were.""
+Mental Demand: ""Mental activity required.""",curated_non_dv,,False,90.0,mental_demand,non_numeric,,mental_demand,,,,0.334,,91ab10a04c5ed304
+E1,pipeblocks_cicd_2025,reproducibility/reproducibility/datasetsvisualcicd/NASA TLX.csv/NASA TLX.csv,"Performance vs. Temporal Demand
+Performance: ""How successful you were.""
+Temporal Demand: ""Time pressure you felt.""",curated_non_dv,,False,90.0,,non_numeric,,,,,,0.44,,91ab10a04c5ed304
+E1,pipeblocks_cicd_2025,reproducibility/reproducibility/datasetsvisualcicd/NASA TLX.csv/NASA TLX.csv,"Physical Demand vs. Frustration
+Physical Demand: ""Physical activity required (e.g., pushing, pulling).""
+Frustration: ""How stressed or annoyed you felt.""",curated_non_dv,,False,90.6,dali_visual_demand,non_numeric,,dali_visual_demand,,,,0.479,,91ab10a04c5ed304
+E1,pipeblocks_cicd_2025,reproducibility/reproducibility/datasetsvisualcicd/NASA TLX.csv/NASA TLX.csv,"Physical Demand vs. Performance
+Physical Demand: ""Physical activity required.""
+Performance: ""How successful you were.""",curated_non_dv,,False,90.0,physical_demand,non_numeric,,physical_demand,,,,0.315,,91ab10a04c5ed304
+E1,pipeblocks_cicd_2025,reproducibility/reproducibility/datasetsvisualcicd/NASA TLX.csv/NASA TLX.csv,"Physical Demand vs. Temporal Demand
+Physical Demand: ""Physical activity required.""
+Temporal Demand: ""Time pressure you felt.""",curated_non_dv,,False,90.0,mental_demand,non_numeric,,mental_demand,,,,0.319,,91ab10a04c5ed304
+E1,pipeblocks_cicd_2025,reproducibility/reproducibility/datasetsvisualcicd/NASA TLX.csv/NASA TLX.csv,"Study number
+(You study number)",curated_non_dv,,False,85.5,sts_ad_trust,,,sts_ad_trust,sts_ad_trust,1.0,11.0,0.424,,91ab10a04c5ed304
+E1,pipeblocks_cicd_2025,reproducibility/reproducibility/datasetsvisualcicd/NASA TLX.csv/NASA TLX.csv,"Temporal Demand vs. Effort
+Temporal Demand: ""Time pressure you felt during the task.""
+Effort: ""How hard you had to work.""",curated_non_dv,,False,90.0,mental_demand,non_numeric,,mental_demand,,,,0.424,,91ab10a04c5ed304
+E1,pipeblocks_cicd_2025,reproducibility/reproducibility/datasetsvisualcicd/NASA TLX.csv/NASA TLX.csv,"Temporal Demand vs. Frustration
+Temporal Demand: ""Time pressure you felt during the task.""
+Frustration: ""How stressed or annoyed you felt.""",curated_non_dv,,False,85.5,temporal_demand,non_numeric,,temporal_demand,,,,1.925,,91ab10a04c5ed304
+E1,pipeblocks_cicd_2025,reproducibility/reproducibility/datasetsvisualcicd/NASA TLX.csv/NASA TLX.csv,"Temporal Demand vs. Mental Demand
+Temporal Demand: ""Time pressure you felt.""
+Mental Demand: ""Mental activity required (e.g., thinking, calculating).""",curated_non_dv,,False,88.3,mental_demand,non_numeric,,mental_demand,,,,1.663,,91ab10a04c5ed304
+E1,pipeblocks_cicd_2025,reproducibility/reproducibility/datasetsvisualcicd/NASA TLX.csv/NASA TLX.csv,Timestamp,curated_non_dv,,False,90.0,pedestrian_crossing_time,timestamp,,pedestrian_crossing_time,,,,4.363,,91ab10a04c5ed304
+E1,pipeblocks_cicd_2025,reproducibility/reproducibility/datasetsvisualcicd/NASA TLX.csv/NASA TLX.csv,Tool,curated_non_dv,,False,67.5,dali_total,non_numeric,,dali_total,,,,3.702,,91ab10a04c5ed304
+E1,pipeblocks_cicd_2025,reproducibility/reproducibility/datasetsvisualcicd/SUS questionnaire- CICD.csv/sus.csv,Total score,curated_non_dv,,False,90.0,TLX_SCORE,non_numeric,,TLX_SCORE,,,,2.071,,91ab10a04c5ed304
+E1,pipeblocks_cicd_2025,reproducibility/reproducibility/datasetsvisualcicd/NASA TLX.csv/NASA TLX.csv,"Effort 
+How hard did you have to work (mentally and physically) to achieve your performance level?
+
+Scale: 0 (Low) – 20 (High).",dv,effort,True,85.5,effort,,,effort,effort,0.0,15.0,1.145,,91ab10a04c5ed304
+E1,pipeblocks_cicd_2025,reproducibility/reproducibility/datasetsvisualcicd/NASA TLX.csv/NASA TLX.csv,"Frustration
+How insecure, irritated, or stressed did you feel during the task?
+
+Scale: 0 (Low) – 20 (High).",dv,frustration,True,85.5,frustration,,,frustration,frustration,0.0,20.0,1.066,,91ab10a04c5ed304
+E1,pipeblocks_cicd_2025,reproducibility/reproducibility/datasetsvisualcicd/SUS questionnaire- CICD.csv/sus.csv,I felt very confident using the system.,dv,SUS9,False,85.5,usability,,,usability,usability,1.0,5.0,1.217,,91ab10a04c5ed304
+E1,pipeblocks_cicd_2025,reproducibility/reproducibility/datasetsvisualcicd/SUS questionnaire- CICD.csv/sus.csv,I found the system unnecessarily complex.,dv,SUS2,False,85.5,usability,,,usability,usability,1.0,5.0,1.124,,91ab10a04c5ed304
+E1,pipeblocks_cicd_2025,reproducibility/reproducibility/datasetsvisualcicd/SUS questionnaire- CICD.csv/sus.csv,I found the system very cumbersome to use.,dv,SUS8,False,85.5,usability,,,usability,usability,1.0,5.0,1.121,,91ab10a04c5ed304
+E1,pipeblocks_cicd_2025,reproducibility/reproducibility/datasetsvisualcicd/SUS questionnaire- CICD.csv/sus.csv,I found the various functions in this system were well integrated.,dv,SUS5,False,85.5,retention_time,,,retention_time,retention_time,1.0,5.0,1.753,,91ab10a04c5ed304
+E1,pipeblocks_cicd_2025,reproducibility/reproducibility/datasetsvisualcicd/SUS questionnaire- CICD.csv/sus.csv,I needed to learn a lot of things before I could get going with this system.,dv,SUS10,False,85.5,rsme,,,rsme,rsme,1.0,5.0,1.087,,91ab10a04c5ed304
+E1,pipeblocks_cicd_2025,reproducibility/reproducibility/datasetsvisualcicd/SUS questionnaire- CICD.csv/sus.csv,I think that I would like to use this system frequently.,dv,SUS1,False,85.5,usability,,,usability,usability,1.0,5.0,1.44,,91ab10a04c5ed304
+E1,pipeblocks_cicd_2025,reproducibility/reproducibility/datasetsvisualcicd/SUS questionnaire- CICD.csv/sus.csv,"I think that I would need the support of a technical person to be able to use this
+system.",dv,SUS4,False,85.5,tam_perceived_ease_of_use,,,tam_perceived_ease_of_use,tam_perceived_ease_of_use,1.0,5.0,8.345,,91ab10a04c5ed304
+E1,pipeblocks_cicd_2025,reproducibility/reproducibility/datasetsvisualcicd/SUS questionnaire- CICD.csv/sus.csv,I thought the system was easy to use.,dv,SUS3,False,85.5,tam_perceived_ease_of_use,,,tam_perceived_ease_of_use,tam_perceived_ease_of_use,2.0,5.0,6.693,,91ab10a04c5ed304
+E1,pipeblocks_cicd_2025,reproducibility/reproducibility/datasetsvisualcicd/SUS questionnaire- CICD.csv/sus.csv,I thought there was too much inconsistency in this system.,dv,SUS6,False,85.5,usability,,,usability,usability,1.0,5.0,1.381,,91ab10a04c5ed304
+E1,pipeblocks_cicd_2025,reproducibility/reproducibility/datasetsvisualcicd/SUS questionnaire- CICD.csv/sus.csv,I would imagine that most people would learn to use this system very quickly.,dv,SUS7,False,85.5,tam_perceived_ease_of_use,,,tam_perceived_ease_of_use,tam_perceived_ease_of_use,1.0,5.0,3.961,,91ab10a04c5ed304
+E1,pipeblocks_cicd_2025,reproducibility/reproducibility/datasetsvisualcicd/NASA TLX.csv/NASA TLX.csv,"Mental Demand
+How much mental and perceptual activity was required (e.g., thinking, deciding, calculating, remembering, looking, searching, etc.)? Was the task easy or demanding, simple or complex?
+Scale: 0 (Low) – 20 (High).",dv,mental_demand,True,85.5,mental_demand,,,mental_demand,mental_demand,0.0,15.0,1.668,,91ab10a04c5ed304
+E1,pipeblocks_cicd_2025,reproducibility/reproducibility/datasetsvisualcicd/NASA TLX.csv/NASA TLX.csv,"Performance
+How successful were you in accomplishing the task’s goals? How satisfied were you with your performance?
+
+Scale: 0 (Low) – 20 (High).",dv,performance,True,85.5,performance,,,performance,performance,0.0,18.0,0.828,,91ab10a04c5ed304
+E1,pipeblocks_cicd_2025,reproducibility/reproducibility/datasetsvisualcicd/NASA TLX.csv/NASA TLX.csv,"Physical Demand 
+How much physical activity was required (e.g., pushing, pulling, turning, controlling, activating, etc.)? Was the task easy or demanding, slow or brisk, slack or strenuous?
+Scale: 0 (Low) – 20 (High).",dv,physical_demand,True,85.5,physical_demand,,,physical_demand,physical_demand,0.0,20.0,1.43,,91ab10a04c5ed304
+E1,pipeblocks_cicd_2025,reproducibility/reproducibility/datasetsvisualcicd/NASA TLX.csv/NASA TLX.csv,"Temporal Demand 
+How much time pressure did you feel due to the pace of the task? Was the pace slow and leisurely or rapid and frantic?
+Scale: 0 (Low) – 20 (High).",dv,temporal_demand,True,85.5,mental_demand,,,mental_demand,mental_demand,0.0,20.0,1.68,,91ab10a04c5ed304
+E1,remote_takeover_replay_2026,02_data/bayesian-RMANOVA.csv,ID,blocklisted_non_dv,,False,90.0,,identifier,,,,1.0,18.0,2.634,,34cc36d9fed2bc1f
+E1,remote_takeover_replay_2026,02_data/bayesian-RMANOVA.csv,Scenario,blocklisted_non_dv,,False,56.2,,non_numeric,,,,,,0.126,,34cc36d9fed2bc1f
+E1,remote_takeover_replay_2026,02_data/bayesian-RMANOVA.csv,GUI,curated_non_dv,,False,60.0,,non_numeric,,,,,,0.182,,34cc36d9fed2bc1f
+E1,remote_takeover_replay_2026,02_data/bayesian-RMANOVA.csv,NASA TLX,dv,TLX_SCORE,True,94.1,mental_demand,,,mental_demand,mental_demand,15.0,66.67,1.746,,34cc36d9fed2bc1f
+E1,remote_takeover_replay_2026,02_data/bayesian-RMANOVA.csv,SART,dv,sart_total,True,90.0,sart_total,,,sart_total,sart_total,34.92,93.65,1.702,,34cc36d9fed2bc1f
+E1,remote_takeover_replay_2026,02_data/bayesian-RMANOVA.csv,ToT (s),dv,takeover_time,True,90.0,takeover_time,,,takeover_time,takeover_time,12.13,199.87,1.611,,34cc36d9fed2bc1f
+E1,risky_driving_age_2017,Dataset_Highway_Scenario.xlsx,Group,blocklisted_non_dv,,False,60.0,,non_numeric,,,,,,0.058,,85badf9ec1bd9722
+E1,risky_driving_age_2017,Dataset_Highway_Scenario.xlsx,Age,curated_non_dv,,False,90.0,retention_time,demographic,,retention_time,,18.36824093,86.0,0.498,,85badf9ec1bd9722
+E1,risky_driving_age_2017,Dataset_Highway_Scenario.xlsx,Subject,curated_non_dv,,False,60.0,,,,,,1.0,115.0,0.064,,85badf9ec1bd9722
+E1,risky_driving_age_2017,Dataset_Highway_Scenario.xlsx,Crash,dv,number_of_collisions,False,60.0,,,,,,0.0,0.4,0.064,,85badf9ec1bd9722
+E1,risky_driving_age_2017,Dataset_Highway_Scenario.xlsx,SDLP,dv,sdlp,True,60.0,,,,,,0.166433052,0.736894959,0.075,,85badf9ec1bd9722
+E1,simulst_subtitles_2026,de-identified questionnaire data.xlsx,Experiment No.实验编号,curated_non_dv,,False,90.0,mental_demand,non_numeric,,mental_demand,,,,0.408,,63f70ced89c248a0
+E1,simulst_subtitles_2026,de-identified questionnaire data.xlsx,sheet,curated_non_dv,,False,90.0,intervention_responsiveness,non_numeric,,intervention_responsiveness,,,,0.536,,63f70ced89c248a0
+E1,simulst_subtitles_2026,de-identified questionnaire data.xlsx,video,curated_non_dv,,False,90.0,dali_visual_demand,,,dali_visual_demand,dali_visual_demand,1.0,2.0,0.7,,63f70ced89c248a0
+E1,simulst_subtitles_2026,de-identified questionnaire data.xlsx,mental_effort,dv,paas_mental_effort,True,95.0,mental_demand,,,mental_demand,mental_demand,1.0,8.0,0.427,,63f70ced89c248a0
+E1,simulst_subtitles_2026,de-identified questionnaire data.xlsx,satisfaction,dv,user_satisfaction,True,95.0,user_satisfaction,,,user_satisfaction,user_satisfaction,1.0,5.0,0.507,,63f70ced89c248a0
+E1,spot_voice_gesture_2025,MATLAB scripts and data/Data per participant and measure.xlsx,condition,blocklisted_non_dv,,False,90.0,utaut_facilitating_conditions,experimental_condition,,utaut_facilitating_conditions,,,,0.928,,581891522df16b22
+E1,spot_voice_gesture_2025,MATLAB scripts and data/Data per participant and measure.xlsx,Participant number,curated_non_dv,,False,85.5,ueq_efficiency,,out_of_range,ueq_efficiency,,1.0,218.0,0.666,,581891522df16b22
+E1,spot_voice_gesture_2025,MATLAB scripts and data/Data per participant and measure.xlsx,dup_mistakes,dv,error_rate,True,80.0,error_rate,,,error_rate,error_rate,0.0,2.0,0.557,,581891522df16b22
+E1,spot_voice_gesture_2025,MATLAB scripts and data/Data per participant and measure.xlsx,inter_command_time,dv,task_completion_time,True,85.5,task_completion_time,,,task_completion_time,task_completion_time,3.3471,11.0979,0.749,,581891522df16b22
+E1,spot_voice_gesture_2025,MATLAB scripts and data/Data per participant and measure.xlsx,lr_mistakes,dv,error_rate,True,80.0,error_rate,,,error_rate,error_rate,0.0,3.0,0.602,,581891522df16b22
+E1,spot_voice_gesture_2025,MATLAB scripts and data/Data per participant and measure.xlsx,n_commands,dv,interaction_events,False,85.5,temporal_demand,,,temporal_demand,temporal_demand,23.0,37.0,0.609,,581891522df16b22
+E1,spot_voice_gesture_2025,MATLAB scripts and data/Data per participant and measure.xlsx,other_mistakes,dv,error_rate,True,80.0,interaction_events,,,interaction_events,interaction_events,0.0,2.0,0.599,,581891522df16b22
+E1,steering_gain_2022,Supplementary Material/Supplementary Material/Questionnaires.xlsx,condition,blocklisted_non_dv,,False,90.0,sdlp,experimental_condition,,sdlp,,,,0.399,,bf90937266d74b75
+E1,steering_gain_2022,Supplementary Material/Supplementary Material/Questionnaires.xlsx,Unnamed: 0,curated_non_dv,,False,88.9,,,,,,1.0,24.0,1.192,,bf90937266d74b75
+E1,steering_gain_2022,Supplementary Material/Supplementary Material/Questionnaires.xlsx,ef,dv,effort,True,90.0,,,,,,5.0,80.0,2.526,,bf90937266d74b75
+E1,steering_gain_2022,Supplementary Material/Supplementary Material/Questionnaires.xlsx,fr,dv,frustration,True,90.0,,,,,,0.0,75.0,2.649,,bf90937266d74b75
+E1,steering_gain_2022,Supplementary Material/Supplementary Material/Questionnaires.xlsx,md,dv,mental_demand,False,90.0,task_feasibility,,,task_feasibility,task_feasibility,5.0,85.0,2.397,,bf90937266d74b75
+E1,steering_gain_2022,Supplementary Material/Supplementary Material/Questionnaires.xlsx,overall,dv,TLX_SCORE,False,65.5,,,,,,8.33333333333333,73.3333333333333,0.944,,bf90937266d74b75
+E1,steering_gain_2022,Supplementary Material/Supplementary Material/Questionnaires.xlsx,pd,dv,physical_demand,False,60.0,,,,,,0.0,80.0,0.412,,bf90937266d74b75
+E1,steering_gain_2022,Supplementary Material/Supplementary Material/Questionnaires.xlsx,pf,dv,performance,False,60.0,,,,,,5.0,70.0,0.142,,bf90937266d74b75
+E1,steering_gain_2022,Supplementary Material/Supplementary Material/Questionnaires.xlsx,td,dv,temporal_demand,False,90.0,task_feasibility,,,task_feasibility,task_feasibility,5.0,85.0,2.391,,bf90937266d74b75
+E1,sus_de_pos_2025,Study 2/SUS_DE_pos_study_2_data.xlsx,condition,blocklisted_non_dv,,False,90.0,utaut_facilitating_conditions,experimental_condition,,utaut_facilitating_conditions,,1.0,12.0,2.993,,67c0ba1a784bfdd6
+E1,sus_de_pos_2025,Study 2/SUS_DE_pos_study_2_data.xlsx,lastpage,blocklisted_non_dv,,False,90.0,AOA1,,out_of_range,AOA1,,6733613.0,6757900.0,1.505,,67c0ba1a784bfdd6
+E1,sus_de_pos_2025,Study 2/SUS_DE_pos_study_2_data.xlsx,age,curated_non_dv,,False,90.0,retention_time,demographic,,retention_time,,18.0,64.0,2.015,,67c0ba1a784bfdd6
+E1,sus_de_pos_2025,Study 2/SUS_DE_pos_study_2_data.xlsx,country,curated_non_dv,,False,75.0,,demographic,,,,1.0,205.0,1.352,,67c0ba1a784bfdd6
+E1,sus_de_pos_2025,Study 2/SUS_DE_pos_study_2_data.xlsx,device,curated_non_dv,,False,68.4,AOA1,non_numeric,,AOA1,,,,1.424,,67c0ba1a784bfdd6
+E1,sus_de_pos_2025,Study 2/SUS_DE_pos_study_2_data.xlsx,duration,curated_non_dv,,False,90.0,task_completion_time,,,task_completion_time,task_completion_time,-1.0,1679.0,2.513,,67c0ba1a784bfdd6
+E1,sus_de_pos_2025,Study 2/SUS_DE_pos_study_2_data.xlsx,gender,curated_non_dv,,False,81.8,ipq_general_presence,demographic,,ipq_general_presence,,1.0,3.0,2.923,,67c0ba1a784bfdd6
+E1,sus_de_pos_2025,Study 2/SUS_DE_pos_study_2_data.xlsx,lfdn,curated_non_dv,,False,51.4,,,,,,42.0,533.0,0.327,,67c0ba1a784bfdd6
+E1,sus_de_pos_2025,Study 2/SUS_DE_pos_study_2_data.xlsx,respondent,curated_non_dv,,False,72.0,engagement_level,,out_of_range,engagement_level,,1.0,902.0,1.686,,67c0ba1a784bfdd6
+E1,sus_de_pos_2025,Study 2/SUS_DE_pos_study_2_data.xlsx,scale_version,curated_non_dv,,False,90.0,AOA1,,,AOA1,AOA1,1.0,2.0,1.788,,67c0ba1a784bfdd6
+E1,sus_de_pos_2025,Study 2/SUS_DE_pos_study_2_data.xlsx,UEQ_att_02,dv,ueq_attractiveness,True,95.0,ueq_attractiveness,,,ueq_attractiveness,ueq_attractiveness,1.0,7.0,2.372,,67c0ba1a784bfdd6
+E1,sus_de_pos_2025,Study 2/SUS_DE_pos_study_2_data.xlsx,UEQ_att_03,dv,ueq_attractiveness,True,95.0,ueq_attractiveness,,,ueq_attractiveness,ueq_attractiveness,1.0,7.0,3.277,,67c0ba1a784bfdd6
+E1,sus_de_pos_2025,Study 2/SUS_DE_pos_study_2_data.xlsx,UEQ_att_04,dv,ueq_attractiveness,True,95.0,ueq_attractiveness,,,ueq_attractiveness,ueq_attractiveness,1.0,7.0,2.776,,67c0ba1a784bfdd6
+E1,sus_de_pos_2025,Study 2/SUS_DE_pos_study_2_data.xlsx,UEQ_att_05,dv,ueq_attractiveness,True,95.0,ueq_attractiveness,,,ueq_attractiveness,ueq_attractiveness,1.0,7.0,2.777,,67c0ba1a784bfdd6
+E1,sus_de_pos_2025,Study 2/SUS_DE_pos_study_2_data.xlsx,UEQ_att_06,dv,ueq_attractiveness,True,95.0,ueq_attractiveness,,,ueq_attractiveness,ueq_attractiveness,1.0,7.0,2.534,,67c0ba1a784bfdd6
+E1,sus_de_pos_2025,Study 2/SUS_DE_pos_study_2_data.xlsx,UEQ_dep_01,dv,ueq_pragmatic,True,95.0,ueq_dependability,,,ueq_dependability,ueq_dependability,1.0,7.0,2.346,,67c0ba1a784bfdd6
+E1,sus_de_pos_2025,Study 2/SUS_DE_pos_study_2_data.xlsx,UEQ_dep_02,dv,ueq_pragmatic,True,95.0,ueq_dependability,,,ueq_dependability,ueq_dependability,1.0,7.0,2.483,,67c0ba1a784bfdd6
+E1,sus_de_pos_2025,Study 2/SUS_DE_pos_study_2_data.xlsx,UEQ_dep_04,dv,ueq_pragmatic,True,95.0,ueq_dependability,,,ueq_dependability,ueq_dependability,1.0,7.0,2.023,,67c0ba1a784bfdd6
+E1,sus_de_pos_2025,Study 2/SUS_DE_pos_study_2_data.xlsx,UEQ_eff_01,dv,ueq_pragmatic,True,95.0,ueq_efficiency,,,ueq_efficiency,ueq_efficiency,1.0,7.0,1.753,,67c0ba1a784bfdd6
+E1,sus_de_pos_2025,Study 2/SUS_DE_pos_study_2_data.xlsx,UEQ_eff_03,dv,ueq_pragmatic,True,95.0,ueq_efficiency,,,ueq_efficiency,ueq_efficiency,1.0,7.0,1.709,,67c0ba1a784bfdd6
+E1,sus_de_pos_2025,Study 2/SUS_DE_pos_study_2_data.xlsx,UEQ_eff_04,dv,ueq_pragmatic,True,95.0,ueq_efficiency,,,ueq_efficiency,ueq_efficiency,1.0,7.0,1.627,,67c0ba1a784bfdd6
+E1,sus_de_pos_2025,Study 2/SUS_DE_pos_study_2_data.xlsx,UEQ_nov_01,dv,ueq_hedonic,True,95.0,ueq_novelty,,,ueq_novelty,ueq_novelty,1.0,7.0,2.206,,67c0ba1a784bfdd6
+E1,sus_de_pos_2025,Study 2/SUS_DE_pos_study_2_data.xlsx,UEQ_nov_02,dv,ueq_hedonic,True,95.0,ueq_novelty,,,ueq_novelty,ueq_novelty,1.0,7.0,2.278,,67c0ba1a784bfdd6
+E1,sus_de_pos_2025,Study 2/SUS_DE_pos_study_2_data.xlsx,UEQ_nov_03,dv,ueq_hedonic,True,95.0,ueq_novelty,,,ueq_novelty,ueq_novelty,1.0,7.0,1.249,,67c0ba1a784bfdd6
+E1,sus_de_pos_2025,Study 2/SUS_DE_pos_study_2_data.xlsx,UEQ_nov_04,dv,ueq_hedonic,True,95.0,ueq_novelty,,,ueq_novelty,ueq_novelty,1.0,7.0,1.18,,67c0ba1a784bfdd6
+E1,sus_de_pos_2025,Study 2/SUS_DE_pos_study_2_data.xlsx,UEQ_persp_01,dv,ueq_pragmatic,True,91.7,ueq_perspicuity,,,ueq_perspicuity,ueq_perspicuity,1.0,7.0,1.413,,67c0ba1a784bfdd6
+E1,sus_de_pos_2025,Study 2/SUS_DE_pos_study_2_data.xlsx,UEQ_persp_02,dv,ueq_pragmatic,True,91.7,ueq_perspicuity,,,ueq_perspicuity,ueq_perspicuity,1.0,7.0,1.396,,67c0ba1a784bfdd6
+E1,sus_de_pos_2025,Study 2/SUS_DE_pos_study_2_data.xlsx,UEQ_persp_03,dv,ueq_pragmatic,True,91.7,ueq_perspicuity,,,ueq_perspicuity,ueq_perspicuity,1.0,7.0,1.359,,67c0ba1a784bfdd6
+E1,sus_de_pos_2025,Study 2/SUS_DE_pos_study_2_data.xlsx,UEQ_persp_04,dv,ueq_pragmatic,True,91.7,ueq_perspicuity,,,ueq_perspicuity,ueq_perspicuity,1.0,7.0,1.353,,67c0ba1a784bfdd6
+E1,sus_de_pos_2025,Study 2/SUS_DE_pos_study_2_data.xlsx,UEQ_stim_01,dv,ueq_hedonic,True,90.9,ueq_stimulation,,,ueq_stimulation,ueq_stimulation,1.0,7.0,1.054,,67c0ba1a784bfdd6
+E1,sus_de_pos_2025,Study 2/SUS_DE_pos_study_2_data.xlsx,UEQ_stim_02,dv,ueq_hedonic,True,90.9,ueq_stimulation,,,ueq_stimulation,ueq_stimulation,1.0,7.0,1.03,,67c0ba1a784bfdd6
+E1,sus_de_pos_2025,Study 2/SUS_DE_pos_study_2_data.xlsx,UEQ_stim_03,dv,ueq_hedonic,True,90.9,ueq_stimulation,,,ueq_stimulation,ueq_stimulation,1.0,7.0,1.066,,67c0ba1a784bfdd6
+E1,sus_de_pos_2025,Study 2/SUS_DE_pos_study_2_data.xlsx,gao_01,dv,SUS1,False,85.5,tia_item_01,,,tia_item_01,tia_item_01,1.0,5.0,1.418,,67c0ba1a784bfdd6
+E1,sus_de_pos_2025,Study 2/SUS_DE_pos_study_2_data.xlsx,gao_02_R,dv,SUS2,False,87.5,tia_item_02,,,tia_item_02,tia_item_02,1.0,5.0,1.417,,67c0ba1a784bfdd6
+E1,sus_de_pos_2025,Study 2/SUS_DE_pos_study_2_data.xlsx,gao_03,dv,SUS3,False,85.5,tia_item_03,,,tia_item_03,tia_item_03,1.0,5.0,1.396,,67c0ba1a784bfdd6
+E1,sus_de_pos_2025,Study 2/SUS_DE_pos_study_2_data.xlsx,gao_04_R,dv,SUS4,False,87.5,tia_item_04,,,tia_item_04,tia_item_04,1.0,5.0,1.356,,67c0ba1a784bfdd6
+E1,sus_de_pos_2025,Study 2/SUS_DE_pos_study_2_data.xlsx,gao_05,dv,SUS5,False,85.5,tia_item_05,,,tia_item_05,tia_item_05,1.0,5.0,1.361,,67c0ba1a784bfdd6
+E1,sus_de_pos_2025,Study 2/SUS_DE_pos_study_2_data.xlsx,gao_06_R,dv,SUS6,False,87.5,tia_item_06,,,tia_item_06,tia_item_06,1.0,5.0,1.765,,67c0ba1a784bfdd6
+E1,sus_de_pos_2025,Study 2/SUS_DE_pos_study_2_data.xlsx,gao_08_R,dv,SUS8,False,87.5,retention_time,,,retention_time,retention_time,1.0,5.0,2.237,,67c0ba1a784bfdd6
+E1,sus_de_pos_2025,Study 2/SUS_DE_pos_study_2_data.xlsx,gao_09,dv,SUS9,False,85.5,retention_time,,,retention_time,retention_time,1.0,5.0,2.089,,67c0ba1a784bfdd6
+E1,sus_de_pos_2025,Study 2/SUS_DE_pos_study_2_data.xlsx,gao_10_R,dv,SUS10,True,87.5,SUS10,,,SUS10,SUS10,1.0,5.0,1.486,,67c0ba1a784bfdd6
+E1,sus_de_pos_2025,Study 2/SUS_DE_pos_study_2_data.xlsx,rummel_01,dv,SUS1,False,88.9,tia_item_01,,,tia_item_01,tia_item_01,1.0,5.0,2.981,,67c0ba1a784bfdd6
+E1,sus_de_pos_2025,Study 2/SUS_DE_pos_study_2_data.xlsx,rummel_03,dv,SUS3,False,88.9,tia_item_03,,,tia_item_03,tia_item_03,1.0,5.0,2.116,,67c0ba1a784bfdd6
+E1,sus_de_pos_2025,Study 2/SUS_DE_pos_study_2_data.xlsx,rummel_04_R,dv,SUS4,False,90.9,tia_item_04,,,tia_item_04,tia_item_04,1.0,5.0,2.992,,67c0ba1a784bfdd6
+E1,sus_de_pos_2025,Study 2/SUS_DE_pos_study_2_data.xlsx,rummel_05,dv,SUS5,False,88.9,tia_item_05,,,tia_item_05,tia_item_05,1.0,5.0,2.036,,67c0ba1a784bfdd6
+E1,sus_de_pos_2025,Study 2/SUS_DE_pos_study_2_data.xlsx,rummel_06_R,dv,SUS6,False,90.9,tia_item_06,,,tia_item_06,tia_item_06,1.0,5.0,2.801,,67c0ba1a784bfdd6
+E1,sus_de_pos_2025,Study 2/SUS_DE_pos_study_2_data.xlsx,rummel_07,dv,SUS7,False,88.9,TLX_SCORE,,,TLX_SCORE,TLX_SCORE,1.0,5.0,1.722,,67c0ba1a784bfdd6
+E1,sus_de_pos_2025,Study 2/SUS_DE_pos_study_2_data.xlsx,rummel_08_R,dv,SUS8,False,90.9,engagement_level,,,engagement_level,engagement_level,1.0,5.0,1.547,,67c0ba1a784bfdd6
+E1,sus_de_pos_2025,Study 2/SUS_DE_pos_study_2_data.xlsx,rummel_09,dv,SUS9,False,88.9,TLX_SCORE,,,TLX_SCORE,TLX_SCORE,1.0,5.0,1.701,,67c0ba1a784bfdd6
+E1,sus_de_pos_2025,Study 2/SUS_DE_pos_study_2_data.xlsx,rummel_10_R,dv,SUS10,True,90.9,SUS10,,,SUS10,SUS10,1.0,5.0,1.446,,67c0ba1a784bfdd6
+E1,teleoperation_latency_2026,latency_teleoperation_user_study_data.tsv,condition_number,curated_non_dv,,False,72.2,number_of_collisions,,,number_of_collisions,number_of_collisions,1.0,5.0,1.952,,3eaf979ccae33927
+E1,teleoperation_latency_2026,latency_teleoperation_user_study_data.tsv,participant,curated_non_dv,,False,90.0,efficiency,,,efficiency,efficiency,1.0,49.0,0.995,,3eaf979ccae33927
+E1,teleoperation_latency_2026,latency_teleoperation_user_study_data.tsv,BBT,dv,efficiency,False,45.0,,,,,,0.0,12.0,0.124,,3eaf979ccae33927
+E1,teleoperation_latency_2026,latency_teleoperation_user_study_data.tsv,JTHFT,dv,task_completion_time,False,54.0,,,,,,18.275896348641258,176.19903404198703,0.114,,3eaf979ccae33927
+E1,teleport_distance_accuracy_2025,data_user_platform_velocity.csv,UserID,blocklisted_non_dv,,False,72.0,tam_perceived_usefulness,identifier,,tam_perceived_usefulness,,,,2.394,,33fbc3de7cbdb906
+E1,teleport_distance_accuracy_2025,data_user_platform_velocity.csv,PlatformSize,curated_non_dv,,False,90.0,sdlp,non_numeric,,sdlp,,,,1.172,,33fbc3de7cbdb906
+E1,teleport_distance_accuracy_2025,data_user_platform_velocity.csv,Velocity,curated_non_dv,,False,66.7,SUS1,,,SUS1,SUS1,6.0,22.0,0.91,,33fbc3de7cbdb906
+E1,teleport_distance_accuracy_2025,data_user_platform_velocity.csv,AverageJumpSpecificationTime,dv,task_completion_time,True,73.6,pedestrian_crossing_time,,,pedestrian_crossing_time,pedestrian_crossing_time,1.257887166666667,14.8053995,2.332,,33fbc3de7cbdb906
+E1,teleport_distance_accuracy_2025,data_user_platform_velocity.csv,FailedJumps,dv,error_rate,True,90.0,error_rate,,,error_rate,error_rate,0.0,25.0,1.426,,33fbc3de7cbdb906
+E1,turn_by_turn_wayfinding_2010,Fenech_2010_acoustic_GPS_final.sav,GPSYN,curated_non_dv,,False,90.0,intervention_responsiveness,,,intervention_responsiveness,intervention_responsiveness,0.0,1.0,2.367,,2fafbfe0fd547340
+E1,turn_by_turn_wayfinding_2010,Fenech_2010_acoustic_GPS_final.sav,SubjectNumber,curated_non_dv,,False,60.0,,,,,,1.0,50.0,0.123,,2fafbfe0fd547340
+E1,turn_by_turn_wayfinding_2010,Fenech_2010_acoustic_GPS_final.sav,PercentOverall2,dv,task_success,False,90.0,perceived_safety,,,perceived_safety,perceived_safety,0.35345454545454547,0.7854545454545454,1.733,,2fafbfe0fd547340
+E1,turn_by_turn_wayfinding_2010,Fenech_2010_acoustic_GPS_final.sav,Time1secs,dv,task_completion_time,True,88.9,pedestrian_crossing_time,,,pedestrian_crossing_time,pedestrian_crossing_time,140.0,576.0,2.075,,2fafbfe0fd547340
+E1,turn_by_turn_wayfinding_2010,Fenech_2010_acoustic_GPS_final.sav,Time2secs,dv,task_completion_time,True,88.9,pedestrian_crossing_time,,,pedestrian_crossing_time,pedestrian_crossing_time,140.0,600.0,2.396,,2fafbfe0fd547340
+E1,vibrotactile_elastic_2023,reflex-muc-2023-1.1/reflex-muc-2023-1.1/export/data/results_experiment.csv,Condition,blocklisted_non_dv,,False,90.0,utaut_facilitating_conditions,experimental_condition,,utaut_facilitating_conditions,,,,2.902,,b37789fe1244fc16
+E1,vibrotactile_elastic_2023,reflex-muc-2023-1.1/reflex-muc-2023-1.1/export/data/results_experiment.csv,StartDate,blocklisted_non_dv,,False,90.0,task_success,timestamp,,task_success,,,,1.363,,b37789fe1244fc16
+E1,vibrotactile_elastic_2023,reflex-muc-2023-1.1/reflex-muc-2023-1.1/export/data/results_experiment.csv,BlockId,curated_non_dv,,False,49.1,,identifier,,,,0.0,3.0,0.239,,b37789fe1244fc16
+E1,vibrotactile_elastic_2023,reflex-muc-2023-1.1/reflex-muc-2023-1.1/export/data/results_experiment.csv,ProbandId,curated_non_dv,,False,52.9,,identifier,,,,2.0,23.0,0.196,,b37789fe1244fc16
+E1,vibrotactile_elastic_2023,reflex-muc-2023-1.1/reflex-muc-2023-1.1/export/data/results_experiment.csv,TrialId,curated_non_dv,,False,76.9,pedestrian_crossing_time,identifier,,pedestrian_crossing_time,,0.0,20.0,2.44,,b37789fe1244fc16
+E1,vibrotactile_elastic_2023,reflex-muc-2023-1.1/reflex-muc-2023-1.1/export/data/results_experiment.csv,TrialNumber,curated_non_dv,,False,75.0,number_of_collisions,,,number_of_collisions,number_of_collisions,0.0,83.0,1.934,,b37789fe1244fc16
+E1,vibrotactile_elastic_2023,reflex-muc-2023-1.1/reflex-muc-2023-1.1/export/data/results_experiment.csv,DurationMS_Cleaned,dv,task_completion_time,True,90.0,task_completion_time,,,task_completion_time,task_completion_time,9.477,127.009,2.216,,b37789fe1244fc16
+E1,vibrotactile_elastic_2023,reflex-muc-2023-1.1/reflex-muc-2023-1.1/export/data/results_experiment.csv,ResultLayerCorrect,dv,task_success,True,81.1,perceived_conflict,,binary_for_rating_scale,perceived_conflict,,0.0,1.0,1.847,,b37789fe1244fc16
+E1,vibrotactile_elastic_2023,reflex-muc-2023-1.1/reflex-muc-2023-1.1/export/data/results_experiment.csv,ResultNumberCorrect,dv,task_success,True,81.1,task_success,,,task_success,task_success,0.0,1.0,1.494,,b37789fe1244fc16
+E1,vr_classroom_asa_2022,dataEvaluation_asaVRpoc/dataEvaluation_asaVRpoc/asaExperiment_rawData/asaVRpoc_0_allResultsRaw.xlsx,Group,blocklisted_non_dv,,False,60.0,,,,,,0.0,0.0,0.119,,41ef4e27a75f6e7d
+E1,vr_classroom_asa_2022,dataEvaluation_asaVRpoc/dataEvaluation_asaVRpoc/asaExperiment_rawData/asaVRpoc_0_allResultsRaw.xlsx,Block_num,curated_non_dv,,False,85.5,fixation_count,,,fixation_count,fixation_count,1.0,6.0,1.819,,41ef4e27a75f6e7d
+E1,vr_classroom_asa_2022,dataEvaluation_asaVRpoc/dataEvaluation_asaVRpoc/asaExperiment_rawData/asaVRpoc_0_allResultsRaw.xlsx,Cong,curated_non_dv,,False,77.1,perceived_conflict,,binary_for_rating_scale,perceived_conflict,,0.0,1.0,1.688,,41ef4e27a75f6e7d
+E1,vr_classroom_asa_2022,dataEvaluation_asaVRpoc/dataEvaluation_asaVRpoc/SSQ_IPQ_rawData/rawResultsQuestionnaire/20210726-131806_Feedback_ASA_Intro_2_Proband_3.csv,Proband_ID,curated_non_dv,,False,85.5,mental_demand,identifier,,mental_demand,,3.0,3.0,1.075,,41ef4e27a75f6e7d
+E1,vr_classroom_asa_2022,dataEvaluation_asaVRpoc/dataEvaluation_asaVRpoc/SSQ_IPQ_rawData/rawResultsQuestionnaire/20210726-131806_Feedback_ASA_Intro_2_Proband_3.csv,Scene,curated_non_dv,,False,72.0,situational_awareness,non_numeric,,situational_awareness,,,,1.703,,41ef4e27a75f6e7d
+E1,vr_classroom_asa_2022,dataEvaluation_asaVRpoc/dataEvaluation_asaVRpoc/asaExperiment_rawData/asaVRpoc_0_allResultsRaw.xlsx,TD_cat,curated_non_dv,,False,77.1,user_satisfaction,,,user_satisfaction,user_satisfaction,0.0,2.0,1.667,,41ef4e27a75f6e7d
+E1,vr_classroom_asa_2022,dataEvaluation_asaVRpoc/dataEvaluation_asaVRpoc/asaExperiment_rawData/asaVRpoc_0_allResultsRaw.xlsx,TP_ID,curated_non_dv,,False,85.5,task_feasibility_item_02,identifier,,task_feasibility_item_02,,3.0,24.0,3.131,,41ef4e27a75f6e7d
+E1,vr_classroom_asa_2022,dataEvaluation_asaVRpoc/dataEvaluation_asaVRpoc/asaExperiment_rawData/asaVRpoc_0_allResultsRaw.xlsx,Trans,curated_non_dv,,False,90.0,takeover_time,,,takeover_time,takeover_time,0.0,1.0,1.282,,41ef4e27a75f6e7d
+E1,vr_classroom_asa_2022,dataEvaluation_asaVRpoc/dataEvaluation_asaVRpoc/asaExperiment_rawData/asaVRpoc_0_allResultsRaw.xlsx,Trial_num,curated_non_dv,,False,85.5,number_of_collisions,,,number_of_collisions,number_of_collisions,0.0,31.0,1.174,,41ef4e27a75f6e7d
+E1,vr_classroom_asa_2022,dataEvaluation_asaVRpoc/dataEvaluation_asaVRpoc/asaExperiment_rawData/asaVRpoc_0_allResultsRaw.xlsx,RT,dv,task_completion_time,False,90.0,sart_total,,,sart_total,sart_total,8.0,30357.0,1.022,,41ef4e27a75f6e7d
+E1,vr_classroom_noise_2025,questionnaireEvaluation_avASANoise/questionnaireEvaluation_avASANoise/raw/avASA_noise_NASA_TLX_raw.xlsx,condition,blocklisted_non_dv,,False,90.0,utaut_facilitating_conditions,experimental_condition,,utaut_facilitating_conditions,,,,1.508,,abdaee938f4820bf
+E1,vr_classroom_noise_2025,questionnaireEvaluation_avASANoise/questionnaireEvaluation_avASANoise/raw/avASA_noise_NASA_TLX_raw.xlsx,Proband_ID,curated_non_dv,,False,85.5,mental_demand,identifier,,mental_demand,,1.0,24.0,0.859,,abdaee938f4820bf
+E1,vr_classroom_noise_2025,questionnaireEvaluation_avASANoise/questionnaireEvaluation_avASANoise/raw/avASA_noise_NASA_TLX_raw.xlsx,q1,dv,mental_demand,False,90.0,,,,,,1.0,7.0,0.845,,abdaee938f4820bf
+E1,vr_classroom_noise_2025,questionnaireEvaluation_avASANoise/questionnaireEvaluation_avASANoise/raw/avASA_noise_NASA_TLX_raw.xlsx,q2,dv,effort,False,90.0,,,,,,1.0,7.0,0.853,,abdaee938f4820bf
+E1,vr_classroom_noise_2025,questionnaireEvaluation_avASANoise/questionnaireEvaluation_avASANoise/raw/avASA_noise_NASA_TLX_raw.xlsx,q4,dv,performance,False,90.0,,,,,,1.0,7.0,0.827,,abdaee938f4820bf
+E1,vr_classroom_noise_2025,questionnaireEvaluation_avASANoise/questionnaireEvaluation_avASANoise/raw/avASA_noise_NASA_TLX_raw.xlsx,q5,dv,frustration,False,90.0,SUS5,,,SUS5,SUS5,1.0,7.0,0.686,,abdaee938f4820bf
+E1,vr_propaganda_retention_2024,data_CHB.csv,Approach,curated_non_dv,,False,60.0,,,,,,0.0,1.0,0.127,,fcf26c2c3dc5738f
+E1,vr_propaganda_retention_2024,data_CHB.csv,Context,curated_non_dv,,False,62.5,,non_numeric,,,,,,0.119,,fcf26c2c3dc5738f
+E1,vr_propaganda_retention_2024,data_CHB.csv,VP,curated_non_dv,,False,60.0,,,,,,1.0,160.0,0.12,,fcf26c2c3dc5738f
+E1,vr_propaganda_retention_2024,data_CHB.csv,ArousalRating,dv,arousal,True,90.0,arousal,,,arousal,arousal,1.0357142857142858,8.928571428571429,0.664,,fcf26c2c3dc5738f
+E1,vr_propaganda_retention_2024,data_CHB.csv,VRV2,dv,task_success,False,60.0,,,,,,0.2142857142857142,0.9642857142857144,0.124,,fcf26c2c3dc5738f
+E1,vr_propaganda_retention_2024,data_CHB.csv,ValenceRating,dv,valence,True,90.0,rsme,,,rsme,rsme,1.0,6.571428571428571,0.653,,fcf26c2c3dc5738f
+E1,vr_shopping_demands_2026,3_Nasa-TLX_data/Nasa-TLX/nasa-tlx-results.xlsx,condition,blocklisted_non_dv,,False,90.0,,experimental_condition,,,,,,1.518,,7503390b60285583
+E1,vr_shopping_demands_2026,3_Nasa-TLX_data/Nasa-TLX/nasa-tlx-results.xlsx,participant,curated_non_dv,,False,90.0,sart_demand,non_numeric,,sart_demand,,,,1.041,,7503390b60285583
+E1,vr_shopping_demands_2026,3_Nasa-TLX_data/Nasa-TLX/nasa-tlx-results.xlsx,effort,dv,effort,True,90.0,,,,,,0.0,95.0,1.212,,7503390b60285583
+E1,vr_shopping_demands_2026,3_Nasa-TLX_data/Nasa-TLX/nasa-tlx-results.xlsx,frustration,dv,frustration,True,95.0,,,,,,0.0,100.0,1.015,,7503390b60285583
+E1,vr_shopping_demands_2026,3_Nasa-TLX_data/Nasa-TLX/nasa-tlx-results.xlsx,mental,dv,mental_demand,True,90.0,TLX_SCORE,,,TLX_SCORE,TLX_SCORE,0.0,100.0,2.002,,7503390b60285583
+E1,vr_shopping_demands_2026,3_Nasa-TLX_data/Nasa-TLX/nasa-tlx-results.xlsx,performance,dv,performance,True,95.0,,,,,,0.0,100.0,2.143,,7503390b60285583
+E1,vr_shopping_demands_2026,3_Nasa-TLX_data/Nasa-TLX/nasa-tlx-results.xlsx,physical,dv,physical_demand,True,90.0,physical_demand,,,physical_demand,physical_demand,0.0,80.0,1.475,,7503390b60285583
+E1,vr_shopping_demands_2026,3_Nasa-TLX_data/Nasa-TLX/nasa-tlx-results.xlsx,temporal,dv,temporal_demand,True,90.0,TLX_SCORE,,,TLX_SCORE,TLX_SCORE,0.0,100.0,1.828,,7503390b60285583
+E1,vr_spirit_ataxia_2023,Zenodo_Malerbaetal2023.xlsx,ID,blocklisted_non_dv,,False,90.0,task_feasibility_item_02,identifier,,task_feasibility_item_02,,,,3.536,,f7bec33570243209
+E1,vr_spirit_ataxia_2023,Zenodo_Malerbaetal2023.xlsx,sheet,curated_non_dv,,False,90.0,touch_offset,non_numeric,,touch_offset,,,,1.507,,f7bec33570243209
+E1,vr_spirit_ataxia_2023,Zenodo_Malerbaetal2023.xlsx,Sum,dv,usability,False,72.0,SUS1,,,SUS1,SUS1,42.5,97.5,1.338,,f7bec33570243209
+E1,vr_spirit_ataxia_2023,Zenodo_Malerbaetal2023.xlsx,disorientation,dv,ssq_disorientation,True,95.0,ssq_disorientation,,,ssq_disorientation,ssq_disorientation,0.0,47.61904761904761,2.063,,f7bec33570243209
+E1,vr_spirit_ataxia_2023,Zenodo_Malerbaetal2023.xlsx,nausea,dv,ssq_nausea,True,90.0,TLX_SCORE,,,TLX_SCORE,TLX_SCORE,0.0,42.85714285714285,1.952,,f7bec33570243209
+E1,vr_spirit_ataxia_2023,Zenodo_Malerbaetal2023.xlsx,oculomotor disturbancies,dv,ssq_oculomotor,True,90.0,ssq_oculomotor,,,ssq_oculomotor,ssq_oculomotor,0.0,23.809523809523807,2.82,,f7bec33570243209

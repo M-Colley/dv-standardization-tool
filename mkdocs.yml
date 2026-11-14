@@ -71,6 +71,7 @@ nav:
       - "Pre-registration: held-out relations": preregistration_heldout_relations.md
       - Held-out relations test: heldout_results.md
       - "Pre-registration: second held-out test": preregistration_heldout_relations_2.md
+      - Second held-out test: heldout_results_2.md
       - Summary: summary.md
       - Future plans: future_plans.md
   - Changelog: changelog.md

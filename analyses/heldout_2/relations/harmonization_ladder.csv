@@ -1,0 +1,9 @@
+level,level_label,association,studies_with_relations,pairs_pooled_k2,pairs_pooled_k3,cross_construct_pairs_k3,participants,findings,cross_construct_findings,generalizing_findings
+names,identical raw column names,between_person,29,34,16,0,2401,0,0,0
+names,identical raw column names,within_person,17,27,16,0,928,0,0,0
+automatic,"+ shared schema, header matching, instrument scoring",between_person,5,3,1,0,100,1,0,0
+automatic,"+ shared schema, header matching, instrument scoring",within_person,4,3,1,0,90,0,0,0
+curated,+ study mapping files,between_person,30,45,32,10,2422,16,3,2
+curated,+ study mapping files,within_person,18,36,22,1,949,6,0,0
+llm,+ local-LLM fallback,between_person,30,45,32,10,2422,16,3,2
+llm,+ local-LLM fallback,within_person,18,36,22,1,949,6,0,0
