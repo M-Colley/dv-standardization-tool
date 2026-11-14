@@ -1,0 +1,50 @@
+# Second held-out test mapping for vr_classroom_asa_2022 (docs/preregistration_heldout_relations_2.md).
+# Paper: "Auditory Selective Attention Switch in a Virtual Reality Classroom Environment", IJERPH 2022,
+#   DOI 10.3390/ijerph192416569.
+# Data: Zenodo 10.5281/zenodo.7248832 (dataEvaluation_asaVRpoc.zip), CC-BY-4.0; README.md of the raw data.
+# Files:
+#   - asaExperiment_rawData/asaVRpoc_0_allResultsRaw.xlsx: one row per trial. README: Group 0 = this
+#     study (avASAPoC), Group 1 = an earlier audio-only study (childASAAdultsNoNoise), whose rows are
+#     left out (exclude_rows; another study's participants). RT (ms) -> task_completion_time. The
+#     Error column is documented as "0 True, 1 False (saved as success from experiment)", which does
+#     not settle its direction, so it is left unlabelled.
+#   - SSQ_IPQ_rawData/rawResultsQuestionnaire/*.csv: one file per participant and time point (ASA_Intro
+#     before, ASA_End after the VR session), long (Question, Answer). The manifest pivots each file to
+#     one row with one column per item. longssq_01-16 are the 16 SSQ items in Kennedy's order, 0-3, which
+#     the instrument registry scores.
+# Not read: the IPQ items ipq_01-14 (item order and keying are not documented), head tracking.
+
+TP_ID: meta_participant_id
+Proband_ID: meta_participant_id
+Scene: meta_timepoint
+Block_num: meta_block
+Trial_num: meta_trial
+Trans: meta_condition_transition
+Cong: meta_condition_congruency
+TD_cat: meta_condition_target_direction
+Group: meta_group_study
+RT: task_completion_time
+longssq_01: ssq_general_discomfort
+longssq_02: ssq_fatigue
+longssq_03: ssq_headache
+longssq_04: ssq_eye_strain
+longssq_05: ssq_difficulty_focusing
+longssq_06: ssq_increased_salivation
+longssq_07: ssq_sweating
+longssq_08: ssq_nausea_item
+longssq_09: ssq_difficulty_concentrating
+longssq_10: ssq_fullness_of_head
+longssq_11: ssq_blurred_vision
+longssq_12: ssq_dizzy_eyes_open
+longssq_13: ssq_dizzy_eyes_closed
+longssq_14: ssq_vertigo
+longssq_15: ssq_stomach_awareness
+longssq_16: ssq_burping
+
+# Left unlabelled: Error (direction not documented), ipq_01-ipq_14.
+
+exclude_rows:
+- column: Group
+  values:
+  - 1
+  reason: 'README: Group 1 is the earlier audio-only study (childASAAdultsNoNoise)'

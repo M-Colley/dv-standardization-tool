@@ -1,0 +1,43 @@
+# Second held-out test mapping for citizen_science_tutorial_2021 (docs/preregistration_heldout_relations_2.md).
+# Paper: "Visualization and perception of data gaps in the context of Citizen Science projects",
+#   KN - Journal of Cartography and Geographic Information 2021, DOI 10.1007/s42489-021-00083-2.
+# Data: Zenodo 10.5281/zenodo.5159311, CC-BY-4.0; CODEBOOK_*.txt and README.txt.
+# File: ORIGINALDATA_*.csv, the raw Qualtrics export, one row per respondent; its two rows below the
+#   header (question texts, import ids) are skipped (manifest skip_rows). Missing values are -999
+#   (missing_values below). Condition: tutorial video or control (between subjects).
+# NASA-TLX (codebook): mental, temporal, performance, effort and frustration on 0-20, once after the
+#   tasks; physical demand was not asked. The performance item asks "how successful did you fulfil the
+#   tasks" with no documented anchors, so it is left unlabelled (direction not documented).
+# Page times exist, but the map and grid pages are separate tasks with no single completion time, and
+# the answers need scoring against a key in the R script, so no performance measure is mapped.
+
+ResponseId: meta_participant_id
+StartDate: meta_start_time
+EndDate: meta_end_time
+Status: meta_status
+IPAddress: meta_ip_redacted
+Progress: meta_progress
+Duration (in seconds): meta_duration_s
+Finished: meta_finished
+RecordedDate: meta_recorded
+Einwilligung: meta_consent
+TLX_mental_1: mental_demand
+TLX_time_1: temporal_demand
+TLX_effort_1: effort
+TLX_frustration_1: frustration
+RecipientLastName: meta_recipientlastname
+RecipientFirstName: meta_recipientfirstname
+RecipientEmail: meta_recipientemail
+ExternalReference: meta_externalreference
+LocationLatitude: meta_locationlatitude
+LocationLongitude: meta_locationlongitude
+DistributionChannel: meta_distributionchannel
+UserLanguage: meta_userlanguage
+
+# Left unlabelled: TLX_performance_1 (direction not documented), page timers, map answers.
+
+missing_values:
+- columns: '*'
+  values:
+  - -999
+  reason: -999 = no data available (codebook)

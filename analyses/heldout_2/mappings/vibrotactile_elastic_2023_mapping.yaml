@@ -1,0 +1,22 @@
+# Second held-out test mapping for vibrotactile_elastic_2023 (docs/preregistration_heldout_relations_2.md).
+# Paper: "Exploring Dynamic Vibrotactile Feedback for Layer-based Interaction on Elastic Displays",
+#   Mensch und Computer 2023, DOI 10.1145/3603555.3608534.
+# Data: Zenodo 10.5281/zenodo.18657509 (release 1.1 of the study repository), CC-BY-4.0; README.md.
+# File: export/data/results_experiment.csv, one row per trial of the experiment blocks (training trials
+#   are excluded in this export): 22 participants (ProbandId), four feedback conditions, 21 trials
+#   each. DurationMS_Cleaned -> task_completion_time (trial duration after the authors' clean-up; the
+#   values are in seconds despite the name); ResultLayerCorrect and ResultNumberCorrect (0/1: correct
+#   layer, correct number) -> task_success (averaged per row).
+# Not read: the per-condition rate tables (aggregates of this file), raw logs and tracking streams.
+
+ProbandId: meta_participant_id
+BlockId: meta_block
+Condition: meta_condition_feedback
+TrialId: meta_trial
+TrialNumber: meta_trial_number
+DurationMS_Cleaned: task_completion_time
+ResultLayerCorrect: task_success
+ResultNumberCorrect: task_success
+
+# Left unlabelled: DurationMS (before clean-up), the expected and provided results, their differences,
+# time stamps and countCondition.

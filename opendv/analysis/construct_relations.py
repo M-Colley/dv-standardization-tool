@@ -33,7 +33,15 @@ Method
 
    Each level includes the ones above it. The ``names`` level identifies DVs
    by their raw names, so it is what pooling open data without any
-   harmonization would give.
+   harmonization would give. At ``llm`` the LLM fills gaps only: a study's
+   LLM-mapped column of a DV is set aside when the study has a column of the
+   same DV mapped without the LLM (``automatic`` or ``curated``), in the same
+   table or another, and a registry score computed from such columns is kept
+   before an LLM-mapped column of the score's DV. This is the rule of the
+   pooled-means analysis with all mappings
+   (:func:`opendv.analysis.multi_study_analysis.load_studies`,
+   ``llm_columns="prefer_curated"``); the columns set aside are listed in
+   ``relations_llm_columns_set_aside.csv``.
 2. **Participants.** DV columns that map to the same DV within a study (wide
    repeated measures, items of one construct) are averaged per row, then per
    participant (participant columns from ``schemas/study_designs.yaml``).
@@ -73,7 +81,7 @@ import argparse
 import json
 import logging
 from collections.abc import Iterable, Mapping, Sequence
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from pathlib import Path
 
 import matplotlib
@@ -109,8 +117,11 @@ LEVEL_LABELS = {
     "names": "identical raw column names",
     "automatic": "+ shared schema, header matching, instrument scoring",
     "curated": "+ study mapping files",
-    "llm": "+ local-LLM fallback",
+    "llm": "+ local-LLM fallback, for DVs a study has no other column of",
 }
+# Levels at which a study's LLM-mapped column of a DV is set aside when the
+# study has a column of that DV mapped without the LLM.
+PREFER_NON_LLM_LEVELS = frozenset({"llm", REPLAY_LEVEL})
 # Value transformations that only a study's mapping file declares (quality.json keys).
 CURATED_TRANSFORMS = (
     "reverse_keyed_items",
@@ -144,6 +155,9 @@ POOLED_RELATION_COLUMNS = [
     "k_automotive", "k_other_domains", "pooled_r_automotive", "pooled_r_other_domains",
     "includes_llm_columns", "finding", "generalizes",
 ]
+# ``raw_column`` is the source's column name; for a column a study mapping
+# locked as ``meta_*`` and the replay gave a DV, it is that standardized name.
+SET_ASIDE_COLUMNS = ["level", "study", "dataset_id", "column", "raw_column", "dv", "kept_instead"]
 
 
 # ── Column provenance ────────────────────────────────────────────────────────
@@ -155,6 +169,7 @@ class ColumnInfo:
     dv: str          # base canonical DV (no __dup_N suffix)
     level: int       # LEVEL_RANK of the step that mapped it (1-3)
     raw_name: str    # normalized raw column name
+    alias: str = ""  # raw column name as in the source
 
 
 def _norm(name: object) -> str:
@@ -313,11 +328,12 @@ def column_provenance(
                 dv=strip_duplicate_suffix(column),
                 level=level,
                 raw_name=_norm(row.get("original_alias")),
+                alias=str(row.get("original_alias")),
             )
         for column, info in list(infos.items()):
             levels = item_levels.get(info.dv)
             if levels and column == info.dv:
-                infos[column] = ColumnInfo(info.dv, max(levels), info.raw_name)
+                infos[column] = replace(info, level=max(levels))
         out[(study, target)] = infos
     return out
 
@@ -403,29 +419,149 @@ def compare_conclusions(pooled: pd.DataFrame, reference: str = "curated",
 
 # ── Study frames per harmonization level ─────────────────────────────────────
 
+class LevelFrames(dict):
+    """``{study: frame}`` as :func:`level_frames` returns it.
+
+    ``column_levels[study][column]`` is the level of the step that mapped each
+    DV column of the frame (a registry score computed here takes the highest
+    level of its items); it is not kept at ``names``. ``set_aside`` has one
+    row (:data:`SET_ASIDE_COLUMNS`) per LLM-mapped column left out because the
+    study has a column of the same DV mapped without the LLM.
+    """
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.column_levels: dict[str, dict[str, int]] = {}
+        self.set_aside: list[dict] = []
+
+
+def _matrix_dv(column: str) -> str | None:
+    """The DV a standardized column stands for in :func:`dv_matrix` (a
+    canonical DV or a registry item), None for any other column."""
+    base = strip_duplicate_suffix(column)
+    dv = msa._canonicalize_dv_name(base)
+    if dv is None and msa._is_analysis_column(base):  # registry item names
+        dv = base
+    return dv
+
+
+def _non_llm_tables(
+    provenance: Mapping[tuple[str, str], Mapping[str, ColumnInfo]], replaying: bool
+) -> dict[str, dict[str, set[str]]]:
+    """``{study: {DV: standardized files}}``: the tables in which each study
+    has a column of the DV that the LLM did not map (a study mapping, the
+    shared schema or a header match: ``msa.NON_LLM_CATEGORIES``). In the
+    replay the study mappings are hidden, so only automatic columns count."""
+    out: dict[str, dict[str, set[str]]] = {}
+    counted = {LEVEL_RANK["automatic"]} if replaying else {LEVEL_RANK["automatic"], LEVEL_RANK["curated"]}
+    for (study, file_name), infos in provenance.items():
+        dvs = out.setdefault(study, {})
+        for column, info in infos.items():
+            dv = _matrix_dv(column) if info.level in counted else None
+            if dv is not None:
+                dvs.setdefault(dv, set()).add(file_name)
+    return out
+
+
+def _add_scores(frame: pd.DataFrame, levels: dict[str, int]) -> tuple[pd.DataFrame, list[str]]:
+    """:func:`msa.add_derived_scale_scores`; every score written takes the
+    highest level of the columns it is computed from in *levels* (updated in
+    place). Returns the frame and the score columns written."""
+    instruments = _registry()
+    item_columns = instruments_registry.score_item_columns(frame, instruments)
+    out, records = instruments_registry.score_frame(frame, instruments)
+    scores = []
+    for record in records:
+        if record.get("decision") != "scored":
+            continue
+        score = record["score"]
+        scores.append(score)
+        found = [levels[c] for c in item_columns.get(score, []) if c in levels]
+        if found:
+            levels[score] = max(found)
+        else:
+            levels.pop(score, None)
+    return out, scores
+
+
+def _prefer_non_llm_columns(
+    study: str,
+    frame: pd.DataFrame,
+    level: str,
+    levels: dict[str, int],
+    scores: Sequence[str],
+    raw_names: Mapping[str, str],
+    set_aside: list[dict],
+) -> pd.DataFrame:
+    """Within each DV of a combined study frame, drop the LLM-level columns
+    when a column mapped without the LLM has values: a registry score computed
+    from such columns is kept before an LLM-mapped column of the score's DV,
+    and a mapped column before a score computed from LLM-mapped items. (A
+    table's LLM columns of a DV with a non-LLM column are dropped before the
+    tables are combined.)"""
+    llm = LEVEL_RANK["llm"]
+    drop: list[str] = []
+    for dv, members in _dv_groups(frame, level).items():
+        kept = [c for c in members if levels.get(c, llm) < llm
+                and pd.to_numeric(frame[c], errors="coerce").notna().any()]
+        if not kept:
+            continue
+        for column in members:
+            if levels.get(column) != llm:
+                continue
+            drop.append(column)
+            files = frame.loc[frame[column].notna(), STUDY_FILE_COLUMN].dropna().unique()
+            set_aside.append({
+                "level": level, "study": study,
+                "dataset_id": "" if column in scores else "; ".join(sorted(map(str, files))),
+                "column": column, "raw_column": "" if column in scores else raw_names.get(column, ""),
+                "dv": dv,
+                "kept_instead": "computed score" if any(c in scores for c in kept) else "mapped column",
+            })
+    for column in drop:
+        levels.pop(column, None)
+    return frame.drop(columns=drop)
+
+
 def level_frames(
     input_dir: Path,
     provenance: Mapping[tuple[str, str], Mapping[str, ColumnInfo]],
     level: str,
     replay: Mapping[tuple[str, str], Mapping[str, str | None]] | None = None,
-) -> dict[str, pd.DataFrame]:
+) -> LevelFrames:
     """Per study: the non-DV columns plus the DV columns usable at *level*.
 
     At ``names`` the DV columns are renamed to ``name:<raw name>``; at the
     other levels registry scores are added from the items that remain.
 
+    At ``llm`` a table's LLM-mapped column of a DV is set aside when the study
+    has a column of that DV mapped without the LLM, in this table (a
+    ``__dup_N`` column, which would be averaged in row by row) or another (one
+    that would be stacked into the same column). After the tables are
+    combined, a score computed from columns mapped without the LLM is kept
+    before an LLM-mapped column of its DV, and a mapped column before a score
+    computed from LLM-mapped items. The LLM thus adds DVs to a study but never
+    changes the values of a DV the study has without it.
+
     At ``llm_replay`` (with *replay*: ``{(study, file): {column: DV or None}}``)
     the automatic and LLM columns are kept, and every column a study mapping
     decided (a DV, or a column it locked as ``meta_*``) takes the DV the LLM
     gave it with that mapping hidden (None drops it): the pipeline as it would
-    run on the same data without curated mappings.
+    run on the same data without curated mappings. The same rule then sets
+    aside the LLM's columns of a DV the study has an automatic column of.
     """
     replaying = level == REPLAY_LEVEL
     rank = LEVEL_RANK["automatic"] if replaying else LEVEL_RANK[level]
     # At ``names`` the baseline is told which columns are DVs (those the
     # deterministic pipeline maps) but pools them by raw name only.
     limit = LEVEL_RANK["curated"] if rank == LEVEL_RANK["names"] else rank
+    llm = LEVEL_RANK["llm"]
+    prefer_non_llm = level in PREFER_NON_LLM_LEVELS
+    non_llm = _non_llm_tables(provenance, replaying) if prefer_non_llm else {}
+    frames = LevelFrames()
     by_study: dict[str, list[pd.DataFrame]] = {}
+    levels_by_study: dict[str, dict[str, int]] = {}
+    raw_by_study: dict[str, dict[str, str]] = {}
     # As in msa.load_studies, rows carry their table's path in the source and
     # files are read in the order of their unshortened names, so neither
     # participant ids nor row order depend on the output path.
@@ -451,6 +587,8 @@ def level_frames(
         df = msa._read_file(input_dir / study / file_name)
         df.columns = [str(c) for c in df.columns]
         source_file = source_ids[study].get(file_name, file_name)
+        column_levels: dict[str, int] | None = None
+        raw_names = {c: info.alias for c, info in infos.items()}
         if replaying:
             drop = [c for c in df.columns if c in infos and infos[c].level == LEVEL_RANK["curated"]
                     and not renames.get(c)]
@@ -462,41 +600,70 @@ def level_frames(
             stray = [c for c in df.columns if c not in infos and c not in renamed
                      and _is_dv(strip_duplicate_suffix(c)) and not is_item_suffixed(c)]
             df = df.drop(columns=stray)
-            df[STUDY_FILE_COLUMN] = source_file
-            by_study.setdefault(study, []).append(df)
-            continue
-        drop = [c for c in df.columns if c in infos and infos[c].level > limit]
-        if rank == LEVEL_RANK["names"]:
-            # Items are left out as at the other levels, and a raw name pools
-            # only where it means the same DV (generous to the baseline: it
-            # never pools two different measures that share a name).
-            items = _item_level_dvs()
-            drop += [c for c in df.columns if c in infos and c not in drop
-                     and (infos[c].dv in items or msa._SUBITEM_ID_PATTERN.match(infos[c].dv))]
-            rename = {c: _name_column(infos[c]) for c in df.columns if c in infos and c not in drop}
-            df = df.drop(columns=drop).rename(columns=rename)
-            df = df.loc[:, ~df.columns.duplicated()]
+            column_levels = {c: infos[c].level for c in df.columns if c in infos}
+            column_levels.update({c: llm for c in df.columns if c in renamed})
+            raw_names.update({new: raw_names.get(old, old) for old, new in rename.items()})
         else:
-            df = df.drop(columns=drop)
-            # DV-looking columns the provenance does not vouch for (e.g. a
-            # non-DV column whose raw name happens to be a DV alias) stay out.
-            stray = [c for c in df.columns if c not in infos and _is_dv(strip_duplicate_suffix(c))
-                     and not is_item_suffixed(c)]
-            df = df.drop(columns=stray)
+            drop = [c for c in df.columns if c in infos and infos[c].level > limit]
+            if rank == LEVEL_RANK["names"]:
+                # Items are left out as at the other levels, and a raw name pools
+                # only where it means the same DV (generous to the baseline: it
+                # never pools two different measures that share a name).
+                items = _item_level_dvs()
+                drop += [c for c in df.columns if c in infos and c not in drop
+                         and (infos[c].dv in items or msa._SUBITEM_ID_PATTERN.match(infos[c].dv))]
+                rename = {c: _name_column(infos[c]) for c in df.columns if c in infos and c not in drop}
+                df = df.drop(columns=drop).rename(columns=rename)
+                df = df.loc[:, ~df.columns.duplicated()]
+            else:
+                df = df.drop(columns=drop)
+                # DV-looking columns the provenance does not vouch for (e.g. a
+                # non-DV column whose raw name happens to be a DV alias) stay out.
+                stray = [c for c in df.columns if c not in infos and _is_dv(strip_duplicate_suffix(c))
+                         and not is_item_suffixed(c)]
+                df = df.drop(columns=stray)
+                column_levels = {c: infos[c].level for c in df.columns if c in infos}
+        if prefer_non_llm and column_levels:
+            study_non_llm = non_llm.get(study, {})
+            aside = [c for c, lv in column_levels.items() if lv == llm and _matrix_dv(c) in study_non_llm]
+            for column in aside:
+                tables = study_non_llm[_matrix_dv(column)]
+                if file_name not in tables:
+                    where = "other table"
+                else:
+                    where = "same and other tables" if len(tables) > 1 else "same table"
+                frames.set_aside.append({
+                    "level": level, "study": study, "dataset_id": source_file, "column": column,
+                    "raw_column": raw_names.get(column, ""), "dv": _matrix_dv(column), "kept_instead": where,
+                })
+            if aside:
+                df = df.drop(columns=aside)
+                column_levels = {c: lv for c, lv in column_levels.items() if c not in aside}
+                if not column_levels:
+                    continue  # nothing of this table is left at this level
         df[STUDY_FILE_COLUMN] = source_file
         by_study.setdefault(study, []).append(df)
-    frames: dict[str, pd.DataFrame] = {}
+        if column_levels is not None:
+            merged = levels_by_study.setdefault(study, {})
+            for column, column_level in column_levels.items():
+                merged[column] = max(merged.get(column, column_level), column_level)
+            raw_by_study.setdefault(study, {}).update(raw_names)
     for study, parts in by_study.items():
         combined = pd.concat(parts, ignore_index=True, sort=False)
         if rank > LEVEL_RANK["names"]:
-            combined = msa.add_derived_scale_scores(combined)
+            levels = levels_by_study.setdefault(study, {})
+            combined, scores = _add_scores(combined, levels)
+            if prefer_non_llm:
+                combined = _prefer_non_llm_columns(
+                    study, combined, level, levels, scores, raw_by_study.get(study, {}), frames.set_aside,
+                )
+            frames.column_levels[study] = levels
         frames[study] = combined
     return frames
 
 
-def dv_matrix(frame: pd.DataFrame, level: str) -> pd.DataFrame:
-    """Numeric DV columns, one per DV: columns mapping to the same DV are
-    averaged per row (wide repeated measures, items of one construct)."""
+def _dv_groups(frame: pd.DataFrame, level: str) -> dict[str, list[str]]:
+    """``{DV: the columns of frame that stand for it}`` (see :func:`dv_matrix`)."""
     groups: dict[str, list[str]] = {}
     for column in frame.columns:
         if column == STUDY_FILE_COLUMN or is_item_suffixed(column):
@@ -505,15 +672,18 @@ def dv_matrix(frame: pd.DataFrame, level: str) -> pd.DataFrame:
             if column.startswith(NAME_PREFIX):
                 groups.setdefault(column, []).append(column)
             continue
-        base = strip_duplicate_suffix(column)
-        dv = msa._canonicalize_dv_name(base)
-        if dv is None and msa._is_analysis_column(base):  # registry item names
-            dv = base
+        dv = _matrix_dv(column)
         if dv is None:
             continue
         groups.setdefault(dv, []).append(column)
+    return groups
+
+
+def dv_matrix(frame: pd.DataFrame, level: str, groups: Mapping[str, list[str]] | None = None) -> pd.DataFrame:
+    """Numeric DV columns, one per DV: columns mapping to the same DV are
+    averaged per row (wide repeated measures, items of one construct)."""
     data = {}
-    for dv, columns in groups.items():
+    for dv, columns in (groups if groups is not None else _dv_groups(frame, level)).items():
         values = frame[columns].apply(pd.to_numeric, errors="coerce")
         if values.notna().sum().sum() == 0:
             continue
@@ -581,9 +751,16 @@ def study_relations(
     domains: Mapping[str, str] | None = None,
     provenance_levels: Mapping[tuple[str, str], int] | None = None,
 ) -> tuple[pd.DataFrame, list[str]]:
-    """Correlations of every construct pair in every study with a declared participant column."""
+    """Correlations of every construct pair in every study with a declared participant column.
+
+    ``max_level_x`` and ``max_level_y`` are the highest level of the columns
+    that stand for each DV in the study at *level*: from the frames'
+    ``column_levels`` (:class:`LevelFrames`) where they are known, else from
+    *provenance_levels* ``{(study, DV): level}``.
+    """
     domains = domains or {}
     provenance_levels = provenance_levels or {}
+    column_levels = getattr(frames, "column_levels", {})
     rows: list[dict] = []
     skipped: list[str] = []
     for study, frame in sorted(frames.items()):
@@ -592,11 +769,17 @@ def study_relations(
         if participant is None or participant.notna().sum() == 0:
             skipped.append(study)
             continue
-        matrix = dv_matrix(frame, level)
+        groups = _dv_groups(frame, level)
+        matrix = dv_matrix(frame, level, groups)
         dvs = construct_level_dvs(matrix.columns, level)
         if len(dvs) < 2:
             continue
         matrix = matrix[dvs]
+        if study in column_levels:
+            levels = column_levels[study]
+            dv_level = {dv: max((levels[c] for c in groups[dv] if c in levels), default=np.nan) for dv in dvs}
+        else:
+            dv_level = {dv: provenance_levels.get((study, dv), np.nan) for dv in dvs}
         keep = participant.notna()
         means = matrix[keep].groupby(participant[keep]).mean()
         repeated = bool((participant[keep].value_counts() > 1).any())
@@ -611,8 +794,8 @@ def study_relations(
                     rows.append({
                         "level": level, "association": association, "dv_x": x, "dv_y": y,
                         "study": study, "domain": domains.get(study, "unknown"), **res,
-                        "max_level_x": provenance_levels.get((study, x), np.nan),
-                        "max_level_y": provenance_levels.get((study, y), np.nan),
+                        "max_level_x": dv_level[x],
+                        "max_level_y": dv_level[y],
                     })
     return pd.DataFrame(rows, columns=STUDY_RELATION_COLUMNS), skipped
 
@@ -925,33 +1108,28 @@ def run(
     provenance = column_provenance(input_dir, meta_view)
     registry = cma.load_study_designs(designs_path)
     domains = {study: design.domain for study, design in registry.studies.items()}
-    dv_levels: dict[tuple[str, str], int] = {}
-    for (study, _), infos in provenance.items():
-        for info in infos.values():
-            dv_levels[(study, info.dv)] = max(dv_levels.get((study, info.dv), 0), info.level)
-    # Registry scores computed in the analysis take the highest level of their items.
-    for score_dv, items in msa._build_construct_subitems().items():
-        for study in {study for study, _ in dv_levels}:
-            found = [dv_levels[(study, i)] for i in items if (study, i) in dv_levels]
-            if found and (study, score_dv) not in dv_levels:
-                dv_levels[(study, score_dv)] = max(found)
 
-    all_rows, skipped_by_level = [], {}
+    all_rows, skipped_by_level, set_aside = [], {}, []
     for level in levels:
         frames = level_frames(input_dir, provenance, level)
-        rows, skipped = study_relations(frames, registry, level, domains, dv_levels)
+        rows, skipped = study_relations(frames, registry, level, domains)
         all_rows.append(rows)
         skipped_by_level[level] = skipped
-        logger.info("%s: %d study correlations; no participant column: %s", level, len(rows), skipped)
+        set_aside += frames.set_aside
+        logger.info("%s: %d study correlations; no participant column: %s; %d LLM columns set aside",
+                    level, len(rows), skipped, len(frames.set_aside))
     replay_counts = None
     if replay_files:
         e1_items = pd.concat([pd.read_csv(path) for path in replay_files], ignore_index=True)
         replay, replay_counts = replay_map(input_dir, meta_view, provenance, e1_items)
         frames = level_frames(input_dir, provenance, REPLAY_LEVEL, replay)
-        rows, _ = study_relations(frames, registry, REPLAY_LEVEL, domains, dv_levels)
+        rows, _ = study_relations(frames, registry, REPLAY_LEVEL, domains)
         all_rows.append(rows)
-        logger.info("%s: %d study correlations (%s)", REPLAY_LEVEL, len(rows), replay_counts)
+        set_aside += frames.set_aside
+        logger.info("%s: %d study correlations (%s); %d LLM columns set aside",
+                    REPLAY_LEVEL, len(rows), replay_counts, len(frames.set_aside))
     study_rows = pd.concat(all_rows, ignore_index=True)
+    set_aside_table = pd.DataFrame(set_aside, columns=SET_ASIDE_COLUMNS)
     pooled = pool_relations(study_rows)
     table = ladder(pooled, study_rows)
     attribution = attribute_findings(pooled, provenance)
@@ -961,6 +1139,7 @@ def run(
     pooled.to_csv(output_dir / "relations_pooled.csv", index=False)
     table.to_csv(output_dir / "harmonization_ladder.csv", index=False)
     attribution.to_csv(output_dir / "relations_attribution.csv", index=False)
+    set_aside_table.to_csv(output_dir / "relations_llm_columns_set_aside.csv", index=False)
     plot_findings(pooled, study_rows, output_dir / "relations_findings.png", level="curated")
     plot_ladder(table, output_dir / "harmonization_ladder.png")
     conclusions = None
@@ -975,6 +1154,17 @@ def run(
             f"Benjamini-Hochberg q < {ALPHA} over these eligible pairs within level and association"
         ),
         "ladder": table.to_dict(orient="records"),
+        "llm_columns_set_aside": {
+            "rule": (
+                "a study's LLM-mapped column of a DV is set aside when the study has a column of that DV "
+                "mapped without the LLM (a study mapping, the shared schema or a header match; in the replay "
+                "the study mappings are hidden), or a registry score computed from such columns"
+            ),
+            **{
+                level: {"columns": int(len(group)), "studies": int(group["study"].nunique())}
+                for level, group in set_aside_table.groupby("level", sort=False)
+            },
+        },
     }
     if replay_counts is not None:
         summary["llm_replay"] = {

@@ -1,0 +1,21 @@
+# Second held-out test mapping for simulst_subtitles_2026 (docs/preregistration_heldout_relations_2.md).
+# Paper: "Audience Reception of Simultaneous Speech-to-Text Translation Subtitles: A Mixed-Methods
+#   Study", IJHCI 2026, DOI 10.1080/10447318.2026.2734668.
+# Data: figshare 10.6084/m9.figshare.32748321.v2, CC-BY-4.0; codebooks_item.xlsx.
+# File: de-identified questionnaire data.xlsx, sheets "flickering" and "non_flickering" (display
+#   condition, between subjects, 20 each). Row 0 groups the items by construct, row 1 holds the item
+#   texts (the manifest reads row 1 as header and stacks the two sheets, column `sheet`). Each
+#   participant watched two videos; questions 13-29 are about video 1 and 30-46 about video 2. The
+#   manifest's wide_to_long option makes one row per participant x video.
+# Mapped (codebook): Q24/Q41 "How mentally demanding was the task?" 1-9 (adapted from the Paas mental
+#   effort scale, paper) -> paas_mental_effort; Q27/Q44 "Overall, how satisfied were you with the
+#   subtitle experience?" 1-5 -> user_satisfaction.
+# Not read: comprehension answers (to be scored against a key), perceived quality, synchronization,
+#   display performance, ease of following and understanding items (no schema DV), and the eye-tracking
+#   AOI workbook.
+
+Experiment No.实验编号: meta_participant_id
+sheet: meta_condition_display
+video: meta_video
+mental_effort: paas_mental_effort
+satisfaction: user_satisfaction

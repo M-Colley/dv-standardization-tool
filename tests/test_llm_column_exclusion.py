@@ -27,11 +27,12 @@ TLX = ["mental_demand", "physical_demand", "temporal_demand", "performance", "ef
 
 
 def _write_table(study_dir: Path, name: str, dataset_id: str, df: pd.DataFrame, sources: dict[str, str],
-                 meta_rows: list[dict], source_id: str, item_of: dict[str, str] | None = None) -> None:
+                 meta_rows: list[dict], source_id: str, item_of: dict[str, str] | None = None,
+                 suffix: str = ".csv") -> None:
     """Write a standardized table, its quality sidecar and its meta_view rows (in column order)."""
     study_dir.mkdir(parents=True, exist_ok=True)
-    file_name = f"{name}-standardized.csv"
-    df.to_csv(study_dir / file_name, index=False)
+    file_name = f"{name}-standardized{suffix}"
+    df.to_csv(study_dir / file_name, index=False, sep="	" if suffix == ".tsv" else ",")
     (study_dir / f"{name}-quality.json").write_text(
         json.dumps({"standardized_file": file_name, "dataset_id": dataset_id}), encoding="utf-8"
     )
@@ -298,3 +299,41 @@ def test_variants_read_the_same_rows(tmp_path):
     assert len(loaded["means"]["s"]) == 60
     with pytest.raises(ValueError, match="llm_columns"):
         msa.load_study_variants(root, {"x": {"llm_columns": "drop"}})
+
+
+def test_tsv_tables_are_loaded_with_their_column_provenance(tmp_path):
+    """The batch writes a .tsv input back as .tsv; its columns keep their own categories."""
+    meta_rows: list[dict] = []
+    root = tmp_path / "standardized"
+    trials = pd.DataFrame({
+        "participant_id": [1, 2, 3],
+        "task_completion_time": [3.5, 4.0, 4.5],
+        "task_completion_time__dup_2": [3500.0, 4000.0, 4500.0],
+        "trust_rating": [4.0, 5.0, 6.0],
+    })
+    _write_table(root / "s", "trials_tsv", "raw/trials.tsv", trials,
+                 {"task_completion_time__dup_2": LLM, "trust_rating": LLM}, meta_rows, "s", suffix=".tsv")
+    _write_table(root / "s", "survey", "raw/survey.csv", pd.DataFrame({"participant_id": [1, 2], "trust_rating": [3.0, 3.5]}),
+                 {}, meta_rows, "s")
+    pd.DataFrame(meta_rows).to_csv(tmp_path / "meta_view.csv", index=False)
+    provenance = msa.load_column_provenance(tmp_path / "meta_view.csv")
+
+    loaded = msa.load_study_variants(
+        root,
+        {"all": {}, "clean": {"llm_columns": "exclude"}},
+        skip_files_without_dvs=True,
+        column_provenance=provenance,
+    )
+    for name in ("all", "clean"):
+        frame = loaded[name]["s"]
+        assert set(frame[msa.SOURCE_FILE_COLUMN]) == {"raw/trials.tsv", "raw/survey.csv"}
+        canonical = msa._canonicalize_studies(loaded[name])
+        assert canonical["s"]["task_completion_time"].dropna().tolist() == [3.5, 4.0, 4.5]
+        assert canonical.mapping_sources[("s", "task_completion_time")] == "schema"
+    assert loaded["all"].column_provenance["s"]["task_completion_time"] == "schema"
+    # The .tsv table's LLM columns have curated twins (its own task time, the
+    # .csv table's trust), so all mappings set them aside as well.
+    assert loaded["all"]["s"]["trust_rating"].dropna().tolist() == [3.0, 3.5]
+    expected = {("raw/trials.tsv", "task_completion_time__dup_2"), ("raw/trials.tsv", "trust_rating")}
+    for name in ("all", "clean"):
+        assert {(row["dataset_id"], row["column"]) for row in loaded[name].set_aside} == expected

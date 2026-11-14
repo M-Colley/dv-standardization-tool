@@ -1,0 +1,89 @@
+# Second held-out test mapping for human_swarm_pfm_2025 (docs/preregistration_heldout_relations_2.md).
+# Paper: "A User Study Evaluation of Predictive Formal Modelling at Runtime in Human-Swarm
+#   Interaction", ACM THRI 2025, DOI 10.1145/3727989.
+# Data: figshare 10.6084/m9.figshare.28687238, CC-BY-4.0; codebook is Readme.txt.
+# Files: form_data_e1.csv, form_data_e2a.csv, form_data_e2b.csv, three experiments with 60
+#   different online participants each (ids P1-P60, P61-P120, P121-P180). One row = participant x
+#   scenario (two scenarios each, within subjects). The HARIS performance logs are not downloaded.
+# Scales (Readme.txt):
+#   - NASA-TLX, six items on 1-10 (low - high). pf asks "How successful were you", so high = good
+#     performance; the schema's performance subscale is raw TLX direction (high = failure), so pf is
+#     reversed below.
+#   - SUS u1-u10, 1-5, standard order and wording.
+#   - Van der Laan a1-a10, 1-5 with 1 = left word; a3 is an attention check ("select number 3")
+#     inserted after item 2, so a1, a2, a4-a10 are items 1-9 in the standard order and polarity
+#     (items 3, 6, 8 mirrored), which the instrument registry scores.
+#   - Jian et al. trust checklist j1-j13, 1-7; j7 is an attention check. j1-j5 are the distrust
+#     items, j6 and j8-j13 the trust items; the schema's jian_trust is the mean of the trust items.
+
+ptcpt_id: meta_participant_id
+study_alias: meta_condition_order
+study_scenario: meta_condition_scenario        # SNV No-PFM, SFV PFM, SDV BRPM
+scenario: meta_scenario_position               # 0 / 1
+study_start_time: meta_start_time
+study_end_time: meta_end_time
+date_added: meta_date_added
+bfg_chk1: meta_attention_check_1
+bfg_chk2: meta_attention_check_2
+bfg_chk3: meta_attention_check_3
+pcpt_c1: meta_consent_1
+pcpt_c2: meta_consent_2
+pcpt_c3: meta_consent_3
+pcpt_f1: meta_demographic_gender
+pcpt_f2: meta_demographic_age_group
+pcpt_f3: meta_demographic_education
+pcpt_f4: meta_demographic_computer_expertise
+pcpt_f5: meta_demographic_uav_familiarity
+
+md: mental_demand
+pd: physical_demand
+td: temporal_demand
+pf: performance
+ef: effort
+fr: frustration
+
+u1: SUS1
+u2: SUS2
+u3: SUS3
+u4: SUS4
+u5: SUS5
+u6: SUS6
+u7: SUS7
+u8: SUS8
+u9: SUS9
+u10: SUS10
+
+a1: AOA1      # useful - useless
+a2: AOA2      # pleasant - unpleasant
+a3: meta_attention_check_acceptance
+a4: AOA3      # bad - good (mirrored)
+a5: AOA4      # nice - annoying
+a6: AOA5      # effective - superfluous
+a7: AOA6      # irritating - likeable (mirrored)
+a8: AOA7      # assisting - worthless
+a9: AOA8      # undesirable - desirable (mirrored)
+a10: AOA9     # raising alertness - sleep-inducing
+
+j6: jian_trust
+j8: jian_trust
+j9: jian_trust
+j10: jian_trust
+j11: jian_trust
+j12: jian_trust
+j13: jian_trust
+j7: meta_attention_check_trust
+
+pcpt_p1: meta_custom_more_successful_scenario
+pcpt_p2: meta_custom_main_reason
+pcpt_p2m: meta_custom_reasons
+pcpt_p3: meta_custom_improvements
+pcpt_p4: meta_custom_used_estimate
+txt_pcpt_p5: meta_comments
+
+# Left unlabelled: j1-j5 (Jian distrust items; the schema DV is the mean of the trust items),
+# e1 (accuracy of the time estimate, 1-7; no schema DV).
+
+reverse_items:
+  - columns: [pf]
+    scale_range: [1, 10]
+    reason: '"How successful were you" (1 low - 10 high); the TLX performance subscale is high = failure'

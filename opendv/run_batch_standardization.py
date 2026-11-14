@@ -229,6 +229,7 @@ from opendv.archive_utils import (
     DATA_FILE_SUFFIXES,
     DEFAULT_ARCHIVE_MAX_DEPTH,
     MAPPING_SUFFIXES,
+    OPT_IN_SUFFIXES,
     _extract_archives_in_tree,
     _extract_zip_files_recursive,
     _is_within_directory,
@@ -632,13 +633,18 @@ def _matches_any_glob(relative_posix: str, patterns: list[str]) -> bool:
 
 
 def _match_files(base_dir: Path, include_globs: list[str] | None, exclude_globs: list[str] | None) -> list[Path]:
-    include_globs = [str(p) for p in (include_globs or ["**/*"])]
+    # .txt, .dat and .mat files are read only when the source's own include_globs
+    # name them (OPT_IN_SUFFIXES); the default "everything" glob never does.
+    explicit_globs = [str(p) for p in (include_globs or [])]
+    include_globs = explicit_globs or ["**/*"]
     # Per-source excludes take effect on top of the global non-tabular defaults.
     exclude_globs = [str(p) for p in (exclude_globs or [])] + DEFAULT_EXCLUDE_GLOBS
 
     candidates: list[Path] = []
     for path in _iter_discovery_files(base_dir):
-        if path.suffix.lower() not in DATA_FILE_SUFFIXES:
+        suffix = path.suffix.lower()
+        opt_in = suffix in OPT_IN_SUFFIXES and bool(explicit_globs)
+        if suffix not in DATA_FILE_SUFFIXES and not opt_in:
             continue
         relative = path.relative_to(base_dir)
         if _should_skip_archive_member(relative):

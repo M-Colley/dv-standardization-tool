@@ -1,0 +1,31 @@
+# Second held-out test mapping for spot_voice_gesture_2025 (docs/preregistration_heldout_relations_2.md).
+# Paper: "Walk along: An experiment on controlling the mobile robot 'Spot' with voice and gestures",
+#   ACM THRI 2025, DOI 10.1145/3729540.
+# Data: 4TU.ResearchData 10.4121/96642016-963c-427d-bcd7-bd6d990fc264.v1, CC-BY-4.0; readme.txt.
+# File: MATLAB scripts and data/Data per participant and measure.xlsx, "scores on the dependent
+#   measures for each participant" (readme): one row per participant (218), row 0 names the measure and
+#   row 1 the condition (Voice Walking, Voice Standing, Gesture Walking, Gesture Standing; 2x2 within
+#   subjects); each measure appears raw and rank-transformed. The manifest reads row 1 as header and
+#   stacks the four condition columns of each raw measure (wide_to_long), one row per participant x
+#   condition. Rows below the participants hold no participant number.
+# Mapped: number of commands -> interaction_events; median inter-command time (s) -> task_completion_time
+#   (the schema's time measure, which covers response times); the counts of duplicate, left/right and
+#   other command mistakes -> error_rate (averaged per row: mean mistake count).
+# Not read: rank-transformed copies, distance walked, command detection, intuitiveness, alignment and
+#   sickness (MISC) ratings (no schema DV), and the post-trial and interview workbooks.
+
+Participant number: meta_participant_id
+condition: meta_condition_control_mode
+n_commands: interaction_events
+inter_command_time: task_completion_time
+dup_mistakes: error_rate
+lr_mistakes: error_rate
+other_mistakes: error_rate
+
+exclude_rows:
+- column: Participant number
+  values:
+  - Sample size
+  - Mean
+  - SD
+  reason: summary rows below the participants (sample size, mean, SD per column)

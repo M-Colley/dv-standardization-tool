@@ -1,0 +1,12 @@
+{
+  "all": {
+    "targets_estimable": 37,
+    "same_sign": 37,
+    "one_sided_p_below_05": 36
+  },
+  "heldout_1+heldout_2": {
+    "targets_estimable": 36,
+    "same_sign": 36,
+    "one_sided_p_below_05": 31
+  }
+}

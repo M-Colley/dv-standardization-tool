@@ -1,0 +1,91 @@
+# Second held-out test mapping for sus_de_pos_2025 (docs/preregistration_heldout_relations_2.md).
+# Paper: "Development and Validation of a Positively Worded German Version of the System Usability
+#   Scale: The SUS-DE-Pos", IJHCI 2024/2025, DOI 10.1080/10447318.2024.2434720.
+# Data: OSF 10.17605/osf.io/xfnb4, CC-BY-4.0. Only Study 2 is used: its participants explored an
+#   assigned website and answered task questions before rating it (Study 1 rated products from memory).
+# File: Study 2/SUS_DE_pos_study_2_data.xlsx, one row per participant (902 recorded). Codebook: the
+#   survey printout (Study 2/study_2_survey_printout.pdf).
+#   - SUS: each participant answered one German version, either Rummel (rummel_01-10) or Gao
+#     (gao_01-10), in the standard order; the "_R" items are the negatively worded even items, stored
+#     as answered (the registry's SUS keys reverse them). Both versions map to SUS1-SUS10; per row only
+#     one version is filled. The five positively worded alternatives (rummel_pos_*, gao_pos_*) are not
+#     standard SUS items and are left unlabelled.
+#   - UEQ: the 26 items, named by scale; the printout shows every pair with the positive word on the
+#     right (e.g. "phantasielos - kreativ"), so 7 is positive throughout and nothing is reversed.
+#     Pragmatic quality = perspicuity + efficiency + dependability items, hedonic quality =
+#     stimulation + novelty items.
+#   - IRI_01-03 are instructed-response checks ("leave this empty"); webclic_* (Web-CLIC-S, website
+#     content) and SI_usability (Bangor single item) have no schema DV.
+# Participants: the file merges two survey runs (desktop and mobile, 451 rows each) whose serial
+#   numbers (lfdn) restart, so lfdn is not an id; every row is a different participant, and the
+#   manifest numbers the rows (`respondent`, table option row_id). The paper analyses 877 of the 902;
+#   no column flags the 25 excluded respondents, so no row is left out (deviation reported).
+# EFS codes -77 (not shown, e.g. the SUS version a participant did not get), -99 (not answered) and
+#   -66 are missing values.
+
+respondent: meta_participant_id
+lfdn: meta_survey_serial
+lastpage: meta_lastpage
+duration: meta_duration
+condition: meta_condition_website
+scale_version: meta_condition_sus_version
+device: meta_device
+age: meta_demographic_age
+gender: meta_demographic_gender
+country: meta_demographic_country
+rummel_01: SUS1
+rummel_02_R: SUS2
+rummel_03: SUS3
+rummel_04_R: SUS4
+rummel_05: SUS5
+rummel_06_R: SUS6
+rummel_07: SUS7
+rummel_08_R: SUS8
+rummel_09: SUS9
+rummel_10_R: SUS10
+gao_01: SUS1
+gao_02_R: SUS2
+gao_03: SUS3
+gao_04_R: SUS4
+gao_05: SUS5
+gao_06_R: SUS6
+gao_07: SUS7
+gao_08_R: SUS8
+gao_09: SUS9
+gao_10_R: SUS10
+UEQ_att_01: ueq_attractiveness
+UEQ_att_02: ueq_attractiveness
+UEQ_att_03: ueq_attractiveness
+UEQ_att_04: ueq_attractiveness
+UEQ_att_05: ueq_attractiveness
+UEQ_att_06: ueq_attractiveness
+UEQ_persp_01: ueq_pragmatic
+UEQ_persp_02: ueq_pragmatic
+UEQ_persp_03: ueq_pragmatic
+UEQ_persp_04: ueq_pragmatic
+UEQ_eff_01: ueq_pragmatic
+UEQ_eff_02: ueq_pragmatic
+UEQ_eff_03: ueq_pragmatic
+UEQ_eff_04: ueq_pragmatic
+UEQ_dep_01: ueq_pragmatic
+UEQ_dep_02: ueq_pragmatic
+UEQ_dep_03: ueq_pragmatic
+UEQ_dep_04: ueq_pragmatic
+UEQ_stim_01: ueq_hedonic
+UEQ_stim_02: ueq_hedonic
+UEQ_stim_03: ueq_hedonic
+UEQ_stim_04: ueq_hedonic
+UEQ_nov_01: ueq_hedonic
+UEQ_nov_02: ueq_hedonic
+UEQ_nov_03: ueq_hedonic
+UEQ_nov_04: ueq_hedonic
+
+# Left unlabelled: the positively worded SUS alternatives, SI_usability, webclic_*, IRI_*, task and content items.
+
+missing_values:
+- columns: '*'
+  values:
+  - -77
+  - -99
+  - -66
+  reason: 'EFS survey codes: -77 not shown, -99 not answered, -66 not reached'

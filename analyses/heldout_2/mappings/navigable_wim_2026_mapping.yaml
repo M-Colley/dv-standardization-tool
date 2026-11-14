@@ -1,0 +1,85 @@
+# Second held-out test mapping for navigable_wim_2026 (docs/preregistration_heldout_relations_2.md).
+# Paper: "Between Places with Transitional Spaces: A Navigable WIM in Transitional Spaces for VR
+#   Navigation", IEEE TVCG 2026, DOI 10.1109/TVCG.2026.3747512.
+# Data: Zenodo 10.5281/zenodo.21394124, CC-BY-4.0. Codebook: Questionnaires/Codebook.xlsx (EFS
+#   survey); README.txt.
+# File: Study_Data/Questionnaires/Fragebogen_Daten.csv, one row per participant (37), wide: three
+#   blocks, one per navigation technique (Kondition 1-3 = A, B, C, counterbalanced). The manifest's
+#   wide_to_long table option makes one row per participant x block (column `block`), with the
+#   block's items renamed:
+#     condition (v_162/v_163/v_164), ueqs1-8, sus1-10, md, pd, td, pf, ef, fr, ipq01-ipq14.
+#   Block order follows the survey's page order in the codebook: block 1 = pages UEQ-S_1, SUS_1,
+#   NASA-TLX_1, IPQ_1 (v_55-v_70); block 2 = UEQ-S_2, SUS_2, NASA-TLX_2 and the page named IPQ_3
+#   (v_142-v_155); block 3 = UEQ-S_3, SUS_3, NASA-TLX_3 and the page named IPQ_2 (v_100-v_113).
+# Scales (codebook):
+#   - UEQ-S, eight items in the standard order, 1-7 from the negative to the positive word
+#     (obstructive-supportive ... usual-leading edge): the registry's ueq_s_1-8.
+#   - SUS, standard ten items, 1-5.
+#   - NASA-TLX, six items, 1-21 ("Very Low" - "Very High"; performance "Perfect" - "Failure", the
+#     schema's direction).
+#   - IPQ, 14 items coded 1-7 (shown as -3..+3); the item texts are those of the IPQ, but the codebook
+#     gives no per-item anchors. Only items whose keying the wording fixes are mapped: G1 "sense of
+#     being there" (general presence); spatial presence: "sense of acting", "surrounded", "felt
+#     present", and reversed "did not feel present", "just perceiving pictures"; involvement: "not
+#     aware of my real environment", "completely captivated", and reversed "still paid attention to
+#     the real environment". The two "How real did the virtual world seem" items, the consistency item
+#     and "How aware were you of the real world" depend on anchors the codebook does not give and are
+#     left unlabelled.
+# README: participant P12 was excluded from the analysis for technical problems (exclude_rows).
+
+v_1: meta_participant_id
+v_2: meta_demographic_age
+v_3: meta_demographic_gender
+block: meta_block
+condition: meta_condition_technique          # 1 A, 2 B, 3 C
+
+ueqs1: ueq_s_1
+ueqs2: ueq_s_2
+ueqs3: ueq_s_3
+ueqs4: ueq_s_4
+ueqs5: ueq_s_5
+ueqs6: ueq_s_6
+ueqs7: ueq_s_7
+ueqs8: ueq_s_8
+
+sus1: SUS1
+sus2: SUS2
+sus3: SUS3
+sus4: SUS4
+sus5: SUS5
+sus6: SUS6
+sus7: SUS7
+sus8: SUS8
+sus9: SUS9
+sus10: SUS10
+
+md: mental_demand
+pd: physical_demand
+td: temporal_demand
+pf: performance
+ef: effort
+fr: frustration
+
+ipq03: ipq_spatial_presence     # I had a sense of acting in the virtual space
+ipq06: ipq_spatial_presence     # I did not feel present in the virtual space (reversed)
+ipq07: ipq_involvement          # I was not aware of my real environment
+ipq08: ipq_general_presence     # sense of "being there"
+ipq09: ipq_spatial_presence     # Somehow I felt that the virtual world surrounded me
+ipq10: ipq_spatial_presence     # I felt present in the virtual space
+ipq11: ipq_involvement          # I still paid attention to the real environment (reversed)
+ipq13: ipq_spatial_presence     # I felt like I was just perceiving pictures (reversed)
+ipq14: ipq_involvement          # I was completely captivated by the virtual world
+
+# Left unlabelled: ipq01 (awareness of the real world), ipq02 and ipq05 (how real), ipq04
+# (consistency with real-world experience), ipq12 (more realistic than the real world: its subscale
+# would rest on one item); the technique ranking (v_156-v_158) and comments are not read.
+
+reverse_items:
+  - columns: [ipq06, ipq11, ipq13]
+    scale_range: [1, 7]
+    reason: negatively worded IPQ items (not present, attention to the real environment, just pictures)
+
+exclude_rows:
+  - column: v_1
+    values: [P12]
+    reason: excluded by the authors for technical problems during data collection (README.txt)
