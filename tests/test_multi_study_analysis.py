@@ -573,3 +573,14 @@ class MultiStudyAnalysisTests(unittest.TestCase):
             refuse_synthetic=True,
         )
         self.assertIsNone(result_strict)
+
+
+def test_standardized_tsv_files_are_read_as_tab_separated(tmp_path):
+    """The batch writes .tsv inputs back as .tsv; the analyses read them as tab-separated text."""
+    from opendv.analysis import multi_study_analysis as msa_module
+
+    path = tmp_path / "trials_tsv-standardized.tsv"
+    pd.DataFrame({"meta_participant_id": [1, 2], "task_completion_time": [3.5, 4.0]}).to_csv(
+        path, sep="\t", index=False)
+    assert msa_module._read_header(path) == ["meta_participant_id", "task_completion_time"]
+    assert msa_module._read_file(path)["task_completion_time"].tolist() == [3.5, 4.0]

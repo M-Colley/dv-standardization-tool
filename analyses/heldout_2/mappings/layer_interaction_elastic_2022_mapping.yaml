@@ -1,0 +1,20 @@
+# Second held-out test mapping for layer_interaction_elastic_2022 (docs/preregistration_heldout_relations_2.md).
+# Paper: "Layer-based Interaction on Elastic Displays", AVI 2022, DOI 10.1145/3531073.3531101.
+# Data: Zenodo 10.5281/zenodo.18621519 (release 1.1 of the study repository), CC-BY-4.0.
+# File: data/questionnaires/NASA_RTLX_complete.tsv, one row per participant x block (three layer
+#   arrangements, within subjects; 23 participants with all three blocks). Raw NASA-TLX, six
+#   subscales on 0-100 in the standard order; the column names say "mental/physical/temporal
+#   effort" for the three demands. The German questionnaire anchors performance "gut" (good, left)
+#   - "schlecht" (bad, right), so high = poor performance, the schema's direction.
+# Not read: UX.tsv (AttrakDiff, 28 word pairs on 1-7; the pairs' presentation poles are not documented
+#   for the stored answers, so the four scales cannot be keyed safely), and the per-condition task time
+#   and success tables, which are wide over 18 layer conditions per arrangement, not per block.
+
+PID: meta_participant_id
+Block: meta_block
+mental effort: mental_demand
+physical effort: physical_demand
+temporal effort: temporal_demand
+performance: performance
+effort: effort
+frustration: frustration

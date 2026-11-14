@@ -1,0 +1,17 @@
+# Second held-out test mapping for turn_by_turn_wayfinding_2010 (docs/preregistration_heldout_relations_2.md).
+# Paper: "The Effects of Acoustic Turn-by-turn Navigation on Wayfinding", HFES Annual Meeting 2010,
+#   DOI 10.1177/154193121005402305.
+# Data: Harvard Dataverse 10.7910/DVN/46M1PD, CC0/CC-BY; Fenech_2010_acoustic_GPS_final.sav (SPSS).
+# One row per participant (50; navigation device or not, between subjects). Route travel time for the
+#   two drives (Time1secs, Time2secs; s) and the share of correctly recognised scenes
+#   (PercentOverall2, 0-1). Only travel time is measured twice, so the study contributes
+#   between-person relations.
+
+SubjectNumber: meta_participant_id
+GPSYN: meta_condition_navigation
+Time1secs: task_completion_time
+Time2secs: task_completion_time
+PercentOverall2: task_success
+
+# Left unlabelled: dprime, criterion, the clock-drawing scores, one-way violations, the duplicate
+# percentage columns stored as times, and TimeDifference.

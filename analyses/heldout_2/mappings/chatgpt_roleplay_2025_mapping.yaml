@@ -1,0 +1,42 @@
+# Second held-out test mapping for chatgpt_roleplay_2025 (docs/preregistration_heldout_relations_2.md).
+# Paper: "Prompting an LLM Chatbot to Role Play Conversational Situations for Language Practice",
+#   CSEDU 2025, DOI 10.5220/0013235400003932.
+# Data: Zenodo 10.5281/zenodo.18783530, CC-BY-4.0; README.md is the codebook.
+# File: Usability of ChatGPT(1-20).xlsx, one row per participant (20 students of Spanish), answered
+#   once after a 1.5-h session with the role-playing chatbot.
+# Scales (README): all items 1-5 (strongly disagree - strongly agree).
+#   - USE Questionnaire (Lund 2001): Usefulness (8), Ease of Use (11), Ease of Learning (4),
+#     Satisfaction (7). The Satisfaction items ("I am satisfied with it" ... "It is pleasant to use")
+#     are averaged into user_satisfaction; the other USE subscales have no schema DV.
+#   - SUS, ten items in the standard order and wording ("platform" for "system"); the registry scores
+#     it (even items negatively worded).
+
+ID: meta_participant_id
+Hora de inicio: meta_start_time
+Hora de finalización: meta_end_time
+Correo electrónico: meta_email_redacted
+Select your gender: meta_demographic_gender
+Rate your Speaking English language knowledge level: meta_english_level_speaking
+Rate your Listening English language knowledge level: meta_english_level_listening
+Rate your Reading English language knowledge level: meta_english_level_reading
+Rate your Writing English language knowledge level: meta_english_level_writing
+I am satisfied with it: user_satisfaction
+I would recommend it to a friend: user_satisfaction
+It is fun to use: user_satisfaction
+It works the way I want it to work: user_satisfaction
+It is wonderful: user_satisfaction
+I feel I need to have it: user_satisfaction
+It is pleasant to use: user_satisfaction
+I think that I would like to use this platform frequently: SUS1
+I found the platform unnecessarily complex: SUS2
+I thought the platform was easy to use: SUS3
+I think that I would need the support of a technical person to be able to use this platform: SUS4
+I found the various functions in this platform were well integrated: SUS5
+I thought there was too much inconsistency in the platform: SUS6
+I would imagine that most people would learn to use this platform very quickly: SUS7
+I found the platform very cumbersome to use: SUS8
+I felt very confident using the platform: SUS9
+I needed to learn a lot of things before I could get going with this platform: SUS10
+
+# Left unlabelled: the USE Usefulness, Ease of Use and Ease of Learning items; the custom items
+# about the chatbot's behaviour and perceived learning (yes/no or 1-5); comments.

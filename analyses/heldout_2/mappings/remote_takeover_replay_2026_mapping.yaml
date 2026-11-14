@@ -1,0 +1,16 @@
+# Second held-out test mapping for remote_takeover_replay_2026 (docs/preregistration_heldout_relations_2.md).
+# Paper: "Temporal Augmentation for Remote AV Takeover: A Dual-Phase Evaluation of Replay-Buffered
+#   Interfaces", AVI 2026, DOI 10.1145/3811427.3811435.
+# Data: OSF 10.17605/osf.io/v7jfs, CC-BY-4.0; README.txt and 02_data/demographics-codebook.txt.
+# File: 02_data/bayesian-RMANOVA.csv, one row per participant x GUI (18 participants, two GUIs, within
+#   subjects; decimal commas). "NASA TLX" is the overall raw TLX (0-100; no subscales), "ToT (s)" the
+#   takeover time, "SART" the SART score (scaled to 0-100). The first column ("ID", with a byte-order
+#   mark) is the participant.
+# Not read: demographics.csv (no DV); fixation and aggregate metrics (outputs of a gaze simulation).
+
+ID: meta_participant_id
+Scenario: meta_scenario
+GUI: meta_condition_gui
+NASA TLX: TLX_SCORE
+ToT (s): takeover_time
+SART: sart_total

@@ -378,7 +378,7 @@ The included `sources_manifest_example.yaml` is preconfigured for:
 ### Process overview
 
 1. The runner validates the manifest and iterates through each source with a `tqdm` progress tracker.
-2. For each source, supported datasets (`.csv`, `.tsv`, `.xls`, `.xlsx`, `.parquet`, `.sav`, `.dta`, `.json`, ...) are discovered and processed with a per-dataset progress tracker. Pickled files (`.pkl`, `.pickle`) are refused and listed under `refused_pickle_files` in `run_summary.json`: unpickling runs code from the file. `allow_pickle: true` on a source reads them, for files you created yourself only (see [docs/reproducibility.md](docs/reproducibility.md#pickled-data-files)).
+2. For each source, supported datasets (`.csv`, `.tsv`, `.xls`, `.xlsx`, `.parquet`, `.sav`, `.dta`, `.json`, ...) are discovered and processed with a per-dataset progress tracker. MATLAB `.mat` (v4 to v7.2), `.txt` and `.dat` files are read only when a source's `include_globs` name them, since such files often hold raw signals or notes; the table options `variable`, `columns` and `dims` say which MATLAB variable becomes the table. Pickled files (`.pkl`, `.pickle`) are refused and listed under `refused_pickle_files` in `run_summary.json`: unpickling runs code from the file. `allow_pickle: true` on a source reads them, for files you created yourself only (see [docs/reproducibility.md](docs/reproducibility.md#pickled-data-files)).
 3. Each dataset is classified into `results_table`, `questionnaire`, `sensor_stream`, `object_detection`, or `process_log`.
 4. If a source/repository includes a mapping YAML, the runner first uses the requested `mapping_path` or the nearest matching mapping file for that dataset.
 5. Built-in schema families are then applied as appropriate:

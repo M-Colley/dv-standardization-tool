@@ -1,0 +1,30 @@
+# Second held-out test mapping for debugging_cps_ar_vr_2026 (docs/preregistration_heldout_relations_2.md).
+# Paper: "Debugging Cyber-Physical Systems: The Impact of Anchoring Strategies and Degree of Virtuality
+#   of Debugging Visualizations", IEEE TVCG 2026 (ISMAR), DOI 10.1109/TVCG.2026.3747542.
+# Data: Zenodo 10.5281/zenodo.21391828, CC-BY-4.0. No codebook; the paper's Measures section (§3.3)
+#   names the instruments.
+# File: ismar26a-sub1461-i9.csv (semicolon-separated, decimal commas), one row per participant (36),
+#   wide: three conditions (Ex-Situ AR, In-Situ AR, In-Situ VR) as column prefixes. The manifest's
+#   wide_to_long option makes one row per participant x condition (column `condition`); the first
+#   column (header "rttttttttt") holds the participant id P1-P36.
+# Per condition (paper): NumRuns = number of program runs; TaskTime = task time (s);
+#   FailureIdentified and DefectResolved = 0/1 task outcomes (averaged into task_success);
+#   SMS = state concentration (SMS-5, no schema DV); UEQS_Prag / UEQS_Hed = UEQ-S pragmatic and
+#   hedonic quality (-3..3), UEQS their mean; Flow = Flow Short Scale (no schema DV); TLX = overall
+#   NASA-TLX (0-100; no subscales in the file); SUS = SUS score (0-100).
+
+rttttttttt: meta_participant_id
+Age: meta_demographic_age
+Gender: meta_demographic_gender
+condition: meta_condition_visualization
+scenario: meta_scenario_difficulty
+numruns: interaction_events
+tasktime: task_completion_time
+failure_identified: task_success
+defect_resolved: task_success
+ueqs_prag: ueq_pragmatic
+ueqs_hed: ueq_hedonic
+tlx: TLX_SCORE
+sus: usability
+
+# Left unlabelled: sms (concentration), ueqs (UEQ-S total), flow; comments and preferences are not read.

@@ -1,0 +1,25 @@
+# Second held-out test mapping for exergame_children_2025 (docs/preregistration_heldout_relations_2.md).
+# Paper: "Responses of candidate intensity measures to different mental and motor load levels using upper
+#   limb exergames in typically developing children and adolescents", PLOS One 2025,
+#   DOI 10.1371/journal.pone.0326371.
+# Data: Harvard Dataverse 10.7910/DVN/AVKHG2, CC-BY-4.0.
+# File: Processed_Data/NASA-TLX.csv, one row per child (21), wide: two games (m motor, c cognitive) x
+#   three levels (low, chall = optimal, high) x six subscales, 0-100 in steps of 5 (a children's NASA-TLX
+#   on a numberless slider; paper). The manifest's wide_to_long option makes one row per child x game
+#   level (column `level`).
+# Performance: the paper reverses the performance rating (100 - score) to compute its total, which
+#   implies the raw slider was "how well did you do" (high = good); whether the processed file stores
+#   the raw or the reversed rating is not documented, so performance is left unlabelled.
+# Not read: HRV.csv, SC.csv, SucessRate.csv (wide per condition with other condition names, and HRV/SC
+#   include a rest baseline); Repetitions.csv (no participant id).
+
+id: meta_participant_id
+age: meta_demographic_age
+level: meta_condition_game_level
+mental: mental_demand
+physical: physical_demand
+temporal: temporal_demand
+effort: effort
+frustration: frustration
+
+# Left unlabelled: performance (direction not documented).

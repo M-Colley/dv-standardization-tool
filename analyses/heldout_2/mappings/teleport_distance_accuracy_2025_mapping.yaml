@@ -1,0 +1,18 @@
+# Second held-out test mapping for teleport_distance_accuracy_2025 (docs/preregistration_heldout_relations_2.md).
+# Paper: "How Far is Too Far? The Trade-Off between Selection Distance and Accuracy during
+#   Teleportation in Immersive Virtual Reality", IEEE TVCG 2025, DOI 10.1109/TVCG.2025.3632345.
+# Data: Zenodo 10.5281/zenodo.15118256, CC-BY-4.0; the record description is the codebook.
+# File: data_user_platform_velocity.csv, one row per user x platform size x emission velocity
+#   (60 users x 3 x 10, within subjects). FailedJumps -> error_rate (count of failed teleports);
+#   AverageJumpSpecificationTime -> task_completion_time (s to specify a jump).
+# Not read: data_user_velocity.csv (the same averaged over platforms), index_of_difficulty.csv (per user
+#   x velocity, so not in the same rows), demographics.xlsx.
+
+UserID: meta_participant_id
+PlatformSize: meta_condition_platform_size
+Velocity: meta_condition_velocity
+FailedJumps: error_rate
+AverageJumpSpecificationTime: task_completion_time
+
+# Left unlabelled: AverageDistance (teleport distance), AverageControllerAngle, ControllerHeight,
+# AverageDistanceToTarget (landing error in m; touch_offset is touch accuracy in mm).
