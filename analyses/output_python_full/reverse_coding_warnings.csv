@@ -475,8 +475,6 @@ fido2_auth_chi23,usability,higher_is_better,ux_satisfaction,SUS2,-0.591981353673
 fido2_auth_chi23,usability,higher_is_better,ux_satisfaction,SUS4,-0.37589578914329835,possible reverse coding
 fido2_auth_chi23,usability,higher_is_better,ux_satisfaction,SUS6,-0.41045968614577333,possible reverse coding
 fido2_auth_chi23,usability,higher_is_better,ux_satisfaction,SUS8,-0.6075579755361191,possible reverse coding
-gaze_platformer_chi24,aesthetics_rating,higher_is_better,ux_satisfaction,godspeed_likeability,-0.6867693136106426,possible reverse coding
-gaze_platformer_chi24,godspeed_likeability,higher_is_better,ux_satisfaction,aesthetics_rating,-0.6867693136106426,possible reverse coding
 incar_vr_gain_chi24,godspeed_perceived_safety,higher_is_better,safety_trust,perceived_safety,-0.42504481247041653,possible reverse coding
 incar_vr_gain_chi24,perceived_safety,higher_is_better,safety_trust,godspeed_perceived_safety,-0.42504481247041653,possible reverse coding
 incar_vr_gain_chi24,sts_ad_trust,higher_is_better,safety_trust,tia_trust_in_automation,-0.37262981204441264,possible reverse coding

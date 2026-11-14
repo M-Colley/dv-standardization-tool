@@ -4,6 +4,30 @@ This document logs human-readable updates to the repo's functionality, structure
 
 ---
 
+### [2026-11-14] FOV Snap-Turn's and Gaze Platformer's unmapped measures locked; Fig. 4 without LLM rows
+
+The two LLM-mapped rows left in Fig. 4 (NASA-TLX mental demand, all mappings) were not mental demand. Neither study used the NASA-TLX.
+
+- **FOV Snap-Turn** (`fov_snapturn_tvcg24`). `Mechanics1_2`–`Mechanics1_5`, composed by the LLM into one mental-demand column (28.9% of Fig. 4's weight), are four game-mechanics items of the VR Neuroscience Questionnaire (VRNQ): physical movement, picking up items, using items, two-handed interaction, 1–7, higher = more positive.
+    - The paper lists its measures (SSQ, the FMS-type rating every 4 min, exposure time) and gives the VRNQ after exposure, "on a 7-point scale" about enjoyment and usability (Sec. 4.3–4.4); it has no workload measure.
+    - The OSF table `Supplemental figures/VRNQ_Full_Revision.pdf` lists the items in the file's column order. The four condition means of all 16 VRNQ columns equal the table's (e.g. `Mechanics1_2` = "Physical": 5.00, 5.38, 5.13, 4.97).
+    - In the data the five game-mechanics items correlate 0.37–0.75 with each other and −0.24 to −0.30 with the post-exposure SSQ total: more sickness, worse ratings, as for a usability item.
+- **Gaze Platformer** (`gaze_platformer_chi24`). `Enjoyment_fun` and `Enjoyment_entertaining` (5.0%) are two of the five PXI enjoyment items (Vanden Abeele et al. 2016), 1–7 with 1 = strongly agree in this study (`CODEBOOK.md`). The study measured digital eye strain, PXI enjoyment and audiovisual appeal, and IMI perceived competence.
+- **Locked: every column the LLM was offered in the two studies**, as for ARTV and tactile SA display (2026-11-06) and Curved Dragging (2026-11-14). Left unlabelled, the LLM had mapped 61 of their 76 unmapped columns, and none of those mappings fits:
+    - FOV Snap-Turn (20 columns, 18 mapped): the 16 VRNQ items (`meta_vrnq_*`; besides mental demand the LLM read them as the Van der Laan items AOA1–AOA5, AOA usefulness, TAM ease of use and STS-AD item 1); exposure time `Seconds played`, its share `Time played (%)` (read as pedestrian crossing time) and `End early?` (read as SART demand); the unresolved `Column1`.
+      `End early?` is the time in VR of the 78 participants who withdrew, written as m:ss and stored as an Excel time read as h:mm (× 1440 = `Seconds played` in all 78 rows).
+    - Gaze Platformer (56 columns, 43 mapped): 6 PXI enjoyment items (`meta_pxi_enjoyment_*`; `Enjoyment_liked` was read as Godspeed likeability), 6 IMI competence items (`meta_imi_competence_*`; read as TiA reliability/competence, user satisfaction and crossing initiation time), 42 eye-strain symptom ratings before and after each session (`meta_des_*`; read as pedestrian crossing time, RSME, SSQ total, FMS score, DALI, SART, dwell time, temporal demand and others), `eyeQuality` (read as eye tracking) and the Y/N `Help` (read as SDLP).
+
+    The schema has no DV for any of these (no VRNQ, PXI, IMI, eye-strain or exposure-time entry). A batch of the two sources asks the LLM about nothing.
+- **Rerun** of the batch, analysis, multiverse and figures (3 workers, the download cache of 2026-11-04) into `data/processed/lock39`. Every other source reproduces `percol39` exactly: identical `meta_view.csv` rows apart from paths, the same 423 of 484 LLM answers (the 61 gone are these two studies'), the same 243 rejections, 1,799 identical tables; no LLM generation errors. The runs without the LLM (`det23l`, `det16l`) differ from `det23p`/`det16p` only in the locked columns' names. The benchmark and relations rerun is recorded separately.
+- **Primary results (without LLM mappings): unchanged**, every pool, contrast pool, the causal DAG and the invariance results.
+- **Fig. 4** (mental demand, all mappings): k = 21 → 19, 7.73 → 8.14, HKSJ [6.41, 9.05] → [6.83, 9.45], τ² 11.5 → 14.6. Every row is curated, so it is now identical to the LLM-excluded pool.
+- **With all mappings:** 88 pooled DVs (93), 55 over ≥ 3 studies (61), 56 with LLM rows (70); `fms_score`, `gaze_on_road`, `sart_demand`, `tam_perceived_ease_of_use` and `tia_familiarity` fall below k = 2. 18 estimates move, e.g. `temporal_demand` 6.36 → 6.85 (k 14 → 13, now all curated), `pedestrian_crossing_time` 10.86 → 18.46 (k 7 → 5), AOA1–AOA5 and AOA usefulness lose FOV Snap-Turn. 129 canonical DVs surfaced (134); mean Jaccard 0.079 (0.084); PCA PC1 14.72% (14.46%). Fig. 1: 26,407 of 28,108 columns mapped, 423 LLM aliases.
+- **Contrasts:** both pools unchanged; 1,107 effects (1,126), all 19 removed were Gaze Platformer's LLM-mapped ones.
+- **Multiverse:** `mental_demand` 8.14–17.48, k = 19 in every specification (7.73–17.48, k = 19–21); harmonized 8.14–8.16.
+- **Subgroup pools:** see README; no HKSJ interval excludes 0.
+- **Tests:** 808 passed, 2 skipped.
+
 ### [2026-11-14] LLM-mapped columns excluded one by one; curated columns preferred
 
 The analysis without LLM mappings (`--exclude-llm-deduced`, the `*_llm_excluded` outputs, the primary results) now leaves out LLM-mapped columns one by one. Until now it dropped every study × DV with any LLM-mapped column, curated columns included (found in the entry below).

@@ -40,11 +40,13 @@
 #     in the file), IPD and gaming experience were measured once before exposure
 #     and used as covariates or descriptors, so they are meta_*.
 #   - VRNQ items (User1_*, Mechanics1_*, Assistance*_*; 1-7) have no schema id and
-#     are left out; item order from the OSF VRNQ table: Immersion, Enjoyment,
-#     Graphics, Sound, Technology | Navigation, Physical, Pick up items, Use items,
-#     2-handed | Tutorial-Easy, Tutorial-Helpful, Tutorial-Duration,
+#     are locked as meta_vrnq_* below; item order from the OSF VRNQ table: Immersion,
+#     Enjoyment, Graphics, Sound, Technology | Navigation, Physical, Pick up items,
+#     Use items, 2-handed | Tutorial-Easy, Tutorial-Helpful, Tutorial-Duration,
 #     Tutorial-Instructions, In-game prompts, Tutorial-Duration (second).
-#   - Column1 (a single value, 6.0, in the first row) is unresolved and left out.
+#   - Column1 (a single value, 6.0, in the first row) is unresolved; locked as meta.
+#   - Exposure time (the paper's third cybersickness measure) has no schema DV;
+#     Seconds played and its two derived forms are locked as meta below.
 
 # --- Dependent measures: FMS-type sickness rating (0-10) ----------------------
 # One value per participant: ADS (below) is the session average the paper
@@ -167,6 +169,39 @@ Video Game Experience: meta_experience_video_games # 0/1
 Game hrs/wk day: meta_experience_gaming_hours_weekday      # hours per weekday
 Game hrs/wk end: meta_experience_gaming_hours_weekend_day  # hours per weekend day
 Game hrs/wk: meta_experience_gaming_hours_per_week         # = 5 x weekday + 2 x weekend day
+
+# --- Measures without a schema DV (locked so the LLM cannot map them) ---------
+# VRNQ (Virtual Reality Neuroscience Questionnaire, Kourtesis et al. 2019), given
+# after exposure: "several questions (on a 7-point scale) about enjoyment and
+# usability" (paper, Sec. 4.4); higher = more positive. Labels and order from
+# Supplemental figures/VRNQ_Full_Revision.pdf (OSF); the four condition means of
+# every column below equal that table's. The study has no NASA-TLX. Left
+# unlabelled, the LLM composed Mechanics1_2..Mechanics1_5 into NASA-TLX mental
+# demand (28.9% of the weight of Fig. 4) and mapped the other items to the AOA
+# items, AOA usefulness, TAM ease of use and STS-AD item 1 (batch of 2026-11-14).
+User1_1: meta_vrnq_immersion
+User1_2: meta_vrnq_enjoyment
+User1_3: meta_vrnq_graphics
+User1_4: meta_vrnq_sound
+User1_5: meta_vrnq_technology
+Mechanics1_1: meta_vrnq_navigation
+Mechanics1_2: meta_vrnq_physical_movement
+Mechanics1_3: meta_vrnq_pick_up_items
+Mechanics1_4: meta_vrnq_use_items
+Mechanics1_5: meta_vrnq_two_handed_interaction
+Assistance1_1: meta_vrnq_tutorial_ease
+Assistance2_1: meta_vrnq_tutorial_helpfulness
+Assistance2_2: meta_vrnq_tutorial_duration
+Assistance2_3: meta_vrnq_tutorial_instructions
+Assistance2_4: meta_vrnq_in_game_prompts
+Assistance3_1: meta_vrnq_tutorial_duration_second   # the OSF table labels it "Tutorial - Duration" again
+# Exposure time: from entering VR to 20 min or withdrawal (paper, Sec. 4.3). Left
+# unlabelled, the LLM mapped End early? to SART demand and Time played (%) to
+# pedestrian crossing time.
+"Seconds played": meta_exposure_time_seconds        # seconds in VR, at most 1200
+"Time played (%)": meta_derived_exposure_fraction   # Seconds played / 1200 (checked on the data)
+"End early?": meta_derived_withdrawal_time          # only the 78 who withdrew: their time in VR as m:ss, stored as an Excel time read as h:mm (x 1440 = Seconds played)
+Column1: meta_unresolved                            # one value (6.0) in the first row
 
 # --- Free-text comments -------------------------------------------------------
 User1b: meta_free_text              # comments on the VRNQ user-experience block
