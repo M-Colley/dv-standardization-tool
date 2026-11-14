@@ -35,7 +35,7 @@ from opendv.batch_reporting import categorize_mapping_source  # noqa: E402
 from opendv.convert_dv import strip_duplicate_suffix as _strip_dup_suffix  # noqa: E402
 from opendv.data_loaders import PICKLE_SUFFIXES as _PICKLE_SUFFIXES  # noqa: E402
 from opendv.data_loaders import PickleRefusedError, pickle_refusal_message  # noqa: E402
-from opendv.item_composition import is_item_suffixed  # noqa: E402
+from opendv.item_composition import is_item_suffixed, strip_item_suffix  # noqa: E402
 from opendv._paths import SCHEMAS_DIR
 
 # libyaml's C parser is ~7x faster on the 2k-line DV schema and yields
@@ -134,6 +134,10 @@ def load_mapping_provenance(meta_view_path: Path) -> Dict[tuple, str]:
 
     Returns an empty dict when the file is absent or malformed so callers can
     safely fall back to ``mapping_source == "unknown"``.
+
+    This study × DV view no longer decides what the analysis excludes: that
+    is done per column (:func:`load_column_provenance`). It is the fallback
+    for columns without a meta_view row of their own.
     """
     if not meta_view_path.is_file():
         return {}
@@ -178,6 +182,178 @@ def load_mapping_provenance(meta_view_path: Path) -> Dict[tuple, str]:
             if found:
                 provenance[(study, score_dv)] = max(found, key=lambda c: _MAPPING_SOURCE_PRIORITY.get(c, -1))
     return provenance
+
+
+# ── Column provenance ───────────────────────────────────────────────────────
+# ``load_mapping_provenance`` gives one category per study × DV, so a single
+# LLM-mapped column marks a DV whose other columns are curated. Until
+# 2026-11-14 the LLM-excluded analysis dropped such study × DV rows whole, and
+# an LLM column could displace a curated column or a derived score when the
+# columns of a DV were folded into one. The analysis now reads the category
+# of every standardized column and decides column by column.
+
+LLM_DEDUCED = "llm_deduced"
+# Categories of a mapping made without the LLM: a study's own mapping file,
+# the shared schema, or a header match (alias or item wording).
+NON_LLM_CATEGORIES = frozenset({"schema", "repo_mapping", "header_match"})
+LLM_COLUMN_MODES = ("keep", "prefer_curated", "exclude")
+
+# (source_id, dataset_id) -> one (canonical_dv, item_of, category) per column of
+# the standardized table, in column order.
+ColumnProvenance = Dict[tuple, List[tuple]]
+
+
+def _most_cautious(categories: Iterable[str]) -> str:
+    """The most cautious mapping category (``llm_deduced`` before all others)."""
+    found = list(categories)
+    if not found:
+        return "unknown"
+    return max(found, key=lambda c: _MAPPING_SOURCE_PRIORITY.get(c, -1))
+
+
+def load_column_provenance(meta_view_path: Path) -> ColumnProvenance:
+    """``{(source_id, dataset_id): [(canonical_dv, item_of, category), ...]}``
+    from meta_view.csv, one entry per column of each standardized table.
+
+    The batch writes a table's meta_view rows in the order of its columns
+    (``_summarize_dataset``), so :func:`_file_column_categories` can give each
+    column its own category. Unlike :func:`load_mapping_provenance`, nothing
+    is merged: a study's curated NASA-TLX column and an LLM-mapped column of
+    the same DV keep their own categories.
+
+    Empty when the file is absent or lacks ``source_id``, ``dataset_id`` or
+    ``canonical_dv``.
+    """
+    if not meta_view_path.is_file():
+        return {}
+    wanted = {"source_id", "dataset_id", "canonical_dv", "item_of", "mapping_source"}
+    try:
+        # Read as text: a raw column named "NA" or "null" is a column name, not a gap.
+        df = pd.read_csv(
+            meta_view_path, usecols=lambda c: c in wanted, dtype=str, keep_default_na=False,
+        )
+    except Exception:
+        return {}
+    if not {"source_id", "dataset_id", "canonical_dv"} <= set(df.columns):
+        return {}
+    raw = df["mapping_source"] if "mapping_source" in df.columns else pd.Series("", index=df.index)
+    categories = {value: _categorize_mapping_source(value) for value in raw.drop_duplicates()}
+    item_of = df["item_of"] if "item_of" in df.columns else pd.Series("", index=df.index)
+    provenance: ColumnProvenance = {}
+    for source_id, dataset_id, canonical, item, source in zip(
+        df["source_id"], df["dataset_id"], df["canonical_dv"], item_of, raw, strict=True
+    ):
+        provenance.setdefault((source_id, dataset_id), []).append(
+            (canonical, item or None, categories[source])
+        )
+    return provenance
+
+
+def _column_base(column: str) -> str:
+    """A standardized column's canonical name without ``__dup_N`` or ``__item_N``."""
+    return strip_item_suffix(column) if is_item_suffixed(column) else _strip_dup_suffix(column)
+
+
+def _file_column_categories(columns: Iterable[Any], entries: List[tuple]) -> Dict[str, str]:
+    """Mapping category of every column of one standardized table.
+
+    ``entries`` are the table's :func:`load_column_provenance` entries. They
+    pair with the columns by position when their canonical names match the
+    columns' (always, for tables the batch wrote with this meta_view);
+    otherwise each column takes the most cautious category of the entries of
+    its canonical name. A composite's column takes the most cautious category
+    of its own entry and its items' (``item_of``).
+    """
+    names = [str(c) for c in columns if str(c) != SOURCE_FILE_COLUMN]
+    if not entries:
+        return {}
+    bases = [_column_base(name) for name in names]
+    if len(entries) == len(names) and all(
+        base == entry[0] for base, entry in zip(bases, entries, strict=True)
+    ):
+        categories = {name: entry[2] for name, entry in zip(names, entries, strict=True)}
+    else:
+        logging.getLogger(__name__).warning(
+            "meta_view rows do not match the columns of a table (%d rows, %d columns); "
+            "matching them by canonical name", len(entries), len(names),
+        )
+        by_base: Dict[str, List[str]] = {}
+        for canonical, _item_of, category in entries:
+            by_base.setdefault(canonical, []).append(category)
+        categories = {name: _most_cautious(by_base.get(base, [])) for name, base in zip(names, bases, strict=True)}
+    item_categories: Dict[str, List[str]] = {}
+    for _canonical, item_of, category in entries:
+        if item_of:
+            item_categories.setdefault(item_of, []).append(category)
+    for name in names:
+        if name in item_categories and not is_item_suffixed(name):
+            categories[name] = _most_cautious([categories.get(name, "unknown"), *item_categories[name]])
+    return categories
+
+
+def _analysis_dv_key(column: Any, derived_items: frozenset[str]) -> str | None:
+    """The canonical DV (or questionnaire item) a standardized column holds;
+    None for design, metadata and other columns no analysis pools."""
+    base = _column_base(str(column))
+    canonical = _canonicalize_dv_name(base)
+    if canonical:
+        return canonical
+    normalized = _normalize_colname(base)
+    return normalized if normalized in derived_items else None
+
+
+def _llm_columns_to_drop(
+    tables: List[Dict[str, str]], mode: str, derived_items: frozenset[str]
+) -> List[set[str]]:
+    """Per table of one study (its column categories), the LLM-mapped DV
+    columns ``mode`` leaves out (see ``llm_columns`` of :func:`load_studies`)."""
+    if mode == "keep":
+        return [set() for _ in tables]
+    keys = [{name: _analysis_dv_key(name, derived_items) for name in categories} for categories in tables]
+    llm = [
+        {name for name, category in categories.items() if category == LLM_DEDUCED and key[name] is not None}
+        for categories, key in zip(tables, keys, strict=True)
+    ]
+    if mode == "exclude":
+        return llm
+    curated = {
+        key[name]
+        for categories, key in zip(tables, keys, strict=True)
+        for name, category in categories.items()
+        if category in NON_LLM_CATEGORIES and key[name] is not None
+    }
+    return [{name for name in names if key[name] in curated} for names, key in zip(llm, keys, strict=True)]
+
+
+class StudyFrames(dict):
+    """``{study: frame}`` as :func:`load_studies` returns it.
+
+    ``column_provenance[study][column]`` is the mapping category of each
+    column (``None`` when no meta_view was given) and ``set_aside`` lists the
+    LLM-mapped columns left out, one dict per table and column.
+    """
+
+    def __init__(self, *args: Any, column_provenance: Dict[str, Dict[str, str]] | None = None, **kwargs: Any):
+        super().__init__(*args, **kwargs)
+        self.column_provenance = column_provenance
+        self.set_aside: List[Dict[str, str]] = []
+
+
+class CanonicalFrames(dict):
+    """``{study: canonical frame}`` with ``mapping_sources[(study, dv)]``, the
+    category of the column(s) that stand for each DV, for studies whose
+    column provenance is known."""
+
+    def __init__(self, *args: Any, **kwargs: Any):
+        super().__init__(*args, **kwargs)
+        self.mapping_sources: Dict[tuple, str] = {}
+
+
+def _study_column_provenance(studies: Any, study: str) -> Dict[str, str] | None:
+    provenance = getattr(studies, "column_provenance", None)
+    if provenance is None:
+        return None
+    return provenance.get(study, {})
 
 
 OVERLAP_DETAIL_COLUMNS = [
@@ -546,7 +722,9 @@ def load_studies(
     repeated_measures_studies: set[str] | None = None,
     skip_files_without_dvs: bool = False,
     max_workers: int | None = None,
-) -> Dict[str, pd.DataFrame]:
+    column_provenance: ColumnProvenance | None = None,
+    llm_columns: str = "prefer_curated",
+) -> "StudyFrames":
     """Load studies, combining all files that share the same subdirectory.
 
     Directory layout
@@ -585,7 +763,52 @@ def load_studies(
         so study counts and coverage percentages stay the same.
     max_workers:
         Threads used to read files (default: up to 8).
+    column_provenance:
+        :func:`load_column_provenance` of the batch run. With it, every column
+        of every table gets its mapping category, the returned
+        :class:`StudyFrames` records them per study (``column_provenance``),
+        and ``llm_columns`` decides which LLM-mapped columns are kept.
+    llm_columns:
+        What happens to a table's LLM-mapped DV columns, decided per column
+        before the tables of a study are combined: ``"prefer_curated"`` (the
+        default) leaves one out when the study has a column of the same DV
+        mapped by a study mapping, the schema or a header match, and keeps the
+        rest; ``"exclude"`` leaves all of them out; ``"keep"`` keeps all.
+        Design and metadata columns are always kept. Without
+        ``column_provenance`` nothing is known about the columns and all are
+        kept.
     """
+    variant = {"repeated_measures_studies": repeated_measures_studies, "llm_columns": llm_columns}
+    return load_study_variants(
+        input_dir,
+        {"studies": variant},
+        skip_files_without_dvs=skip_files_without_dvs,
+        max_workers=max_workers,
+        column_provenance=column_provenance,
+    )["studies"]
+
+
+def load_study_variants(
+    input_dir: Path,
+    variants: Dict[str, Dict[str, Any]],
+    *,
+    skip_files_without_dvs: bool = False,
+    max_workers: int | None = None,
+    column_provenance: ColumnProvenance | None = None,
+) -> Dict[str, "StudyFrames"]:
+    """:func:`load_studies` for several settings, reading every file once.
+
+    ``variants`` maps a name to the keyword arguments ``repeated_measures_studies``
+    and ``llm_columns`` of :func:`load_studies` (missing ones take its
+    defaults; ``repeated_measures_studies=True`` takes participant means in
+    every study); the result maps each name to its studies. The analysis needs
+    the studies with and without LLM-mapped columns, and with and without
+    participant means, from the same files.
+    """
+    for name, spec in variants.items():
+        mode = spec.get("llm_columns", "prefer_curated")
+        if mode not in LLM_COLUMN_MODES:
+            raise ValueError(f"variant {name!r}: llm_columns must be one of {LLM_COLUMN_MODES}, got {mode!r}")
     _load_logger = logging.getLogger(__name__)
     files = (
         list(input_dir.rglob("*.csv"))
@@ -625,8 +848,6 @@ def load_studies(
         key = path.stem if str(rel_parent) == "." else str(rel_parent)
         groups.setdefault(key, []).append(path)
 
-    rm_keys = repeated_measures_studies or set()
-
     # Computed here (not cached globally) so edits to the instrument registry apply;
     # also warms the schema lookup cache before threads share it.
     derived_items = _derived_scale_item_names()
@@ -644,48 +865,142 @@ def load_studies(
     if n_skipped:
         print(f"Skipped {n_skipped} file(s) without canonical DV columns.")
 
-    studies: Dict[str, pd.DataFrame] = {}
+    results = {
+        name: StudyFrames(column_provenance={} if column_provenance is not None else None)
+        for name in variants
+    }
     for project_key, paths in sorted(groups.items()):
-        frames = []
+        tables: list[tuple[str, pd.DataFrame, dict[str, str]]] = []
         for path in paths:
             df = loaded[path]
             if df is None:
                 continue
-            df[SOURCE_FILE_COLUMN] = source_ids[path.parent].get(path.name, path.name)
-            frames.append(df)
+            dataset_id = source_ids[path.parent].get(path.name, path.name)
+            categories = (
+                _file_column_categories(df.columns, column_provenance.get((project_key, dataset_id), []))
+                if column_provenance is not None
+                else {}
+            )
+            df[SOURCE_FILE_COLUMN] = dataset_id
+            tables.append((dataset_id, df, categories))
             print(f"  [{project_key}] loaded {path.name} ({len(df)} rows)")
-
-        combined = pd.concat(frames, ignore_index=True) if frames else pd.DataFrame()
         print(
-            f"  -> project '{project_key}': {len(combined)} total rows "
-            f"from {len(frames)} of {len(paths)} file(s)"
+            f"  -> project '{project_key}': {sum(len(df) for _, df, _ in tables)} total rows "
+            f"from {len(tables)} of {len(paths)} file(s)"
         )
-        combined = add_derived_scale_scores(combined)
+        for name, spec in variants.items():
+            rm_studies = spec.get("repeated_measures_studies")
+            combined, categories, set_aside = _assemble_study(
+                project_key,
+                tables,
+                llm_columns=spec.get("llm_columns", "prefer_curated") if column_provenance is not None else "keep",
+                repeated_measures=rm_studies is True or project_key in (rm_studies or set()),
+                derived_items=derived_items,
+            )
+            results[name][project_key] = combined
+            if column_provenance is not None:
+                results[name].column_provenance[project_key] = categories
+                results[name].set_aside.extend(set_aside)
+    for name, studies in results.items():
+        if studies.set_aside:
+            mode = variants[name].get("llm_columns", "prefer_curated")
+            print(
+                f"Left out {len(studies.set_aside)} LLM-mapped column(s) of "
+                f"{len({row['study'] for row in studies.set_aside})} stud(ies) (llm_columns={mode})."
+            )
+    return results
 
-        # Repeated-measures aggregation: collapse to participant-level means
-        if project_key in rm_keys:
-            participant, id_name, id_source = _participant_ids(project_key, combined)
-            if participant is not None:
-                n_raw = len(combined)
-                numeric_cols = [c for c in combined.select_dtypes(include="number").columns if c != id_name]
-                keep = participant.notna()
-                agg_df = combined.loc[keep, numeric_cols].groupby(participant[keep].rename(id_name), sort=True).mean()
-                agg_df = agg_df.reset_index()
-                _load_logger.info(
-                    "Study '%s': aggregated %d rows (%d without a participant id) -> %d participant means (%s)",
-                    project_key, n_raw, int((~keep).sum()), len(agg_df), id_source,
-                )
-                combined = agg_df
-            else:
-                _load_logger.warning(
-                    "Study '%s': marked as repeated-measures but no participant column found "
-                    "(study_designs.yaml or %s); skipping aggregation",
-                    project_key, sorted(ID_LIKE_COLUMNS),
-                )
 
-        studies[project_key] = combined
+def _assemble_study(
+    project_key: str,
+    tables: list[tuple[str, pd.DataFrame, dict[str, str]]],
+    *,
+    llm_columns: str,
+    repeated_measures: bool,
+    derived_items: frozenset[str],
+) -> tuple[pd.DataFrame, dict[str, str], list[dict[str, str]]]:
+    """One study's frame from its tables: LLM-mapped columns left out per
+    ``llm_columns``, tables concatenated, scores derived, participant means
+    taken. Returns the frame, the mapping category of each of its columns
+    and a row per column left out."""
+    _load_logger = logging.getLogger(__name__)
+    drops = _llm_columns_to_drop([categories for _, _, categories in tables], llm_columns, derived_items)
+    frames: list[pd.DataFrame] = []
+    kept_categories: list[dict[str, str]] = []
+    set_aside: list[dict[str, str]] = []
+    for (dataset_id, df, categories), drop in zip(tables, drops, strict=True):
+        if drop:
+            df = df.drop(columns=[col for col in df.columns if str(col) in drop])
+            for column in sorted(drop):
+                set_aside.append({
+                    "study": project_key,
+                    "dataset_id": dataset_id,
+                    "column": column,
+                    "dv": _analysis_dv_key(column, derived_items) or "",
+                    "llm_columns": llm_columns,
+                })
+        frames.append(df)
+        kept_categories.append(categories)
 
-    return studies
+    combined = pd.concat(frames, ignore_index=True) if frames else pd.DataFrame()
+    # A column's category in the study is the most cautious of the tables
+    # that contribute it; scores inherit the most cautious of their items.
+    column_categories: dict[str, str] = {}
+    for frame, categories in zip(frames, kept_categories, strict=True):
+        for col in frame.columns:
+            name = str(col)
+            if name == SOURCE_FILE_COLUMN:
+                continue
+            found = categories.get(name, "unknown")
+            column_categories[name] = (
+                _most_cautious([column_categories[name], found]) if name in column_categories else found
+            )
+    combined, score_categories = _add_derived_scale_scores_with_provenance(combined, column_categories)
+    column_categories.update(score_categories)
+
+    # Repeated-measures aggregation: collapse to participant-level means
+    if repeated_measures:
+        participant, id_name, id_source = _participant_ids(project_key, combined)
+        if participant is not None:
+            n_raw = len(combined)
+            numeric_cols = [c for c in combined.select_dtypes(include="number").columns if c != id_name]
+            keep = participant.notna()
+            agg_df = combined.loc[keep, numeric_cols].groupby(participant[keep].rename(id_name), sort=True).mean()
+            agg_df = agg_df.reset_index()
+            _load_logger.info(
+                "Study '%s': aggregated %d rows (%d without a participant id) -> %d participant means (%s)",
+                project_key, n_raw, int((~keep).sum()), len(agg_df), id_source,
+            )
+            combined = agg_df
+            remaining = {str(c) for c in combined.columns}
+            column_categories = {
+                name: category for name, category in column_categories.items() if name in remaining
+            }
+        else:
+            _load_logger.warning(
+                "Study '%s': marked as repeated-measures but no participant column found "
+                "(study_designs.yaml or %s); skipping aggregation",
+                project_key, sorted(ID_LIKE_COLUMNS),
+            )
+    return combined, column_categories, set_aside
+
+
+def _add_derived_scale_scores_with_provenance(
+    df: pd.DataFrame, column_categories: Dict[str, str]
+) -> tuple[pd.DataFrame, Dict[str, str]]:
+    """:func:`add_derived_scale_scores`, plus the category of every score it
+    wrote: the most cautious category of the columns it was computed from."""
+    instruments = instruments_registry.load_instruments(INSTRUMENTS_PATH)
+    item_columns = instruments_registry.score_item_columns(df, instruments)
+    out, records = instruments_registry.score_frame(df, instruments)
+    categories = {
+        record["score"]: _most_cautious(
+            column_categories.get(str(col), "unknown") for col in item_columns.get(record["score"], [])
+        )
+        for record in records
+        if record.get("decision") == "scored"
+    }
+    return out, categories
 
 
 @lru_cache(maxsize=1)
@@ -748,7 +1063,11 @@ def _canonical_series_priority(series: pd.Series, raw_name: str, canonical_name:
     return (non_null, exact_match, unique)
 
 
-def _canonical_numeric_frame(df: pd.DataFrame) -> pd.DataFrame:
+def _canonical_numeric_frame(
+    df: pd.DataFrame,
+    column_provenance: Dict[str, str] | None = None,
+    sources: Dict[str, str] | None = None,
+) -> pd.DataFrame:
     """One numeric column per canonical DV.
 
     Columns the batch suffixed ``__dup_N`` because several raw columns map to
@@ -757,9 +1076,18 @@ def _canonical_numeric_frame(df: pd.DataFrame) -> pd.DataFrame:
     they are repeated measurements of that DV. Until 2026-11-04 the dups were
     ignored, so whichever raw column came first stood for the DV (e.g. a
     minute-0 baseline rating instead of the session).
+
+    When several columns stand for one DV (a derived score and a mapped
+    column, e.g. ``nasa_tlx_score`` and ``TLX_SCORE``), the one with the most
+    values is kept. With ``column_provenance`` (column -> mapping category) a
+    column that is not LLM-mapped is kept before any LLM-mapped one, whatever
+    their counts: until 2026-11-14 an LLM column with more rows displaced a
+    curated column or a score derived from curated items. ``sources``, when
+    given, receives the category of the column(s) kept for each DV.
     """
     selected: dict[str, pd.Series] = {}
-    priorities: dict[str, tuple[int, int, int]] = {}
+    priorities: dict[str, tuple[int, int, int, int]] = {}
+    chosen_category: dict[str, str] = {}
 
     families: dict[str, list[str]] = {}
     for col in df.columns:
@@ -789,11 +1117,19 @@ def _canonical_numeric_frame(df: pd.DataFrame) -> pd.DataFrame:
         if series.notna().sum() == 0:
             continue
 
-        priority = _canonical_series_priority(series, col, canonical)
+        category = (
+            _most_cautious(column_provenance.get(str(member), "unknown") for member in members)
+            if column_provenance is not None
+            else "unknown"
+        )
+        priority = (int(category != LLM_DEDUCED), *_canonical_series_priority(series, col, canonical))
         if canonical not in selected or priority > priorities[canonical]:
             selected[canonical] = series
             priorities[canonical] = priority
+            chosen_category[canonical] = category
 
+    if sources is not None:
+        sources.update(chosen_category)
     if not selected:
         return pd.DataFrame(index=df.index)
 
@@ -801,8 +1137,18 @@ def _canonical_numeric_frame(df: pd.DataFrame) -> pd.DataFrame:
     return pd.DataFrame(ordered, index=df.index)
 
 
-def _canonicalize_studies(studies: Dict[str, pd.DataFrame]) -> Dict[str, pd.DataFrame]:
-    return {name: _canonical_numeric_frame(df) for name, df in studies.items()}
+def _canonicalize_studies(studies: Dict[str, pd.DataFrame]) -> CanonicalFrames:
+    """Canonical frame of every study. With the column provenance of
+    :func:`load_studies`, ``mapping_sources`` holds the category of what
+    stands for each study × DV."""
+    out = CanonicalFrames()
+    for name, df in studies.items():
+        provenance = _study_column_provenance(studies, name)
+        sources: Dict[str, str] = {}
+        out[name] = _canonical_numeric_frame(df, provenance, sources)
+        if provenance is not None:
+            out.mapping_sources.update({(name, dv): category for dv, category in sources.items()})
+    return out
 
 
 def _resolve_canonical(
@@ -901,10 +1247,16 @@ def harmonized_summary(
     ``n`` counts the rows with a value; ``n_participants`` the participants
     behind them (:func:`_participant_count`), which is what a study's
     sampling error rests on when it repeats measures per participant.
+
+    ``mapping_source`` is the category of the column(s) summarized when the
+    studies carry column provenance (:func:`load_studies`), else (or where a
+    column has none) the study × DV category of ``mapping_provenance``.
     """
     metadata = _load_dv_measurement_metadata() if harmonize_scales else {}
     rows = []
-    for study, df in _resolve_canonical(studies, canonical_studies).items():
+    canonical_frames = _resolve_canonical(studies, canonical_studies)
+    pooled_sources = getattr(canonical_frames, "mapping_sources", None) or {}
+    for study, df in canonical_frames.items():
         raw = studies.get(study)
         ids = _participant_ids(study, raw)[0] if raw is not None and not raw.empty else None
         if ids is not None and not ids.index.equals(df.index):
@@ -922,11 +1274,14 @@ def harmonized_summary(
                         s = _rescale_to_canonical(s, detected, canonical_range)
                         scale_note = f"rescaled {detected[0]}-{detected[1]} -> {canonical_range[0]}-{canonical_range[1]}"
 
-            mapping_source = (
-                mapping_provenance.get((study, dv), "unknown")
-                if mapping_provenance
-                else "unknown"
-            )
+            # A column without a meta_view row falls back to the study × DV
+            # category, the cautious reading of the old rule.
+            if pooled_sources.get((study, dv), "unknown") != "unknown":
+                mapping_source = pooled_sources[(study, dv)]
+            elif mapping_provenance:
+                mapping_source = mapping_provenance.get((study, dv), "unknown")
+            else:
+                mapping_source = "unknown"
             rows.append(
                 {
                     "study": study,
@@ -3080,9 +3435,10 @@ def main(argv: list[str] | None = None) -> None:
     else:
         meta_view_path = input_dir.parent / "meta_view.csv"
     mapping_provenance = load_mapping_provenance(meta_view_path)
+    column_provenance = load_column_provenance(meta_view_path)
     if mapping_provenance:
         print(f"Loaded mapping provenance for {len(mapping_provenance)} (study, DV) pairs "
-              f"from {meta_view_path}")
+              f"and {len(column_provenance)} tables from {meta_view_path}")
     elif args.exclude_llm_deduced:
         print(
             f"[WARNING] --exclude-llm-deduced set but no mapping_source provenance was "
@@ -3091,19 +3447,35 @@ def main(argv: list[str] | None = None) -> None:
 
     validate_schema_clusters()
 
-    studies = load_studies(
-        input_dir,
-        repeated_measures_studies=repeated_measures or None,
-        skip_files_without_dvs=True,
-    )
+    # Every analysis reads the studies with their LLM-mapped DV columns, except
+    # where the study has a curated column of the same DV ("prefer_curated").
+    # The LLM-excluded pass reads them without any LLM-mapped column. Both are
+    # decided per column of each table, before columns are folded per DV.
     # Invariance fits and condition contrasts need the rows (conditions,
     # repeated answers), not participant means.
-    row_studies = (
-        load_studies(input_dir, skip_files_without_dvs=True) if repeated_measures else studies
+    variants: dict[str, dict[str, Any]] = {
+        "all": {"repeated_measures_studies": repeated_measures, "llm_columns": "prefer_curated"},
+    }
+    if repeated_measures:
+        variants["all_rows"] = {"llm_columns": "prefer_curated"}
+    if args.exclude_llm_deduced and column_provenance:
+        variants["clean"] = {"repeated_measures_studies": repeated_measures, "llm_columns": "exclude"}
+        if repeated_measures:
+            variants["clean_rows"] = {"llm_columns": "exclude"}
+    loaded_studies = load_study_variants(
+        input_dir,
+        variants,
+        skip_files_without_dvs=True,
+        column_provenance=column_provenance or None,
     )
+    studies = loaded_studies["all"]
+    row_studies = loaded_studies.get("all_rows", studies)
+    clean_studies = loaded_studies.get("clean")
+    clean_row_studies = loaded_studies.get("clean_rows", clean_studies)
     # Canonicalize once; every analysis below reuses the same frames instead
     # of re-scanning all study columns per function call.
     canonical = _canonicalize_studies(studies)
+    clean_canonical = _canonicalize_studies(clean_studies) if clean_studies is not None else None
     overlap = compute_overlap(studies, canonical_studies=canonical)
     presence = compute_dv_presence_matrix(studies, canonical_studies=canonical)
     overlap_details = compute_overlap_details(studies, canonical_studies=canonical)
@@ -3137,12 +3509,26 @@ def main(argv: list[str] | None = None) -> None:
     meta_summary_df.to_csv(output_dir / "meta_analysis_summary.csv", index=False)
     save_plots(overlap, summary, output_dir)
 
-    # Sensitivity pass: rerun the pooling after dropping any study×DV whose
-    # alias was resolved by the local LLM rather than an explicit schema.
-    # Always safe to run — a no-op when no provenance is present.
+    if studies.set_aside:
+        pd.DataFrame(studies.set_aside).to_csv(output_dir / "llm_columns_set_aside.csv", index=False)
+
+    # Sensitivity pass: rerun the pooling without the columns the local LLM
+    # mapped. With column provenance the studies were loaded without them, so
+    # curated columns and scores of the same DV stay; the filter below then
+    # only acts where a column has no meta_view row (its study × DV category
+    # decides, as before 2026-11-14). A no-op when no provenance is present.
     if args.exclude_llm_deduced:
-        summary_clean = summary[summary["mapping_source"] != "llm_deduced"].copy()
-        dropped_rows = int(len(summary) - len(summary_clean))
+        if clean_studies is not None:
+            summary_clean = harmonized_summary(
+                clean_studies,
+                harmonize_scales=args.harmonize_scales,
+                mapping_provenance=mapping_provenance,
+                canonical_studies=clean_canonical,
+            )
+        else:
+            summary_clean = summary
+        summary_clean = summary_clean[summary_clean["mapping_source"] != LLM_DEDUCED].copy()
+        n_columns_left_out = len(clean_studies.set_aside) if clean_studies is not None else 0
         clean_meta = _with_invariance(meta_analysis_summary(
             summary_clean,
             total_studies=len(studies),
@@ -3157,8 +3543,9 @@ def main(argv: list[str] | None = None) -> None:
                 index=False,
             )
         print(
-            f"\nSensitivity (LLM-deduced rows excluded): dropped {dropped_rows} rows; "
-            f"{len(clean_meta)} DV(s) remain in meta_analysis_summary_llm_excluded.csv"
+            f"\nSensitivity (LLM-mapped columns excluded): {n_columns_left_out} column(s) left out, "
+            f"{len(summary_clean)} of {len(summary)} study x DV rows remain; "
+            f"{len(clean_meta)} DV(s) in meta_analysis_summary_llm_excluded.csv"
         )
 
     # Condition contrasts (e.g. eHMI vs. none) from the declared study designs:
@@ -3174,6 +3561,7 @@ def main(argv: list[str] | None = None) -> None:
             mapping_provenance=mapping_provenance,
             estimator=args.estimator,
             exclude_llm_deduced=args.exclude_llm_deduced,
+            clean_studies=clean_row_studies,
         )
         print(
             f"\nCondition contrasts: {contrast_summary['n_contrast_effects']} effect(s) in "
@@ -3329,10 +3717,15 @@ def main(argv: list[str] | None = None) -> None:
         print(f"\n[WARNING] Skipping composite index: {e}")
 
     # LiNGAM causal discovery. With --exclude-llm-deduced it runs without the
-    # LLM-deduced (study, DV) columns too: until 2026-11-04 it always used
-    # them, so the reported DAG could rest on a wrong LLM mapping.
-    causal_canonical = canonical
-    if args.exclude_llm_deduced and mapping_provenance:
+    # LLM-mapped columns too: until 2026-11-04 it always used them, so the
+    # reported DAG could rest on a wrong LLM mapping. Until 2026-11-14 it
+    # dropped every DV of a study that had any LLM-mapped column of it; it now
+    # reads the studies loaded without LLM-mapped columns, so curated columns
+    # of the same DV stay.
+    causal_studies, causal_canonical = studies, canonical
+    if args.exclude_llm_deduced and clean_canonical is not None:
+        causal_studies, causal_canonical = clean_studies, clean_canonical
+    elif args.exclude_llm_deduced and mapping_provenance:
         causal_canonical = {
             study: frame.drop(columns=[
                 c for c in frame.columns if mapping_provenance.get((study, c)) == "llm_deduced"
@@ -3342,7 +3735,7 @@ def main(argv: list[str] | None = None) -> None:
     causal_result = None
     try:
         causal_result = discover_causal_structure(
-            studies,
+            causal_studies,
             min_rows=args.causal_min_rows,
             refuse_synthetic=args.refuse_synthetic_causal,
             canonical_studies=causal_canonical,
@@ -3406,9 +3799,9 @@ def main(argv: list[str] | None = None) -> None:
     # Bootstrap causal edge stability
     try:
         boot_df = (
-            bootstrap_causal_stability(studies, n_bootstrap=50, data=causal_data)
+            bootstrap_causal_stability(causal_studies, n_bootstrap=50, data=causal_data)
             if causal_data is not None
-            else bootstrap_causal_stability(studies, n_bootstrap=50, canonical_studies=causal_canonical)
+            else bootstrap_causal_stability(causal_studies, n_bootstrap=50, canonical_studies=causal_canonical)
         )
         if not boot_df.empty:
             boot_df.to_csv(output_dir / "causal_bootstrap_stability.csv", index=False)
@@ -3425,7 +3818,7 @@ def main(argv: list[str] | None = None) -> None:
 
     # PC algorithm (alternative for Gaussian data)
     try:
-        pc_result = discover_causal_structure_pc(studies, canonical_studies=causal_canonical, data=causal_data)
+        pc_result = discover_causal_structure_pc(causal_studies, canonical_studies=causal_canonical, data=causal_data)
         if pc_result is not None:
             pc_result["skeleton"].to_csv(output_dir / "pc_skeleton_matrix.csv")
             if pc_result["removed_edges"]:

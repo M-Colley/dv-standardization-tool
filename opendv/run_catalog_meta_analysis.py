@@ -27,6 +27,7 @@ from opendv.analysis.multi_study_analysis import (
     compute_overlap_details,
     compute_standardized_effects,
     harmonized_summary,
+    load_column_provenance,
     load_mapping_provenance,
     load_studies,
     meta_analysis_summary,
@@ -422,8 +423,11 @@ def run_catalog_meta_analysis(
     analysis_dir = output_dir / "analysis"
     analysis_dir.mkdir(parents=True, exist_ok=True)
 
+    column_provenance = load_column_provenance(output_dir / "meta_view.csv") or None
     try:
-        studies = load_studies(standardized_root, skip_files_without_dvs=True)
+        studies = load_studies(
+            standardized_root, skip_files_without_dvs=True, column_provenance=column_provenance
+        )
     except FileNotFoundError as exc:
         analysis_summary = {
             "catalog_path": str(catalog_path),
@@ -466,11 +470,27 @@ def run_catalog_meta_analysis(
     meta_summary.to_csv(analysis_dir / "meta_analysis_summary.csv", index=False)
     save_plots(overlap, summary, analysis_dir)
 
-    # Sensitivity companion: drop LLM-deduced rows and re-pool.  No-op when
-    # provenance is unavailable; always safe to write so downstream consumers
-    # can compare pooled estimates against a provenance-filtered reference.
-    summary_clean = summary[summary["mapping_source"] != "llm_deduced"].copy()
-    if len(summary_clean) < len(summary):
+    # Sensitivity companion: re-pool without LLM-mapped columns (left out per
+    # column, so curated columns of the same DV stay).  No-op when provenance
+    # is unavailable; always safe to write so downstream consumers can compare
+    # pooled estimates against a provenance-filtered reference.
+    clean_studies = (
+        load_studies(
+            standardized_root,
+            skip_files_without_dvs=True,
+            column_provenance=column_provenance,
+            llm_columns="exclude",
+        )
+        if column_provenance is not None
+        else studies
+    )
+    summary_clean = (
+        harmonized_summary(clean_studies, mapping_provenance=mapping_provenance)
+        if clean_studies is not studies
+        else summary
+    )
+    summary_clean = summary_clean[summary_clean["mapping_source"] != "llm_deduced"].copy()
+    if getattr(clean_studies, "set_aside", None) or len(summary_clean) < len(summary):
         meta_clean = meta_analysis_summary(
             summary_clean,
             total_studies=len(studies),
