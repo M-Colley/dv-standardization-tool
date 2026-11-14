@@ -434,7 +434,12 @@ def compute_contrast_effects(
     mapping_provenance: Mapping[tuple, str] | None = None,
     min_n: int = MIN_PARTICIPANTS,
 ) -> pd.DataFrame:
-    """Condition contrasts for every declared factor × canonical DV of every study."""
+    """Condition contrasts for every declared factor × canonical DV of every study.
+
+    ``mapping_source`` is the category of the column(s) that stand for the DV
+    when the studies carry column provenance (``msa.load_studies``), else, or
+    where a column has none, the study × DV category of ``mapping_provenance``.
+    """
     provenance = mapping_provenance or {}
     dv_meta = msa._load_dv_measurement_metadata()
     rows: list[dict] = []
@@ -446,7 +451,10 @@ def compute_contrast_effects(
         if participant is None:
             logger.warning("%s: none of the participant columns %s found", study, design.participant)
             continue
-        canonical = msa._canonical_numeric_frame(df)
+        column_sources: dict[str, str] = {}
+        canonical = msa._canonical_numeric_frame(
+            df, msa._study_column_provenance(studies, study), column_sources
+        )
         for factor in design.factors:
             absent = sorted(set(factor.exclude) - set(df.columns))
             if absent:
@@ -491,7 +499,11 @@ def compute_contrast_effects(
                         "ci95_high": row["yi"] + 1.96 * se,
                         "direction": direction,
                         "favours_level": _favours(row["yi"], direction),
-                        "mapping_source": provenance.get((study, dv), "unknown"),
+                        "mapping_source": (
+                            column_sources[dv]
+                            if column_sources.get(dv, "unknown") != "unknown"
+                            else provenance.get((study, dv), "unknown")
+                        ),
                     })
     return pd.DataFrame(rows, columns=CONTRAST_EFFECT_COLUMNS)
 
@@ -590,9 +602,17 @@ def run_contrast_analysis(
     rho: float = DEFAULT_RHO,
     exclude_llm_deduced: bool = True,
     weighted: bool = DEFAULT_WEIGHTED,
+    clean_studies: Mapping[str, pd.DataFrame] | None = None,
 ) -> dict:
     """Write contrast_effects.csv, contrast_study_effects.csv and
-    contrast_meta_analysis.csv (plus ``*_llm_excluded`` siblings)."""
+    contrast_meta_analysis.csv (plus ``*_llm_excluded`` siblings).
+
+    The LLM-excluded pool is computed from ``clean_studies`` when given (the
+    studies loaded without LLM-mapped columns, so a curated column keeps its
+    contrasts when an LLM column shares its DV), else from the effects whose
+    study × DV is not LLM-deduced. Effects still marked ``llm_deduced`` are
+    left out either way.
+    """
     registry = load_study_designs(designs_path)
     effects = compute_contrast_effects(studies, registry, mapping_provenance)
     output_dir.mkdir(parents=True, exist_ok=True)
@@ -612,7 +632,11 @@ def run_contrast_analysis(
         "estimator": estimator,
     }
     if exclude_llm_deduced:
-        clean = effects[effects["mapping_source"] != "llm_deduced"]
+        if clean_studies is not None:
+            clean = compute_contrast_effects(clean_studies, registry, mapping_provenance)
+        else:
+            clean = effects
+        clean = clean[clean["mapping_source"] != "llm_deduced"]
         pool_contrasts(clean, estimator=estimator, rho=rho, weighted=weighted).to_csv(
             output_dir / "contrast_meta_analysis_llm_excluded.csv", index=False
         )
@@ -636,11 +660,18 @@ def main() -> None:
 
     input_dir = Path(args.input_dir)
     meta_view = Path(args.meta_view) if args.meta_view else input_dir.parent / "meta_view.csv"
-    studies = msa.load_studies(input_dir, skip_files_without_dvs=True)
+    column_provenance = msa.load_column_provenance(meta_view) or None
+    loaded = msa.load_study_variants(
+        input_dir,
+        {"all": {"llm_columns": "prefer_curated"}, "clean": {"llm_columns": "exclude"}},
+        skip_files_without_dvs=True,
+        column_provenance=column_provenance,
+    )
     summary = run_contrast_analysis(
-        studies,
+        loaded["all"],
         Path(args.output_dir),
         designs_path=Path(args.designs),
+        clean_studies=loaded["clean"] if column_provenance else None,
         mapping_provenance=msa.load_mapping_provenance(meta_view),
         estimator=args.estimator,
         rho=args.rho,

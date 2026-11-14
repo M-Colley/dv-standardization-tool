@@ -8,7 +8,7 @@ Simonsohn et al., 2020) and re-runs the meta-analysis for every combination:
 ==================  =========================================================
 choice              options
 ==================  =========================================================
-mappings            all  |  without LLM-deduced (study, DV) rows
+mappings            all  |  without LLM-mapped columns
 scales              harmonized to the canonical range  |  as recorded
 unit                observation rows  |  participant means (where an ID exists)
 tau2                DerSimonian-Laird  |  REML
@@ -53,23 +53,48 @@ CHOICES = {
 }
 
 
-def _summaries(input_dir: Path, meta_view: Path) -> dict[tuple[str, str], pd.DataFrame]:
-    """Harmonized per-(study, DV) summaries for every (unit, scales) choice."""
+def _summaries(input_dir: Path, meta_view: Path) -> dict[tuple[str, str, str], pd.DataFrame]:
+    """Harmonized per-(study, DV) summaries for every (mappings, unit, scales) choice.
+
+    ``all`` keeps a study's LLM-mapped columns unless it has a curated column
+    of the same DV; ``no_llm`` leaves every LLM-mapped column out. Both are
+    decided per column before the columns of a DV are folded, as in
+    ``opendv analyze`` (until 2026-11-14 ``no_llm`` dropped every study × DV
+    with any LLM-mapped column). Without column provenance ``no_llm`` drops
+    the study × DV rows marked LLM-deduced.
+    """
     provenance = msa.load_mapping_provenance(meta_view)
-    loaded = {}
-    rows_studies = msa.load_studies(input_dir, skip_files_without_dvs=True)
-    participant_studies = msa.load_studies(
-        input_dir, repeated_measures_studies=set(rows_studies), skip_files_without_dvs=True
+    column_provenance = msa.load_column_provenance(meta_view) or None
+    variants = {
+        ("all", "observations"): {"llm_columns": "prefer_curated"},
+        ("all", "participants"): {"llm_columns": "prefer_curated", "repeated_measures_studies": True},
+    }
+    if column_provenance is not None:
+        variants[("no_llm", "observations")] = {"llm_columns": "exclude"}
+        variants[("no_llm", "participants")] = {"llm_columns": "exclude", "repeated_measures_studies": True}
+    names = {key: "/".join(key) for key in variants}
+    loaded_studies = msa.load_study_variants(
+        input_dir,
+        {names[key]: spec for key, spec in variants.items()},
+        skip_files_without_dvs=True,
+        column_provenance=column_provenance,
     )
-    for unit, studies in (("observations", rows_studies), ("participants", participant_studies)):
-        canonical = msa._canonicalize_studies(studies)
-        for scales in CHOICES["scales"]:
-            loaded[(unit, scales)] = msa.harmonized_summary(
-                studies,
-                harmonize_scales=scales == "harmonized",
-                mapping_provenance=provenance,
-                canonical_studies=canonical,
-            )
+    loaded = {}
+    for mappings in CHOICES["mappings"]:
+        for unit in CHOICES["unit"]:
+            key = (mappings, unit) if (mappings, unit) in variants else ("all", unit)
+            studies = loaded_studies[names[key]]
+            canonical = msa._canonicalize_studies(studies)
+            for scales in CHOICES["scales"]:
+                summary = msa.harmonized_summary(
+                    studies,
+                    harmonize_scales=scales == "harmonized",
+                    mapping_provenance=provenance,
+                    canonical_studies=canonical,
+                )
+                if mappings == "no_llm":
+                    summary = summary[summary["mapping_source"] != msa.LLM_DEDUCED]
+                loaded[(mappings, unit, scales)] = summary
     return loaded
 
 
@@ -78,9 +103,7 @@ def run(input_dir: Path, meta_view: Path) -> pd.DataFrame:
     records = []
     for spec in itertools.product(*CHOICES.values()):
         choice = dict(zip(CHOICES, spec, strict=True))
-        summary = summaries[(choice["unit"], choice["scales"])]
-        if choice["mappings"] == "no_llm":
-            summary = summary[summary["mapping_source"] != "llm_deduced"]
+        summary = summaries[(choice["mappings"], choice["unit"], choice["scales"])]
         meta = msa.meta_analysis_summary(summary, estimator=choice["tau2"])
         for row in meta.itertuples(index=False):
             low, high = (

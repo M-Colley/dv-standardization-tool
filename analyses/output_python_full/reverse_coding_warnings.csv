@@ -378,11 +378,9 @@ ehmi_optimization_chi25,sart_understanding,higher_is_better,cognitive_load,menta
 fact_av,jian_trust,higher_is_better,safety_trust,sts_ad_trust,-0.33339864447765055,possible reverse coding
 fact_av,sts_ad_trust,higher_is_better,safety_trust,jian_trust,-0.33339864447765055,possible reverse coding
 fact_av,sts_ad_trust,higher_is_better,safety_trust,tia_propensity_to_trust,-0.581328027494591,possible reverse coding
-fact_av,sts_ad_trust,higher_is_better,safety_trust,trust_rating,-0.5030182067828075,possible reverse coding
+fact_av,sts_ad_trust,higher_is_better,safety_trust,trust_rating,-0.6404318688905275,possible reverse coding
 fact_av,tia_propensity_to_trust,higher_is_better,safety_trust,sts_ad_trust,-0.581328027494591,possible reverse coding
-fact_av,tia_understanding_predictability,higher_is_better,safety_trust,trust_rating,-0.3461362421791427,possible reverse coding
-fact_av,trust_rating,higher_is_better,safety_trust,sts_ad_trust,-0.5030182067828075,possible reverse coding
-fact_av,trust_rating,higher_is_better,safety_trust,tia_understanding_predictability,-0.3461362421791427,possible reverse coding
+fact_av,trust_rating,higher_is_better,safety_trust,sts_ad_trust,-0.6404318688905275,possible reverse coding
 fido2_auth_chi23,AOA1,lower_is_better,ux_satisfaction,AOA3,-0.34234713356327423,possible reverse coding
 fido2_auth_chi23,AOA1,lower_is_better,ux_satisfaction,AOA6,-0.34238429639619244,possible reverse coding
 fido2_auth_chi23,AOA1,lower_is_better,ux_satisfaction,AOA8,-0.6318546982778769,possible reverse coding
@@ -487,7 +485,9 @@ music_tempo_taskload_2022,valence,higher_is_better,affective_emotion,arousal,-0.
 myocontrol_intent_2025,sdlp,lower_is_better,performance,takeover_time,-0.5072405833230946,possible reverse coding
 myocontrol_intent_2025,takeover_time,lower_is_better,performance,sdlp,-0.5072405833230946,possible reverse coding
 myocontrol_intent_2025,takeover_time,lower_is_better,performance,task_success,-0.6665592416964419,possible reverse coding
+myocontrol_intent_2025,task_completion_time,lower_is_better,performance,task_success,-0.9547884236115685,possible reverse coding
 myocontrol_intent_2025,task_success,higher_is_better,performance,takeover_time,-0.6665592416964419,possible reverse coding
+myocontrol_intent_2025,task_success,higher_is_better,performance,task_completion_time,-0.9547884236115685,possible reverse coding
 nl2tap_filter_2026,SUS10,lower_is_better,ux_satisfaction,usability,-0.33924431219456613,possible reverse coding
 nl2tap_filter_2026,SUS2,lower_is_better,ux_satisfaction,SUS3,-0.4509697385152823,possible reverse coding
 nl2tap_filter_2026,SUS2,lower_is_better,ux_satisfaction,SUS5,-0.31939417085432387,possible reverse coding
@@ -569,9 +569,9 @@ pairsonic_cscw24,usability,higher_is_better,ux_satisfaction,SUS8,-0.779119091467
 perceived_risk_merging_2022,headway,higher_is_better,safety_trust,perceived_risk,-0.5414580613239567,possible reverse coding
 perceived_risk_merging_2022,perceived_risk,lower_is_better,safety_trust,headway,-0.5414580613239567,possible reverse coding
 perceived_risk_merging_2022,perceived_risk,lower_is_better,safety_trust,trust_rating,-0.6074242087119793,possible reverse coding
-perceived_risk_merging_2022,perceived_risk,lower_is_better,safety_trust,ttc,-0.5399491964009729,possible reverse coding
+perceived_risk_merging_2022,perceived_risk,lower_is_better,safety_trust,ttc,-0.499619739657374,possible reverse coding
 perceived_risk_merging_2022,trust_rating,higher_is_better,safety_trust,perceived_risk,-0.6074242087119793,possible reverse coding
-perceived_risk_merging_2022,ttc,higher_is_better,safety_trust,perceived_risk,-0.5399491964009729,possible reverse coding
+perceived_risk_merging_2022,ttc,higher_is_better,safety_trust,perceived_risk,-0.499619739657374,possible reverse coding
 psych_conflict_handling,conflict_item_01,lower_is_better,safety_trust,sts_ad_item_02,-0.3259025858605108,possible reverse coding
 psych_conflict_handling,sts_ad_item_02,higher_is_better,safety_trust,conflict_item_01,-0.3259025858605108,possible reverse coding
 reflexion_mapping_2025,SUS1,higher_is_better,ux_satisfaction,SUS2,-0.3709242554167158,possible reverse coding

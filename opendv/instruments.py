@@ -234,6 +234,22 @@ def _resolve_items(df: pd.DataFrame, instrument: Instrument) -> dict[str, pd.Ser
     }
 
 
+def score_item_columns(
+    df: pd.DataFrame, instruments: Iterable[Instrument] | None = None
+) -> dict[str, list[str]]:
+    """``{score column: [the columns of df it is computed from]}`` for every
+    score whose items are all present, resolved as :func:`score_frame` does."""
+    if instruments is None:
+        instruments = load_instruments()
+    out: dict[str, list[str]] = {}
+    for inst in instruments:
+        resolved = _resolve_item_columns(df, inst)
+        for score in inst.scores:
+            if all(i in resolved for i in score.items):
+                out[score.column] = [resolved[i] for i in score.items]
+    return out
+
+
 KEYING_MIN_ITEMS = 3
 KEYING_MIN_ROWS = 20
 KEYING_MIN_LOADING = 0.3
@@ -374,4 +390,5 @@ __all__ = [
     "normalize_column_name",
     "schema_errors",
     "score_frame",
+    "score_item_columns",
 ]

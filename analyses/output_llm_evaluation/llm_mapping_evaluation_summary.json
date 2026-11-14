@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-14T14:25:01.339969+00:00",
+  "generated_at": "2026-11-14T16:13:00.570428+00:00",
   "models": [
     "google/gemma-4-E2B-it"
   ],
@@ -9,7 +9,7 @@
   "max_per_source": 1000,
   "e2_samples": 300,
   "blocklist_size": 46,
-  "runtime_seconds": 417.4,
+  "runtime_seconds": 424.7,
   "llm_generation_errors": 0,
   "context_sha256": {
     "3d_display_comp_vehicle": "d38c20c6ff03745b",

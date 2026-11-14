@@ -83,6 +83,7 @@ mappings); "E2" holds out schema aliases. Model: `google/gemma-4-E2B-it`
 | A baseline as the study's value | FOV Snap-Turn's eight FMS time points mapped to one DV could not be averaged | The minute-0 rating (mean 0.18) stood for a 20-minute VR session | Session average mapped; uncomposed duplicates averaged |
 | The benchmark showed the answer | The prompt lists three aliases per candidate DV, including the held-out one | 86 of 265 E1 and 216 of 300 E2 items had it in view (E2 accuracy 0.82 vs. 0.74 without it) | Aliases equal to the queried column are hidden (no effect in the pipeline) |
 | LLM data in LLM-excluded outputs | Composite items were read as real scale items; scores computed from LLM-mapped items had no provenance | Pooled `perceived_safety_item_04` (LLM-excluded) rested on 5 studies instead of 3, two of them LLM composites with wrong item positions | Composite items not read as scale items; scores inherit their items' provenance |
+| Curated data dropped with an LLM column | Provenance was one category per study × DV, so one LLM-mapped column marked a DV whose other columns were curated; when several columns stood for one DV, the one with more rows won | 20 study × DV pairs: the LLM-excluded `mental_demand` pool left out five studies that report it (k = 14 instead of 19); with all mappings SenseCobot's EEG ratios were stacked with its NASA-TLX ratings (study mean 0.39 of 20, 17.5% of Fig. 4's weight) | Provenance per column; LLM columns left out column by column, and a study's curated column of a DV preferred over its LLM columns (2026-11-14, `tests/test_llm_column_exclusion.py`) |
 | Fixed-effect meta-regression | The slope test ignored residual heterogeneity | p < .05 for 60% of null slopes (τ = 0.5, k = 6); 36 of 50 DVs "significant" | Random-effects meta-regression with the Knapp-Hartung test |
 | Participant ids from the wrong column | Aggregation used the first ID-like column | eHMI for All lost every survey DV at the participant level | Declared participant columns for all studies (23 then, 39 now) |
 
@@ -449,29 +450,42 @@ P1 must confirm it on a held-out split.
 ### 2.3 Pooled estimates depend on harmonization choices (RQ3)
 
 The multiverse crosses five binary choices (32 specifications). Results for
-the 39 development studies (2026-11-06, `analyses/output_multiverse/`; the
-23-study run after the 2026-11-04 review fixes in parentheses):
+the 39 development studies (rerun of 2026-11-14 with LLM-mapped columns
+excluded per column, `analyses/output_multiverse/`; the 23-study run after
+the 2026-11-04 review fixes in parentheses). Since 2026-11-14 the
+"without LLM" arm leaves out LLM-mapped columns one by one and keeps a
+study's curated columns of the same DV, and the "all" arm sets a study's
+LLM columns aside where it has a curated column of the DV:
 
 - **Scale harmonization now decides the NASA-TLX subscales.** With 23
   studies `mental_demand` was robust: all 32 estimates lay in 7.35–8.13 and
-  every interval covered the default. With 39 studies (k = 14–21) the
-  estimates range from 7.44 to 21.12 and 47% of the intervals miss the
-  default. The harmonized specifications stay together (7.44–8.41); the raw
-  ones (13.0–21.1) pool six added studies' 0–100 ratings with 0–20 ones.
+  every interval covered the default. With 39 studies (k = 19–21) the
+  estimates range from 7.73 to 17.48 and 44% of the intervals miss the
+  default. The harmonized specifications stay together (7.73–8.16); the raw
+  ones (13.3–17.5) pool six added studies' 0–100 ratings with 0–20 ones.
+  Before 2026-11-14 the range was 7.44–21.12 over k = 14–21: five studies
+  with a curated mental-demand column next to an LLM-mapped one were
+  missing from the LLM-excluded specifications, and SenseCobot's EEG ratios
+  were pooled with its ratings in the others.
   Effort, frustration, temporal and physical demand and performance behave
   the same (harmonized ranges within 1, raw ones 13–23). A choice that did
   not matter for 23 studies decides the estimate once studies with another
   response format join.
-- **Robust:** the NASA-TLX total `TLX_SCORE` (k = 12–14), 35.46–38.50 on its
+- **Robust:** the NASA-TLX total `TLX_SCORE` (k = 13–14), 35.46–38.03 on its
   0–100 scale (27.4–34.7), every interval covering the default; SUS
-  `usability` (k = 5–6), 74.2–75.5. Before 2026-11-14 the range was
-  32.95–38.69 (k = 11–14): the LLM read Curved Dragging's effective target
-  width, in degrees, as the NASA-TLX total, and that column displaced the
-  study's total computed from its curated subscales.
+  `usability` (k = 6), 74.24–74.42. Until Curved Dragging's end-point
+  columns were locked (2026-11-14) the range was 32.95–38.69 (k = 11–14):
+  the LLM read Curved Dragging's effective target width, in degrees, as the
+  NASA-TLX total, and that column displaced the study's total computed from
+  its curated subscales. Until the per-column exclusion of the same day it
+  was 35.46–38.50 (k = 12–14) and `usability` 74.2–75.5 (k = 5–6): in-car VR
+  gain's total and ROADS' SUS score, computed from curated items, were left
+  out without LLM mappings because another column of their items' DVs was
+  LLM-mapped.
 - **Fragile:**
-  - `perceived_safety` (k = 5–11) moves from 1.12 to 2.99 (0.93 to 4.04),
-    entirely with scale harmonization (raw 2.84–2.99, harmonized
-    1.12–1.21); 25% of the intervals miss the default (28%);
+  - `perceived_safety` (k = 7–11) moves from 1.18 to 3.12 (0.93 to 4.04),
+    entirely with scale harmonization (raw 2.89–3.12, harmonized
+    1.18–1.26); 28% of the intervals miss the default (28%);
   - `understanding_rating` ranges from 3.80 to 5.73 (3.71–7.56), again by
     scale harmonization alone.
 
@@ -479,20 +493,26 @@ the 39 development studies (2026-11-06, `analyses/output_multiverse/`; the
   mappings of road_bumps_touch (a speed bin as perceived safety) and ARTV
   ornaments widened them, and both studies' columns are no longer offered
   to the LLM.
-- **Fragility from LLM rows:** with LLM-deduced columns included,
-  `task_completion_time` spans 1.2 to 900 (to 1,331), because the LLM maps
-  columns in milliseconds (AV Prevalence's decision times, myocontrol's test
-  trials), which the curated mappings leave out. Without LLM rows it now
-  spans 1.25 to 42.27 (0.70–0.90 with 23 studies; 1.24–52.66 before
-  road_bumps_touch's curated task times joined on 2026-11-08) by the τ²
-  estimator alone: an NL2TAP scenario takes 209 s, a trial of the other
-  studies (VR dragging, touch selection on a phone and in a car, memory
-  reaction time) 0.6–2 s, and REML weights the studies nearly equally. Times of different tasks are
-  not one quantity. `pedestrian_crossing_time` is still pooled only with
-  LLM-mapped columns (6.2–13.9 over 7–8 studies). The plausibility rules
-  check names, types and ranges, not whether a DV fits the study's domain:
-  the LLM reads SenseCobot's EEG beta/alpha ratios as mental demand, and
-  that study then carries 17.5% of the weight in the all-mappings pool.
+- **Fragility from LLM rows:** with LLM-mapped columns included,
+  `task_completion_time` spans 6.1 to 685 (to 1,331), because the LLM maps
+  AV Prevalence's decision times, in milliseconds, which its curated
+  mapping leaves out. Until 2026-11-14 it also averaged myocontrol's
+  `table_path_efficiency` (up to 1.4 million), LLM-mapped to task
+  completion time, into the study's curated task times (range 5.1–806); the
+  column is now set aside. Without LLM mappings it spans 2.73 to 37.56
+  (0.70–0.90 with 23 studies; 1.25–42.27 before myocontrol's curated task
+  times joined on 2026-11-14) by the τ² estimator alone: an NL2TAP scenario
+  takes 209 s, a myocontrol trial 15 s, a trial of the other studies (VR
+  dragging, touch selection on a phone and in a car, memory reaction time)
+  0.6–2 s, and REML weights the studies nearly equally. Times of different
+  tasks are not one quantity. `pedestrian_crossing_time` is still pooled
+  only with LLM-mapped columns (10.9–14.8 over 7 studies). The plausibility
+  rules check names, types and ranges, not whether a DV fits the study's
+  domain: the LLM reads SenseCobot's EEG beta/alpha ratios as mental demand
+  (until 2026-11-14 pooled with its ratings, 17.5% of the weight in the
+  all-mappings pool). It also reads FOV Snap-Turn's
+  `Mechanics1_2`–`Mechanics1_5` items as mental demand, and they now carry
+  28.9% of that pool's weight.
 - **Fragility that was a data error:** `performance` ranged from 8.73 to
   15.01, the widest range of any DV, until Running into Traffic's
   reverse-keyed "success" item was fixed (2026-10-26); with 23 studies it
@@ -502,9 +522,9 @@ the 39 development studies (2026-11-06, `analyses/output_multiverse/`; the
   lies in 0.73–1.57 (0.81–1.85). A wide or implausible multiverse range can
   flag a polarity error, not only a consequential harmonization choice.
 - **Interval width:** 95% interval widths differ by up to an order of
-  magnitude between Wald and HKSJ at small k (e.g. `perceived_safety`: 1.0
-  to 8.9; `mental_demand` 2.7 to 22.5). More studies narrow the widest:
-  `TLX_SCORE`'s widths, 12 to 143 over 3–5 studies, are 17 to 34 over 12–14.
+  magnitude between Wald and HKSJ at small k (e.g. `perceived_safety`: 0.9
+  to 5.6; `mental_demand` 2.5 to 17.0). More studies narrow the widest:
+  `TLX_SCORE`'s widths, 12 to 143 over 3–5 studies, are 16 to 32 over 13–14.
 
 The multiverse turns "we pooled k studies" into "this estimate survives N of
 32 defensible pipelines" — a reporting standard worth proposing (P5).
