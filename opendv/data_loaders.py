@@ -14,7 +14,9 @@ Supported input formats are the union of the keys registered by the
 ``@_register_format`` decorators below: ``.csv``, ``.tsv``, ``.txt``,
 ``.dat``, ``.xlsx``, ``.xls``, ``.xlsm``, ``.ods``, ``.pkl``, ``.pickle``,
 ``.parquet``, ``.sav``, ``.zsav``, ``.dta``, ``.feather``, ``.arrow``,
-``.json``, ``.jsonl``, ``.ndjson``. Pickles (``.pkl``, ``.pickle``) are
+``.json``, ``.jsonl``, ``.ndjson``, ``.mat`` (MATLAB v4 to v7.2, read with
+``scipy.io.loadmat``; the ``variable``, ``columns`` and ``dims`` table
+options say which variable becomes the table). Pickles (``.pkl``, ``.pickle``) are
 discovered but refused unless the caller passes ``allow_pickle=True``:
 unpickling runs code from the file. Output formats supported by
 ``save_output_file``: ``.csv``, ``.xlsx``, ``.parquet``, ``.pkl``,
@@ -32,6 +34,7 @@ import re
 from pathlib import Path
 from typing import Any, Callable
 
+import numpy as np
 import pandas as pd
 
 logger = logging.getLogger(__name__)
@@ -404,12 +407,198 @@ def _load_jsonlines(path: Path) -> pd.DataFrame:
 
 
 # ---------------------------------------------------------------------------
+# MATLAB .mat files
+# ---------------------------------------------------------------------------
+#
+# ``scipy.io.loadmat`` parses MAT files of versions 4 to 7.2 without running
+# anything they contain: MATLAB objects (``table``, ``timetable``, classdef
+# instances) and function handles come back as opaque values, which are
+# refused here. A .mat file holds named variables, not one table, so the
+# ``variable`` table option names the one to read (a dotted path reaches into
+# structs). Without it, the file's variables are read as the fields of one
+# struct when they line up, else the most data-rich variable is taken (as for
+# a multi-sheet workbook). A variable becomes a table as follows:
+#
+# - a struct: one column per field; a field holding an n x m matrix gives m
+#   columns ``field_1 .. field_m``; scalar fields (e.g. a participant id) are
+#   repeated on every row; nested structs give ``outer.inner`` columns;
+# - a struct array: one table per element as above, stacked, with a 1-based
+#   ``<variable>_index`` column first;
+# - a vector: one column; a 2-D matrix: one column per matrix column, named by
+#   the ``columns`` option (a list, or the name of a variable holding the
+#   names) or ``<variable>_1 ..``;
+# - an array with ``dims`` (one name per axis): a long table with one 1-based
+#   position column per axis and one value column named after the variable,
+#   e.g. ``dims: [participant, condition]`` for a participants x conditions
+#   matrix of one measure.
+
+MATLAB_SUFFIXES = frozenset({".mat"})
+MATLAB_OPTION_KEYS = ("variable", "columns", "dims")
+
+
+def _matlab_namespace(path: Path) -> dict[str, Any]:
+    """The variables of a MAT file (v4 to v7.2), without its ``__header__``-style entries."""
+    from scipy.io import loadmat
+
+    try:
+        data = loadmat(path, simplify_cells=True)
+    except NotImplementedError as exc:  # v7.3 files are HDF5 containers
+        raise ValueError(
+            f"'{path.name}' is a MATLAB v7.3 (HDF5) file, which scipy.io.loadmat cannot read; "
+            "it has to be re-saved in MATLAB with -v7 or exported to CSV"
+        ) from exc
+    return {name: value for name, value in data.items() if not name.startswith("__")}
+
+
+def _matlab_lookup(namespace: dict[str, Any], variable: str, file_name: str) -> Any:
+    """The value at a dotted path (``results.tlx``) of a MAT file's variables."""
+    value: Any = namespace
+    walked: list[str] = []
+    for part in str(variable).split("."):
+        if not isinstance(value, dict) or part not in value:
+            where = ".".join(walked) or "the file"
+            available = sorted(value) if isinstance(value, dict) else []
+            raise ValueError(f"MATLAB variable '{variable}' not found in '{file_name}': "
+                             f"{where} has {available or 'no fields'}")
+        value = value[part]
+        walked.append(part)
+    return value
+
+
+def _matlab_refuse_opaque(name: str, value: Any) -> None:
+    from scipy.io.matlab import MatlabFunction, MatlabOpaque
+
+    if isinstance(value, (MatlabOpaque, MatlabFunction)):
+        raise ValueError(
+            f"MATLAB variable '{name}' is a MATLAB object or function handle (e.g. a table), "
+            "which cannot be read without MATLAB; export it to CSV or save it as a struct"
+        )
+
+
+def _matlab_columns(name: str, value: Any) -> dict[str, Any]:
+    """Columns of one struct field or vector: ``{column name: scalar or 1-D values}``."""
+    _matlab_refuse_opaque(name, value)
+    if isinstance(value, dict):
+        columns: dict[str, Any] = {}
+        for field, inner in value.items():
+            columns.update(_matlab_columns(f"{name}.{field}" if name else field, inner))
+        return columns
+    if isinstance(value, list) and value and all(isinstance(v, dict) for v in value):
+        raise ValueError(f"MATLAB field '{name}' is a struct array; read it with variable: {name}")
+    if isinstance(value, list):
+        value = np.asarray(value, dtype=object)
+    if isinstance(value, np.ndarray):
+        if value.ndim == 0:
+            return {name: value.item()}
+        if value.ndim == 1:
+            return {name: value}
+        if value.ndim == 2:
+            return {f"{name}_{j + 1}": value[:, j] for j in range(value.shape[1])}
+        raise ValueError(f"MATLAB field '{name}' has {value.ndim} dimensions; read it with "
+                         f"variable: {name} and dims: [one name per axis]")
+    return {name: value}  # a scalar: number, string or bool
+
+
+def _matlab_struct_frame(name: str, value: dict[str, Any], file_name: str) -> pd.DataFrame:
+    """One struct as a table: equal-length fields side by side, scalars repeated."""
+    columns = _matlab_columns("", value)
+    lengths = {col: len(v) for col, v in columns.items() if isinstance(v, np.ndarray)}
+    rows = set(lengths.values()) - {1}
+    if len(rows) > 1:
+        detail = ", ".join(f"{col} ({n})" for col, n in lengths.items())
+        raise ValueError(f"MATLAB struct '{name or file_name}' in '{file_name}' has fields of different "
+                         f"lengths: {detail}; name one with the 'variable' table option")
+    n_rows = rows.pop() if rows else 1
+    data = {col: (v if isinstance(v, np.ndarray) and len(v) == n_rows else
+                  [v.item() if isinstance(v, np.ndarray) else v] * n_rows)
+            for col, v in columns.items()}
+    return pd.DataFrame(data)
+
+
+def _matlab_frame(name: str, value: Any, file_name: str, columns: Any = None,
+                  dims: list[str] | None = None, namespace: dict[str, Any] | None = None) -> pd.DataFrame:
+    """One MATLAB variable as a table (see the section comment above)."""
+    _matlab_refuse_opaque(name, value)
+    leaf = name.split(".")[-1] if name else "value"
+    if dims is not None:
+        array = np.asarray(value)
+        if not isinstance(dims, list) or array.ndim != len(dims) or array.dtype == object:
+            raise ValueError(f"dims for MATLAB variable '{name}' in '{file_name}' must name each of its "
+                             f"{array.ndim} axes (shape {array.shape}) of a numeric array, not {dims!r}")
+        index = pd.MultiIndex.from_product([range(1, n + 1) for n in array.shape], names=[str(d) for d in dims])
+        return pd.DataFrame({leaf: array.reshape(-1)}, index=index).reset_index()
+    if columns is not None:
+        array = np.asarray(value) if not isinstance(value, dict) else None
+        if array is None or array.ndim != 2:
+            raise ValueError(f"'columns' applies to a 2-D MATLAB matrix; '{name}' in '{file_name}' is not one")
+        names = columns
+        if isinstance(columns, str):
+            names = _matlab_lookup(namespace or {}, columns, file_name)
+        names = [str(n) for n in np.asarray(names, dtype=object).reshape(-1)]
+        if len(names) != array.shape[1]:
+            raise ValueError(f"'columns' for '{name}' in '{file_name}' names {len(names)} columns; "
+                             f"the matrix has {array.shape[1]}")
+        return pd.DataFrame(array, columns=names)
+    if isinstance(value, dict):
+        return _matlab_struct_frame(name, value, file_name)
+    if isinstance(value, list) and value and all(isinstance(v, dict) for v in value):
+        parts = [_matlab_struct_frame(f"{name}({i + 1})", element, file_name)
+                 for i, element in enumerate(value)]
+        for i, part in enumerate(parts):
+            part.insert(0, f"{leaf}_index", i + 1)
+        return pd.concat(parts, ignore_index=True)
+    array = np.asarray(value, dtype=object if isinstance(value, list) else None)
+    if array.ndim <= 1:
+        return pd.DataFrame({leaf: array.reshape(-1)})
+    if array.ndim == 2:
+        return pd.DataFrame(array, columns=[f"{leaf}_{j + 1}" for j in range(array.shape[1])])
+    raise ValueError(f"MATLAB variable '{name}' in '{file_name}' has {array.ndim} dimensions; "
+                     "name its axes with the 'dims' table option")
+
+
+@_register_format(".mat")
+def _load_matlab(path: Path, variable: str | None = None, columns: Any = None,
+                 dims: list[str] | None = None) -> pd.DataFrame:
+    """Load one table from a MATLAB .mat file (v4 to v7.2) with ``scipy.io.loadmat``."""
+    namespace = _matlab_namespace(path)
+    if variable is not None:
+        return _matlab_frame(str(variable), _matlab_lookup(namespace, variable, path.name), path.name,
+                             columns=columns, dims=dims, namespace=namespace)
+    if columns is not None or dims is not None:
+        raise ValueError(f"'columns' and 'dims' need the 'variable' they apply to ('{path.name}')")
+    if not namespace:
+        raise ValueError(f"'{path.name}' holds no MATLAB variables")
+    if len(namespace) == 1:
+        (name, value), = namespace.items()
+        return _matlab_frame(name, value, path.name)
+    try:
+        return _matlab_struct_frame("", namespace, path.name)
+    except ValueError:
+        pass
+    best: tuple[int, str, pd.DataFrame] | None = None
+    for name, value in namespace.items():
+        try:
+            frame = _matlab_frame(name, value, path.name)
+        except ValueError:
+            continue
+        count = int(frame.notna().sum().sum())
+        if best is None or count > best[0]:
+            best = (count, name, frame)
+    if best is None:
+        raise ValueError(f"No MATLAB variable of '{path.name}' reads as a table: {sorted(namespace)}; "
+                         "name one with the 'variable' table option")
+    logger.info("MAT file '%s': selected variable '%s' (%d non-empty cells). Other variables: %s",
+                path.name, best[1], best[0], [n for n in namespace if n != best[1]])
+    return best[2]
+
+
+# ---------------------------------------------------------------------------
 # Public load / save / coerce entry points
 # ---------------------------------------------------------------------------
 
 _SPREADSHEET_SUFFIXES = {".xlsx", ".xls", ".xlsm", ".ods"}
 _TEXT_TABLE_SUFFIXES = {".csv", ".tsv", ".txt", ".dat"}
-TABLE_OPTION_KEYS = ("sheet", "header", "skip_rows", "pivot", "drop_columns", "rename")
+TABLE_OPTION_KEYS = ("sheet", "header", "skip_rows", "pivot", "drop_columns", "rename", *MATLAB_OPTION_KEYS)
 
 
 def table_options_for(table_options: dict[str, Any] | None, dataset_id: str) -> dict[str, Any]:
@@ -514,6 +703,9 @@ def load_input_file(
     the 0-based ``header`` row; for a spreadsheet or delimited text file the
     ``skip_rows`` below the header that hold no records (0-based data rows,
     e.g. ``[0, 1]`` for a Qualtrics export's question texts and import ids);
+    for a MATLAB .mat file the ``variable`` to read (a dotted path into
+    structs), the ``columns`` of a matrix and the ``dims`` that turn an array
+    into a long table (see ``_load_matlab``);
     for any table a long-to-wide ``pivot``, ``drop_columns`` (columns that
     must not be read as data, e.g. an optimizer's inverted copy of a
     questionnaire answer) and ``rename`` (``{old: new}`` column names, e.g.
@@ -531,6 +723,9 @@ def load_input_file(
     unknown = sorted(set(options) - set(TABLE_OPTION_KEYS))
     if unknown:
         raise ValueError(f"Unknown table option(s) {unknown} for '{path.name}'; allowed: {list(TABLE_OPTION_KEYS)}")
+    matlab = {key: options[key] for key in MATLAB_OPTION_KEYS if key in options}
+    if matlab and suffix not in MATLAB_SUFFIXES:
+        raise ValueError(f"{sorted(matlab)} apply to MATLAB .mat files, not '{path.name}'")
     header = options.get("header", 0)
     skipped = _SkippedRows(options.get("skip_rows"), header, path.name)
     read_kwargs: dict[str, Any] = {"skiprows": skipped} if skipped.rows else {}
@@ -544,6 +739,8 @@ def load_input_file(
         df = _load_text_table(path, **read_kwargs)
     elif read_kwargs:
         raise ValueError(f"'skip_rows' applies to spreadsheets and delimited text files, not '{path.name}'")
+    elif suffix in MATLAB_SUFFIXES:
+        df = _load_matlab(path, **matlab)
     elif suffix in PICKLE_SUFFIXES:
         if allow_pickle is not True:  # a truthy non-boolean never opts in
             raise PickleRefusedError(pickle_refusal_message(path))
@@ -717,6 +914,9 @@ __all__ = [
     "_load_feather",
     "_load_json",
     "_load_jsonlines",
+    "_load_matlab",
+    "MATLAB_SUFFIXES",
+    "MATLAB_OPTION_KEYS",
     "load_input_file",
     "table_options_for",
     "TABLE_OPTION_KEYS",
