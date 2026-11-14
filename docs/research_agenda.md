@@ -590,7 +590,7 @@ for the 39 development studies (2026-11-05); the 23-study values of
   persons over 10–12 studies (12 of 15 pairs; none with 23 studies).
   *Performance* is the weakest link (between persons r = 0.13–0.24),
   consistent with the TLX's one-factor misfit (§4).
-- **The LLM's contribution.** It reaches 37 studies (31 without it). Its
+- **The LLM's contribution.** It reaches 36 studies (31 without it). Its
   extra cross-construct findings need review: perceived safety × TiA trust
   (four studies, r = 0.63) rests on correct mappings in two studies, a
   partly wrong one in a third and a wrong one (relaxation as trust) in the
