@@ -96,9 +96,9 @@
       "level_label": "+ local-LLM fallback",
       "association": "between_person",
       "studies_with_relations": 37,
-      "pairs_pooled_k2": 227,
-      "pairs_pooled_k3": 83,
-      "cross_construct_pairs_k3": 60,
+      "pairs_pooled_k2": 226,
+      "pairs_pooled_k3": 82,
+      "cross_construct_pairs_k3": 59,
       "participants": 3064,
       "findings": 20,
       "cross_construct_findings": 7,
@@ -109,9 +109,9 @@
       "level_label": "+ local-LLM fallback",
       "association": "within_person",
       "studies_with_relations": 22,
-      "pairs_pooled_k2": 120,
-      "pairs_pooled_k3": 50,
-      "cross_construct_pairs_k3": 28,
+      "pairs_pooled_k2": 119,
+      "pairs_pooled_k3": 49,
+      "cross_construct_pairs_k3": 27,
       "participants": 804,
       "findings": 17,
       "cross_construct_findings": 2,
@@ -128,7 +128,7 @@
       "answered": 241,
       "unanswered_or_rejected": 73,
       "same_dv_as_curated": 67,
-      "curated_non_dv_mapped_by_llm": 1032
+      "curated_non_dv_mapped_by_llm": 1034
     },
     "conclusions_vs_curated": [
       {

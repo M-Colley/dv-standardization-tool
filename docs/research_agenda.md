@@ -462,9 +462,12 @@ the 39 development studies (2026-11-06, `analyses/output_multiverse/`; the
   the same (harmonized ranges within 1, raw ones 13–23). A choice that did
   not matter for 23 studies decides the estimate once studies with another
   response format join.
-- **Robust:** the NASA-TLX total `TLX_SCORE` (k = 11–14), 32.97–38.69 on its
+- **Robust:** the NASA-TLX total `TLX_SCORE` (k = 12–14), 35.46–38.50 on its
   0–100 scale (27.4–34.7), every interval covering the default; SUS
-  `usability` (k = 5–6), 74.2–75.5.
+  `usability` (k = 5–6), 74.2–75.5. Before 2026-11-14 the range was
+  32.95–38.69 (k = 11–14): the LLM read Curved Dragging's effective target
+  width, in degrees, as the NASA-TLX total, and that column displaced the
+  study's total computed from its curated subscales.
 - **Fragile:**
   - `perceived_safety` (k = 5–11) moves from 1.12 to 2.99 (0.93 to 4.04),
     entirely with scale harmonization (raw 2.84–2.99, harmonized
@@ -501,7 +504,7 @@ the 39 development studies (2026-11-06, `analyses/output_multiverse/`; the
 - **Interval width:** 95% interval widths differ by up to an order of
   magnitude between Wald and HKSJ at small k (e.g. `perceived_safety`: 1.0
   to 8.9; `mental_demand` 2.7 to 22.5). More studies narrow the widest:
-  `TLX_SCORE`'s widths, 12 to 143 over 3–5 studies, are 16 to 36 over 11–14.
+  `TLX_SCORE`'s widths, 12 to 143 over 3–5 studies, are 17 to 34 over 12–14.
 
 The multiverse turns "we pooled k studies" into "this estimate survives N of
 32 defensible pipelines" — a reporting standard worth proposing (P5).
@@ -522,12 +525,12 @@ for the 39 development studies (2026-11-05); the 23-study values of
 - **Harmonization ladder.** Pairs of constructs measured together in at
   least three studies (between persons): 14 (0) when studies are pooled by
   identical column names, 21 (0) with the shared schema and header matching,
-  35 (29) with the curated study mappings, 83 (54) with the LLM fallback;
-  within persons 12 / 21 / 24 / 52 (0 / 0 / 23 / 41). All pairs the two
+  35 (29) with the curated study mappings, 82 (54) with the LLM fallback;
+  within persons 12 / 21 / 24 / 49 (0 / 0 / 23 / 41). All pairs the two
   cheap steps reach are NASA-TLX subscale pairs, which four added studies
   name by the subscales' own words. Pairs of *different* constructs in three
-  or more studies need the curated mappings: 0 / 0 / 12 / 60 between and
-  0 / 0 / 2 / 30 within persons.
+  or more studies need the curated mappings: 0 / 0 / 12 / 59 between and
+  0 / 0 / 2 / 27 within persons.
 - **Workload and usability (new).** Between persons, participants who rated
   the task more mentally demanding rated the system less usable (SUS) in all
   four studies that measured both: r = −0.42, HKSJ [−0.51, −0.31], BH

@@ -2,8 +2,9 @@
 """Publication-quality figures for the OpenDV-HCI cross-study analysis (CHI format).
 
 Reads the artifacts produced by batch standardization
-(``run_batch_standardization.py`` or ``run_catalog_meta_analysis.py``, written
-to ``data/processed/catalog_meta_analysis``) and ``multi_study_analysis.py``
+(``run_batch_standardization.py`` or ``run_catalog_meta_analysis.py``: the run
+whose ``standardized`` folder the analysis read, as recorded in its
+``analysis_results.json``; OPENDV_BATCH_DIR overrides it) and ``multi_study_analysis.py``
 (the full meta-analysis suite, ``analyses/output_python_full``) and renders a
 cohesive figure set sized for the ACM
 CHI two-column template. Every figure is written as both a vector PDF (for
@@ -32,7 +33,35 @@ from opendv._paths import REPO_ROOT as REPO
 # Overridable so alternative runs can be rendered without touching the
 # committed figure set.
 ANALYSIS_DIR = Path(os.environ.get("OPENDV_ANALYSIS_DIR", REPO / "analyses" / "output_python_full"))
-BATCH_DIR = Path(os.environ.get("OPENDV_BATCH_DIR", REPO / "data" / "processed" / "catalog_meta_analysis"))
+
+
+def _analysed_batch_dir(analysis_dir: Path) -> Path | None:
+    """The batch run the analysis read: the folder above the ``input_dir`` that
+    ``analysis_results.json`` records (``<run>/standardized``), if it still has
+    its ``run_summary.json``.
+
+    Fig. 1 and Fig. 6 take their counts from that run. Until 2026-11-14 they read
+    ``data/processed/catalog_meta_analysis`` unless OPENDV_BATCH_DIR was set, so
+    an analysis of another run was drawn with that folder's older counts.
+    """
+    try:
+        results = json.loads((analysis_dir / "analysis_results.json").read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return None
+    recorded = results.get("input_dir") if isinstance(results, dict) else None
+    if not isinstance(recorded, str) or not recorded:
+        return None
+    run = Path(recorded.replace("\\", "/")).parent
+    if not run.is_absolute():
+        run = REPO / run
+    return run if (run / "run_summary.json").is_file() else None
+
+
+BATCH_DIR = Path(
+    os.environ.get("OPENDV_BATCH_DIR")
+    or _analysed_batch_dir(ANALYSIS_DIR)
+    or REPO / "data" / "processed" / "catalog_meta_analysis"
+)
 OUT = Path(os.environ.get("OPENDV_FIGURES_DIR", REPO / "analyses" / "figures_chi"))
 OUT.mkdir(parents=True, exist_ok=True)
 
@@ -251,9 +280,13 @@ def fig_presence():
     nS, nD = P.shape
     colors = [CLUSTER_COLOR[dv_cluster(d)] for d in dv_order]
 
-    fig = plt.figure(figsize=(COL2, 3.05))
+    # Size the figure from the number of studies: a fixed row height keeps the
+    # 7-pt study labels from overlapping (a fixed 3.05-in height fit 11 studies).
+    row_in, top_in = 0.12, 0.55
+    grid_in = top_in + nS * row_in
+    fig = plt.figure(figsize=(COL2, grid_in / 0.77))  # 0.77 = default subplot height share
     gs = fig.add_gridspec(
-        2, 2, width_ratios=[nD, 3.2], height_ratios=[1.6, nS],
+        2, 2, width_ratios=[nD, 3.2], height_ratios=[top_in, nS * row_in],
         wspace=0.03, hspace=0.04,
     )
     ax = fig.add_subplot(gs[1, 0])
@@ -291,9 +324,13 @@ def fig_presence():
     for sp in ("top", "right", "left"):
         ax_top.spines[sp].set_visible(False)
     ax_top.set_ylabel("# studies", fontsize=6)
-    for j, c in enumerate(counts):
-        if c >= 2:
-            ax_top.text(j + 0.5, c + 0.05, str(int(c)), ha="center", va="bottom", fontsize=5.5)
+    # Count labels only while a column is wide enough for two digits at 5.5 pt;
+    # with a larger vocabulary the y ticks carry the scale.
+    column_pt = 72 * COL2 * nD / (nD + 3.2) * 0.775 / nD
+    if column_pt >= 6.5:
+        for j, c in enumerate(counts):
+            if c >= 2:
+                ax_top.text(j + 0.5, c + 0.05, str(int(c)), ha="center", va="bottom", fontsize=5.5)
 
     # right marginal: per-study DV count
     dv_counts = P.sum(axis=1).values
@@ -301,6 +338,7 @@ def fig_presence():
     ax_right.set_ylim(0, nS)
     ax_right.invert_yaxis()
     ax_right.tick_params(labelleft=False, length=0, labelsize=6)
+    ax_right.set_xticks([])  # each bar carries its count
     for sp in ("top", "right", "bottom"):
         ax_right.spines[sp].set_visible(False)
     ax_right.set_xlabel("# DVs", fontsize=6)
@@ -318,8 +356,11 @@ def fig_presence():
                   bbox_to_anchor=(1.46, 1.25), fontsize=6, handlelength=1.0,
                   handleheight=1.0, labelspacing=0.25, borderaxespad=0)
 
+    fig_h = fig.get_figheight()
+    # Title 0.35 in above the top of the grid (the legend reaches 0.14 in above it).
     fig.suptitle(f"Dependent-variable coverage across {N_STUDIES} open HCI datasets",
-                 x=0.045, y=1.06, ha="left", fontsize=9, fontweight="bold")
+                 x=0.045, y=fig.subplotpars.top + 0.35 / fig_h, ha="left", va="bottom",
+                 fontsize=9, fontweight="bold")
     if len(DVS_MULTI) > 3:
         shared_note = f"{len(DVS_MULTI)} DVs are shared by >2 studies"
     elif DVS_MULTI:
@@ -334,7 +375,7 @@ def fig_presence():
         no_dv_note = "."
     # Sit below the longest rotated DV label (≈0.45 em per character at 5.6 pt).
     label_height_in = max(len(dv_label(d)) for d in dv_order) * label_size * 0.45 / 72
-    caption_y = -0.04 - label_height_in / fig.get_figheight()
+    caption_y = fig.subplotpars.bottom - (label_height_in + 0.15) / fig_h
     fig.text(0.045, caption_y,
              f"After schema-driven standardization, mean pairwise DV overlap is only "
              f"Jaccard = {AVG_JACCARD:.3f}; {shared_note}{no_dv_note}",
@@ -350,29 +391,39 @@ def fig_overlap():
     M = overlap.loc[order, order].astype(float).values
     n = len(order)
 
-    fig, ax = plt.subplots(figsize=(COL1 + 0.7, COL1 + 0.55))
+    # Grow with the number of studies (0.12 in per cell keeps the 6.5-pt labels
+    # apart); a fixed single-column size fit 11 studies.
+    grid_in = max(COL1 - 0.5, 0.12 * n)
+    fig, ax = plt.subplots(figsize=(grid_in + 1.2, grid_in + 1.05))
     cmap = mpl.colormaps["YlGnBu"].copy()
     cmap.set_bad("#f3f3f3")
     masked = np.ma.masked_invalid(M)
     # blank the diagonal for legibility
     for i in range(n):
         masked[i, i] = np.ma.masked
-    im = ax.imshow(masked, cmap=cmap, vmin=0, vmax=0.7)
+    vmax = max(0.7, float(masked.max())) if masked.count() else 0.7
+    im = ax.imshow(masked, cmap=cmap, vmin=0, vmax=vmax)
 
     ax.set_xticks(range(n))
     ax.set_yticks(range(n))
-    ax.set_xticklabels([study_label(s) for s in order], rotation=45, ha="right", fontsize=6.5)
+    few = grid_in / n >= 0.2  # cells wide enough for slanted labels and values
+    ax.set_xticklabels([study_label(s) for s in order], rotation=45 if few else 90,
+                       ha="right" if few else "center", fontsize=6.5)
     ax.set_yticklabels([study_label(s) for s in order], fontsize=6.5)
     ax.tick_params(length=0)
-    for i in range(n):
-        for j in range(n):
-            if i == j:
-                ax.text(j, i, "—", ha="center", va="center", color="#bbbbbb", fontsize=6)
-            elif not np.isnan(M[i, j]):
-                v = M[i, j]
-                ax.text(j, i, f"{v:.2f}".lstrip("0") if v > 0 else "0",
-                        ha="center", va="center", fontsize=5.6,
-                        color="white" if v > 0.42 else "#333333")
+    # Cell values only while a cell is wide enough for ".25" at 5.6 pt; with
+    # more studies the colour scale carries them (dv_overlap_matrix.csv has
+    # the numbers).
+    if few:
+        for i in range(n):
+            for j in range(n):
+                if i == j:
+                    ax.text(j, i, "—", ha="center", va="center", color="#bbbbbb", fontsize=6)
+                elif not np.isnan(M[i, j]):
+                    v = M[i, j]
+                    ax.text(j, i, f"{v:.2f}".lstrip("0") if v > 0 else "0",
+                            ha="center", va="center", fontsize=5.6,
+                            color="white" if v > 0.6 * vmax else "#333333")
     for sp in ax.spines.values():
         sp.set_visible(False)
     ax.set_xticks(np.arange(-.5, n, 1), minor=True)
