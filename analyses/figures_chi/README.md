@@ -14,7 +14,8 @@ captions is computed from the run artifacts.
 3. `python -m opendv.analysis.multiverse_analysis --input-dir <run>/standardized` → `analyses/output_multiverse/`
 4. `python -m opendv.analysis.make_chi_figures` → this folder (vector **PDF** + 300-dpi **PNG** per figure).
    Fig. 1 and Fig. 6 take their counts from the batch run that step 2 analysed (the `input_dir` in
-   `analysis_results.json`); `OPENDV_BATCH_DIR` overrides it.
+   `analysis_results.json`); `OPENDV_BATCH_DIR` overrides it. Fig. 4 reads the `*_llm_excluded` tables
+   of step 2, so the script stops if step 2 ran without `--exclude-llm-deduced`.
 
 ## Headline numbers
 
@@ -30,8 +31,8 @@ captions is computed from the run artifacts.
 | DVs pooled across ≥ 3 studies: all / without LLM-mapped columns | 55 / 36 | `meta_analysis_summary*.csv` |
 | **Mean pairwise DV overlap** | **Jaccard = 0.079** | `dv_overlap_details.csv` |
 | Most similar pairs | Handsize ↔ road bumps (1.0; both report only task completion time and touch offset); TLX formats ↔ visual fidelity (0.88; both report only the NASA-TLX) | `dv_overlap_details.csv` |
-| NASA-TLX Mental Demand, all mappings (k = 19; no study LLM-mapped, so the same pool as the next row) | 8.14; Wald [6.40, 9.87]; HKSJ [6.83, 9.45]; I² = 99.7%, τ² = 14.6 | `meta_analysis_summary.csv` |
-| NASA-TLX Mental Demand, without LLM-mapped columns (k = 19) | 8.14; Wald [6.40, 9.87]; HKSJ [6.83, 9.45]; I² = 99.7% | `meta_analysis_summary_llm_excluded.csv` |
+| **NASA-TLX Mental Demand, without LLM-mapped columns (Fig. 4; k = 19)** | 8.14; Wald [6.40, 9.87]; HKSJ [6.83, 9.45]; I² = 99.7%, τ² = 14.6 | `meta_analysis_summary_llm_excluded.csv` |
+| NASA-TLX Mental Demand, all mappings (k = 19; no study LLM-mapped, so the same pool) | 8.14; Wald [6.40, 9.87]; HKSJ [6.83, 9.45] | `meta_analysis_summary.csv` |
 | Multiverse range of the Mental Demand estimate (32 specifications) | 8.14–17.48 (harmonized scales: 8.14–8.16) | `output_multiverse/multiverse_summary.csv` |
 | Condition contrast: eHMI vs. none on Mental Demand (2 studies) | −0.54 SD; Wald [−0.73, −0.35]; HKSJ [−1.91, 0.84] | `contrast_meta_analysis.csv` |
 | Condition contrast: higher vs. lowest task demand on the NASA-TLX total (3 studies) | +0.97 SD; Wald [0.41, 1.53]; HKSJ [−0.10, 2.03]; I² = 88% | `contrast_meta_analysis.csv` |
@@ -52,9 +53,11 @@ captions is computed from the run artifacts.
   standardization.* Random-effects forest plot for NASA-TLX Mental Demand
   across 19 datasets whose raw labels differed. Both the Wald and the
   Hartung-Knapp-Sidik-Jonkman intervals are shown. I² = 99.7% means a shared
-  canonical name does not guarantee scale or population comparability. Every
-  row is a curated mapping, so the plot is the same with or without LLM
-  mappings (see caveat 1).
+  canonical name does not guarantee scale or population comparability. Drawn
+  from the primary analysis, which leaves out LLM-mapped columns
+  (`meta_analysis_summary_llm_excluded.csv`, `harmonized_dv_summary_llm_excluded.csv`;
+  since 2026-11-14, before from the all-mappings tables). For mental demand the
+  two pools are currently the same (see caveat 1).
 - **`fig5_causal_dag`** — *Within-study causal structure among standardized
   DVs.* DirectLiNGAM on z-scores. The only rows complete on the largest
   co-observed DV set all come from Running into Traffic, so this is **not** a
@@ -69,9 +72,10 @@ captions is computed from the run artifacts.
    56 of the 88 pooled DVs include LLM-mapped columns (`includes_llm_deduced`
    in `meta_analysis_summary.csv`). An LLM column enters only for a study
    without a curated column of the same DV (since 2026-11-14;
-   `llm_columns_set_aside.csv` lists the 394 set aside). Fig. 4 has no such
-   study since its last two LLM rows were found to be other questionnaires
-   and locked (2026-11-14): FOV Snap-Turn's `Mechanics1_2`–`Mechanics1_5`
+   `llm_columns_set_aside.csv` lists the 394 set aside). Fig. 4 is drawn
+   without LLM mappings since 2026-11-14. Its all-mappings pool had two LLM
+   rows until they were found to be other questionnaires and locked
+   (2026-11-14): FOV Snap-Turn's `Mechanics1_2`–`Mechanics1_5`
    (VRNQ game-mechanics items, 28.9% of the weight) and Gaze Platformer's
    `Enjoyment_fun` and `Enjoyment_entertaining` (PXI enjoyment items, 5.0%);
    the pool went from k = 21, 7.73 [6.41, 9.05] to k = 19, 8.14 [6.83, 9.45]
@@ -81,8 +85,8 @@ captions is computed from the run artifacts.
    study × DV rows with `mapping_source = llm_deduced` are listed in
    `harmonized_dv_summary.csv`. For claims, prefer the `*_llm_excluded` files
    (54 meta-analyzable DVs, 36 with k ≥ 3), which leave out every LLM-mapped
-   column but keep curated columns of the same DV. Fig. 2, Fig. 3 and the PCA
-   composite use all mappings.
+   column but keep curated columns of the same DV, as Fig. 4 does. Fig. 1,
+   Fig. 2, Fig. 3 and the PCA composite use all mappings.
 2. **Observation-level n.** Meta-analysis weights use row counts, not
    participants, so large row-level exports (TLX formats with 3,888 rows,
    FACT-AV with 2,600) weigh heavily. The participant-level alternative is one axis of the multiverse
