@@ -1,0 +1,28 @@
+# Second held-out test mapping for teleoperation_latency_2026 (docs/preregistration_heldout_relations_2.md).
+# Paper: "Impact of Latency on Task Performance and User Experience in Teleoperated Object
+#   Manipulation", RO-MAN 2026, DOI 10.1109/RO-MAN72286.2026.11714563.
+# Data: Zenodo 10.5281/zenodo.20734951, CC-BY-4.0; README.md is the codebook.
+# File: latency_teleoperation_user_study_data.tsv, one row per trial: two tasks (JTHFT-6, BBT) x five
+#   command-execution delays (0-200 ms), within subjects. performance_metric is the JTHFT-6 completion
+#   time (s) for JTHFT rows and the number of blocks moved in 60 s for BBT rows (README). The manifest
+#   pivots the table to one row per participant x delay level (condition_number 1-5) with the two
+#   tasks' metrics side by side (columns JTHFT and BBT): JTHFT -> task_completion_time, BBT ->
+#   efficiency (blocks per minute). (Participant 2, excluded below, has one JTHFT trial whose delay is
+#   recorded as 0 ms in two conditions; pivoting by condition number keeps its rows apart.)
+# README: participants 2, 7, 10 and 32 were excluded from analysis for technical issues (exclude_rows).
+# The per-trial ratings (perceived delay, difficulty, control, embodiment; 1-5) have no schema DV and
+# are not kept by the pivot.
+
+participant: meta_participant_id
+condition_number: meta_condition_latency_level
+JTHFT: task_completion_time
+BBT: efficiency
+
+exclude_rows:
+- column: participant
+  values:
+  - 2
+  - 7
+  - 10
+  - 32
+  reason: excluded from analysis for technical issues (README.md)

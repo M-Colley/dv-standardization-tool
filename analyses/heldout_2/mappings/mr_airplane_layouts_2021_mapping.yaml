@@ -1,0 +1,24 @@
+# Second held-out test mapping for mr_airplane_layouts_2021 (docs/preregistration_heldout_relations_2.md).
+# Paper: "The Passenger Experience of Mixed Reality Virtual Display Layouts in Airplane Environments",
+#   ISMAR 2021, DOI 10.1109/ISMAR52148.2021.00042.
+# Data: Zenodo 10.5281/zenodo.6384796, CC-BY-4.0. No codebook; the paper describes the questionnaire.
+# File: dataForR.csv, one row per participant x layout (24 participants, six layout x input conditions;
+#   18 of them did the far-distance session too). All items on 1-9 (low - high) (paper):
+#   NASA-TLX mental demand, physical demand and effort (three subscales only); "tlxscore" combines
+#   them; neck fatigue; co-presence of the avatars; input-technique rating; visual discomfort; how
+#   likely the participant would use such a display on a plane.
+# The first column's header carries a byte-order mark ("\ufeffqq"); "user" holds the same id.
+
+user: meta_participant_id
+part: meta_session_part
+layouts: meta_condition_layout
+inputTechnique: meta_condition_input_technique
+mentaldemand: mental_demand
+physicaldemand: physical_demand
+effort: effort
+copresence: social_presence
+planeusage: acceptance_rating
+
+# Left unlabelled: the first column (participant id with a BOM in its name; "user" repeats it),
+# tlxscore (a partial TLX of three subscales), neckfatigue, inputtechnique (rating of the input method),
+# visualdiscomfort (no schema DV).

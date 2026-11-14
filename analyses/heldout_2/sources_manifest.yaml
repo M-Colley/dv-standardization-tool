@@ -1,0 +1,448 @@
+# Batch manifest of the second held-out test (docs/preregistration_heldout_relations_2.md).
+# Files: analyses/heldout_2/sources.yaml, downloaded and verified with
+#   python -m opendv.analysis.confirmatory fetch --sources analyses/heldout_2/sources.yaml --data-dir data/raw/heldout_2
+# Mappings: analyses/heldout_2/mappings/ (frozen with this file). Study designs: schemas/study_designs.yaml.
+#
+# Dropped under the pre-registered exclusion rules:
+#   eeg_sonification_2025: cannot be downloaded (Dryad answers HTTP 401 for every file)
+#   immersive_analytics_scale_2026: no participant-level data: the table has no participant identifier, so no row can be attributed to a participant
+#   cyclist_overtaking_2025: fewer than two schema DVs in the downloaded files: the end-of-study perceived-safety and stress items are not in appen.csv (they are in the unpinned 137 MB heroku.json); the simulator questionnaire adds only an acceptance item
+#   ceap_360vr_2021: the NASA-TLX is stored as seven numbers per block whose items are undocumented (README, dataset description), so no subscale can be labelled; SSQ, IPQ and SAM are space-separated strings inside nested JSON, which would need a new reader for DVs that bear on no target
+#   child_pedestrian_vr_2025: the questionnaire items T2-T13 are undocumented, so perceived safety cannot be identified; the motion-capture rows carry participant and trial in one code, which would need a new reader for DVs that bear on no target
+#   audiobook_driving_2024: the lane-keeping and distance measures are pivot-table blocks side by side, each with its own participant column; the only plain table (hazard reaction times) holds one DV; reading the blocks would need a new reader for DVs that bear on no target
+sources:
+- source_id: ar_telepresence_arm_2023
+  source_type: local_path
+  location: data/raw/heldout_2/ar_telepresence_arm_2023
+  publication_doi: 10.1049/cim2.12085
+  license: CC-BY-4.0
+  include_globs: ['**/Data/responses.csv', '**/Data/blocks_count.csv']
+  table_options:
+    '**/Data/responses.csv':
+      wide_to_long:
+        id: ['Participant number:']
+        level: block
+        levels: [1, 2, 3, 4, 5, 6]
+        columns:
+          condition: ['Which condition was played? (filled in by experimenter)', 'Which condition was played? (filled in by experimenter).1', 'Which condition was played? (filled in by experimenter).2',
+            'Which condition was played? (filled in by experimenter).3', 'Which condition was played? (filled in by experimenter).4', 'Which condition was played? (filled in by experimenter).5']
+          umux1: ['UMUX questionnaire [The system''s capabilities meet my requirements]', 'UMUX questionnaire [The system''s capabilities meet my requirements].1', 'UMUX questionnaire [The system''s capabilities
+              meet my requirements].2', 'UMUX questionnaire [The system''s capabilities meet my requirements].3', 'UMUX questionnaire [The system''s capabilities meet my requirements].4', 'UMUX questionnaire
+              [The system''s capabilities meet my requirements].5']
+          umux2: ['UMUX questionnaire [Using this system is a frustrating experience]', 'UMUX questionnaire [Using this system is a frustrating experience].1', 'UMUX questionnaire [Using this system is
+              a frustrating experience].2', 'UMUX questionnaire [Using this system is a frustrating experience].3', 'UMUX questionnaire [Using this system is a frustrating experience].4', 'UMUX questionnaire
+              [Using this system is a frustrating experience].5']
+          umux3: ['UMUX questionnaire [The system is easy to use]', 'UMUX questionnaire [The system is easy to use].1', 'UMUX questionnaire [The system is easy to use].2', 'UMUX questionnaire [The system
+              is easy to use].3', 'UMUX questionnaire [The system is easy to use].4', 'UMUX questionnaire [The system is easy to use].5']
+          umux4: ['UMUX questionnaire [I have to spend too much time correcting things with this system]', 'UMUX questionnaire [I have to spend too much time correcting things with this system].1', 'UMUX
+              questionnaire [I have to spend too much time correcting things with this system].2', 'UMUX questionnaire [I have to spend too much time correcting things with this system].3', 'UMUX questionnaire
+              [I have to spend too much time correcting things with this system].4', 'UMUX questionnaire [I have to spend too much time correcting things with this system].5']
+  mapping_path: analyses/heldout_2/mappings/ar_telepresence_arm_2023_mapping.yaml
+  override_standard_aliases: true
+- source_id: build_3d_mr_2025
+  source_type: local_path
+  location: data/raw/heldout_2/build_3d_mr_2025
+  publication_doi: 10.28991/esj-2024-sied1-024
+  license: CC-BY-4.0
+  include_globs: [Data_NASA-TLX.xlsx]
+  table_options:
+    Data_NASA-TLX.xlsx: {sheet: Hoja3}
+  mapping_path: analyses/heldout_2/mappings/build_3d_mr_2025_mapping.yaml
+  override_standard_aliases: true
+- source_id: build_pc_mar_2026
+  source_type: local_path
+  location: data/raw/heldout_2/build_pc_mar_2026
+  publication_doi: 10.1155/hbe2/3687910
+  license: CC-BY-4.0
+  include_globs: [NASA_MAR.xlsx]
+  table_options:
+    NASA_MAR.xlsx: {sheet: Hoja8}
+  mapping_path: analyses/heldout_2/mappings/build_pc_mar_2026_mapping.yaml
+  override_standard_aliases: true
+- source_id: chatgpt_roleplay_2025
+  source_type: local_path
+  location: data/raw/heldout_2/chatgpt_roleplay_2025
+  publication_doi: 10.5220/0013235400003932
+  license: CC-BY-4.0
+  include_globs: [Usability of ChatGPT(1-20).xlsx]
+  mapping_path: analyses/heldout_2/mappings/chatgpt_roleplay_2025_mapping.yaml
+  override_standard_aliases: true
+- source_id: citizen_science_tutorial_2021
+  source_type: local_path
+  location: data/raw/heldout_2/citizen_science_tutorial_2021
+  publication_doi: 10.1007/s42489-021-00083-2
+  license: CC-BY-4.0
+  include_globs: [ORIGINALDATA_*.csv]
+  table_options:
+    ORIGINALDATA_*.csv:
+      skip_rows: [0, 1]
+  mapping_path: analyses/heldout_2/mappings/citizen_science_tutorial_2021_mapping.yaml
+  override_standard_aliases: true
+- source_id: debugging_cps_ar_vr_2026
+  source_type: local_path
+  location: data/raw/heldout_2/debugging_cps_ar_vr_2026
+  publication_doi: 10.1109/tvcg.2026.3747542
+  license: CC-BY-4.0
+  include_globs: [ismar26a-sub1461-i9.csv]
+  table_options:
+    ismar26a-sub1461-i9.csv:
+      wide_to_long:
+        id: [rttttttttt, Age, Gender]
+        level: condition
+        levels: [Ex-Situ AR, In-Situ AR, In-Situ VR]
+        columns:
+          scenario: [Ex-Situ AR_Scenario, In-Situ AR_Scenario, In-Situ VR_Scenario]
+          numruns: [Ex-Situ AR_NumRuns, In-Situ AR_NumRuns, In-Situ VR_NumRuns]
+          tasktime: [Ex-Situ AR_TaskTime, In-Situ AR_TaskTime, In-Situ VR_TaskTime]
+          failure_identified: [Ex-Situ AR_FailureIdentified, In-Situ AR_FailureIdentified, In-Situ VR_FailureIdentified]
+          defect_resolved: [Ex-Situ AR_DefectResolved, In-Situ AR_DefectResolved, In-Situ VR_DefectResolved]
+          sms: [Ex-Situ AR_SMS, In-Situ AR_SMS, In-Situ VR_SMS]
+          ueqs_prag: [Ex-Situ AR_UEQS_Prag, In-Situ AR_UEQS_Prag, In-Situ VR_UEQS_Prag]
+          ueqs_hed: [Ex-Situ AR_UEQS_Hed, In-Situ AR_UEQS_Hed, In-Situ VR_UEQS_Hed]
+          ueqs: [Ex-Situ AR_UEQS, In-Situ AR_UEQS, In-Situ VR_UEQS]
+          flow: [Ex-Situ AR_Flow, In-Situ AR_Flow, In-Situ VR_Flow]
+          tlx: [Ex-Situ AR_TLX, In-Situ AR_TLX, In-Situ VR_TLX]
+          sus: [Ex-Situ AR_SUS, In-Situ AR_SUS, In-Situ VR_SUS]
+  mapping_path: analyses/heldout_2/mappings/debugging_cps_ar_vr_2026_mapping.yaml
+  override_standard_aliases: true
+- source_id: developers_prompt_docgen_2024
+  source_type: local_path
+  location: data/raw/heldout_2/developers_prompt_docgen_2024
+  publication_doi: 10.1109/icsme58944.2024.00058
+  license: MIT
+  include_globs: ['**/RQ2/UEQ/UEQ-results-all.xlsx']
+  table_options:
+    '**/UEQ-results-all.xlsx':
+      sheet: [Data1, Data2]
+      header: 4
+      row_id: respondent
+      rename: {'1': ueq01, '2': ueq02, '3': ueq03, '4': ueq04, '5': ueq05, '6': ueq06, '7': ueq07, '8': ueq08, '9': ueq09, '10': ueq10, '11': ueq11, '12': ueq12, '13': ueq13, '14': ueq14, '15': ueq15, '16': ueq16,
+        '17': ueq17, '18': ueq18, '19': ueq19, '20': ueq20, '21': ueq21, '22': ueq22, '23': ueq23, '24': ueq24, '25': ueq25, '26': ueq26}
+  mapping_path: analyses/heldout_2/mappings/developers_prompt_docgen_2024_mapping.yaml
+  override_standard_aliases: true
+- source_id: exergame_children_2025
+  source_type: local_path
+  location: data/raw/heldout_2/exergame_children_2025
+  publication_doi: 10.1371/journal.pone.0326371
+  license: CC0-1.0
+  include_globs: [Processed_Data/NASA-TLX.csv]
+  table_options:
+    Processed_Data/NASA-TLX.csv:
+      wide_to_long:
+        id: [id, age]
+        level: level
+        levels: [mlow, mchall, mhigh, clow, cchall, chigh]
+        columns:
+          mental: [mlowmental, mchallmental, mhighmental, clowmental, cchallmental, chighmental]
+          physical: [mlowphysical, mchallphysical, mhighphysical, clowphysical, cchallphysical, chighphysical]
+          temporal: [mlowtemporal, mchalltemporal, mhightemporal, clowtemporal, cchalltemporal, chightemporal]
+          effort: [mloweffort, mchalleffort, mhigheffort, cloweffort, cchalleffort, chigheffort]
+          frustration: [mlowfrustration, mchallfrustration, mhighfrustration, clowfrustration, cchallfrustration, chighfrustration]
+  mapping_path: analyses/heldout_2/mappings/exergame_children_2025_mapping.yaml
+  override_standard_aliases: true
+- source_id: handover_reaction_time_2025
+  source_type: local_path
+  location: data/raw/heldout_2/handover_reaction_time_2025
+  publication_doi: 10.1109/hri61500.2025.10973851
+  license: CC-BY-4.0
+  include_globs: [03_evaluation/export/data_Questions.csv]
+  mapping_path: analyses/heldout_2/mappings/handover_reaction_time_2025_mapping.yaml
+  override_standard_aliases: true
+- source_id: human_swarm_pfm_2025
+  source_type: local_path
+  location: data/raw/heldout_2/human_swarm_pfm_2025
+  publication_doi: 10.1145/3727989
+  license: CC-BY-4.0
+  include_globs: [form_data_*.csv]
+  mapping_path: analyses/heldout_2/mappings/human_swarm_pfm_2025_mapping.yaml
+  override_standard_aliases: true
+- source_id: layer_interaction_elastic_2022
+  source_type: local_path
+  location: data/raw/heldout_2/layer_interaction_elastic_2022
+  publication_doi: 10.1145/3531073.3531101
+  license: CC-BY-4.0
+  include_globs: ['**/data/questionnaires/NASA_RTLX_complete.tsv']
+  mapping_path: analyses/heldout_2/mappings/layer_interaction_elastic_2022_mapping.yaml
+  override_standard_aliases: true
+- source_id: mr_airplane_layouts_2021
+  source_type: local_path
+  location: data/raw/heldout_2/mr_airplane_layouts_2021
+  publication_doi: 10.1109/ismar52148.2021.00042
+  license: CC-BY-4.0
+  include_globs: [dataForR.csv]
+  mapping_path: analyses/heldout_2/mappings/mr_airplane_layouts_2021_mapping.yaml
+  override_standard_aliases: true
+- source_id: navigable_wim_2026
+  source_type: local_path
+  location: data/raw/heldout_2/navigable_wim_2026
+  publication_doi: 10.1109/tvcg.2026.3747512
+  license: CC-BY-4.0
+  include_globs: ['**/Questionnaires/Fragebogen_Daten.csv']
+  table_options:
+    '**/Fragebogen_Daten.csv':
+      wide_to_long:
+        id: [v_1, v_2, v_3]
+        level: block
+        levels: [1, 2, 3]
+        columns:
+          condition: [v_162, v_163, v_164]
+          ueqs1: [v_17, v_73, v_115]
+          ueqs2: [v_18, v_74, v_116]
+          ueqs3: [v_19, v_75, v_117]
+          ueqs4: [v_20, v_76, v_118]
+          ueqs5: [v_21, v_77, v_119]
+          ueqs6: [v_22, v_78, v_120]
+          ueqs7: [v_23, v_79, v_121]
+          ueqs8: [v_24, v_80, v_122]
+          sus1: [v_26, v_82, v_124]
+          sus2: [v_27, v_83, v_125]
+          sus3: [v_28, v_84, v_126]
+          sus4: [v_29, v_85, v_127]
+          sus5: [v_30, v_86, v_128]
+          sus6: [v_31, v_87, v_129]
+          sus7: [v_32, v_88, v_130]
+          sus8: [v_33, v_89, v_131]
+          sus9: [v_34, v_90, v_132]
+          sus10: [v_35, v_91, v_133]
+          md: [v_40, v_93, v_135]
+          pd: [v_41, v_94, v_136]
+          td: [v_42, v_95, v_137]
+          pf: [v_43, v_96, v_138]
+          ef: [v_44, v_97, v_139]
+          fr: [v_45, v_98, v_140]
+          ipq01: [v_55, v_142, v_100]
+          ipq02: [v_58, v_143, v_101]
+          ipq03: [v_59, v_144, v_102]
+          ipq04: [v_60, v_145, v_103]
+          ipq05: [v_61, v_146, v_104]
+          ipq06: [v_62, v_147, v_105]
+          ipq07: [v_63, v_148, v_106]
+          ipq08: [v_64, v_149, v_107]
+          ipq09: [v_65, v_150, v_108]
+          ipq10: [v_66, v_151, v_109]
+          ipq11: [v_67, v_152, v_110]
+          ipq12: [v_68, v_153, v_111]
+          ipq13: [v_69, v_154, v_112]
+          ipq14: [v_70, v_155, v_113]
+  mapping_path: analyses/heldout_2/mappings/navigable_wim_2026_mapping.yaml
+  override_standard_aliases: true
+- source_id: p300_attention_bci_2024
+  source_type: local_path
+  location: data/raw/heldout_2/p300_attention_bci_2024
+  publication_doi: 10.2196/46135
+  license: CC-BY-4.0
+  include_globs: [Questionnaire scores.csv]
+  mapping_path: analyses/heldout_2/mappings/p300_attention_bci_2024_mapping.yaml
+  override_standard_aliases: true
+- source_id: pipeblocks_cicd_2025
+  source_type: local_path
+  location: data/raw/heldout_2/pipeblocks_cicd_2025
+  publication_doi: 10.1109/vl-hcc65237.2025.00025
+  license: CC-BY-4.0
+  include_globs: ['**/NASA TLX.csv/NASA TLX.csv', '**/sus.csv']
+  mapping_path: analyses/heldout_2/mappings/pipeblocks_cicd_2025_mapping.yaml
+  override_standard_aliases: true
+- source_id: remote_takeover_replay_2026
+  source_type: local_path
+  location: data/raw/heldout_2/remote_takeover_replay_2026
+  publication_doi: 10.1145/3811427.3811435
+  license: CC-BY-4.0
+  include_globs: [02_data/bayesian-RMANOVA.csv]
+  mapping_path: analyses/heldout_2/mappings/remote_takeover_replay_2026_mapping.yaml
+  override_standard_aliases: true
+- source_id: risky_driving_age_2017
+  source_type: local_path
+  location: data/raw/heldout_2/risky_driving_age_2017
+  publication_doi: 10.1371/journal.pone.0185909
+  license: CC-BY-4.0
+  include_globs: [Dataset_*_Scenario.xlsx]
+  mapping_path: analyses/heldout_2/mappings/risky_driving_age_2017_mapping.yaml
+  override_standard_aliases: true
+- source_id: simulst_subtitles_2026
+  source_type: local_path
+  location: data/raw/heldout_2/simulst_subtitles_2026
+  publication_doi: 10.1080/10447318.2026.2734668
+  license: CC-BY-4.0
+  include_globs: [de-identified questionnaire data.xlsx]
+  table_options:
+    de-identified questionnaire data.xlsx:
+      sheet: [flickering, non_flickering]
+      header: 1
+      wide_to_long:
+        id: [Experiment No.实验编号, sheet]
+        level: video
+        levels: [1, 2]
+        columns:
+          mental_effort: ['24、How mentally demanding was the task? 观看该视频过程的心智负荷如何？', '41、How mentally demanding was the task? 观看该视频过程的心智负荷如何？']
+          satisfaction: ['27、Overall, how satisfied were you with the subtitle experience?总体而言，您对字幕体验的满意度如何？', '44、Overall, how satisfied were you with the subtitle experience?总体而言，您对字幕体验的满意度如何？']
+  mapping_path: analyses/heldout_2/mappings/simulst_subtitles_2026_mapping.yaml
+  override_standard_aliases: true
+- source_id: spot_voice_gesture_2025
+  source_type: local_path
+  location: data/raw/heldout_2/spot_voice_gesture_2025
+  publication_doi: 10.1145/3729540
+  license: CC-BY-4.0
+  include_globs: ['**/Data per participant and measure.xlsx']
+  table_options:
+    '**/Data per participant and measure.xlsx':
+      header: 1
+      wide_to_long:
+        id: [Participant number]
+        level: condition
+        levels: [Voice Walking, Voice Standing, Gesture Walking, Gesture Standing]
+        columns:
+          inter_command_time: [Voice Walking, Voice Standing, Gesture Walking, Gesture Standing]
+          n_commands: [Voice Walking.2, Voice Standing.2, Gesture Walking.2, Gesture Standing.2]
+          dup_mistakes: [Voice Walking.14, Voice Standing.14, Gesture Walking.14, Gesture Standing.14]
+          lr_mistakes: [Voice Walking.16, Voice Standing.16, Gesture Walking.16, Gesture Standing.16]
+          other_mistakes: [Voice Walking.18, Voice Standing.18, Gesture Walking.18, Gesture Standing.18]
+  mapping_path: analyses/heldout_2/mappings/spot_voice_gesture_2025_mapping.yaml
+  override_standard_aliases: true
+- source_id: steering_gain_2022
+  source_type: local_path
+  location: data/raw/heldout_2/steering_gain_2022
+  publication_doi: 10.1177/00187208221127944
+  license: CC-BY-4.0
+  include_globs: ['**/Questionnaires.xlsx']
+  table_options:
+    '**/Questionnaires.xlsx':
+      sheet: Post-trial
+      header: 2
+      wide_to_long:
+        id: ['Unnamed: 0']
+        level: condition
+        levels: [FL, FH, MI, DI]
+        columns:
+          md: [FL.3, FH.3, MI.3, DI.3]
+          pd: [FL.4, FH.4, MI.4, DI.4]
+          td: [FL.5, FH.5, MI.5, DI.5]
+          pf: [FL.6, FH.6, MI.6, DI.6]
+          ef: [FL.7, FH.7, MI.7, DI.7]
+          fr: [FL.8, FH.8, MI.8, DI.8]
+          overall: [FL.9, FH.9, MI.9, DI.9]
+  mapping_path: analyses/heldout_2/mappings/steering_gain_2022_mapping.yaml
+  override_standard_aliases: true
+- source_id: sus_de_pos_2025
+  source_type: local_path
+  location: data/raw/heldout_2/sus_de_pos_2025
+  publication_doi: 10.1080/10447318.2024.2434720
+  license: CC-BY-4.0
+  include_globs: [Study 2/SUS_DE_pos_study_2_data.xlsx]
+  table_options:
+    Study 2/SUS_DE_pos_study_2_data.xlsx: {row_id: respondent}
+  mapping_path: analyses/heldout_2/mappings/sus_de_pos_2025_mapping.yaml
+  override_standard_aliases: true
+- source_id: teleoperation_latency_2026
+  source_type: local_path
+  location: data/raw/heldout_2/teleoperation_latency_2026
+  publication_doi: 10.1109/ro-man72286.2026.11714563
+  license: CC-BY-4.0
+  include_globs: [latency_teleoperation_user_study_data.tsv]
+  table_options:
+    latency_teleoperation_user_study_data.tsv:
+      pivot:
+        index: [participant, condition_number]
+        columns: task
+        values: performance_metric
+  mapping_path: analyses/heldout_2/mappings/teleoperation_latency_2026_mapping.yaml
+  override_standard_aliases: true
+- source_id: teleport_distance_accuracy_2025
+  source_type: local_path
+  location: data/raw/heldout_2/teleport_distance_accuracy_2025
+  publication_doi: 10.1109/tvcg.2025.3632345
+  license: CC-BY-4.0
+  include_globs: [data_user_platform_velocity.csv]
+  mapping_path: analyses/heldout_2/mappings/teleport_distance_accuracy_2025_mapping.yaml
+  override_standard_aliases: true
+- source_id: turn_by_turn_wayfinding_2010
+  source_type: local_path
+  location: data/raw/heldout_2/turn_by_turn_wayfinding_2010
+  publication_doi: 10.1177/154193121005402305
+  license: CC0-1.0
+  include_globs: [Fenech_2010_acoustic_GPS_final.sav]
+  mapping_path: analyses/heldout_2/mappings/turn_by_turn_wayfinding_2010_mapping.yaml
+  override_standard_aliases: true
+- source_id: vibrotactile_elastic_2023
+  source_type: local_path
+  location: data/raw/heldout_2/vibrotactile_elastic_2023
+  publication_doi: 10.1145/3603555.3608534
+  license: CC-BY-4.0
+  include_globs: ['**/export/data/results_experiment.csv']
+  mapping_path: analyses/heldout_2/mappings/vibrotactile_elastic_2023_mapping.yaml
+  override_standard_aliases: true
+- source_id: vr_classroom_asa_2022
+  source_type: local_path
+  location: data/raw/heldout_2/vr_classroom_asa_2022
+  publication_doi: 10.3390/ijerph192416569
+  license: CC-BY-4.0
+  include_globs: ['**/asaExperiment_rawData/asaVRpoc_0_allResultsRaw.xlsx', '**/rawResultsQuestionnaire/*.csv']
+  table_options:
+    '**/rawResultsQuestionnaire/*.csv':
+      pivot:
+        index: [Proband_ID, Scene]
+        columns: Question
+        values: Answer
+  mapping_path: analyses/heldout_2/mappings/vr_classroom_asa_2022_mapping.yaml
+  override_standard_aliases: true
+- source_id: vr_classroom_noise_2025
+  source_type: local_path
+  location: data/raw/heldout_2/vr_classroom_noise_2025
+  publication_doi: 10.1038/s41598-025-18232-2
+  license: CC-BY-4.0
+  include_globs: ['**/raw/avASA_noise_NASA_TLX_raw.xlsx']
+  table_options:
+    '**/avASA_noise_NASA_TLX_raw.xlsx':
+      sheet: avASA_noise_NASA_TLX
+      wide_to_long:
+        id: [Proband_ID]
+        level: condition
+        levels: [SI, CL, SP, WN]
+        columns:
+          q1: [SI_01, CL_01, SP_01, WN_01]
+          q2: [SI_02, CL_02, SP_02, WN_02]
+          q3: [SI_03, CL_03, SP_03, WN_03]
+          q4: [SI_04, CL_04, SP_04, WN_04]
+          q5: [SI_05, CL_05, SP_05, WN_05]
+          q6: [SI_06, CL_06, SP_06, WN_06]
+  mapping_path: analyses/heldout_2/mappings/vr_classroom_noise_2025_mapping.yaml
+  override_standard_aliases: true
+- source_id: vr_propaganda_retention_2024
+  source_type: local_path
+  location: data/raw/heldout_2/vr_propaganda_retention_2024
+  publication_doi: 10.1016/j.chb.2024.108503
+  license: CC-BY-4.0
+  include_globs: [data_CHB.csv]
+  mapping_path: analyses/heldout_2/mappings/vr_propaganda_retention_2024_mapping.yaml
+  override_standard_aliases: true
+- source_id: vr_shopping_demands_2026
+  source_type: local_path
+  location: data/raw/heldout_2/vr_shopping_demands_2026
+  publication_doi: 10.2196/84893
+  license: CC-BY-4.0
+  include_globs: ['**/nasa-tlx-results.xlsx']
+  table_options:
+    '**/nasa-tlx-results.xlsx':
+      sheet: [mental, physical, temporal, performance, effort, frustration]
+      wide_to_long:
+        id: [participant, sheet]
+        level: condition
+        levels: &id001 [c1, c2, c3, c4, c5, c6, c7]
+        columns:
+          score: *id001
+      pivot:
+        index: [participant, condition]
+        columns: sheet
+        values: score
+  mapping_path: analyses/heldout_2/mappings/vr_shopping_demands_2026_mapping.yaml
+  override_standard_aliases: true
+- source_id: vr_spirit_ataxia_2023
+  source_type: local_path
+  location: data/raw/heldout_2/vr_spirit_ataxia_2023
+  publication_doi: 10.3390/brainsci13071017
+  license: CC-BY-4.0
+  include_globs: [Zenodo_Malerbaetal2023.xlsx]
+  table_options:
+    Zenodo_Malerbaetal2023.xlsx:
+      sheet: [SUS, SSQ]
+  mapping_path: analyses/heldout_2/mappings/vr_spirit_ataxia_2023_mapping.yaml
+  override_standard_aliases: true

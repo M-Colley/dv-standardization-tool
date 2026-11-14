@@ -820,3 +820,185 @@ studies:
     domain: other
     source: One row per participant x NASA-TLX session (mid, post; feedback mode changes between sessions), 71 younger and older adults.
     factors: []
+
+  # --- Second held-out test (docs/preregistration_heldout_relations_2.md) ---
+
+  ar_telepresence_arm_2023:
+    participant: meta_participant_id
+    domain: other
+    source: "responses.csv, one row per participant x condition block (wide_to_long, six blocks); blocks_count.csv, one row per participant (24 after exclusions, within subjects)."
+    factors: []
+
+  build_3d_mr_2025:
+    participant: meta_participant_id
+    domain: other
+    source: "Sheet Hoja3, one row per student (60), NASA-TLX once after using the MR app."
+    factors: []
+
+  build_pc_mar_2026:
+    participant: meta_participant_id
+    domain: other
+    source: "Sheet Hoja8, one row per student (60), NASA-TLX once after using the AR app."
+    factors: []
+
+  chatgpt_roleplay_2025:
+    participant: [meta_participant_id, "ID"]
+    domain: other
+    source: "One row per student (20), SUS and USE once after the chatbot session."
+    factors: []
+
+  citizen_science_tutorial_2021:
+    participant: [meta_participant_id, "ResponseId"]
+    domain: other
+    source: "Qualtrics export, one row per respondent (tutorial vs control, between subjects)."
+    factors: []
+
+  debugging_cps_ar_vr_2026:
+    participant: meta_participant_id
+    domain: other
+    source: "One row per participant x condition after wide_to_long (36 x 3, within subjects)."
+    factors: []
+
+  developers_prompt_docgen_2024:
+    participant: meta_participant_id
+    domain: other
+    source: "UEQ tool sheets Data1 and Data2 stacked, one numbered row per developer (50; two groups, between subjects)."
+    factors: []
+
+  exergame_children_2025:
+    participant: [meta_participant_id, "id"]
+    domain: other
+    source: "NASA-TLX.csv, one row per child x game level after wide_to_long (21 x 6, within subjects)."
+    factors: []
+
+  handover_reaction_time_2025:
+    participant: meta_participant_id
+    domain: other
+    source: "data_Questions.csv, one row per participant x robot reaction-time condition (20 x 5, within subjects)."
+    factors: []
+
+  human_swarm_pfm_2025:
+    participant: meta_participant_id
+    domain: other
+    source: "Three experiments of 60 different participants (P1-P180), one row per participant x scenario (two, within subjects)."
+    factors: []
+
+  layer_interaction_elastic_2022:
+    participant: meta_participant_id
+    domain: other
+    source: "NASA_RTLX_complete.tsv, one row per participant x block (three arrangements, within subjects)."
+    factors: []
+
+  mr_airplane_layouts_2021:
+    participant: meta_participant_id
+    domain: other
+    source: "dataForR.csv, one row per participant x layout condition (within subjects)."
+    factors: []
+
+  navigable_wim_2026:
+    participant: meta_participant_id
+    domain: other
+    source: "Fragebogen_Daten.csv, one row per participant x block after wide_to_long (37 x 3; techniques counterbalanced, within subjects)."
+    factors: []
+
+  p300_attention_bci_2024:
+    participant: [meta_participant_id, "Subject ID"]
+    domain: other
+    source: "Questionnaire scores.csv, one row per participant (47; three training arms, between subjects)."
+    factors: []
+
+  pipeblocks_cicd_2025:
+    participant: meta_participant_id
+    domain: other
+    source: "NASA TLX.csv and sus.csv, one row per participant x tool (10 x 2, within subjects)."
+    factors: []
+
+  remote_takeover_replay_2026:
+    participant: [meta_participant_id, "ID"]
+    domain: automotive
+    source: "bayesian-RMANOVA.csv, one row per participant x GUI (18 x 2, within subjects)."
+    factors: []
+
+  risky_driving_age_2017:
+    participant: meta_participant_id
+    domain: automotive
+    source: "One file per scenario (urban, rural, highway), one row per driver in each (115; the same Subject numbers)."
+    factors: []
+
+  simulst_subtitles_2026:
+    participant: meta_participant_id
+    domain: other
+    source: "Two sheets (display condition, between subjects), one row per participant x video after wide_to_long (40 x 2)."
+    factors: []
+
+  spot_voice_gesture_2025:
+    participant: meta_participant_id
+    domain: other
+    source: "Data per participant and measure.xlsx, one row per participant x condition after wide_to_long (218 x 4, within subjects)."
+    factors: []
+
+  steering_gain_2022:
+    participant: meta_participant_id
+    domain: automotive
+    source: "Questionnaires.xlsx sheet Post-trial, one row per participant x steering condition after wide_to_long (24 x 4, within subjects)."
+    factors: []
+
+  sus_de_pos_2025:
+    participant: meta_participant_id
+    domain: other
+    source: "Study 2, one numbered row per participant (902; website x SUS version x device, between subjects)."
+    factors: []
+
+  teleoperation_latency_2026:
+    participant: meta_participant_id
+    domain: other
+    source: "One row per participant x delay level after the pivot (within subjects)."
+    factors: []
+
+  teleport_distance_accuracy_2025:
+    participant: [meta_participant_id, "UserID"]
+    domain: other
+    source: "One row per user x platform size x velocity (60 x 3 x 10, within subjects)."
+    factors: []
+
+  turn_by_turn_wayfinding_2010:
+    participant: meta_participant_id
+    domain: automotive
+    source: "One row per participant (50; navigation device or not, between subjects); two drives as columns."
+    factors: []
+
+  vibrotactile_elastic_2023:
+    participant: meta_participant_id
+    domain: other
+    source: "results_experiment.csv, one row per trial (22 participants x 4 feedback conditions x 21 trials)."
+    factors: []
+
+  vr_classroom_asa_2022:
+    participant: meta_participant_id
+    domain: other
+    source: "allResultsRaw.xlsx, one row per trial (TP_ID); questionnaire files pivoted to one row per participant x time point (Proband_ID)."
+    factors: []
+
+  vr_classroom_noise_2025:
+    participant: meta_participant_id
+    domain: other
+    source: "One row per participant x noise condition after wide_to_long (24 x 4, within subjects)."
+    factors: []
+
+  vr_propaganda_retention_2024:
+    participant: meta_participant_id
+    domain: other
+    source: "data_CHB.csv, one row per participant (160; context x approach, between subjects)."
+    factors: []
+
+  vr_shopping_demands_2026:
+    participant: meta_participant_id
+    domain: other
+    source: "nasa-tlx-results.xlsx, one row per participant x demand condition after stacking, wide_to_long and pivot (22 x 7, within subjects)."
+    factors: []
+
+  vr_spirit_ataxia_2023:
+    participant: [meta_participant_id, "ID"]
+    domain: other
+    source: "SUS and SSQ sheets stacked, one row per patient and sheet (10 patients, one session)."
+    factors: []

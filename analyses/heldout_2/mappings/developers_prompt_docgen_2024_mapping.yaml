@@ -1,0 +1,65 @@
+# Second held-out test mapping for developers_prompt_docgen_2024 (docs/preregistration_heldout_relations_2.md).
+# Paper: "Can Developers Prompt? A Controlled Experiment for Code Documentation Generation", ICSME 2024,
+#   DOI 10.1109/ICSME58944.2024.00058 (open at arXiv 2408.00686).
+# Data: Zenodo 10.5281/zenodo.13749150, MIT licence; README files of the replication package.
+# File: results/RQ2/UEQ/UEQ-results-all.xlsx, the UEQ analysis tool: sheet Data1 (predefined-prompt
+#   group, 25 developers) and Data2 (ad-hoc-prompt group, 25), one row per participant, items 1-26 as
+#   columns (header row 4), answers 1 (left word) - 7 (right word). The manifest stacks both sheets
+#   (column `sheet` = group), numbers the rows (`respondent`, the tool keeps no id) and renames the
+#   item columns to ueq01-ueq26.
+# UEQ (standard 26 items, order and poles as on the tool's Items sheet). Items whose positive word is
+#   on the left (3, 4, 5, 9, 10, 12, 17, 18, 19, 21, 23, 24, 25) are reversed, so 7 is always positive.
+#   Scales: attractiveness 1, 12, 14, 16, 24, 25; pragmatic quality = perspicuity (4, 13, 21),
+#   efficiency (9, 20, 22, 23), dependability (8, 11, 17, 19); hedonic quality = stimulation
+#   (5, 6, 7, 18), novelty (3, 10, 15, 26). Item 2 (not understandable - understandable) was
+#   unintentionally left out of the study's questionnaire (paper), so its column is not read.
+
+respondent: meta_participant_id
+sheet: meta_condition_prompt_group
+ueq01: ueq_attractiveness
+ueq12: ueq_attractiveness
+ueq14: ueq_attractiveness
+ueq16: ueq_attractiveness
+ueq24: ueq_attractiveness
+ueq25: ueq_attractiveness
+ueq04: ueq_pragmatic
+ueq13: ueq_pragmatic
+ueq21: ueq_pragmatic
+ueq09: ueq_pragmatic
+ueq20: ueq_pragmatic
+ueq22: ueq_pragmatic
+ueq23: ueq_pragmatic
+ueq08: ueq_pragmatic
+ueq11: ueq_pragmatic
+ueq17: ueq_pragmatic
+ueq19: ueq_pragmatic
+ueq05: ueq_hedonic
+ueq06: ueq_hedonic
+ueq07: ueq_hedonic
+ueq18: ueq_hedonic
+ueq03: ueq_hedonic
+ueq10: ueq_hedonic
+ueq15: ueq_hedonic
+ueq26: ueq_hedonic
+
+# Left unlabelled: ueq02 (item not asked).
+
+reverse_items:
+- columns:
+  - ueq03
+  - ueq04
+  - ueq05
+  - ueq09
+  - ueq10
+  - ueq12
+  - ueq17
+  - ueq18
+  - ueq19
+  - ueq21
+  - ueq23
+  - ueq24
+  - ueq25
+  scale_range:
+  - 1
+  - 7
+  reason: UEQ items with the positive word on the left (standard UEQ)

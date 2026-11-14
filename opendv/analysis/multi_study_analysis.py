@@ -513,6 +513,8 @@ def unshortened_file_name(name: str, dataset_id: str | None) -> str:
 def _read_file(path: Path) -> pd.DataFrame:
     if path.suffix.lower() == ".csv":
         return pd.read_csv(path)
+    if path.suffix.lower() == ".tsv":  # the batch writes .tsv inputs back as tab-separated text
+        return pd.read_csv(path, sep="	")
     if path.suffix.lower() in _PICKLE_SUFFIXES:
         raise PickleRefusedError(pickle_refusal_message(path))
     if path.suffix.lower() == ".parquet":
@@ -523,6 +525,8 @@ def _read_file(path: Path) -> pd.DataFrame:
 def _read_header(path: Path) -> list[str]:
     if path.suffix.lower() == ".csv":
         return [str(c) for c in pd.read_csv(path, nrows=0).columns]
+    if path.suffix.lower() == ".tsv":
+        return [str(c) for c in pd.read_csv(path, sep="	", nrows=0).columns]
     if path.suffix.lower() == ".parquet":
         import pyarrow.parquet as pq
 

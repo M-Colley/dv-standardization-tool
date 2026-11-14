@@ -4,6 +4,42 @@ This document logs human-readable updates to the repo's functionality, structure
 
 ---
 
+### [2026-11-14] Second held-out test: results
+
+The test pre-registered below was run on 30 of its 36 datasets (`docs/heldout_results_2.md`; outputs in `analyses/heldout_2/`).
+
+- **H1** (mental demand × perceived safety): not testable; no study of this set measures both, as expected.
+- **H2** (the three core NASA-TLX pairs, within persons): **supported**, r = 0.46 to 0.59 over 7 or 8 studies, Holm-corrected one-sided p ≤ .005; all 22 study correlations are positive. In the first held-out test it missed narrowly (p = .052).
+- **H2b** (performance the weakest-linked subscale): not met; physical demand is (mean r 0.22, performance 0.31).
+- **H3** (header matching before the LLM): **supported**, 84 vs. 65 of 273 DV columns correct, 19 vs. 0 discordant (McNemar p = 4 × 10⁻⁶). Header matching answered 28 SUS and NASA-TLX columns in three studies, all correctly.
+- **H4** (the other 33 findings): 27 of the 32 testable targets replicate (BH q < .05), and all 32 have the predicted sign. The misses: SUS × effort and SUS × mental demand (three studies each), and three pairs with the performance subscale.
+- **Reader options added before the freeze**, with tests (`tests/test_wide_to_long.py`):
+    - `wide_to_long` turns repeated measures stored side by side (one column per condition) into one row per participant and condition;
+    - `sheet` may list several sheets, which are stacked with a `sheet` column;
+    - `row_id` adds a row number as the participant id of tables without one.
+- **Fault fixed:** `multi_study_analysis` read standardized `.tsv` files as Excel. They are now read as tab-separated text, and the run was repeated.
+- **Deviations** (all listed in the results doc): three datasets dropped where a new reader would have served only DVs that bear on no target; the NASA-TLX performance item left unlabelled where its direction is undocumented; one item order inferred from a paper; SUS-DE-Pos's 25 excluded respondents not identifiable.
+- **Exploratory:** pooled over the development and both held-out sets, all 37 targets have the predicted sign and 36 have one-sided p < .05. `analyses/heldout_2/exploratory.py` writes these, H2 without each study in turn, and both held-out sets pooled.
+- **Not changed:** the first held-out test's outputs (`analyses/heldout/`).
+
+### [2026-11-14] Second held-out test pre-registered; MATLAB files readable
+
+- **Pre-registration** (`docs/preregistration_heldout_relations_2.md`), committed before any participant data were downloaded.
+    - It tests the curated-level findings of the development analysis and of the first held-out test (37 targets, `analyses/heldout_2/targets.csv`) on 36 datasets that played no part in either.
+    - H1, H2, H2b and H3 repeat the first test, decided by the same functions. The new H4 tests every other target, with Benjamini-Hochberg over the testable ones.
+    - Decision code: `opendv/analysis/heldout_replication.py`, with tests. Run script: `analyses/heldout_2/run.sh`. Power of H2: `analyses/heldout_2/power_h2.py`.
+- **Screening of the 79 "to check" datasets** and of the five datasets the first test dropped before download.
+    - Done from metadata, READMEs, zip listings and papers only (`analyses/candidate_search/check_candidates.py`).
+    - Result: 36 qualify, 48 do not. Every reason is in `analyses/candidate_search/check_decisions.csv`.
+    - The five first-test drops could join, since their data were never seen and they were dropped for a technical reason. None qualifies: PNG figures, raw time series, and a re-analysis of earlier experiments.
+- **Pinned files:** `analyses/candidate_search/build_sources_2.py` writes `analyses/heldout_2/sources.yaml` (42.4 MB in all). Zip archives over 100 MB are read member by member.
+- **MATLAB `.mat` files** (v4 to v7.2) are in the reader registry, read with `scipy.io.loadmat`.
+    - The table options `variable` (a dotted path into structs), `columns` and `dims` say which variable becomes the table and how.
+    - Structs become one column per field, struct arrays stacked rows, and arrays with `dims` long tables.
+    - MATLAB objects and v7.3/HDF5 files are refused with a clear error.
+    - `.mat`, `.txt` and `.dat` files are now read only when a source's own `include_globs` name them; no existing manifest is affected.
+    - Tests: `tests/test_matlab_loader.py`.
+
 ### [2026-11-08] All open work combined; every output rerun
 
 The entries of 2026-11-05 to 2026-11-07 below were made on separate branches. Each branch computed its outputs without the others' changes, and most did not regenerate them, so no committed result held all of them. They are now merged into one branch, and every committed output was rerun once from it.

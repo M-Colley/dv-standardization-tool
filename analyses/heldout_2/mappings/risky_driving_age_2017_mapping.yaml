@@ -1,0 +1,18 @@
+# Second held-out test mapping for risky_driving_age_2017 (docs/preregistration_heldout_relations_2.md).
+# Paper: "Driving simulator scenarios and measures to faithfully evaluate risky driving behavior: A
+#   comparative study of different driver age groups", PLOS ONE 2017, DOI 10.1371/journal.pone.0185909.
+# Data: OSF 10.17605/osf.io/cd2sz, CC-BY-4.0. No codebook; the paper defines the measures.
+# Files: Dataset_Urban_Scenario.xlsx, Dataset_Rural_Scenario.xlsx, Dataset_Highway_Scenario.xlsx, one
+#   row per driver (115; three age groups) in each scenario; the same Subject numbers in every file,
+#   so each driver contributes one row per scenario.
+#   Crash = proportion of the scenario's critical events that ended in a crash (number_of_collisions,
+#   as a rate); SDLP = standard deviation of lane position (m). Near Crash, braking, steering and speed
+#   measures and the 3D-MOT threshold (LogNT) have no schema DV.
+
+Subject: meta_participant_id
+Age: meta_demographic_age
+Group: meta_group_age
+Crash: number_of_collisions
+SDLP: sdlp
+
+# Left unlabelled: Near Crash, Max Brake, Dist at Max Brake, steering measures, Mean Speed, LogNT.

@@ -1,0 +1,169 @@
+# Second held-out test mapping for pipeblocks_cicd_2025 (docs/preregistration_heldout_relations_2.md).
+# Paper: the study is reported in the VL/HCC 2025 full paper "A Block-Based Language for CI/CD
+#   Authoring" (da Giao, Pereira, Cunha), which cites this deposit; the deposit's linked DOI
+#   10.1109/VL-HCC65237.2025.00025 is the companion tool demo.
+# Data: Zenodo 10.5281/zenodo.15434390, CC-BY-4.0; reproducibility.zip.
+# Files (Google Forms exports, one row per participant x tool; 10 MSc students used both tools):
+#   - NASA TLX.csv: six subscales on 0-20 ("0 (Low) - 20 (High)") and the 15 pairwise comparisons.
+#     Performance asks "How successful were you ...?" with 0 = low, 20 = high, so high is good; it is
+#     reversed to the schema's direction (high = failure).
+#   - sus.csv: the ten SUS items (1-5, standard order and wording) of a Forms quiz, whose [Score] and
+#     [Feedback] columns are empty quiz artefacts.
+# The study number is the participant id in both files.
+
+Timestamp: meta_timestamp
+? 'Study number
+
+  (You study number)'
+: meta_participant_id
+Tool: meta_condition_tool
+? 'Mental Demand
+
+  How much mental and perceptual activity was required (e.g., thinking, deciding, calculating, remembering, looking, searching, etc.)? Was the task easy or demanding, simple or complex?
+
+  Scale: 0 (Low) – 20 (High).'
+: mental_demand
+? "Physical Demand \nHow much physical activity was required (e.g., pushing, pulling, turning, controlling, activating, etc.)? Was the task easy or demanding, slow or brisk, slack or strenuous?\nScale: 0 (Low) – 20 (High)."
+: physical_demand
+? "Temporal Demand \nHow much time pressure did you feel due to the pace of the task? Was the pace slow and leisurely or rapid and frantic?\nScale: 0 (Low) – 20 (High)."
+: temporal_demand
+? 'Performance
+
+  How successful were you in accomplishing the task’s goals? How satisfied were you with your performance?
+
+
+  Scale: 0 (Low) – 20 (High).'
+: performance
+? "Effort \nHow hard did you have to work (mentally and physically) to achieve your performance level?\n\nScale: 0 (Low) – 20 (High)."
+: effort
+? 'Frustration
+
+  How insecure, irritated, or stressed did you feel during the task?
+
+
+  Scale: 0 (Low) – 20 (High).'
+: frustration
+? 'Effort vs. Performance
+
+  Effort: "How hard did you have to work (mentally and physically)?"
+
+  Performance: "How successful were you in accomplishing the task’s goals?"'
+: meta_tlx_pairwise_effort_vs_performance
+? 'Temporal Demand vs. Frustration
+
+  Temporal Demand: "Time pressure you felt during the task."
+
+  Frustration: "How stressed or annoyed you felt."'
+: meta_tlx_pairwise_temporal_demand_vs_frustration
+? 'Temporal Demand vs. Effort
+
+  Temporal Demand: "Time pressure you felt during the task."
+
+  Effort: "How hard you had to work."'
+: meta_tlx_pairwise_temporal_demand_vs_effort
+? 'Physical Demand vs. Frustration
+
+  Physical Demand: "Physical activity required (e.g., pushing, pulling)."
+
+  Frustration: "How stressed or annoyed you felt."'
+: meta_tlx_pairwise_physical_demand_vs_frustration
+? 'Performance vs. Frustration
+
+  Performance: "How successful you were in the task."
+
+  Frustration: "How stressed or annoyed you felt."'
+: meta_tlx_pairwise_performance_vs_frustration
+? 'Physical Demand vs. Temporal Demand
+
+  Physical Demand: "Physical activity required."
+
+  Temporal Demand: "Time pressure you felt."'
+: meta_tlx_pairwise_physical_demand_vs_temporal_demand
+? 'Physical Demand vs. Performance
+
+  Physical Demand: "Physical activity required."
+
+  Performance: "How successful you were."'
+: meta_tlx_pairwise_physical_demand_vs_performance
+? 'Temporal Demand vs. Mental Demand
+
+  Temporal Demand: "Time pressure you felt."
+
+  Mental Demand: "Mental activity required (e.g., thinking, calculating)."'
+: meta_tlx_pairwise_temporal_demand_vs_mental_demand
+? 'Frustration vs. Effort
+
+  Frustration: "How stressed or annoyed you felt."
+
+  Effort: "How hard you had to work."'
+: meta_tlx_pairwise_frustration_vs_effort
+? 'Performance vs. Mental Demand
+
+  Performance: "How successful you were."
+
+  Mental Demand: "Mental activity required."'
+: meta_tlx_pairwise_performance_vs_mental_demand
+? 'Performance vs. Temporal Demand
+
+  Performance: "How successful you were."
+
+  Temporal Demand: "Time pressure you felt."'
+: meta_tlx_pairwise_performance_vs_temporal_demand
+? 'Mental Demand vs. Effort
+
+  Mental Demand: "Mental activity required."
+
+  Effort: "How hard you had to work."'
+: meta_tlx_pairwise_mental_demand_vs_effort
+? 'Mental Demand vs. Physical Demand
+
+  Mental Demand: "Mental activity required."
+
+  Physical Demand: "Physical activity required."'
+: meta_tlx_pairwise_mental_demand_vs_physical_demand
+? 'Effort vs. Physical Demand
+
+  Effort: "How hard you had to work."
+
+  Physical Demand: "Physical activity required."'
+: meta_tlx_pairwise_effort_vs_physical_demand
+? 'Frustration vs. Mental Demand
+
+  Frustration: "How stressed or annoyed you felt."
+
+  Mental Demand: "Mental activity required."'
+: meta_tlx_pairwise_frustration_vs_mental_demand
+I think that I would like to use this system frequently.: SUS1
+I found the system unnecessarily complex.: SUS2
+I thought the system was easy to use.: SUS3
+? 'I think that I would need the support of a technical person to be able to use this
+
+  system.'
+: SUS4
+I found the various functions in this system were well integrated.: SUS5
+I thought there was too much inconsistency in this system.: SUS6
+I would imagine that most people would learn to use this system very quickly.: SUS7
+I found the system very cumbersome to use.: SUS8
+I felt very confident using the system.: SUS9
+I needed to learn a lot of things before I could get going with this system.: SUS10
+Total score: meta_form_total_score
+
+# Left unlabelled: the [Score] and [Feedback] quiz columns of sus.csv.
+
+reverse_items:
+- columns:
+  - 'Performance
+
+    How successful were you in accomplishing the task’s goals? How satisfied were you with your performance?
+
+
+    Scale: 0 (Low) – 20 (High).'
+  scale_range:
+  - 0
+  - 20
+  reason: TLX performance asked as success, 0 low - 20 high; the schema's performance is high = failure
+
+exclude_rows:
+  - column: "Study number\n(You study number)"
+    values: [6]
+    reason: participant 6 is excluded from the analyses in the paper (VL/HCC 2025 full paper)

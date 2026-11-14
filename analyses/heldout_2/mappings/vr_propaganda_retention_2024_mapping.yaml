@@ -1,0 +1,17 @@
+# Second held-out test mapping for vr_propaganda_retention_2024 (docs/preregistration_heldout_relations_2.md).
+# Paper: "Approaching or just observing? The interplay of behavior and environment in the retention of
+#   pictorial details of ambivalent Nazi propaganda images", Computers in Human Behavior 2024,
+#   DOI 10.1016/j.chb.2024.108503.
+# Data: Mendeley Data 10.17632/8f6xdd42sc.1, CC-BY-4.0; the record names the variables.
+# File: data_CHB.csv, one row per participant (160; context x approach behaviour, between subjects).
+#   ValenceRating and ArousalRating (mean image ratings, SAM-type 1-9) -> valence, arousal; VRV2 =
+#   share of pictorial details retained (0-1) -> task_success.
+# Not read: agency, beliefs and communion (perceptions of the depicted person; no schema DV) and IPQ (the
+#   sum over the 14 items, while the schema has only the four IPQ subscales).
+
+VP: meta_participant_id
+Context: meta_condition_context
+Approach: meta_condition_approach
+ValenceRating: valence
+ArousalRating: arousal
+VRV2: task_success

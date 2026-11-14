@@ -32,7 +32,12 @@ from typing import Any
 
 # .txt and .dat are loadable by the converter but excluded from auto-discovery
 # because they create too many false positives (README.txt, notes.dat, etc.).
-_AMBIGUOUS_SUFFIXES: set[str] = {".txt", ".dat"}
+# So is .mat: a MATLAB file mostly holds raw signals, analysis state or figure
+# data, and the table in it has to be named (table option ``variable``).
+# A source reads such files only when its own include_globs name them
+# (``OPT_IN_SUFFIXES``); they are never downloaded or extracted by discovery.
+_AMBIGUOUS_SUFFIXES: set[str] = {".txt", ".dat", ".mat"}
+OPT_IN_SUFFIXES: frozenset[str] = frozenset(_AMBIGUOUS_SUFFIXES)
 
 try:  # pragma: no cover - exercised indirectly via data_loaders import
     # Pull from data_loaders directly (not via convert_dv) to avoid dragging
@@ -223,6 +228,7 @@ def _extract_archives_in_tree(source_root: Path, max_depth: int) -> None:
 
 __all__ = [
     "DATA_FILE_SUFFIXES",
+    "OPT_IN_SUFFIXES",
     "ARCHIVE_SUFFIXES",
     "MAPPING_SUFFIXES",
     "DEFAULT_ARCHIVE_MAX_DEPTH",
