@@ -4,6 +4,82 @@ This document logs human-readable updates to the repo's functionality, structure
 
 ---
 
+### [2026-11-14] LLM-mapped columns excluded one by one; curated columns preferred
+
+The analysis without LLM mappings (`--exclude-llm-deduced`, the `*_llm_excluded` outputs, the primary results) now leaves out LLM-mapped columns one by one. Until now it dropped every study × DV with any LLM-mapped column, curated columns included (found in the entry below).
+
+- **What was wrong.**
+    - `load_mapping_provenance` gives one category per study × DV, the most cautious of its columns, so one LLM-mapped column marked a DV whose other columns were curated, and the LLM-excluded pass dropped the pair whole.
+    - Separately, when several columns stood for one DV, `_canonical_numeric_frame` kept the one with more values, in both analyses, so an LLM column could displace a curated column or a derived score.
+    - And an LLM column with the same standardized name as a curated one in another table of the study was stacked into the same column. SenseCobot's 94 rows of EEG beta/alpha ratios and its 21 NASA-TLX ratings were one mental-demand column, study mean 0.39 of 20.
+- **Now.**
+    - `load_column_provenance` reads the category of every standardized column from `meta_view.csv`. It uses the `dataset_id` and the table's column order, since the batch writes one row per column, in order; that holds for all 1,803 tables of the run, and a table whose rows do not line up falls back to matching by canonical name.
+    - `load_studies` (and `load_study_variants`, which reads the files once for several settings) decides per column of each table, before the tables of a study are combined and before columns are folded per DV:
+        - `llm_columns="exclude"`, for the LLM-excluded pass, leaves out every LLM-mapped DV column; curated columns and scores computed from curated items stay;
+        - `"prefer_curated"`, for every other output, follows the rule below.
+
+      Design and metadata columns are never left out.
+    - When columns are folded, a column that is not LLM-mapped (or a score computed from such items) is kept before an LLM column, whatever their row counts.
+    - The study × DV `mapping_source` is kept for reporting but now says what was pooled: the category of the column(s) kept, the most cautious one over averaged `__dup_N` columns and over a score's items. A column without a meta_view row falls back to the study × DV category.
+    - The causal step (LiNGAM, bootstrap, PC) and the LLM-excluded contrast pool read the studies loaded without LLM-mapped columns. Before, the causal step dropped canonical columns by the study × DV category, and the contrast pool filtered effects by it. The multiverse's `no_llm` arm and `run_catalog_meta_analysis` do the same.
+    - `mean_z_vs_global` in `harmonized_dv_summary_llm_excluded.csv` is now computed against the LLM-excluded pool (the "found, not fixed" item of the 2026-11-06 ARTV entry), since the summary is built from the studies without LLM columns instead of filtered afterwards.
+    - New output `llm_columns_set_aside.csv`: the 394 LLM-mapped columns (11 studies) that the all-mappings analysis sets aside.
+- **Rule for the all-mappings analysis: prefer the curated column.** When a study has a column of a DV mapped by its study mapping, the shared schema or a header match, its LLM-mapped columns of that DV are set aside. This applies whether they sit in the same table (a `__dup_N` column, until now averaged with the curated one row by row) or in another table (until now stacked into the same column). A score computed from curated items is kept before an LLM column mapped to the score's DV. Why:
+    1. A curated mapping was checked against the study's documentation. The LLM gives the curated DV for 41% of the DV columns of the first 23 studies and 17% of the 16 added ones (benchmark). Where a study has both, the LLM column adds no study to the pool (no k changes in the all-mappings analysis), so it can only move the estimate.
+    2. Averaging or stacking mixes different measures into one study mean: SenseCobot's EEG ratios with NASA-TLX ratings; myocontrol's `table_path_efficiency` (up to 1.4 million), LLM-mapped to task completion time, averaged row by row with its curated task times in seconds (study mean 1,338 instead of 14.65).
+    3. The all-mappings analysis now differs from the LLM-excluded one only by DVs of studies without a curated column of them, which is what the LLM fallback is for. The difference between the two analyses then measures what the LLM adds.
+
+    The cost: an LLM column that measures something the curated column does not (a second questionnaire on the same construct) is set aside too. The analysis keeps one column per study and DV in any case, and the rule it used before (most values wins) did not choose on validity either.
+- **Tests:** `tests/test_llm_column_exclusion.py`. A study with a curated table and an LLM-mapped table of the same DV keeps the curated values without LLM mappings and with them, through `opendv analyze` end to end: the summaries, the LLM-excluded contrast pool (k = 2, before 1), the causal step (the curated DV is used; the study's LLM-only DV is not) and the multiverse. A derived NASA-TLX total is not displaced by an LLM column with three times the rows. An LLM `__dup_N` column is no longer averaged in. A score with an LLM-mapped item is LLM-derived and is left out without LLM mappings. Design columns are never dropped. Full suite: 808 passed, 2 skipped.
+- **Rerun:** every command of `docs/reproducibility.md`, 3 workers, the download cache of 2026-11-04, written to `data/processed/percol39`. The batch reproduces the run of 2026-11-14 below (`fix39`) exactly: `meta_view.csv` identical apart from paths and timestamps, the same 484 accepted and 243 rejected LLM answers, and all 1,803 standardized tables identical. Only the analysis, the multiverse and the figures change.
+- **Primary results (without LLM mappings):** 54 DVs reach k ≥ 2 (50), 36 reach k ≥ 3 (unchanged). Pools that change (k, random-effects estimate, HKSJ interval; before → after):
+
+    | DV | k | estimate | HKSJ |
+    |---|---|---|---|
+    | `mental_demand` | 14 → 19 | 8.38 → 8.14 | [6.62, 10.15] → [6.83, 9.45] |
+    | `TLX_SCORE` | 12 → 13 | 38.49 → 38.02 | [28.82, 48.16] → [29.15, 46.89] |
+    | `temporal_demand` | 12 → 13 | 6.83 → 6.85 | [4.79, 8.88] → [4.98, 8.71] |
+    | `physical_demand` | 11 → 12 | 6.71 → 6.70 | [5.15, 8.27] → [5.28, 8.11] |
+    | `trust_rating` | 4 → 6 | 3.76 → 3.92 | [3.15, 4.37] → [3.51, 4.34] |
+    | `perceived_safety` | 5 → 7 | 1.13 → 1.22 | [0.03, 2.23] → [0.38, 2.07] |
+    | `task_completion_time` | 5 → 6 | 1.25 → 2.73 | [−2.89, 5.40] → [−3.14, 8.60] |
+    | `usability` | 5 → 6 | 75.36 → 74.24 | [63.42, 87.30] → [64.79, 83.69] |
+    | `SUS1` | 5 → 6 | 3.54 → 3.56 | [2.98, 4.10] → [3.14, 3.99] |
+    | `AOA_SATISFYING` | 3 → 4 | 0.71 → 0.68 | [−0.81, 2.24] → [−0.13, 1.49] |
+    | `task_success` | 3 → 4 | 0.78 → 0.71 | [0.12, 1.44] → [0.30, 1.12] |
+    | `acceptance_rating` | 1 → 2 | — → 5.64 (fixed effect) | — → [−9.36, 20.63] |
+    | `hr_bpm` | 1 → 2 | — → 77.47 (fixed effect) | — → [74.80, 80.14] |
+    | `hrv_rmssd` | 1 → 2 | — → 58.24 (fixed effect) | — → [−470.2, 586.7] |
+    | `ttc` | 1 → 2 | — → 5.61 (fixed effect) | — → [−77.1, 88.3] |
+
+    - The mental-demand pool now holds every study with a curated mental-demand column. 3D display, FACT-AV, in-car VR gain, Longit. US/DE and SenseCobot (its NASA-TLX rating, 6.98 on 0–20, n = 21) join; I² 99.8 → 99.7%.
+    - The NASA-TLX total gains in-car VR gain (32.4), computed from curated subscales.
+    - `usability`, `SUS1` and `AOA_SATISFYING` gain ROADS. Its LLM-mapped `reality` (as SUS1) and `gaming` (as AOA_SATISFYING) columns had marked its scores.
+    - `trust_rating` gains FACT-AV and eHMI Optimization, `perceived_safety` AV acceptance and eHMI Optimization, `task_completion_time` myocontrol (14.65 s per trial), and `task_success` in-car VR gain.
+    - Four DVs are pooled for the first time (k = 2, fixed effect), each a second curated study joining one: SenseCobot's heart rate, music tempo's RMSSD, eHMI Optimization's acceptance and perceived risk merging's TTC.
+    - Every interval that excluded 0 still does; `AOA_SATISFYING`'s still includes it. No pooled DV has LLM rows (`includes_llm_deduced` false throughout, as before).
+- **With all mappings:** every k is unchanged (93 DVs pooled, 61 over ≥ 3 studies); 70 DVs include LLM-mapped columns (76). Twelve estimates change, where a study's curated column replaces an LLM column or a mix of both:
+    - `mental_demand` 7.44 → 7.73, HKSJ [5.91, 8.98] → [6.41, 9.05], I² 99.9 → 99.7%, τ² 17.2 → 11.5;
+    - `physical_demand` 6.48 → 6.70; `temporal_demand` 6.07 → 6.36; `trust_rating` 3.76 → 3.81; `perceived_safety` 1.21 → 1.26;
+    - `task_completion_time` 5.12 → 6.13; `task_success` 0.74 → 0.71; `ttc` 5.90 → 6.22; `hr_bpm` 73.0 → 77.5 (HKSJ [13.2, 132.9] → [74.8, 80.1]); `acceptance_rating` 5.95 → 5.64; `hrv_rmssd` 57.97 → 58.24; `SUS1` changes in the fourth digit.
+- **Fig. 4** (mental demand, all mappings, k = 21): 7.73, HKSJ [6.4, 9.0] (7.44, [5.9, 9.0]).
+    - Seven of its rows were LLM-mapped, now two. SenseCobot's row is its rating (6.98, 0.2% of the weight; it was 0.39 and 17.5%).
+    - The two LLM rows left look wrong as well: FOV Snap-Turn's `Mechanics1_2`–`Mechanics1_5` (1–7, now 28.9% of the weight) and Gaze Platformer's `Enjoyment_fun` and `Enjoyment_entertaining` (1–7, 5.0%). Neither study has a curated mental-demand column, so the rule keeps them.
+- **Contrasts:** both pools (`contrast_meta_analysis.csv` and its `_llm_excluded` variant) are unchanged. The two canonical factors whose effects changed, display dimensionality (3D display) and situation criticality (perceived risk merging, TTC), have one study per DV.
+    - `contrast_effects.csv` has 1,126 effects (1,141). SenseCobot's 15 task contrasts of mental, physical and temporal demand rested on its EEG ratios; its NASA-TLX table has no task column.
+    - 34 effects change value: FACT-AV, in-car VR gain, myocontrol, perceived risk merging, SenseCobot's heart rate and EDA, 3D display. Another 17 (ROADS, in-car VR gain's TLX total) only change `mapping_source`. 212 effects are LLM-mapped (278).
+- **Unchanged:** the causal DAG and its bootstrap and PC outputs (fit on 270 rows of Running into Traffic, which has no LLM-mapped columns), the measurement-invariance results, every other pooled DV. The PCA composite's first component explains 14.46% of the variance (14.45%).
+- **Subgroup pools** of the study-vs-pool deviations (all mappings): `performance` −0.11 → −0.01, `safety_trust` +0.13 → +0.12, `cognitive_load` +0.12, `physiological_biometric` +0.36 → +0.37. No HKSJ interval excludes 0.
+- **Multiverse:**
+    - `mental_demand` spans 7.73–17.48 over k = 19–21 (7.44–21.12, k = 14–21); harmonized 7.73–8.16 (7.44–8.41); 44% of the intervals miss the default (47%).
+    - `TLX_SCORE` 35.46–38.03, k = 13–14 (35.46–38.50, k = 12–14); `usability` 74.24–74.42, k = 6 (74.24–75.50, k = 5–6); `perceived_safety` 1.18–3.12, k = 7–11 (1.12–2.99, k = 5–11).
+    - `task_completion_time` 2.73–684.5 (1.25–806.5); without LLM mappings 2.73–37.56 (1.25–42.27).
+    - `acceptance_rating`, `hr_bpm`, `hrv_rmssd` and `ttc` no longer vanish without LLM mappings.
+- **Relations:** no finding changed; every file of `analyses/output_relations/` is byte-identical. `construct_relations.py` already traced provenance per column and was not changed, and its input is identical.
+- **LLM benchmark:** rerun on the runs without the LLM (`det23p`, `det16p`, identical to `det23f` and `det16f`); every item and answer repeats, only the timings change (DV columns right: 105, 127 and 122 of 258; 71 of 423).
+- **Found, not fixed:** the `llm` level of the cross-study relations (`construct_relations.py`) still averages a study's curated and LLM-mapped columns of one DV per row, and stacks them across tables, as the all-mappings analysis did. Its deterministic levels filter columns one by one and are unaffected.
+- **Docs:** README, `docs/multi_study_analysis_guide.md`, `docs/research_agenda.md` (§2.1, §2.3), `docs/reproducibility.md`, `docs/cross_study_insights.md` (a note on the `llm` level), `analyses/figures_chi/README.md`.
+
 ### [2026-11-14] Curved Dragging's end-point columns locked; Fig. 1, 2 and 6 corrected
 
 - **Two LLM errors removed.** In Curved Dragging's Exp. 2 table the LLM read `avg_abs_dx`, the mean absolute end-point deviation of a VR controller drag in degrees, as `touch_offset` (a 2-D touch distance in mm), and `We`, the effective target width in degrees, as the NASA-TLX total `TLX_SCORE`. The comment in the mapping said `dx` and `avg_abs_dx` are not touch offsets, but a comment does not stop the LLM. `dx`, `avg_abs_dx`, `avg_Ae` and `We` are now locked as `meta_derived_*` columns, as ARTV's unmapped columns are. A full rerun of every command in `docs/reproducibility.md` (`data/processed/fix39`) shows these two mappings gone and every other LLM answer unchanged (484 accepted, 243 rejected).

@@ -1,5 +1,5 @@
 canonical_factor,dv,study,n_contrasts,factors,levels,n,measure,yi,vi,se,rho,aggregation,yi_gls,mapping_source,direction
-display_dimensionality,mental_demand,3d_display_comp_vehicle,2,display,LookingGlass+LumePad,15,SMCRPH,0.22190694630167487,0.048685858954367195,0.22064872298376711,0.5,mean,0.2235402798335315,llm_deduced,lower_is_better
+display_dimensionality,mental_demand,3d_display_comp_vehicle,2,display,LookingGlass+LumePad,15,SMCRPH,0.1799967527890941,0.05063680309828718,0.22502622757866955,0.5,mean,0.1653487354563368,schema,lower_is_better
 display_dimensionality,perceived_safety,3d_display_comp_vehicle,2,display,LookingGlass+LumePad,15,SMCRPH,-0.059999782501144336,0.045124729920671555,0.2124258221607523,0.5,mean,0.037257030568773976,llm_deduced,higher_is_better
 display_dimensionality,performance,3d_display_comp_vehicle,2,display,LookingGlass+LumePad,15,SMCRPH,-0.25986879953188385,0.024875563801958968,0.15771989031811734,0.5,mean,-0.2696481712857362,llm_deduced,lower_is_better
 display_dimensionality,sart_total,3d_display_comp_vehicle,2,display,LookingGlass+LumePad,15,SMCRPH,-0.06529496356425184,0.01944904072071971,0.13945981758456344,0.5,mean,-0.05923370252650697,llm_deduced,higher_is_better
@@ -72,7 +72,7 @@ situation_criticality,physical_demand,running_into_traffic_chi26,1,av_yielding,N
 situation_criticality,temporal_demand,running_into_traffic_chi26,1,av_yielding,Not-Yielding,24,SMCRPH,0.012938850234163015,0.01688580407059146,0.12994538880080148,,,0.012938850234163015,repo_mapping,lower_is_better
 situation_criticality,trust_rating,perceived_risk_merging_2022,4,braking_intensity+merging_gap,-5 m/s2+-8 m/s2+15 m+5 m,22,SMCRPH,-0.8498650292026704,0.027364936982155988,0.16542350794900942,0.5,mean,-0.07172621604569575,repo_mapping,higher_is_better
 situation_criticality,trust_rating,running_into_traffic_chi26,1,av_yielding,Not-Yielding,24,SMCRPH,-0.45170056325300767,0.08046285728417542,0.28365975619423955,,,-0.45170056325300767,repo_mapping,higher_is_better
-situation_criticality,ttc,perceived_risk_merging_2022,4,braking_intensity+merging_gap,-5 m/s2+-8 m/s2+15 m+5 m,22,SMCRPH,-6.736969761628089,0.7056766873213699,0.8400456459748898,0.5,mean,-0.7288487642663322,llm_deduced,higher_is_better
+situation_criticality,ttc,perceived_risk_merging_2022,4,braking_intensity+merging_gap,-5 m/s2+-8 m/s2+15 m+5 m,22,SMCRPH,-3.854549048518154,0.26517498736226647,0.5149514417518087,0.5,mean,-0.17971811230129894,repo_mapping,higher_is_better
 situation_criticality,ueq_hedonic,running_into_traffic_chi26,1,av_yielding,Not-Yielding,24,SMCRPH,-0.22765032262541818,0.010494652845651051,0.10244341289536898,,,-0.22765032262541818,repo_mapping,higher_is_better
 situation_criticality,ueq_pragmatic,running_into_traffic_chi26,1,av_yielding,Not-Yielding,24,SMCRPH,-0.43513676579433075,0.04605345687979842,0.2146006917039142,,,-0.43513676579433075,repo_mapping,higher_is_better
 situation_criticality,understanding_rating,running_into_traffic_chi26,1,av_yielding,Not-Yielding,24,SMCRPH,-0.24580413999902623,0.05728238147231721,0.23933738001473404,,,-0.24580413999902623,repo_mapping,higher_is_better
@@ -85,9 +85,9 @@ task_demand,AOA6,roads_chi25,3,number_of_requests,Four+Three+Two,23,SMCRPH,-0.55
 task_demand,AOA7,roads_chi25,3,number_of_requests,Four+Three+Two,23,SMCRPH,0.3174929714135505,0.02345278374841863,0.15314301730218924,0.5,mean,0.3003579748133243,schema,lower_is_better
 task_demand,AOA8,roads_chi25,3,number_of_requests,Four+Three+Two,23,SMCRPH,-0.37857852963536853,0.0218835879589662,0.14793102432879385,0.5,mean,-0.4027380853168148,schema,higher_is_better
 task_demand,AOA9,roads_chi25,3,number_of_requests,Four+Three+Two,23,SMCRPH,-0.33015181421807366,0.025337730622662456,0.15917829821512244,0.5,mean,-0.3014000358024763,schema,lower_is_better
-task_demand,AOA_SATISFYING,roads_chi25,3,number_of_requests,Four+Three+Two,23,SMCRPH,-0.5872188387627982,0.023579089690773256,0.15355484261583305,0.5,mean,-0.5925732073903922,llm_deduced,higher_is_better
+task_demand,AOA_SATISFYING,roads_chi25,3,number_of_requests,Four+Three+Two,23,SMCRPH,-0.5872188387627982,0.023579089690773256,0.15355484261583305,0.5,mean,-0.5925732073903922,schema,higher_is_better
 task_demand,AOA_USEFULNESS,roads_chi25,3,number_of_requests,Four+Three+Two,23,SMCRPH,-0.2884448162651905,0.011773767855932515,0.1085069945023477,0.5,mean,-0.31653164399096384,schema,higher_is_better
-task_demand,SUS1,roads_chi25,3,number_of_requests,Four+Three+Two,23,SMCRPH,-0.5010037212536125,0.02744893228369338,0.16567719301006212,0.5,mean,-0.49902518160165976,llm_deduced,higher_is_better
+task_demand,SUS1,roads_chi25,3,number_of_requests,Four+Three+Two,23,SMCRPH,-0.5010037212536125,0.02744893228369338,0.16567719301006212,0.5,mean,-0.49902518160165976,schema,higher_is_better
 task_demand,SUS10,roads_chi25,3,number_of_requests,Four+Three+Two,23,SMCRPH,0.1935217663493086,0.010765085092922013,0.1037549280416213,0.5,mean,0.07292182974720461,schema,lower_is_better
 task_demand,SUS2,roads_chi25,3,number_of_requests,Four+Three+Two,23,SMCRPH,0.2921316010982102,0.019681384421042444,0.14029035754834487,0.5,mean,0.2914354177828484,schema,lower_is_better
 task_demand,SUS3,roads_chi25,3,number_of_requests,Four+Three+Two,23,SMCRPH,-0.34496592259351955,0.01747111960874352,0.13217836286148926,0.5,mean,-0.3408779321713448,schema,higher_is_better
@@ -124,4 +124,4 @@ task_demand,task_success,nl2tap_filter_2026,1,scenario_complexity,C2,45,SMCRPH,-
 task_demand,temporal_demand,concurrent_speech_2022,1,presentation,Concurrent,40,SMCRPH,0.7962615397321449,0.028376853321094585,0.16845430632992017,,,0.7962615397321449,repo_mapping,lower_is_better
 task_demand,temporal_demand,roads_chi25,3,number_of_requests,Four+Three+Two,23,SMCRPH,1.6119528879569032,0.074627069917508,0.27317955618513623,0.5,mean,1.534268046477462,schema,lower_is_better
 task_demand,temporal_demand,tlx_formats_uas_2023,6,cursor_noise+path_visible+play_speed+view_radius,Fast+High+Medium+Medium+Small+hidden,36,SMCRPH,0.3948346070149272,0.006101824444229481,0.07811417569320872,0.5,mean,-0.15086621005250592,repo_mapping,lower_is_better
-task_demand,usability,roads_chi25,3,number_of_requests,Four+Three+Two,23,SMCRPH,-0.38799337726809435,0.016350153082102577,0.12786771712243314,0.5,mean,-0.39823523064213295,llm_deduced,higher_is_better
+task_demand,usability,roads_chi25,3,number_of_requests,Four+Three+Two,23,SMCRPH,-0.38799337726809435,0.016350153082102577,0.12786771712243314,0.5,mean,-0.39823523064213295,schema,higher_is_better

@@ -20,7 +20,7 @@ Correlations need less. They do not change under a linear rescaling, so they sta
     | `llm` | the local-LLM fallback, for the columns no mapping covers |
 
     Each level includes the ones above it. At `names` the baseline is told which columns are DVs (those the deterministic pipeline maps), which favours it.
-2. **Participants.** Columns mapped to the same DV within a study (wide repeated measures, items of one construct) are averaged per row, then per participant. Participant columns for all 39 studies are declared in `schemas/study_designs.yaml`.
+2. **Participants.** Columns mapped to the same DV within a study (wide repeated measures, items of one construct) are averaged per row, then per participant. Participant columns for all 39 studies are declared in `schemas/study_designs.yaml`. At the `llm` level this also averages a study's LLM-mapped column with its curated column of the same DV. The pooled-means analysis stopped doing that on 2026-11-14, when it began to exclude LLM-mapped columns one by one, as the levels here always have; that change left every relation table unchanged (see the changelog).
 3. **Per study.** The analysis computes two correlations for every pair of construct-level DVs:
     - the Pearson correlation over participants (between-person r, `scipy.stats.pearsonr`);
     - for repeated-measures studies, the repeated-measures correlation of Bakdash & Marusich (2017) on the rows (within-person r).

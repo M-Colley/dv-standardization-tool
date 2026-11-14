@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-14T14:52:24.205068+00:00",
+  "generated_at": "2026-11-14T16:39:39.014367+00:00",
   "models": [
     "google/gemma-4-E2B-it"
   ],
@@ -9,7 +9,7 @@
   "max_per_source": 1000,
   "e2_samples": 0,
   "blocklist_size": 46,
-  "runtime_seconds": 370.3,
+  "runtime_seconds": 341.2,
   "llm_generation_errors": 0,
   "context_sha256": {
     "ar_pedestrian_online_2023": "fede8cd5d6411c8e",

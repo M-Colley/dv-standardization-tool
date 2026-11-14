@@ -164,7 +164,14 @@ When `--exclude-llm-deduced` is set, three additional files are emitted:
 - `meta_analysis_summary_llm_excluded.csv`
 - `study_vs_pool_standardized_deviation_llm_excluded.csv`
 
-The `opendv/run_catalog_meta_analysis.py` orchestrator also writes the `_llm_excluded` variants automatically whenever any LLM-deduced rows are present.
+LLM mappings are handled column by column. `load_column_provenance` reads the mapping category of every column of every standardized table from `meta_view.csv` (the batch writes one row per column, in the table's column order), and `load_studies` decides per column before the tables of a study are combined and the columns of a DV folded into one:
+
+- `llm_columns="exclude"` (the `_llm_excluded` files, the LiNGAM and PC causal steps and the LLM-excluded contrast pool when `--exclude-llm-deduced` is set, the multiverse's `no_llm` arm): every LLM-mapped DV column is left out. Curated columns, and scores computed from curated items, stay even when an LLM column shares their DV.
+- `llm_columns="prefer_curated"` (every other output): a study's LLM-mapped columns of a DV are set aside when the study has a column of that DV mapped by its study mapping, the schema or a header match; they are listed in `llm_columns_set_aside.csv`. When several columns still stand for one DV (a derived score and a mapped column), a non-LLM one is kept before an LLM one, whatever their row counts.
+
+Design and metadata columns are never left out. `mapping_source` in the summaries is the category of the column(s) that were summarized (the most cautious one over averaged `__dup_N` columns and over a score's items). A column without a meta_view row falls back to the study × DV category of `load_mapping_provenance`. Until 2026-11-14 that study × DV category was the only one: one LLM-mapped column marked the whole study × DV, and the LLM-excluded analysis dropped curated columns with it.
+
+The `opendv/run_catalog_meta_analysis.py` orchestrator also writes the `_llm_excluded` variants automatically whenever any LLM-mapped columns are present.
 
 ### Cross-study relations
 
