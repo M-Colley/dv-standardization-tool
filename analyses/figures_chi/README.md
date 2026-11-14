@@ -14,7 +14,8 @@ captions is computed from the run artifacts.
 3. `python -m opendv.analysis.multiverse_analysis --input-dir <run>/standardized` → `analyses/output_multiverse/`
 4. `python -m opendv.analysis.make_chi_figures` → this folder (vector **PDF** + 300-dpi **PNG** per figure).
    Fig. 1 and Fig. 6 take their counts from the batch run that step 2 analysed (the `input_dir` in
-   `analysis_results.json`); `OPENDV_BATCH_DIR` overrides it.
+   `analysis_results.json`); `OPENDV_BATCH_DIR` overrides it. Fig. 4 reads the `*_llm_excluded` tables
+   of step 2, so the script stops if step 2 ran without `--exclude-llm-deduced`.
 
 ## Headline numbers
 
@@ -22,17 +23,17 @@ captions is computed from the run artifacts.
 |---|---|---|
 | Sources in the manifest / retrieved | 39 / 39 | `run_summary.json` |
 | Files standardized | 1,803 | `run_summary.json` (`processed_files`) |
-| Columns mapped | 26,392 / 28,108 (94%) | `run_summary.json` |
-| LLM-deduced aliases accepted / rejected by the plausibility check | 484 / 243 | `llm_deductions.json`, `llm_rejected_suggestions.json` |
-| Canonical DVs surfaced | 134 | `dv_presence_matrix.csv` |
+| Columns mapped | 26,407 / 28,108 (94%) | `run_summary.json` |
+| LLM-deduced aliases accepted / rejected by the plausibility check | 423 / 243 | `llm_deductions.json`, `llm_rejected_suggestions.json` |
+| Canonical DVs surfaced | 129 | `dv_presence_matrix.csv` |
 | Datasets with ≥ 1 canonical DV | 39 of 39 | `dv_presence_matrix.csv` |
-| Meta-analyzable DVs (k ≥ 2): all mappings / without LLM-mapped columns | 93 / 54 | `meta_analysis_summary*.csv` |
-| DVs pooled across ≥ 3 studies: all / without LLM-mapped columns | 61 / 36 | `meta_analysis_summary*.csv` |
-| **Mean pairwise DV overlap** | **Jaccard = 0.084** | `dv_overlap_details.csv` |
+| Meta-analyzable DVs (k ≥ 2): all mappings / without LLM-mapped columns | 88 / 54 | `meta_analysis_summary*.csv` |
+| DVs pooled across ≥ 3 studies: all / without LLM-mapped columns | 55 / 36 | `meta_analysis_summary*.csv` |
+| **Mean pairwise DV overlap** | **Jaccard = 0.079** | `dv_overlap_details.csv` |
 | Most similar pairs | Handsize ↔ road bumps (1.0; both report only task completion time and touch offset); TLX formats ↔ visual fidelity (0.88; both report only the NASA-TLX) | `dv_overlap_details.csv` |
-| NASA-TLX Mental Demand, all mappings (k = 21; 2 studies LLM-mapped) | 7.73; Wald [6.26, 9.20]; HKSJ [6.41, 9.05]; I² = 99.7%, τ² = 11.5 | `meta_analysis_summary.csv` |
-| NASA-TLX Mental Demand, without LLM-mapped columns (k = 19) | 8.14; Wald [6.40, 9.87]; HKSJ [6.83, 9.45]; I² = 99.7% | `meta_analysis_summary_llm_excluded.csv` |
-| Multiverse range of the Mental Demand estimate (32 specifications) | 7.73–17.48 (harmonized scales: 7.73–8.16) | `output_multiverse/multiverse_summary.csv` |
+| **NASA-TLX Mental Demand, without LLM-mapped columns (Fig. 4; k = 19)** | 8.14; Wald [6.40, 9.87]; HKSJ [6.83, 9.45]; I² = 99.7%, τ² = 14.6 | `meta_analysis_summary_llm_excluded.csv` |
+| NASA-TLX Mental Demand, all mappings (k = 19; no study LLM-mapped, so the same pool) | 8.14; Wald [6.40, 9.87]; HKSJ [6.83, 9.45] | `meta_analysis_summary.csv` |
+| Multiverse range of the Mental Demand estimate (32 specifications) | 8.14–17.48 (harmonized scales: 8.14–8.16) | `output_multiverse/multiverse_summary.csv` |
 | Condition contrast: eHMI vs. none on Mental Demand (2 studies) | −0.54 SD; Wald [−0.73, −0.35]; HKSJ [−1.91, 0.84] | `contrast_meta_analysis.csv` |
 | Condition contrast: higher vs. lowest task demand on the NASA-TLX total (3 studies) | +0.97 SD; Wald [0.41, 1.53]; HKSJ [−0.10, 2.03]; I² = 88% | `contrast_meta_analysis.csv` |
 | Causal DAG (DirectLiNGAM) | fit on 270 complete-case rows, **all from Running into Traffic** (a within-study DAG) | `analysis_results.json` (`studies_used`) |
@@ -41,20 +42,22 @@ captions is computed from the run artifacts.
 
 - **`fig0_teaser`** — 2×2 overview combining (a)–(d) for the paper's first page.
 - **`fig1_pipeline`** — *From an open catalog to comparable evidence.* Corpus
-  attrition through the pipeline: 39 sources, 134 canonical DVs, 93 poolable
-  DVs, of which 61 are pooled across ≥ 3 studies.
+  attrition through the pipeline: 39 sources, 129 canonical DVs, 88 poolable
+  DVs, of which 55 are pooled across ≥ 3 studies.
 - **`fig2_presence_matrix`** — *Dependent-variable coverage across 39 open HCI
   datasets.* Cells mark a canonical DV present in a dataset, colored by
   thematic cluster. Marginals show per-DV study count and per-dataset DV
-  count. Mean pairwise overlap is only Jaccard = 0.084.
+  count. Mean pairwise overlap is only Jaccard = 0.079.
 - **`fig3_overlap_heatmap`** — *Pairwise DV-vocabulary overlap (Jaccard).*
 - **`fig4_forest_mental_demand`** — *Evidence synthesis unlocked by
   standardization.* Random-effects forest plot for NASA-TLX Mental Demand
-  across 21 datasets whose raw labels differed. Both the Wald and the
+  across 19 datasets whose raw labels differed. Both the Wald and the
   Hartung-Knapp-Sidik-Jonkman intervals are shown. I² = 99.7% means a shared
-  canonical name does not guarantee scale or population comparability. Two
-  rows rest on LLM mappings that are probably wrong (FOV Snap-Turn, 28.9% of
-  the weight, and Gaze Platformer), see caveat 1.
+  canonical name does not guarantee scale or population comparability. Drawn
+  from the primary analysis, which leaves out LLM-mapped columns
+  (`meta_analysis_summary_llm_excluded.csv`, `harmonized_dv_summary_llm_excluded.csv`;
+  since 2026-11-14, before from the all-mappings tables). For mental demand the
+  two pools are currently the same (see caveat 1).
 - **`fig5_causal_dag`** — *Within-study causal structure among standardized
   DVs.* DirectLiNGAM on z-scores. The only rows complete on the largest
   co-observed DV set all come from Running into Traffic, so this is **not** a
@@ -66,21 +69,24 @@ captions is computed from the run artifacts.
 1. **LLM-deduced mappings are provisional.** In the leave-alias-out benchmark
    the LLM gives the curated DV for 41% of the DV columns of the first 23
    studies and 17% of the 16 added ones (`analyses/output_llm_evaluation/`).
-   70 of the 93 pooled DVs include LLM-mapped columns (`includes_llm_deduced`
+   56 of the 88 pooled DVs include LLM-mapped columns (`includes_llm_deduced`
    in `meta_analysis_summary.csv`). An LLM column enters only for a study
    without a curated column of the same DV (since 2026-11-14;
-   `llm_columns_set_aside.csv` lists the 394 set aside). Fig. 4 still has two
-   such studies, and their items' names do not suggest the NASA-TLX: FOV
-   Snap-Turn's `Mechanics1_2`–`Mechanics1_5` (1–7, 28.9% of the weight) and
-   Gaze Platformer's `Enjoyment_fun` and `Enjoyment_entertaining` (1–7, 5.0%).
-   Until 2026-11-14 SenseCobot's EEG beta/alpha ratios, LLM-mapped to mental
+   `llm_columns_set_aside.csv` lists the 394 set aside). Fig. 4 is drawn
+   without LLM mappings since 2026-11-14. Its all-mappings pool had two LLM
+   rows until they were found to be other questionnaires and locked
+   (2026-11-14): FOV Snap-Turn's `Mechanics1_2`–`Mechanics1_5`
+   (VRNQ game-mechanics items, 28.9% of the weight) and Gaze Platformer's
+   `Enjoyment_fun` and `Enjoyment_entertaining` (PXI enjoyment items, 5.0%);
+   the pool went from k = 21, 7.73 [6.41, 9.05] to k = 19, 8.14 [6.83, 9.45]
+   (HKSJ). Until 2026-11-14 SenseCobot's EEG beta/alpha ratios, LLM-mapped to mental
    demand, were pooled together with its NASA-TLX ratings (study mean 0.39 of
-   20, 17.5% of the weight); its row is now the rating (6.98, 0.2%). All
+   20, 17.5% of the weight); its row is now the rating (6.98, 0.3%). All
    study × DV rows with `mapping_source = llm_deduced` are listed in
    `harmonized_dv_summary.csv`. For claims, prefer the `*_llm_excluded` files
    (54 meta-analyzable DVs, 36 with k ≥ 3), which leave out every LLM-mapped
-   column but keep curated columns of the same DV. Fig. 2, Fig. 3 and the PCA
-   composite use all mappings.
+   column but keep curated columns of the same DV, as Fig. 4 does. Fig. 1,
+   Fig. 2, Fig. 3 and the PCA composite use all mappings.
 2. **Observation-level n.** Meta-analysis weights use row counts, not
    participants, so large row-level exports (TLX formats with 3,888 rows,
    FACT-AV with 2,600) weigh heavily. The participant-level alternative is one axis of the multiverse

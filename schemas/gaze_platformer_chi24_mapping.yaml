@@ -24,16 +24,88 @@
 #   7 = "Very severe", but the data run 0-6.
 # - game-final submitdate is 1980-01-01 for every row (LimeSurvey date
 #   anonymisation). P18 and P19 are probably the same person (README).
-# - Left unmapped (no fitting schema DV): DESBefore_* / DESAfter_* (21 digital
+# - Locked as meta_* (no fitting schema DV): DESBefore_* / DESAfter_* (21 digital
 #   eye strain symptoms x 2), Enjoyment_* (PXI enjoyment, 5 items, plus the
 #   unused Enjoyment_boring), Competence_* (IMI perceived competence, 6 items),
 #   eyeQuality (end-of-study rating, scale not documented).
-#   Unresolved: Help (Y/N, question wording not documented).
+#   Unresolved: Help (Y/N, question wording not documented; the codebook lists
+#   it with the open feedback). Locked as meta too.
 
 # --- Dependent measures: audiovisual appeal (PXI), 7-point, 1 = strongly agree -
 Visuals_styl: aesthetics_rating              # "I enjoyed the way the game was styled."
 Visuals_2lookFeel: aesthetics_rating         # "I liked the look and feel of the game."
 Visuals_aesthetics: aesthetics_rating        # "I appreciated the aesthetics of the game."
+
+# --- Measures without a schema DV (locked so the LLM cannot map them) ---------
+# CODEBOOK.md: the study measured digital eye strain (DES), PXI enjoyment, PXI
+# audiovisual appeal (mapped above) and IMI perceived competence; it has no
+# NASA-TLX. Left unlabelled, the LLM mapped 43 of these columns (batch of
+# 2026-11-14): Enjoyment_fun and Enjoyment_entertaining to NASA-TLX mental demand
+# (5.0% of the weight of Fig. 4), Enjoyment_liked to Godspeed likeability, the
+# competence items to TiA reliability/competence, user satisfaction and crossing
+# initiation time, the DES items to pedestrian crossing time, RSME, the SSQ
+# total, the FMS score, DALI, SART, dwell time and others, eyeQuality to eye
+# tracking and Help to SDLP.
+# PXI enjoyment (Vanden Abeele et al. 2016), 7-point, 1 = strongly agree
+Enjoyment_enjoyed: meta_pxi_enjoyment_enjoyed
+Enjoyment_liked: meta_pxi_enjoyment_liked
+Enjoyment_fun: meta_pxi_enjoyment_fun
+Enjoyment_entertaining: meta_pxi_enjoyment_entertaining
+Enjoyment_6goodTime: meta_pxi_enjoyment_good_time
+Enjoyment_boring: meta_pxi_enjoyment_boring        # reverse-worded, not used by the authors
+# IMI perceived competence, 7-point (keyed the other way, see notes)
+Competence_veryGood: meta_imi_competence_very_good
+Competence_good: meta_imi_competence_good
+Competence_goodAfterTime: meta_imi_competence_good_after_time
+Competence_satisfied: meta_imi_competence_satisfied
+Competence_skilled: meta_imi_competence_skilled
+Competence_notGood: meta_imi_competence_not_good   # reverse-scored (8 - x) in game.R
+# Digital eye strain symptoms before / after each session (codebook 1-7, data 0-6)
+DESBefore_strain: meta_des_before_strain
+DESBefore_ache: meta_des_before_ache
+DESBefore_blurred: meta_des_before_blurred
+DESBefore_double: meta_des_before_double
+DESBefore_soreness: meta_des_before_soreness
+DESBefore_burn: meta_des_before_burn
+DESBefore_irritated: meta_des_before_irritated
+DESBefore_tearing: meta_des_before_tearing
+DESBefore_watering: meta_des_before_watering
+DESBefore_hot: meta_des_before_hot
+DESBefore_dry: meta_des_before_dry
+DESBefore_foreignBody: meta_des_before_foreign_body
+DESBefore_blinking: meta_des_before_blinking
+DESBefore_redness: meta_des_before_redness
+DESBefore_heavy: meta_des_before_heavy
+DESBefore_light: meta_des_before_light
+DESBefore_neck: meta_des_before_neck
+DESBefore_worsenSight: meta_des_before_worsen_sight
+DESBefore_coloredHalos: meta_des_before_colored_halos
+DESBefore_shoulder: meta_des_before_shoulder
+DESBefore_concedntrating: meta_des_before_concentrating
+DESAfter_strain: meta_des_after_strain
+DESAfter_ache: meta_des_after_ache
+DESAfter_blurred: meta_des_after_blurred
+DESAfter_double: meta_des_after_double
+DESAfter_soreness: meta_des_after_soreness
+DESAfter_burn: meta_des_after_burn
+DESAfter_irritated: meta_des_after_irritated
+DESAfter_tearing: meta_des_after_tearing
+DESAfter_watering: meta_des_after_watering
+DESAfter_hot: meta_des_after_hot
+DESAfter_dry: meta_des_after_dry
+DESAfter_foreignBody: meta_des_after_foreign_body
+DESAfter_blinking: meta_des_after_blinking
+DESAfter_redness: meta_des_after_redness
+DESAfter_heavy: meta_des_after_heavy
+DESAfter_light: meta_des_after_light
+DESAfter_neck: meta_des_after_neck
+DESAfter_worsenSight: meta_des_after_worsen_sight
+DESAfter_coloredHalos: meta_des_after_colored_halos
+DESAfter_shoulder: meta_des_after_shoulder
+DESAfter_concedntrating: meta_des_after_concentrating
+# End-of-study survey (game-final.xlsx)
+eyeQuality: meta_eye_tracking_quality_rating        # self-rated quality of the eye-tracking experience, 1-3 here (7 answers)
+Help: meta_help_yes_no                              # Y/N, question wording not documented
 
 # --- Participant, conditions and session --------------------------------------
 ID: meta_participant_id                      # game-data / game-final (P01-P24)

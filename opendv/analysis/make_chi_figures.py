@@ -163,8 +163,22 @@ def save(fig, name: str):
 # ── Load artifacts ───────────────────────────────────────────────────────────
 presence = pd.read_csv(ANALYSIS_DIR / "dv_presence_matrix.csv", index_col=0)
 overlap = pd.read_csv(ANALYSIS_DIR / "dv_overlap_matrix.csv", index_col=0)
-summary = pd.read_csv(ANALYSIS_DIR / "harmonized_dv_summary.csv")
 meta = pd.read_csv(ANALYSIS_DIR / "meta_analysis_summary.csv")
+# Fig. 4 shows the primary pool, which leaves out LLM-mapped columns (written by
+# `opendv analyze --exclude-llm-deduced`). There is no fallback to the
+# all-mappings pool: that would put LLM-mapped rows back into the figure unnoticed.
+_PRIMARY = {
+    "summary": ANALYSIS_DIR / "harmonized_dv_summary_llm_excluded.csv",
+    "meta": ANALYSIS_DIR / "meta_analysis_summary_llm_excluded.csv",
+}
+_missing = [p.name for p in _PRIMARY.values() if not p.is_file()]
+if _missing:
+    raise FileNotFoundError(
+        f"{', '.join(_missing)} not found in {ANALYSIS_DIR}; Fig. 4 is drawn from the analysis "
+        "without LLM-mapped columns. Run `opendv analyze ... --exclude-llm-deduced` first."
+    )
+summary_primary = pd.read_csv(_PRIMARY["summary"])
+meta_primary = pd.read_csv(_PRIMARY["meta"])
 freq = pd.read_csv(ANALYSIS_DIR / "dv_frequency.csv")
 run_summary = json.loads((BATCH_DIR / "run_summary.json").read_text(encoding="utf-8"))
 results = pd.DataFrame(run_summary["results"])
@@ -439,9 +453,11 @@ def fig_overlap():
 
 
 # ══════════════════════════════════════════════════════════════════════════════
-# FIGURE 4 — Forest plot: NASA-TLX Mental Demand (k = 6)
+# FIGURE 4 — Forest plot: NASA-TLX Mental Demand, without LLM-mapped columns
 # ══════════════════════════════════════════════════════════════════════════════
-def fig_forest(dv="mental_demand", fname="fig4_forest_mental_demand"):
+def fig_forest(dv="mental_demand", fname="fig4_forest_mental_demand", summary=None, meta=None):
+    summary = summary_primary if summary is None else summary
+    meta = meta_primary if meta is None else meta
     sub = summary[(summary["dv"] == dv) & (summary["n"] > 1) & (summary["sd"] > 0)].copy()
     sub = sub.sort_values("mean").reset_index(drop=True)
     mrow = meta[meta["dv"] == dv].iloc[0]
@@ -518,7 +534,8 @@ def fig_forest(dv="mental_demand", fname="fig4_forest_mental_demand"):
     fig.suptitle("Evidence synthesis unlocked by standardization: NASA-TLX Mental Demand",
                  x=0.045, y=1.02, ha="left", fontsize=9, fontweight="bold")
     fig.text(0.045, 0.965,
-             "Pooling is only possible because heterogeneous source labels were mapped to one canonical DV. "
+             "Pooling is only possible because heterogeneous source labels were mapped to one canonical DV "
+             "(curated mappings only; LLM-mapped columns left out).\n"
              "Very high I² shows that shared names still mask scale/population differences.",
              ha="left", va="top", fontsize=6.2, color="#777777")
     save(fig, fname)
