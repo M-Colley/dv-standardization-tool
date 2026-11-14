@@ -1,0 +1,25 @@
+# Second held-out test mapping for p300_attention_bci_2024 (docs/preregistration_heldout_relations_2.md).
+# Papers: protocol "Adaptive P300-Based Brain-Computer Interface for Attention Training", JMIR Res Protoc
+#   2023, DOI 10.2196/46135; results in J Neural Eng 2024, DOI 10.1088/1741-2552/ad2c9e.
+# Data: Zenodo 10.5281/zenodo.8183396, CC-BY-4.0. The per-subject EEG archives are not downloaded.
+# File: Questionnaire scores.csv, one row per participant (47; three training arms, between subjects).
+#   NASA-TLX: the six raw subscales, 1-20, once after training (the protocol uses the standard
+#   NASA-TLX, whose performance scale runs from perfect to failure, the schema's direction).
+#   Fatigue, alertness, boredom and eye fatigue before and after training (0-10) have no schema DV
+#   (sleepiness is the Karolinska scale).
+
+Subject ID: meta_participant_id
+Fatigue Pre-training: meta_fatigue_pre_training
+Fatigue Post-training: meta_fatigue_post_training
+Alertness Pre-training: meta_alertness_pre_training
+Alertness Post-training: meta_alertness_post_training
+Boredom Pre-training: meta_boredom_pre_training
+Boredom Post-training: meta_boredom_post_training
+Eye Fatigue Pre-training: meta_eye_fatigue_pre_training
+Eye Fatigue Post-training: meta_eye_fatigue_post_training
+Mental Demand (NASA TLX): mental_demand
+Physical Demand (NASA TLX): physical_demand
+Temporal Demand (NASA TLX): temporal_demand
+Performance (NASA TLX): performance
+Effort (NASA TLX): effort
+Frustration (NASA TLX): frustration

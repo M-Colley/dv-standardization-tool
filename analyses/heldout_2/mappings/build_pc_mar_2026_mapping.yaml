@@ -1,0 +1,44 @@
+# Second held-out test mapping for build_pc_mar_2026 (docs/preregistration_heldout_relations_2.md).
+# Paper: "Build_PC: Mobile Augmented Reality for Supporting PC Hardware Learning with Low Mental Workload",
+#   Human Behavior and Emerging Technologies 2026, DOI 10.1155/hbe2/3687910.
+# Data: Mendeley Data, CC-BY-4.0. No codebook; the Google Forms export on the first sheet holds the
+#   question texts.
+# File: NASA_MAR.xlsx, sheet "Hoja8" (manifest table_options): one row per student (60), the NASA-TLX
+#   subscale ratings MD, PD, TD, PE, EF, FL on 1-20, once after using the app, and the 15 pairwise
+#   comparisons. Rows below the participants hold summary text and have no participant number.
+# Performance (PE) asks "how successful were you in achieving what you were asked to do? (1-20)" with
+#   no anchors, so its direction is not documented; it is left unlabelled (the rule of this test: a
+#   performance item is mapped only when its direction is documented).
+# Note: this workbook and the other Build study's (same group) carry the same 2020 timestamps in the
+#   form sheet's first column, apparently from a shared template; their answers differ in every row.
+
+'Unnamed: 0': meta_participant_id
+Genero: meta_demographic_gender
+edad: meta_demographic_age
+MD: mental_demand
+PD: physical_demand
+TD: temporal_demand
+EF: effort
+FL: frustration
+MD-PD: meta_tlx_pairwise_md_pd
+MD-EF: meta_tlx_pairwise_md_ef
+MD-FL: meta_tlx_pairwise_md_fl
+MD-PE: meta_tlx_pairwise_md_pe
+MD-TD: meta_tlx_pairwise_md_td
+PD-FL: meta_tlx_pairwise_pd_fl
+PD-PE: meta_tlx_pairwise_pd_pe
+PD-TD: meta_tlx_pairwise_pd_td
+PE-TD: meta_tlx_pairwise_pe_td
+EF-PD: meta_tlx_pairwise_ef_pd
+FL-EF: meta_tlx_pairwise_fl_ef
+FL-PE: meta_tlx_pairwise_fl_pe
+EF-PE: meta_tlx_pairwise_ef_pe
+FL-TD: meta_tlx_pairwise_fl_td
+TD-EF: meta_tlx_pairwise_td_ef
+
+# Left unlabelled: PE (direction not documented), the weighted score and the workload category.
+
+exclude_rows:
+  - column: "Unnamed: 0"
+    values: [proemdio]
+    reason: a summary row ("promedio", average) below the participants

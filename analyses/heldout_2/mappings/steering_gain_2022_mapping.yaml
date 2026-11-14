@@ -1,0 +1,34 @@
+# Second held-out test mapping for steering_gain_2022 (docs/preregistration_heldout_relations_2.md).
+# Paper: "Should steering settings be changed by the driver or by the vehicle itself?", Human Factors
+#   2022, DOI 10.1177/00187208221127944.
+# Data: 4TU.ResearchData 10.4121/20484999, CC-BY-4.0; readme.txt and Questionnaires.pdf (the
+#   questionnaires) are the codebook.
+# File: Supplementary Material/Questionnaires.xlsx, sheet "Post-trial": one row per participant (24),
+#   wide. Row 1 holds the question texts, row 2 the condition codes (FL fixed low gain, FH fixed high
+#   gain, MI machine-initiated, DI driver-initiated), so the manifest reads the sheet with header row
+#   2 (pandas then names the repeated codes FL, FH, MI, DI, FL.1, ... DI.9). The wide_to_long table
+#   option makes one row per participant x condition:
+#     columns 13-16 (.3) mental demand, 17-20 (.4) physical demand, 21-24 (.5) temporal demand,
+#     25-28 (.6) performance, 29-32 (.7) effort, 33-36 (.8) frustration, 37-40 (.9) overall.
+# NASA-TLX subscales on 0-100 ("Very low" - "Very high"; performance "Perfect" - "Failure", the
+# schema's direction). "Overall" is their unweighted mean (TLX_SCORE).
+# A trailing "Average" row is left out (exclude_rows).
+
+"Unnamed: 0": meta_participant_id
+condition: meta_condition_steering_gain       # FL, FH, MI, DI
+md: mental_demand
+pd: physical_demand
+td: temporal_demand
+pf: performance
+ef: effort
+fr: frustration
+overall: TLX_SCORE
+
+# Not read: the three "it took me little effort to overtake / follow the lane on the straight /
+# curved road" items (1 = fully agree - 7; a custom scale, no schema DV), the Pre-experiment and
+# Post-experiment sheets (demographics, preferences, rankings).
+
+exclude_rows:
+  - column: "Unnamed: 0"
+    values: [Average]
+    reason: the sheet's last row holds the condition means, not a participant

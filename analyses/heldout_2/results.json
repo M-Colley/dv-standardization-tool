@@ -1,0 +1,4320 @@
+{
+  "preregistration": "docs/preregistration_heldout_relations_2.md",
+  "level": "curated",
+  "alpha": 0.05,
+  "min_studies": 2,
+  "studies": [
+    "ar_telepresence_arm_2023",
+    "build_3d_mr_2025",
+    "build_pc_mar_2026",
+    "chatgpt_roleplay_2025",
+    "citizen_science_tutorial_2021",
+    "debugging_cps_ar_vr_2026",
+    "developers_prompt_docgen_2024",
+    "exergame_children_2025",
+    "handover_reaction_time_2025",
+    "human_swarm_pfm_2025",
+    "layer_interaction_elastic_2022",
+    "mr_airplane_layouts_2021",
+    "navigable_wim_2026",
+    "p300_attention_bci_2024",
+    "pipeblocks_cicd_2025",
+    "remote_takeover_replay_2026",
+    "risky_driving_age_2017",
+    "simulst_subtitles_2026",
+    "spot_voice_gesture_2025",
+    "steering_gain_2022",
+    "sus_de_pos_2025",
+    "teleoperation_latency_2026",
+    "teleport_distance_accuracy_2025",
+    "turn_by_turn_wayfinding_2010",
+    "vibrotactile_elastic_2023",
+    "vr_classroom_asa_2022",
+    "vr_classroom_noise_2025",
+    "vr_propaganda_retention_2024",
+    "vr_shopping_demands_2026",
+    "vr_spirit_ataxia_2023"
+  ],
+  "H1": {
+    "pair": [
+      "mental_demand",
+      "perceived_safety"
+    ],
+    "predicted_sign": "negative",
+    "k_studies": 0,
+    "studies": [],
+    "testable": false,
+    "decision": "not testable on this set"
+  },
+  "H2": {
+    "pairs": {
+      "effort x frustration": {
+        "pair": [
+          "effort",
+          "frustration"
+        ],
+        "predicted_sign": "positive",
+        "k_studies": 7,
+        "studies": [
+          {
+            "study": "exergame_children_2025",
+            "domain": "other",
+            "n_participants": 21,
+            "n_rows": 126,
+            "r": 0.4627114876681634,
+            "ci95": [
+              0.298280799424258,
+              0.6004691292994278
+            ],
+            "p_value": 5.918015220793858e-07
+          },
+          {
+            "study": "human_swarm_pfm_2025",
+            "domain": "other",
+            "n_participants": 180,
+            "n_rows": 360,
+            "r": 0.3563114488196874,
+            "ci95": [
+              0.2219881604935044,
+              0.4773624915295555
+            ],
+            "p_value": 8.522142649531265e-07
+          },
+          {
+            "study": "layer_interaction_elastic_2022",
+            "domain": "other",
+            "n_participants": 23,
+            "n_rows": 69,
+            "r": 0.5520525231885525,
+            "ci95": [
+              0.3147847951600737,
+              0.7243847651537622
+            ],
+            "p_value": 5.752877947130319e-05
+          },
+          {
+            "study": "navigable_wim_2026",
+            "domain": "other",
+            "n_participants": 36,
+            "n_rows": 108,
+            "r": 0.5575181435008923,
+            "ci95": [
+              0.3756282297516168,
+              0.6980512000679904
+            ],
+            "p_value": 2.998135071328793e-07
+          },
+          {
+            "study": "steering_gain_2022",
+            "domain": "automotive",
+            "n_participants": 24,
+            "n_rows": 96,
+            "r": 0.1412116133040717,
+            "ci95": [
+              -0.0918436249068315,
+              0.3596000133396926
+            ],
+            "p_value": 0.2333903911543465
+          },
+          {
+            "study": "vr_classroom_noise_2025",
+            "domain": "other",
+            "n_participants": 24,
+            "n_rows": 96,
+            "r": 0.3262664030313368,
+            "ci95": [
+              0.1040019056893903,
+              0.5174924197331628
+            ],
+            "p_value": 0.0048469026959104
+          },
+          {
+            "study": "vr_shopping_demands_2026",
+            "domain": "other",
+            "n_participants": 22,
+            "n_rows": 154,
+            "r": 0.7944996279383896,
+            "ci95": [
+              0.7219057618805015,
+              0.849796573860929
+            ],
+            "p_value": 3.656044217640002e-30
+          }
+        ],
+        "testable": true,
+        "pooled_r": 0.4848056899019686,
+        "hksj_ci95": [
+          0.2440969236373418,
+          0.669242051306662
+        ],
+        "prediction_interval": [
+          -0.2581862175272127,
+          0.8674437033129815
+        ],
+        "heterogeneity_i2_pct": 89.70472133466214,
+        "tau": 0.2860249483304494,
+        "n_total": 330,
+        "p_hksj_two_sided": 0.0036037375225431,
+        "p_one_sided": 0.00180186876127155,
+        "p_holm": 0.0036037375225431,
+        "significant": true
+      },
+      "effort x mental_demand": {
+        "pair": [
+          "effort",
+          "mental_demand"
+        ],
+        "predicted_sign": "positive",
+        "k_studies": 8,
+        "studies": [
+          {
+            "study": "exergame_children_2025",
+            "domain": "other",
+            "n_participants": 21,
+            "n_rows": 126,
+            "r": 0.5806480351665478,
+            "ci95": [
+              0.4384540098559575,
+              0.6944832987020046
+            ],
+            "p_value": 6.827609459689764e-11
+          },
+          {
+            "study": "human_swarm_pfm_2025",
+            "domain": "other",
+            "n_participants": 180,
+            "n_rows": 360,
+            "r": 0.407276017158909,
+            "ci95": [
+              0.2779259329954301,
+              0.522119664864304
+            ],
+            "p_value": 1.2703715261930676e-08
+          },
+          {
+            "study": "layer_interaction_elastic_2022",
+            "domain": "other",
+            "n_participants": 23,
+            "n_rows": 69,
+            "r": 0.4856497274136014,
+            "ci95": [
+              0.2306447868862905,
+              0.678231965419505
+            ],
+            "p_value": 0.0005394211634719
+          },
+          {
+            "study": "mr_airplane_layouts_2021",
+            "domain": "other",
+            "n_participants": 24,
+            "n_rows": 252,
+            "r": 0.7784824118804834,
+            "ci95": [
+              0.7216739822859777,
+              0.8248752343319252
+            ],
+            "p_value": 8.23066178258278e-48
+          },
+          {
+            "study": "navigable_wim_2026",
+            "domain": "other",
+            "n_participants": 36,
+            "n_rows": 108,
+            "r": 0.4985272427507907,
+            "ci95": [
+              0.3032361119571069,
+              0.6536293743912726
+            ],
+            "p_value": 7.169798231591394e-06
+          },
+          {
+            "study": "steering_gain_2022",
+            "domain": "automotive",
+            "n_participants": 24,
+            "n_rows": 96,
+            "r": 0.2655308709423968,
+            "ci95": [
+              0.0377667258537906,
+              0.4670685199574497
+            ],
+            "p_value": 0.0231794892056072
+          },
+          {
+            "study": "vr_classroom_noise_2025",
+            "domain": "other",
+            "n_participants": 24,
+            "n_rows": 96,
+            "r": 0.5922549547049387,
+            "ci95": [
+              0.4193206032876573,
+              0.7237125814421804
+            ],
+            "p_value": 3.4049816895026553e-08
+          },
+          {
+            "study": "vr_shopping_demands_2026",
+            "domain": "other",
+            "n_participants": 22,
+            "n_rows": 154,
+            "r": 0.8487136816269246,
+            "ci95": [
+              0.7930626707590215,
+              0.8903141482015446
+            ],
+            "p_value": 4.669767588102613e-38
+          }
+        ],
+        "testable": true,
+        "pooled_r": 0.5946474859153794,
+        "hksj_ci95": [
+          0.3907238903980058,
+          0.7429342966986844
+        ],
+        "prediction_interval": [
+          -0.1288536404803667,
+          0.9050080797324744
+        ],
+        "heterogeneity_i2_pct": 92.38669433157978,
+        "tau": 0.3117773818776979,
+        "n_total": 354,
+        "p_hksj_two_sided": 0.0005702025603686,
+        "p_one_sided": 0.0002851012801843,
+        "p_holm": 0.0008553038405528999,
+        "significant": true
+      },
+      "frustration x mental_demand": {
+        "pair": [
+          "frustration",
+          "mental_demand"
+        ],
+        "predicted_sign": "positive",
+        "k_studies": 7,
+        "studies": [
+          {
+            "study": "exergame_children_2025",
+            "domain": "other",
+            "n_participants": 21,
+            "n_rows": 126,
+            "r": 0.4812866443068905,
+            "ci95": [
+              0.3198974990763785,
+              0.6155335398500024
+            ],
+            "p_value": 1.765047640395885e-07
+          },
+          {
+            "study": "human_swarm_pfm_2025",
+            "domain": "other",
+            "n_participants": 180,
+            "n_rows": 360,
+            "r": 0.1844045280421024,
+            "ci95": [
+              0.0396095209873183,
+              0.3216143613261562
+            ],
+            "p_value": 0.0129525703549216
+          },
+          {
+            "study": "layer_interaction_elastic_2022",
+            "domain": "other",
+            "n_participants": 23,
+            "n_rows": 69,
+            "r": 0.3245275438215159,
+            "ci95": [
+              0.0411949171859162,
+              0.5595518178393742
+            ],
+            "p_value": 0.0260438829526494
+          },
+          {
+            "study": "navigable_wim_2026",
+            "domain": "other",
+            "n_participants": 36,
+            "n_rows": 108,
+            "r": 0.4985867952851512,
+            "ci95": [
+              0.3033080740394281,
+              0.6536747645974188
+            ],
+            "p_value": 7.148938340026219e-06
+          },
+          {
+            "study": "steering_gain_2022",
+            "domain": "automotive",
+            "n_participants": 24,
+            "n_rows": 96,
+            "r": 0.1425529532619417,
+            "ci95": [
+              -0.0904861051995361,
+              0.3607913080211803
+            ],
+            "p_value": 0.2289350309721853
+          },
+          {
+            "study": "vr_classroom_noise_2025",
+            "domain": "other",
+            "n_participants": 24,
+            "n_rows": 96,
+            "r": 0.4894913379330674,
+            "ci95": [
+              0.2923430551597403,
+              0.6467293662172223
+            ],
+            "p_value": 1.1086270739665493e-05
+          },
+          {
+            "study": "vr_shopping_demands_2026",
+            "domain": "other",
+            "n_participants": 22,
+            "n_rows": 154,
+            "r": 0.8237165370288327,
+            "ci95": [
+              0.7600636818504408,
+              0.871713698550359
+            ],
+            "p_value": 4.412934868474248e-34
+          }
+        ],
+        "testable": true,
+        "pooled_r": 0.4585104601577296,
+        "hksj_ci95": [
+          0.1728240752714093,
+          0.6730351296141533
+        ],
+        "prediction_interval": [
+          -0.4039715559518591,
+          0.8894388458618318
+        ],
+        "heterogeneity_i2_pct": 93.01043176901538,
+        "tau": 0.3338459899527872,
+        "n_total": 330,
+        "p_hksj_two_sided": 0.0091986697440522,
+        "p_one_sided": 0.0045993348720261,
+        "p_holm": 0.0045993348720261,
+        "significant": true
+      }
+    },
+    "decision": "supported"
+  },
+  "H2b": {
+    "mean_r_with_other_subscales": {
+      "mental_demand": {
+        "mean_r": 0.40868620604013833,
+        "n_pairs": 5,
+        "missing_pairs": []
+      },
+      "physical_demand": {
+        "mean_r": 0.21958629650813025,
+        "n_pairs": 5,
+        "missing_pairs": []
+      },
+      "temporal_demand": {
+        "mean_r": 0.3110041053331719,
+        "n_pairs": 5,
+        "missing_pairs": []
+      },
+      "performance": {
+        "mean_r": 0.3087386344413733,
+        "n_pairs": 5,
+        "missing_pairs": []
+      },
+      "effort": {
+        "mean_r": 0.44019629299087965,
+        "n_pairs": 5,
+        "missing_pairs": []
+      },
+      "frustration": {
+        "mean_r": 0.36226192646891003,
+        "n_pairs": 5,
+        "missing_pairs": []
+      }
+    },
+    "lowest": "physical_demand",
+    "decision": "not met"
+  },
+  "H4": {
+    "targets": 33,
+    "testable": 32,
+    "replicated": 27,
+    "same_sign": 32,
+    "by_association": {
+      "within_person": {
+        "targets": 12,
+        "testable": 12,
+        "replicated": 11,
+        "same_sign": 12
+      },
+      "between_person": {
+        "targets": 21,
+        "testable": 20,
+        "replicated": 16,
+        "same_sign": 20
+      }
+    },
+    "results": {
+      "between:AOA_SATISFYING~AOA_USEFULNESS": {
+        "association": "between_person",
+        "pair": [
+          "AOA_SATISFYING",
+          "AOA_USEFULNESS"
+        ],
+        "predicted_sign": "positive",
+        "k_studies": 1,
+        "studies": [
+          {
+            "study": "human_swarm_pfm_2025",
+            "domain": "other",
+            "n_participants": 180,
+            "n_rows": 180,
+            "r": 0.891140671630672,
+            "ci95": [
+              0.8565167701873815,
+              0.9177795140982414
+            ],
+            "p_value": 5.432688009090503e-63
+          }
+        ],
+        "k_predicted_sign": 1,
+        "testable": false,
+        "found_in": "both",
+        "pair_type": "same_instrument",
+        "replicated": false
+      },
+      "between:TLX_SCORE~usability": {
+        "association": "between_person",
+        "pair": [
+          "TLX_SCORE",
+          "usability"
+        ],
+        "predicted_sign": "negative",
+        "k_studies": 4,
+        "studies": [
+          {
+            "study": "debugging_cps_ar_vr_2026",
+            "domain": "other",
+            "n_participants": 36,
+            "n_rows": 36,
+            "r": -0.4633863825336543,
+            "ci95": [
+              -0.6872898151602413,
+              -0.1590668154415981
+            ],
+            "p_value": 0.0044238906344736
+          },
+          {
+            "study": "human_swarm_pfm_2025",
+            "domain": "other",
+            "n_participants": 180,
+            "n_rows": 180,
+            "r": -0.3916663490734885,
+            "ci95": [
+              -0.5087832929575369,
+              -0.2603155795624216
+            ],
+            "p_value": 5.42028242318983e-08
+          },
+          {
+            "study": "navigable_wim_2026",
+            "domain": "other",
+            "n_participants": 36,
+            "n_rows": 36,
+            "r": -0.2442369512382918,
+            "ci95": [
+              -0.5302269760020059,
+              0.0916530819930805
+            ],
+            "p_value": 0.151130609137652
+          },
+          {
+            "study": "pipeblocks_cicd_2025",
+            "domain": "other",
+            "n_participants": 10,
+            "n_rows": 10,
+            "r": -0.5552515010626728,
+            "ci95": [
+              -0.8779467759388113,
+              0.1143525642335978
+            ],
+            "p_value": 0.0956719604142413
+          }
+        ],
+        "k_predicted_sign": 4,
+        "testable": true,
+        "pooled_r": -0.3881251363366131,
+        "hksj_ci95": [
+          -0.5004630517165451,
+          -0.2629340493618617
+        ],
+        "prediction_interval": [
+          -0.5926328070697616,
+          -0.1366076801550059
+        ],
+        "heterogeneity_i2_pct": 0.0,
+        "tau": 0.0,
+        "n_total": 262,
+        "p_hksj_two_sided": 0.002641105884702,
+        "p_one_sided": 0.001320552942351,
+        "found_in": "development",
+        "pair_type": "cross_construct",
+        "q_bh": 0.005551627446793,
+        "replicated": true,
+        "same_sign": true
+      },
+      "between:effort~frustration": {
+        "association": "between_person",
+        "pair": [
+          "effort",
+          "frustration"
+        ],
+        "predicted_sign": "positive",
+        "k_studies": 12,
+        "studies": [
+          {
+            "study": "build_3d_mr_2025",
+            "domain": "other",
+            "n_participants": 60,
+            "n_rows": 60,
+            "r": -0.0402583991523714,
+            "ci95": [
+              -0.2912062163030993,
+              0.2158730879201111
+            ],
+            "p_value": 0.7600583392665365
+          },
+          {
+            "study": "build_pc_mar_2026",
+            "domain": "other",
+            "n_participants": 60,
+            "n_rows": 60,
+            "r": -0.2355790173228267,
+            "ci95": [
+              -0.4618746846855953,
+              0.0195129358706727
+            ],
+            "p_value": 0.0699866810593859
+          },
+          {
+            "study": "citizen_science_tutorial_2021",
+            "domain": "other",
+            "n_participants": 73,
+            "n_rows": 73,
+            "r": 0.5872788166784066,
+            "ci95": [
+              0.413015576820519,
+              0.7200566236124055
+            ],
+            "p_value": 4.723666372526933e-08
+          },
+          {
+            "study": "exergame_children_2025",
+            "domain": "other",
+            "n_participants": 21,
+            "n_rows": 21,
+            "r": 0.6215655203637074,
+            "ci95": [
+              0.2595112080303224,
+              0.8304299833199401
+            ],
+            "p_value": 0.0026311074256609
+          },
+          {
+            "study": "human_swarm_pfm_2025",
+            "domain": "other",
+            "n_participants": 180,
+            "n_rows": 180,
+            "r": 0.2897214732526106,
+            "ci95": [
+              0.1498062913093768,
+              0.4182607308903466
+            ],
+            "p_value": 7.983782422982219e-05
+          },
+          {
+            "study": "layer_interaction_elastic_2022",
+            "domain": "other",
+            "n_participants": 23,
+            "n_rows": 23,
+            "r": 0.3119887767876229,
+            "ci95": [
+              -0.1150030773107849,
+              0.6416705468720613
+            ],
+            "p_value": 0.1472622685345712
+          },
+          {
+            "study": "navigable_wim_2026",
+            "domain": "other",
+            "n_participants": 36,
+            "n_rows": 36,
+            "r": 0.417688880277645,
+            "ci95": [
+              0.1033331021192371,
+              0.6561798613512101
+            ],
+            "p_value": 0.0112528355009213
+          },
+          {
+            "study": "p300_attention_bci_2024",
+            "domain": "other",
+            "n_participants": 47,
+            "n_rows": 47,
+            "r": 0.2435546374115642,
+            "ci95": [
+              -0.0468918264713788,
+              0.4960287940461858
+            ],
+            "p_value": 0.099001882488506
+          },
+          {
+            "study": "pipeblocks_cicd_2025",
+            "domain": "other",
+            "n_participants": 10,
+            "n_rows": 10,
+            "r": 0.8916026926441979,
+            "ci95": [
+              0.5972694010108983,
+              0.974287103955866
+            ],
+            "p_value": 0.0005289455602426
+          },
+          {
+            "study": "steering_gain_2022",
+            "domain": "automotive",
+            "n_participants": 24,
+            "n_rows": 24,
+            "r": 0.3402195710766763,
+            "ci95": [
+              -0.0732270755777787,
+              0.6538760695403116
+            ],
+            "p_value": 0.1038003298642707
+          },
+          {
+            "study": "vr_classroom_noise_2025",
+            "domain": "other",
+            "n_participants": 24,
+            "n_rows": 24,
+            "r": 0.5000460811290427,
+            "ci95": [
+              0.1210715555394072,
+              0.7517933366162406
+            ],
+            "p_value": 0.0128358220947061
+          },
+          {
+            "study": "vr_shopping_demands_2026",
+            "domain": "other",
+            "n_participants": 22,
+            "n_rows": 22,
+            "r": 0.4938517768764301,
+            "ci95": [
+              0.0912407580855936,
+              0.7576982869324947
+            ],
+            "p_value": 0.0194944250957186
+          }
+        ],
+        "k_predicted_sign": 10,
+        "testable": true,
+        "pooled_r": 0.3659011006807227,
+        "hksj_ci95": [
+          0.1447611216604515,
+          0.5522267954715766
+        ],
+        "prediction_interval": [
+          -0.3152618090346415,
+          0.7982398267979235
+        ],
+        "heterogeneity_i2_pct": 77.30040868560297,
+        "tau": 0.3016883889642971,
+        "n_total": 580,
+        "p_hksj_two_sided": 0.0045539342448426,
+        "p_one_sided": 0.0022769671224213,
+        "found_in": "both",
+        "pair_type": "same_instrument",
+        "q_bh": 0.0072862947917481605,
+        "replicated": true,
+        "same_sign": true
+      },
+      "between:effort~mental_demand": {
+        "association": "between_person",
+        "pair": [
+          "effort",
+          "mental_demand"
+        ],
+        "predicted_sign": "positive",
+        "k_studies": 13,
+        "studies": [
+          {
+            "study": "build_3d_mr_2025",
+            "domain": "other",
+            "n_participants": 60,
+            "n_rows": 60,
+            "r": -0.0490881845176559,
+            "ci95": [
+              -0.2992824205455291,
+              0.2074219710809306
+            ],
+            "p_value": 0.7095492845782091
+          },
+          {
+            "study": "build_pc_mar_2026",
+            "domain": "other",
+            "n_participants": 60,
+            "n_rows": 60,
+            "r": 0.1315145217244119,
+            "ci95": [
+              -0.1266392720452265,
+              0.3729835193974875
+            ],
+            "p_value": 0.3165191681534155
+          },
+          {
+            "study": "citizen_science_tutorial_2021",
+            "domain": "other",
+            "n_participants": 72,
+            "n_rows": 72,
+            "r": 0.7946595831967159,
+            "ci95": [
+              0.6900225482413621,
+              0.8667597218129794
+            ],
+            "p_value": 7.946642727936633e-17
+          },
+          {
+            "study": "exergame_children_2025",
+            "domain": "other",
+            "n_participants": 21,
+            "n_rows": 21,
+            "r": 0.790605936617686,
+            "ci95": [
+              0.5448853180363887,
+              0.9112786585736374
+            ],
+            "p_value": 1.994624862547504e-05
+          },
+          {
+            "study": "human_swarm_pfm_2025",
+            "domain": "other",
+            "n_participants": 180,
+            "n_rows": 180,
+            "r": 0.6358362162927708,
+            "ci95": [
+              0.5397713748835444,
+              0.7155534135303107
+            ],
+            "p_value": 8.862243701999727e-22
+          },
+          {
+            "study": "layer_interaction_elastic_2022",
+            "domain": "other",
+            "n_participants": 23,
+            "n_rows": 23,
+            "r": 0.6554551428617753,
+            "ci95": [
+              0.3333054433890863,
+              0.8405558964830966
+            ],
+            "p_value": 0.0006861797709468
+          },
+          {
+            "study": "mr_airplane_layouts_2021",
+            "domain": "other",
+            "n_participants": 24,
+            "n_rows": 24,
+            "r": 0.9468684510517028,
+            "ci95": [
+              0.8793523437815066,
+              0.9770627413693418
+            ],
+            "p_value": 2.564602707792053e-12
+          },
+          {
+            "study": "navigable_wim_2026",
+            "domain": "other",
+            "n_participants": 36,
+            "n_rows": 36,
+            "r": 0.7121465041005627,
+            "ci95": [
+              0.500774840856607,
+              0.8433640785771468
+            ],
+            "p_value": 1.1104312266402322e-06
+          },
+          {
+            "study": "p300_attention_bci_2024",
+            "domain": "other",
+            "n_participants": 47,
+            "n_rows": 47,
+            "r": 0.395831207521491,
+            "ci95": [
+              0.1226003239445887,
+              0.6132860480767225
+            ],
+            "p_value": 0.0058855869418696
+          },
+          {
+            "study": "pipeblocks_cicd_2025",
+            "domain": "other",
+            "n_participants": 10,
+            "n_rows": 10,
+            "r": 0.9689129814126324,
+            "ci95": [
+              0.8700843049244903,
+              0.9928487985188024
+            ],
+            "p_value": 3.9355033532337e-06
+          },
+          {
+            "study": "steering_gain_2022",
+            "domain": "automotive",
+            "n_participants": 24,
+            "n_rows": 24,
+            "r": 0.7362467703154199,
+            "ci95": [
+              0.4734706052945897,
+              0.8786768679230802
+            ],
+            "p_value": 4.1063619559961775e-05
+          },
+          {
+            "study": "vr_classroom_noise_2025",
+            "domain": "other",
+            "n_participants": 24,
+            "n_rows": 24,
+            "r": 0.7625859637733495,
+            "ci95": [
+              0.518778237427847,
+              0.8916799303710077
+            ],
+            "p_value": 1.4774064377928518e-05
+          },
+          {
+            "study": "vr_shopping_demands_2026",
+            "domain": "other",
+            "n_participants": 22,
+            "n_rows": 22,
+            "r": 0.7446830748154429,
+            "ci95": [
+              0.4709300177056776,
+              0.8876125395497597
+            ],
+            "p_value": 7.035120622099684e-05
+          }
+        ],
+        "k_predicted_sign": 12,
+        "testable": true,
+        "pooled_r": 0.7035889576472476,
+        "hksj_ci95": [
+          0.4894186729045643,
+          0.8377113016022206
+        ],
+        "prediction_interval": [
+          -0.292679702089437,
+          0.9674103816283824
+        ],
+        "heterogeneity_i2_pct": 89.20712059188915,
+        "tau": 0.5120716766095881,
+        "n_total": 603,
+        "p_hksj_two_sided": 0.0001127794055031,
+        "p_one_sided": 5.638970275155e-05,
+        "found_in": "both",
+        "pair_type": "same_instrument",
+        "q_bh": 0.0017197176208672,
+        "replicated": true,
+        "same_sign": true
+      },
+      "between:effort~performance": {
+        "association": "between_person",
+        "pair": [
+          "effort",
+          "performance"
+        ],
+        "predicted_sign": "positive",
+        "k_studies": 8,
+        "studies": [
+          {
+            "study": "human_swarm_pfm_2025",
+            "domain": "other",
+            "n_participants": 180,
+            "n_rows": 180,
+            "r": -0.1104563665787857,
+            "ci95": [
+              -0.2526381339682944,
+              0.0363949365960134
+            ],
+            "p_value": 0.1399105836248906
+          },
+          {
+            "study": "layer_interaction_elastic_2022",
+            "domain": "other",
+            "n_participants": 23,
+            "n_rows": 23,
+            "r": 0.3418634658510039,
+            "ci95": [
+              -0.0818764884703887,
+              0.6609295256462318
+            ],
+            "p_value": 0.1103492271682776
+          },
+          {
+            "study": "navigable_wim_2026",
+            "domain": "other",
+            "n_participants": 36,
+            "n_rows": 36,
+            "r": 0.5733765027096024,
+            "ci95": [
+              0.301667230475134,
+              0.7589460307285628
+            ],
+            "p_value": 0.0002567499189591
+          },
+          {
+            "study": "p300_attention_bci_2024",
+            "domain": "other",
+            "n_participants": 47,
+            "n_rows": 47,
+            "r": 0.2590673190019444,
+            "ci95": [
+              -0.0303579916797548,
+              0.5084106479615877
+            ],
+            "p_value": 0.0786779664690446
+          },
+          {
+            "study": "pipeblocks_cicd_2025",
+            "domain": "other",
+            "n_participants": 10,
+            "n_rows": 10,
+            "r": 0.1723067829261274,
+            "ci95": [
+              -0.5129711883171862,
+              0.7234471144856414
+            ],
+            "p_value": 0.6340716205189264
+          },
+          {
+            "study": "steering_gain_2022",
+            "domain": "automotive",
+            "n_participants": 24,
+            "n_rows": 24,
+            "r": 0.4344113572955554,
+            "ci95": [
+              0.0376044567563831,
+              0.7128824640582658
+            ],
+            "p_value": 0.0339065983131548
+          },
+          {
+            "study": "vr_classroom_noise_2025",
+            "domain": "other",
+            "n_participants": 24,
+            "n_rows": 24,
+            "r": 0.1714800246014153,
+            "ci95": [
+              -0.2491516182216251,
+              0.5376828070115978
+            ],
+            "p_value": 0.4230206940729897
+          },
+          {
+            "study": "vr_shopping_demands_2026",
+            "domain": "other",
+            "n_participants": 22,
+            "n_rows": 22,
+            "r": 0.4978368879126271,
+            "ci95": [
+              0.0964785370076615,
+              0.7599398579339873
+            ],
+            "p_value": 0.0183863799233687
+          }
+        ],
+        "k_predicted_sign": 7,
+        "testable": true,
+        "pooled_r": 0.2855091042150193,
+        "hksj_ci95": [
+          0.0685289606863456,
+          0.4766986067344977
+        ],
+        "prediction_interval": [
+          -0.3256561483008379,
+          0.7283956282784845
+        ],
+        "heterogeneity_i2_pct": 73.89417295101582,
+        "tau": 0.2341257769591144,
+        "n_total": 366,
+        "p_hksj_two_sided": 0.0176696512109117,
+        "p_one_sided": 0.00883482560545585,
+        "found_in": "first test",
+        "pair_type": "same_instrument",
+        "q_bh": 0.01570635663192151,
+        "replicated": true,
+        "same_sign": true
+      },
+      "between:effort~physical_demand": {
+        "association": "between_person",
+        "pair": [
+          "effort",
+          "physical_demand"
+        ],
+        "predicted_sign": "positive",
+        "k_studies": 10,
+        "studies": [
+          {
+            "study": "build_3d_mr_2025",
+            "domain": "other",
+            "n_participants": 60,
+            "n_rows": 60,
+            "r": 0.0188520681017588,
+            "ci95": [
+              -0.2362033410647143,
+              0.2714772075463707
+            ],
+            "p_value": 0.8863152101139532
+          },
+          {
+            "study": "exergame_children_2025",
+            "domain": "other",
+            "n_participants": 21,
+            "n_rows": 21,
+            "r": 0.710937363970384,
+            "ci95": [
+              0.4029021720826694,
+              0.874299614818823
+            ],
+            "p_value": 0.000303194849405
+          },
+          {
+            "study": "human_swarm_pfm_2025",
+            "domain": "other",
+            "n_participants": 180,
+            "n_rows": 180,
+            "r": 0.2945276225849356,
+            "ci95": [
+              0.1549388524550084,
+              0.4225865098170462
+            ],
+            "p_value": 5.985992594943291e-05
+          },
+          {
+            "study": "layer_interaction_elastic_2022",
+            "domain": "other",
+            "n_participants": 23,
+            "n_rows": 23,
+            "r": 0.8818772511469524,
+            "ci95": [
+              0.7379162997972789,
+              0.9490783294485596
+            ],
+            "p_value": 2.6773921958598707e-08
+          },
+          {
+            "study": "mr_airplane_layouts_2021",
+            "domain": "other",
+            "n_participants": 24,
+            "n_rows": 24,
+            "r": 0.9522306114775124,
+            "ci95": [
+              0.8911474126233344,
+              0.979409851384456
+            ],
+            "p_value": 8.160158634005214e-13
+          },
+          {
+            "study": "navigable_wim_2026",
+            "domain": "other",
+            "n_participants": 36,
+            "n_rows": 36,
+            "r": 0.2964554775704426,
+            "ci95": [
+              -0.0355419078360312,
+              0.5695219326055913
+            ],
+            "p_value": 0.079145368830683
+          },
+          {
+            "study": "p300_attention_bci_2024",
+            "domain": "other",
+            "n_participants": 47,
+            "n_rows": 47,
+            "r": 0.005679785070811,
+            "ci95": [
+              -0.2819468948382577,
+              0.2923697282814065
+            ],
+            "p_value": 0.9697750721679658
+          },
+          {
+            "study": "pipeblocks_cicd_2025",
+            "domain": "other",
+            "n_participants": 10,
+            "n_rows": 10,
+            "r": 0.5660305880717281,
+            "ci95": [
+              -0.0988105988192164,
+              0.8815008044728547
+            ],
+            "p_value": 0.0880702223989601
+          },
+          {
+            "study": "steering_gain_2022",
+            "domain": "automotive",
+            "n_participants": 24,
+            "n_rows": 24,
+            "r": 0.4795738438325005,
+            "ci95": [
+              0.0944491202016686,
+              0.7398418509608592
+            ],
+            "p_value": 0.0177217249991694
+          },
+          {
+            "study": "vr_shopping_demands_2026",
+            "domain": "other",
+            "n_participants": 22,
+            "n_rows": 22,
+            "r": 0.5637569352964311,
+            "ci95": [
+              0.1864694120626297,
+              0.7961360380314548
+            ],
+            "p_value": 0.0062854867429464
+          }
+        ],
+        "k_predicted_sign": 10,
+        "testable": true,
+        "pooled_r": 0.5642217535096767,
+        "hksj_ci95": [
+          0.2112723117079497,
+          0.7870025839993828
+        ],
+        "prediction_interval": [
+          -0.6205162796797619,
+          0.9642988855774688
+        ],
+        "heterogeneity_i2_pct": 89.63549493043315,
+        "tau": 0.5607537197938214,
+        "n_total": 447,
+        "p_hksj_two_sided": 0.007808320538439,
+        "p_one_sided": 0.0039041602692195,
+        "found_in": "both",
+        "pair_type": "same_instrument",
+        "q_bh": 0.0083288752410016,
+        "replicated": true,
+        "same_sign": true
+      },
+      "between:effort~temporal_demand": {
+        "association": "between_person",
+        "pair": [
+          "effort",
+          "temporal_demand"
+        ],
+        "predicted_sign": "positive",
+        "k_studies": 11,
+        "studies": [
+          {
+            "study": "build_3d_mr_2025",
+            "domain": "other",
+            "n_participants": 60,
+            "n_rows": 60,
+            "r": 0.0387098922511254,
+            "ci95": [
+              -0.2173512419909093,
+              0.2897861710852357
+            ],
+            "p_value": 0.7690268538832175
+          },
+          {
+            "study": "build_pc_mar_2026",
+            "domain": "other",
+            "n_participants": 60,
+            "n_rows": 60,
+            "r": 0.2111170877588312,
+            "ci95": [
+              -0.0452324275537898,
+              0.4413803417982725
+            ],
+            "p_value": 0.1054012583452953
+          },
+          {
+            "study": "citizen_science_tutorial_2021",
+            "domain": "other",
+            "n_participants": 74,
+            "n_rows": 74,
+            "r": 0.64063492152002,
+            "ci95": [
+              0.4828123101766799,
+              0.7581521157550586
+            ],
+            "p_value": 7.885156892423205e-10
+          },
+          {
+            "study": "exergame_children_2025",
+            "domain": "other",
+            "n_participants": 21,
+            "n_rows": 21,
+            "r": 0.8368364255099254,
+            "ci95": [
+              0.6342863730614217,
+              0.9318803061297966
+            ],
+            "p_value": 2.261122229496339e-06
+          },
+          {
+            "study": "human_swarm_pfm_2025",
+            "domain": "other",
+            "n_participants": 180,
+            "n_rows": 180,
+            "r": 0.5070151284602772,
+            "ci95": [
+              0.3896471538614014,
+              0.6081773995058251
+            ],
+            "p_value": 3.7935015138164666e-13
+          },
+          {
+            "study": "layer_interaction_elastic_2022",
+            "domain": "other",
+            "n_participants": 23,
+            "n_rows": 23,
+            "r": 0.5951038645567129,
+            "ci95": [
+              0.242351187920865,
+              0.8088842260963024
+            ],
+            "p_value": 0.0027401254207594
+          },
+          {
+            "study": "navigable_wim_2026",
+            "domain": "other",
+            "n_participants": 36,
+            "n_rows": 36,
+            "r": 0.3452930322079511,
+            "ci95": [
+              0.0189015013733897,
+              0.6051768427406166
+            ],
+            "p_value": 0.0391543238962937
+          },
+          {
+            "study": "p300_attention_bci_2024",
+            "domain": "other",
+            "n_participants": 47,
+            "n_rows": 47,
+            "r": 0.2603958056246222,
+            "ci95": [
+              -0.028934653544906,
+              0.5094662430427023
+            ],
+            "p_value": 0.0771027523701367
+          },
+          {
+            "study": "pipeblocks_cicd_2025",
+            "domain": "other",
+            "n_participants": 10,
+            "n_rows": 10,
+            "r": 0.8040406928349514,
+            "ci95": [
+              0.3532408813361724,
+              0.9518151658387276
+            ],
+            "p_value": 0.0050546017130438
+          },
+          {
+            "study": "steering_gain_2022",
+            "domain": "automotive",
+            "n_participants": 24,
+            "n_rows": 24,
+            "r": 0.8397177611341031,
+            "ci95": [
+              0.6598322045437514,
+              0.9285709284703328
+            ],
+            "p_value": 2.88653376251769e-07
+          },
+          {
+            "study": "vr_shopping_demands_2026",
+            "domain": "other",
+            "n_participants": 22,
+            "n_rows": 22,
+            "r": 0.538495111214918,
+            "ci95": [
+              0.1512183945660333,
+              0.7824587498232551
+            ],
+            "p_value": 0.0097227947328844
+          }
+        ],
+        "k_predicted_sign": 11,
+        "testable": true,
+        "pooled_r": 0.5335773607052324,
+        "hksj_ci95": [
+          0.3166006432220911,
+          0.6974930428777569
+        ],
+        "prediction_interval": [
+          -0.2255175012136817,
+          0.8895421605661412
+        ],
+        "heterogeneity_i2_pct": 79.38807826952171,
+        "tau": 0.3447433339616723,
+        "n_total": 557,
+        "p_hksj_two_sided": 0.0005688120641581,
+        "p_one_sided": 0.00028440603207905,
+        "found_in": "both",
+        "pair_type": "same_instrument",
+        "q_bh": 0.003033664342176533,
+        "replicated": true,
+        "same_sign": true
+      },
+      "between:effort~usability": {
+        "association": "between_person",
+        "pair": [
+          "effort",
+          "usability"
+        ],
+        "predicted_sign": "negative",
+        "k_studies": 3,
+        "studies": [
+          {
+            "study": "human_swarm_pfm_2025",
+            "domain": "other",
+            "n_participants": 180,
+            "n_rows": 180,
+            "r": -0.1014223445829533,
+            "ci95": [
+              -0.2440651097664122,
+              0.0455161761156445
+            ],
+            "p_value": 0.1755004909148184
+          },
+          {
+            "study": "navigable_wim_2026",
+            "domain": "other",
+            "n_participants": 36,
+            "n_rows": 36,
+            "r": -0.1598639202034583,
+            "ci95": [
+              -0.4640284165958751,
+              0.1780216972810404
+            ],
+            "p_value": 0.3516771238899082
+          },
+          {
+            "study": "pipeblocks_cicd_2025",
+            "domain": "other",
+            "n_participants": 10,
+            "n_rows": 10,
+            "r": -0.7440897332601377,
+            "ci95": [
+              -0.9354562265733466,
+              -0.2153586124030312
+            ],
+            "p_value": 0.0135937935124068
+          }
+        ],
+        "k_predicted_sign": 3,
+        "testable": true,
+        "pooled_r": -0.2466259196716392,
+        "hksj_ci95": [
+          -0.8216774132099969,
+          0.5772478828135953
+        ],
+        "prediction_interval": [
+          -0.9992169247201346,
+          0.9978573116009528
+        ],
+        "heterogeneity_i2_pct": 59.79938676890509,
+        "tau": 0.2320541725799265,
+        "n_total": 226,
+        "p_hksj_two_sided": 0.3560112314564065,
+        "p_one_sided": 0.17800561572820325,
+        "found_in": "development",
+        "pair_type": "cross_construct",
+        "q_bh": 0.17800561572820325,
+        "replicated": false,
+        "same_sign": true
+      },
+      "between:frustration~mental_demand": {
+        "association": "between_person",
+        "pair": [
+          "frustration",
+          "mental_demand"
+        ],
+        "predicted_sign": "positive",
+        "k_studies": 12,
+        "studies": [
+          {
+            "study": "build_3d_mr_2025",
+            "domain": "other",
+            "n_participants": 60,
+            "n_rows": 60,
+            "r": 0.2173200970406569,
+            "ci95": [
+              -0.038742532235607,
+              0.4466000928855577
+            ],
+            "p_value": 0.0953270378944153
+          },
+          {
+            "study": "build_pc_mar_2026",
+            "domain": "other",
+            "n_participants": 60,
+            "n_rows": 60,
+            "r": 0.0404249751748827,
+            "ci95": [
+              -0.2157140099275092,
+              0.2913589075921594
+            ],
+            "p_value": 0.7590954234499588
+          },
+          {
+            "study": "citizen_science_tutorial_2021",
+            "domain": "other",
+            "n_participants": 77,
+            "n_rows": 77,
+            "r": 0.54492863371507,
+            "ci95": [
+              0.3655683216543503,
+              0.6852687197035394
+            ],
+            "p_value": 2.993586186993948e-07
+          },
+          {
+            "study": "exergame_children_2025",
+            "domain": "other",
+            "n_participants": 21,
+            "n_rows": 21,
+            "r": 0.4264688306968144,
+            "ci95": [
+              -0.0063953363259172,
+              0.7247317940109377
+            ],
+            "p_value": 0.0538695447866848
+          },
+          {
+            "study": "human_swarm_pfm_2025",
+            "domain": "other",
+            "n_participants": 180,
+            "n_rows": 180,
+            "r": 0.3663254363746073,
+            "ci95": [
+              0.2325205651031383,
+              0.4865209725670523
+            ],
+            "p_value": 4.249017458975588e-07
+          },
+          {
+            "study": "layer_interaction_elastic_2022",
+            "domain": "other",
+            "n_participants": 23,
+            "n_rows": 23,
+            "r": 0.3296674341364171,
+            "ci95": [
+              -0.0955141210804067,
+              0.6531176870900476
+            ],
+            "p_value": 0.1244960111555267
+          },
+          {
+            "study": "navigable_wim_2026",
+            "domain": "other",
+            "n_participants": 36,
+            "n_rows": 36,
+            "r": 0.3579355458708336,
+            "ci95": [
+              0.0333178021466442,
+              0.6142399688979617
+            ],
+            "p_value": 0.0320807222150185
+          },
+          {
+            "study": "p300_attention_bci_2024",
+            "domain": "other",
+            "n_participants": 47,
+            "n_rows": 47,
+            "r": 0.0100226990184963,
+            "ci95": [
+              -0.2779440875268323,
+              0.2963365986336709
+            ],
+            "p_value": 0.946690344005185
+          },
+          {
+            "study": "pipeblocks_cicd_2025",
+            "domain": "other",
+            "n_participants": 10,
+            "n_rows": 10,
+            "r": 0.8545763789596458,
+            "ci95": [
+              0.4869721424379467,
+              0.9649812408299366
+            ],
+            "p_value": 0.0016354758718867
+          },
+          {
+            "study": "steering_gain_2022",
+            "domain": "automotive",
+            "n_participants": 24,
+            "n_rows": 24,
+            "r": 0.1509985315816977,
+            "ci95": [
+              -0.2687695527127458,
+              0.5225646226263508
+            ],
+            "p_value": 0.4812439627392137
+          },
+          {
+            "study": "vr_classroom_noise_2025",
+            "domain": "other",
+            "n_participants": 24,
+            "n_rows": 24,
+            "r": 0.6353910276359819,
+            "ci95": [
+              0.311952249513222,
+              0.8268531593021157
+            ],
+            "p_value": 0.0008491419030825
+          },
+          {
+            "study": "vr_shopping_demands_2026",
+            "domain": "other",
+            "n_participants": 22,
+            "n_rows": 22,
+            "r": 0.6603193725009975,
+            "ci95": [
+              0.3308060932145389,
+              0.8463165004299668
+            ],
+            "p_value": 0.0008243114249356
+          }
+        ],
+        "k_predicted_sign": 12,
+        "testable": true,
+        "pooled_r": 0.3719017541332582,
+        "hksj_ci95": [
+          0.1926650364195808,
+          0.5271232560197038
+        ],
+        "prediction_interval": [
+          -0.1320568381307905,
+          0.7230891682416605
+        ],
+        "heterogeneity_i2_pct": 64.24724819395328,
+        "tau": 0.2200263697491563,
+        "n_total": 584,
+        "p_hksj_two_sided": 0.0010681030287535,
+        "p_one_sided": 0.00053405151437675,
+        "found_in": "development",
+        "pair_type": "same_instrument",
+        "q_bh": 0.0034179296920112,
+        "replicated": true,
+        "same_sign": true
+      },
+      "between:frustration~performance": {
+        "association": "between_person",
+        "pair": [
+          "frustration",
+          "performance"
+        ],
+        "predicted_sign": "positive",
+        "k_studies": 8,
+        "studies": [
+          {
+            "study": "human_swarm_pfm_2025",
+            "domain": "other",
+            "n_participants": 180,
+            "n_rows": 180,
+            "r": 0.2578414084123112,
+            "ci95": [
+              0.1159509182355812,
+              0.3894186800848319
+            ],
+            "p_value": 0.0004749836076146
+          },
+          {
+            "study": "layer_interaction_elastic_2022",
+            "domain": "other",
+            "n_participants": 23,
+            "n_rows": 23,
+            "r": 0.1780354344767884,
+            "ci95": [
+              -0.2527124474703197,
+              0.5498835315309732
+            ],
+            "p_value": 0.4163690915173685
+          },
+          {
+            "study": "navigable_wim_2026",
+            "domain": "other",
+            "n_participants": 36,
+            "n_rows": 36,
+            "r": 0.6430249195302513,
+            "ci95": [
+              0.3987218252074443,
+              0.8021096472706262
+            ],
+            "p_value": 2.3432544654214852e-05
+          },
+          {
+            "study": "p300_attention_bci_2024",
+            "domain": "other",
+            "n_participants": 47,
+            "n_rows": 47,
+            "r": 0.2491040293823592,
+            "ci95": [
+              -0.0409953612085039,
+              0.5004700138951695
+            ],
+            "p_value": 0.0913117920374357
+          },
+          {
+            "study": "pipeblocks_cicd_2025",
+            "domain": "other",
+            "n_participants": 10,
+            "n_rows": 10,
+            "r": 0.1769268822100002,
+            "ci95": [
+              -0.5094511666679499,
+              0.7257106045455741
+            ],
+            "p_value": 0.6248617661255145
+          },
+          {
+            "study": "steering_gain_2022",
+            "domain": "automotive",
+            "n_participants": 24,
+            "n_rows": 24,
+            "r": 0.4493889073004283,
+            "ci95": [
+              0.0561758724135374,
+              0.7219153532272015
+            ],
+            "p_value": 0.0275902026656093
+          },
+          {
+            "study": "vr_classroom_noise_2025",
+            "domain": "other",
+            "n_participants": 24,
+            "n_rows": 24,
+            "r": 0.2376546483657513,
+            "ci95": [
+              -0.1833164445366232,
+              0.5849707380643235
+            ],
+            "p_value": 0.2634697789554745
+          },
+          {
+            "study": "vr_shopping_demands_2026",
+            "domain": "other",
+            "n_participants": 22,
+            "n_rows": 22,
+            "r": 0.7012784282727816,
+            "ci95": [
+              0.3970694985430104,
+              0.8666491369575829
+            ],
+            "p_value": 0.0002766636980004
+          }
+        ],
+        "k_predicted_sign": 8,
+        "testable": true,
+        "pooled_r": 0.3816405175449811,
+        "hksj_ci95": [
+          0.182068120714807,
+          0.5510138261728261
+        ],
+        "prediction_interval": [
+          -0.0908112034045099,
+          0.7138638480912436
+        ],
+        "heterogeneity_i2_pct": 49.61142169933501,
+        "tau": 0.1787869243063247,
+        "n_total": 366,
+        "p_hksj_two_sided": 0.0033018056736737,
+        "p_one_sided": 0.00165090283683685,
+        "found_in": "development",
+        "pair_type": "same_instrument",
+        "q_bh": 0.005869876753197689,
+        "replicated": true,
+        "same_sign": true
+      },
+      "between:frustration~physical_demand": {
+        "association": "between_person",
+        "pair": [
+          "frustration",
+          "physical_demand"
+        ],
+        "predicted_sign": "positive",
+        "k_studies": 9,
+        "studies": [
+          {
+            "study": "build_3d_mr_2025",
+            "domain": "other",
+            "n_participants": 60,
+            "n_rows": 60,
+            "r": -0.0228951148217303,
+            "ci95": [
+              -0.2752197897662941,
+              0.2323805634125814
+            ],
+            "p_value": 0.8621508491804935
+          },
+          {
+            "study": "exergame_children_2025",
+            "domain": "other",
+            "n_participants": 21,
+            "n_rows": 21,
+            "r": 0.5961822901462724,
+            "ci95": [
+              0.2215022076708045,
+              0.8174793131938988
+            ],
+            "p_value": 0.0043401137368846
+          },
+          {
+            "study": "human_swarm_pfm_2025",
+            "domain": "other",
+            "n_participants": 180,
+            "n_rows": 180,
+            "r": 0.1611245672950519,
+            "ci95": [
+              0.0152199325986292,
+              0.3003105808272789
+            ],
+            "p_value": 0.0307114683492084
+          },
+          {
+            "study": "layer_interaction_elastic_2022",
+            "domain": "other",
+            "n_participants": 23,
+            "n_rows": 23,
+            "r": 0.1040795515534615,
+            "ci95": [
+              -0.3219341864934097,
+              0.4950434634336175
+            ],
+            "p_value": 0.6364990546331051
+          },
+          {
+            "study": "navigable_wim_2026",
+            "domain": "other",
+            "n_participants": 36,
+            "n_rows": 36,
+            "r": 0.3312655577629181,
+            "ci95": [
+              0.0030631952212345,
+              0.5950414074326144
+            ],
+            "p_value": 0.0484307296490505
+          },
+          {
+            "study": "p300_attention_bci_2024",
+            "domain": "other",
+            "n_participants": 47,
+            "n_rows": 47,
+            "r": 0.3555263988501815,
+            "ci95": [
+              0.076132348460564,
+              0.5831557056950791
+            ],
+            "p_value": 0.0141888463857127
+          },
+          {
+            "study": "pipeblocks_cicd_2025",
+            "domain": "other",
+            "n_participants": 10,
+            "n_rows": 10,
+            "r": 0.5627131237369931,
+            "ci95": [
+              -0.1036287303486876,
+              0.8804107805791312
+            ],
+            "p_value": 0.090367024733834
+          },
+          {
+            "study": "steering_gain_2022",
+            "domain": "automotive",
+            "n_participants": 24,
+            "n_rows": 24,
+            "r": 0.2535683309016159,
+            "ci95": [
+              -0.1669003912957746,
+              0.596000922583186
+            ],
+            "p_value": 0.2318629817231435
+          },
+          {
+            "study": "vr_shopping_demands_2026",
+            "domain": "other",
+            "n_participants": 22,
+            "n_rows": 22,
+            "r": 0.6091996132591722,
+            "ci95": [
+              0.2524249166569641,
+              0.820156124305132
+            ],
+            "p_value": 0.0026177510962767
+          }
+        ],
+        "k_predicted_sign": 8,
+        "testable": true,
+        "pooled_r": 0.2889668628631143,
+        "hksj_ci95": [
+          0.1051903906281712,
+          0.4536577324292223
+        ],
+        "prediction_interval": [
+          -0.1441451685449984,
+          0.6291653425621138
+        ],
+        "heterogeneity_i2_pct": 47.86830450933476,
+        "tau": 0.1676706883086219,
+        "n_total": 423,
+        "p_hksj_two_sided": 0.0072405730417742,
+        "p_one_sided": 0.0036202865208871,
+        "found_in": "both",
+        "pair_type": "same_instrument",
+        "q_bh": 0.0083288752410016,
+        "replicated": true,
+        "same_sign": true
+      },
+      "between:frustration~temporal_demand": {
+        "association": "between_person",
+        "pair": [
+          "frustration",
+          "temporal_demand"
+        ],
+        "predicted_sign": "positive",
+        "k_studies": 11,
+        "studies": [
+          {
+            "study": "build_3d_mr_2025",
+            "domain": "other",
+            "n_participants": 60,
+            "n_rows": 60,
+            "r": -0.0861880833928243,
+            "ci95": [
+              -0.3328287346103297,
+              0.1714897201442232
+            ],
+            "p_value": 0.5126053749441714
+          },
+          {
+            "study": "build_pc_mar_2026",
+            "domain": "other",
+            "n_participants": 60,
+            "n_rows": 60,
+            "r": 0.1100563630970038,
+            "ci95": [
+              -0.1480044767458328,
+              0.3540857741047371
+            ],
+            "p_value": 0.4025324213203354
+          },
+          {
+            "study": "citizen_science_tutorial_2021",
+            "domain": "other",
+            "n_participants": 79,
+            "n_rows": 79,
+            "r": 0.4185393577124449,
+            "ci95": [
+              0.2175629744715873,
+              0.5854685097896942
+            ],
+            "p_value": 0.0001237571157483
+          },
+          {
+            "study": "exergame_children_2025",
+            "domain": "other",
+            "n_participants": 21,
+            "n_rows": 21,
+            "r": 0.4644739584624487,
+            "ci95": [
+              0.0410099774896605,
+              0.7464850587528256
+            ],
+            "p_value": 0.0338993679386793
+          },
+          {
+            "study": "human_swarm_pfm_2025",
+            "domain": "other",
+            "n_participants": 180,
+            "n_rows": 180,
+            "r": 0.3926957735780589,
+            "ci95": [
+              0.2614493175047277,
+              0.509684357059771
+            ],
+            "p_value": 4.96674587203387e-08
+          },
+          {
+            "study": "layer_interaction_elastic_2022",
+            "domain": "other",
+            "n_participants": 23,
+            "n_rows": 23,
+            "r": 0.1806730473892812,
+            "ci95": [
+              -0.2501594603450507,
+              0.5517819148286397
+            ],
+            "p_value": 0.4093836880574358
+          },
+          {
+            "study": "navigable_wim_2026",
+            "domain": "other",
+            "n_participants": 36,
+            "n_rows": 36,
+            "r": 0.5998644683477622,
+            "ci95": [
+              0.3379261796289168,
+              0.7755560182206461
+            ],
+            "p_value": 0.0001102789713811
+          },
+          {
+            "study": "p300_attention_bci_2024",
+            "domain": "other",
+            "n_participants": 47,
+            "n_rows": 47,
+            "r": 0.2007505014467284,
+            "ci95": [
+              -0.0917028785444238,
+              0.4613225822216444
+            ],
+            "p_value": 0.1760438723867122
+          },
+          {
+            "study": "pipeblocks_cicd_2025",
+            "domain": "other",
+            "n_participants": 10,
+            "n_rows": 10,
+            "r": 0.8201884460473694,
+            "ci95": [
+              0.3940590567442465,
+              0.9560822118630524
+            ],
+            "p_value": 0.003658692567061
+          },
+          {
+            "study": "steering_gain_2022",
+            "domain": "automotive",
+            "n_participants": 24,
+            "n_rows": 24,
+            "r": 0.2209752994055378,
+            "ci95": [
+              -0.2002739743685496,
+              0.5732702892917106
+            ],
+            "p_value": 0.2994279707282505
+          },
+          {
+            "study": "vr_shopping_demands_2026",
+            "domain": "other",
+            "n_participants": 22,
+            "n_rows": 22,
+            "r": 0.6449503387838579,
+            "ci95": [
+              0.3067531336423825,
+              0.8385446503205572
+            ],
+            "p_value": 0.0011922695743333
+          }
+        ],
+        "k_predicted_sign": 10,
+        "testable": true,
+        "pooled_r": 0.3476175557545016,
+        "hksj_ci95": [
+          0.1562978222651046,
+          0.513795513102169
+        ],
+        "prediction_interval": [
+          -0.1807999739081955,
+          0.7203019074834756
+        ],
+        "heterogeneity_i2_pct": 66.13612460727484,
+        "tau": 0.2250473690730172,
+        "n_total": 562,
+        "p_hksj_two_sided": 0.0027758137233965,
+        "p_one_sided": 0.00138790686169825,
+        "found_in": "development",
+        "pair_type": "same_instrument",
+        "q_bh": 0.005551627446793,
+        "replicated": true,
+        "same_sign": true
+      },
+      "between:frustration~usability": {
+        "association": "between_person",
+        "pair": [
+          "frustration",
+          "usability"
+        ],
+        "predicted_sign": "negative",
+        "k_studies": 3,
+        "studies": [
+          {
+            "study": "human_swarm_pfm_2025",
+            "domain": "other",
+            "n_participants": 180,
+            "n_rows": 180,
+            "r": -0.5216579811750709,
+            "ci95": [
+              -0.6205720096146581,
+              -0.4064029784516853
+            ],
+            "p_value": 5.962777245605656e-14
+          },
+          {
+            "study": "navigable_wim_2026",
+            "domain": "other",
+            "n_participants": 36,
+            "n_rows": 36,
+            "r": -0.3293529617907957,
+            "ci95": [
+              -0.5936529466857632,
+              -0.0009163800097098
+            ],
+            "p_value": 0.0498217925284946
+          },
+          {
+            "study": "pipeblocks_cicd_2025",
+            "domain": "other",
+            "n_participants": 10,
+            "n_rows": 10,
+            "r": -0.6760328708943293,
+            "ci95": [
+              -0.915835537376761,
+              -0.080798145739166
+            ],
+            "p_value": 0.0318693017168176
+          }
+        ],
+        "k_predicted_sign": 3,
+        "testable": true,
+        "pooled_r": -0.4962380481120724,
+        "hksj_ci95": [
+          -0.7044397808041195,
+          -0.2094020105102968
+        ],
+        "prediction_interval": [
+          -0.9376659768304636,
+          0.5578873369183502
+        ],
+        "heterogeneity_i2_pct": 4.223875562419361,
+        "tau": 0.0486958640809204,
+        "n_total": 226,
+        "p_hksj_two_sided": 0.0194826553736059,
+        "p_one_sided": 0.00974132768680295,
+        "found_in": "development",
+        "pair_type": "cross_construct",
+        "q_bh": 0.01640644663040497,
+        "replicated": true,
+        "same_sign": true
+      },
+      "between:mental_demand~performance": {
+        "association": "between_person",
+        "pair": [
+          "mental_demand",
+          "performance"
+        ],
+        "predicted_sign": "positive",
+        "k_studies": 8,
+        "studies": [
+          {
+            "study": "human_swarm_pfm_2025",
+            "domain": "other",
+            "n_participants": 180,
+            "n_rows": 180,
+            "r": 0.0249229973036178,
+            "ci95": [
+              -0.1217842623022899,
+              0.1705645518559223
+            ],
+            "p_value": 0.7398143706190525
+          },
+          {
+            "study": "layer_interaction_elastic_2022",
+            "domain": "other",
+            "n_participants": 23,
+            "n_rows": 23,
+            "r": 0.2365668403079713,
+            "ci95": [
+              -0.1946126728481378,
+              0.5911263010036659
+            ],
+            "p_value": 0.2771319786437198
+          },
+          {
+            "study": "navigable_wim_2026",
+            "domain": "other",
+            "n_participants": 36,
+            "n_rows": 36,
+            "r": 0.4884281138245378,
+            "ci95": [
+              0.1904537435736216,
+              0.7039963151467096
+            ],
+            "p_value": 0.0025084543145357
+          },
+          {
+            "study": "p300_attention_bci_2024",
+            "domain": "other",
+            "n_participants": 47,
+            "n_rows": 47,
+            "r": -0.2539521142644479,
+            "ci95": [
+              -0.5043391750401206,
+              0.035827473891248
+            ],
+            "p_value": 0.0849806081692652
+          },
+          {
+            "study": "pipeblocks_cicd_2025",
+            "domain": "other",
+            "n_participants": 10,
+            "n_rows": 10,
+            "r": 0.243438409368315,
+            "ci95": [
+              -0.4560961276333796,
+              0.757030664305615
+            ],
+            "p_value": 0.4979306069881143
+          },
+          {
+            "study": "steering_gain_2022",
+            "domain": "automotive",
+            "n_participants": 24,
+            "n_rows": 24,
+            "r": 0.1606882514793484,
+            "ci95": [
+              -0.2595315841508789,
+              0.5297462220771437
+            ],
+            "p_value": 0.4532070543009812
+          },
+          {
+            "study": "vr_classroom_noise_2025",
+            "domain": "other",
+            "n_participants": 24,
+            "n_rows": 24,
+            "r": 0.1921505837914778,
+            "ci95": [
+              -0.2289962960030546,
+              0.5527054814958148
+            ],
+            "p_value": 0.3683797422332193
+          },
+          {
+            "study": "vr_shopping_demands_2026",
+            "domain": "other",
+            "n_participants": 22,
+            "n_rows": 22,
+            "r": 0.6370500680728733,
+            "ci95": [
+              0.2945548346427132,
+              0.8345187270146367
+            ],
+            "p_value": 0.0014304173888035
+          }
+        ],
+        "k_predicted_sign": 7,
+        "testable": true,
+        "pooled_r": 0.2073932454067464,
+        "hksj_ci95": [
+          -0.0540269670839006,
+          0.4422073451619832
+        ],
+        "prediction_interval": [
+          -0.4574132730141175,
+          0.7234886693886742
+        ],
+        "heterogeneity_i2_pct": 67.83858813892873,
+        "tau": 0.2629564916661157,
+        "n_total": 366,
+        "p_hksj_two_sided": 0.1019858625498842,
+        "p_one_sided": 0.0509929312749421,
+        "found_in": "first test",
+        "pair_type": "same_instrument",
+        "q_bh": 0.05827763574279097,
+        "replicated": false,
+        "same_sign": true
+      },
+      "between:mental_demand~physical_demand": {
+        "association": "between_person",
+        "pair": [
+          "mental_demand",
+          "physical_demand"
+        ],
+        "predicted_sign": "positive",
+        "k_studies": 10,
+        "studies": [
+          {
+            "study": "build_3d_mr_2025",
+            "domain": "other",
+            "n_participants": 60,
+            "n_rows": 60,
+            "r": -0.0116860393500598,
+            "ci95": [
+              -0.2648249071958235,
+              0.2429596151174589
+            ],
+            "p_value": 0.929385116452324
+          },
+          {
+            "study": "exergame_children_2025",
+            "domain": "other",
+            "n_participants": 21,
+            "n_rows": 21,
+            "r": 0.446051577942701,
+            "ci95": [
+              0.0177904263291398,
+              0.7360152567652766
+            ],
+            "p_value": 0.0426881248548996
+          },
+          {
+            "study": "human_swarm_pfm_2025",
+            "domain": "other",
+            "n_participants": 180,
+            "n_rows": 180,
+            "r": 0.2817330717106452,
+            "ci95": [
+              0.1412920045496987,
+              0.4110578404579836
+            ],
+            "p_value": 0.0001274077200708
+          },
+          {
+            "study": "layer_interaction_elastic_2022",
+            "domain": "other",
+            "n_participants": 23,
+            "n_rows": 23,
+            "r": 0.4951807234043518,
+            "ci95": [
+              0.10425941245794,
+              0.7535685730459306
+            ],
+            "p_value": 0.0162852543396436
+          },
+          {
+            "study": "mr_airplane_layouts_2021",
+            "domain": "other",
+            "n_participants": 24,
+            "n_rows": 24,
+            "r": 0.954739714243646,
+            "ci95": [
+              0.8966951529060018,
+              0.9805056112489564
+            ],
+            "p_value": 4.560771178882604e-13
+          },
+          {
+            "study": "navigable_wim_2026",
+            "domain": "other",
+            "n_participants": 36,
+            "n_rows": 36,
+            "r": 0.3572556503745818,
+            "ci95": [
+              0.0325390628503228,
+              0.6137542818585827
+            ],
+            "p_value": 0.0324324386921039
+          },
+          {
+            "study": "p300_attention_bci_2024",
+            "domain": "other",
+            "n_participants": 47,
+            "n_rows": 47,
+            "r": 0.169740391710562,
+            "ci95": [
+              -0.123443527394346,
+              0.4356709429323649
+            ],
+            "p_value": 0.2540168441224106
+          },
+          {
+            "study": "pipeblocks_cicd_2025",
+            "domain": "other",
+            "n_participants": 10,
+            "n_rows": 10,
+            "r": 0.6483538873750913,
+            "ci95": [
+              0.0316462331540135,
+              0.9075141592243204
+            ],
+            "p_value": 0.0425958935398371
+          },
+          {
+            "study": "steering_gain_2022",
+            "domain": "automotive",
+            "n_participants": 24,
+            "n_rows": 24,
+            "r": 0.5588492061175424,
+            "ci95": [
+              0.2006972747288462,
+              0.7852261559204532
+            ],
+            "p_value": 0.0045302123634681
+          },
+          {
+            "study": "vr_shopping_demands_2026",
+            "domain": "other",
+            "n_participants": 22,
+            "n_rows": 22,
+            "r": 0.7675910536962534,
+            "ci95": [
+              0.5115232205425635,
+              0.8984428463277363
+            ],
+            "p_value": 3.050169097223984e-05
+          }
+        ],
+        "k_predicted_sign": 9,
+        "testable": true,
+        "pooled_r": 0.5320243416067213,
+        "hksj_ci95": [
+          0.2053311408557415,
+          0.7520411160467529
+        ],
+        "prediction_interval": [
+          -0.555381533366859,
+          0.9480406429569338
+        ],
+        "heterogeneity_i2_pct": 87.16154262423812,
+        "tau": 0.5001107082763359,
+        "n_total": 447,
+        "p_hksj_two_sided": 0.006861752261225,
+        "p_one_sided": 0.0034308761306125,
+        "found_in": "both",
+        "pair_type": "same_instrument",
+        "q_bh": 0.0083288752410016,
+        "replicated": true,
+        "same_sign": true
+      },
+      "between:mental_demand~temporal_demand": {
+        "association": "between_person",
+        "pair": [
+          "mental_demand",
+          "temporal_demand"
+        ],
+        "predicted_sign": "positive",
+        "k_studies": 11,
+        "studies": [
+          {
+            "study": "build_3d_mr_2025",
+            "domain": "other",
+            "n_participants": 60,
+            "n_rows": 60,
+            "r": -0.0029327867302033,
+            "ci95": [
+              -0.2566663479117937,
+              0.2511789704136881
+            ],
+            "p_value": 0.9822569690036363
+          },
+          {
+            "study": "build_pc_mar_2026",
+            "domain": "other",
+            "n_participants": 60,
+            "n_rows": 60,
+            "r": -0.0494083029915233,
+            "ci95": [
+              -0.2995745465426487,
+              0.2071148600960336
+            ],
+            "p_value": 0.7077397633468675
+          },
+          {
+            "study": "citizen_science_tutorial_2021",
+            "domain": "other",
+            "n_participants": 80,
+            "n_rows": 80,
+            "r": 0.4631946002877721,
+            "ci95": [
+              0.271064381584919,
+              0.6198303232180942
+            ],
+            "p_value": 1.5147569343203572e-05
+          },
+          {
+            "study": "exergame_children_2025",
+            "domain": "other",
+            "n_participants": 21,
+            "n_rows": 21,
+            "r": 0.577528710745515,
+            "ci95": [
+              0.1942775639205476,
+              0.8078173320265895
+            ],
+            "p_value": 0.0061139912971374
+          },
+          {
+            "study": "human_swarm_pfm_2025",
+            "domain": "other",
+            "n_participants": 180,
+            "n_rows": 180,
+            "r": 0.5670380871882157,
+            "ci95": [
+              0.4588285769367647,
+              0.658673116542549
+            ],
+            "p_value": 1.0559883555768213e-16
+          },
+          {
+            "study": "layer_interaction_elastic_2022",
+            "domain": "other",
+            "n_participants": 23,
+            "n_rows": 23,
+            "r": 0.4767384595361683,
+            "ci95": [
+              0.080320221211243,
+              0.7429429603408289
+            ],
+            "p_value": 0.0214480762374603
+          },
+          {
+            "study": "navigable_wim_2026",
+            "domain": "other",
+            "n_participants": 36,
+            "n_rows": 36,
+            "r": 0.441733729872149,
+            "ci95": [
+              0.1324147201335892,
+              0.6726508063789364
+            ],
+            "p_value": 0.0069932105541906
+          },
+          {
+            "study": "p300_attention_bci_2024",
+            "domain": "other",
+            "n_participants": 47,
+            "n_rows": 47,
+            "r": 0.300511525962599,
+            "ci95": [
+              0.0146050887651939,
+              0.5409923545688118
+            ],
+            "p_value": 0.0401274404299109
+          },
+          {
+            "study": "pipeblocks_cicd_2025",
+            "domain": "other",
+            "n_participants": 10,
+            "n_rows": 10,
+            "r": 0.8491110550539224,
+            "ci95": [
+              0.4716274990801267,
+              0.9635836883486556
+            ],
+            "p_value": 0.00188244939656
+          },
+          {
+            "study": "steering_gain_2022",
+            "domain": "automotive",
+            "n_participants": 24,
+            "n_rows": 24,
+            "r": 0.5795861719695432,
+            "ci95": [
+              0.2299532598069305,
+              0.7967096517057196
+            ],
+            "p_value": 0.0029951482979651
+          },
+          {
+            "study": "vr_shopping_demands_2026",
+            "domain": "other",
+            "n_participants": 22,
+            "n_rows": 22,
+            "r": 0.6356779841022797,
+            "ci95": [
+              0.2924476025593704,
+              0.8338173668465272
+            ],
+            "p_value": 0.0014756384127372
+          }
+        ],
+        "k_predicted_sign": 9,
+        "testable": true,
+        "pooled_r": 0.4316896830484917,
+        "hksj_ci95": [
+          0.2367037835178071,
+          0.5932483325258517
+        ],
+        "prediction_interval": [
+          -0.1720266308476823,
+          0.7996703883971195
+        ],
+        "heterogeneity_i2_pct": 75.99230150117167,
+        "tau": 0.2638638790455834,
+        "n_total": 563,
+        "p_hksj_two_sided": 0.0008887110447043,
+        "p_one_sided": 0.00044435552235215,
+        "found_in": "both",
+        "pair_type": "same_instrument",
+        "q_bh": 0.0034179296920112,
+        "replicated": true,
+        "same_sign": true
+      },
+      "between:mental_demand~usability": {
+        "association": "between_person",
+        "pair": [
+          "mental_demand",
+          "usability"
+        ],
+        "predicted_sign": "negative",
+        "k_studies": 3,
+        "studies": [
+          {
+            "study": "human_swarm_pfm_2025",
+            "domain": "other",
+            "n_participants": 180,
+            "n_rows": 180,
+            "r": -0.1503767861080415,
+            "ci95": [
+              -0.2902560354917283,
+              -0.0042059779750176
+            ],
+            "p_value": 0.0439116493827006
+          },
+          {
+            "study": "navigable_wim_2026",
+            "domain": "other",
+            "n_participants": 36,
+            "n_rows": 36,
+            "r": -0.2302699383573232,
+            "ci95": [
+              -0.5195041947827116,
+              0.1063082187818457
+            ],
+            "p_value": 0.176663937838195
+          },
+          {
+            "study": "pipeblocks_cicd_2025",
+            "domain": "other",
+            "n_participants": 10,
+            "n_rows": 10,
+            "r": -0.6745762082704915,
+            "ci95": [
+              -0.9154026828544748,
+              -0.0781371876709657
+            ],
+            "p_value": 0.0323821843358131
+          }
+        ],
+        "k_predicted_sign": 3,
+        "testable": true,
+        "pooled_r": -0.18356996059802,
+        "hksj_ci95": [
+          -0.4997219544834875,
+          0.1757425871880357
+        ],
+        "prediction_interval": [
+          -0.781116501707335,
+          0.5894864919074174
+        ],
+        "heterogeneity_i2_pct": 35.34892961524732,
+        "tau": 0.0,
+        "n_total": 226,
+        "p_hksj_two_sided": 0.1588952603746298,
+        "p_one_sided": 0.0794476301873149,
+        "found_in": "development",
+        "pair_type": "cross_construct",
+        "q_bh": 0.08474413886646923,
+        "replicated": false,
+        "same_sign": true
+      },
+      "between:performance~physical_demand": {
+        "association": "between_person",
+        "pair": [
+          "performance",
+          "physical_demand"
+        ],
+        "predicted_sign": "positive",
+        "k_studies": 7,
+        "studies": [
+          {
+            "study": "human_swarm_pfm_2025",
+            "domain": "other",
+            "n_participants": 180,
+            "n_rows": 180,
+            "r": -0.1200932954762971,
+            "ci95": [
+              -0.2617587560918197,
+              0.0266379231036675
+            ],
+            "p_value": 0.1083150375248325
+          },
+          {
+            "study": "layer_interaction_elastic_2022",
+            "domain": "other",
+            "n_participants": 23,
+            "n_rows": 23,
+            "r": 0.2565093924386224,
+            "ci95": [
+              -0.1741011475329149,
+              0.604767269639427
+            ],
+            "p_value": 0.2374163128572948
+          },
+          {
+            "study": "navigable_wim_2026",
+            "domain": "other",
+            "n_participants": 36,
+            "n_rows": 36,
+            "r": 0.2317768855243052,
+            "ci95": [
+              -0.1047340338837246,
+              0.5206655118935593
+            ],
+            "p_value": 0.1737702178236078
+          },
+          {
+            "study": "p300_attention_bci_2024",
+            "domain": "other",
+            "n_participants": 47,
+            "n_rows": 47,
+            "r": -0.035694557189331,
+            "ci95": [
+              -0.319585523812713,
+              0.254076613958936
+            ],
+            "p_value": 0.8117291180176569
+          },
+          {
+            "study": "pipeblocks_cicd_2025",
+            "domain": "other",
+            "n_participants": 10,
+            "n_rows": 10,
+            "r": 0.1441525403975012,
+            "ci95": [
+              -0.5339348808240569,
+              0.7093927704920584
+            ],
+            "p_value": 0.6911376438984175
+          },
+          {
+            "study": "steering_gain_2022",
+            "domain": "automotive",
+            "n_participants": 24,
+            "n_rows": 24,
+            "r": 0.2804982921221886,
+            "ci95": [
+              -0.1385789107632106,
+              0.6143769653512214
+            ],
+            "p_value": 0.1842983451707769
+          },
+          {
+            "study": "vr_shopping_demands_2026",
+            "domain": "other",
+            "n_participants": 22,
+            "n_rows": 22,
+            "r": 0.4890278655705647,
+            "ci95": [
+              0.0849301762680788,
+              0.7549765473200695
+            ],
+            "p_value": 0.0209069679527571
+          }
+        ],
+        "k_predicted_sign": 5,
+        "testable": true,
+        "pooled_r": 0.1344107136584831,
+        "hksj_ci95": [
+          -0.0803464153569153,
+          0.3372426444930404
+        ],
+        "prediction_interval": [
+          -0.3740255283459253,
+          0.5807232596327511
+        ],
+        "heterogeneity_i2_pct": 53.87323971188636,
+        "tau": 0.1801958976298392,
+        "n_total": 342,
+        "p_hksj_two_sided": 0.1759986143042508,
+        "p_one_sided": 0.0879993071521254,
+        "found_in": "both",
+        "pair_type": "same_instrument",
+        "q_bh": 0.09083799447961331,
+        "replicated": false,
+        "same_sign": true
+      },
+      "between:physical_demand~temporal_demand": {
+        "association": "between_person",
+        "pair": [
+          "physical_demand",
+          "temporal_demand"
+        ],
+        "predicted_sign": "positive",
+        "k_studies": 9,
+        "studies": [
+          {
+            "study": "build_3d_mr_2025",
+            "domain": "other",
+            "n_participants": 60,
+            "n_rows": 60,
+            "r": -0.0513671028936813,
+            "ci95": [
+              -0.301361039850941,
+              0.2052345509948981
+            ],
+            "p_value": 0.6967026438172754
+          },
+          {
+            "study": "exergame_children_2025",
+            "domain": "other",
+            "n_participants": 21,
+            "n_rows": 21,
+            "r": 0.7840606931950092,
+            "ci95": [
+              0.532663956165174,
+              0.9083122610246496
+            ],
+            "p_value": 2.5993198939192973e-05
+          },
+          {
+            "study": "human_swarm_pfm_2025",
+            "domain": "other",
+            "n_participants": 180,
+            "n_rows": 180,
+            "r": 0.292480119781597,
+            "ci95": [
+              0.1527513708883602,
+              0.4207443661886699
+            ],
+            "p_value": 6.771610369731782e-05
+          },
+          {
+            "study": "layer_interaction_elastic_2022",
+            "domain": "other",
+            "n_participants": 23,
+            "n_rows": 23,
+            "r": 0.4639050601806482,
+            "ci95": [
+              0.0639272174517768,
+              0.7354689048135941
+            ],
+            "p_value": 0.0257636083843701
+          },
+          {
+            "study": "navigable_wim_2026",
+            "domain": "other",
+            "n_participants": 36,
+            "n_rows": 36,
+            "r": 0.4086276386524683,
+            "ci95": [
+              0.0925114502862952,
+              0.6499133063077795
+            ],
+            "p_value": 0.0133486831024858
+          },
+          {
+            "study": "p300_attention_bci_2024",
+            "domain": "other",
+            "n_participants": 47,
+            "n_rows": 47,
+            "r": 0.0960064102707395,
+            "ci95": [
+              -0.1965800857558684,
+              0.3728926263504885
+            ],
+            "p_value": 0.5209063855764101
+          },
+          {
+            "study": "pipeblocks_cicd_2025",
+            "domain": "other",
+            "n_participants": 10,
+            "n_rows": 10,
+            "r": 0.7996242767836113,
+            "ci95": [
+              0.3423682050277583,
+              0.9506380768222152
+            ],
+            "p_value": 0.0054944424540267
+          },
+          {
+            "study": "steering_gain_2022",
+            "domain": "automotive",
+            "n_participants": 24,
+            "n_rows": 24,
+            "r": 0.4044365237444951,
+            "ci95": [
+              0.0012425308591482,
+              0.6945229509946922
+            ],
+            "p_value": 0.0499688584568406
+          },
+          {
+            "study": "vr_shopping_demands_2026",
+            "domain": "other",
+            "n_participants": 22,
+            "n_rows": 22,
+            "r": 0.5450891162838445,
+            "ci95": [
+              0.1603258142660386,
+              0.7860517322353952
+            ],
+            "p_value": 0.0087040003558389
+          }
+        ],
+        "k_predicted_sign": 8,
+        "testable": true,
+        "pooled_r": 0.4059917108811099,
+        "hksj_ci95": [
+          0.1504265138792732,
+          0.61069445764745
+        ],
+        "prediction_interval": [
+          -0.3036972730225914,
+          0.8259296252895899
+        ],
+        "heterogeneity_i2_pct": 70.43595871924853,
+        "tau": 0.2920067311182797,
+        "n_total": 423,
+        "p_hksj_two_sided": 0.007424370531223,
+        "p_one_sided": 0.0037121852656115,
+        "found_in": "both",
+        "pair_type": "same_instrument",
+        "q_bh": 0.0083288752410016,
+        "replicated": true,
+        "same_sign": true
+      },
+      "between:temporal_demand~usability": {
+        "association": "between_person",
+        "pair": [
+          "temporal_demand",
+          "usability"
+        ],
+        "predicted_sign": "negative",
+        "k_studies": 3,
+        "studies": [
+          {
+            "study": "human_swarm_pfm_2025",
+            "domain": "other",
+            "n_participants": 180,
+            "n_rows": 180,
+            "r": -0.267290602634986,
+            "ci95": [
+              -0.3979944039455204,
+              -0.1259513289591169
+            ],
+            "p_value": 0.0002863789058198
+          },
+          {
+            "study": "navigable_wim_2026",
+            "domain": "other",
+            "n_participants": 36,
+            "n_rows": 36,
+            "r": -0.22434876880929,
+            "ci95": [
+              -0.5149307201673079,
+              0.112477286182707
+            ],
+            "p_value": 0.1883660135633953
+          },
+          {
+            "study": "pipeblocks_cicd_2025",
+            "domain": "other",
+            "n_participants": 10,
+            "n_rows": 10,
+            "r": -0.3124227809795179,
+            "ci95": [
+              -0.787199402067512,
+              0.3948802566396698
+            ],
+            "p_value": 0.3794669615084437
+          }
+        ],
+        "k_predicted_sign": 3,
+        "testable": true,
+        "pooled_r": -0.2623046571618636,
+        "hksj_ci95": [
+          -0.3157300224051689,
+          -0.2072213776867655
+        ],
+        "prediction_interval": [
+          -0.8114074002848074,
+          0.5327460340836047
+        ],
+        "heterogeneity_i2_pct": 0.0,
+        "tau": 0.0,
+        "n_total": 226,
+        "p_hksj_two_sided": 0.0025368024293512,
+        "p_one_sided": 0.0012684012146756,
+        "found_in": "development",
+        "pair_type": "cross_construct",
+        "q_bh": 0.005551627446793,
+        "replicated": true,
+        "same_sign": true
+      },
+      "between:ueq_hedonic~ueq_pragmatic": {
+        "association": "between_person",
+        "pair": [
+          "ueq_hedonic",
+          "ueq_pragmatic"
+        ],
+        "predicted_sign": "positive",
+        "k_studies": 4,
+        "studies": [
+          {
+            "study": "debugging_cps_ar_vr_2026",
+            "domain": "other",
+            "n_participants": 36,
+            "n_rows": 36,
+            "r": 0.4498750388597047,
+            "ci95": [
+              0.1423836011101514,
+              0.6781763006740721
+            ],
+            "p_value": 0.0059071569136655
+          },
+          {
+            "study": "developers_prompt_docgen_2024",
+            "domain": "other",
+            "n_participants": 50,
+            "n_rows": 50,
+            "r": 0.5692881039870165,
+            "ci95": [
+              0.345723793274146,
+              0.7316918923747692
+            ],
+            "p_value": 1.6013618471876608e-05
+          },
+          {
+            "study": "navigable_wim_2026",
+            "domain": "other",
+            "n_participants": 36,
+            "n_rows": 36,
+            "r": 0.4275422443498479,
+            "ci95": [
+              0.1151858449909159,
+              0.6629571008695077
+            ],
+            "p_value": 0.009297185610035
+          },
+          {
+            "study": "sus_de_pos_2025",
+            "domain": "other",
+            "n_participants": 902,
+            "n_rows": 902,
+            "r": 0.4354279835973107,
+            "ci95": [
+              0.38098101427429,
+              0.4868654232512986
+            ],
+            "p_value": 5.0013595435177586e-43
+          }
+        ],
+        "k_predicted_sign": 4,
+        "testable": true,
+        "pooled_r": 0.4423911413840716,
+        "hksj_ci95": [
+          0.3845798619004347,
+          0.4967456405077953
+        ],
+        "prediction_interval": [
+          0.3274302226165519,
+          0.5444456324296196
+        ],
+        "heterogeneity_i2_pct": 0.0,
+        "tau": 0.0,
+        "n_total": 1024,
+        "p_hksj_two_sided": 0.0002149647026084,
+        "p_one_sided": 0.0001074823513042,
+        "found_in": "development",
+        "pair_type": "same_instrument",
+        "q_bh": 0.0017197176208672,
+        "replicated": true,
+        "same_sign": true
+      },
+      "within:effort~performance": {
+        "association": "within_person",
+        "pair": [
+          "effort",
+          "performance"
+        ],
+        "predicted_sign": "positive",
+        "k_studies": 6,
+        "studies": [
+          {
+            "study": "human_swarm_pfm_2025",
+            "domain": "other",
+            "n_participants": 180,
+            "n_rows": 360,
+            "r": 0.2991617753944224,
+            "ci95": [
+              0.1602960329719356,
+              0.426415181172614
+            ],
+            "p_value": 4.294900596838101e-05
+          },
+          {
+            "study": "layer_interaction_elastic_2022",
+            "domain": "other",
+            "n_participants": 23,
+            "n_rows": 69,
+            "r": 0.1948408657416686,
+            "ci95": [
+              -0.0978032960020542,
+              0.4564717843048574
+            ],
+            "p_value": 0.1893812294425654
+          },
+          {
+            "study": "navigable_wim_2026",
+            "domain": "other",
+            "n_participants": 36,
+            "n_rows": 108,
+            "r": -0.1626155635123126,
+            "ci95": [
+              -0.3785250890490735,
+              0.070077617103217
+            ],
+            "p_value": 0.1692628776725166
+          },
+          {
+            "study": "steering_gain_2022",
+            "domain": "automotive",
+            "n_participants": 24,
+            "n_rows": 96,
+            "r": 0.5040628321030188,
+            "ci95": [
+              0.3099347395649349,
+              0.657843768989684
+            ],
+            "p_value": 5.455891349223903e-06
+          },
+          {
+            "study": "vr_classroom_noise_2025",
+            "domain": "other",
+            "n_participants": 24,
+            "n_rows": 96,
+            "r": 0.491051139617308,
+            "ci95": [
+              0.2942197970263334,
+              0.6479223045663208
+            ],
+            "p_value": 1.0291861874097151e-05
+          },
+          {
+            "study": "vr_shopping_demands_2026",
+            "domain": "other",
+            "n_participants": 22,
+            "n_rows": 154,
+            "r": 0.7702953533169724,
+            "ci95": [
+              0.6906253051401269,
+              0.8314937120450806
+            ],
+            "p_value": 2.276271302842484e-27
+          }
+        ],
+        "k_predicted_sign": 5,
+        "testable": true,
+        "pooled_r": 0.3920547293385456,
+        "hksj_ci95": [
+          -0.0063410454151183,
+          0.683040926082057
+        ],
+        "prediction_interval": [
+          -0.6360435476702462,
+          0.918594435417284
+        ],
+        "heterogeneity_i2_pct": 93.4497989305742,
+        "tau": 0.3863281138983058,
+        "n_total": 309,
+        "p_hksj_two_sided": 0.0524133230510206,
+        "p_one_sided": 0.0262066615255103,
+        "found_in": "development",
+        "pair_type": "same_instrument",
+        "q_bh": 0.033878208278173665,
+        "replicated": true,
+        "same_sign": true
+      },
+      "within:effort~physical_demand": {
+        "association": "within_person",
+        "pair": [
+          "effort",
+          "physical_demand"
+        ],
+        "predicted_sign": "positive",
+        "k_studies": 7,
+        "studies": [
+          {
+            "study": "exergame_children_2025",
+            "domain": "other",
+            "n_participants": 21,
+            "n_rows": 126,
+            "r": 0.4250611703023297,
+            "ci95": [
+              0.2549769321885524,
+              0.5696318730104594
+            ],
+            "p_value": 5.580201915396109e-06
+          },
+          {
+            "study": "human_swarm_pfm_2025",
+            "domain": "other",
+            "n_participants": 180,
+            "n_rows": 360,
+            "r": 0.1216702205659498,
+            "ci95": [
+              -0.024627232569731,
+              0.2628655771404289
+            ],
+            "p_value": 0.1027569637470176
+          },
+          {
+            "study": "layer_interaction_elastic_2022",
+            "domain": "other",
+            "n_participants": 23,
+            "n_rows": 69,
+            "r": 0.1624302578518504,
+            "ci95": [
+              -0.1308448441300069,
+              0.4295648327639283
+            ],
+            "p_value": 0.2753415433885217
+          },
+          {
+            "study": "mr_airplane_layouts_2021",
+            "domain": "other",
+            "n_participants": 24,
+            "n_rows": 252,
+            "r": 0.8408231199274733,
+            "ci95": [
+              0.7981878803708188,
+              0.8750768976009199
+            ],
+            "p_value": 1.950783854761386e-62
+          },
+          {
+            "study": "navigable_wim_2026",
+            "domain": "other",
+            "n_participants": 36,
+            "n_rows": 108,
+            "r": 0.2640393447937799,
+            "ci95": [
+              0.0361649343168398,
+              0.4658135109926077
+            ],
+            "p_value": 0.0239933570489324
+          },
+          {
+            "study": "steering_gain_2022",
+            "domain": "automotive",
+            "n_participants": 24,
+            "n_rows": 96,
+            "r": 0.1000375211069422,
+            "ci95": [
+              -0.1330971662958858,
+              0.3226820987219636
+            ],
+            "p_value": 0.3997410181773095
+          },
+          {
+            "study": "vr_shopping_demands_2026",
+            "domain": "other",
+            "n_participants": 22,
+            "n_rows": 154,
+            "r": 0.1725760895353283,
+            "ci95": [
+              0.002417244216541,
+              0.3330225435403934
+            ],
+            "p_value": 0.0469902882466992
+          }
+        ],
+        "k_predicted_sign": 7,
+        "testable": true,
+        "pooled_r": 0.3492940322219448,
+        "hksj_ci95": [
+          -0.0108490707758477,
+          0.629222739993445
+        ],
+        "prediction_interval": [
+          -0.626327671423095,
+          0.8985479476542163
+        ],
+        "heterogeneity_i2_pct": 96.62139459330696,
+        "tau": 0.3985485697215204,
+        "n_total": 330,
+        "p_hksj_two_sided": 0.0550520884520322,
+        "p_one_sided": 0.0275260442260161,
+        "found_in": "development",
+        "pair_type": "same_instrument",
+        "q_bh": 0.033878208278173665,
+        "replicated": true,
+        "same_sign": true
+      },
+      "within:effort~temporal_demand": {
+        "association": "within_person",
+        "pair": [
+          "effort",
+          "temporal_demand"
+        ],
+        "predicted_sign": "positive",
+        "k_studies": 6,
+        "studies": [
+          {
+            "study": "exergame_children_2025",
+            "domain": "other",
+            "n_participants": 21,
+            "n_rows": 126,
+            "r": 0.734505094644965,
+            "ci95": [
+              0.6323464292840988,
+              0.8115543419459721
+            ],
+            "p_value": 3.243440119356248e-19
+          },
+          {
+            "study": "human_swarm_pfm_2025",
+            "domain": "other",
+            "n_participants": 180,
+            "n_rows": 360,
+            "r": 0.257510993132561,
+            "ci95": [
+              0.1160079301282078,
+              0.3887689725425096
+            ],
+            "p_value": 0.0004658475380836
+          },
+          {
+            "study": "layer_interaction_elastic_2022",
+            "domain": "other",
+            "n_participants": 23,
+            "n_rows": 69,
+            "r": 0.3661754187422653,
+            "ci95": [
+              0.0882875219322204,
+              0.5911813848220071
+            ],
+            "p_value": 0.0113617677034039
+          },
+          {
+            "study": "navigable_wim_2026",
+            "domain": "other",
+            "n_participants": 36,
+            "n_rows": 108,
+            "r": -0.1272450034954852,
+            "ci95": [
+              -0.3471532953301164,
+              0.1059274212471121
+            ],
+            "p_value": 0.2833675009111182
+          },
+          {
+            "study": "steering_gain_2022",
+            "domain": "automotive",
+            "n_participants": 24,
+            "n_rows": 96,
+            "r": 0.3074598452684812,
+            "ci95": [
+              0.083279491264985,
+              0.5020194934179948
+            ],
+            "p_value": 0.0081444270756992
+          },
+          {
+            "study": "vr_shopping_demands_2026",
+            "domain": "other",
+            "n_participants": 22,
+            "n_rows": 154,
+            "r": 0.5401148410222686,
+            "ci95": [
+              0.4073370470236427,
+              0.6505323643441553
+            ],
+            "p_value": 1.9527787874557358e-11
+          }
+        ],
+        "k_predicted_sign": 5,
+        "testable": true,
+        "pooled_r": 0.38017952757656,
+        "hksj_ci95": [
+          0.0249634171041245,
+          0.6501568651183395
+        ],
+        "prediction_interval": [
+          -0.558772577834082,
+          0.8919911103450712
+        ],
+        "heterogeneity_i2_pct": 91.41775733242048,
+        "tau": 0.3413652831009501,
+        "n_total": 306,
+        "p_hksj_two_sided": 0.0407144670259771,
+        "p_one_sided": 0.02035723351298855,
+        "found_in": "development",
+        "pair_type": "same_instrument",
+        "q_bh": 0.03102054630550636,
+        "replicated": true,
+        "same_sign": true
+      },
+      "within:frustration~performance": {
+        "association": "within_person",
+        "pair": [
+          "frustration",
+          "performance"
+        ],
+        "predicted_sign": "positive",
+        "k_studies": 6,
+        "studies": [
+          {
+            "study": "human_swarm_pfm_2025",
+            "domain": "other",
+            "n_participants": 180,
+            "n_rows": 360,
+            "r": 0.4469618431659101,
+            "ci95": [
+              0.3221004748611342,
+              0.5565392054039633
+            ],
+            "p_value": 2.8378607834741605e-10
+          },
+          {
+            "study": "layer_interaction_elastic_2022",
+            "domain": "other",
+            "n_participants": 23,
+            "n_rows": 69,
+            "r": 0.3457774912712262,
+            "ci95": [
+              0.0650666569948251,
+              0.5757761300509873
+            ],
+            "p_value": 0.0172822829768142
+          },
+          {
+            "study": "navigable_wim_2026",
+            "domain": "other",
+            "n_participants": 36,
+            "n_rows": 108,
+            "r": -0.004069574339747,
+            "ci95": [
+              -0.2339219089280746,
+              0.2262135816473554
+            ],
+            "p_value": 0.9727412235254068
+          },
+          {
+            "study": "steering_gain_2022",
+            "domain": "automotive",
+            "n_participants": 24,
+            "n_rows": 96,
+            "r": 0.4159148106084021,
+            "ci95": [
+              0.2055085909416845,
+              0.5895701477964478
+            ],
+            "p_value": 0.000252688002285
+          },
+          {
+            "study": "vr_classroom_noise_2025",
+            "domain": "other",
+            "n_participants": 24,
+            "n_rows": 96,
+            "r": 0.307872649668474,
+            "ci95": [
+              0.0837322771250187,
+              0.5023604667313831
+            ],
+            "p_value": 0.008054928883346
+          },
+          {
+            "study": "vr_shopping_demands_2026",
+            "domain": "other",
+            "n_participants": 22,
+            "n_rows": 154,
+            "r": 0.8049954377176864,
+            "ci95": [
+              0.7355628961075081,
+              0.857692095029105
+            ],
+            "p_value": 1.7062540062507728e-31
+          }
+        ],
+        "k_predicted_sign": 5,
+        "testable": true,
+        "pooled_r": 0.4287271903024299,
+        "hksj_ci95": [
+          0.0695940421915276,
+          0.6894809314474065
+        ],
+        "prediction_interval": [
+          -0.5502679426440079,
+          0.9113505758772108
+        ],
+        "heterogeneity_i2_pct": 92.80158733455237,
+        "tau": 0.3565835056500888,
+        "n_total": 309,
+        "p_hksj_two_sided": 0.0290263930950781,
+        "p_one_sided": 0.01451319654753905,
+        "found_in": "development",
+        "pair_type": "same_instrument",
+        "q_bh": 0.023221114476062482,
+        "replicated": true,
+        "same_sign": true
+      },
+      "within:frustration~physical_demand": {
+        "association": "within_person",
+        "pair": [
+          "frustration",
+          "physical_demand"
+        ],
+        "predicted_sign": "positive",
+        "k_studies": 6,
+        "studies": [
+          {
+            "study": "exergame_children_2025",
+            "domain": "other",
+            "n_participants": 21,
+            "n_rows": 126,
+            "r": 0.1025276177767398,
+            "ci95": [
+              -0.0899912673928204,
+              0.2876603738041441
+            ],
+            "p_value": 0.2956398050193267
+          },
+          {
+            "study": "human_swarm_pfm_2025",
+            "domain": "other",
+            "n_participants": 180,
+            "n_rows": 360,
+            "r": 0.1476053858526591,
+            "ci95": [
+              0.0017833848127057,
+              0.2872806926169093
+            ],
+            "p_value": 0.0473736216232397
+          },
+          {
+            "study": "layer_interaction_elastic_2022",
+            "domain": "other",
+            "n_participants": 23,
+            "n_rows": 69,
+            "r": 0.2419305394586703,
+            "ci95": [
+              -0.0486190961243788,
+              0.494730613352714
+            ],
+            "p_value": 0.1013443887768969
+          },
+          {
+            "study": "navigable_wim_2026",
+            "domain": "other",
+            "n_participants": 36,
+            "n_rows": 108,
+            "r": 0.3413301456957049,
+            "ci95": [
+              0.1207405847695065,
+              0.5297964327635483
+            ],
+            "p_value": 0.003123699560268
+          },
+          {
+            "study": "steering_gain_2022",
+            "domain": "automotive",
+            "n_participants": 24,
+            "n_rows": 96,
+            "r": 0.2464674824096153,
+            "ci95": [
+              0.0173817632488366,
+              0.4509667200400992
+            ],
+            "p_value": 0.0355517047368205
+          },
+          {
+            "study": "vr_shopping_demands_2026",
+            "domain": "other",
+            "n_participants": 22,
+            "n_rows": 154,
+            "r": 0.0322868543494675,
+            "ci95": [
+              -0.1387053543256912,
+              0.201409727059495
+            ],
+            "p_value": 0.7121786886514245
+          }
+        ],
+        "k_predicted_sign": 6,
+        "testable": true,
+        "pooled_r": 0.1620308322964233,
+        "hksj_ci95": [
+          0.044768583175301,
+          0.2748888258467809
+        ],
+        "prediction_interval": [
+          -0.0155551540795035,
+          0.3297070799092391
+        ],
+        "heterogeneity_i2_pct": 17.707764092959213,
+        "tau": 0.0455391096914424,
+        "n_total": 306,
+        "p_hksj_two_sided": 0.016545595191636,
+        "p_one_sided": 0.008272797595818,
+        "found_in": "development",
+        "pair_type": "same_instrument",
+        "q_bh": 0.015572324886245645,
+        "replicated": true,
+        "same_sign": true
+      },
+      "within:frustration~temporal_demand": {
+        "association": "within_person",
+        "pair": [
+          "frustration",
+          "temporal_demand"
+        ],
+        "predicted_sign": "positive",
+        "k_studies": 6,
+        "studies": [
+          {
+            "study": "exergame_children_2025",
+            "domain": "other",
+            "n_participants": 21,
+            "n_rows": 126,
+            "r": 0.4311661318997234,
+            "ci95": [
+              0.2619525712062716,
+              0.5746599059620939
+            ],
+            "p_value": 3.948664172291946e-06
+          },
+          {
+            "study": "human_swarm_pfm_2025",
+            "domain": "other",
+            "n_participants": 180,
+            "n_rows": 360,
+            "r": 0.3568215585280088,
+            "ci95": [
+              0.2225437009190322,
+              0.4778136044893775
+            ],
+            "p_value": 8.199250240667828e-07
+          },
+          {
+            "study": "layer_interaction_elastic_2022",
+            "domain": "other",
+            "n_participants": 23,
+            "n_rows": 69,
+            "r": 0.2083527779799795,
+            "ci95": [
+              -0.0838351259411145,
+              0.4675496538153534
+            ],
+            "p_value": 0.1598995833282929
+          },
+          {
+            "study": "navigable_wim_2026",
+            "domain": "other",
+            "n_participants": 36,
+            "n_rows": 108,
+            "r": -0.1401688546018232,
+            "ci95": [
+              -0.3586734078343709,
+              0.0928983636029733
+            ],
+            "p_value": 0.2368953033191174
+          },
+          {
+            "study": "steering_gain_2022",
+            "domain": "automotive",
+            "n_participants": 24,
+            "n_rows": 96,
+            "r": 0.1095482194372099,
+            "ci95": [
+              -0.1236393286357583,
+              0.3312702682616968
+            ],
+            "p_value": 0.3562124005927874
+          },
+          {
+            "study": "vr_shopping_demands_2026",
+            "domain": "other",
+            "n_participants": 22,
+            "n_rows": 154,
+            "r": 0.5597756832337976,
+            "ci95": [
+              0.4305756048895929,
+              0.6664948869374552
+            ],
+            "p_value": 2.476249575911505e-12
+          }
+        ],
+        "k_predicted_sign": 5,
+        "testable": true,
+        "pooled_r": 0.2772354596859986,
+        "hksj_ci95": [
+          -0.0043402132282828,
+          0.5180786828791231
+        ],
+        "prediction_interval": [
+          -0.4518313390498777,
+          0.7842700857171584
+        ],
+        "heterogeneity_i2_pct": 85.0595923222069,
+        "tau": 0.2539711597445548,
+        "n_total": 306,
+        "p_hksj_two_sided": 0.052403346894168,
+        "p_one_sided": 0.026201673447084,
+        "found_in": "development",
+        "pair_type": "same_instrument",
+        "q_bh": 0.033878208278173665,
+        "replicated": true,
+        "same_sign": true
+      },
+      "within:mental_demand~performance": {
+        "association": "within_person",
+        "pair": [
+          "mental_demand",
+          "performance"
+        ],
+        "predicted_sign": "positive",
+        "k_studies": 6,
+        "studies": [
+          {
+            "study": "human_swarm_pfm_2025",
+            "domain": "other",
+            "n_participants": 180,
+            "n_rows": 360,
+            "r": 0.1444929212147914,
+            "ci95": [
+              -0.0013969168408836,
+              0.2843602008829793
+            ],
+            "p_value": 0.0522968514294313
+          },
+          {
+            "study": "layer_interaction_elastic_2022",
+            "domain": "other",
+            "n_participants": 23,
+            "n_rows": 69,
+            "r": 0.2388770154857776,
+            "ci95": [
+              -0.0518517421413802,
+              0.492279083563346
+            ],
+            "p_value": 0.1058638130349607
+          },
+          {
+            "study": "navigable_wim_2026",
+            "domain": "other",
+            "n_participants": 36,
+            "n_rows": 108,
+            "r": 0.1151587838866167,
+            "ci95": [
+              -0.1180400090592325,
+              0.336319442512545
+            ],
+            "p_value": 0.3319630587133725
+          },
+          {
+            "study": "steering_gain_2022",
+            "domain": "automotive",
+            "n_participants": 24,
+            "n_rows": 96,
+            "r": 0.1631084717557191,
+            "ci95": [
+              -0.069573747437788,
+              0.3789587954856573
+            ],
+            "p_value": 0.1679566257554478
+          },
+          {
+            "study": "vr_classroom_noise_2025",
+            "domain": "other",
+            "n_participants": 24,
+            "n_rows": 96,
+            "r": 0.3449643469128738,
+            "ci95": [
+              0.1247977423277174,
+              0.5327530050799434
+            ],
+            "p_value": 0.0028004712131388
+          },
+          {
+            "study": "vr_shopping_demands_2026",
+            "domain": "other",
+            "n_participants": 22,
+            "n_rows": 154,
+            "r": 0.7489267845108497,
+            "ci95": [
+              0.6632551232338878,
+              0.8152239815821026
+            ],
+            "p_value": 3.5808218023446897e-25
+          }
+        ],
+        "k_predicted_sign": 6,
+        "testable": true,
+        "pooled_r": 0.3258128453037531,
+        "hksj_ci95": [
+          -0.0086658235315219,
+          0.594721083537252
+        ],
+        "prediction_interval": [
+          -0.5523506085579253,
+          0.8612153869503567
+        ],
+        "heterogeneity_i2_pct": 92.19255002132223,
+        "tau": 0.3171932609630596,
+        "n_total": 309,
+        "p_hksj_two_sided": 0.054068832015224,
+        "p_one_sided": 0.027034416007612,
+        "found_in": "development",
+        "pair_type": "same_instrument",
+        "q_bh": 0.033878208278173665,
+        "replicated": true,
+        "same_sign": true
+      },
+      "within:mental_demand~physical_demand": {
+        "association": "within_person",
+        "pair": [
+          "mental_demand",
+          "physical_demand"
+        ],
+        "predicted_sign": "positive",
+        "k_studies": 7,
+        "studies": [
+          {
+            "study": "exergame_children_2025",
+            "domain": "other",
+            "n_participants": 21,
+            "n_rows": 126,
+            "r": 0.0984064976461174,
+            "ci95": [
+              -0.0941191296353755,
+              0.2838371639626864
+            ],
+            "p_value": 0.3155799695652669
+          },
+          {
+            "study": "human_swarm_pfm_2025",
+            "domain": "other",
+            "n_participants": 180,
+            "n_rows": 360,
+            "r": 0.0581135863524497,
+            "ci95": [
+              -0.0884969524009129,
+              0.2022595362281834
+            ],
+            "p_value": 0.4371123429289182
+          },
+          {
+            "study": "layer_interaction_elastic_2022",
+            "domain": "other",
+            "n_participants": 23,
+            "n_rows": 69,
+            "r": -0.0431205500424407,
+            "ci95": [
+              -0.3262523586305098,
+              0.2471112230387972
+            ],
+            "p_value": 0.7735051003097239
+          },
+          {
+            "study": "mr_airplane_layouts_2021",
+            "domain": "other",
+            "n_participants": 24,
+            "n_rows": 252,
+            "r": 0.7941078818082979,
+            "ci95": [
+              0.7407224326667035,
+              0.8375271899662967
+            ],
+            "p_value": 5.39988687879899e-51
+          },
+          {
+            "study": "navigable_wim_2026",
+            "domain": "other",
+            "n_participants": 36,
+            "n_rows": 108,
+            "r": 0.422507274131718,
+            "ci95": [
+              0.213156152051211,
+              0.594763553956636
+            ],
+            "p_value": 0.0001964259197119
+          },
+          {
+            "study": "steering_gain_2022",
+            "domain": "automotive",
+            "n_participants": 24,
+            "n_rows": 96,
+            "r": 0.3100539003308613,
+            "ci95": [
+              0.0861263266439044,
+              0.5041611596002059
+            ],
+            "p_value": 0.0075961833032133
+          },
+          {
+            "study": "vr_shopping_demands_2026",
+            "domain": "other",
+            "n_participants": 22,
+            "n_rows": 154,
+            "r": 0.1302809839772069,
+            "ci95": [
+              -0.0408549434099936,
+              0.2939907984601564
+            ],
+            "p_value": 0.1350008116564132
+          }
+        ],
+        "k_predicted_sign": 6,
+        "testable": true,
+        "pooled_r": 0.2965285171393955,
+        "hksj_ci95": [
+          -0.0528625751147159,
+          0.5812378987021722
+        ],
+        "prediction_interval": [
+          -0.6287216771519095,
+          0.8742225671393011
+        ],
+        "heterogeneity_i2_pct": 96.10466036845337,
+        "tau": 0.3784532096071699,
+        "n_total": 330,
+        "p_hksj_two_sided": 0.0820636741932213,
+        "p_one_sided": 0.04103183709661065,
+        "found_in": "development",
+        "pair_type": "same_instrument",
+        "q_bh": 0.04863032544783484,
+        "replicated": true,
+        "same_sign": true
+      },
+      "within:mental_demand~temporal_demand": {
+        "association": "within_person",
+        "pair": [
+          "mental_demand",
+          "temporal_demand"
+        ],
+        "predicted_sign": "positive",
+        "k_studies": 6,
+        "studies": [
+          {
+            "study": "exergame_children_2025",
+            "domain": "other",
+            "n_participants": 21,
+            "n_rows": 126,
+            "r": 0.5167591696163839,
+            "ci95": [
+              0.3616505371421152,
+              0.6440316914180834
+            ],
+            "p_value": 1.4212019349690711e-08
+          },
+          {
+            "study": "human_swarm_pfm_2025",
+            "domain": "other",
+            "n_participants": 180,
+            "n_rows": 360,
+            "r": 0.3265454104882631,
+            "ci95": [
+              0.1897214546435424,
+              0.4509280833279672
+            ],
+            "p_value": 7.244147563552504e-06
+          },
+          {
+            "study": "layer_interaction_elastic_2022",
+            "domain": "other",
+            "n_participants": 23,
+            "n_rows": 69,
+            "r": 0.3005554290140718,
+            "ci95": [
+              0.014647912169436,
+              0.5410303310250862
+            ],
+            "p_value": 0.0400969101649878
+          },
+          {
+            "study": "navigable_wim_2026",
+            "domain": "other",
+            "n_participants": 36,
+            "n_rows": 108,
+            "r": 0.0207297896043315,
+            "ci95": [
+              -0.2103447680805437,
+              0.2496106676809325
+            ],
+            "p_value": 0.8618048729801857
+          },
+          {
+            "study": "steering_gain_2022",
+            "domain": "automotive",
+            "n_participants": 24,
+            "n_rows": 96,
+            "r": 0.4152331030557884,
+            "ci95": [
+              0.2047192420823843,
+              0.5890322923169801
+            ],
+            "p_value": 0.0002592795985496
+          },
+          {
+            "study": "vr_shopping_demands_2026",
+            "domain": "other",
+            "n_participants": 22,
+            "n_rows": 154,
+            "r": 0.5209616653785704,
+            "ci95": [
+              0.3848626722559599,
+              0.6348876369503466
+            ],
+            "p_value": 1.2891409612755808e-10
+          }
+        ],
+        "k_predicted_sign": 6,
+        "testable": true,
+        "pooled_r": 0.3679317216844341,
+        "hksj_ci95": [
+          0.1679846551285961,
+          0.5388017744066969
+        ],
+        "prediction_interval": [
+          -0.1514138289995577,
+          0.728087384789083
+        ],
+        "heterogeneity_i2_pct": 72.74955299669129,
+        "tau": 0.1748893998001776,
+        "n_total": 306,
+        "p_hksj_two_sided": 0.0059215648701892,
+        "p_one_sided": 0.0029607824350946,
+        "found_in": "development",
+        "pair_type": "same_instrument",
+        "q_bh": 0.0083288752410016,
+        "replicated": true,
+        "same_sign": true
+      },
+      "within:performance~physical_demand": {
+        "association": "within_person",
+        "pair": [
+          "performance",
+          "physical_demand"
+        ],
+        "predicted_sign": "positive",
+        "k_studies": 5,
+        "studies": [
+          {
+            "study": "human_swarm_pfm_2025",
+            "domain": "other",
+            "n_participants": 180,
+            "n_rows": 360,
+            "r": 0.0521463008237901,
+            "ci95": [
+              -0.0944323561675994,
+              0.1965120116384648
+            ],
+            "p_value": 0.4856959212988008
+          },
+          {
+            "study": "layer_interaction_elastic_2022",
+            "domain": "other",
+            "n_participants": 23,
+            "n_rows": 69,
+            "r": -0.116240041687489,
+            "ci95": [
+              -0.3903805946295385,
+              0.1768346444411356
+            ],
+            "p_value": 0.4365183416345719
+          },
+          {
+            "study": "navigable_wim_2026",
+            "domain": "other",
+            "n_participants": 36,
+            "n_rows": 108,
+            "r": 0.0355955845942186,
+            "ci95": [
+              -0.1960815842247304,
+              0.263508925744931
+            ],
+            "p_value": 0.7649596053491899
+          },
+          {
+            "study": "steering_gain_2022",
+            "domain": "automotive",
+            "n_participants": 24,
+            "n_rows": 96,
+            "r": 0.2135609580419444,
+            "ci95": [
+              -0.0173635405653137,
+              0.4228556147605405
+            ],
+            "p_value": 0.0696525171930682
+          },
+          {
+            "study": "vr_shopping_demands_2026",
+            "domain": "other",
+            "n_participants": 22,
+            "n_rows": 154,
+            "r": 0.1300112278294117,
+            "ci95": [
+              -0.0411288863241198,
+              0.2937400911343561
+            ],
+            "p_value": 0.1358177454051601
+          }
+        ],
+        "k_predicted_sign": 4,
+        "testable": true,
+        "pooled_r": 0.0787513452130792,
+        "hksj_ci95": [
+          -0.0402283979350326,
+          0.1955290607421093
+        ],
+        "prediction_interval": [
+          -0.0644714566976472,
+          0.2187953239795242
+        ],
+        "heterogeneity_i2_pct": 0.0,
+        "tau": 0.0,
+        "n_total": 285,
+        "p_hksj_two_sided": 0.1398172057027979,
+        "p_one_sided": 0.06990860285139895,
+        "found_in": "development",
+        "pair_type": "same_instrument",
+        "q_bh": 0.07714052728430229,
+        "replicated": false,
+        "same_sign": true
+      },
+      "within:performance~temporal_demand": {
+        "association": "within_person",
+        "pair": [
+          "performance",
+          "temporal_demand"
+        ],
+        "predicted_sign": "positive",
+        "k_studies": 5,
+        "studies": [
+          {
+            "study": "human_swarm_pfm_2025",
+            "domain": "other",
+            "n_participants": 180,
+            "n_rows": 360,
+            "r": 0.3036249504084761,
+            "ci95": [
+              0.1650752157591021,
+              0.4304232547240954
+            ],
+            "p_value": 3.251828070497684e-05
+          },
+          {
+            "study": "layer_interaction_elastic_2022",
+            "domain": "other",
+            "n_participants": 23,
+            "n_rows": 69,
+            "r": 0.3548521533842246,
+            "ci95": [
+              0.075359788385733,
+              0.582649868818185
+            ],
+            "p_value": 0.0143864278807063
+          },
+          {
+            "study": "navigable_wim_2026",
+            "domain": "other",
+            "n_participants": 36,
+            "n_rows": 108,
+            "r": 2.840326373277378e-17,
+            "ci95": [
+              -0.2300713539121412,
+              0.2300713539121412
+            ],
+            "p_value": 0.9999999999999998
+          },
+          {
+            "study": "steering_gain_2022",
+            "domain": "automotive",
+            "n_participants": 24,
+            "n_rows": 96,
+            "r": 0.2366269908790805,
+            "ci95": [
+              0.0069330814956208,
+              0.4426025770994564
+            ],
+            "p_value": 0.0438450139329347
+          },
+          {
+            "study": "vr_shopping_demands_2026",
+            "domain": "other",
+            "n_participants": 22,
+            "n_rows": 154,
+            "r": 0.5988654222588579,
+            "ci95": [
+              0.4772931024620327,
+              0.6979435787054161
+            ],
+            "p_value": 2.6587039344867275e-14
+          }
+        ],
+        "k_predicted_sign": 5,
+        "testable": true,
+        "pooled_r": 0.3183470620490585,
+        "hksj_ci95": [
+          0.0157491167071779,
+          0.5675240484937791
+        ],
+        "prediction_interval": [
+          -0.4562363123201391,
+          0.8184687878897715
+        ],
+        "heterogeneity_i2_pct": 83.81811137572357,
+        "tau": 0.2314691211455853,
+        "n_total": 285,
+        "p_hksj_two_sided": 0.0434302737014258,
+        "p_one_sided": 0.0217151368507129,
+        "found_in": "development",
+        "pair_type": "same_instrument",
+        "q_bh": 0.03158565360103695,
+        "replicated": true,
+        "same_sign": true
+      },
+      "within:physical_demand~temporal_demand": {
+        "association": "within_person",
+        "pair": [
+          "physical_demand",
+          "temporal_demand"
+        ],
+        "predicted_sign": "positive",
+        "k_studies": 6,
+        "studies": [
+          {
+            "study": "exergame_children_2025",
+            "domain": "other",
+            "n_participants": 21,
+            "n_rows": 126,
+            "r": 0.3949488254430743,
+            "ci95": [
+              0.2208271025656883,
+              0.5446720756641641
+            ],
+            "p_value": 2.7935094659857148e-05
+          },
+          {
+            "study": "human_swarm_pfm_2025",
+            "domain": "other",
+            "n_participants": 180,
+            "n_rows": 360,
+            "r": 0.0907860298744052,
+            "ci95": [
+              -0.0558134536210042,
+              0.2335536886838271
+            ],
+            "p_value": 0.2241942180065441
+          },
+          {
+            "study": "layer_interaction_elastic_2022",
+            "domain": "other",
+            "n_participants": 23,
+            "n_rows": 69,
+            "r": 0.2470983350074641,
+            "ci95": [
+              -0.0431342506734943,
+              0.4988704452384
+            ],
+            "p_value": 0.0940357593162179
+          },
+          {
+            "study": "navigable_wim_2026",
+            "domain": "other",
+            "n_participants": 36,
+            "n_rows": 108,
+            "r": 0.0804417231829752,
+            "ci95": [
+              -0.1524510943814118,
+              0.3048707319720268
+            ],
+            "p_value": 0.4987045761330881
+          },
+          {
+            "study": "steering_gain_2022",
+            "domain": "automotive",
+            "n_participants": 24,
+            "n_rows": 96,
+            "r": 0.1553150180991882,
+            "ci95": [
+              -0.077526636715514,
+              0.3720902707416169
+            ],
+            "p_value": 0.1894910073544979
+          },
+          {
+            "study": "vr_shopping_demands_2026",
+            "domain": "other",
+            "n_participants": 22,
+            "n_rows": 154,
+            "r": 0.2839068722244922,
+            "ci95": [
+              0.1194499622456399,
+              0.4332004032952108
+            ],
+            "p_value": 0.0009273613442289
+          }
+        ],
+        "k_predicted_sign": 6,
+        "testable": true,
+        "pooled_r": 0.2113267556698083,
+        "hksj_ci95": [
+          0.072453084458573,
+          0.3421620058540288
+        ],
+        "prediction_interval": [
+          -0.0984938998285311,
+          0.4838000157211414
+        ],
+        "heterogeneity_i2_pct": 46.13935157847592,
+        "tau": 0.0966298358301773,
+        "n_total": 306,
+        "p_hksj_two_sided": 0.0115871127480425,
+        "p_one_sided": 0.00579355637402125,
+        "found_in": "development",
+        "pair_type": "same_instrument",
+        "q_bh": 0.0115871127480425,
+        "replicated": true,
+        "same_sign": true
+      }
+    },
+    "decision": "27 of 32 testable targets replicated (33 targets)"
+  },
+  "new_findings_exploratory": [],
+  "H3": {
+    "n_dv_columns": 273,
+    "n_non_dv_columns": 198,
+    "llm_only": {
+      "correct": 65,
+      "precision_of_accepted_dv_mappings": {
+        "k": 65,
+        "n": 242,
+        "rate": 0.26859504132231404,
+        "ci95": [
+          0.2166881151060674,
+          0.32773372270246987
+        ]
+      }
+    },
+    "header_matching_then_llm": {
+      "correct": 84,
+      "precision_of_accepted_dv_mappings": {
+        "k": 84,
+        "n": 242,
+        "rate": 0.34710743801652894,
+        "ci95": [
+          0.2899408370810218,
+          0.4090521628996189
+        ]
+      },
+      "header_matched_dv_columns": 28,
+      "header_matched_correct": 28,
+      "header_matched_non_dv_columns": 0
+    },
+    "mcnemar": {
+      "new_only": 19,
+      "baseline_only": 0,
+      "p_two_sided": 3.814697265625e-06
+    },
+    "decision": "supported"
+  }
+}

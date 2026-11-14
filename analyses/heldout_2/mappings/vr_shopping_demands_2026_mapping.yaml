@@ -1,0 +1,20 @@
+# Second held-out test mapping for vr_shopping_demands_2026 (docs/preregistration_heldout_relations_2.md).
+# Paper: "Behavioral and Physiological Responses to Sensory and Cognitive Demands in an Immersive Virtual
+#   Reality Shopping Task in Unimpaired Young Adults", JMIR Serious Games 2026, DOI 10.2196/84893.
+# Data: Zenodo 10.5281/zenodo.21885653, CC-BY-4.0; README.txt.
+# File: Nasa-TLX/nasa-tlx-results.xlsx: one sheet per subscale (mental, physical, temporal,
+#   performance, effort, frustration), one row per participant (22), one column per condition c1-c7
+#   (baseline and visual, auditory, cognitive demand at two levels; within subjects). The manifest
+#   stacks the six sheets, turns c1-c7 into rows (wide_to_long) and pivots the subscales into columns,
+#   giving one row per participant x condition. NASA-TLX on 0-100 in steps of 5 (standard instrument,
+#   performance from perfect to failure, the schema's direction).
+# Not read: the weighted and unweighted total sheets and the per-participant sheets (same data).
+
+participant: meta_participant_id
+condition: meta_condition_demand
+mental: mental_demand
+physical: physical_demand
+temporal: temporal_demand
+performance: performance
+effort: effort
+frustration: frustration

@@ -1,0 +1,34 @@
+# Second held-out test mapping for vr_classroom_noise_2025 (docs/preregistration_heldout_relations_2.md).
+# Paper: "The influence of complex classroom noise on auditory selective attention", Scientific Reports
+#   2025, DOI 10.1038/s41598-025-18232-2 (open at PMC12464317).
+# Data: Zenodo 10.5281/zenodo.17120147 (questionnaire addendum), CC-BY-4.0.
+# File: raw/avASA_noise_NASA_TLX_raw.xlsx, one row per participant (24), wide: four noise conditions
+#   (SI silence, CL classroom, SP speech, WN white noise) x six items Q1-Q6, all on 1 (very low) -
+#   7 (very high). The manifest's wide_to_long option makes one row per participant x condition.
+# Item order: the paper lists the six dimensions as Mental Demand, Perceived Effort, Task Difficulty,
+#   Performance, Frustration, Well-Being (Table 2) and reports a two-factor PCA with "Effort" = Q1, Q2,
+#   Q3, Q5 and "Well-Being" = Q4, Q6. Only the Table 2 order is consistent with that structure
+#   (performance and well-being load together, frustration with effort), so Q1 = mental demand,
+#   Q2 = effort, Q4 = performance, Q5 = frustration. This order is inferred, not stated; the item
+#   wording is in the paper's supplement, which is not downloaded.
+# Performance is rated 1 (very low) - 7 (very high), so high = good; it is reversed to the schema's
+#   direction. Task difficulty (Q3) and well-being (Q6) have no schema DV.
+# Not read: avASA_noise_SUS_raw.xlsx (the Slater-Usoh-Steed presence questionnaire, no schema DV) and
+#   the SPSS files (the same TLX answers plus derived factor scores).
+
+Proband_ID: meta_participant_id
+condition: meta_condition_noise
+q1: mental_demand
+q2: effort
+q4: performance
+q5: frustration
+
+# Left unlabelled: q3 (task difficulty), q6 (well-being).
+
+reverse_items:
+- columns:
+  - q4
+  scale_range:
+  - 1
+  - 7
+  reason: performance rated 1 very low - 7 very high; the schema's performance is high = failure
