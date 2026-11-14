@@ -598,7 +598,9 @@ def _load_matlab(path: Path, variable: str | None = None, columns: Any = None,
 
 _SPREADSHEET_SUFFIXES = {".xlsx", ".xls", ".xlsm", ".ods"}
 _TEXT_TABLE_SUFFIXES = {".csv", ".tsv", ".txt", ".dat"}
-TABLE_OPTION_KEYS = ("sheet", "header", "skip_rows", "pivot", "drop_columns", "rename", *MATLAB_OPTION_KEYS)
+TABLE_OPTION_KEYS = ("sheet", "header", "skip_rows", "row_id", "wide_to_long", "pivot", "drop_columns", "rename",
+                     *MATLAB_OPTION_KEYS)
+SHEET_COLUMN = "sheet"
 
 
 def table_options_for(table_options: dict[str, Any] | None, dataset_id: str) -> dict[str, Any]:
@@ -618,6 +620,17 @@ def table_options_for(table_options: dict[str, Any] | None, dataset_id: str) -> 
             drop_columns: [MentalLoad]   # a transformed copy of an answer kept elsewhere
           "**/toast_responses.csv":
             rename: {item_1: toast_1, item_2: toast_2}   # sus_responses.csv also has item_1..
+          ratings_wide.csv:             # one row per participant, one column per condition
+            wide_to_long:
+              id: [participant]
+              level: condition
+              levels: [A, B]
+              columns: {tlx: [tlx_A, tlx_B], sus: [sus_A, sus_B]}
+          per_subscale_sheets.xlsx:     # one sheet per subscale, one column per condition
+            sheet: [mental, effort]     # stacked, with a `sheet` column naming each row's sheet
+            wide_to_long: {id: [participant, sheet], level: condition, levels: [c1, c2],
+                           columns: {score: [c1, c2]}}
+            pivot: {index: [participant, condition], columns: sheet, values: score}
 
     ``rename`` (``{old: new}``, applied after ``pivot`` and ``drop_columns``)
     lets two files of one source share raw column names with different
@@ -628,6 +641,13 @@ def table_options_for(table_options: dict[str, Any] | None, dataset_id: str) -> 
     header) that are not records, such as the question-text and import-id
     rows of a Qualtrics export. They are skipped while the file is parsed, so
     the columns get the types of the remaining cells.
+
+    ``wide_to_long`` turns repeated measures stored side by side (one column
+    per condition) into one row per record and level, so that within-person
+    analyses see each condition as its own row; it runs before ``pivot``.
+    ``sheet`` may list several sheets, which are stacked. ``row_id: <name>``
+    adds a column numbering the rows from 1 (after stacking), for tables with
+    one row per participant and no identifier column.
     """
     if not table_options:
         return {}
@@ -637,6 +657,57 @@ def table_options_for(table_options: dict[str, Any] | None, dataset_id: str) -> 
         if fnmatch.fnmatch(dataset_id, pattern):
             return dict(options)
     return {}
+
+
+def _wide_to_long(df: pd.DataFrame, spec: Any, file_name: str) -> pd.DataFrame:
+    """Stack repeated measures stored side by side into one row per record and level.
+
+    *spec* (the ``wide_to_long`` table option)::
+
+        id: [participant]        # columns repeated on every output row
+        level: condition         # name of the new column holding the level
+        levels: [A, B, C]        # one label per stacked set of columns
+        columns:                 # new column -> one input column per level (null: not measured)
+          mental_demand: [md_A, md_B, md_C]
+
+    Columns are matched by their stripped names, as the batch matches mapping
+    keys. Columns that are neither ``id`` nor listed are dropped. Rows whose
+    ``id`` cells are all empty (blank or summary rows) are dropped. Every named
+    column must exist, so a changed file fails loudly.
+    """
+    if not isinstance(spec, dict) or set(spec) - {"id", "level", "levels", "columns"}:
+        raise ValueError(f"wide_to_long for '{file_name}' takes id, level, levels and columns, not {spec!r}")
+    ids = [str(c) for c in (spec.get("id") or [])]
+    levels = list(spec.get("levels") or [])
+    level = str(spec.get("level") or "level")
+    columns = spec.get("columns") or {}
+    if not ids or not levels or not isinstance(columns, dict) or not columns:
+        raise ValueError(f"wide_to_long for '{file_name}' needs id, levels and columns")
+    names = {str(col).strip(): col for col in df.columns}
+    wanted = list(ids)
+    for out, sources in columns.items():
+        if not isinstance(sources, list) or len(sources) != len(levels):
+            raise ValueError(f"wide_to_long column '{out}' of '{file_name}' must list one input column per "
+                             f"level ({len(levels)}), not {sources!r}")
+        wanted += [str(c) for c in sources if c is not None]
+    missing = [c for c in wanted if c.strip() not in names]
+    if missing:
+        raise ValueError(f"wide_to_long columns {missing} not found in '{file_name}'")
+    clash = sorted({level, *map(str, columns)} & set(ids))
+    if clash:
+        raise ValueError(f"wide_to_long in '{file_name}' would overwrite id columns {clash}")
+    id_frame = df[[names[c.strip()] for c in ids]]
+    id_frame.columns = ids
+    keep = id_frame.notna().any(axis=1).to_numpy()
+    parts = []
+    for i, label in enumerate(levels):
+        part = id_frame[keep].copy()
+        part[level] = label
+        for out, sources in columns.items():
+            source = sources[i]
+            part[str(out)] = df.loc[keep, names[str(source).strip()]].to_numpy() if source is not None else np.nan
+        parts.append(part)
+    return pd.concat(parts, ignore_index=True)
 
 
 def _pivot_long_table(df: pd.DataFrame, index: list[str] | str, columns: str, values: str) -> pd.DataFrame:
@@ -706,7 +777,8 @@ def load_input_file(
     for a MATLAB .mat file the ``variable`` to read (a dotted path into
     structs), the ``columns`` of a matrix and the ``dims`` that turn an array
     into a long table (see ``_load_matlab``);
-    for any table a long-to-wide ``pivot``, ``drop_columns`` (columns that
+    for any table ``wide_to_long`` (repeated measures side by side become one
+    row per level; see ``_wide_to_long``), a long-to-wide ``pivot``, ``drop_columns`` (columns that
     must not be read as data, e.g. an optimizer's inverted copy of a
     questionnaire answer) and ``rename`` (``{old: new}`` column names, e.g.
     to tell apart two files' ``item_1``). Columns named by ``drop_columns``
@@ -732,7 +804,16 @@ def load_input_file(
     if "sheet" in options or "header" in options:
         if suffix not in _SPREADSHEET_SUFFIXES:
             raise ValueError(f"'sheet' and 'header' apply to spreadsheets, not '{path.name}'")
-        df = pd.read_excel(path, sheet_name=options.get("sheet", 0), header=header, **read_kwargs)
+        sheet = options.get("sheet", 0)
+        if isinstance(sheet, list):
+            # Several sheets of one layout (e.g. one per subscale), stacked with their name.
+            frames = pd.read_excel(path, sheet_name=sheet, header=header, **read_kwargs)
+            if SHEET_COLUMN in {str(c).strip() for frame in frames.values() for c in frame.columns}:
+                raise ValueError(f"'{path.name}' already has a '{SHEET_COLUMN}' column")
+            df = pd.concat([frame.assign(**{SHEET_COLUMN: name}) for name, frame in frames.items()],
+                           ignore_index=True)
+        else:
+            df = pd.read_excel(path, sheet_name=sheet, header=header, **read_kwargs)
     elif read_kwargs and suffix in _SPREADSHEET_SUFFIXES:
         df = _load_excel(path, **read_kwargs)
     elif read_kwargs and suffix in _TEXT_TABLE_SUFFIXES:
@@ -748,6 +829,14 @@ def load_input_file(
     else:
         df = _load_with_registry(path)
     skipped.check()
+    if options.get("row_id"):
+        name = str(options["row_id"])
+        if name in {str(c).strip() for c in df.columns}:
+            raise ValueError(f"row_id '{name}' is already a column of '{path.name}'")
+        df = df.copy()
+        df.insert(0, name, np.arange(1, len(df) + 1))
+    if options.get("wide_to_long"):
+        df = _wide_to_long(df, options["wide_to_long"], path.name)
     if options.get("pivot"):
         df = _pivot_long_table(df, **options["pivot"])
     drop = [str(c) for c in options.get("drop_columns") or []]
@@ -915,6 +1004,7 @@ __all__ = [
     "_load_json",
     "_load_jsonlines",
     "_load_matlab",
+    "SHEET_COLUMN",
     "MATLAB_SUFFIXES",
     "MATLAB_OPTION_KEYS",
     "load_input_file",
