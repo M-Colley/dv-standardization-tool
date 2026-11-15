@@ -1,0 +1,87 @@
+# Source-specific column mapping for longitudinal_usa_germany_ehmi
+# Paper: Colley, Kornmueller, Dey, Ju, Rukzio. "Longitudinal Effects of External
+#   Communication of Automated Vehicles in the USA and Germany: A Comparative Study in
+#   Virtual Reality and Via a Browser." (repository README.md).
+# Data and codebook: github.com/M-Colley/longitudinal_usa_germany_eHMI_comparison (main).
+#   No codebook file; the analysis scripts are read as one: vr.R and 00_vr-study.R score the
+#   VR study (data-main.xlsx), web.R renames the web study's LimeSurvey columns
+#   (QuestionnaireResult_Germany.xlsx, QuestionnaireResult_USA.xlsx) by position (l.88-98)
+#   to the VR study's names and scores them the same way.
+#
+# Written on 2026-11-15 from the LLM-mapping audit (analyses/llm_mapping_audit/). Until then
+# the source had no mapping file: TLX1 was mapped by the shared schema and the columns below
+# by the LLM fallback, which put the TiA understanding items under SART understanding and
+# tia_item_01..06, UEQ-S items 5-6 under pragmatic quality and 1-7 ratings under
+# pedestrian_crossing_time and retention_time.
+#
+# Notes:
+#   - TiA: Koerber's Trust in Automation, 1-5. The scripts score trust from TiA_Trust1-2 and
+#     understanding/predictability from TiA_Understanding1-4 with items 2 and 4 reversed
+#     (vr.R l.42-46). The web files hold the same six items in Koerber's order (items 2, 7, 9,
+#     11, 14, 16; web.R l.88-98). Mapped to the registry items (schemas/instruments.yaml),
+#     which score tia_trust_in_automation and tia_understanding_predictability and reverse
+#     items 7 and 16; in the data items 2 and 4 of the understanding block correlate
+#     negatively with items 1 and 3, as reverse-keyed items should.
+#   - Perceived safety: Faas et al. (2020), four semantic differentials, -3..+3, averaged to
+#     ps_score (vr.R l.34) -> registry items perceived_safety_item_01..04.
+#   - UEQ-S: ueqs1-8, 1-7; pragmatic quality = items 1-4, hedonic = 5-8 (vr.R l.38-39) ->
+#     registry items ueq_s_1..8, scored on -3..+3. In the web files ueqs_german_sq001-007
+#     are items 1-7; web.R takes com_eval_sq001 as item 8, but nothing documents that and the
+#     column correlates more with the pragmatic items (.73-.78) than an item of the hedonic
+#     scale would, so it is not mapped and the web files get no hedonic score.
+
+# --- Dependent measures: VR study (data-main.xlsx) -----------------------------------------
+TiA_Trust1: tia_k09                     # TiA trust, "I trust the system", 1-5
+TiA_Trust2: tia_k14                     # TiA trust, "I can rely on the system", 1-5
+TiA_Understanding1: tia_k02             # TiA understanding/predictability, 1-5
+TiA_Understanding2: tia_k07             # reverse-keyed (reversed by the registry)
+TiA_Understanding3: tia_k11
+TiA_Understanding4: tia_k16             # reverse-keyed (reversed by the registry)
+perceivedSafety1: perceived_safety_item_01   # Faas et al. 2020, -3..+3
+perceivedSafety2: perceived_safety_item_02
+perceivedSafety3: perceived_safety_item_03
+perceivedSafety4: perceived_safety_item_04
+ueqs1: ueq_s_1                          # UEQ-S obstructive-supportive, 1-7
+ueqs2: ueq_s_2
+ueqs3: ueq_s_3
+ueqs4: ueq_s_4
+ueqs5: ueq_s_5                          # hedonic quality items 5-8
+ueqs6: ueq_s_6
+ueqs7: ueq_s_7
+ueqs8: ueq_s_8
+
+# --- Dependent measures: web study (QuestionnaireResult_Germany/USA.xlsx) --------------------
+trustiaunderp_sq001: tia_k02            # web.R: TiA_Understanding1
+trustiaunderp_sq002: tia_k07            # TiA_Understanding2, reverse-keyed
+trustiaunderp_sq003: tia_k09            # TiA_Trust1
+trustiaunderp_sq004: tia_k11            # TiA_Understanding3
+trustiaunderp_sq005: tia_k14            # TiA_Trust2
+trustiaunderp_sq006: tia_k16            # TiA_Understanding4, reverse-keyed
+perceived_safety_sq001: perceived_safety_item_01
+perceived_safety_sq002: perceived_safety_item_02
+perceived_safety_sq003: perceived_safety_item_03
+perceived_safety_sq004: perceived_safety_item_04
+ueqs_german_sq001: ueq_s_1
+ueqs_german_sq002: ueq_s_2
+ueqs_german_sq003: ueq_s_3
+ueqs_german_sq004: ueq_s_4
+ueqs_german_sq005: ueq_s_5
+ueqs_german_sq006: ueq_s_6
+ueqs_german_sq007: ueq_s_7
+
+# --- Measures without a schema DV (locked so the LLM cannot map them) -----------------------
+# What the crossing decision rested on (speed, distance, communication, other road users),
+# 1-7 ratings analysed one by one and averaged into crossing_decision (vr.R l.49,
+# l.287-366); not a crossing duration. The LLM had mapped two of them to
+# pedestrian_crossing_time.
+crossingDecisionSpeed: meta_rating_crossing_decision_speed
+crossingDecisionDist: meta_rating_crossing_decision_distance
+crossingDecisionComm: meta_rating_crossing_decision_communication
+crossingDecisionOwt: meta_rating_crossing_decision_other_traffic
+crossing_decision_speed: meta_rating_crossing_decision_speed
+crossing_decision_dist: meta_rating_crossing_decision_distance
+crossing_decision_comm: meta_rating_crossing_decision_communication
+crossing_decision_owt: meta_rating_crossing_decision_other_traffic
+# "Behaved as usual" check (1-7) that web.R drops with the attention checks (l.139); the LLM
+# had mapped it to retention_time.
+typical_behavior: meta_check_typical_behavior

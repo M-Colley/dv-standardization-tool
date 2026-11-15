@@ -91,3 +91,10 @@ UserID: meta_participant_id
 #   utaut_behavioral_intention, but it is a single item, not the UTAUT scale.
 # Unresolved: coulduse[SQ001]..coulduse[SQ004] (A1/A2, answered only by the 12 BVI
 #   participants, not documented).
+
+# Locked after the LLM-mapping audit of 2026-11-15 (analyses/llm_mapping_audit/): the LLM had mapped them to trust_rating and Jian
+# trust. The three Trust group items are undocumented (see above).
+informationCommunica: meta_rating_information_complete   # "All relevant information has been communicated.", 1-5
+"Trust[SQ003]": meta_trust_group_item_undocumented
+"Trust[SQ004]": meta_trust_group_item_undocumented
+"Trust[SQ005]": meta_trust_group_item_undocumented

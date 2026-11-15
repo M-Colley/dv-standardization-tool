@@ -32,7 +32,17 @@ VFA_NE1P_Eindeutigkeit: understanding_rating  # pictogram, not detected
 VFA_NE1K_Eindeutigkeit: understanding_rating  # triangles + pictogram, not detected
 VFA_NE1L_Eindeutigkeit: understanding_rating  # headlight flasher, not detected
 
-# Left unlabelled (no schema DV): VFA_*_Erkennbarkeit (visibility of the signal),
+# "The signals can be seen clearly" (1-6), visibility of the signal: no schema DV. Locked after
+# the LLM-mapping audit of 2026-11-15 (analyses/llm_mapping_audit/): the LLM had mapped them to social presence and Van der Laan item 1.
+VFA_E1D_Erkennbarkeit: meta_rating_signal_visibility
+VFA_E1P_Erkennbarkeit: meta_rating_signal_visibility
+VFA_E1K_Erkennbarkeit: meta_rating_signal_visibility
+VFA_E1L_Erkennbarkeit: meta_rating_signal_visibility
+VFA_NE1D_Erkennbarkeit: meta_rating_signal_visibility
+VFA_NE1P_Erkennbarkeit: meta_rating_signal_visibility
+VFA_NE1K_Erkennbarkeit: meta_rating_signal_visibility
+VFA_NE1L_Erkennbarkeit: meta_rating_signal_visibility
+# Left unlabelled (no schema DV):
 # VFA_*_GefuehlErkannt (felt detected by the vehicle), and the clarity sums *_Dim1, which add
 # visibility and felt detection to the unambiguity item mapped above.
 

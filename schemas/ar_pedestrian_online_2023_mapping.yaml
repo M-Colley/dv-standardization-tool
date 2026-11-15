@@ -63,7 +63,7 @@ Q63: meta_screening_colour_vision
 Q65: meta_screening_colour_vision
 
 # --- Dependent measures per interface ---------------------------------------------------
-# Left unlabelled (no schema DV) in every block: the intuitiveness items ("The interface ... is
+# Locked (no schema DV; listed at the end of this file) in every block: the intuitiveness items ("The interface ... is
 # intuitive for signalling 'Please (do NOT) cross the road'", 1-7), the persuasion items ("...
 # convinced me (NOT) to cross the road", 1-7), timing ("triggered too early or too late") and
 # size ("too small or too large", 1-5 bipolar); and the closing questions Q43 (usefulness of AR
@@ -186,3 +186,77 @@ Q170_7: AOA7
 Q170_8: AOA8
 Q170_9: AOA9
 Q171: meta_free_text_comment
+
+# --- Interface ratings and closing questions without a schema DV (locked) -------------------
+# Locked after the LLM-mapping audit of 2026-11-15 (analyses/llm_mapping_audit/): the LLM had mapped
+# them to SUS items. Question texts from the export's second row.
+# interface block 1
+Q33: meta_rating_intuitive_do_not_cross      # "... intuitive for signalling 'Please do NOT cross the road'", 1-7
+Q34: meta_rating_persuaded_not_to_cross      # "... convinced me NOT to cross the road", 1-7
+Q36: meta_rating_intuitive_cross             # "... intuitive for signalling 'Please cross the road'", 1-7
+Q37: meta_rating_persuaded_to_cross          # "... convinced me to cross the road", 1-7
+Q39_1: meta_rating_trigger_timing              # triggered too early .. too late, 1-5
+Q39_2: meta_rating_interface_size              # too small .. too large, 1-5
+# interface block 2
+Q86: meta_rating_intuitive_do_not_cross      # "... intuitive for signalling 'Please do NOT cross the road'", 1-7
+Q87: meta_rating_persuaded_not_to_cross      # "... convinced me NOT to cross the road", 1-7
+Q89: meta_rating_intuitive_cross             # "... intuitive for signalling 'Please cross the road'", 1-7
+Q90: meta_rating_persuaded_to_cross          # "... convinced me to cross the road", 1-7
+Q92_1: meta_rating_trigger_timing              # triggered too early .. too late, 1-5
+Q92_2: meta_rating_interface_size              # too small .. too large, 1-5
+# interface block 3
+Q97: meta_rating_intuitive_do_not_cross      # "... intuitive for signalling 'Please do NOT cross the road'", 1-7
+Q98: meta_rating_persuaded_not_to_cross      # "... convinced me NOT to cross the road", 1-7
+Q100: meta_rating_intuitive_cross             # "... intuitive for signalling 'Please cross the road'", 1-7
+Q101: meta_rating_persuaded_to_cross          # "... convinced me to cross the road", 1-7
+Q103_1: meta_rating_trigger_timing              # triggered too early .. too late, 1-5
+Q103_2: meta_rating_interface_size              # too small .. too large, 1-5
+# interface block 4
+Q108: meta_rating_intuitive_do_not_cross      # "... intuitive for signalling 'Please do NOT cross the road'", 1-7
+Q109: meta_rating_persuaded_not_to_cross      # "... convinced me NOT to cross the road", 1-7
+Q111: meta_rating_intuitive_cross             # "... intuitive for signalling 'Please cross the road'", 1-7
+Q112: meta_rating_persuaded_to_cross          # "... convinced me to cross the road", 1-7
+Q114_1: meta_rating_trigger_timing              # triggered too early .. too late, 1-5
+Q114_2: meta_rating_interface_size              # too small .. too large, 1-5
+# interface block 5
+Q119: meta_rating_intuitive_do_not_cross      # "... intuitive for signalling 'Please do NOT cross the road'", 1-7
+Q120: meta_rating_persuaded_not_to_cross      # "... convinced me NOT to cross the road", 1-7
+Q122: meta_rating_intuitive_cross             # "... intuitive for signalling 'Please cross the road'", 1-7
+Q123: meta_rating_persuaded_to_cross          # "... convinced me to cross the road", 1-7
+Q125_1: meta_rating_trigger_timing              # triggered too early .. too late, 1-5
+Q125_2: meta_rating_interface_size              # too small .. too large, 1-5
+# interface block 6
+Q130: meta_rating_intuitive_do_not_cross      # "... intuitive for signalling 'Please do NOT cross the road'", 1-7
+Q131: meta_rating_persuaded_not_to_cross      # "... convinced me NOT to cross the road", 1-7
+Q133: meta_rating_intuitive_cross             # "... intuitive for signalling 'Please cross the road'", 1-7
+Q134: meta_rating_persuaded_to_cross          # "... convinced me to cross the road", 1-7
+Q136_1: meta_rating_trigger_timing              # triggered too early .. too late, 1-5
+Q136_2: meta_rating_interface_size              # too small .. too large, 1-5
+# interface block 7
+Q141: meta_rating_intuitive_do_not_cross      # "... intuitive for signalling 'Please do NOT cross the road'", 1-7
+Q142: meta_rating_persuaded_not_to_cross      # "... convinced me NOT to cross the road", 1-7
+Q144: meta_rating_intuitive_cross             # "... intuitive for signalling 'Please cross the road'", 1-7
+Q145: meta_rating_persuaded_to_cross          # "... convinced me to cross the road", 1-7
+Q147_1: meta_rating_trigger_timing              # triggered too early .. too late, 1-5
+Q147_2: meta_rating_interface_size              # too small .. too large, 1-5
+# interface block 8
+Q152: meta_rating_intuitive_do_not_cross      # "... intuitive for signalling 'Please do NOT cross the road'", 1-7
+Q153: meta_rating_persuaded_not_to_cross      # "... convinced me NOT to cross the road", 1-7
+Q155: meta_rating_intuitive_cross             # "... intuitive for signalling 'Please cross the road'", 1-7
+Q156: meta_rating_persuaded_to_cross          # "... convinced me to cross the road", 1-7
+Q158_1: meta_rating_trigger_timing              # triggered too early .. too late, 1-5
+Q158_2: meta_rating_interface_size              # too small .. too large, 1-5
+# interface block 9
+Q163: meta_rating_intuitive_do_not_cross      # "... intuitive for signalling 'Please do NOT cross the road'", 1-7
+Q164: meta_rating_persuaded_not_to_cross      # "... convinced me NOT to cross the road", 1-7
+Q166: meta_rating_intuitive_cross             # "... intuitive for signalling 'Please cross the road'", 1-7
+Q167: meta_rating_persuaded_to_cross          # "... convinced me to cross the road", 1-7
+Q169_1: meta_rating_trigger_timing              # triggered too early .. too late, 1-5
+Q169_2: meta_rating_interface_size              # too small .. too large, 1-5
+# closing questions
+Q43: meta_rating_ar_useful_for_crossing        # "... communication from AR interfaces would be useful for crossing"
+Q45: meta_preference_street_vs_vehicle_mapped
+Q47: meta_preference_text_vs_graphics
+Q50: meta_preference_head_locked_vs_fixed
+Q51: meta_preference_customisation
+Q52: meta_rating_intention_to_use_ar_interfaces  # single ad-hoc item, not the UTAUT scale

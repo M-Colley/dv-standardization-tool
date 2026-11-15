@@ -37,8 +37,10 @@ Effort: effort
 Frustration: frustration
 Index Score: TLX_SCORE        # weighted NASA-TLX, 0-100
 
-# Left unlabelled (no schema DV): Like ("How much did you like this combination?") and
-# Frequent ("How frequently would you be using this combination of streams?"), 0-100.
+# No schema DV; locked after the LLM-mapping audit of 2026-11-15 (analyses/llm_mapping_audit/) (the LLM had
+# mapped Like to Godspeed likeability and Frequent to gaze on road).
+Like: meta_rating_liking               # "How much did you like this combination?", 0-100
+Frequent: meta_rating_intended_use     # "How frequently would you be using this combination of streams?", 0-100
 
 # --- Design ----------------------------------------------------------------------
 combination_id: meta_condition_combination

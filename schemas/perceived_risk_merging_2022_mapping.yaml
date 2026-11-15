@@ -26,8 +26,9 @@ TRU: trust_rating              # trust after the event, 0-10
 min_TTC(s): ttc                # minimum time to collision during the event, s
 min_THW(s): headway            # minimum time headway during the event, s
 
-# Left unlabelled (no schema DV): min_gap (m), min_speed(m/s) and max_braking(0~1), the
-# driver's maximum brake-pedal position.
+# Left unlabelled (no schema DV): min_gap (m) and min_speed(m/s).
+# Locked after the LLM-mapping audit of 2026-11-15 (analyses/llm_mapping_audit/) (the LLM had mapped it to brake reaction time):
+"max_braking(0~1)": meta_max_brake_pedal_position   # README: maximum brake applied, 0-1
 
 # --- Participants and design ----------------------------------------------------
 Participant: meta_participant_id

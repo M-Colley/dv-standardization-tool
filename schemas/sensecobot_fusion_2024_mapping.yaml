@@ -48,7 +48,7 @@ NASA_1.1: physical_demand
 NASA_2: temporal_demand
 NASA_4: effort
 NASA_5: frustration
-# Left unlabelled: NASA_3 (performance, direction undocumented; see above).
+# NASA_3 (performance?, direction undocumented; see above) is locked below.
 
 # --- Dependent measures: physiology per task (SenseCobotFusion.csv) -------------------
 HR Mean: hr_bpm             # heart rate, beats per minute
@@ -62,6 +62,81 @@ Amplitude Mean: eda_gsr     # mean amplitude of skin-conductance responses, micr
 # Entropy), all EEG band powers, ratios, asymmetries and coherences, the other GSR features
 # (rise and recovery time, amplitude statistics other than the mean, band powers), the
 # facial-expression scores (Anger ... Attention, from video), and Label (mean of A and B).
+
+# Locked after the LLM-mapping audit of 2026-11-15 (analyses/llm_mapping_audit/): the columns of the above that
+# the LLM had mapped (EEG features to NASA-TLX performance, the SSQ oculomotor score, STS-AD
+# items and others; facial-expression scores to engagement, stress, PANAS and conflict; GSR
+# amplitude statistics to trust and task time), and NASA_3.
+"C4_F4_coherence Min": meta_eeg_feature
+"C4_alpha Max": meta_eeg_feature
+"C4_alpha Min": meta_eeg_feature
+"C4_beta Max": meta_eeg_feature
+"C4_beta Min": meta_eeg_feature
+"C4_beta/C4_alpha Max": meta_eeg_feature
+"C4_beta/C4_alpha Mean": meta_eeg_feature
+"C4_beta/C4_alpha Median": meta_eeg_feature
+"C4_beta/C4_alpha Min": meta_eeg_feature
+"C4_beta/C4_alpha Std": meta_eeg_feature
+"C4_theta Max": meta_eeg_feature
+"C4_theta Median": meta_eeg_feature
+"Cz_alpha Max": meta_eeg_feature
+"Cz_alpha Std": meta_eeg_feature
+"Cz_theta Median": meta_eeg_feature
+"F3_T7_coherence Mean": meta_eeg_feature
+"F4_alpha Max": meta_eeg_feature
+"F4_alpha Min": meta_eeg_feature
+"F4_beta Max": meta_eeg_feature
+"F4_beta Min": meta_eeg_feature
+"F4_beta/F4_alpha Max": meta_eeg_feature
+"F4_beta/F4_alpha Mean": meta_eeg_feature
+"F4_beta/F4_alpha Median": meta_eeg_feature
+"F4_beta/F4_alpha Min": meta_eeg_feature
+"F4_beta/F4_alpha Std": meta_eeg_feature
+"F4_theta Max": meta_eeg_feature
+"F4_theta Median": meta_eeg_feature
+"F4_theta Min": meta_eeg_feature
+"O1_beta Max": meta_eeg_feature
+"O1_beta Min": meta_eeg_feature
+"O1_beta Std": meta_eeg_feature
+"O2_beta Mean": meta_eeg_feature
+"O2_beta Min": meta_eeg_feature
+"O2_beta Std": meta_eeg_feature
+"O2_theta Max": meta_eeg_feature
+"P4_alpha Max": meta_eeg_feature
+"P4_alpha Min": meta_eeg_feature
+"P4_beta Max": meta_eeg_feature
+"P4_beta Min": meta_eeg_feature
+"P4_beta/P4_alpha Max": meta_eeg_feature
+"P4_beta/P4_alpha Mean": meta_eeg_feature
+"P4_beta/P4_alpha Median": meta_eeg_feature
+"P4_beta/P4_alpha Min": meta_eeg_feature
+"P4_beta/P4_alpha Std": meta_eeg_feature
+"P4_theta Max": meta_eeg_feature
+"P4_theta Median": meta_eeg_feature
+"P4_theta Min": meta_eeg_feature
+"P8_beta/P8_alpha Max": meta_eeg_feature
+"Pz_alpha Max": meta_eeg_feature
+"Pz_beta Min": meta_eeg_feature
+"T8_beta Max": meta_eeg_feature
+"T8_beta Mean": meta_eeg_feature
+"T8_beta/T8_alpha Max": meta_eeg_feature
+"Amplitude Median": meta_gsr_amplitude_statistic
+"Amplitude Min": meta_gsr_amplitude_statistic
+"Amplitude Std": meta_gsr_amplitude_statistic
+"Attention Max": meta_facial_expression_score
+"Attention Mean": meta_facial_expression_score
+"Attention Median": meta_facial_expression_score
+"Attention Min": meta_facial_expression_score
+"Attention Std": meta_facial_expression_score
+"Confusion Mean": meta_facial_expression_score
+"Confusion Std": meta_facial_expression_score
+"Engagement Max": meta_facial_expression_score
+"Engagement Median": meta_facial_expression_score
+"Engagement Std": meta_facial_expression_score
+"Joy Mean": meta_facial_expression_score
+"Sadness Min": meta_facial_expression_score
+"Sadness Std": meta_facial_expression_score
+NASA_3: meta_tlx_subscale_undocumented     # cumulative NASA-TLX column, order and keying not stated
 
 # --- Participants and design ----------------------------------------------------
 Participants: meta_participant_id

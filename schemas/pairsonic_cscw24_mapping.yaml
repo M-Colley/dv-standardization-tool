@@ -50,6 +50,13 @@ b_sus7: SUS8
 b_sus8: SUS9
 b_sus9: SUS10
 
+# --- Measures without a schema DV (locked) -----------------------------------
+# Locked after the LLM-mapping audit of 2026-11-15 (analyses/llm_mapping_audit/): the LLM had mapped them to retention
+# time, pedestrian crossing time and UEQ pragmatic quality.
+a_sec: meta_rating_perceived_security   # "I think that this system is secure", first system, 1-5
+b_sec: meta_rating_perceived_security   # second system
+pref: meta_preference_system            # 1 = first system, 2 = second system
+
 # --- Conditions ---------------------------------------------------------------
 id: meta_participant_id
 group_id: meta_group_id                         # study group (1-12) that paired together

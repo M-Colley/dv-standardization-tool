@@ -1,9 +1,91 @@
 # Source-specific column mapping for FACT-AV
 # GitHub: https://github.com/M-Colley/FACT-AV
+# Study: "Understanding the Effects of Different Reliabilities of Automated Vehicle
+#   Functionality on the Calibration of Trust" (Colley et al.; README.md, paper in review).
 #
-# In this dataset, `understanding_rating` is the sART Understanding
-# subscale (Taylor 1990), scored 0–20.  It must NOT be conflated with
-# the eHMI signal-comprehension item (understanding_rating, 1–5) used in
-# the eHMI studies.  Renaming here ensures the two constructs remain
-# distinct in downstream meta-analysis.
-understanding_rating: sart_understanding
+# File: data/all_combined_prepared.xlsx, one row per participant x video (130 x 20).
+# The README's "Data Schema" documents the design columns and `trust` only. The items carry
+# the lab's LimeSurvey codes and scales, as in the 3D display study (MUM '23, sec. 3.3; codes
+# confirmed by 3d-comp-vehicle.R) and Colley et al., IMWUT 2022 (DOI 10.1145/3534609,
+# sec. 4.3). The scores the file stores were checked against its items on every row:
+#   trust = (Trust1 + Trust2) / 2                                   TiA trust
+#   predictability = (6 - Trust3 + Trust4 + Trust5 + 6 - Trust6) / 4  TiA understanding
+#   perceivedSafety_score = mean of perceivedSafety1-4              Faas et al., -3..+3
+#   Demand = SART1 + SART2 + SART3, Supply = SART4 + ... + SART7,
+#   Understanding = SART8 + SART9 + SSART10, SA = Understanding - (Demand - Supply)
+#
+# Rewritten on 2026-11-15 after the LLM-mapping audit (analyses/llm_mapping_audit/). Until
+# then this file held one line, `understanding_rating: sart_understanding`, meant to keep
+# the SART understanding score (0-20 in the note, 3-21 in the data) out of the eHMI
+# comprehension rating understanding_rating (1-5). The file's column is `Understanding`, so
+# the line never matched and the shared schema's alias sent the score to
+# understanding_rating. The LLM fallback mapped most other columns, mostly wrongly (see the
+# audit).
+#
+# Notes:
+#   - TiA understanding/predictability: Trust3-6, 1-5. Trust4 and Trust6 are the inverse
+#     items: they correlate negatively with Trust3, Trust5 and the trust items (with Trust1:
+#     Trust3 +.79, Trust4 -.41, Trust5 +.69, Trust6 -.39), the pattern of Koerber's items 7
+#     and 16. The stored `predictability` reverses Trust3 instead of Trust4, so it is locked
+#     and the registry scores the subscale from the items, reversing items 7 and 16 (which of
+#     Trust3 and Trust5 is item 2 or 11 does not change the score).
+#   - TiA trust: Trust1-2 are locked; their score is the file's `trust`, which the shared
+#     schema maps to trust_rating (left as it is here; the lab's other studies put this
+#     subscale under tia_trust_in_automation).
+#   - SART items take their subscale ids, as in bvi_auditory_hav_autoui26; the stored sums
+#     are locked so a study's items and sums are not averaged into one column. SA (the SART
+#     total) keeps the shared schema's mapping to situational_awareness.
+#   - STS-AD (Holthausen et al. 2020): three of its six items, 1-7. Performance (item 2) and
+#     Judgement (item 5) are worded against trust and reversed below, as in
+#     psych_conflict_handling.
+
+# --- Dependent measures ----------------------------------------------------------------
+Trust3: tia_k02                     # TiA understanding/predictability, direct, 1-5
+Trust4: tia_k07                     # inverse (reversed by the registry)
+Trust5: tia_k11                     # direct
+Trust6: tia_k16                     # inverse (reversed by the registry)
+perceivedSafety1: perceived_safety_item_01   # Faas et al. 2020, -3..+3
+perceivedSafety2: perceived_safety_item_02
+perceivedSafety3: perceived_safety_item_03
+perceivedSafety4: perceived_safety_item_04
+SART1: sart_demand                  # SART item, 1-7
+SART2: sart_demand
+SART3: sart_demand
+SART4: sart_supply
+SART5: sart_supply
+SART6: sart_supply
+SART7: sart_supply
+SART8: sart_understanding
+SART9: sart_understanding
+SSART10: sart_understanding         # SART item 10 (the file's spelling)
+performbetter: sts_ad_item_02       # STS-AD Performance, 1-7 (reversed below)
+unsafeJudgement: sts_ad_item_05     # STS-AD Judgement, 1-7 (reversed below)
+reactapprop: sts_ad_item_06         # STS-AD Reaction, 1-7
+
+# --- Stored scores and sums of mapped items (locked) -------------------------------------
+Trust1: meta_tia_trust_item         # its score with Trust2 is `trust` (trust_rating)
+Trust2: meta_tia_trust_item
+predictability: meta_tia_understanding_score_stored   # reverses Trust3 instead of Trust4
+perceivedSafety_score: meta_perceived_safety_score_stored   # = mean of perceivedSafety1-4
+Demand: meta_sart_demand_sum        # SART1-3
+Supply: meta_sart_supply_sum        # SART4-7
+Understanding: meta_sart_understanding_sum   # SART8, SART9, SSART10
+
+# --- Items without a schema DV (locked so the LLM cannot map them) -----------------------
+# Wording from the lab's item set (see above). The LLM had mapped drivingstyle and complex to
+# STS-AD trust, expected to UTAUT effort expectancy, moreper to UEQ dependability and
+# pintention to UTAUT behavioural intention.
+drivingstyle: meta_rating_driving_style            # 1 = completely safe .. 7 = completely dangerous
+expected: meta_rating_drove_as_expected            # "The automated vehicle drove as I expected at all times"
+pintention: meta_rating_predicts_pedestrian_intentions
+ppaths: meta_rating_predicts_vehicle_paths
+moreper: meta_rating_wants_more_perception_info    # "would have liked more information regarding the AV's perception"
+morepre: meta_rating_wants_more_prediction_info
+moreego: meta_rating_wants_more_path_info
+complex: meta_rating_undocumented                  # 1-5; in IMWUT 2022 "I found the visualizations unnecessarily complex"
+
+# --- Reverse-keyed items -----------------------------------------------------------------
+reverse_items:
+  - columns: [performbetter, unsafeJudgement]
+    scale_range: [1, 7]
+    reason: STS-AD items 2 and 5 are worded against trust (Holthausen et al. 2020); reversed as in psych_conflict_handling
