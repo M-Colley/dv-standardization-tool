@@ -22,6 +22,7 @@ mapping file was changed.
 | `audit.py` | Joins the two (every column must match exactly one entry), writes `audit.csv` and `precision.csv`. |
 | `audit.csv` | One row per audited column: study, file(s), raw column, LLM DV, verdict, right DV, evidence, decision group. |
 | `precision.csv` | In-situ precision with Wilson 95% intervals (`statsmodels` `proportion_confint`). |
+| `round2/` | The same for the columns the round-1 fixes exposed (see below). |
 
 ```bash
 python analyses/llm_mapping_audit/inventory.py --run-dir data/processed/lock39
@@ -131,6 +132,28 @@ eHMI-for-All's total time. None of the columns it assigned to a SUS item, NASA-T
 performance, efficiency, UEQ novelty, STS-AD trust or generic trust was right. Where a
 block of numbered items mixes subscales (SART 1-10, TiA understanding and trust, UEQ-S pragmatic and hedonic) it put
 the whole block under one subscale.
+
+## Round 2: columns the fixes exposed
+
+The fixes of round 1 were run through the batch (`audit39`) and the inventory repeated
+before any analysis. 40 LLM-mapped standardized columns (38 raw columns) of two studies
+would now have been pooled, none of which the LLM had mapped in `lock39`: locking some of a
+table's columns changes the prompt the LLM sees for the others, and it answered for columns
+it had left unmapped or mapped elsewhere before. All 38 have no schema DV
+(`round2/verdicts.yaml`, `round2/audit.csv`): 34 EEG coherence and band-power features of
+SenseCobot read as IPQ spatial presence, DALI interference, Jian trust, STS-AD item 2 and
+NASA-TLX performance, and eHMI on the car body's "I have the feeling that the vehicle
+detected me" read as IPQ presence and Van der Laan item 1. Precision 0 of 38, Wilson
+[0.0, 9.2]%.
+
+So a fix that locks only the columns the LLM got wrong is not stable while the table still
+offers the LLM other columns. Round 2 therefore takes the LLM out of both studies: eHMI on
+the car body's 16 remaining unmapped columns are locked (its curated mapping then covers
+every column), and SenseCobot, whose curated mapping covers every schema DV it measured
+(NASA-TLX, heart rate, RMSSD, skin conductance) and whose ~630 other columns are
+physiological and facial-expression features without a schema DV, is excluded from the LLM
+step in the manifest (`use_llm_deduction: false`) instead of locking each feature, which
+would also have added them all to the benchmark's curated non-DV items.
 
 ## Not in the audit
 
