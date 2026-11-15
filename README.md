@@ -52,6 +52,12 @@ Despite ongoing advocacy for open methods (Koelle et al., 2024; Goodman et al., 
 - Cross-study synthesis examples in Python and R for standardized multi-dataset analysis (`docs/multi_study_analysis_guide.md`)
 - Cross-study relations between harmonized constructs, attributed to the harmonization step that made them estimable (`docs/cross_study_insights.md`)
 
+## Using OpenDV for CHI and other SIGCHI papers
+
+- **Vocabulary:** 206 DVs (schema 3.4) with unit, range, direction and instrument, covering the standard questionnaires and measures of SIGCHI venues: SUS, UMUX, NASA-TLX, UEQ, AttrakDiff, IPQ, SSQ, PXI, GEQ, IMI, UES, CSI, text entry, Fitts throughput and more ([schema reference](docs/schema_reference.md); `schemas/export/opendv_dvs.csv`).
+- **Mapping a study:** [docs/sigchi_mapping_guide.md](docs/sigchi_mapping_guide.md) (template: `schemas/templates/study_mapping_template.yaml`). `opendv check-mapping <mapping.yaml>` checks a mapping before the batch runs.
+- **Evidence:** one analysis of all 88 studies with open data that the repository maps (21 from SIGCHI conferences and journals), with curated mappings only ([docs/opendv_corpus.md](docs/opendv_corpus.md)). The 49 held-out studies were mapped without adding a DV to the schema.
+
 
 ---
 

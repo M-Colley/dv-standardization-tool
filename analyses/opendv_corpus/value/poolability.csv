@@ -1,0 +1,13 @@
+subset,strategy,studies,distinct_measures,study_pairs,pairs_sharing_a_measure,share_of_pairs_sharing,mean_jaccard,measures_in_2plus_studies,measures_in_3plus_studies,measures_in_5plus_studies,measures_in_10plus_studies
+all,raw_label,86,1187,3655,52,0.014,0.0032,86,27,4,0
+all,normalized_label,86,1129,3655,109,0.03,0.0069,92,29,21,1
+all,schema_aliases,86,1145,3655,98,0.027,0.0064,98,28,11,1
+all,opendv,86,151,3655,1149,0.314,0.0975,91,62,40,20
+sigchi,raw_label,20,214,190,2,0.011,0.003,21,0,0,0
+sigchi,normalized_label,20,201,190,8,0.042,0.007,23,11,0,0
+sigchi,schema_aliases,20,211,190,6,0.032,0.0036,23,1,0,0
+sigchi,opendv,20,90,190,47,0.247,0.0561,46,37,5,0
+acm,raw_label,30,300,435,4,0.009,0.0015,21,1,0,0
+acm,normalized_label,30,284,435,11,0.025,0.0034,26,12,0,0
+acm,schema_aliases,30,294,435,10,0.023,0.0023,26,1,0,0
+acm,opendv,30,100,435,111,0.255,0.058,48,40,18,1

@@ -87,6 +87,10 @@ mappings); "E2" holds out schema aliases. Model: `google/gemma-4-E2B-it`
 | Another questionnaire read as the NASA-TLX | The plausibility rules check names, types and ranges, not the instrument. The LLM composed four VRNQ game-mechanics items of FOV Snap-Turn (physical movement, picking up items, using items, two-handed interaction; 1–7, higher = better) and two PXI enjoyment items of Gaze Platformer into NASA-TLX mental demand; neither study used the NASA-TLX | Fig. 4 (all mappings) pooled 21 studies, 7.73 [6.41, 9.05] (HKSJ), with FOV Snap-Turn at 28.9% of the weight; 55 more columns of the two studies were read as other DVs (e.g. eye-strain symptoms as pedestrian crossing time, IMI competence as TiA reliability) | Every column of the two studies without a schema DV locked as `meta_*` in its mapping (2026-11-14). Fig. 4 is now 19 curated studies, 8.14 [6.83, 9.45], the same pool as without LLM mappings, and is drawn from the LLM-excluded pool |
 | Fixed-effect meta-regression | The slope test ignored residual heterogeneity | p < .05 for 60% of null slopes (τ = 0.5, k = 6); 36 of 50 DVs "significant" | Random-effects meta-regression with the Knapp-Hartung test |
 | Participant ids from the wrong column | Aggregation used the first ID-like column | eHMI for All lost every survey DV at the participant level | Declared participant columns for all studies (23 then, 39 now) |
+| An implausible questionnaire coding | The instrument registry took the first coding that holds every answer; Running into Traffic's NASA-TLX subscales run 0..21, which only 0–100 holds | Its `TLX_SCORE` was 3.89 instead of about 19, in the development pool | A coding four or more times wider than one the answers miss by a single point is not used; the answers are read on the narrow coding widened by that point, 0–21 (2026-11-15, `tests/test_scale_plausibility.py`) |
+| A scale read off the data | Values on no common scale were rescaled from their observed minimum and maximum | Music Intensity's NASA-TLX totals (193–1493, formula unstated) became 0–100 with a mean set by their spread (corpus only) | Such values are not pooled; the scale note says why (2026-11-15) |
+| A narrower scale inside the DV's range | Six held-out mappings note NASA-TLX scales of 1–10, 1–9, 1–7 or 0–1 but declare no `scale_conversions`; a partial TLX was captured by the shared alias `tlxscore` | Pooled as 0–20 subscales and 0–100 totals, pulling the corpus's NASA-TLX means down | Corrected copies for the corpus (`analyses/opendv_corpus/corrections.py`; the frozen mappings stay as they were); a scale audit flags values that stay in the bottom half of a DV's range |
+| A curated DV captured by a sensor alias | Shared sensor aliases match before a study's mapping | osf_cwd6h's perceived risk (`ArduinoData1`) read as a sensor channel in every run | `opendv check-mapping` flags such names (2026-11-15); the mapping fix is with the development audit |
 
 ### 2.2 LLM mapping is weak on real columns; plausibility checks are cheap (RQ2)
 
@@ -488,9 +492,11 @@ LLM columns aside where it has a curated column of the DV:
   the same (harmonized ranges within 1, raw ones 13–23). A choice that did
   not matter for 23 studies decides the estimate once studies with another
   response format join.
-- **Robust:** the NASA-TLX total `TLX_SCORE` (k = 13–14), 35.46–38.03 on its
-  0–100 scale (27.4–34.7), every interval covering the default; SUS
-  `usability` (k = 6), 74.24–74.42. Until Curved Dragging's end-point
+- **Robust:** the NASA-TLX total `TLX_SCORE` (k = 13–14), 36.52–39.17 on its
+  0–100 scale, every interval covering the default; SUS
+  `usability` (k = 6), 74.24–74.42. Until 2026-11-15 the range was
+  35.46–38.03: Running into Traffic's subscales (0..21) were scored on 0–100,
+  so its total was 3.89 instead of 18.52 (see the table in §2.1). Until Curved Dragging's end-point
   columns were locked (2026-11-14) the range was 32.95–38.69 (k = 11–14):
   the LLM read Curved Dragging's effective target width, in degrees, as the
   NASA-TLX total, and that column displaced the study's total computed from

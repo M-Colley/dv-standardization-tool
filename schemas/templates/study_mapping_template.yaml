@@ -1,0 +1,37 @@
+# Source-specific column mapping for <source_id>
+# Copy to schemas/<source_id>_mapping.yaml and fill in. Guide: docs/sigchi_mapping_guide.md;
+# DV ids: docs/schema_reference.md. Check with
+#   opendv check-mapping schemas/<source_id>_mapping.yaml
+#
+# Paper: <authors>. "<title>." <venue> <year>. DOI <doi>
+# Data: <repository and record> (DOI <data doi>), <license>; codebook: <file or section>.
+#
+# Files and table options covered by this mapping (table options go in the manifest entry):
+#   - <file>  {sheet: <sheet>, header: <row>}
+#     One row = <participant x condition | participant x trial | participant>; <n> rows.
+# Excluded: <files not read, and why>.
+#
+# Notes (what a reader of the data needs to know, with the source of each fact):
+#   - Scales: <instrument, items, response range and anchors, reverse-keyed items>.
+#   - Units: <unit of each performance measure>.
+#   - Measures without a schema DV are locked as meta_* below, so the LLM fallback cannot map them.
+
+# --- Dependent measures --------------------------------------------------------
+# <raw column name>: <schema DV id>        # what it is, range or unit
+# TLX_mental: mental_demand                # NASA-TLX mental demand, 0-20
+# SUS_1: SUS1                              # SUS item 1, 1-5 (the analysis scores usability from SUS1-SUS10)
+# task_time_s: task_completion_time        # seconds per trial
+
+# --- Measures without a schema DV (locked; say what each is) -------------------
+# <raw column name>: meta_derived_<name>   # <instrument, range>; no schema DV
+
+# --- Participants ---------------------------------------------------------------
+# <participant column>: meta_participant_id
+
+# --- Conditions / design factors ------------------------------------------------
+# <condition column>: meta_condition_<factor>   # levels: <...>
+
+# --- Demographics, traits, checks, timestamps -------------------------------------
+# <column>: meta_demographic_<name>
+# <column>: meta_trait_<name>
+# <column>: meta_attention_check
