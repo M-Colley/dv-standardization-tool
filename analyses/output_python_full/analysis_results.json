@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-14T17:21:08.222200+00:00",
+  "generated_at": "2026-11-15T14:28:22.340189+00:00",
   "input_dir": "data\\processed\\lock39\\standardized",
   "n_studies": 39,
   "studies": [
@@ -299,14 +299,14 @@
     {
       "dv": "TLX_SCORE",
       "k": 14,
-      "pooled_mean": 35.50086037769917,
-      "pooled_se": 6.188067107874366,
-      "ci_lower": 23.372248846265414,
-      "ci_upper": 47.629471909132924,
-      "heterogeneity_i2": 99.94704029871207,
-      "heterogeneity_q": 24546.966247639302,
+      "pooled_mean": 36.56198253102873,
+      "pooled_se": 7.195519259283942,
+      "ci_lower": 22.458764782832205,
+      "ci_upper": 50.66520027922526,
+      "heterogeneity_i2": 99.92318028971422,
+      "heterogeneity_q": 16922.740207741655,
       "heterogeneity_p": 0.0,
-      "egger_p": 0.06694893456587821
+      "egger_p": 0.24461094288019838
     },
     {
       "dv": "acceptance_rating",
@@ -2731,17 +2731,17 @@
       {
         "from": "TLX_SCORE",
         "to": "perceived_safety",
-        "coefficient": -0.1842691014131757
+        "coefficient": -0.18426910141317587
       },
       {
         "from": "perceived_risk",
         "to": "perceived_safety",
-        "coefficient": -0.46531149980755726
+        "coefficient": -0.46531149980755715
       },
       {
         "from": "ueq_pragmatic",
         "to": "perceived_safety",
-        "coefficient": 0.31553766406199507
+        "coefficient": 0.315537664061995
       },
       {
         "from": "perceived_safety",
@@ -2776,12 +2776,12 @@
       {
         "from": "perceived_risk",
         "to": "understanding_rating",
-        "coefficient": -0.10143746647982702
+        "coefficient": -0.10143746647982707
       },
       {
         "from": "perceived_safety",
         "to": "understanding_rating",
-        "coefficient": 0.35508015885107613
+        "coefficient": 0.35508015885107647
       },
       {
         "from": "ueq_pragmatic",
@@ -2798,7 +2798,7 @@
   },
   "condition_contrasts": {
     "designs_version": "1.2",
-    "studies_with_design": 58,
+    "studies_with_design": 88,
     "studies_with_contrasts": 24,
     "n_contrast_effects": 1107,
     "n_pooled": 11,
@@ -4079,7 +4079,7 @@
       "n_participants": 40,
       "mean": 49.62395829968155,
       "sd": 20.109513046433054,
-      "mean_z_vs_global": 0.9269868393512971,
+      "mean_z_vs_global": 0.8386180527267003,
       "scale_note": "",
       "mapping_source": "repo_mapping"
     },
@@ -4090,7 +4090,7 @@
       "n_participants": 24,
       "mean": 36.37731481481482,
       "sd": 18.521711800431376,
-      "mean_z_vs_global": 0.05521815468715668,
+      "mean_z_vs_global": -0.013252790024668771,
       "scale_note": "",
       "mapping_source": "repo_mapping"
     },
@@ -4101,7 +4101,7 @@
       "n_participants": 17,
       "mean": 32.365196078431374,
       "sd": 15.2451753928349,
-      "mean_z_vs_global": -0.20882152280013513,
+      "mean_z_vs_global": -0.271265846168748,
       "scale_note": "",
       "mapping_source": "repo_mapping"
     },
@@ -4112,7 +4112,7 @@
       "n_participants": 46,
       "mean": 29.139492753623184,
       "sd": 11.295371074936956,
-      "mean_z_vs_global": -0.4211067819148196,
+      "mean_z_vs_global": -0.4787057620168261,
       "scale_note": "",
       "mapping_source": "repo_mapping"
     },
@@ -4123,7 +4123,7 @@
       "n_participants": 8,
       "mean": 33.26543209876544,
       "sd": 15.261485744683227,
-      "mean_z_vs_global": -0.1495765093572598,
+      "mean_z_vs_global": -0.21337308124356347,
       "scale_note": "",
       "mapping_source": "repo_mapping"
     },
@@ -4134,7 +4134,7 @@
       "n_participants": 85,
       "mean": 24.929411764705883,
       "sd": 15.788593357402538,
-      "mean_z_vs_global": -0.69817446100129,
+      "mean_z_vs_global": -0.7494494597828101,
       "scale_note": "",
       "mapping_source": "repo_mapping"
     },
@@ -4145,7 +4145,7 @@
       "n_participants": 14,
       "mean": 40.21164021164021,
       "sd": 16.621949689323348,
-      "mean_z_vs_global": 0.30755715751330615,
+      "mean_z_vs_global": 0.23332665562193428,
       "scale_note": "",
       "mapping_source": "repo_mapping"
     },
@@ -4156,7 +4156,7 @@
       "n_participants": 23,
       "mean": 39.583333333333336,
       "sd": 20.89638942279481,
-      "mean_z_vs_global": 0.2662079461834501,
+      "mean_z_vs_global": 0.19292122683982627,
       "scale_note": "",
       "mapping_source": "schema"
     },
@@ -4165,9 +4165,9 @@
       "dv": "TLX_SCORE",
       "n": 288,
       "n_participants": 24,
-      "mean": 3.889467592592593,
-      "sd": 2.654814140483317,
-      "mean_z_vs_global": -2.0828244274085863,
+      "mean": 18.521274250440918,
+      "sd": 12.641972097539604,
+      "mean_z_vs_global": -1.1615467213253237,
       "scale_note": "",
       "mapping_source": "repo_mapping"
     },
@@ -4178,7 +4178,7 @@
       "n_participants": 21,
       "mean": 3.1065218989071037,
       "sd": 2.6705456222270163,
-      "mean_z_vs_global": -2.1343505017931963,
+      "mean_z_vs_global": -2.1528452409470185,
       "scale_note": "",
       "mapping_source": "llm_deduced"
     },
@@ -4189,7 +4189,7 @@
       "n_participants": 21,
       "mean": 55.45236666666666,
       "sd": 14.558048589571795,
-      "mean_z_vs_global": 1.3105575077683014,
+      "mean_z_vs_global": 1.2134338430931377,
       "scale_note": "",
       "mapping_source": "repo_mapping"
     },
@@ -4200,7 +4200,7 @@
       "n_participants": 36,
       "mean": 50.22842163912294,
       "sd": 19.615082354509195,
-      "mean_z_vs_global": 0.966766894650175,
+      "mean_z_vs_global": 0.8774901409632796,
       "scale_note": "",
       "mapping_source": "repo_mapping"
     },
@@ -4211,7 +4211,7 @@
       "n_participants": 24,
       "mean": 38.78472222222222,
       "sd": 12.827812284129749,
-      "mean_z_vs_global": 0.21365092230892196,
+      "mean_z_vs_global": 0.14156380025625148,
       "scale_note": "",
       "mapping_source": "repo_mapping"
     },
@@ -4222,7 +4222,7 @@
       "n_participants": 97,
       "mean": 60.57846506300115,
       "sd": 12.42904696147115,
-      "mean_z_vs_global": 1.647908781812681,
+      "mean_z_vs_global": 1.5430851820078295,
       "scale_note": "",
       "mapping_source": "repo_mapping"
     },

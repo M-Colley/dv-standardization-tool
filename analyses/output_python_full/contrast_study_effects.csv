@@ -27,7 +27,7 @@ ehmi_presence,SUS6,ehmi_for_all_chi26,1,ehmi,Intention,40,SMCRPH,-0.530090770809
 ehmi_presence,SUS7,ehmi_for_all_chi26,1,ehmi,Intention,40,SMCRPH,0.8893152799949645,0.03690769373368485,0.19211375206810377,,,0.8893152799949645,schema,higher_is_better
 ehmi_presence,SUS8,ehmi_for_all_chi26,1,ehmi,Intention,40,SMCRPH,-0.737092197565875,0.02659418792632868,0.16307724527452835,,,-0.737092197565875,schema,lower_is_better
 ehmi_presence,SUS9,ehmi_for_all_chi26,1,ehmi,Intention,40,SMCRPH,1.0091766475848474,0.04177881499641689,0.20439866681663285,,,1.0091766475848474,schema,higher_is_better
-ehmi_presence,TLX_SCORE,running_into_traffic_chi26,2,ehmi,CyanBand+LightRing,24,SMCRPH,-0.5630673841771668,0.03401867843625432,0.18444153121315796,0.5,mean,-0.4426737177076415,repo_mapping,lower_is_better
+ehmi_presence,TLX_SCORE,running_into_traffic_chi26,2,ehmi,CyanBand+LightRing,24,SMCRPH,-0.5630673841771673,0.034018678436254335,0.18444153121315798,0.5,mean,-0.44267371770764197,repo_mapping,lower_is_better
 ehmi_presence,crossing_initiation_time,ehmi_for_all_chi26,1,ehmi,Intention,40,SMCRPH,0.02011069698718898,0.006877978839689223,0.08293358089271935,,,0.02011069698718898,schema,neutral
 ehmi_presence,effort,running_into_traffic_chi26,2,ehmi,CyanBand+LightRing,24,SMCRPH,-0.2561619306533348,0.027478556013651935,0.1657665708568888,0.5,mean,-0.15420862428263937,repo_mapping,lower_is_better
 ehmi_presence,frustration,running_into_traffic_chi26,2,ehmi,CyanBand+LightRing,24,SMCRPH,-0.6720549703031008,0.045266854551921615,0.21276008683942957,0.5,mean,-0.5635912300871926,repo_mapping,lower_is_better
@@ -58,7 +58,7 @@ ehmi_presence,ueq_hedonic,running_into_traffic_chi26,2,ehmi,CyanBand+LightRing,2
 ehmi_presence,ueq_pragmatic,running_into_traffic_chi26,2,ehmi,CyanBand+LightRing,24,SMCRPH,1.1069860685296475,0.07078129952661621,0.26604755125093,0.5,mean,0.6135528017475128,repo_mapping,higher_is_better
 ehmi_presence,understanding_rating,running_into_traffic_chi26,2,ehmi,CyanBand+LightRing,24,SMCRPH,1.6697215041230962,0.09645052562976608,0.3105648493145451,0.5,mean,1.529865522233075,repo_mapping,higher_is_better
 ehmi_presence,usability,ehmi_for_all_chi26,1,ehmi,Intention,40,SMCRPH,0.9932884820111856,0.03691710709359086,0.1921382499493291,,,0.9932884820111856,schema,higher_is_better
-situation_criticality,TLX_SCORE,running_into_traffic_chi26,1,av_yielding,Not-Yielding,24,SMCRPH,0.07981546851331875,0.017214000177467947,0.13120213480529935,,,0.07981546851331875,repo_mapping,lower_is_better
+situation_criticality,TLX_SCORE,running_into_traffic_chi26,1,av_yielding,Not-Yielding,24,SMCRPH,0.07981546851331824,0.01721400017746794,0.13120213480529933,,,0.07981546851331824,repo_mapping,lower_is_better
 situation_criticality,brake_reaction_time,perceived_risk_merging_2022,4,braking_intensity+merging_gap,-5 m/s2+-8 m/s2+15 m+5 m,22,SMCRPH,0.48198454902448684,0.057911920875130266,0.24064895776863499,0.5,mean,0.4273946778669877,llm_deduced,lower_is_better
 situation_criticality,effort,running_into_traffic_chi26,1,av_yielding,Not-Yielding,24,SMCRPH,0.05583203611466184,0.012913283286789335,0.11363662827974673,,,0.05583203611466184,repo_mapping,lower_is_better
 situation_criticality,frustration,running_into_traffic_chi26,1,av_yielding,Not-Yielding,24,SMCRPH,-0.059224741896036784,0.017780957764876943,0.1333452577517361,,,-0.059224741896036784,repo_mapping,lower_is_better
