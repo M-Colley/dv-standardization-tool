@@ -84,7 +84,9 @@ def build_inventory(run_dir: Path) -> pd.DataFrame:
                     "min": row["min"] if row is not None else "",
                     "max": row["max"] if row is not None else "",
                 })
-    return pd.DataFrame.from_records(records)
+    columns = ["study", "file", "standardized_column", "column", "llm_dv", "meta_canonical_dv",
+               "item_of", "mapping_confidence", "n", "mean", "min", "max"]
+    return pd.DataFrame.from_records(records, columns=columns)
 
 
 def relation_flags(relations_dir: Path) -> pd.DataFrame:
