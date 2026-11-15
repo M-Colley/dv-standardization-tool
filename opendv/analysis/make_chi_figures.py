@@ -455,49 +455,66 @@ def fig_overlap():
 # ══════════════════════════════════════════════════════════════════════════════
 # FIGURE 4 — Forest plot: NASA-TLX Mental Demand, without LLM-mapped columns
 # ══════════════════════════════════════════════════════════════════════════════
-def fig_forest(dv="mental_demand", fname="fig4_forest_mental_demand", summary=None, meta=None):
-    summary = summary_primary if summary is None else summary
-    meta = meta_primary if meta is None else meta
+def _forest_rows(dv, summary, meta):
+    """Per-study rows and the pooled estimate that Fig. 4 and the teaser's panel (c) draw."""
     sub = summary[(summary["dv"] == dv) & (summary["n"] > 1) & (summary["sd"] > 0)].copy()
     sub = sub.sort_values("mean").reset_index(drop=True)
     mrow = meta[meta["dv"] == dv].iloc[0]
-
     means = sub["mean"].values
     ses = sub["sd"].values / np.sqrt(sub["n"].values)
-    lo, hi = means - 1.96 * ses, means + 1.96 * ses
     w = 1.0 / ses ** 2
-    wpct = 100 * w / w.sum()
-    k = len(sub)
+    return {
+        "dv": dv, "sub": sub, "mrow": mrow, "k": len(sub), "means": means,
+        "lo": means - 1.96 * ses, "hi": means + 1.96 * ses, "wpct": 100 * w / w.sum(),
+        "pm": mrow["random_effects_mean"], "plo": mrow["ci95_low"], "phi": mrow["ci95_high"],
+        "pi_lo": mrow.get("prediction_interval_low"), "pi_hi": mrow.get("prediction_interval_high"),
+    }
 
-    pm, pse = mrow["random_effects_mean"], mrow["random_effects_se"]
-    plo, phi = mrow["ci95_low"], mrow["ci95_high"]
-    pi_lo, pi_hi = mrow.get("prediction_interval_low"), mrow.get("prediction_interval_high")
+
+def _draw_forest(axf, d, *, label_size=7.0, xlabel_size=7.5, line_width=1.3, pi_width=1.0,
+                 marker_base=4.0, marker_per_pct=0.18, pooled_label="Random-effects pooled",
+                 xlabel=None):
+    """Study squares with 95% CIs, the pooled diamond and the prediction interval."""
+    k, means, lo, hi, wpct = d["k"], d["means"], d["lo"], d["hi"], d["wpct"]
+    pm, plo, phi = d["pm"], d["plo"], d["phi"]
+    ys = np.arange(k, 0, -1)
+    for i, y in enumerate(ys):
+        axf.hlines(y, lo[i], hi[i], color=BLUE, linewidth=line_width, zorder=2)
+        axf.plot(means[i], y, "s", color=BLUE, markersize=marker_base + wpct[i] * marker_per_pct, zorder=3)
+    # pooled diamond
+    dy = 0.0
+    axf.fill([plo, pm, phi, pm], [dy, dy + 0.32, dy, dy - 0.32], color=RED, alpha=0.85, zorder=4)
+    if pd.notna(d["pi_lo"]) and pd.notna(d["pi_hi"]):
+        axf.hlines(dy, d["pi_lo"], d["pi_hi"], color=RED, linewidth=pi_width,
+                   linestyle=(0, (4, 2)), alpha=0.6, zorder=3)
+    axf.axvline(pm, color=RED, linewidth=0.7, linestyle="--", alpha=0.45)
+
+    axf.set_yticks(list(ys) + [0])
+    axf.set_yticklabels([study_label(s) for s in d["sub"]["study"]] + [pooled_label], fontsize=label_size)
+    axf.get_yticklabels()[-1].set_fontweight("bold")
+    axf.set_ylim(-0.7, k + 0.7)
+    if xlabel is None:
+        unit = DV_META.get(d["dv"], {}).get("primary_unit", "")
+        xlabel = f"{dv_label(d['dv'])}  —  group mean" + (f" ({unit})" if unit else "")
+    axf.set_xlabel(xlabel, fontsize=xlabel_size)
+    for sp in ("top", "right"):
+        axf.spines[sp].set_visible(False)
+    axf.tick_params(length=2)
+
+
+def fig_forest(dv="mental_demand", fname="fig4_forest_mental_demand", summary=None, meta=None):
+    summary = summary_primary if summary is None else summary
+    meta = meta_primary if meta is None else meta
+    d = _forest_rows(dv, summary, meta)
+    sub, mrow, k = d["sub"], d["mrow"], d["k"]
+    means, lo, hi, wpct = d["means"], d["lo"], d["hi"], d["wpct"]
+    pm, plo, phi = d["pm"], d["plo"], d["phi"]
 
     fig, (axf, axt) = plt.subplots(
         1, 2, figsize=(COL2, 0.55 * k + 1.7),
         gridspec_kw={"width_ratios": [3.1, 2.0], "wspace": 0.02})
-
+    _draw_forest(axf, d)
     ys = np.arange(k, 0, -1)
-    cl_color = CLUSTER_COLOR[dv_cluster(dv)]
-    for i, y in enumerate(ys):
-        axf.hlines(y, lo[i], hi[i], color=BLUE, linewidth=1.3, zorder=2)
-        axf.plot(means[i], y, "s", color=BLUE, markersize=4 + wpct[i] * 0.18, zorder=3)
-    # pooled diamond
-    dy = 0.0
-    axf.fill([plo, pm, phi, pm], [dy, dy + 0.32, dy, dy - 0.32], color=RED, alpha=0.85, zorder=4)
-    if pd.notna(pi_lo) and pd.notna(pi_hi):
-        axf.hlines(dy, pi_lo, pi_hi, color=RED, linewidth=1.0, linestyle=(0, (4, 2)), alpha=0.6, zorder=3)
-    axf.axvline(pm, color=RED, linewidth=0.7, linestyle="--", alpha=0.45)
-
-    axf.set_yticks(list(ys) + [0])
-    axf.set_yticklabels([study_label(s) for s in sub["study"]] + ["Random-effects pooled"], fontsize=7)
-    axf.get_yticklabels()[-1].set_fontweight("bold")
-    axf.set_ylim(-0.7, k + 0.7)
-    unit = DV_META.get(dv, {}).get("primary_unit", "")
-    axf.set_xlabel(f"{dv_label(dv)}  —  group mean" + (f" ({unit})" if unit else ""), fontsize=7.5)
-    for sp in ("top", "right"):
-        axf.spines[sp].set_visible(False)
-    axf.tick_params(length=2)
 
     # annotation table
     axt.axis("off")
@@ -544,6 +561,11 @@ def fig_forest(dv="mental_demand", fname="fig4_forest_mental_demand", summary=No
 # ══════════════════════════════════════════════════════════════════════════════
 # FIGURE 5 — Cross-study causal structure (LiNGAM DAG)
 # ══════════════════════════════════════════════════════════════════════════════
+def _causal_scope() -> str:
+    """'Within-study' when the DAG was fitted on one study's rows, else 'Cross-study'."""
+    return "Cross-study" if len((causal or {}).get("studies_used") or []) != 1 else "Within-study"
+
+
 def fig_causal():
     order = causal["causal_order"]
     edges = causal_edges
@@ -596,8 +618,7 @@ def fig_causal():
         Line2D([0], [0], color=RED, lw=2.4, label="negative effect"),
     ]
     ax.legend(handles=legend, loc="upper right", fontsize=6.5, bbox_to_anchor=(1.0, 1.02))
-    title_scope = "Cross-study" if len(causal.get("studies_used") or []) != 1 else "Within-study"
-    ax.set_title(f"{title_scope} causal structure among standardized DVs",
+    ax.set_title(f"{_causal_scope()} causal structure among standardized DVs",
                  x=0.0, ha="left", fontsize=9, loc="left", pad=2)
     method = {
         "complete_case": "complete-case",
@@ -654,28 +675,82 @@ def fig_coverage():
 
 
 # ══════════════════════════════════════════════════════════════════════════════
-# TEASER — combined 2x2 (presence, overlap, forest, causal) for page 1
+# TEASER — presence, overlap, forest and causal panels for page 1
 # ══════════════════════════════════════════════════════════════════════════════
-def fig_teaser():
-    # Reuse standalone renders by stitching the saved PNGs into one figure.
+def fig_teaser(dv="mental_demand", summary=None, meta=None):
+    """Panels (a), (b) and (d) are the saved Fig. 2, 3 and 5 PNGs, each placed in a box of its
+    own aspect ratio. Panel (c) is drawn here: Fig. 4's 0.56 aspect (k rows plus a table) would
+    shrink it to a third of its width in a 2x2 grid of equal cells. Layout, in inches:
+    (a) and (b) side by side over (d) on the left, (c) the full height of the right column."""
     import matplotlib.image as mpimg
-    panels = [
-        ("fig2_presence_matrix.png", f"(a) DV coverage across {N_STUDIES} datasets"),
-        ("fig3_overlap_heatmap.png", "(b) Pairwise overlap (Jaccard)"),
-        ("fig4_forest_mental_demand.png", "(c) Meta-analysis: Mental Demand"),
-        ("fig5_causal_dag.png", "(d) Cross-study causal structure"),
-    ]
-    fig, axes = plt.subplots(2, 2, figsize=(COL2, 4.5))
-    for ax, (png, cap) in zip(axes.ravel(), panels):
-        p = OUT / png
-        if p.exists():
-            ax.imshow(mpimg.imread(p), aspect="equal")
+    summary = summary_primary if summary is None else summary
+    meta = meta_primary if meta is None else meta
+    imgs = {key: (mpimg.imread(OUT / png) if (OUT / png).exists() else None)
+            for key, png in (("a", "fig2_presence_matrix.png"), ("b", "fig3_overlap_heatmap.png"),
+                             ("d", "fig5_causal_dag.png"))}
+    if causal is None:
+        imgs["d"] = None  # an old fig5 PNG would show a DAG this analysis did not fit
+
+    def aspect(key, default):
+        img = imgs[key]
+        return img.shape[1] / img.shape[0] if img is not None else default
+
+    W, gap, cap, top, bottom = COL2, 0.12, 0.2, 0.3, 0.04
+    stat_h = 0.16                                   # (c)'s statistics line under its caption
+    w_right = 2.3                                   # forest column
+    w_left = W - w_right - gap
+    asp_a, asp_b, asp_d = aspect("a", 1.35), aspect("b", 1.09), aspect("d", 3.6)
+    h1 = (w_left - gap) / (asp_a + asp_b)           # (a) and (b) share one row height
+    wa, wb = asp_a * h1, asp_b * h1
+    h2 = w_left / asp_d                             # (d) spans the left column
+    H = top + cap + h1 + gap + cap + h2 + bottom
+    fig = plt.figure(figsize=(W, H))
+
+    def axes_at(x, y_top, w, h):                    # inches from the top-left corner
+        return fig.add_axes([x / W, 1 - (y_top + h) / H, w / W, h / H])
+
+    def caption(x, y_top, text):
+        fig.text(x / W, 1 - (y_top + cap - 0.05) / H, text, fontsize=8, fontweight="bold",
+                 ha="left", va="bottom")
+
+    y1 = top + cap
+    y2 = y1 + h1 + gap + cap
+    placed = (("a", 0.0, y1, wa, h1, f"(a) DV coverage across {N_STUDIES} datasets"),
+              ("b", wa + gap, y1, wb, h1, "(b) Pairwise overlap (Jaccard)"),
+              ("d", 0.0, y2, w_left, h2, f"(d) {_causal_scope()} causal structure"))
+    for key, x, y, w, h, text in placed:
+        ax = axes_at(x, y, w, h)
+        if imgs[key] is not None:
+            ax.imshow(imgs[key], aspect="auto")
         ax.axis("off")
-        ax.set_title(cap, fontsize=8, fontweight="bold", loc="left", pad=1)
-    fig.suptitle("OpenDV-HCI: standardizing dependent variables turns fragmented open "
-                 "datasets into comparable, synthesizable evidence",
-                 y=0.995, fontsize=9, fontweight="bold")
-    fig.subplots_adjust(left=0.01, right=0.99, top=0.93, bottom=0.01, wspace=0.03, hspace=0.10)
+        caption(x, y - cap, text)
+
+    d = _forest_rows(dv, summary, meta)
+    labels = [study_label(s) for s in d["sub"]["study"]] + ["Pooled (RE)"]
+    renderer = fig.canvas.get_renderer()
+    probe = [fig.text(0, 0, lab, fontsize=5.5, fontweight="bold") for lab in labels]
+    label_w = max(t.get_window_extent(renderer=renderer).width for t in probe) / fig.dpi + 0.06
+    for t in probe:
+        t.remove()
+    x_c = w_left + gap
+    y_c = y1 + stat_h
+    axc = axes_at(x_c + label_w, y_c, w_right - label_w, H - y_c - bottom - 0.32)
+    unit = DV_META.get(dv, {}).get("primary_unit", "")
+    _draw_forest(axc, d, label_size=5.5, xlabel_size=6, line_width=0.8, pi_width=0.7,
+                 marker_base=1.6, marker_per_pct=0.09, pooled_label="Pooled (RE)",
+                 xlabel="group mean" + (f", {unit}" if unit else ""))
+    axc.tick_params(axis="x", labelsize=5.5)
+    mrow = d["mrow"]
+    stat = f"k = {d['k']} studies, pooled {d['pm']:.2f}"
+    if pd.notna(mrow.get("hksj_ci95_low")):
+        stat += f", HKSJ [{mrow['hksj_ci95_low']:.1f}, {mrow['hksj_ci95_high']:.1f}]"
+    stat += f", I² = {mrow['heterogeneity_i2_pct']:.1f}%"
+    fig.text(x_c / W, 1 - (y1 + 0.02) / H, stat, ha="left", va="top", fontsize=5.5, color="#555555")
+    caption(x_c, top, f"(c) Meta-analysis: {dv_label(dv)}")
+
+    fig.text(0.5, 1 - 0.06 / H, "OpenDV-HCI: standardizing dependent variables turns fragmented "
+             "open datasets into comparable, synthesizable evidence",
+             ha="center", va="top", fontsize=8.5, fontweight="bold")
     save(fig, "fig0_teaser")
 
 

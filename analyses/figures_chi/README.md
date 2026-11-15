@@ -40,7 +40,10 @@ captions is computed from the run artifacts.
 
 ## Figures & suggested captions
 
-- **`fig0_teaser`** — 2×2 overview combining (a)–(d) for the paper's first page.
+- **`fig0_teaser`** — Overview for the paper's first page: (a) DV coverage and
+  (b) overlap (Fig. 2 and 3) over (d) the causal DAG (Fig. 5) on the left, and
+  (c) the mental-demand forest plot (Fig. 4's pool, without its table) over the
+  full height on the right, with k, the pooled mean, the HKSJ interval and I².
 - **`fig1_pipeline`** — *From an open catalog to comparable evidence.* Corpus
   attrition through the pipeline: 39 sources, 129 canonical DVs, 88 poolable
   DVs, of which 55 are pooled across ≥ 3 studies.
@@ -118,4 +121,7 @@ captions is computed from the run artifacts.
    It now reads the run the analysis read. Fig. 2 and Fig. 3 are sized by the
    number of studies since 2026-11-14; at 39 studies their labels overlapped,
    and Fig. 3 now shows its cell values only while they fit
-   (`dv_overlap_matrix.csv` has them).
+   (`dv_overlap_matrix.csv` has them). Until 2026-11-15 the teaser placed
+   the four PNGs in equal cells, so the forest plot (k = 19 rows and a table)
+   came out at about a third of its cell's width and unreadable, and panel (d)
+   was titled "Cross-study" although the DAG is fitted on one study.

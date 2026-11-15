@@ -4,6 +4,13 @@ This document logs human-readable updates to the repo's functionality, structure
 
 ---
 
+### [2026-11-15] Teaser figure: readable meta-analysis panel, panel (d) titled within-study
+
+- **Panel (c) was unreadable.** `fig_teaser` placed the PNGs of Fig. 2–5 in a 2×2 grid of equal cells. Fig. 4 is 7 × 12 in (19 study rows and a table), so it shrank to about a third of its cell's width, with labels near 2 pt, while panel (d)'s wide DAG left most of its cell empty.
+- **Now** each stitched panel gets a box of its own aspect ratio, computed from the PNGs: (a) and (b) side by side over (d) on the left. Panel (c) is drawn directly into the right column at its full height, from the same pool as Fig. 4: study labels at 5.5 pt, no table, and one line with k, the pooled mean, the HKSJ interval and I². The teaser is 4.0 in tall instead of 4.6.
+- **Panel (d)** was captioned "Cross-study causal structure", but the DAG is fitted on Running into Traffic alone, as Fig. 5's own title says. The caption now uses the same rule as Fig. 5 (`_causal_scope`). If the analysis has no causal result, panel (d) is left empty rather than showing an old Fig. 5.
+- Fig. 4's drawing moved into `_forest_rows` and `_draw_forest`, which the teaser reuses. Fig. 1–6 redraw to byte-identical PNGs; only `fig0_teaser` changes.
+
 ### [2026-11-14] FOV Snap-Turn's and Gaze Platformer's unmapped measures locked; Fig. 4 drawn without LLM mappings
 
 The two LLM-mapped rows left in Fig. 4 (NASA-TLX mental demand, all mappings) were not mental demand. Neither study used the NASA-TLX.
