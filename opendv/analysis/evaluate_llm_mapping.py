@@ -33,10 +33,12 @@ Example::
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import logging
 import sys
 import time
+from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
 from tempfile import TemporaryDirectory
@@ -50,8 +52,10 @@ from scipy.stats import binomtest
 from opendv import llm_utils  # noqa: E402
 from opendv.batch_profiles import classify_dataset_type, llm_eligible_dataset_types  # noqa: E402
 from opendv.dv_retrieval import (  # noqa: E402
+    DEFAULT_DV_SCHEMA_PATH,
     N_DENSE_EXTRA,
     apply_hierarchy,
+    construct_hierarchy,
     get_dense_retriever,
     get_retriever,
     mix_rankings,
@@ -110,6 +114,60 @@ def _without_alias(mapping: dict[str, str], alias: str) -> dict[str, str]:
 # Shortlists built from the definition (TF-IDF) and dense rankings; "_h" variants
 # apply the scale/item hierarchy filter (scripts.dv_retrieval.apply_hierarchy).
 HARNESS_SHORTLISTS = ("definition", "dense", "mixed", "mixed4", "definition_h", "dense_h", "mixed_h")
+CANDIDATE_ORDERS = ("rank", "shuffle", "alphabetical")
+
+
+@dataclass(frozen=True)
+class AskOptions:
+    """How the LLM is asked; the defaults are the committed benchmark's.
+
+    ``schema_path`` reads every DV definition (shortlist retrieval, the scale/item
+    filter, the prompt's candidate reference) from another DV schema file.
+    ``candidate_order`` lists the shortlist in the prompt by retrieval rank, in a
+    random order (seeded by ``order_seed`` and the column name) or alphabetically.
+    ``num_samples > 1`` asks for that many sampled answers and takes their majority
+    (``temperature``, ``sample_seed``).
+    """
+
+    schema_path: str | None = None
+    candidate_order: str = "rank"
+    order_seed: int = 0
+    num_samples: int = 1
+    temperature: float = 1.0
+    sample_seed: int = 0
+
+    @classmethod
+    def from_args(cls, args: Any) -> AskOptions:
+        return cls(
+            schema_path=getattr(args, "schema", None),
+            candidate_order=getattr(args, "candidate_order", "rank"),
+            order_seed=getattr(args, "order_seed", 0),
+            num_samples=getattr(args, "samples", 1),
+            temperature=getattr(args, "temperature", 1.0),
+            sample_seed=getattr(args, "sample_seed", 0),
+        )
+
+
+def order_candidates(candidates: list[str], alias: str, order: str, seed: int = 0) -> list[str]:
+    """The shortlist in the order the prompt lists it (see :class:`AskOptions`)."""
+    if order == "rank":
+        return list(candidates)
+    if order == "alphabetical":
+        return sorted(candidates, key=lambda dv: (dv.lower(), dv))
+    if order == "shuffle":
+        digest = hashlib.sha256(f"{seed}\x1f{alias}".encode()).digest()
+        rng = np.random.default_rng(int.from_bytes(digest[:8], "little"))
+        return [candidates[i] for i in rng.permutation(len(candidates))]
+    raise ValueError(f"candidate order must be one of {CANDIDATE_ORDERS}, got {order!r}")
+
+
+def response_cache_key(models: list[str], prompt: str, options: AskOptions) -> str:
+    """Key of one LLM answer: the models, the exact prompt and the decoding settings."""
+    decoding = {"num_samples": options.num_samples}
+    if options.num_samples > 1:
+        decoding |= {"temperature": options.temperature, "sample_seed": options.sample_seed}
+    payload = json.dumps({"models": list(models), "prompt": prompt, "decoding": decoding}, sort_keys=True)
+    return hashlib.sha256(payload.encode("utf-8")).hexdigest()
 
 
 def _ask_llm(
@@ -118,22 +176,36 @@ def _ask_llm(
     context: str,
     preferred_models: list[str] | None,
     shortlist: str = "definition",
+    options: AskOptions | None = None,
+    response_cache: dict[str, str | None] | None = None,
 ) -> tuple[list[str], float, str | None]:
+    """Shortlist, top fuzzy score and the LLM's answer for one column.
+
+    ``response_cache`` maps :func:`response_cache_key` to an earlier answer, so a
+    prompt that a rerun repeats exactly is not generated again (decoding is greedy,
+    or sampled with a fixed seed). Failed generations are not cached.
+    """
+    options = options or AskOptions()
+    schema_path = options.schema_path or str(DEFAULT_DV_SCHEMA_PATH)
     candidates, top_score = _select_llm_candidate_shortlist(mapping, alias)
     if shortlist in HARNESS_SHORTLISTS and candidates:
         # Leave-alias-out: the held-out alias is removed from every definition.
         n = len(candidates)
         depth = max(3 * n, 24)
-        lexical = [dv for dv, _ in get_retriever().rank(alias, k=depth, exclude_alias=alias)]
+        lexical = [dv for dv, _ in get_retriever(schema_path).rank(alias, k=depth, exclude_alias=alias)]
         if shortlist not in ("definition", "definition_h"):
-            dense = [dv for dv, _ in get_dense_retriever().rank(alias, k=depth, exclude_alias=alias)]
+            dense = [
+                dv for dv, _ in get_dense_retriever(schema_path=schema_path).rank(alias, k=depth, exclude_alias=alias)
+            ]
+        related = construct_hierarchy(schema_path)
         if shortlist == "dense_h":
             # Pre-specified primary (2026-10-25): the fusion with the scale/item filter.
-            candidates = apply_hierarchy(reciprocal_rank_fusion(lexical, dense), n)
+            candidates = apply_hierarchy(reciprocal_rank_fusion(lexical, dense), n, related)
         elif shortlist == "definition_h":
-            candidates = apply_hierarchy(lexical, n)
+            candidates = apply_hierarchy(lexical, n, related)
         elif shortlist == "mixed_h":
-            candidates = apply_hierarchy([*mix_rankings(lexical, dense, n, N_DENSE_EXTRA), *lexical, *dense], n)
+            mixed = mix_rankings(lexical, dense, n, N_DENSE_EXTRA)
+            candidates = apply_hierarchy([*mixed, *lexical, *dense], n, related)
         elif shortlist == "dense":
             # Same fusion as scripts.dv_retrieval.dense_shortlist.
             candidates = reciprocal_rank_fusion(lexical, dense)[:n]
@@ -143,15 +215,35 @@ def _ask_llm(
             candidates = mix_rankings(lexical, dense, n, N_DENSE_EXTRA if shortlist == "mixed" else 4)
         else:
             candidates = lexical[:n]
+    candidates = order_candidates(candidates, alias, options.candidate_order, options.order_seed)
     if not candidates or top_score < MIN_ATTEMPT_SCORE:
         return candidates, top_score, None
+    key = None
+    if response_cache is not None:
+        prompt = llm_utils.build_mapping_prompt(alias, candidates, context, options.schema_path)
+        key = response_cache_key(llm_utils.select_local_model_candidates(preferred_models), prompt, options)
+        if key in response_cache:
+            return candidates, top_score, response_cache[key]
+    before = len(llm_utils.generation_errors())
     suggestion = llm_utils.deduce_standard_name_with_local_llm(
         raw_column_name=alias,
         canonical_candidates=candidates,
         preferred_models=preferred_models,
         repository_context=context,
+        schema_path=options.schema_path,
+        num_samples=options.num_samples,
+        temperature=options.temperature,
+        sample_seed=options.sample_seed,
     )
+    if key is not None and len(llm_utils.generation_errors()) == before:
+        response_cache[key] = suggestion
     return candidates, top_score, suggestion
+
+
+def prompt_fingerprint(alias: str, candidates: list[str], context: str, options: AskOptions) -> str:
+    """SHA-256 of the prompt an asked column gets (equal fingerprints, equal prompts)."""
+    prompt = llm_utils.build_mapping_prompt(alias, candidates, context, options.schema_path)
+    return hashlib.sha256(prompt.encode("utf-8")).hexdigest()
 
 
 def _source_context(source: dict[str, Any], base_dir: Path, cache_dir: Path | None = None) -> str:
@@ -202,10 +294,20 @@ def gold_items(meta_view: pd.DataFrame, dv_ids: set[str], max_per_source: int, s
     ].sort_values(["source_id", "label_kind", "original_alias"]).reset_index(drop=True)
 
 
-def run_e1(args, families: SchemaFamilies, dv_ids: set[str]) -> pd.DataFrame:
+def run_e1(
+    args,
+    families: SchemaFamilies,
+    dv_ids: set[str],
+    items: pd.DataFrame | None = None,
+    response_cache: dict[str, str | None] | None = None,
+) -> pd.DataFrame:
+    """E1 answers, one row per item. ``items`` fixes the item list (default: drawn from
+    the batch's ``meta_view.csv`` with ``dv_ids``); ``response_cache`` is passed to ``_ask_llm``."""
     sources = {s["source_id"]: s for s in load_manifest(Path(args.manifest))}
-    meta_view = pd.read_csv(Path(args.batch_dir) / "meta_view.csv", low_memory=False)
-    items = gold_items(meta_view, dv_ids, args.max_per_source, args.seed)
+    if items is None:
+        meta_view = pd.read_csv(Path(args.batch_dir) / "meta_view.csv", low_memory=False)
+        items = gold_items(meta_view, dv_ids, args.max_per_source, args.seed)
+    options = AskOptions.from_args(args)
     rows: list[dict[str, Any]] = []
     with TemporaryDirectory() as tmp:
         for source_id, group in items.groupby("source_id", sort=True):
@@ -251,8 +353,10 @@ def run_e1(args, families: SchemaFamilies, dv_ids: set[str]) -> pd.DataFrame:
                 profile = profile_columns(df, [alias]).get(alias)
                 t0 = time.perf_counter()
                 shortlist, top_score, suggestion, llm_error = _ask_llm_logged(
-                    alias, _without_alias(mapping, alias), context, args.models, args.shortlist
+                    alias, _without_alias(mapping, alias), context, args.models, args.shortlist,
+                    options=options, response_cache=response_cache,
                 )
+                asked = bool(shortlist) and top_score >= MIN_ATTEMPT_SCORE
                 pre = name_rejection_reason(alias, columns) or (data_rejection_reason(profile) if profile else None)
                 post = (
                     check_llm_suggestion(alias, suggestion, profile, families.canonical_ranges,
@@ -268,6 +372,8 @@ def run_e1(args, families: SchemaFamilies, dv_ids: set[str]) -> pd.DataFrame:
                     "gold": item.gold,
                     "gold_in_shortlist": bool(item.gold) and item.gold in shortlist,
                     "shortlist_top_score": round(top_score, 1),
+                    "shortlist": "|".join(shortlist),
+                    "prompt_sha256": prompt_fingerprint(alias, shortlist, context, options) if asked else None,
                     "suggestion": suggestion,
                     "pre_llm_rejection": pre,
                     "post_llm_rejection": post["reason"] if post else None,
@@ -286,7 +392,7 @@ def run_e1(args, families: SchemaFamilies, dv_ids: set[str]) -> pd.DataFrame:
 def run_e2(args, families: SchemaFamilies) -> pd.DataFrame:
     import yaml
 
-    schema = yaml.safe_load((SCHEMAS_DIR / "standard_dv_mapping.yaml").read_text(encoding="utf-8"))
+    schema = yaml.safe_load(Path(getattr(args, "schema", None) or DEFAULT_DV_SCHEMA_PATH).read_text(encoding="utf-8"))
     pairs = [
         (str(alias), str(entry["id"]))
         for entry in schema.get("dvs", [])
@@ -302,7 +408,8 @@ def run_e2(args, families: SchemaFamilies) -> pd.DataFrame:
         alias, gold = pairs[index]
         t0 = time.perf_counter()
         shortlist, top_score, suggestion, llm_error = _ask_llm_logged(
-            alias, _without_alias(base_mapping, alias), "", args.models, args.shortlist
+            alias, _without_alias(base_mapping, alias), "", args.models, args.shortlist,
+            options=AskOptions.from_args(args),
         )
         pre = name_rejection_reason(alias)
         rows.append({
@@ -408,6 +515,15 @@ def main() -> None:
                         help="Candidate retrieval for the LLM (default: %(default)s).")
     parser.add_argument("--subset", action="append", default=[], metavar="NAME=SOURCES_YAML",
                         help="Also summarize E1 for the sources listed in this YAML and for the rest (repeatable).")
+    parser.add_argument("--schema", default=None,
+                        help="DV schema file read for every definition (default: schemas/standard_dv_mapping.yaml).")
+    parser.add_argument("--candidate-order", choices=CANDIDATE_ORDERS, default="rank",
+                        help="Order of the shortlist in the prompt (default: %(default)s).")
+    parser.add_argument("--order-seed", type=int, default=0, help="Seed of --candidate-order shuffle.")
+    parser.add_argument("--samples", type=int, default=1,
+                        help="Sampled answers per column, majority vote (default: 1 = greedy).")
+    parser.add_argument("--temperature", type=float, default=1.0, help="Sampling temperature for --samples > 1.")
+    parser.add_argument("--sample-seed", type=int, default=0, help="Seed set before each sampled generation.")
     args = parser.parse_args()
     args.models = [m.strip() for m in args.models.split(",") if m.strip()] if args.models else None
     try:
@@ -418,7 +534,7 @@ def main() -> None:
     run_summary = json.loads((Path(args.batch_dir) / "run_summary.json").read_text(encoding="utf-8"))
     if run_summary.get("llm_deductions_count"):
         parser.error("--batch-dir must come from a run without LLM deductions (they would leak into the gold labels)")
-    families = SchemaFamilies.load(SCHEMAS_DIR / "standard_dv_mapping.yaml")
+    families = SchemaFamilies.load(Path(args.schema) if args.schema else SCHEMAS_DIR / "standard_dv_mapping.yaml")
     dv_ids = {canonical for canonical, domain in families.canonical_domain_lookup.items() if domain == "dv"}
 
     started = time.perf_counter()
@@ -431,6 +547,8 @@ def main() -> None:
         "models": llm_utils.select_local_model_candidates(args.models),
         "plausibility_rules_version": load_rules().version,
         "shortlist": args.shortlist,
+        "ask_options": AskOptions.from_args(args).__dict__,
+        "dv_schema_version": families.schema_version,
         "seed": args.seed,
         "max_per_source": args.max_per_source,
         "e2_samples": args.e2_samples,
