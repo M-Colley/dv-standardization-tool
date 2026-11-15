@@ -1,0 +1,207 @@
+id,label,cluster,category,primary_unit,scale_type,direction,range_min,range_max,instruments,subitem_of,aliases,notes
+task_completion_time,Task Completion Time,performance,Time,seconds,ratio,lower_is_better,,,,,time_spent; completion_duration; task_time; taskTime; completion_time; completionTime; time_to_complete_task; duration; time_on_task; response_time; reaction_time; rt; task_duration,Lower-is-better; report central tendency + dispersion.
+task_success,Task Success Rate,performance,Binary,proportion,ratio,higher_is_better,0,1,,,success_rate; completion_rate; task_success_ratio; accuracy; correct_rate,Define success criteria clearly.
+error_rate,Error Rate,performance,Accuracy,percentage,ratio,lower_is_better,0,100,,,mistake_ratio; failure_rate; error_percentage; error_count; errors,Distinguish slips vs mistakes if available.
+efficiency,Efficiency,performance,Proportion,ratio,ratio,higher_is_better,,,,,throughput; keystrokes_per_task; steps_per_task; task_efficiency,"Report how computed (e.g., tasks/min; actions/task)."
+touch_offset,Touch Offset,performance,Continuous,millimeters,ratio,lower_is_better,,,,,touch_offset_mm; touch_error_mm; tap_offset; tap_offset_mm; touch_distance_to_target; pointing_offset_mm,"Touch accuracy: Euclidean distance between where a touch landed and the target centre, in mm on the screen, averaged over touches. Offsets in px need the display's pixel pitch (a scale_conversions block in the study mapping). Not for one-dimensional or angular endpoint deviations along a movement axis (Fitts' effective width) or for counts of missed targets (error_rate)."
+click_through_rate,Click-Through Rate,behavioral_interaction,Proportion,percentage,ratio,neutral,0,100,,,ctr; click_ratio; clicks_per_view,
+interaction_events,Interaction Events,behavioral_interaction,Count,integer,ratio,neutral,,,,,clicks; taps; keystrokes; interactions; touch_count,
+retention_time,Retention / Dwell Time,behavioral_interaction,Time,seconds,ratio,higher_is_better,,,,,session_duration; time_on_page,
+TLX_SCORE,NASA-TLX Composite Score,cognitive_load,Score,weighted composite,ratio,lower_is_better,0,100,NASA-TLX,,tlxScore; TLXScore; tlx_score; NASA_TLX_SCORE; nasa_tlx_score; nasa_tlx_total; TLX_total; raw_tlx; rtlx,Derived summary score. Lower is better; report central tendency + dispersion.
+mental_demand,Mental Demand,cognitive_load,Likert,21-point (0-20),ordinal,lower_is_better,0,20,NASA-TLX (Global or Subscales),,cognitive_load; mental_load; workload_rating; tlx_mental_demand; nasa_tlx_mental; NASA-TLX1; TLX1; tlx1; NASA_TLX1; nasa_tlx1; MentalLoad; ML,
+paas_mental_effort,Mental Effort (Paas scale),cognitive_load,Likert,9-point (1-9),ordinal,lower_is_better,1,9,Paas Scale,,paas; paas_scale; paas_effort; paas_mental_effort,"Paas, F. G. W. C. (1992). Journal of Educational Psychology, 84(4), 429-434. Anchors: very, very low (1) to very, very high (9) mental effort."
+rsme,Rating Scale Mental Effort (RSME),cognitive_load,Score,0-150,interval,lower_is_better,0,150,RSME,,rsme_score; rating_scale_mental_effort,"Zijlstra, F. R. H. (1993). Efficiency in work behaviour: A design approach for modern tools. PhD thesis, Delft University of Technology. Vertical 0-150 line with anchors."
+physical_demand,Physical Demand,cognitive_load,Likert,21-point (0–20),ordinal,lower_is_better,0,20,NASA-TLX,,TLX2; tlx2; NASA_TLX2; nasa_tlx2; physical_demand; tlx_physical,
+temporal_demand,Temporal Demand,cognitive_load,Likert,21-point (0–20),ordinal,lower_is_better,0,20,NASA-TLX,,TLX3; tlx3; NASA_TLX3; nasa_tlx3; temporal_demand; tlx_temporal,
+performance,Performance (TLX),cognitive_load,Likert,21-point (0–20),ordinal,lower_is_better,0,20,NASA-TLX,,TLX4; tlx4; NASA_TLX4; nasa_tlx4; performance; tlx_performance,Note: scale direction is inverted for this subscale in raw NASA-TLX scoring.
+effort,Effort,cognitive_load,Likert,21-point (0–20),ordinal,lower_is_better,0,20,NASA-TLX,,TLX5; tlx5; NASA_TLX5; nasa_tlx5; effort; tlx_effort,
+frustration,Frustration,cognitive_load,Likert,21-point (0–20),ordinal,lower_is_better,0,20,NASA-TLX,,TLX6; tlx6; NASA_TLX6; nasa_tlx6; frustration; tlx_frustration,
+dali_total,DALI Total Score,cognitive_load,Score,6-point (0–5),ordinal,lower_is_better,0,5,DALI,,DALI_score; dali_score; driving_activity_load; DALI,"Driving Activity Load Index (Pauzié 2008). Mean of 6 subscales, each 0–5."
+dali_effort_of_attention,DALI — Effort of Attention,cognitive_load,Likert,6-point (0–5),ordinal,lower_is_better,0,5,DALI,,DALI_attention; dali_attention; effort_of_attention,
+dali_visual_demand,DALI — Visual Demand,cognitive_load,Likert,6-point (0–5),ordinal,lower_is_better,0,5,DALI,,DALI_visual; dali_visual; visual_demand,
+dali_auditory_demand,DALI — Auditory Demand,cognitive_load,Likert,6-point (0–5),ordinal,lower_is_better,0,5,DALI,,DALI_auditory; dali_auditory; auditory_demand,
+dali_temporal_demand,DALI — Temporal Demand,cognitive_load,Likert,6-point (0–5),ordinal,lower_is_better,0,5,DALI,,DALI_temporal; dali_temporal_demand,
+dali_interference,DALI — Interference,cognitive_load,Likert,6-point (0–5),ordinal,lower_is_better,0,5,DALI,,DALI_interference; dali_int,
+dali_situational_stress,DALI — Situational Stress,cognitive_load,Likert,6-point (0–5),ordinal,lower_is_better,0,5,DALI,,DALI_stress; dali_stress,
+sart_total,sART Total Score,cognitive_load,Continuous,composite,ordinal,higher_is_better,,,SART,,SART_total; sart_score; SART; situational_awareness_rating,Total = Understanding − (Demand − Supply). Range depends on subscale computation.
+sart_understanding,sART Understanding Subscale,cognitive_load,Continuous,21-point (0–20),ordinal,higher_is_better,0,20,SART,,sart_understanding_rating; sart_u; SART_Understanding; SARTUnderstanding,Understanding subscale of the Situation Awareness Rating Technique (SART; Taylor 1990). Scored 0–20. Distinct from eHMI comprehension items — do not pool with understanding_rating.
+sart_demand,sART Demand Subscale,cognitive_load,Continuous,21-point (0–20),ordinal,lower_is_better,0,20,SART,,sart_d; SART_Demand; SARTDemand; sart_demand_rating,
+sart_supply,sART Supply Subscale,cognitive_load,Continuous,21-point (0–20),ordinal,higher_is_better,0,20,SART,,sart_s; SART_Supply; SARTSupply; sart_supply_rating,
+situational_awareness,Situational Awareness (generic),cognitive_load,Likert,score,ordinal,higher_is_better,,,SAGAT; SPAM,,sa; SA_score; sagat_score,
+perceived_safety,Perceived Safety,safety_trust,Likert,7-point (-3–3),ordinal,higher_is_better,-3,3,,,PerceivedSafety; PS; perceived_safety_score; safety_rating,Bipolar 7-point scale (−3 to +3) as used in eHMI studies.
+perceived_risk,Perceived Risk,safety_trust,Continuous,VAS (1–100),ratio,lower_is_better,1,100,,,perceivedRisk; perceived_risk_rating; risk_rating; ArduinoData1_osf_cwd6h,"Visual Analogue Scale for perceived risk. In osf_cwd6h, ArduinoData1 encodes this measure."
+trust_rating,Trust in Automation / eHMI,safety_trust,Likert,5-point (1–5),ordinal,higher_is_better,1,5,,,Trust; trust_score; trust_in_automation,"Generic single-item trust. For multi-item scales, use TiA or Jian subscales."
+tia_reliability_competence,TiA — Reliability/Competence,safety_trust,Likert,5-point (1–5),ordinal,higher_is_better,1,5,Körber TiA,,TiA_RC; tia_rc; reliability_competence; TiA1; trust_reliability,
+tia_understanding_predictability,TiA — Understanding/Predictability,safety_trust,Likert,5-point (1–5),ordinal,higher_is_better,1,5,Körber TiA,,TiA_UP; tia_up; understanding_predictability; TiA2; trust_predictability,
+tia_familiarity,TiA — Familiarity,safety_trust,Likert,5-point (1–5),ordinal,higher_is_better,1,5,Körber TiA,,TiA_F; tia_fam; trust_familiarity; TiA3,
+tia_intention_of_developers,TiA — Intention of Developers,safety_trust,Likert,5-point (1–5),ordinal,higher_is_better,1,5,Körber TiA,,TiA_ID; tia_id; intention_developers; TiA4; trust_developers,
+tia_propensity_to_trust,TiA — Propensity to Trust,safety_trust,Likert,5-point (1–5),ordinal,higher_is_better,1,5,Körber TiA,,TiA_PT; tia_pt; propensity_trust; TiA5; trust_propensity,
+tia_trust_in_automation,TiA — Trust in Automation,safety_trust,Likert,5-point (1–5),ordinal,higher_is_better,1,5,Körber TiA,,TiA_TiA; tia_tia; TiA6; trust_automation_scale,Overall TiA subscale. Not to be confused with the single-item trust_rating.
+jian_trust,Jian Trust Scale,safety_trust,Likert,7-point (1–7),ordinal,higher_is_better,1,7,Jian et al. Trust Scale,,jian_trust_score; jian_scale; trust_jian; checklist_trust,"12-item trust/distrust checklist (Jian, Bisantz & Drury 2000). Mean of trust items on 1–7."
+understanding_rating,Understanding / Comprehension (eHMI),cognitive_load,Likert,5-point (1–5),ordinal,higher_is_better,1,5,,,Understanding,eHMI signal comprehension item. Do NOT use for sART Understanding subscale — see sart_understanding.
+aesthetics_rating,Aesthetic Evaluation,ux_satisfaction,Likert,7-point (1–7),ordinal,higher_is_better,1,7,,,Aesthetics; visual_appeal; attractiveness_rating,
+acceptance_rating,Acceptance (generic),ux_satisfaction,Likert,7-point (1–7),ordinal,higher_is_better,1,7,,,Acceptance; acceptance_score,
+user_satisfaction,User Satisfaction,ux_satisfaction,Likert,7-point,ordinal,higher_is_better,1,7,UEQ; UMUX / UMUX-Lite; CSAT; NPS,,satisfaction_score; satisfaction_rating; user_feedback; perceived_quality; CSAT,
+usability,Usability (SUS Total),ux_satisfaction,Score,SUS (0–100),ordinal,higher_is_better,0,100,SUS,,sus_score; system_usability_scale; SUSScore; susScore; SYSTEM_USABILITY_SCORE; system_usability_score; SUS_total,
+SUS1,SUS Item 1,ux_satisfaction,Likert,5-point,ordinal,higher_is_better,1,5,SUS,,sus1; usability_q1; UsabilityQ1; U1,
+SUS2,SUS Item 2,ux_satisfaction,Likert,5-point,ordinal,lower_is_better,1,5,SUS,,sus2; usability_q2; UsabilityQ2; U2,
+SUS3,SUS Item 3,ux_satisfaction,Likert,5-point,ordinal,higher_is_better,1,5,SUS,,sus3; usability_q3; UsabilityQ3; U3,
+SUS4,SUS Item 4,ux_satisfaction,Likert,5-point,ordinal,lower_is_better,1,5,SUS,,sus4; usability_q4; UsabilityQ4; U4,
+SUS5,SUS Item 5,ux_satisfaction,Likert,5-point,ordinal,higher_is_better,1,5,SUS,,sus5; usability_q5; UsabilityQ5; U5,
+SUS6,SUS Item 6,ux_satisfaction,Likert,5-point,ordinal,lower_is_better,1,5,SUS,,sus6; usability_q6; UsabilityQ6; U6,
+SUS7,SUS Item 7,ux_satisfaction,Likert,5-point,ordinal,higher_is_better,1,5,SUS,,sus7; usability_q7; UsabilityQ7; U7,
+SUS8,SUS Item 8,ux_satisfaction,Likert,5-point,ordinal,lower_is_better,1,5,SUS,,sus8; usability_q8; UsabilityQ8; U8,
+SUS9,SUS Item 9,ux_satisfaction,Likert,5-point,ordinal,higher_is_better,1,5,SUS,,sus9; usability_q9; UsabilityQ9; U9,
+SUS10,SUS Item 10,ux_satisfaction,Likert,5-point,ordinal,lower_is_better,1,5,SUS,,sus10; usability_q10; UsabilityQ10; U10,
+ueq_attractiveness,UEQ — Attractiveness,ux_satisfaction,Likert,7-point (-3–3),ordinal,higher_is_better,-3,3,UEQ; UEQ+,,UEQ_attractiveness; ueq_att; UEQ_ATT; attractiveness,
+ueq_perspicuity,UEQ — Perspicuity,ux_satisfaction,Likert,7-point (-3–3),ordinal,higher_is_better,-3,3,UEQ; UEQ+,,UEQ_perspicuity; ueq_per; UEQ_PER; perspicuity; clarity,
+ueq_efficiency,UEQ — Efficiency,ux_satisfaction,Likert,7-point (-3–3),ordinal,higher_is_better,-3,3,UEQ; UEQ+,,UEQ_efficiency; ueq_eff; UEQ_EFF,
+ueq_dependability,UEQ — Dependability,ux_satisfaction,Likert,7-point (-3–3),ordinal,higher_is_better,-3,3,UEQ; UEQ+,,UEQ_dependability; ueq_dep; UEQ_DEP; dependability,
+ueq_stimulation,UEQ — Stimulation,ux_satisfaction,Likert,7-point (-3–3),ordinal,higher_is_better,-3,3,UEQ; UEQ+,,UEQ_stimulation; ueq_sti; UEQ_STI; stimulation,
+ueq_novelty,UEQ — Novelty,ux_satisfaction,Likert,7-point (-3–3),ordinal,higher_is_better,-3,3,UEQ; UEQ+,,UEQ_novelty; ueq_nov; UEQ_NOV; novelty; originality,
+ueq_pragmatic,UEQ — Pragmatic Quality (PQ),ux_satisfaction,Likert,7-point (-3–3),ordinal,higher_is_better,-3,3,UEQ-S; UEQ,,UEQ_PQ; ueq_pq; pragmatic_quality; UEQ_S_PQ,"UEQ-S pragmatic quality = mean(perspicuity, efficiency, dependability)."
+ueq_hedonic,UEQ — Hedonic Quality (HQ),ux_satisfaction,Likert,7-point (-3–3),ordinal,higher_is_better,-3,3,UEQ-S; UEQ,,UEQ_HQ; ueq_hq; hedonic_quality; UEQ_S_HQ,"UEQ-S hedonic quality = mean(stimulation, novelty)."
+attrakdiff_pq,AttrakDiff — Pragmatic Quality,ux_satisfaction,Likert,7-point (-3–3),ordinal,higher_is_better,-3,3,AttrakDiff,,AD_PQ; attrakdiff_pragmatic; pragmatic_quality_ad,
+attrakdiff_hqs,AttrakDiff — Hedonic Quality (Stimulation),ux_satisfaction,Likert,7-point (-3–3),ordinal,higher_is_better,-3,3,AttrakDiff,,AD_HQS; attrakdiff_stimulation; HQ_S,
+attrakdiff_hqi,AttrakDiff — Hedonic Quality (Identity),ux_satisfaction,Likert,7-point (-3–3),ordinal,higher_is_better,-3,3,AttrakDiff,,AD_HQI; attrakdiff_identity; HQ_I,
+attrakdiff_att,AttrakDiff — Attractiveness,ux_satisfaction,Likert,7-point (-3–3),ordinal,higher_is_better,-3,3,AttrakDiff,,AD_ATT; attrakdiff_attractiveness,
+utaut_performance_expectancy,UTAUT — Performance Expectancy,ux_satisfaction,Likert,7-point (1–7),ordinal,higher_is_better,1,7,UTAUT; UTAUT2,,PE; performance_expectancy; utaut_pe; UTAUT_PE,
+utaut_effort_expectancy,UTAUT — Effort Expectancy,ux_satisfaction,Likert,7-point (1–7),ordinal,higher_is_better,1,7,UTAUT; UTAUT2,,EE; effort_expectancy; utaut_ee; UTAUT_EE; ease_of_use,
+utaut_social_influence,UTAUT — Social Influence,ux_satisfaction,Likert,7-point (1–7),ordinal,higher_is_better,1,7,UTAUT; UTAUT2,,SI; social_influence; utaut_si; UTAUT_SI,
+utaut_facilitating_conditions,UTAUT — Facilitating Conditions,ux_satisfaction,Likert,7-point (1–7),ordinal,higher_is_better,1,7,UTAUT; UTAUT2,,FC; facilitating_conditions; utaut_fc; UTAUT_FC,
+utaut_behavioral_intention,UTAUT — Behavioral Intention,ux_satisfaction,Likert,7-point (1–7),ordinal,higher_is_better,1,7,UTAUT; UTAUT2; TAM,,BI; behavioral_intention; utaut_bi; UTAUT_BI; intention_to_use,
+utaut_hedonic_motivation,UTAUT2 — Hedonic Motivation,ux_satisfaction,Likert,7-point (1–7),ordinal,higher_is_better,1,7,UTAUT2,,HM; hedonic_motivation; utaut2_hm,
+tam_perceived_usefulness,TAM — Perceived Usefulness,ux_satisfaction,Likert,7-point (1–7),ordinal,higher_is_better,1,7,TAM; TAM2; TAM3,,PU; perceived_usefulness; tam_pu; TAM_PU,
+tam_perceived_ease_of_use,TAM — Perceived Ease of Use,ux_satisfaction,Likert,7-point (1–7),ordinal,higher_is_better,1,7,TAM; TAM2; TAM3,,PEOU; perceived_ease_of_use; tam_peou; TAM_PEOU,
+AOA_USEFULNESS,van der Laan Acceptance — Usefulness Subscale,ux_satisfaction,Score,5-point (-2 to +2),ordinal,higher_is_better,-2,2,van der Laan Acceptance Scale,,AOAUsefulness; aoa_usefulness; van_der_laan_usefulness; acceptance_usefulness; vdl_usefulness,Derived subscale score; mean of AOA usefulness items.
+AOA_SATISFYING,van der Laan Acceptance — Satisfying Subscale,ux_satisfaction,Score,5-point (-2 to +2),ordinal,higher_is_better,-2,2,van der Laan Acceptance Scale,,AOASatisfying; aoa_satisfying; van_der_laan_satisfying; acceptance_satisfying; vdl_satisfying,Derived subscale score; mean of AOA satisfying items.
+AOA1,van der Laan — Item 1,ux_satisfaction,Likert,5-point (-2 to +2),ordinal,lower_is_better,-2,2,van der Laan Acceptance Scale,,aoa1; acceptance_1; vdL_1,
+AOA2,van der Laan — Item 2,ux_satisfaction,Likert,5-point (-2 to +2),ordinal,lower_is_better,-2,2,van der Laan Acceptance Scale,,aoa2; acceptance_2; vdL_2,
+AOA3,van der Laan — Item 3,ux_satisfaction,Likert,5-point (-2 to +2),ordinal,higher_is_better,-2,2,van der Laan Acceptance Scale,,aoa3; acceptance_3; vdL_3,
+AOA4,van der Laan — Item 4,ux_satisfaction,Likert,5-point (-2 to +2),ordinal,lower_is_better,-2,2,van der Laan Acceptance Scale,,aoa4; acceptance_4; vdL_4,
+AOA5,van der Laan — Item 5,ux_satisfaction,Likert,5-point (-2 to +2),ordinal,lower_is_better,-2,2,van der Laan Acceptance Scale,,aoa5; acceptance_5; vdL_5,
+AOA6,van der Laan — Item 6,ux_satisfaction,Likert,5-point (-2 to +2),ordinal,higher_is_better,-2,2,van der Laan Acceptance Scale,,aoa6; acceptance_6; vdL_6,
+AOA7,van der Laan — Item 7,ux_satisfaction,Likert,5-point (-2 to +2),ordinal,lower_is_better,-2,2,van der Laan Acceptance Scale,,aoa7; acceptance_7; vdL_7,
+AOA8,van der Laan — Item 8,ux_satisfaction,Likert,5-point (-2 to +2),ordinal,higher_is_better,-2,2,van der Laan Acceptance Scale,,aoa8; acceptance_8; vdL_8,
+AOA9,van der Laan — Item 9,ux_satisfaction,Likert,5-point (-2 to +2),ordinal,lower_is_better,-2,2,van der Laan Acceptance Scale,,aoa9; acceptance_9; vdL_9,
+ssq_total,SSQ Total Score,physiological_biometric,Score,SSQ weighted,ratio,lower_is_better,0,235.62,SSQ (Kennedy et al. 1993),,SSQ_total; ssq_score; simulator_sickness; SSQ; cybersickness_total,Simulator Sickness Questionnaire total. Max theoretical = 235.62. Scores >20 indicate concern.
+ssq_nausea,SSQ — Nausea,physiological_biometric,Score,SSQ weighted,ratio,lower_is_better,0,200.34,SSQ,,SSQ_N; ssq_n; ssq_nausea_score; nausea,
+ssq_oculomotor,SSQ — Oculomotor,physiological_biometric,Score,SSQ weighted,ratio,lower_is_better,0,159.18,SSQ,,SSQ_O; ssq_o; ssq_oculomotor_score; oculomotor,
+ssq_disorientation,SSQ — Disorientation,physiological_biometric,Score,SSQ weighted,ratio,lower_is_better,0,292.32,SSQ,,SSQ_D; ssq_d; ssq_disorientation_score; disorientation,
+vrsq_score,VRSQ Score,physiological_biometric,Score,percentage (0–100),ratio,lower_is_better,0,100,VRSQ (Kim et al. 2018),,VRSQ; vrsq; vr_sickness; virtual_reality_sickness,"VR Sickness Questionnaire. 9 items, 0–100% score."
+fms_score,Fast Motion Sickness Score,physiological_biometric,Continuous,VAS (0–20),ratio,lower_is_better,0,20,FMS (Keshavarz & Hecht 2011),,FMS; fms; fast_motion_sickness; motion_sickness_score,
+ipq_general_presence,IPQ — General Presence,ux_satisfaction,Likert,7-point (0–6),ordinal,higher_is_better,0,6,IPQ,,IPQ_GP; ipq_gp; general_presence; G1,Single-item 'sense of being there' (0–6).
+ipq_spatial_presence,IPQ — Spatial Presence,ux_satisfaction,Likert,7-point (0–6),ordinal,higher_is_better,0,6,IPQ,,IPQ_SP; ipq_sp; spatial_presence,
+ipq_involvement,IPQ — Involvement,ux_satisfaction,Likert,7-point (0–6),ordinal,higher_is_better,0,6,IPQ,,IPQ_INV; ipq_inv; involvement,
+ipq_experienced_realism,IPQ — Experienced Realism,ux_satisfaction,Likert,7-point (0–6),ordinal,higher_is_better,0,6,IPQ,,IPQ_REAL; ipq_real; experienced_realism; realness,
+godspeed_anthropomorphism,Godspeed — Anthropomorphism,ux_satisfaction,Likert,5-point (1–5),ordinal,higher_is_better,1,5,Godspeed (Bartneck et al. 2009),,GS_anthropomorphism; godspeed_anthro; anthropomorphism,
+godspeed_animacy,Godspeed — Animacy,ux_satisfaction,Likert,5-point (1–5),ordinal,higher_is_better,1,5,Godspeed,,GS_animacy; godspeed_anim; animacy,
+godspeed_likeability,Godspeed — Likeability,ux_satisfaction,Likert,5-point (1–5),ordinal,higher_is_better,1,5,Godspeed,,GS_likeability; godspeed_like; likeability; likability,
+godspeed_perceived_intelligence,Godspeed — Perceived Intelligence,ux_satisfaction,Likert,5-point (1–5),ordinal,higher_is_better,1,5,Godspeed,,GS_intelligence; godspeed_pi; perceived_intelligence,
+godspeed_perceived_safety,Godspeed — Perceived Safety,safety_trust,Likert,5-point (1–5),ordinal,higher_is_better,1,5,Godspeed,,GS_safety; godspeed_safety,Godspeed safety subscale. Distinct from the bipolar perceived_safety item.
+valence,Valence,affective_emotion,Likert,9-point (SAM),ordinal,higher_is_better,1,9,SAM (valence); PANAS,,affect_valence; sam_valence; SAM_valence,
+arousal,Arousal,affective_emotion,Likert,9-point (SAM),ordinal,neutral,1,9,SAM (arousal),,SAM_arousal; sam_arousal; activation; excitement,"SAM arousal manikin. High = excited/aroused, low = calm."
+dominance,Dominance,affective_emotion,Likert,9-point (SAM),ordinal,higher_is_better,1,9,SAM (dominance),,SAM_dominance; sam_dominance; control,
+panas_positive,PANAS — Positive Affect,affective_emotion,Score,5-point (1–5),ordinal,higher_is_better,1,5,PANAS,,panas_pa; PA; positive_affect; PANAS_PA,"Mean of 10 positive items, each 1–5."
+panas_negative,PANAS — Negative Affect,affective_emotion,Score,5-point (1–5),ordinal,lower_is_better,1,5,PANAS,,panas_na; NA_affect; negative_affect; PANAS_NA,"Mean of 10 negative items, each 1–5."
+engagement_level,Engagement,affective_emotion,Likert,5-point (1–5),ordinal,higher_is_better,1,5,UES; SAM (arousal),,user_engagement; attention_score; engagement_index; UES_score,
+stress,Stress,affective_emotion,Likert,5-point (1–5),ordinal,lower_is_better,1,5,PSS,,perceived_stress; strain; PSS_score,
+usability_problems,Usability Problems,ux_satisfaction,Count,integer,ratio,lower_is_better,,,,,usability_issues; issue_count,"If severity is rated, include scale."
+sdlp,Standard Deviation of Lateral Position,performance,Continuous,meters,ratio,lower_is_better,,,,,SDLP; lane_deviation_sd; lateral_deviation; lane_keeping,Key driving performance metric. Lower = better lane keeping.
+ttc,Time to Collision,safety_trust,Time,seconds,ratio,higher_is_better,,,,,TTC; time_to_collision; ttc_min; minimum_ttc,Higher TTC = safer following distance.
+brake_reaction_time,Brake Reaction Time,performance,Time,seconds,ratio,lower_is_better,,,,,brake_rt; BRT; braking_time; brake_response_time; pedal_reaction_time,
+takeover_time,Takeover Time,performance,Time,seconds,ratio,lower_is_better,,,,,TOT; takeover_reaction_time; TOR_time; handover_time; transition_time,Time from TOR (takeover request) to first driver input.
+headway,Headway / Following Distance,safety_trust,Continuous,seconds,ratio,higher_is_better,,,,,THW; time_headway; following_distance; headway_time,
+gaze_on_road,Gaze on Road Percentage,behavioral_interaction,Proportion,percentage,ratio,higher_is_better,0,100,,,percent_road_center; gaze_road; eyes_on_road; PRC,
+max_lateral_acceleration,Maximum Lateral Acceleration,performance,Continuous,m/s²,ratio,lower_is_better,,,,,max_lat_accel; lateral_g; swerving,
+eda_gsr,Electrodermal Activity (EDA/GSR),physiological_biometric,Physiological,microsiemens,ratio,neutral,,,Shimmer GSR; Empatica E4,,gsr; skin_conductance; eda; galvanic_skin_response; SCL; SCR,
+hr_bpm,Heart Rate,physiological_biometric,Physiological,bpm,ratio,neutral,,,Polar H10; Empatica E4,,heart_rate; hr; HR; pulse; bpm,
+hrv_rmssd,Heart Rate Variability (RMSSD),physiological_biometric,Physiological,milliseconds,ratio,neutral,,,Polar H10; Empatica E4,,hrv; HRV; RMSSD; rmssd; heart_rate_variability; rr_interval; SDNN,Report RMSSD or SDNN; specify which.
+emg,Electromyography,physiological_biometric,Physiological,microvolts,ratio,neutral,,,,,EMG; emg_rms; muscle_activity; corrugator; zygomaticus,
+pupil_dilation,Pupil Dilation,physiological_biometric,Physiological,millimeters,ratio,neutral,,,Tobii Pro; Pupil Labs,,pupil_size; pupil_diameter; PCPS; baseline_corrected_pupil,
+fixation_duration,Fixation Duration,physiological_biometric,Time,milliseconds,ratio,neutral,,,Tobii Pro; EyeLink,,fix_duration; mean_fixation_duration; avg_fixation_ms; gaze_fixation,
+fixation_count,Fixation Count,physiological_biometric,Count,integer,ratio,neutral,,,Tobii Pro; EyeLink,,fix_count; number_of_fixations; n_fixations,
+saccade_rate,Saccade Rate,physiological_biometric,Continuous,saccades/s,ratio,neutral,,,Tobii Pro; EyeLink,,saccade_frequency; saccades_per_second; saccade_amplitude,
+dwell_time,Dwell Time (AOI),physiological_biometric,Time,milliseconds,ratio,neutral,,,Tobii Pro; EyeLink,,aoi_dwell; gaze_dwell; total_dwell_time; time_in_aoi,
+scanpath_length,Scanpath Length,physiological_biometric,Continuous,pixels,ratio,neutral,,,Tobii Pro,,scan_path; gaze_path_length; total_scanpath,
+eye_tracking,Eye-Tracking Metrics (generic),physiological_biometric,Time,milliseconds,ratio,neutral,,,Tobii Pro; EyeLink,,gaze,"DEPRECATED — prefer fixation_duration, fixation_count, saccade_rate, dwell_time."
+social_presence,Social Presence,social_collaboration,Likert,7-point (1–7),ordinal,higher_is_better,1,7,Networked Minds Social Presence,,co_presence; copresence; social_presence_score,
+collaboration_quality,Collaboration Quality,social_collaboration,Likert,7-point (1–7),ordinal,higher_is_better,1,7,,,team_effectiveness; coordination_quality,
+accessibility_outcome,Accessibility Outcome,accessibility_inclusion,Binary,success_failure,nominal,higher_is_better,0,1,,,accessible_use; barrier_count; success_with_AT,
+pedestrian_crossing_time,Pedestrian Crossing Time,behavioral_interaction,Time,seconds,ratio,neutral,,,,,time on intersection; time_on_intersection; crossing_time; crossing_duration,Time the pedestrian spends on the intersection / crossing (eHMI-for-All crossing-event logs: time on intersection). The logs' total trial time is a different measure and is not an alias.
+crossing_initiation_time,Crossing Initiation Time,behavioral_interaction,Time,seconds,ratio,neutral,,,,,time before; time_before; time_before_intersection,Latency before the pedestrian steps onto the crossing.
+time_after_crossing,Time After Crossing,behavioral_interaction,Time,seconds,ratio,neutral,,,,,time after; time_after; time_after_intersection,
+number_of_collisions,Number of Collisions,safety_trust,Count,count,ratio,lower_is_better,,,,,collision with cars; collision_with_cars; collisions; collision_count; number_of_collisions; num_collisions,Pedestrian-vehicle collisions per trial (safety outcome).
+perceived_safety_item_01,Perceived Safety (item 1),safety_trust,Likert,7-point (-3-3),ordinal,higher_is_better,-3,3,,,PerSafe01,
+perceived_safety_item_02,Perceived Safety (item 2),safety_trust,Likert,7-point (-3-3),ordinal,higher_is_better,-3,3,,,PerSafe02,
+perceived_safety_item_03,Perceived Safety (item 3),safety_trust,Likert,7-point (-3-3),ordinal,higher_is_better,-3,3,,,PerSafe03,
+perceived_safety_item_04,Perceived Safety (item 4),safety_trust,Likert,7-point (-3-3),ordinal,higher_is_better,-3,3,,,PerSafe04,
+tia_item_01,TiA trust item 1,safety_trust,Likert,5-point (1-5),ordinal,higher_is_better,1,5,,,TiA01,
+tia_item_02,TiA trust item 2,safety_trust,Likert,5-point (1-5),ordinal,higher_is_better,1,5,,,TiA02,
+tia_item_03,TiA trust item 3,safety_trust,Likert,5-point (1-5),ordinal,higher_is_better,1,5,,,TiA03,
+tia_item_04,TiA trust item 4,safety_trust,Likert,5-point (1-5),ordinal,higher_is_better,1,5,,,TiA04,
+tia_item_05,TiA trust item 5,safety_trust,Likert,5-point (1-5),ordinal,higher_is_better,1,5,,,TiA05,
+tia_item_06,TiA trust item 6,safety_trust,Likert,5-point (1-5),ordinal,higher_is_better,1,5,,,TiA06,
+perceived_conflict,Perceived User–Vehicle Conflict,safety_trust,Score,5-point (1–5),ordinal,lower_is_better,1,5,,,user_vehicle_conflict; perceived_conflict_score; conflict_rating,Subjective conflict/disagreement with the automated vehicle's decision. Composite = mean of 5 items (one reverse-scored). Lower = less conflict.
+conflict_item_01,Perceived Conflict (item 1),safety_trust,Likert,5-point (1–5),ordinal,lower_is_better,1,5,,perceived_conflict,perceived_conflict_item_1,
+conflict_item_02,Perceived Conflict (item 2),safety_trust,Likert,5-point (1–5),ordinal,lower_is_better,1,5,,perceived_conflict,perceived_conflict_item_2,Reverse-scored in the source analysis (C2_inv).
+conflict_item_03,Perceived Conflict (item 3),safety_trust,Likert,5-point (1–5),ordinal,lower_is_better,1,5,,perceived_conflict,perceived_conflict_item_3,
+conflict_item_04,Perceived Conflict (item 4),safety_trust,Likert,5-point (1–5),ordinal,lower_is_better,1,5,,perceived_conflict,perceived_conflict_item_4,
+conflict_item_05,Perceived Conflict (item 5),safety_trust,Likert,5-point (1–5),ordinal,lower_is_better,1,5,,perceived_conflict,perceived_conflict_item_5,
+sts_ad_trust,STS-AD Situational Trust (composite),safety_trust,Score,7-point (1–7),ordinal,higher_is_better,1,7,"STS-AD (Holthausen, Wintersberger & Walker 2020)",,sts_ad; situational_trust_ad; sts_ad_score; situational_trust_scale_ad,Situational Trust Scale for Automated Driving. Composite = mean of 6 items (items 2/4/5 reverse-scored). Distinct from Körber TiA and Jian trust — do not pool with tia_* or jian_trust.
+sts_ad_item_01,STS-AD trust item 1,safety_trust,Likert,7-point (1–7),ordinal,higher_is_better,1,7,,sts_ad_trust,sts_ad_item_1,
+sts_ad_item_02,STS-AD trust item 2,safety_trust,Likert,7-point (1–7),ordinal,higher_is_better,1,7,,sts_ad_trust,sts_ad_item_2,Reverse-scored in the source analysis (ST2_inv).
+sts_ad_item_03,STS-AD trust item 3,safety_trust,Likert,7-point (1–7),ordinal,higher_is_better,1,7,,sts_ad_trust,sts_ad_item_3,
+sts_ad_item_04,STS-AD trust item 4,safety_trust,Likert,7-point (1–7),ordinal,higher_is_better,1,7,,sts_ad_trust,sts_ad_item_4,Reverse-scored in the source analysis (ST4_inv).
+sts_ad_item_05,STS-AD trust item 5,safety_trust,Likert,7-point (1–7),ordinal,higher_is_better,1,7,,sts_ad_trust,sts_ad_item_5,Reverse-scored in the source analysis (ST5_inv).
+sts_ad_item_06,STS-AD trust item 6,safety_trust,Likert,7-point (1–7),ordinal,higher_is_better,1,7,,sts_ad_trust,sts_ad_item_6,
+task_feasibility,Perceived Task Feasibility,ux_satisfaction,Score,5-point (1–5),ordinal,higher_is_better,1,5,,,perceived_task_feasibility; feasibility_rating,"Composite = mean of 2 items (one reverse-scored, A2_inv)."
+task_feasibility_item_01,Task Feasibility (item 1),ux_satisfaction,Likert,5-point (1–5),ordinal,higher_is_better,1,5,,,task_feasibility_item_1,
+task_feasibility_item_02,Task Feasibility (item 2),ux_satisfaction,Likert,5-point (1–5),ordinal,higher_is_better,1,5,,,task_feasibility_item_2,Reverse-scored in the source analysis (A2_inv).
+perceived_vehicle_influence,Perceived Vehicle Influence on Decision,behavioral_interaction,Likert,5-point (1–5),ordinal,neutral,1,5,,,vehicle_influence_on_decision; perceived_influence_on_decision,How strongly the vehicle's behaviour influenced the user's decision.
+psychological_reactance,Psychological Reactance,affective_emotion,Score,5-point (1–5),ordinal,lower_is_better,1,5,Hong Psychological Reactance Scale,,reactance; reactance_score; state_reactance; hong_reactance,Motivational opposition to a perceived threat to behavioural freedom (e.g. a digital-wellbeing intervention). Lower = less reactance.
+intervention_responsiveness,Intervention Responsiveness (latency),behavioral_interaction,Time,seconds,ratio,neutral,,,,,responsiveness; intervention_response_time; response_latency,Time taken to respond to an in-situ intervention (scrolling-in-the-deep: latency in seconds). Unbounded — no canonical_range.
+sleepiness,Sleepiness (KSS),affective_emotion,Likert,9-point (1–9),ordinal,neutral,1,9,KSS (Karolinska Sleepiness Scale),,kss; kss_score; karolinska_sleepiness; drowsiness,"1 = extremely alert, 9 = very sleepy / fighting sleep."
+umux_score,UMUX (Usability Metric for User Experience),ux_satisfaction,Score,0–100,interval,higher_is_better,0,100,UMUX (Finstad 2010),,umux; umux_total; umux_score,"Four 7-point items. Odd items score (response − 1), even items (7 − response); the sum / 24 × 100."
+umux_lite_score,UMUX-Lite,ux_satisfaction,Score,0–100,interval,higher_is_better,0,100,"UMUX-Lite (Lewis, Utesch & Maher 2013)",,umux_lite; umuxlite; umux_lite_score,"UMUX items 1 and 3 (7-point): (item1 + item3 − 2) / 12 × 100. Some studies report the regression-adjusted score (0.65 × raw + 22.9), which is on the SUS scale; say which one in the study mapping."
+seq_rating,Single Ease Question (SEQ),ux_satisfaction,Likert,7-point (1–7),ordinal,higher_is_better,1,7,SEQ (Sauro & Dumas 2009),,single_ease_question; seq_rating; seq_score,"Asked after each task: 1 = very difficult, 7 = very easy."
+ues_focused_attention,UES-SF – Focused Attention,ux_satisfaction,Likert,5-point (1–5),ordinal,higher_is_better,1,5,"UES-SF (O'Brien, Cairns & Hall 2018)",engagement_level,ues_fa; ues_focused_attention,
+ues_perceived_usability,UES-SF – Perceived Usability,ux_satisfaction,Likert,5-point (1–5),ordinal,higher_is_better,1,5,"UES-SF (O'Brien, Cairns & Hall 2018)",engagement_level,ues_pu; ues_perceived_usability,The items are negatively worded; higher = better after reverse-scoring.
+ues_aesthetic_appeal,UES-SF – Aesthetic Appeal,ux_satisfaction,Likert,5-point (1–5),ordinal,higher_is_better,1,5,"UES-SF (O'Brien, Cairns & Hall 2018)",engagement_level,ues_ae; ues_aesthetic_appeal,
+ues_reward,UES-SF – Reward,ux_satisfaction,Likert,5-point (1–5),ordinal,higher_is_better,1,5,"UES-SF (O'Brien, Cairns & Hall 2018)",engagement_level,ues_rw; ues_reward,
+csi_score,Creativity Support Index (CSI),ux_satisfaction,Score,0–100,interval,higher_is_better,0,100,CSI (Cherry & Latulipe 2014),,creativity_support_index; csi_score; csi_total,"Factor scores weighted by the paired-factor comparisons, scaled to 0–100."
+pxi_ease_of_control,PXI – Ease of Control,ux_satisfaction,Likert,7-point (−3–3),ordinal,higher_is_better,-3,3,PXI (Vanden Abeele et al. 2020),,pxi_ease_of_control; pxi_eoc,Each PXI construct is the mean of three items from −3 (strongly disagree) to 3 (strongly agree).
+pxi_progress_feedback,PXI – Progress Feedback,ux_satisfaction,Likert,7-point (−3–3),ordinal,higher_is_better,-3,3,PXI (Vanden Abeele et al. 2020),,pxi_progress_feedback; pxi_pf,
+pxi_audiovisual_appeal,PXI – Audiovisual Appeal,ux_satisfaction,Likert,7-point (−3–3),ordinal,higher_is_better,-3,3,PXI (Vanden Abeele et al. 2020),,pxi_audiovisual_appeal; pxi_ava,
+pxi_clarity_of_goals,PXI – Goals and Rules,ux_satisfaction,Likert,7-point (−3–3),ordinal,higher_is_better,-3,3,PXI (Vanden Abeele et al. 2020),,pxi_clarity_of_goals; pxi_goals_and_rules; pxi_gr,
+pxi_challenge,PXI – Challenge,ux_satisfaction,Likert,7-point (−3–3),ordinal,higher_is_better,-3,3,PXI (Vanden Abeele et al. 2020),,pxi_challenge; pxi_ch,Agreement that the challenge fit the player's skill (higher = better fit).
+pxi_mastery,PXI – Mastery,ux_satisfaction,Likert,7-point (−3–3),ordinal,higher_is_better,-3,3,PXI (Vanden Abeele et al. 2020),,pxi_mastery; pxi_ma,
+pxi_curiosity,PXI – Curiosity,ux_satisfaction,Likert,7-point (−3–3),ordinal,higher_is_better,-3,3,PXI (Vanden Abeele et al. 2020),,pxi_curiosity; pxi_cu,
+pxi_immersion,PXI – Immersion,ux_satisfaction,Likert,7-point (−3–3),ordinal,higher_is_better,-3,3,PXI (Vanden Abeele et al. 2020),,pxi_immersion; pxi_im,
+pxi_autonomy,PXI – Autonomy,ux_satisfaction,Likert,7-point (−3–3),ordinal,higher_is_better,-3,3,PXI (Vanden Abeele et al. 2020),,pxi_autonomy; pxi_au,
+pxi_meaning,PXI – Meaning,ux_satisfaction,Likert,7-point (−3–3),ordinal,higher_is_better,-3,3,PXI (Vanden Abeele et al. 2020),,pxi_meaning; pxi_me,
+pxi_enjoyment,PXI – Enjoyment,ux_satisfaction,Likert,7-point (−3–3),ordinal,higher_is_better,-3,3,PXI (Vanden Abeele et al. 2020),,pxi_enjoyment; pxi_en,
+geq_competence,GEQ – Competence,ux_satisfaction,Likert,5-point (0–4),ordinal,higher_is_better,0,4,"GEQ core module (IJsselsteijn, de Kort & Poels 2013)",,geq_competence,Each GEQ component is the mean of its items from 0 (not at all) to 4 (extremely).
+geq_immersion,GEQ – Sensory and Imaginative Immersion,ux_satisfaction,Likert,5-point (0–4),ordinal,higher_is_better,0,4,"GEQ core module (IJsselsteijn, de Kort & Poels 2013)",,geq_immersion; geq_sensory_imaginative_immersion,
+geq_flow,GEQ – Flow,ux_satisfaction,Likert,5-point (0–4),ordinal,higher_is_better,0,4,"GEQ core module (IJsselsteijn, de Kort & Poels 2013)",,geq_flow,
+geq_challenge,GEQ – Challenge,ux_satisfaction,Likert,5-point (0–4),ordinal,neutral,0,4,"GEQ core module (IJsselsteijn, de Kort & Poels 2013)",,geq_challenge,
+geq_tension,GEQ – Tension/Annoyance,affective_emotion,Likert,5-point (0–4),ordinal,lower_is_better,0,4,"GEQ core module (IJsselsteijn, de Kort & Poels 2013)",,geq_tension; geq_tension_annoyance,
+geq_negative_affect,GEQ – Negative Affect,affective_emotion,Likert,5-point (0–4),ordinal,lower_is_better,0,4,"GEQ core module (IJsselsteijn, de Kort & Poels 2013)",,geq_negative_affect,
+geq_positive_affect,GEQ – Positive Affect,affective_emotion,Likert,5-point (0–4),ordinal,higher_is_better,0,4,"GEQ core module (IJsselsteijn, de Kort & Poels 2013)",,geq_positive_affect,
+imi_interest_enjoyment,IMI – Interest/Enjoyment,ux_satisfaction,Likert,7-point (1–7),ordinal,higher_is_better,1,7,"IMI (Ryan 1982; McAuley, Duncan & Tammen 1989)",,imi_interest_enjoyment; imi_enjoyment,Each IMI subscale is the mean of its items from 1 (not at all true) to 7 (very true).
+imi_perceived_competence,IMI – Perceived Competence,ux_satisfaction,Likert,7-point (1–7),ordinal,higher_is_better,1,7,"IMI (Ryan 1982; McAuley, Duncan & Tammen 1989)",,imi_perceived_competence; imi_competence,
+imi_effort_importance,IMI – Effort/Importance,ux_satisfaction,Likert,7-point (1–7),ordinal,neutral,1,7,"IMI (Ryan 1982; McAuley, Duncan & Tammen 1989)",,imi_effort_importance; imi_effort,
+imi_pressure_tension,IMI – Pressure/Tension,affective_emotion,Likert,7-point (1–7),ordinal,lower_is_better,1,7,"IMI (Ryan 1982; McAuley, Duncan & Tammen 1989)",,imi_pressure_tension; imi_pressure,
+imi_perceived_choice,IMI – Perceived Choice,ux_satisfaction,Likert,7-point (1–7),ordinal,higher_is_better,1,7,"IMI (Ryan 1982; McAuley, Duncan & Tammen 1989)",,imi_perceived_choice; imi_choice,
+imi_value_usefulness,IMI – Value/Usefulness,ux_satisfaction,Likert,7-point (1–7),ordinal,higher_is_better,1,7,"IMI (Ryan 1982; McAuley, Duncan & Tammen 1989)",,imi_value_usefulness; imi_value,
+misc_rating,Misery Scale (MISC) motion-sickness rating,physiological_biometric,Likert,11-point (0–10),ordinal,lower_is_better,0,10,"MISC (Bos, MacKinnon & Patterson 2005)",,misery_scale; misc_rating; misc_score,"0 = no problems, 1 = some discomfort without specific symptoms, 2–5 = vague to severe symptoms without nausea, 6–9 = slight to severe nausea, 10 = vomiting. Often logged repeatedly; say in the mapping whether a column is a mean, a maximum or a single rating."
+slater_usoh_steed_presence,Presence (Slater–Usoh–Steed questionnaire),ux_satisfaction,Likert,7-point (1–7),ordinal,higher_is_better,1,7,"SUS presence questionnaire (Slater, Usoh & Steed 1994; Usoh et al. 2000)",,slater_usoh_steed_presence; sus_presence_questionnaire; sus_pq,Mean of the six 7-point items. The original score counts the items answered 6 or 7 (0–6); that count is not on this scale and needs its own column. Not the System Usability Scale.
+flow_fks_total,Flow Short Scale (FKS) – Flow,ux_satisfaction,Likert,7-point (1–7),ordinal,higher_is_better,1,7,"FKS (Rheinberg, Vollmeyer & Engeser 2003)",,flow_short_scale; flow_kurzskala; fks_total; fks_flow,Mean of the 10 flow items; fluency (6 items) and absorption (4 items) are its factors.
+flow_fks_fluency,Flow Short Scale – Fluency of Performance,ux_satisfaction,Likert,7-point (1–7),ordinal,higher_is_better,1,7,"FKS (Rheinberg, Vollmeyer & Engeser 2003)",flow_fks_total,fks_fluency; flow_fluency,
+flow_fks_absorption,Flow Short Scale – Absorption by Activity,ux_satisfaction,Likert,7-point (1–7),ordinal,higher_is_better,1,7,"FKS (Rheinberg, Vollmeyer & Engeser 2003)",flow_fks_total,fks_absorption; flow_absorption,
+embodiment_score,Avatar Embodiment,ux_satisfaction,Likert,7-point (1–7),ordinal,higher_is_better,1,7,Avatar Embodiment Questionnaire (Peck & Gonzalez-Franco 2021),,avatar_embodiment; embodiment_score; embodiment_total,Embodiment on the questionnaire's 1–7 agreement scale. The earlier version (Gonzalez-Franco & Peck 2018) uses −3..3 and needs shifting by 4. Ad-hoc ownership or agency items belong in their own columns.
+words_per_minute,Text Entry Rate (WPM),performance,Continuous,words per minute,ratio,higher_is_better,,,,,wpm; words_per_minute; entry_rate_wpm; typing_speed_wpm,"(|T| − 1) / S × 60 / 5, with |T| the transcribed length and S seconds (MacKenzie 2002)."
+kspc,Keystrokes per Character (KSPC),performance,Continuous,keystrokes per character,ratio,lower_is_better,,,,,kspc; keystrokes_per_character,Input stream length / transcribed length (Soukoreff & MacKenzie 2001).
+msd_error_rate,Uncorrected Error Rate (MSD),performance,Proportion,percent,ratio,lower_is_better,0,100,,,msd_error_rate; msd_er; uncorrected_error_rate,"Minimum string distance / max(|P|, |T|) × 100 (Soukoreff & MacKenzie 2003)."
+total_error_rate,Total Error Rate (TER),performance,Proportion,percent,ratio,lower_is_better,0,100,,,total_error_rate; ter_percent,"(INF + IF) / (C + INF + IF) × 100, corrected and uncorrected errors (Soukoreff & MacKenzie 2003)."
+fitts_throughput,"Throughput (Fitts' law, bits/s)",performance,Continuous,bits/s,ratio,higher_is_better,,,,,fitts_throughput; throughput_bps; throughput_bits_per_s,Effective index of difficulty / movement time (ISO 9241-411; Soukoreff & MacKenzie 2004). Curved Dragging maps its nominal throughput to efficiency (schema ≤ 3.3); new mappings use this DV.
