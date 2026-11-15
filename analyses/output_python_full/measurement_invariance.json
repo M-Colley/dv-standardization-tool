@@ -1597,188 +1597,374 @@
   {
     "scale": "perceived_safety_score",
     "lavaan": "0.7.3",
-    "n_obs": 825,
+    "n_obs": 3766,
     "groups": {
+      "3d_display_comp_vehicle": 45,
       "bvi_auditory_hav_autoui26": 105,
-      "ehmi_for_all_chi26": 720
+      "ehmi_for_all_chi26": 720,
+      "fact_av": 2600,
+      "longitudinal_usa_germany_ehmi": 296
     },
     "clusters": {
+      "3d_display_comp_vehicle": 15,
       "bvi_auditory_hav_autoui26": 35,
-      "ehmi_for_all_chi26": 40
+      "ehmi_for_all_chi26": 40,
+      "fact_av": 130,
+      "longitudinal_usa_germany_ehmi": 26
     },
     "cluster_robust": true,
     "one_observation_per_cluster": [],
     "levels": {
       "configural": {
-        "chisq.scaled": 19.755441,
-        "df.scaled": 4,
-        "pvalue.scaled": 0.000558,
-        "cfi.robust": 0.973854,
-        "tli.robust": 0.921563,
-        "rmsea.robust": 0.212794,
-        "srmr": 0.01993,
-        "aic": 9497.515818,
-        "bic": 9610.685019,
+        "chisq.scaled": 118.084158,
+        "df.scaled": 10,
+        "pvalue.scaled": 0,
+        "cfi.robust": 0.964889,
+        "tli.robust": 0.894667,
+        "rmsea.robust": 0.26579,
+        "srmr": 0.01991,
+        "aic": 43977.077459,
+        "bic": 44351.103581,
         "converged": true,
         "warning": "",
         "std_loadings": [
           {
+            "group": "3d_display_comp_vehicle",
+            "item": "perceived_safety_item_01",
+            "std_loading": 0.914969559086807
+          },
+          {
+            "group": "3d_display_comp_vehicle",
+            "item": "perceived_safety_item_02",
+            "std_loading": 0.700424538651795
+          },
+          {
+            "group": "3d_display_comp_vehicle",
+            "item": "perceived_safety_item_03",
+            "std_loading": 0.959294730460371
+          },
+          {
+            "group": "3d_display_comp_vehicle",
+            "item": "perceived_safety_item_04",
+            "std_loading": 0.858920186280905
+          },
+          {
             "group": "bvi_auditory_hav_autoui26",
             "item": "perceived_safety_item_01",
-            "std_loading": 0.851373947716069
+            "std_loading": 0.851375482758749
           },
           {
             "group": "bvi_auditory_hav_autoui26",
             "item": "perceived_safety_item_02",
-            "std_loading": 0.856326772824647
+            "std_loading": 0.856326045544026
           },
           {
             "group": "bvi_auditory_hav_autoui26",
             "item": "perceived_safety_item_03",
-            "std_loading": 0.921974284088212
+            "std_loading": 0.921972918383027
           },
           {
             "group": "bvi_auditory_hav_autoui26",
             "item": "perceived_safety_item_04",
-            "std_loading": 0.93815484974572
+            "std_loading": 0.938153792636893
           },
           {
             "group": "ehmi_for_all_chi26",
             "item": "perceived_safety_item_01",
-            "std_loading": 0.910306484569463
+            "std_loading": 0.910305475507778
           },
           {
             "group": "ehmi_for_all_chi26",
             "item": "perceived_safety_item_02",
-            "std_loading": 0.877933801095027
+            "std_loading": 0.877933087384423
           },
           {
             "group": "ehmi_for_all_chi26",
             "item": "perceived_safety_item_03",
-            "std_loading": 0.871045976991764
+            "std_loading": 0.871045662200702
           },
           {
             "group": "ehmi_for_all_chi26",
             "item": "perceived_safety_item_04",
-            "std_loading": 0.88858834281607
+            "std_loading": 0.888588049683886
+          },
+          {
+            "group": "fact_av",
+            "item": "perceived_safety_item_01",
+            "std_loading": 0.914219289675624
+          },
+          {
+            "group": "fact_av",
+            "item": "perceived_safety_item_02",
+            "std_loading": 0.880202714903344
+          },
+          {
+            "group": "fact_av",
+            "item": "perceived_safety_item_03",
+            "std_loading": 0.918281973982353
+          },
+          {
+            "group": "fact_av",
+            "item": "perceived_safety_item_04",
+            "std_loading": 0.936622790572078
+          },
+          {
+            "group": "longitudinal_usa_germany_ehmi",
+            "item": "perceived_safety_item_01",
+            "std_loading": 0.914477446228446
+          },
+          {
+            "group": "longitudinal_usa_germany_ehmi",
+            "item": "perceived_safety_item_02",
+            "std_loading": 0.915431471856477
+          },
+          {
+            "group": "longitudinal_usa_germany_ehmi",
+            "item": "perceived_safety_item_03",
+            "std_loading": 0.920671231463274
+          },
+          {
+            "group": "longitudinal_usa_germany_ehmi",
+            "item": "perceived_safety_item_04",
+            "std_loading": 0.828900309951212
           }
         ]
       },
       "metric": {
-        "chisq.scaled": 30.187508,
-        "df.scaled": 7,
-        "pvalue.scaled": 8.8e-05,
-        "cfi.robust": 0.972719,
-        "tli.robust": 0.953232,
-        "rmsea.robust": 0.164313,
-        "srmr": 0.028149,
-        "aic": 9499.327094,
-        "bic": 9598.350145,
+        "chisq.scaled": 171.68907,
+        "df.scaled": 22,
+        "pvalue.scaled": 0,
+        "cfi.robust": 0.960899,
+        "tli.robust": 0.946681,
+        "rmsea.robust": 0.189104,
+        "srmr": 0.04373,
+        "aic": 44051.405091,
+        "bic": 44350.625989,
         "converged": true,
         "warning": "",
         "std_loadings": [
           {
+            "group": "3d_display_comp_vehicle",
+            "item": "perceived_safety_item_01",
+            "std_loading": 0.916277917501757
+          },
+          {
+            "group": "3d_display_comp_vehicle",
+            "item": "perceived_safety_item_02",
+            "std_loading": 0.743733048635613
+          },
+          {
+            "group": "3d_display_comp_vehicle",
+            "item": "perceived_safety_item_03",
+            "std_loading": 0.942802533625492
+          },
+          {
+            "group": "3d_display_comp_vehicle",
+            "item": "perceived_safety_item_04",
+            "std_loading": 0.880850710873123
+          },
+          {
             "group": "bvi_auditory_hav_autoui26",
             "item": "perceived_safety_item_01",
-            "std_loading": 0.872773692251246
+            "std_loading": 0.883865866224575
           },
           {
             "group": "bvi_auditory_hav_autoui26",
             "item": "perceived_safety_item_02",
-            "std_loading": 0.851476802431208
+            "std_loading": 0.877494348253631
           },
           {
             "group": "bvi_auditory_hav_autoui26",
             "item": "perceived_safety_item_03",
-            "std_loading": 0.928998185510711
+            "std_loading": 0.907848199011324
           },
           {
             "group": "bvi_auditory_hav_autoui26",
             "item": "perceived_safety_item_04",
-            "std_loading": 0.915650826956189
+            "std_loading": 0.912783483433059
           },
           {
             "group": "ehmi_for_all_chi26",
             "item": "perceived_safety_item_01",
-            "std_loading": 0.907792793731687
+            "std_loading": 0.918283414475797
           },
           {
             "group": "ehmi_for_all_chi26",
             "item": "perceived_safety_item_02",
-            "std_loading": 0.878113768569114
+            "std_loading": 0.8970436488072
           },
           {
             "group": "ehmi_for_all_chi26",
             "item": "perceived_safety_item_03",
-            "std_loading": 0.869097212327454
+            "std_loading": 0.828745181457027
           },
           {
             "group": "ehmi_for_all_chi26",
             "item": "perceived_safety_item_04",
-            "std_loading": 0.892772656341747
+            "std_loading": 0.879525985237193
+          },
+          {
+            "group": "fact_av",
+            "item": "perceived_safety_item_01",
+            "std_loading": 0.907404317706668
+          },
+          {
+            "group": "fact_av",
+            "item": "perceived_safety_item_02",
+            "std_loading": 0.870783193816075
+          },
+          {
+            "group": "fact_av",
+            "item": "perceived_safety_item_03",
+            "std_loading": 0.92452706433077
+          },
+          {
+            "group": "fact_av",
+            "item": "perceived_safety_item_04",
+            "std_loading": 0.93987273289814
+          },
+          {
+            "group": "longitudinal_usa_germany_ehmi",
+            "item": "perceived_safety_item_01",
+            "std_loading": 0.934693531559871
+          },
+          {
+            "group": "longitudinal_usa_germany_ehmi",
+            "item": "perceived_safety_item_02",
+            "std_loading": 0.922920712295822
+          },
+          {
+            "group": "longitudinal_usa_germany_ehmi",
+            "item": "perceived_safety_item_03",
+            "std_loading": 0.877960789839531
+          },
+          {
+            "group": "longitudinal_usa_germany_ehmi",
+            "item": "perceived_safety_item_04",
+            "std_loading": 0.783887263341204
           }
         ],
-        "lrt_chisq_diff": 5.1318548552,
-        "lrt_df_diff": 3,
-        "lrt_pvalue": 0.162392810343675
+        "lrt_chisq_diff": 31.1656711845,
+        "lrt_df_diff": 12,
+        "lrt_pvalue": 0.00185858674401583
       },
       "scalar": {
-        "chisq.scaled": 43.284055,
-        "df.scaled": 10,
-        "pvalue.scaled": 4e-06,
-        "cfi.robust": 0.967964,
-        "tli.robust": 0.961557,
-        "rmsea.robust": 0.148973,
-        "srmr": 0.030318,
-        "aic": 9510.883585,
-        "bic": 9595.760486,
+        "chisq.scaled": 288.499768,
+        "df.scaled": 34,
+        "pvalue.scaled": 0,
+        "cfi.robust": 0.942192,
+        "tli.robust": 0.948993,
+        "rmsea.robust": 0.184958,
+        "srmr": 0.053496,
+        "aic": 44340.857743,
+        "bic": 44565.273417,
         "converged": true,
         "warning": "",
         "std_loadings": [
           {
+            "group": "3d_display_comp_vehicle",
+            "item": "perceived_safety_item_01",
+            "std_loading": 0.916725614085064
+          },
+          {
+            "group": "3d_display_comp_vehicle",
+            "item": "perceived_safety_item_02",
+            "std_loading": 0.743905305472014
+          },
+          {
+            "group": "3d_display_comp_vehicle",
+            "item": "perceived_safety_item_03",
+            "std_loading": 0.942015421095641
+          },
+          {
+            "group": "3d_display_comp_vehicle",
+            "item": "perceived_safety_item_04",
+            "std_loading": 0.874143505673262
+          },
+          {
             "group": "bvi_auditory_hav_autoui26",
             "item": "perceived_safety_item_01",
-            "std_loading": 0.87535946705876
+            "std_loading": 0.880571705911771
           },
           {
             "group": "bvi_auditory_hav_autoui26",
             "item": "perceived_safety_item_02",
-            "std_loading": 0.843819629856747
+            "std_loading": 0.877019585922671
           },
           {
             "group": "bvi_auditory_hav_autoui26",
             "item": "perceived_safety_item_03",
-            "std_loading": 0.918611071588601
+            "std_loading": 0.908193496581119
           },
           {
             "group": "bvi_auditory_hav_autoui26",
             "item": "perceived_safety_item_04",
-            "std_loading": 0.912556666182461
+            "std_loading": 0.912270468364318
           },
           {
             "group": "ehmi_for_all_chi26",
             "item": "perceived_safety_item_01",
-            "std_loading": 0.907867205401045
+            "std_loading": 0.920451131993468
           },
           {
             "group": "ehmi_for_all_chi26",
             "item": "perceived_safety_item_02",
-            "std_loading": 0.877397473454729
+            "std_loading": 0.893838521319627
           },
           {
             "group": "ehmi_for_all_chi26",
             "item": "perceived_safety_item_03",
-            "std_loading": 0.869916281723268
+            "std_loading": 0.800478604129773
           },
           {
             "group": "ehmi_for_all_chi26",
             "item": "perceived_safety_item_04",
-            "std_loading": 0.892420241749098
+            "std_loading": 0.875663759137432
+          },
+          {
+            "group": "fact_av",
+            "item": "perceived_safety_item_01",
+            "std_loading": 0.90779529696291
+          },
+          {
+            "group": "fact_av",
+            "item": "perceived_safety_item_02",
+            "std_loading": 0.86986864260145
+          },
+          {
+            "group": "fact_av",
+            "item": "perceived_safety_item_03",
+            "std_loading": 0.922850007298237
+          },
+          {
+            "group": "fact_av",
+            "item": "perceived_safety_item_04",
+            "std_loading": 0.939400467194387
+          },
+          {
+            "group": "longitudinal_usa_germany_ehmi",
+            "item": "perceived_safety_item_01",
+            "std_loading": 0.929287249118092
+          },
+          {
+            "group": "longitudinal_usa_germany_ehmi",
+            "item": "perceived_safety_item_02",
+            "std_loading": 0.922416078227375
+          },
+          {
+            "group": "longitudinal_usa_germany_ehmi",
+            "item": "perceived_safety_item_03",
+            "std_loading": 0.85743764111638
+          },
+          {
+            "group": "longitudinal_usa_germany_ehmi",
+            "item": "perceived_safety_item_04",
+            "std_loading": 0.757769982262797
           }
         ],
-        "lrt_chisq_diff": 13.2680947079,
-        "lrt_df_diff": 3,
-        "lrt_pvalue": 0.00409128827296316
+        "lrt_chisq_diff": 125.5955682857,
+        "lrt_df_diff": 12,
+        "lrt_pvalue": 4.71211491957899e-21
       }
     },
     "items": [
@@ -1791,17 +1977,19 @@
   {
     "scale": "ueq_pragmatic",
     "lavaan": "0.7.3",
-    "n_obs": 533,
+    "n_obs": 1003,
     "groups": {
       "av_prevalence_ehmi_autoui24": 64,
       "bvi_auditory_hav_autoui26": 105,
       "ehmi_state_intent_mtap24": 87,
+      "longitudinal_usa_germany_ehmi": 470,
       "running_into_traffic_chi26": 277
     },
     "clusters": {
       "av_prevalence_ehmi_autoui24": 64,
       "bvi_auditory_hav_autoui26": 35,
       "ehmi_state_intent_mtap24": 87,
+      "longitudinal_usa_germany_ehmi": 55,
       "running_into_traffic_chi26": 24
     },
     "cluster_robust": false,
@@ -1811,295 +1999,355 @@
     ],
     "levels": {
       "configural": {
-        "chisq.scaled": 22.388004,
-        "df.scaled": 8,
-        "pvalue.scaled": 0.004246,
-        "cfi.robust": 0.983312,
-        "tli.robust": 0.949937,
-        "rmsea.robust": 0.128055,
-        "srmr": 0.026872,
-        "aic": 6765.121758,
-        "bic": 6970.490786,
+        "chisq.scaled": 29.506504,
+        "df.scaled": 10,
+        "pvalue.scaled": 0.001031,
+        "cfi.robust": 0.991697,
+        "tli.robust": 0.97509,
+        "rmsea.robust": 0.110784,
+        "srmr": 0.017317,
+        "aic": 12280.753986,
+        "bic": 12575.399033,
         "converged": true,
         "warning": "",
         "std_loadings": [
           {
             "group": "av_prevalence_ehmi_autoui24",
             "item": "ueq_s_1",
-            "std_loading": 0.588421139081191
+            "std_loading": 0.588422516434938
           },
           {
             "group": "av_prevalence_ehmi_autoui24",
             "item": "ueq_s_2",
-            "std_loading": 0.902440549162148
+            "std_loading": 0.902440949725088
           },
           {
             "group": "av_prevalence_ehmi_autoui24",
             "item": "ueq_s_3",
-            "std_loading": 0.642118287755665
+            "std_loading": 0.642116717927444
           },
           {
             "group": "av_prevalence_ehmi_autoui24",
             "item": "ueq_s_4",
-            "std_loading": 0.770722173204982
+            "std_loading": 0.770723484624737
           },
           {
             "group": "bvi_auditory_hav_autoui26",
             "item": "ueq_s_1",
-            "std_loading": 0.862140177682993
+            "std_loading": 0.862140403351272
           },
           {
             "group": "bvi_auditory_hav_autoui26",
             "item": "ueq_s_2",
-            "std_loading": 0.756020409073569
+            "std_loading": 0.756022095301933
           },
           {
             "group": "bvi_auditory_hav_autoui26",
             "item": "ueq_s_3",
-            "std_loading": 0.912415764460825
+            "std_loading": 0.912414970130356
           },
           {
             "group": "bvi_auditory_hav_autoui26",
             "item": "ueq_s_4",
-            "std_loading": 0.842515445606684
+            "std_loading": 0.84251641609975
           },
           {
             "group": "ehmi_state_intent_mtap24",
             "item": "ueq_s_1",
-            "std_loading": 0.684784079744809
+            "std_loading": 0.684783766602064
           },
           {
             "group": "ehmi_state_intent_mtap24",
             "item": "ueq_s_2",
-            "std_loading": 0.485010493653169
+            "std_loading": 0.48501390589715
           },
           {
             "group": "ehmi_state_intent_mtap24",
             "item": "ueq_s_3",
-            "std_loading": 0.750531338986304
+            "std_loading": 0.750534664439777
           },
           {
             "group": "ehmi_state_intent_mtap24",
             "item": "ueq_s_4",
-            "std_loading": 0.458499761551984
+            "std_loading": 0.458487891697898
+          },
+          {
+            "group": "longitudinal_usa_germany_ehmi",
+            "item": "ueq_s_1",
+            "std_loading": 0.885507911009069
+          },
+          {
+            "group": "longitudinal_usa_germany_ehmi",
+            "item": "ueq_s_2",
+            "std_loading": 0.912496776564242
+          },
+          {
+            "group": "longitudinal_usa_germany_ehmi",
+            "item": "ueq_s_3",
+            "std_loading": 0.922205407528751
+          },
+          {
+            "group": "longitudinal_usa_germany_ehmi",
+            "item": "ueq_s_4",
+            "std_loading": 0.923200607350553
           },
           {
             "group": "running_into_traffic_chi26",
             "item": "ueq_s_1",
-            "std_loading": 0.806531077617316
+            "std_loading": 0.806530946699562
           },
           {
             "group": "running_into_traffic_chi26",
             "item": "ueq_s_2",
-            "std_loading": 0.819647865856949
+            "std_loading": 0.81964797113912
           },
           {
             "group": "running_into_traffic_chi26",
             "item": "ueq_s_3",
-            "std_loading": 0.920060005926206
+            "std_loading": 0.920060213037785
           },
           {
             "group": "running_into_traffic_chi26",
             "item": "ueq_s_4",
-            "std_loading": 0.706086876392396
+            "std_loading": 0.706086577376936
           }
         ]
       },
       "metric": {
-        "chisq.scaled": 33.906689,
-        "df.scaled": 17,
-        "pvalue.scaled": 0.008632,
-        "cfi.robust": 0.978071,
-        "tli.robust": 0.969042,
-        "rmsea.robust": 0.100699,
-        "srmr": 0.060456,
-        "aic": 6765.989286,
-        "bic": 6932.851621,
+        "chisq.scaled": 50.170274,
+        "df.scaled": 22,
+        "pvalue.scaled": 0.000556,
+        "cfi.robust": 0.987332,
+        "tli.robust": 0.982725,
+        "rmsea.robust": 0.092255,
+        "srmr": 0.050575,
+        "aic": 12286.407606,
+        "bic": 12522.123644,
         "converged": true,
         "warning": "",
         "std_loadings": [
           {
             "group": "av_prevalence_ehmi_autoui24",
             "item": "ueq_s_1",
-            "std_loading": 0.719064160504808
+            "std_loading": 0.707137766830759
           },
           {
             "group": "av_prevalence_ehmi_autoui24",
             "item": "ueq_s_2",
-            "std_loading": 0.830175878961529
+            "std_loading": 0.854042620613379
           },
           {
             "group": "av_prevalence_ehmi_autoui24",
             "item": "ueq_s_3",
-            "std_loading": 0.716884497145052
+            "std_loading": 0.684327814447708
           },
           {
             "group": "av_prevalence_ehmi_autoui24",
             "item": "ueq_s_4",
-            "std_loading": 0.674825872804498
+            "std_loading": 0.712313207180013
           },
           {
             "group": "bvi_auditory_hav_autoui26",
             "item": "ueq_s_1",
-            "std_loading": 0.835038260073596
+            "std_loading": 0.836260457276776
           },
           {
             "group": "bvi_auditory_hav_autoui26",
             "item": "ueq_s_2",
-            "std_loading": 0.803309464108912
+            "std_loading": 0.815264475761007
           },
           {
             "group": "bvi_auditory_hav_autoui26",
             "item": "ueq_s_3",
-            "std_loading": 0.925184173300066
+            "std_loading": 0.904751068084361
           },
           {
             "group": "bvi_auditory_hav_autoui26",
             "item": "ueq_s_4",
-            "std_loading": 0.800928240379676
+            "std_loading": 0.835618621962727
           },
           {
             "group": "ehmi_state_intent_mtap24",
             "item": "ueq_s_1",
-            "std_loading": 0.62948792291999
+            "std_loading": 0.624854620624029
           },
           {
             "group": "ehmi_state_intent_mtap24",
             "item": "ueq_s_2",
-            "std_loading": 0.593087887104737
+            "std_loading": 0.614488087966918
           },
           {
             "group": "ehmi_state_intent_mtap24",
             "item": "ueq_s_3",
-            "std_loading": 0.728908909582222
+            "std_loading": 0.695426444885813
           },
           {
             "group": "ehmi_state_intent_mtap24",
             "item": "ueq_s_4",
-            "std_loading": 0.420369507959813
+            "std_loading": 0.451015937158308
+          },
+          {
+            "group": "longitudinal_usa_germany_ehmi",
+            "item": "ueq_s_1",
+            "std_loading": 0.886908004902726
+          },
+          {
+            "group": "longitudinal_usa_germany_ehmi",
+            "item": "ueq_s_2",
+            "std_loading": 0.908785948627425
+          },
+          {
+            "group": "longitudinal_usa_germany_ehmi",
+            "item": "ueq_s_3",
+            "std_loading": 0.927394061458559
+          },
+          {
+            "group": "longitudinal_usa_germany_ehmi",
+            "item": "ueq_s_4",
+            "std_loading": 0.91908486964809
           },
           {
             "group": "running_into_traffic_chi26",
             "item": "ueq_s_1",
-            "std_loading": 0.816263654454448
+            "std_loading": 0.818387433140191
           },
           {
             "group": "running_into_traffic_chi26",
             "item": "ueq_s_2",
-            "std_loading": 0.798235687552993
+            "std_loading": 0.813400073970186
           },
           {
             "group": "running_into_traffic_chi26",
             "item": "ueq_s_3",
-            "std_loading": 0.913181398889443
+            "std_loading": 0.890572922724811
           },
           {
             "group": "running_into_traffic_chi26",
             "item": "ueq_s_4",
-            "std_loading": 0.743839122733827
+            "std_loading": 0.771251488059543
           }
         ],
-        "lrt_chisq_diff": 12.6934247296,
-        "lrt_df_diff": 9,
-        "lrt_pvalue": 0.176976161607169
+        "lrt_chisq_diff": 21.2921193375,
+        "lrt_df_diff": 12,
+        "lrt_pvalue": 0.0462630059853547
       },
       "scalar": {
-        "chisq.scaled": 56.874798,
-        "df.scaled": 26,
-        "pvalue.scaled": 0.000435,
-        "cfi.robust": 0.96335,
-        "tli.robust": 0.966169,
-        "rmsea.robust": 0.105267,
-        "srmr": 0.077923,
-        "aic": 6772.642278,
-        "bic": 6900.997921,
+        "chisq.scaled": 77.541958,
+        "df.scaled": 34,
+        "pvalue.scaled": 3e-05,
+        "cfi.robust": 0.982148,
+        "tli.robust": 0.984248,
+        "rmsea.robust": 0.088094,
+        "srmr": 0.056101,
+        "aic": 12289.774657,
+        "bic": 12466.561686,
         "converged": true,
         "warning": "",
         "std_loadings": [
           {
             "group": "av_prevalence_ehmi_autoui24",
             "item": "ueq_s_1",
-            "std_loading": 0.70556043053362
+            "std_loading": 0.70605539683422
           },
           {
             "group": "av_prevalence_ehmi_autoui24",
             "item": "ueq_s_2",
-            "std_loading": 0.84824963800379
+            "std_loading": 0.841917297708764
           },
           {
             "group": "av_prevalence_ehmi_autoui24",
             "item": "ueq_s_3",
-            "std_loading": 0.667762974023579
+            "std_loading": 0.664145691192579
           },
           {
             "group": "av_prevalence_ehmi_autoui24",
             "item": "ueq_s_4",
-            "std_loading": 0.683299644987449
+            "std_loading": 0.699802082677431
           },
           {
             "group": "bvi_auditory_hav_autoui26",
             "item": "ueq_s_1",
-            "std_loading": 0.837221856921525
+            "std_loading": 0.838345634700375
           },
           {
             "group": "bvi_auditory_hav_autoui26",
             "item": "ueq_s_2",
-            "std_loading": 0.816274800803867
+            "std_loading": 0.816992173656003
           },
           {
             "group": "bvi_auditory_hav_autoui26",
             "item": "ueq_s_3",
-            "std_loading": 0.911985723711825
+            "std_loading": 0.902041261828256
           },
           {
             "group": "bvi_auditory_hav_autoui26",
             "item": "ueq_s_4",
-            "std_loading": 0.812372866763705
+            "std_loading": 0.833419927053029
           },
           {
             "group": "ehmi_state_intent_mtap24",
             "item": "ueq_s_1",
-            "std_loading": 0.623235173357209
+            "std_loading": 0.62187399788599
           },
           {
             "group": "ehmi_state_intent_mtap24",
             "item": "ueq_s_2",
-            "std_loading": 0.617146105180991
+            "std_loading": 0.618731223872657
           },
           {
             "group": "ehmi_state_intent_mtap24",
             "item": "ueq_s_3",
-            "std_loading": 0.698386792581858
+            "std_loading": 0.687998512528382
           },
           {
             "group": "ehmi_state_intent_mtap24",
             "item": "ueq_s_4",
-            "std_loading": 0.427357261084372
+            "std_loading": 0.43426041755838
+          },
+          {
+            "group": "longitudinal_usa_germany_ehmi",
+            "item": "ueq_s_1",
+            "std_loading": 0.887990523094286
+          },
+          {
+            "group": "longitudinal_usa_germany_ehmi",
+            "item": "ueq_s_2",
+            "std_loading": 0.912471560097968
+          },
+          {
+            "group": "longitudinal_usa_germany_ehmi",
+            "item": "ueq_s_3",
+            "std_loading": 0.925639889935572
+          },
+          {
+            "group": "longitudinal_usa_germany_ehmi",
+            "item": "ueq_s_4",
+            "std_loading": 0.91655570727028
           },
           {
             "group": "running_into_traffic_chi26",
             "item": "ueq_s_1",
-            "std_loading": 0.818914064175931
+            "std_loading": 0.819533434919689
           },
           {
             "group": "running_into_traffic_chi26",
             "item": "ueq_s_2",
-            "std_loading": 0.817225700944934
+            "std_loading": 0.816806665032951
           },
           {
             "group": "running_into_traffic_chi26",
             "item": "ueq_s_3",
-            "std_loading": 0.894352954119865
+            "std_loading": 0.885037917961634
           },
           {
             "group": "running_into_traffic_chi26",
             "item": "ueq_s_4",
-            "std_loading": 0.754367122598476
+            "std_loading": 0.766956442038327
           }
         ],
-        "lrt_chisq_diff": 24.0325340082,
-        "lrt_df_diff": 9,
-        "lrt_pvalue": 0.00425017048482543
+        "lrt_chisq_diff": 27.3729964164,
+        "lrt_df_diff": 12,
+        "lrt_pvalue": 0.00682589185616342
       }
     },
     "items": [
@@ -2112,17 +2360,19 @@
   {
     "scale": "ueq_hedonic",
     "lavaan": "0.7.3",
-    "n_obs": 536,
+    "n_obs": 832,
     "groups": {
       "av_prevalence_ehmi_autoui24": 64,
       "bvi_auditory_hav_autoui26": 105,
       "ehmi_state_intent_mtap24": 86,
+      "longitudinal_usa_germany_ehmi": 296,
       "running_into_traffic_chi26": 281
     },
     "clusters": {
       "av_prevalence_ehmi_autoui24": 64,
       "bvi_auditory_hav_autoui26": 35,
       "ehmi_state_intent_mtap24": 86,
+      "longitudinal_usa_germany_ehmi": 26,
       "running_into_traffic_chi26": 24
     },
     "cluster_robust": false,
@@ -2132,295 +2382,355 @@
     ],
     "levels": {
       "configural": {
-        "chisq.scaled": 53.226371,
-        "df.scaled": 8,
+        "chisq.scaled": 67.93983,
+        "df.scaled": 10,
         "pvalue.scaled": 0,
-        "cfi.robust": 0.939772,
-        "tli.robust": 0.819316,
-        "rmsea.robust": 0.277303,
-        "srmr": 0.051471,
-        "aic": 7144.590463,
-        "bic": 7350.228902,
+        "cfi.robust": 0.952606,
+        "tli.robust": 0.857819,
+        "rmsea.robust": 0.248761,
+        "srmr": 0.040981,
+        "aic": 10450.869266,
+        "bic": 10734.299212,
         "converged": true,
         "warning": "",
         "std_loadings": [
           {
             "group": "av_prevalence_ehmi_autoui24",
             "item": "ueq_s_5",
-            "std_loading": 0.846279300840745
+            "std_loading": 0.846279791533683
           },
           {
             "group": "av_prevalence_ehmi_autoui24",
             "item": "ueq_s_6",
-            "std_loading": 0.922181354227759
+            "std_loading": 0.922182781456991
           },
           {
             "group": "av_prevalence_ehmi_autoui24",
             "item": "ueq_s_7",
-            "std_loading": 0.443606961191019
+            "std_loading": 0.443608588287469
           },
           {
             "group": "av_prevalence_ehmi_autoui24",
             "item": "ueq_s_8",
-            "std_loading": 0.453919108626543
+            "std_loading": 0.453920994478704
           },
           {
             "group": "bvi_auditory_hav_autoui26",
             "item": "ueq_s_5",
-            "std_loading": 0.913297380373986
+            "std_loading": 0.913297360559222
           },
           {
             "group": "bvi_auditory_hav_autoui26",
             "item": "ueq_s_6",
-            "std_loading": 0.915941106686116
+            "std_loading": 0.915941641270076
           },
           {
             "group": "bvi_auditory_hav_autoui26",
             "item": "ueq_s_7",
-            "std_loading": 0.877803799851202
+            "std_loading": 0.877804564167482
           },
           {
             "group": "bvi_auditory_hav_autoui26",
             "item": "ueq_s_8",
-            "std_loading": 0.820889230231525
+            "std_loading": 0.820888574181163
           },
           {
             "group": "ehmi_state_intent_mtap24",
             "item": "ueq_s_5",
-            "std_loading": 0.805752261054219
+            "std_loading": 0.805752289376212
           },
           {
             "group": "ehmi_state_intent_mtap24",
             "item": "ueq_s_6",
-            "std_loading": 0.810757295285428
+            "std_loading": 0.81075691139888
           },
           {
             "group": "ehmi_state_intent_mtap24",
             "item": "ueq_s_7",
-            "std_loading": 0.581203075140996
+            "std_loading": 0.581205698580491
           },
           {
             "group": "ehmi_state_intent_mtap24",
             "item": "ueq_s_8",
-            "std_loading": 0.292049617648392
+            "std_loading": 0.292046270828094
+          },
+          {
+            "group": "longitudinal_usa_germany_ehmi",
+            "item": "ueq_s_5",
+            "std_loading": 0.897589956100711
+          },
+          {
+            "group": "longitudinal_usa_germany_ehmi",
+            "item": "ueq_s_6",
+            "std_loading": 0.955122952689663
+          },
+          {
+            "group": "longitudinal_usa_germany_ehmi",
+            "item": "ueq_s_7",
+            "std_loading": 0.764520469197148
+          },
+          {
+            "group": "longitudinal_usa_germany_ehmi",
+            "item": "ueq_s_8",
+            "std_loading": 0.673347764005063
           },
           {
             "group": "running_into_traffic_chi26",
             "item": "ueq_s_5",
-            "std_loading": 0.932530381978486
+            "std_loading": 0.932530329898809
           },
           {
             "group": "running_into_traffic_chi26",
             "item": "ueq_s_6",
-            "std_loading": 0.956952542770715
+            "std_loading": 0.956952601976656
           },
           {
             "group": "running_into_traffic_chi26",
             "item": "ueq_s_7",
-            "std_loading": 0.560595548565387
+            "std_loading": 0.560595111909755
           },
           {
             "group": "running_into_traffic_chi26",
             "item": "ueq_s_8",
-            "std_loading": 0.79134323097935
+            "std_loading": 0.791343477844242
           }
         ]
       },
       "metric": {
-        "chisq.scaled": 101.380548,
-        "df.scaled": 17,
+        "chisq.scaled": 135.729146,
+        "df.scaled": 22,
         "pvalue.scaled": 0,
-        "cfi.robust": 0.909343,
-        "tli.robust": 0.872014,
-        "rmsea.robust": 0.233386,
-        "srmr": 0.114528,
-        "aic": 7178.654581,
-        "bic": 7345.735813,
+        "cfi.robust": 0.923431,
+        "tli.robust": 0.895588,
+        "rmsea.robust": 0.213175,
+        "srmr": 0.113678,
+        "aic": 10504.666783,
+        "bic": 10731.41074,
         "converged": true,
         "warning": "",
         "std_loadings": [
           {
             "group": "av_prevalence_ehmi_autoui24",
             "item": "ueq_s_5",
-            "std_loading": 0.801623073570145
+            "std_loading": 0.815990834977285
           },
           {
             "group": "av_prevalence_ehmi_autoui24",
             "item": "ueq_s_6",
-            "std_loading": 0.818580455345744
+            "std_loading": 0.840932899095939
           },
           {
             "group": "av_prevalence_ehmi_autoui24",
             "item": "ueq_s_7",
-            "std_loading": 0.577344741138958
+            "std_loading": 0.603960271128864
           },
           {
             "group": "av_prevalence_ehmi_autoui24",
             "item": "ueq_s_8",
-            "std_loading": 0.677297203261037
+            "std_loading": 0.638353818206837
           },
           {
             "group": "bvi_auditory_hav_autoui26",
             "item": "ueq_s_5",
-            "std_loading": 0.922247642584474
+            "std_loading": 0.920237111149745
           },
           {
             "group": "bvi_auditory_hav_autoui26",
             "item": "ueq_s_6",
-            "std_loading": 0.942105708764275
+            "std_loading": 0.944748203680867
           },
           {
             "group": "bvi_auditory_hav_autoui26",
             "item": "ueq_s_7",
-            "std_loading": 0.786523200650749
+            "std_loading": 0.806368801932767
           },
           {
             "group": "bvi_auditory_hav_autoui26",
             "item": "ueq_s_8",
-            "std_loading": 0.766769116999297
+            "std_loading": 0.708412327504395
           },
           {
             "group": "ehmi_state_intent_mtap24",
             "item": "ueq_s_5",
-            "std_loading": 0.758163185926957
+            "std_loading": 0.767300079898102
           },
           {
             "group": "ehmi_state_intent_mtap24",
             "item": "ueq_s_6",
-            "std_loading": 0.767422110042375
+            "std_loading": 0.786499132138913
           },
           {
             "group": "ehmi_state_intent_mtap24",
             "item": "ueq_s_7",
-            "std_loading": 0.49382145334083
+            "std_loading": 0.527558892419969
           },
           {
             "group": "ehmi_state_intent_mtap24",
             "item": "ueq_s_8",
-            "std_loading": 0.574470077344875
+            "std_loading": 0.535067105036064
+          },
+          {
+            "group": "longitudinal_usa_germany_ehmi",
+            "item": "ueq_s_5",
+            "std_loading": 0.913165593026356
+          },
+          {
+            "group": "longitudinal_usa_germany_ehmi",
+            "item": "ueq_s_6",
+            "std_loading": 0.935858489534212
+          },
+          {
+            "group": "longitudinal_usa_germany_ehmi",
+            "item": "ueq_s_7",
+            "std_loading": 0.725536088393388
+          },
+          {
+            "group": "longitudinal_usa_germany_ehmi",
+            "item": "ueq_s_8",
+            "std_loading": 0.747493895302015
           },
           {
             "group": "running_into_traffic_chi26",
             "item": "ueq_s_5",
-            "std_loading": 0.937653783931639
+            "std_loading": 0.935576500628318
           },
           {
             "group": "running_into_traffic_chi26",
             "item": "ueq_s_6",
-            "std_loading": 0.950675002816335
+            "std_loading": 0.955699605199193
           },
           {
             "group": "running_into_traffic_chi26",
             "item": "ueq_s_7",
-            "std_loading": 0.642672862632441
+            "std_loading": 0.660005577490493
           },
           {
             "group": "running_into_traffic_chi26",
             "item": "ueq_s_8",
-            "std_loading": 0.770473717213502
+            "std_loading": 0.713489537784592
           }
         ],
-        "lrt_chisq_diff": 44.982646129,
-        "lrt_df_diff": 9,
-        "lrt_pvalue": 9.29507140520234e-07
+        "lrt_chisq_diff": 64.7912064596,
+        "lrt_df_diff": 12,
+        "lrt_pvalue": 2.97959560478393e-09
       },
       "scalar": {
-        "chisq.scaled": 213.457261,
-        "df.scaled": 26,
+        "chisq.scaled": 280.315344,
+        "df.scaled": 34,
         "pvalue.scaled": 0,
-        "cfi.robust": 0.815168,
-        "tli.robust": 0.829386,
-        "rmsea.robust": 0.269464,
-        "srmr": 0.20943,
-        "aic": 7299.639888,
-        "bic": 7428.163913,
+        "cfi.robust": 0.848397,
+        "tli.robust": 0.866233,
+        "rmsea.robust": 0.241288,
+        "srmr": 0.161701,
+        "aic": 10656.977039,
+        "bic": 10827.035007,
         "converged": true,
         "warning": "",
         "std_loadings": [
           {
             "group": "av_prevalence_ehmi_autoui24",
             "item": "ueq_s_5",
-            "std_loading": 0.800252953687323
+            "std_loading": 0.809023366354174
           },
           {
             "group": "av_prevalence_ehmi_autoui24",
             "item": "ueq_s_6",
-            "std_loading": 0.853105893546811
+            "std_loading": 0.863425374252218
           },
           {
             "group": "av_prevalence_ehmi_autoui24",
             "item": "ueq_s_7",
-            "std_loading": 0.576986400769796
+            "std_loading": 0.589374221274759
           },
           {
             "group": "av_prevalence_ehmi_autoui24",
             "item": "ueq_s_8",
-            "std_loading": 0.518985255090988
+            "std_loading": 0.512605086385164
           },
           {
             "group": "bvi_auditory_hav_autoui26",
             "item": "ueq_s_5",
-            "std_loading": 0.911887142131034
+            "std_loading": 0.914735656757453
           },
           {
             "group": "bvi_auditory_hav_autoui26",
             "item": "ueq_s_6",
-            "std_loading": 0.938977658111633
+            "std_loading": 0.945029155252402
           },
           {
             "group": "bvi_auditory_hav_autoui26",
             "item": "ueq_s_7",
-            "std_loading": 0.810090073118219
+            "std_loading": 0.814009730941378
           },
           {
             "group": "bvi_auditory_hav_autoui26",
             "item": "ueq_s_8",
-            "std_loading": 0.796472706487148
+            "std_loading": 0.704131381446066
           },
           {
             "group": "ehmi_state_intent_mtap24",
             "item": "ueq_s_5",
-            "std_loading": 0.734132029158866
+            "std_loading": 0.754933253083061
           },
           {
             "group": "ehmi_state_intent_mtap24",
             "item": "ueq_s_6",
-            "std_loading": 0.765545579789001
+            "std_loading": 0.789039793484361
           },
           {
             "group": "ehmi_state_intent_mtap24",
             "item": "ueq_s_7",
-            "std_loading": 0.515602097524993
+            "std_loading": 0.539111279727994
           },
           {
             "group": "ehmi_state_intent_mtap24",
             "item": "ueq_s_8",
-            "std_loading": 0.55939927385145
+            "std_loading": 0.524134690773702
+          },
+          {
+            "group": "longitudinal_usa_germany_ehmi",
+            "item": "ueq_s_5",
+            "std_loading": 0.907151463293355
+          },
+          {
+            "group": "longitudinal_usa_germany_ehmi",
+            "item": "ueq_s_6",
+            "std_loading": 0.939001315266471
+          },
+          {
+            "group": "longitudinal_usa_germany_ehmi",
+            "item": "ueq_s_7",
+            "std_loading": 0.738537958784773
+          },
+          {
+            "group": "longitudinal_usa_germany_ehmi",
+            "item": "ueq_s_8",
+            "std_loading": 0.748884799683111
           },
           {
             "group": "running_into_traffic_chi26",
             "item": "ueq_s_5",
-            "std_loading": 0.928232201087058
+            "std_loading": 0.92588563181681
           },
           {
             "group": "running_into_traffic_chi26",
             "item": "ueq_s_6",
-            "std_loading": 0.953052886707075
+            "std_loading": 0.961506722906931
           },
           {
             "group": "running_into_traffic_chi26",
             "item": "ueq_s_7",
-            "std_loading": 0.652991197098087
+            "std_loading": 0.658827867356849
           },
           {
             "group": "running_into_traffic_chi26",
             "item": "ueq_s_8",
-            "std_loading": 0.790616297231926
+            "std_loading": 0.679515397922328
           }
         ],
-        "lrt_chisq_diff": 123.9816407714,
-        "lrt_df_diff": 9,
-        "lrt_pvalue": 2.04193168141647e-22
+        "lrt_chisq_diff": 159.2515765741,
+        "lrt_df_diff": 12,
+        "lrt_pvalue": 7.46161343595079e-28
       }
     },
     "items": [
@@ -2428,6 +2738,420 @@
       "ueq_s_6",
       "ueq_s_7",
       "ueq_s_8"
+    ]
+  },
+  {
+    "scale": "tia_understanding_predictability",
+    "lavaan": "0.7.3",
+    "n_obs": 3115,
+    "groups": {
+      "3d_display_comp_vehicle": 45,
+      "fact_av": 2600,
+      "longitudinal_usa_germany_ehmi": 470
+    },
+    "clusters": {
+      "3d_display_comp_vehicle": 15,
+      "fact_av": 130,
+      "longitudinal_usa_germany_ehmi": 55
+    },
+    "cluster_robust": true,
+    "one_observation_per_cluster": [],
+    "levels": {
+      "configural": {
+        "chisq.scaled": 252.600635,
+        "df.scaled": 6,
+        "pvalue.scaled": 0,
+        "cfi.robust": 0.883466,
+        "tli.robust": 0.650398,
+        "rmsea.robust": 0.283342,
+        "srmr": 0.073039,
+        "aic": 34169.991863,
+        "bic": 34387.575302,
+        "converged": true,
+        "warning": "",
+        "std_loadings": [
+          {
+            "group": "3d_display_comp_vehicle",
+            "item": "tia_k02",
+            "std_loading": 0.651153297899567
+          },
+          {
+            "group": "3d_display_comp_vehicle",
+            "item": "tia_k07",
+            "std_loading": 0.85767162805195
+          },
+          {
+            "group": "3d_display_comp_vehicle",
+            "item": "tia_k11",
+            "std_loading": 0.726326660295209
+          },
+          {
+            "group": "3d_display_comp_vehicle",
+            "item": "tia_k16",
+            "std_loading": 0.69759337195206
+          },
+          {
+            "group": "fact_av",
+            "item": "tia_k02",
+            "std_loading": 0.870886444557444
+          },
+          {
+            "group": "fact_av",
+            "item": "tia_k07",
+            "std_loading": 0.497177688320574
+          },
+          {
+            "group": "fact_av",
+            "item": "tia_k11",
+            "std_loading": 0.827721486056395
+          },
+          {
+            "group": "fact_av",
+            "item": "tia_k16",
+            "std_loading": 0.504163357681177
+          },
+          {
+            "group": "longitudinal_usa_germany_ehmi",
+            "item": "tia_k02",
+            "std_loading": 0.674984925834311
+          },
+          {
+            "group": "longitudinal_usa_germany_ehmi",
+            "item": "tia_k07",
+            "std_loading": 0.812180263959327
+          },
+          {
+            "group": "longitudinal_usa_germany_ehmi",
+            "item": "tia_k11",
+            "std_loading": 0.506524043929196
+          },
+          {
+            "group": "longitudinal_usa_germany_ehmi",
+            "item": "tia_k16",
+            "std_loading": 0.851662716435053
+          }
+        ]
+      },
+      "metric": {
+        "chisq.scaled": 426.601949,
+        "df.scaled": 12,
+        "pvalue.scaled": 0,
+        "cfi.robust": 0.844758,
+        "tli.robust": 0.767137,
+        "rmsea.robust": 0.231246,
+        "srmr": 0.092819,
+        "aic": 34331.241453,
+        "bic": 34512.560986,
+        "converged": true,
+        "warning": "",
+        "std_loadings": [
+          {
+            "group": "3d_display_comp_vehicle",
+            "item": "tia_k02",
+            "std_loading": 0.725455921639693
+          },
+          {
+            "group": "3d_display_comp_vehicle",
+            "item": "tia_k07",
+            "std_loading": 0.711870288687463
+          },
+          {
+            "group": "3d_display_comp_vehicle",
+            "item": "tia_k11",
+            "std_loading": 0.781278289267444
+          },
+          {
+            "group": "3d_display_comp_vehicle",
+            "item": "tia_k16",
+            "std_loading": 0.683011679302105
+          },
+          {
+            "group": "fact_av",
+            "item": "tia_k02",
+            "std_loading": 0.866774564958942
+          },
+          {
+            "group": "fact_av",
+            "item": "tia_k07",
+            "std_loading": 0.54445097328601
+          },
+          {
+            "group": "fact_av",
+            "item": "tia_k11",
+            "std_loading": 0.807103508012613
+          },
+          {
+            "group": "fact_av",
+            "item": "tia_k16",
+            "std_loading": 0.550270385020156
+          },
+          {
+            "group": "longitudinal_usa_germany_ehmi",
+            "item": "tia_k02",
+            "std_loading": 0.756905742802441
+          },
+          {
+            "group": "longitudinal_usa_germany_ehmi",
+            "item": "tia_k07",
+            "std_loading": 0.616289161969065
+          },
+          {
+            "group": "longitudinal_usa_germany_ehmi",
+            "item": "tia_k11",
+            "std_loading": 0.723008935381293
+          },
+          {
+            "group": "longitudinal_usa_germany_ehmi",
+            "item": "tia_k16",
+            "std_loading": 0.657121608874718
+          }
+        ],
+        "lrt_chisq_diff": 146.0885466578,
+        "lrt_df_diff": 6,
+        "lrt_pvalue": 5.19167287859956e-29
+      },
+      "scalar": {
+        "chisq.scaled": 495.662112,
+        "df.scaled": 18,
+        "pvalue.scaled": 0,
+        "cfi.robust": 0.818445,
+        "tli.robust": 0.818445,
+        "rmsea.robust": 0.204187,
+        "srmr": 0.100959,
+        "aic": 34442.254393,
+        "bic": 34587.31002,
+        "converged": true,
+        "warning": "",
+        "std_loadings": [
+          {
+            "group": "3d_display_comp_vehicle",
+            "item": "tia_k02",
+            "std_loading": 0.720088288249573
+          },
+          {
+            "group": "3d_display_comp_vehicle",
+            "item": "tia_k07",
+            "std_loading": 0.728898863109495
+          },
+          {
+            "group": "3d_display_comp_vehicle",
+            "item": "tia_k11",
+            "std_loading": 0.765423849488689
+          },
+          {
+            "group": "3d_display_comp_vehicle",
+            "item": "tia_k16",
+            "std_loading": 0.695322040826338
+          },
+          {
+            "group": "fact_av",
+            "item": "tia_k02",
+            "std_loading": 0.863711745846099
+          },
+          {
+            "group": "fact_av",
+            "item": "tia_k07",
+            "std_loading": 0.5633959593008
+          },
+          {
+            "group": "fact_av",
+            "item": "tia_k11",
+            "std_loading": 0.796142506953378
+          },
+          {
+            "group": "fact_av",
+            "item": "tia_k16",
+            "std_loading": 0.564887751791199
+          },
+          {
+            "group": "longitudinal_usa_germany_ehmi",
+            "item": "tia_k02",
+            "std_loading": 0.759901711660075
+          },
+          {
+            "group": "longitudinal_usa_germany_ehmi",
+            "item": "tia_k07",
+            "std_loading": 0.629286345268579
+          },
+          {
+            "group": "longitudinal_usa_germany_ehmi",
+            "item": "tia_k11",
+            "std_loading": 0.687283270955878
+          },
+          {
+            "group": "longitudinal_usa_germany_ehmi",
+            "item": "tia_k16",
+            "std_loading": 0.6749063555242
+          }
+        ],
+        "lrt_chisq_diff": 73.2274330299,
+        "lrt_df_diff": 6,
+        "lrt_pvalue": 8.88861944265967e-14
+      }
+    },
+    "items": [
+      "tia_k02",
+      "tia_k07",
+      "tia_k11",
+      "tia_k16"
+    ]
+  },
+  {
+    "scale": "tia_trust_in_automation",
+    "lavaan": "0.7.3",
+    "n_obs": 620,
+    "groups": {
+      "3d_display_comp_vehicle": 45,
+      "bvi_auditory_hav_autoui26": 105,
+      "longitudinal_usa_germany_ehmi": 470
+    },
+    "clusters": {
+      "3d_display_comp_vehicle": 15,
+      "bvi_auditory_hav_autoui26": 35,
+      "longitudinal_usa_germany_ehmi": 55
+    },
+    "cluster_robust": true,
+    "one_observation_per_cluster": [],
+    "levels": {
+      "configural": {
+        "chisq.scaled": null,
+        "df.scaled": -3,
+        "pvalue.scaled": null,
+        "cfi.robust": null,
+        "tli.robust": null,
+        "rmsea.robust": 0,
+        "srmr": 0,
+        "aic": 2806.169708,
+        "bic": 2885.904658,
+        "converged": true,
+        "warning": "lavaan->lav_model_vcov():  \n   The variance-covariance matrix of the estimated parameters (vcov) does not \n   appear to be positive definite! The smallest eigenvalue (= -5.697850e-02) \n   is smaller than zero. This may be a symptom that the model is not \n   identified.",
+        "std_loadings": [
+          {
+            "group": "3d_display_comp_vehicle",
+            "item": "tia_k09",
+            "std_loading": 0.920480953719859
+          },
+          {
+            "group": "3d_display_comp_vehicle",
+            "item": "tia_k14",
+            "std_loading": 0.974570673984186
+          },
+          {
+            "group": "bvi_auditory_hav_autoui26",
+            "item": "tia_k09",
+            "std_loading": 0.927616712425913
+          },
+          {
+            "group": "bvi_auditory_hav_autoui26",
+            "item": "tia_k14",
+            "std_loading": 0.979382152337597
+          },
+          {
+            "group": "longitudinal_usa_germany_ehmi",
+            "item": "tia_k09",
+            "std_loading": 1.02258334603986
+          },
+          {
+            "group": "longitudinal_usa_germany_ehmi",
+            "item": "tia_k14",
+            "std_loading": 0.780382851396618
+          }
+        ]
+      },
+      "metric": {
+        "chisq.scaled": null,
+        "df.scaled": -1,
+        "pvalue.scaled": null,
+        "cfi.robust": null,
+        "tli.robust": null,
+        "rmsea.robust": 0,
+        "srmr": 0,
+        "aic": 2802.169708,
+        "bic": 2873.045219,
+        "converged": true,
+        "warning": "lavaan->lav_model_vcov():  \n   The variance-covariance matrix of the estimated parameters (vcov) does not \n   appear to be positive definite! The smallest eigenvalue (= -1.384135e-02) \n   is smaller than zero. This may be a symptom that the model is not \n   identified.",
+        "std_loadings": [
+          {
+            "group": "3d_display_comp_vehicle",
+            "item": "tia_k09",
+            "std_loading": 0.956620116715459
+          },
+          {
+            "group": "3d_display_comp_vehicle",
+            "item": "tia_k14",
+            "std_loading": 0.937753400997116
+          },
+          {
+            "group": "bvi_auditory_hav_autoui26",
+            "item": "tia_k09",
+            "std_loading": 0.971800238781775
+          },
+          {
+            "group": "bvi_auditory_hav_autoui26",
+            "item": "tia_k14",
+            "std_loading": 0.93485389426663
+          },
+          {
+            "group": "longitudinal_usa_germany_ehmi",
+            "item": "tia_k09",
+            "std_loading": 0.911518249604331
+          },
+          {
+            "group": "longitudinal_usa_germany_ehmi",
+            "item": "tia_k14",
+            "std_loading": 0.875469588344039
+          }
+        ]
+      },
+      "scalar": {
+        "chisq.scaled": 0.354289,
+        "df.scaled": 1,
+        "pvalue.scaled": 0.551695,
+        "cfi.robust": 1,
+        "tli.robust": 1.001634,
+        "rmsea.robust": 0,
+        "srmr": 0.001952,
+        "aic": 2798.387732,
+        "bic": 2860.403805,
+        "converged": true,
+        "warning": "",
+        "std_loadings": [
+          {
+            "group": "3d_display_comp_vehicle",
+            "item": "tia_k09",
+            "std_loading": 0.8972498794199
+          },
+          {
+            "group": "3d_display_comp_vehicle",
+            "item": "tia_k14",
+            "std_loading": 0.999413478639975
+          },
+          {
+            "group": "bvi_auditory_hav_autoui26",
+            "item": "tia_k09",
+            "std_loading": 0.911816369493693
+          },
+          {
+            "group": "bvi_auditory_hav_autoui26",
+            "item": "tia_k14",
+            "std_loading": 0.996324410545608
+          },
+          {
+            "group": "longitudinal_usa_germany_ehmi",
+            "item": "tia_k09",
+            "std_loading": 0.855277800301907
+          },
+          {
+            "group": "longitudinal_usa_germany_ehmi",
+            "item": "tia_k14",
+            "std_loading": 0.933035857598621
+          }
+        ]
+      }
+    },
+    "items": [
+      "tia_k09",
+      "tia_k14"
     ]
   }
 ]

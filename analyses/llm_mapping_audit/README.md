@@ -155,6 +155,15 @@ physiological and facial-expression features without a schema DV, is excluded fr
 step in the manifest (`use_llm_deduction: false`) instead of locking each feature, which
 would also have added them all to the benchmark's curated non-DV items.
 
+## After the fixes
+
+The rerun of 2026-11-15 (`data/processed/audit39`; `docs/reproducibility.md`) repeated the
+inventory after the batch: no LLM-mapped column is pooled. The 17 LLM answers left are all
+set aside beside a curated column of their DV, so the all-mappings analysis equals the
+LLM-excluded one and the relations' `llm` level equals the curated one. What moved (primary
+pools gained by the newly curated columns, all-mappings pools that disappeared, relations,
+benchmark) is in the changelog entry of 2026-11-15.
+
 ## Not in the audit
 
 - Columns the all-mappings analysis set aside (`analyses/output_python_full/llm_columns_set_aside.csv`)

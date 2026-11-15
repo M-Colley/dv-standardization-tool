@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+from pathlib import Path
 
 import pandas as pd
 import pytest
@@ -62,8 +63,13 @@ def test_targets_refuse_findings_of_opposite_sign():
 
 
 def test_the_committed_targets_match_the_committed_analyses():
+    # The targets were frozen with the pre-registration (commit 0a27274) from the development
+    # relations of that day. The development analysis has changed since (the LLM-mapping audit
+    # of 2026-11-15 added curated findings), so the fixture holds its curated findings as of
+    # that commit: the columns build_targets reads, extracted with
+    # `git show 0a27274:analyses/output_relations/relations_pooled.csv`.
     rebuilt = hr.build_targets(
-        pd.read_csv(hr.REPO_ROOT / "analyses" / "output_relations" / "relations_pooled.csv"),
+        pd.read_csv(Path(__file__).parent / "fixtures" / "heldout_2_development_findings.csv"),
         pd.read_csv(hr.REPO_ROOT / "analyses" / "heldout" / "relations" / "relations_pooled.csv"),
     )
     committed = pd.read_csv(hr.OUT_DIR / "targets.csv")
