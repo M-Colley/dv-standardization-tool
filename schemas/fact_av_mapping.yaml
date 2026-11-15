@@ -32,7 +32,8 @@
 #   - TiA trust: Trust1-2 are locked; their score is the file's `trust`, which the shared
 #     schema maps to trust_rating (left as it is here; the lab's other studies put this
 #     subscale under tia_trust_in_automation).
-#   - SART items take their subscale ids, as in bvi_auditory_hav_autoui26; the stored sums
+#   - SART items take their subscale ids, as in bvi_auditory_hav_autoui26, converted from
+#     1-7 to the schema's 0-20 (scale_conversions at the end); the stored sums
 #     are locked so a study's items and sums are not averaged into one column. SA (the SART
 #     total) keeps the shared schema's mapping to situational_awareness.
 #   - STS-AD (Holthausen et al. 2020): three of its six items, 1-7. Performance (item 2) and
@@ -89,3 +90,14 @@ reverse_items:
   - columns: [performbetter, unsafeJudgement]
     scale_range: [1, 7]
     reason: STS-AD items 2 and 5 are worded against trust (Holthausen et al. 2020); reversed as in psych_conflict_handling
+
+# --- Scale ---------------------------------------------------------------------------
+# The SART items are 7-point ratings (1-7); the schema's SART subscales are on 0-20 and the
+# analysis cannot tell a 1-7 item from a 0-20 score, since 1-7 fits inside 0-20. Converted
+# linearly (1 -> 0, 7 -> 20), as for 1-7 NASA-TLX items in sensecobot_fusion_2024 (added
+# 2026-11-15; BVI auditory HAV, 3D display and FACT-AV give the same items).
+scale_conversions:
+  - columns: [SART1, SART2, SART3, SART4, SART5, SART6, SART7, SART8, SART9, SSART10]
+    from: [1, 7]
+    to: [0, 20]
+    reason: 10-D SART items rated 1-7; the schema's SART subscales are on 0-20

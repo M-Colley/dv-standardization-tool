@@ -56,3 +56,14 @@ inverse_min_TTC: meta_derived_inverse_min_ttc
 inverse_min_THW: meta_derived_inverse_min_thw
 log_IMG: meta_derived_log_initial_merging_gap
 inverse_IMG: meta_derived_inverse_initial_merging_gap
+
+# --- Scale ---------------------------------------------------------------------------
+# PR is a verbal rating on 0-10 (notes above); the schema's perceived_risk is a VAS on 1-100,
+# into which 0-10 fits, so the analysis would pool it unconverted. Converted linearly
+# (0 -> 1, 10 -> 100; added 2026-11-15). TRU (0-10) already falls outside trust_rating's
+# 1-5 and is rescaled by the analysis.
+scale_conversions:
+  - columns: [PR]
+    from: [0, 10]
+    to: [1, 100]
+    reason: perceived risk rated 0-10 after each event; the schema's perceived_risk is a 1-100 VAS

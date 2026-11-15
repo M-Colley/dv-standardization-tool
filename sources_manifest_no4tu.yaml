@@ -61,6 +61,9 @@ sources:
     archive_max_depth: 3
     use_llm_deduction: true
     mapping_path: schemas/osf_cwd6h_mapping.yaml
+    # ArduinoData1 is the perceived-risk VAS; the shared sensor schema also lists the name
+    # (sensor_arduino_data_1) and won until 2026-11-15, so the study mapping must override it.
+    override_standard_aliases: true
     llm_context: "ArduinoData1 encodes Perceived Risk on a 1-100 VAS scale."
 
   # The data/ folder's four R_*.csv tables are the per-participant results the

@@ -35,7 +35,8 @@
 # - SART1-10: 10-D SART items, 1-7. Demand = 1-3, Supply = 4-7, Understanding = 8-10,
 #   SA = U - (D - S) (computed in the script, not stored). The schema has no SART
 #   item ids, so the items take the subscale ids. The schema's subscale range
-#   (0-20) differs from the item range (1-7).
+#   (0-20) differs from the item range (1-7); the items are converted to 0-20
+#   (scale_conversions at the end, since 2026-11-15).
 
 # --- Dependent measures -----------------------------------------------------------
 tlx_mental: mental_demand                    # raw NASA-TLX mental demand, 1-20
@@ -98,3 +99,14 @@ informationCommunica: meta_rating_information_complete   # "All relevant informa
 "Trust[SQ003]": meta_trust_group_item_undocumented
 "Trust[SQ004]": meta_trust_group_item_undocumented
 "Trust[SQ005]": meta_trust_group_item_undocumented
+
+# --- Scale ---------------------------------------------------------------------------
+# The SART items are 7-point ratings (1-7); the schema's SART subscales are on 0-20 and the
+# analysis cannot tell a 1-7 item from a 0-20 score, since 1-7 fits inside 0-20. Converted
+# linearly (1 -> 0, 7 -> 20), as for 1-7 NASA-TLX items in sensecobot_fusion_2024 (added
+# 2026-11-15; BVI auditory HAV, 3D display and FACT-AV give the same items).
+scale_conversions:
+  - columns: [SART1, SART2, SART3, SART4, SART5, SART6, SART7, SART8, SART9, SART10]
+    from: [1, 7]
+    to: [0, 20]
+    reason: 10-D SART items rated 1-7; the schema's SART subscales are on 0-20
