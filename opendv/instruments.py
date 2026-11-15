@@ -312,12 +312,28 @@ def keying_check(
 def choose_coding(
     values: Iterable[pd.Series], codings: tuple[tuple[float, float], ...], label: str = ""
 ) -> tuple[float, float] | None:
-    """First candidate coding that contains every observed answer."""
+    """First candidate coding that contains every observed answer.
+
+    Answers that miss a narrow coding by one scale point (0..21 against 0-20 and 1-21) are not
+    read on a coding four or more times as wide (0-100): that would shrink the score about
+    fivefold (Running into Traffic's NASA-TLX until 2026-11-15). They are read on the narrow
+    coding widened by that point (0-21), which moves the score by at most one scale step.
+    """
     observed = pd.concat(list(values), ignore_index=True).dropna()
     if observed.empty:
         return codings[0]
     lo, hi = float(observed.min()), float(observed.max())
     fitting = [c for c in codings if c[0] <= lo and hi <= c[1]]
+    near = [c for c in codings if c not in fitting and c[0] - 1 <= lo and hi <= c[1] + 1]
+    if fitting and near:
+        base = min(near, key=lambda c: c[1] - c[0])
+        if all(c[1] - c[0] >= 4 * (base[1] - base[0]) for c in fitting):
+            widened = (min(base[0], lo), max(base[1], hi))
+            logger.warning(
+                "%s: answers span %g..%g, one point outside %s and far inside %s; read on %s",
+                label, lo, hi, base, fitting, widened,
+            )
+            return widened
     if not fitting:
         logger.warning("%s: answers span %g..%g, outside every coding %s; not scored", label, lo, hi, codings)
         return None

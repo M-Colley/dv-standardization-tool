@@ -215,7 +215,9 @@ class MultiStudyAnalysisTests(unittest.TestCase):
         self.assertEqual(_detect_scale_range(pd.Series([2, 6]), (-3.0, 3.0)), (1.0, 7.0))
         self.assertEqual(_detect_scale_range(pd.Series([0, 6]), (-3.0, 3.0)), (0.0, 7.0))
         self.assertEqual(_detect_scale_range(pd.Series([1, 9, 12]), (1.0, 5.0)), (0.0, 20.0))
-        self.assertEqual(_detect_scale_range(pd.Series([600, 8000]), (1.0, 5.0)), (600.0, 8000.0))
+        # values on no common scale are not pooled (they used to be min-max rescaled)
+        self.assertIsNone(_detect_scale_range(pd.Series([600, 8000]), (1.0, 5.0)))
+        self.assertIsNone(_detect_scale_range(pd.Series([193.3, 1493.3]), (0.0, 100.0)))
 
     def test_rescale_to_canonical(self):
         s = pd.Series([0.0, 50.0, 100.0])

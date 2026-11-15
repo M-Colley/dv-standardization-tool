@@ -544,12 +544,16 @@ def _canonicalize_dv_name(name: str) -> str | None:
 
 # ── Scale harmonization ─────────────────────────────────────────────────────
 
-def _detect_scale_range(series: pd.Series, canonical_range: tuple[float, float]) -> tuple[float, float]:
+def _detect_scale_range(series: pd.Series, canonical_range: tuple[float, float]) -> tuple[float, float] | None:
     """Heuristically detect the actual scale range of a data series.
 
     If the observed data clearly exceeds the canonical range, infer the
     narrowest common scale that holds every value (e.g. 1-7 for 1-7 answers
     when canonical is -3..3), so 1-5 data is never read as a 0-20 scale.
+    Values that fit no common scale return None: the series is on an unknown
+    scale and is not pooled. (Until 2026-11-15 the observed minimum and
+    maximum were taken as the scale, which made the study mean an artifact of
+    its own range, e.g. weighted NASA-TLX sums of 193-1493 read as 0-100.)
     """
     smin, smax = float(series.min()), float(series.max())
     cmin, cmax = canonical_range
@@ -583,7 +587,7 @@ def _detect_scale_range(series: pd.Series, canonical_range: tuple[float, float])
         alt_lo, alt_hi = next(r for r in fitting if r[1] == top)
         return (float(alt_lo), float(alt_hi))
 
-    return (smin, smax)
+    return None
 
 
 def _rescale_to_canonical(
@@ -1278,7 +1282,11 @@ def harmonized_summary(
                 canonical_range = info.get("canonical_range")
                 if canonical_range is not None and len(s) > 0:
                     detected = _detect_scale_range(s, canonical_range)
-                    if detected != canonical_range:
+                    if detected is None:
+                        scale_note = (f"not pooled: values {float(s.min()):g}-{float(s.max()):g} fit no known "
+                                      f"scale of {canonical_range[0]}-{canonical_range[1]}")
+                        s = s.iloc[0:0]
+                    elif detected != canonical_range:
                         s = _rescale_to_canonical(s, detected, canonical_range)
                         scale_note = f"rescaled {detected[0]}-{detected[1]} -> {canonical_range[0]}-{canonical_range[1]}"
 
@@ -3109,7 +3117,7 @@ def check_ordinal_rescaling_warnings(
                 continue
 
             detected = _detect_scale_range(s, canonical_range)
-            if detected == canonical_range:
+            if detected is None or detected == canonical_range:
                 continue
 
             # Check if this is ordinal data being linearly rescaled
