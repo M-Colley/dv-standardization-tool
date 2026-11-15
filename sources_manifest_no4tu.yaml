@@ -447,7 +447,14 @@ sources:
     include_globs: ["SenseCobotFusion/Labels.csv", "SenseCobotFusion/SenseCobotFusion.csv"]
     mapping_path: schemas/sensecobot_fusion_2024_mapping.yaml
     override_standard_aliases: true
-    use_llm_deduction: true
+    # No LLM step (LLM-mapping audit, 2026-11-15). The mapping covers every schema DV the
+    # study measured (NASA-TLX, heart rate, RMSSD, skin conductance); its other ~630 columns
+    # are ECG, EEG, GSR and facial-expression features without a schema DV (mapping header).
+    # The LLM had mapped 70 of them (EEG band powers to NASA-TLX performance and the SSQ
+    # oculomotor score, facial scores to engagement and stress), and once those were locked
+    # it mapped 34 others. Locking each feature instead would add them all to the
+    # benchmark's curated non-DV items.
+    use_llm_deduction: false
 
   - source_id: myocontrol_intent_2025
     source_type: local_path
