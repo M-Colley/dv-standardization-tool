@@ -1,0 +1,580 @@
+study,dv,n,min,max,range_lo,range_hi,scale_note,status
+3d_display_comp_vehicle,mental_demand,45,1.0,18.0,0,20.0,,in_range
+3d_display_comp_vehicle,perceived_safety_item_01,45,-2.0,3.0,-3,3.0,,in_range
+3d_display_comp_vehicle,perceived_safety_item_02,45,-3.0,3.0,-3,3.0,,in_range
+3d_display_comp_vehicle,perceived_safety_item_03,45,-2.0,3.0,-3,3.0,,in_range
+3d_display_comp_vehicle,perceived_safety_item_04,45,-2.0,3.0,-3,3.0,,in_range
+3d_display_comp_vehicle,sart_demand,180,0.0,20.0,0,20.0,,in_range
+3d_display_comp_vehicle,sart_supply,180,0.0,20.0,0,20.0,,in_range
+3d_display_comp_vehicle,sart_understanding,180,0.0,20.0,0,20.0,,in_range
+3d_display_comp_vehicle,sts_ad_item_02,45,1.0,7.0,1,7.0,,in_range
+3d_display_comp_vehicle,sts_ad_item_05,45,2.0,7.0,1,7.0,,in_range
+3d_display_comp_vehicle,sts_ad_item_06,45,2.0,7.0,1,7.0,,in_range
+ar_pedestrian_online_2023,aesthetics_rating,11344,1.0,5.0,1,7.0,,in_range
+ar_pedestrian_online_2023,understanding_rating,11344,1.0,5.0,1,5.0,,in_range
+ar_pedestrian_outdoor_2024,AOA1,119,0.8325393042503717,5.0,-2,2.0,,in_range
+ar_pedestrian_outdoor_2024,AOA2,119,0.9397823594805784,5.0,-2,2.0,,in_range
+ar_pedestrian_outdoor_2024,AOA3,119,0.875141711880434,5.0,-2,2.0,,in_range
+ar_pedestrian_outdoor_2024,AOA4,118,0.8473185457363231,5.0,-2,2.0,,in_range
+ar_pedestrian_outdoor_2024,AOA5,119,1.0,5.0,-2,2.0,,in_range
+ar_pedestrian_outdoor_2024,AOA7,119,0.5998236072282913,5.0,-2,2.0,,in_range
+ar_pedestrian_outdoor_2024,AOA8,118,0.792658109342785,5.0,-2,2.0,,in_range
+ar_pedestrian_outdoor_2024,aesthetics_rating,119,1.0,7.0,1,7.0,,in_range
+ar_telepresence_arm_2023,user_satisfaction,720,1.0,7.0,1,7.0,,in_range
+artv_ornaments_2025,ueq_hedonic,80,-2.0,3.0,-3,3.0,,in_range
+artv_ornaments_2025,ueq_pragmatic,80,-3.0,3.0,-3,3.0,,in_range
+av_acceptance_vr_ijhci24,utaut_behavioral_intention,652,1.0,7.0,1,7.0,,in_range
+av_acceptance_vr_ijhci24,utaut_effort_expectancy,931,1.0,7.0,1,7.0,,in_range
+av_acceptance_vr_ijhci24,utaut_facilitating_conditions,970,1.0,7.0,1,7.0,,in_range
+av_acceptance_vr_ijhci24,utaut_performance_expectancy,953,1.0,7.0,1,7.0,,in_range
+av_acceptance_vr_ijhci24,utaut_social_influence,882,1.0,7.0,1,7.0,,in_range
+bvi_auditory_hav_autoui26,mental_demand,105,1.0,20.0,0,20.0,,in_range
+bvi_auditory_hav_autoui26,perceived_safety_item_01,105,-3.0,3.0,-3,3.0,,in_range
+bvi_auditory_hav_autoui26,perceived_safety_item_02,105,-3.0,3.0,-3,3.0,,in_range
+bvi_auditory_hav_autoui26,perceived_safety_item_03,105,-3.0,3.0,-3,3.0,,in_range
+bvi_auditory_hav_autoui26,perceived_safety_item_04,105,-3.0,3.0,-3,3.0,,in_range
+bvi_auditory_hav_autoui26,sart_demand,420,0.0,20.0,0,20.0,,in_range
+bvi_auditory_hav_autoui26,sart_supply,525,0.0,20.0,0,20.0,,in_range
+bvi_auditory_hav_autoui26,sart_understanding,420,0.0,20.0,0,20.0,,in_range
+chatgpt_roleplay_2025,SUS1,20,4.0,5.0,1,5.0,,in_range
+chatgpt_roleplay_2025,SUS10,20,1.0,5.0,1,5.0,,in_range
+chatgpt_roleplay_2025,SUS2,20,1.0,5.0,1,5.0,,in_range
+chatgpt_roleplay_2025,SUS3,20,1.0,5.0,1,5.0,,in_range
+chatgpt_roleplay_2025,SUS4,20,1.0,5.0,1,5.0,,in_range
+chatgpt_roleplay_2025,SUS5,20,2.0,5.0,1,5.0,,in_range
+chatgpt_roleplay_2025,SUS6,20,1.0,5.0,1,5.0,,in_range
+chatgpt_roleplay_2025,SUS7,20,3.0,5.0,1,5.0,,in_range
+chatgpt_roleplay_2025,SUS8,20,1.0,5.0,1,5.0,,in_range
+chatgpt_roleplay_2025,SUS9,20,3.0,5.0,1,5.0,,in_range
+chatgpt_roleplay_2025,user_satisfaction,140,2.0,5.0,1,7.0,,in_range
+citizen_science_tutorial_2021,effort,77,0.0,18.0,0,20.0,,in_range
+citizen_science_tutorial_2021,frustration,82,0.0,19.0,0,20.0,,in_range
+citizen_science_tutorial_2021,mental_demand,83,0.0,19.0,0,20.0,,in_range
+citizen_science_tutorial_2021,temporal_demand,87,0.0,15.0,0,20.0,,in_range
+concurrent_speech_2022,TLX_SCORE,640,3.33333325386047,92.6666641235352,0,100.0,,in_range
+curved_dragging_vr_ijhci26,effort,288,0.0,20.0,0,20.0,,in_range
+curved_dragging_vr_ijhci26,error_rate,1728,0.0,75.0,0,100.0,,in_range
+curved_dragging_vr_ijhci26,frustration,288,0.0,20.0,0,20.0,,in_range
+curved_dragging_vr_ijhci26,mental_demand,288,0.0,20.0,0,20.0,,in_range
+curved_dragging_vr_ijhci26,performance,288,0.0,19.0,0,20.0,,in_range
+curved_dragging_vr_ijhci26,physical_demand,288,0.0,20.0,0,20.0,,in_range
+curved_dragging_vr_ijhci26,temporal_demand,288,0.0,20.0,0,20.0,,in_range
+debugging_cps_ar_vr_2026,TLX_SCORE,108,5.0,70.8333333333333,0,100.0,,in_range
+debugging_cps_ar_vr_2026,task_success,324,0.0,1.0,0,1.0,,in_range
+debugging_cps_ar_vr_2026,ueq_hedonic,108,-2.75,3.0,-3,3.0,,in_range
+debugging_cps_ar_vr_2026,ueq_pragmatic,108,-2.0,3.0,-3,3.0,,in_range
+debugging_cps_ar_vr_2026,usability,108,32.5,97.5,0,100.0,,in_range
+dev_creativity_eyetracking_2026,TLX_SCORE,40,26.2,62.8,0,100.0,,in_range
+driving_style_automated_2021,godspeed_animacy,432,1.0,5.0,1,5.0,,in_range
+driving_style_automated_2021,godspeed_anthropomorphism,432,1.0,5.0,1,5.0,,in_range
+driving_style_automated_2021,godspeed_likeability,432,1.0,5.0,1,5.0,,in_range
+driving_style_automated_2021,godspeed_perceived_intelligence,456,1.0,5.0,1,5.0,,in_range
+driving_style_automated_2021,godspeed_perceived_safety,432,1.0,5.0,1,5.0,,in_range
+ehmi_car_body_2020,understanding_rating,216,1.0,6.0,1,5.0,,in_range
+ehmi_for_all_chi26,AOA1,720,-2.0,2.0,-2,2.0,,in_range
+ehmi_for_all_chi26,AOA2,720,-2.0,2.0,-2,2.0,,in_range
+ehmi_for_all_chi26,AOA3,720,-2.0,2.0,-2,2.0,,in_range
+ehmi_for_all_chi26,AOA4,720,-2.0,2.0,-2,2.0,,in_range
+ehmi_for_all_chi26,AOA5,720,-2.0,2.0,-2,2.0,,in_range
+ehmi_for_all_chi26,AOA6,720,-2.0,2.0,-2,2.0,,in_range
+ehmi_for_all_chi26,AOA7,720,-2.0,2.0,-2,2.0,,in_range
+ehmi_for_all_chi26,AOA8,720,-2.0,2.0,-2,2.0,,in_range
+ehmi_for_all_chi26,AOA9,720,-2.0,2.0,-2,2.0,,in_range
+ehmi_for_all_chi26,SUS1,720,1.0,5.0,1,5.0,,in_range
+ehmi_for_all_chi26,SUS10,720,1.0,5.0,1,5.0,,in_range
+ehmi_for_all_chi26,SUS2,720,1.0,5.0,1,5.0,,in_range
+ehmi_for_all_chi26,SUS3,720,1.0,5.0,1,5.0,,in_range
+ehmi_for_all_chi26,SUS4,720,1.0,5.0,1,5.0,,in_range
+ehmi_for_all_chi26,SUS5,720,1.0,5.0,1,5.0,,in_range
+ehmi_for_all_chi26,SUS6,720,1.0,5.0,1,5.0,,in_range
+ehmi_for_all_chi26,SUS7,720,1.0,5.0,1,5.0,,in_range
+ehmi_for_all_chi26,SUS8,720,1.0,5.0,1,5.0,,in_range
+ehmi_for_all_chi26,SUS9,720,1.0,5.0,1,5.0,,in_range
+ehmi_for_all_chi26,mental_demand,720,1.0,20.0,0,20.0,,in_range
+ehmi_for_all_chi26,perceived_safety_item_01,720,-3.0,3.0,-3,3.0,,in_range
+ehmi_for_all_chi26,perceived_safety_item_02,720,-3.0,3.0,-3,3.0,,in_range
+ehmi_for_all_chi26,perceived_safety_item_03,720,-3.0,3.0,-3,3.0,,in_range
+ehmi_for_all_chi26,perceived_safety_item_04,720,-3.0,3.0,-3,3.0,,in_range
+ehmi_for_all_chi26,tia_item_01,720,1.0,5.0,1,5.0,,in_range
+ehmi_for_all_chi26,tia_item_02,720,1.0,5.0,1,5.0,,in_range
+ehmi_for_all_chi26,tia_item_03,720,1.0,5.0,1,5.0,,in_range
+ehmi_for_all_chi26,tia_item_04,720,1.0,5.0,1,5.0,,in_range
+ehmi_for_all_chi26,tia_item_05,720,1.0,5.0,1,5.0,,in_range
+ehmi_for_all_chi26,tia_item_06,720,1.0,5.0,1,5.0,,in_range
+ehmi_infrastructure_2024,AOA_SATISFYING,129,-2.0,2.0,-2,2.0,,in_range
+ehmi_infrastructure_2024,AOA_USEFULNESS,129,-2.0,2.0,-2,2.0,,in_range
+ehmi_infrastructure_2024,TLX_SCORE,129,0.0,85.18518518518518,0,100.0,,in_range
+ehmi_infrastructure_2024,arousal,129,2.0,9.0,1,9.0,,in_range
+ehmi_infrastructure_2024,dominance,129,2.0,9.0,1,9.0,,in_range
+ehmi_infrastructure_2024,effort,129,0.0,17.77777777777778,0,20.0,,in_range
+ehmi_infrastructure_2024,frustration,129,0.0,17.77777777777778,0,20.0,,in_range
+ehmi_infrastructure_2024,mental_demand,129,0.0,20.0,0,20.0,,in_range
+ehmi_infrastructure_2024,performance,129,0.0,20.0,0,20.0,,in_range
+ehmi_infrastructure_2024,physical_demand,129,0.0,17.77777777777778,0,20.0,,in_range
+ehmi_infrastructure_2024,temporal_demand,129,0.0,20.0,0,20.0,,in_range
+ehmi_infrastructure_2024,valence,129,2.0,9.0,1,9.0,,in_range
+ehmi_optimization_chi25,acceptance_rating,740,1.0,7.0,1,7.0,,in_range
+ehmi_optimization_chi25,aesthetics_rating,737,1.0,7.0,1,7.0,,in_range
+ehmi_optimization_chi25,mental_demand,740,1.0,12.0,0,20.0,,in_range
+ehmi_optimization_chi25,perceived_safety,740,-3.0,3.0,-3,3.0,,in_range
+ehmi_optimization_chi25,trust_rating,740,1.0,5.0,1,5.0,,in_range
+ehmi_optimization_chi25,understanding_rating,740,1.0,5.0,1,5.0,,in_range
+ehmi_survey_crowd_2019,perceived_safety,32000,-1.0,1.0,-3,3.0,,in_range
+ehmi_survey_crowd_2019,understanding_rating,49808,1.0,5.0,1,5.0,,in_range
+fact_av,mental_demand,2600,1.0,20.0,0,20.0,,in_range
+fact_av,perceived_safety_item_01,2600,-3.0,3.0,-3,3.0,,in_range
+fact_av,perceived_safety_item_02,2600,-3.0,3.0,-3,3.0,,in_range
+fact_av,perceived_safety_item_03,2600,-3.0,3.0,-3,3.0,,in_range
+fact_av,perceived_safety_item_04,2600,-3.0,3.0,-3,3.0,,in_range
+fact_av,sart_demand,10400,0.0,20.0,0,20.0,,in_range
+fact_av,sart_supply,13000,0.0,20.0,0,20.0,,in_range
+fact_av,sart_understanding,10400,0.0,20.0,0,20.0,,in_range
+fact_av,sts_ad_item_02,2600,1.0,7.0,1,7.0,,in_range
+fact_av,sts_ad_item_05,2600,1.0,7.0,1,7.0,,in_range
+fact_av,sts_ad_item_06,2600,1.0,7.0,1,7.0,,in_range
+fact_av,trust_rating,2600,1.0,5.0,1,5.0,,in_range
+fido2_auth_chi23,SUS1,89,2.0,5.0,1,5.0,,in_range
+fido2_auth_chi23,SUS10,89,1.0,4.0,1,5.0,,in_range
+fido2_auth_chi23,SUS2,89,1.0,5.0,1,5.0,,in_range
+fido2_auth_chi23,SUS3,89,1.0,5.0,1,5.0,,in_range
+fido2_auth_chi23,SUS4,89,1.0,5.0,1,5.0,,in_range
+fido2_auth_chi23,SUS5,89,1.0,5.0,1,5.0,,in_range
+fido2_auth_chi23,SUS6,88,1.0,5.0,1,5.0,,in_range
+fido2_auth_chi23,SUS7,88,2.0,5.0,1,5.0,,in_range
+fido2_auth_chi23,SUS8,89,1.0,4.0,1,5.0,,in_range
+fido2_auth_chi23,SUS9,89,1.0,5.0,1,5.0,,in_range
+fov_snapturn_tvcg24,ssq_disorientation,201,0.0,236.64,0,292.32,,in_range
+fov_snapturn_tvcg24,ssq_nausea,201,0.0,162.18,0,200.34,,in_range
+fov_snapturn_tvcg24,ssq_oculomotor,201,0.0,121.28,0,159.18,,in_range
+fov_snapturn_tvcg24,ssq_total,201,0.0,172.04,0,235.62,,in_range
+gaze_platformer_chi24,aesthetics_rating,412,1.0,7.0,1,7.0,,in_range
+handover_reaction_time_2025,collaboration_quality,100,1.0,7.0,1,7.0,,in_range
+human_swarm_pfm_2025,SUS1,360,1.0,5.0,1,5.0,,in_range
+human_swarm_pfm_2025,SUS10,360,1.0,5.0,1,5.0,,in_range
+human_swarm_pfm_2025,SUS2,360,1.0,5.0,1,5.0,,in_range
+human_swarm_pfm_2025,SUS3,360,1.0,5.0,1,5.0,,in_range
+human_swarm_pfm_2025,SUS4,360,1.0,5.0,1,5.0,,in_range
+human_swarm_pfm_2025,SUS5,360,1.0,5.0,1,5.0,,in_range
+human_swarm_pfm_2025,SUS6,360,1.0,5.0,1,5.0,,in_range
+human_swarm_pfm_2025,SUS7,360,1.0,5.0,1,5.0,,in_range
+human_swarm_pfm_2025,SUS8,360,1.0,5.0,1,5.0,,in_range
+human_swarm_pfm_2025,SUS9,360,1.0,5.0,1,5.0,,in_range
+human_swarm_pfm_2025,effort,360,0.0,20.0,0,20.0,,in_range
+human_swarm_pfm_2025,frustration,360,0.0,20.0,0,20.0,,in_range
+human_swarm_pfm_2025,jian_trust,2880,1.0,7.0,1,7.0,,in_range
+human_swarm_pfm_2025,mental_demand,360,0.0,20.0,0,20.0,,in_range
+human_swarm_pfm_2025,performance,360,0.0,20.0,0,20.0,,in_range
+human_swarm_pfm_2025,physical_demand,360,0.0,17.77777777777778,0,20.0,,in_range
+human_swarm_pfm_2025,temporal_demand,360,0.0,20.0,0,20.0,,in_range
+incar_vr_gain_chi24,effort,204,0.0,20.0,0,20.0,,in_range
+incar_vr_gain_chi24,frustration,204,0.0,19.0,0,20.0,,in_range
+incar_vr_gain_chi24,ipq_experienced_realism,204,1.0,6.0,0,6.0,,in_range
+incar_vr_gain_chi24,mental_demand,204,0.0,17.0,0,20.0,,in_range
+incar_vr_gain_chi24,performance,204,0.0,20.0,0,20.0,,in_range
+incar_vr_gain_chi24,physical_demand,204,0.0,15.0,0,20.0,,in_range
+incar_vr_gain_chi24,ssq_oculomotor,204,0.0,121.28,0,159.18,,in_range
+incar_vr_gain_chi24,task_success,2720,0.0,1.0,0,1.0,,in_range
+incar_vr_gain_chi24,temporal_demand,204,0.0,18.0,0,20.0,,in_range
+longitudinal_usa_germany_ehmi,mental_demand,296,1.0,20.0,0,20.0,,in_range
+longitudinal_usa_germany_ehmi,perceived_safety_item_01,470,-3.0,3.0,-3,3.0,,in_range
+longitudinal_usa_germany_ehmi,perceived_safety_item_02,470,-3.0,3.0,-3,3.0,,in_range
+longitudinal_usa_germany_ehmi,perceived_safety_item_03,470,-3.0,3.0,-3,3.0,,in_range
+longitudinal_usa_germany_ehmi,perceived_safety_item_04,470,-3.0,3.0,-3,3.0,,in_range
+midair_map_making_2026,SUS1,45,1.0,5.0,1,5.0,,in_range
+midair_map_making_2026,SUS10,30,1.0,4.0,1,5.0,,in_range
+midair_map_making_2026,SUS2,30,1.0,5.0,1,5.0,,in_range
+midair_map_making_2026,SUS3,30,2.0,5.0,1,5.0,,in_range
+midair_map_making_2026,SUS4,30,1.0,5.0,1,5.0,,in_range
+midair_map_making_2026,SUS5,30,3.0,5.0,1,5.0,,in_range
+midair_map_making_2026,SUS7,45,2.0,5.0,1,5.0,,in_range
+midair_map_making_2026,SUS8,45,1.0,4.0,1,5.0,,in_range
+midair_map_making_2026,SUS9,45,1.0,5.0,1,5.0,,in_range
+mr_airplane_layouts_2021,effort,252,0.0,20.0,0,20.0,,in_range
+mr_airplane_layouts_2021,mental_demand,252,0.0,20.0,0,20.0,,in_range
+mr_airplane_layouts_2021,physical_demand,252,0.0,20.0,0,20.0,,in_range
+multiscale_teleport_2024,TLX_SCORE,210,0.0,61.6666666666667,0,100.0,,in_range
+multiscale_teleport_2024,ueq_attractiveness,120,-1.5,3.0,-3,3.0,,in_range
+multiscale_teleport_2024,ueq_dependability,90,-1.25,3.0,-3,3.0,,in_range
+multiscale_teleport_2024,ueq_efficiency,120,-1.5,3.0,-3,3.0,,in_range
+multiscale_teleport_2024,ueq_novelty,120,-2.25,3.0,-3,3.0,,in_range
+multiscale_teleport_2024,ueq_perspicuity,120,-1.25,3.0,-3,3.0,,in_range
+multiscale_teleport_2024,ueq_stimulation,120,-1.5,3.0,-3,3.0,,in_range
+music_intensity_driving_2021,arousal,238,1.0,9.0,1,9.0,,in_range
+music_intensity_driving_2021,effort,238,0.0,20.0,0,20.0,,in_range
+music_intensity_driving_2021,frustration,238,0.0,17.0,0,20.0,,in_range
+music_intensity_driving_2021,mental_demand,238,0.0,18.0,0,20.0,,in_range
+music_intensity_driving_2021,performance,238,0.0,20.0,0,20.0,,in_range
+music_intensity_driving_2021,physical_demand,238,0.0,15.0,0,20.0,,in_range
+music_intensity_driving_2021,rsme,238,5.0,125.0,0,150.0,,in_range
+music_intensity_driving_2021,temporal_demand,238,0.0,18.0,0,20.0,,in_range
+music_intensity_driving_2021,valence,204,1.0,9.0,1,9.0,,in_range
+music_tempo_taskload_2022,arousal,322,1.0,9.0,1,9.0,,in_range
+music_tempo_taskload_2022,effort,322,0.0,19.0,0,20.0,,in_range
+music_tempo_taskload_2022,frustration,322,0.0,18.0,0,20.0,,in_range
+music_tempo_taskload_2022,mental_demand,322,1.0,19.0,0,20.0,,in_range
+music_tempo_taskload_2022,performance,322,0.0,19.0,0,20.0,,in_range
+music_tempo_taskload_2022,physical_demand,322,0.0,19.0,0,20.0,,in_range
+music_tempo_taskload_2022,temporal_demand,322,0.0,17.0,0,20.0,,in_range
+music_tempo_taskload_2022,valence,322,1.0,9.0,1,9.0,,in_range
+myocontrol_intent_2025,task_success,632,0.0,1.0,0,1.0,,in_range
+navigable_wim_2026,SUS1,108,1.0,5.0,1,5.0,,in_range
+navigable_wim_2026,SUS10,108,1.0,5.0,1,5.0,,in_range
+navigable_wim_2026,SUS2,108,1.0,4.0,1,5.0,,in_range
+navigable_wim_2026,SUS3,108,1.0,5.0,1,5.0,,in_range
+navigable_wim_2026,SUS4,108,1.0,5.0,1,5.0,,in_range
+navigable_wim_2026,SUS5,108,2.0,5.0,1,5.0,,in_range
+navigable_wim_2026,SUS6,108,1.0,4.0,1,5.0,,in_range
+navigable_wim_2026,SUS7,108,1.0,5.0,1,5.0,,in_range
+navigable_wim_2026,SUS8,108,1.0,5.0,1,5.0,,in_range
+navigable_wim_2026,SUS9,108,1.0,5.0,1,5.0,,in_range
+navigable_wim_2026,effort,108,2.0,19.0,0,20.0,,in_range
+navigable_wim_2026,frustration,108,1.0,17.0,0,20.0,,in_range
+navigable_wim_2026,ipq_involvement,432,1.0,7.0,0,6.0,,in_range
+navigable_wim_2026,mental_demand,108,1.0,18.0,0,20.0,,in_range
+navigable_wim_2026,performance,108,2.0,20.0,0,20.0,,in_range
+navigable_wim_2026,physical_demand,108,1.0,19.0,0,20.0,,in_range
+navigable_wim_2026,temporal_demand,108,1.0,18.0,0,20.0,,in_range
+nl2tap_filter_2026,SUS1,85,1.0,5.0,1,5.0,,in_range
+nl2tap_filter_2026,SUS10,85,1.0,5.0,1,5.0,,in_range
+nl2tap_filter_2026,SUS2,85,1.0,5.0,1,5.0,,in_range
+nl2tap_filter_2026,SUS3,85,1.5,5.0,1,5.0,,in_range
+nl2tap_filter_2026,SUS4,85,1.0,5.0,1,5.0,,in_range
+nl2tap_filter_2026,SUS5,85,1.0,5.0,1,5.0,,in_range
+nl2tap_filter_2026,SUS6,85,1.0,5.0,1,5.0,,in_range
+nl2tap_filter_2026,SUS7,85,1.0,5.0,1,5.0,,in_range
+nl2tap_filter_2026,SUS8,85,1.0,5.0,1,5.0,,in_range
+nl2tap_filter_2026,SUS9,85,1.0,5.0,1,5.0,,in_range
+nl2tap_filter_2026,task_success,510,0.0,1.0,0,1.0,,in_range
+osf_cwd6h,perceived_risk,1811262,0.0,100.0,1,100.0,,in_range
+p300_attention_bci_2024,effort,47,7.0,20.0,0,20.0,,in_range
+p300_attention_bci_2024,frustration,47,1.0,18.0,0,20.0,,in_range
+p300_attention_bci_2024,mental_demand,47,2.0,20.0,0,20.0,,in_range
+p300_attention_bci_2024,performance,47,1.0,16.0,0,20.0,,in_range
+p300_attention_bci_2024,physical_demand,47,1.0,20.0,0,20.0,,in_range
+p300_attention_bci_2024,temporal_demand,47,2.0,19.0,0,20.0,,in_range
+pairsonic_cscw24,SUS1,141,1.0,5.0,1,5.0,,in_range
+pairsonic_cscw24,SUS10,141,1.0,4.0,1,5.0,,in_range
+pairsonic_cscw24,SUS2,94,1.0,5.0,1,5.0,,in_range
+pairsonic_cscw24,SUS3,141,1.0,5.0,1,5.0,,in_range
+pairsonic_cscw24,SUS4,141,1.0,4.0,1,5.0,,in_range
+pairsonic_cscw24,SUS5,141,1.0,5.0,1,5.0,,in_range
+pairsonic_cscw24,SUS6,141,1.0,5.0,1,5.0,,in_range
+pairsonic_cscw24,SUS7,141,2.0,5.0,1,5.0,,in_range
+pairsonic_cscw24,SUS8,140,1.0,5.0,1,5.0,,in_range
+pairsonic_cscw24,SUS9,141,1.0,5.0,1,5.0,,in_range
+perceived_risk_merging_2022,perceived_risk,429,1.0,100.0,1,100.0,,in_range
+physio_hrc_2025,TLX_SCORE,261,21.0,73.6,0,100.0,,in_range
+physio_hrc_2025,task_success,195,0.0,1.0,0,1.0,,in_range
+pipeblocks_cicd_2025,SUS1,19,1.0,5.0,1,5.0,,in_range
+pipeblocks_cicd_2025,SUS10,19,1.0,5.0,1,5.0,,in_range
+pipeblocks_cicd_2025,SUS2,19,1.0,5.0,1,5.0,,in_range
+pipeblocks_cicd_2025,SUS3,19,2.0,5.0,1,5.0,,in_range
+pipeblocks_cicd_2025,SUS4,19,1.0,5.0,1,5.0,,in_range
+pipeblocks_cicd_2025,SUS5,19,1.0,5.0,1,5.0,,in_range
+pipeblocks_cicd_2025,SUS6,19,1.0,5.0,1,5.0,,in_range
+pipeblocks_cicd_2025,SUS7,19,1.0,5.0,1,5.0,,in_range
+pipeblocks_cicd_2025,SUS8,19,1.0,5.0,1,5.0,,in_range
+pipeblocks_cicd_2025,SUS9,19,1.0,5.0,1,5.0,,in_range
+pipeblocks_cicd_2025,effort,18,0.0,15.0,0,20.0,,in_range
+pipeblocks_cicd_2025,frustration,18,0.0,20.0,0,20.0,,in_range
+pipeblocks_cicd_2025,mental_demand,18,0.0,15.0,0,20.0,,in_range
+pipeblocks_cicd_2025,performance,18,0.0,18.0,0,20.0,,in_range
+pipeblocks_cicd_2025,physical_demand,18,0.0,20.0,0,20.0,,in_range
+pipeblocks_cicd_2025,temporal_demand,18,0.0,20.0,0,20.0,,in_range
+psych_conflict_handling,acceptance_rating,432,1.0,5.0,1,7.0,,in_range
+psych_conflict_handling,conflict_item_01,432,1.0,5.0,1,5.0,,in_range
+psych_conflict_handling,conflict_item_02,432,1.0,5.0,1,5.0,,in_range
+psych_conflict_handling,conflict_item_03,432,1.0,5.0,1,5.0,,in_range
+psych_conflict_handling,conflict_item_04,432,1.0,5.0,1,5.0,,in_range
+psych_conflict_handling,conflict_item_05,432,1.0,5.0,1,5.0,,in_range
+psych_conflict_handling,perceived_vehicle_influence,432,1.0,5.0,1,5.0,,in_range
+psych_conflict_handling,sts_ad_item_01,432,1.0,7.0,1,7.0,,in_range
+psych_conflict_handling,sts_ad_item_02,432,1.0,7.0,1,7.0,,in_range
+psych_conflict_handling,sts_ad_item_03,432,1.0,7.0,1,7.0,,in_range
+psych_conflict_handling,sts_ad_item_04,432,1.0,7.0,1,7.0,,in_range
+psych_conflict_handling,sts_ad_item_05,432,1.0,7.0,1,7.0,,in_range
+psych_conflict_handling,sts_ad_item_06,432,1.0,7.0,1,7.0,,in_range
+psych_conflict_handling,task_feasibility_item_01,432,1.0,5.0,1,5.0,,in_range
+psych_conflict_handling,task_feasibility_item_02,432,2.0,5.0,1,5.0,,in_range
+reflexion_mapping_2025,SUS1,14,1.0,5.0,1,5.0,,in_range
+reflexion_mapping_2025,SUS10,14,1.0,4.0,1,5.0,,in_range
+reflexion_mapping_2025,SUS2,14,1.0,4.0,1,5.0,,in_range
+reflexion_mapping_2025,SUS3,14,1.0,5.0,1,5.0,,in_range
+reflexion_mapping_2025,SUS4,14,1.0,5.0,1,5.0,,in_range
+reflexion_mapping_2025,SUS5,14,2.0,5.0,1,5.0,,in_range
+reflexion_mapping_2025,SUS6,14,1.0,4.0,1,5.0,,in_range
+reflexion_mapping_2025,SUS7,14,1.0,5.0,1,5.0,,in_range
+reflexion_mapping_2025,SUS8,14,1.0,5.0,1,5.0,,in_range
+reflexion_mapping_2025,SUS9,14,2.0,5.0,1,5.0,,in_range
+reflexion_mapping_2025,effort,42,2.2222222222222223,17.77777777777778,0,20.0,,in_range
+reflexion_mapping_2025,frustration,42,0.0,17.77777777777778,0,20.0,,in_range
+reflexion_mapping_2025,mental_demand,42,0.0,17.77777777777778,0,20.0,,in_range
+reflexion_mapping_2025,performance,42,2.2222222222222223,20.0,0,20.0,,in_range
+reflexion_mapping_2025,physical_demand,42,0.0,20.0,0,20.0,,in_range
+reflexion_mapping_2025,temporal_demand,42,0.0,15.555555555555555,0,20.0,,in_range
+remote_takeover_replay_2026,TLX_SCORE,36,15.0,66.67,0,100.0,,in_range
+roads_chi25,AOA1,276,-2.0,2.0,-2,2.0,,in_range
+roads_chi25,AOA2,276,-2.0,2.0,-2,2.0,,in_range
+roads_chi25,AOA3,276,-2.0,2.0,-2,2.0,,in_range
+roads_chi25,AOA4,276,-2.0,2.0,-2,2.0,,in_range
+roads_chi25,AOA5,276,-2.0,2.0,-2,2.0,,in_range
+roads_chi25,AOA6,276,-2.0,2.0,-2,2.0,,in_range
+roads_chi25,AOA7,276,-2.0,2.0,-2,2.0,,in_range
+roads_chi25,AOA8,276,-2.0,2.0,-2,2.0,,in_range
+roads_chi25,AOA9,276,-2.0,2.0,-2,2.0,,in_range
+roads_chi25,SUS1,276,1.0,5.0,1,5.0,,in_range
+roads_chi25,SUS10,276,1.0,5.0,1,5.0,,in_range
+roads_chi25,SUS2,276,1.0,5.0,1,5.0,,in_range
+roads_chi25,SUS3,276,1.0,5.0,1,5.0,,in_range
+roads_chi25,SUS4,276,1.0,5.0,1,5.0,,in_range
+roads_chi25,SUS5,276,1.0,5.0,1,5.0,,in_range
+roads_chi25,SUS6,276,1.0,5.0,1,5.0,,in_range
+roads_chi25,SUS7,276,1.0,5.0,1,5.0,,in_range
+roads_chi25,SUS8,276,1.0,5.0,1,5.0,,in_range
+roads_chi25,SUS9,276,1.0,5.0,1,5.0,,in_range
+roads_chi25,effort,276,1.0,20.0,0,20.0,,in_range
+roads_chi25,frustration,276,1.0,20.0,0,20.0,,in_range
+roads_chi25,mental_demand,276,1.0,20.0,0,20.0,,in_range
+roads_chi25,performance,276,1.0,20.0,0,20.0,,in_range
+roads_chi25,physical_demand,276,1.0,20.0,0,20.0,,in_range
+roads_chi25,temporal_demand,276,1.0,20.0,0,20.0,,in_range
+robot_feeding_2025,TLX_SCORE,10,38.33333333,66.66666667,0,100.0,,in_range
+running_into_traffic_chi26,effort,288,0.0,17.142857142857142,0,20.0,,in_range
+running_into_traffic_chi26,frustration,288,0.0,20.0,0,20.0,,in_range
+running_into_traffic_chi26,mental_demand,288,0.0,20.0,0,20.0,,in_range
+running_into_traffic_chi26,perceived_risk,288,1.0,100.0,1,100.0,,in_range
+running_into_traffic_chi26,performance,288,0.0,20.0,0,20.0,,in_range
+running_into_traffic_chi26,physical_demand,288,0.0,20.0,0,20.0,,in_range
+running_into_traffic_chi26,temporal_demand,288,0.0,13.333333333333334,0,20.0,,in_range
+running_into_traffic_chi26,trust_rating,288,1.0,5.0,1,5.0,,in_range
+running_into_traffic_chi26,understanding_rating,288,1.0,5.0,1,5.0,,in_range
+scrolling_in_the_deep_chi25,psychological_reactance,927,1.0,5.0,1,5.0,,in_range
+scrolling_in_the_deep_chi25,sleepiness,927,1.0,9.0,1,9.0,,in_range
+scrolling_in_the_deep_chi25,valence,927,1.0,9.0,1,9.0,,in_range
+sensecobot_fusion_2024,effort,147,0.0,20.0,0,20.0,,in_range
+sensecobot_fusion_2024,frustration,21,0.0,20.0,0,20.0,,in_range
+sensecobot_fusion_2024,mental_demand,21,3.333333333333333,13.333333333333334,0,20.0,,in_range
+sensecobot_fusion_2024,physical_demand,147,0.0,20.0,0,20.0,,in_range
+sensecobot_fusion_2024,temporal_demand,21,0.0,16.666666666666668,0,20.0,,in_range
+shared_autonomy_2026,effort,88,1.89781022,18.91371696,0,20.0,,in_range
+shared_autonomy_2026,frustration,88,0.4379562,19.68097028,0,20.0,,in_range
+shared_autonomy_2026,mental_demand,88,0.93731462,19.1957036,0,20.0,,in_range
+shared_autonomy_2026,performance,88,0.30189176,16.9428515,0,20.0,,in_range
+shared_autonomy_2026,physical_demand,88,0.18719926,19.90376376,0,20.0,,in_range
+shared_autonomy_2026,task_success,5507,0.0,1.0,0,1.0,,in_range
+shared_autonomy_2026,temporal_demand,88,0.33089446,17.35099338,0,20.0,,in_range
+shared_autonomy_2026,usability,88,15.0,95.0,0,100.0,,in_range
+short_videos_memory_2023,engagement_level,60,1.0,5.0,1,5.0,,in_range
+short_videos_memory_2023,task_success,240,0.0125786163522012,1.0,0,1.0,,in_range
+simulst_subtitles_2026,paas_mental_effort,80,1.0,8.0,1,9.0,,in_range
+simulst_subtitles_2026,user_satisfaction,80,1.0,5.0,1,7.0,,in_range
+steering_gain_2022,TLX_SCORE,96,8.33333333333333,73.3333333333333,0,100.0,,in_range
+sus_de_pos_2025,SUS1,902,1.0,5.0,1,5.0,,in_range
+sus_de_pos_2025,SUS10,902,1.0,5.0,1,5.0,,in_range
+sus_de_pos_2025,SUS2,902,1.0,5.0,1,5.0,,in_range
+sus_de_pos_2025,SUS3,902,1.0,5.0,1,5.0,,in_range
+sus_de_pos_2025,SUS4,902,1.0,5.0,1,5.0,,in_range
+sus_de_pos_2025,SUS5,902,1.0,5.0,1,5.0,,in_range
+sus_de_pos_2025,SUS6,902,1.0,5.0,1,5.0,,in_range
+sus_de_pos_2025,SUS7,902,1.0,5.0,1,5.0,,in_range
+sus_de_pos_2025,SUS8,902,1.0,5.0,1,5.0,,in_range
+sus_de_pos_2025,SUS9,902,1.0,5.0,1,5.0,,in_range
+tactile_sa_display_2022,TLX_SCORE,21,25.8333,75.8333,0,100.0,,in_range
+tlx_formats_uas_2023,TLX_SCORE,3888,0.0,100.0,0,100.0,,in_range
+turn_by_turn_wayfinding_2010,task_success,50,0.3534545454545454,0.7854545454545454,0,1.0,,in_range
+vibrotactile_elastic_2023,task_success,5544,0.0,1.0,0,1.0,,in_range
+vr_classroom_noise_2025,effort,96,0.0,20.0,0,20.0,,in_range
+vr_classroom_noise_2025,frustration,96,0.0,20.0,0,20.0,,in_range
+vr_classroom_noise_2025,mental_demand,96,0.0,20.0,0,20.0,,in_range
+vr_classroom_noise_2025,performance,96,0.0,20.0,0,20.0,,in_range
+vr_propaganda_retention_2024,arousal,160,1.0357142857142858,8.928571428571429,1,9.0,,in_range
+vr_propaganda_retention_2024,task_success,160,0.2142857142857142,0.9642857142857144,0,1.0,,in_range
+vr_propaganda_retention_2024,valence,160,1.0,6.571428571428571,1,9.0,,in_range
+vr_spirit_ataxia_2023,usability,10,42.5,97.5,0,100.0,,in_range
+woz_adaptation_ijhcs24,effort,387,2.0,20.0,0,20.0,,in_range
+woz_adaptation_ijhcs24,frustration,387,0.0,20.0,0,20.0,,in_range
+woz_adaptation_ijhcs24,mental_demand,387,2.0,20.0,0,20.0,,in_range
+woz_adaptation_ijhcs24,performance,387,0.0,20.0,0,20.0,,in_range
+woz_adaptation_ijhcs24,physical_demand,387,0.0,20.0,0,20.0,,in_range
+woz_adaptation_ijhcs24,temporal_demand,387,0.0,20.0,0,20.0,,in_range
+ar_pedestrian_online_2023,AOA1,11344,1.0,5.0,-2,2.0,rescaled 1.0-5.0 -> -2.0-2.0,rescaled
+ar_pedestrian_online_2023,AOA2,11344,1.0,5.0,-2,2.0,rescaled 1.0-5.0 -> -2.0-2.0,rescaled
+ar_pedestrian_online_2023,AOA3,11344,1.0,5.0,-2,2.0,rescaled 1.0-5.0 -> -2.0-2.0,rescaled
+ar_pedestrian_online_2023,AOA4,11344,1.0,5.0,-2,2.0,rescaled 1.0-5.0 -> -2.0-2.0,rescaled
+ar_pedestrian_online_2023,AOA5,11344,1.0,5.0,-2,2.0,rescaled 1.0-5.0 -> -2.0-2.0,rescaled
+ar_pedestrian_online_2023,AOA6,11344,1.0,5.0,-2,2.0,rescaled 1.0-5.0 -> -2.0-2.0,rescaled
+ar_pedestrian_online_2023,AOA7,11344,1.0,5.0,-2,2.0,rescaled 1.0-5.0 -> -2.0-2.0,rescaled
+ar_pedestrian_online_2023,AOA8,11344,1.0,5.0,-2,2.0,rescaled 1.0-5.0 -> -2.0-2.0,rescaled
+ar_pedestrian_online_2023,AOA9,11344,1.0,5.0,-2,2.0,rescaled 1.0-5.0 -> -2.0-2.0,rescaled
+ar_pedestrian_outdoor_2024,AOA6,149,0.7453559924999299,5.0,-2,2.0,rescaled 0.0-5.0 -> -2.0-2.0,rescaled
+ar_pedestrian_outdoor_2024,AOA9,149,0.9048663264720757,5.0,-2,2.0,rescaled 0.0-5.0 -> -2.0-2.0,rescaled
+ar_pedestrian_outdoor_2024,trust_rating,149,1.0,7.0,1,5.0,rescaled 1.0-7.0 -> 1.0-5.0,rescaled
+ar_pedestrian_outdoor_2024,understanding_rating,149,1.0,7.0,1,5.0,rescaled 1.0-7.0 -> 1.0-5.0,rescaled
+artv_ornaments_2025,engagement_level,1040,1.0,7.0,1,5.0,rescaled 1.0-7.0 -> 1.0-5.0,rescaled
+av_acceptance_diverse_2025,acceptance_rating,107,0.176470588235294,9.82941176470588,1,7.0,rescaled 0.0-10.0 -> 1.0-7.0,rescaled
+av_acceptance_diverse_2025,perceived_safety,107,1.0,7.0,-3,3.0,rescaled 1.0-7.0 -> -3.0-3.0,rescaled
+av_acceptance_vr_ijhci24,perceived_safety,910,1.0,7.0,-3,3.0,rescaled 1.0-7.0 -> -3.0-3.0,rescaled
+build_3d_mr_2025,utaut_performance_expectancy,61,10.0,18.0,1,7.0,rescaled 0.0-20.0 -> 1.0-7.0,rescaled
+build_pc_mar_2026,utaut_performance_expectancy,60,10.0,19.0,1,7.0,rescaled 0.0-20.0 -> 1.0-7.0,rescaled
+concurrent_speech_2022,effort,640,5.0,100.0,0,20.0,rescaled 0.0-100.0 -> 0.0-20.0,rescaled
+concurrent_speech_2022,frustration,640,5.0,100.0,0,20.0,rescaled 0.0-100.0 -> 0.0-20.0,rescaled
+concurrent_speech_2022,mental_demand,640,5.0,100.0,0,20.0,rescaled 0.0-100.0 -> 0.0-20.0,rescaled
+concurrent_speech_2022,performance,640,0.0,95.0,0,20.0,rescaled 0.0-100.0 -> 0.0-20.0,rescaled
+concurrent_speech_2022,physical_demand,640,5.0,95.0,0,20.0,rescaled 0.0-100.0 -> 0.0-20.0,rescaled
+concurrent_speech_2022,temporal_demand,640,5.0,100.0,0,20.0,rescaled 0.0-100.0 -> 0.0-20.0,rescaled
+coupled_hmd_2022,AOA1,51,1.0,5.0,-2,2.0,rescaled 1.0-5.0 -> -2.0-2.0,rescaled
+coupled_hmd_2022,AOA2,51,1.0,4.0,-2,2.0,rescaled 1.0-5.0 -> -2.0-2.0,rescaled
+coupled_hmd_2022,AOA3,51,2.0,5.0,-2,2.0,rescaled 1.0-5.0 -> -2.0-2.0,rescaled
+coupled_hmd_2022,AOA4,51,1.0,3.0,-2,2.0,rescaled 1.0-5.0 -> -2.0-2.0,rescaled
+coupled_hmd_2022,AOA5,51,1.0,4.0,-2,2.0,rescaled 1.0-5.0 -> -2.0-2.0,rescaled
+coupled_hmd_2022,AOA6,51,3.0,5.0,-2,2.0,rescaled 1.0-5.0 -> -2.0-2.0,rescaled
+coupled_hmd_2022,AOA7,51,1.0,4.0,-2,2.0,rescaled 1.0-5.0 -> -2.0-2.0,rescaled
+coupled_hmd_2022,AOA8,51,2.0,5.0,-2,2.0,rescaled 1.0-5.0 -> -2.0-2.0,rescaled
+coupled_hmd_2022,AOA9,51,1.0,4.0,-2,2.0,rescaled 1.0-5.0 -> -2.0-2.0,rescaled
+coupled_hmd_2022,understanding_rating,51,2.0,7.0,1,5.0,rescaled 1.0-7.0 -> 1.0-5.0,rescaled
+coupled_sim_2022,perceived_safety,400,1.0,7.0,-3,3.0,rescaled 1.0-7.0 -> -3.0-3.0,rescaled
+coupled_sim_2022,understanding_rating,399,1.0,7.0,1,5.0,rescaled 1.0-7.0 -> 1.0-5.0,rescaled
+dev_creativity_eyetracking_2026,effort,40,25.0,100.0,0,20.0,rescaled 0.0-100.0 -> 0.0-20.0,rescaled
+dev_creativity_eyetracking_2026,frustration,40,0.0,90.0,0,20.0,rescaled 0.0-100.0 -> 0.0-20.0,rescaled
+dev_creativity_eyetracking_2026,mental_demand,40,30.0,100.0,0,20.0,rescaled 0.0-100.0 -> 0.0-20.0,rescaled
+dev_creativity_eyetracking_2026,performance,40,5.0,80.0,0,20.0,rescaled 0.0-100.0 -> 0.0-20.0,rescaled
+dev_creativity_eyetracking_2026,physical_demand,40,0.0,85.0,0,20.0,rescaled 0.0-100.0 -> 0.0-20.0,rescaled
+dev_creativity_eyetracking_2026,temporal_demand,40,0.0,100.0,0,20.0,rescaled 0.0-100.0 -> 0.0-20.0,rescaled
+developers_prompt_docgen_2024,ueq_attractiveness,350,1.0,7.0,-3,3.0,rescaled 1.0-7.0 -> -3.0-3.0,rescaled
+developers_prompt_docgen_2024,ueq_hedonic,450,1.0,7.0,-3,3.0,rescaled 1.0-7.0 -> -3.0-3.0,rescaled
+developers_prompt_docgen_2024,ueq_pragmatic,600,1.0,7.0,-3,3.0,rescaled 1.0-7.0 -> -3.0-3.0,rescaled
+ehmi_infrastructure_2024,trust_rating,129,1.0,10.0,1,5.0,rescaled 0.0-10.0 -> 1.0-5.0,rescaled
+ehmi_state_intent_mtap24,trust_rating,696,1.0,7.0,1,5.0,rescaled 1.0-7.0 -> 1.0-5.0,rescaled
+exergame_children_2025,effort,126,0.0,100.0,0,20.0,rescaled 0.0-100.0 -> 0.0-20.0,rescaled
+exergame_children_2025,frustration,126,0.0,100.0,0,20.0,rescaled 0.0-100.0 -> 0.0-20.0,rescaled
+exergame_children_2025,mental_demand,126,0.0,100.0,0,20.0,rescaled 0.0-100.0 -> 0.0-20.0,rescaled
+exergame_children_2025,physical_demand,126,0.0,100.0,0,20.0,rescaled 0.0-100.0 -> 0.0-20.0,rescaled
+exergame_children_2025,temporal_demand,126,0.0,100.0,0,20.0,rescaled 0.0-100.0 -> 0.0-20.0,rescaled
+fido2_auth_chi23,AOA1,89,1.0,4.0,-2,2.0,rescaled 1.0-5.0 -> -2.0-2.0,rescaled
+fido2_auth_chi23,AOA2,89,1.0,3.0,-2,2.0,rescaled 1.0-5.0 -> -2.0-2.0,rescaled
+fido2_auth_chi23,AOA3,89,3.0,5.0,-2,2.0,rescaled 1.0-5.0 -> -2.0-2.0,rescaled
+fido2_auth_chi23,AOA4,89,1.0,4.0,-2,2.0,rescaled 1.0-5.0 -> -2.0-2.0,rescaled
+fido2_auth_chi23,AOA5,89,1.0,4.0,-2,2.0,rescaled 1.0-5.0 -> -2.0-2.0,rescaled
+fido2_auth_chi23,AOA6,89,3.0,5.0,-2,2.0,rescaled 1.0-5.0 -> -2.0-2.0,rescaled
+fido2_auth_chi23,AOA7,89,1.0,4.0,-2,2.0,rescaled 1.0-5.0 -> -2.0-2.0,rescaled
+fido2_auth_chi23,AOA8,89,2.0,5.0,-2,2.0,rescaled 1.0-5.0 -> -2.0-2.0,rescaled
+fido2_auth_chi23,AOA9,89,1.0,4.0,-2,2.0,rescaled 1.0-5.0 -> -2.0-2.0,rescaled
+function_allocation_hrc_2026,AOA1,104,1.0,5.0,-2,2.0,rescaled 1.0-5.0 -> -2.0-2.0,rescaled
+function_allocation_hrc_2026,AOA2,104,1.0,5.0,-2,2.0,rescaled 1.0-5.0 -> -2.0-2.0,rescaled
+function_allocation_hrc_2026,AOA3,104,1.0,5.0,-2,2.0,rescaled 1.0-5.0 -> -2.0-2.0,rescaled
+function_allocation_hrc_2026,AOA4,104,1.0,5.0,-2,2.0,rescaled 1.0-5.0 -> -2.0-2.0,rescaled
+function_allocation_hrc_2026,AOA5,104,1.0,5.0,-2,2.0,rescaled 1.0-5.0 -> -2.0-2.0,rescaled
+function_allocation_hrc_2026,AOA6,104,1.0,5.0,-2,2.0,rescaled 1.0-5.0 -> -2.0-2.0,rescaled
+function_allocation_hrc_2026,AOA7,104,1.0,5.0,-2,2.0,rescaled 1.0-5.0 -> -2.0-2.0,rescaled
+function_allocation_hrc_2026,AOA8,104,1.0,5.0,-2,2.0,rescaled 1.0-5.0 -> -2.0-2.0,rescaled
+function_allocation_hrc_2026,AOA9,104,1.0,5.0,-2,2.0,rescaled 1.0-5.0 -> -2.0-2.0,rescaled
+function_allocation_hrc_2026,effort,104,0.0,100.0,0,20.0,rescaled 0.0-100.0 -> 0.0-20.0,rescaled
+function_allocation_hrc_2026,frustration,104,0.0,100.0,0,20.0,rescaled 0.0-100.0 -> 0.0-20.0,rescaled
+function_allocation_hrc_2026,mental_demand,104,3.0,100.0,0,20.0,rescaled 0.0-100.0 -> 0.0-20.0,rescaled
+function_allocation_hrc_2026,performance,104,0.0,89.0,0,20.0,rescaled 0.0-100.0 -> 0.0-20.0,rescaled
+function_allocation_hrc_2026,physical_demand,104,0.0,96.0,0,20.0,rescaled 0.0-100.0 -> 0.0-20.0,rescaled
+function_allocation_hrc_2026,temporal_demand,104,0.0,92.0,0,20.0,rescaled 0.0-100.0 -> 0.0-20.0,rescaled
+handover_reaction_time_2025,trust_rating,100,1.0,7.0,1,5.0,rescaled 1.0-7.0 -> 1.0-5.0,rescaled
+human_swarm_pfm_2025,AOA1,360,1.0,5.0,-2,2.0,rescaled 1.0-5.0 -> -2.0-2.0,rescaled
+human_swarm_pfm_2025,AOA2,360,1.0,5.0,-2,2.0,rescaled 1.0-5.0 -> -2.0-2.0,rescaled
+human_swarm_pfm_2025,AOA3,360,1.0,5.0,-2,2.0,rescaled 1.0-5.0 -> -2.0-2.0,rescaled
+human_swarm_pfm_2025,AOA4,360,1.0,5.0,-2,2.0,rescaled 1.0-5.0 -> -2.0-2.0,rescaled
+human_swarm_pfm_2025,AOA5,360,1.0,5.0,-2,2.0,rescaled 1.0-5.0 -> -2.0-2.0,rescaled
+human_swarm_pfm_2025,AOA6,360,1.0,5.0,-2,2.0,rescaled 1.0-5.0 -> -2.0-2.0,rescaled
+human_swarm_pfm_2025,AOA7,360,1.0,5.0,-2,2.0,rescaled 1.0-5.0 -> -2.0-2.0,rescaled
+human_swarm_pfm_2025,AOA8,360,1.0,5.0,-2,2.0,rescaled 1.0-5.0 -> -2.0-2.0,rescaled
+human_swarm_pfm_2025,AOA9,360,1.0,5.0,-2,2.0,rescaled 1.0-5.0 -> -2.0-2.0,rescaled
+incar_vr_gain_chi24,perceived_safety,204,0.0,10.0,-3,3.0,rescaled 0.0-10.0 -> -3.0-3.0,rescaled
+layer_interaction_elastic_2022,effort,69,5.0,90.0,0,20.0,rescaled 0.0-100.0 -> 0.0-20.0,rescaled
+layer_interaction_elastic_2022,frustration,69,0.0,95.0,0,20.0,rescaled 0.0-100.0 -> 0.0-20.0,rescaled
+layer_interaction_elastic_2022,mental_demand,69,5.0,90.0,0,20.0,rescaled 0.0-100.0 -> 0.0-20.0,rescaled
+layer_interaction_elastic_2022,performance,69,0.0,85.0,0,20.0,rescaled 0.0-100.0 -> 0.0-20.0,rescaled
+layer_interaction_elastic_2022,physical_demand,69,0.0,90.0,0,20.0,rescaled 0.0-100.0 -> 0.0-20.0,rescaled
+layer_interaction_elastic_2022,temporal_demand,69,0.0,80.0,0,20.0,rescaled 0.0-100.0 -> 0.0-20.0,rescaled
+mr_airplane_layouts_2021,acceptance_rating,252,1.0,9.0,1,7.0,rescaled 0.0-9.0 -> 1.0-7.0,rescaled
+mr_airplane_layouts_2021,social_presence,252,1.0,9.0,1,7.0,rescaled 0.0-9.0 -> 1.0-7.0,rescaled
+myocontrol_intent_2025,effort,27,0.0,85.0,0,20.0,rescaled 0.0-100.0 -> 0.0-20.0,rescaled
+myocontrol_intent_2025,frustration,27,0.0,70.0,0,20.0,rescaled 0.0-100.0 -> 0.0-20.0,rescaled
+myocontrol_intent_2025,mental_demand,27,10.0,100.0,0,20.0,rescaled 0.0-100.0 -> 0.0-20.0,rescaled
+myocontrol_intent_2025,performance,27,5.0,80.0,0,20.0,rescaled 0.0-100.0 -> 0.0-20.0,rescaled
+myocontrol_intent_2025,physical_demand,27,5.0,60.0,0,20.0,rescaled 0.0-100.0 -> 0.0-20.0,rescaled
+myocontrol_intent_2025,temporal_demand,27,0.0,65.0,0,20.0,rescaled 0.0-100.0 -> 0.0-20.0,rescaled
+navigable_wim_2026,ipq_general_presence,108,1.0,7.0,0,6.0,rescaled 1.0-7.0 -> 0.0-6.0,rescaled
+navigable_wim_2026,ipq_spatial_presence,648,1.0,7.0,0,6.0,rescaled 1.0-7.0 -> 0.0-6.0,rescaled
+nl2tap_filter_2026,effort,85,0.0,100.0,0,20.0,rescaled 0.0-100.0 -> 0.0-20.0,rescaled
+nl2tap_filter_2026,frustration,85,0.0,100.0,0,20.0,rescaled 0.0-100.0 -> 0.0-20.0,rescaled
+nl2tap_filter_2026,mental_demand,85,0.0,100.0,0,20.0,rescaled 0.0-100.0 -> 0.0-20.0,rescaled
+nl2tap_filter_2026,performance,85,0.5,100.0,0,20.0,rescaled 0.0-100.0 -> 0.0-20.0,rescaled
+nl2tap_filter_2026,temporal_demand,85,0.0,100.0,0,20.0,rescaled 0.0-100.0 -> 0.0-20.0,rescaled
+nl2tap_filter_2026,trust_rating,850,1.5,7.0,1,5.0,rescaled 1.0-7.0 -> 1.0-5.0,rescaled
+perceived_risk_merging_2022,trust_rating,429,0.0,10.0,1,5.0,rescaled 0.0-10.0 -> 1.0-5.0,rescaled
+physio_hrc_2025,effort,286,1.2,100.0,0,20.0,rescaled 0.0-100.0 -> 0.0-20.0,rescaled
+physio_hrc_2025,frustration,286,1.2,86.7,0,20.0,rescaled 0.0-100.0 -> 0.0-20.0,rescaled
+physio_hrc_2025,mental_demand,286,4.0,100.0,0,20.0,rescaled 0.0-100.0 -> 0.0-20.0,rescaled
+physio_hrc_2025,performance,286,0.6,91.1,0,20.0,rescaled 0.0-100.0 -> 0.0-20.0,rescaled
+physio_hrc_2025,physical_demand,286,0.0,69.9,0,20.0,rescaled 0.0-100.0 -> 0.0-20.0,rescaled
+physio_hrc_2025,temporal_demand,286,1.4,85.0,0,20.0,rescaled 0.0-100.0 -> 0.0-20.0,rescaled
+physio_hrc_2025,trust_rating,361,0.0,7.0,1,5.0,rescaled 0.0-7.0 -> 1.0-5.0,rescaled
+robot_feeding_2025,effort,10,60.0,80.0,0,20.0,rescaled 0.0-100.0 -> 0.0-20.0,rescaled
+robot_feeding_2025,frustration,10,20.0,70.0,0,20.0,rescaled 0.0-100.0 -> 0.0-20.0,rescaled
+robot_feeding_2025,mental_demand,10,40.0,90.0,0,20.0,rescaled 0.0-100.0 -> 0.0-20.0,rescaled
+robot_feeding_2025,performance,10,0.0,40.0,0,20.0,rescaled 0.0-100.0 -> 0.0-20.0,rescaled
+robot_feeding_2025,physical_demand,10,30.0,80.0,0,20.0,rescaled 0.0-100.0 -> 0.0-20.0,rescaled
+robot_feeding_2025,temporal_demand,10,0.0,80.0,0,20.0,rescaled 0.0-100.0 -> 0.0-20.0,rescaled
+running_into_traffic_chi26,perceived_safety,288,1.0,5.0,-3,3.0,rescaled 1.0-5.0 -> -3.0-3.0,rescaled
+steering_gain_2022,effort,96,5.0,80.0,0,20.0,rescaled 0.0-100.0 -> 0.0-20.0,rescaled
+steering_gain_2022,frustration,96,0.0,75.0,0,20.0,rescaled 0.0-100.0 -> 0.0-20.0,rescaled
+steering_gain_2022,mental_demand,96,5.0,85.0,0,20.0,rescaled 0.0-100.0 -> 0.0-20.0,rescaled
+steering_gain_2022,performance,96,5.0,70.0,0,20.0,rescaled 0.0-100.0 -> 0.0-20.0,rescaled
+steering_gain_2022,physical_demand,96,0.0,80.0,0,20.0,rescaled 0.0-100.0 -> 0.0-20.0,rescaled
+steering_gain_2022,temporal_demand,96,5.0,85.0,0,20.0,rescaled 0.0-100.0 -> 0.0-20.0,rescaled
+sus_de_pos_2025,ueq_attractiveness,6314,1.0,7.0,-3,3.0,rescaled 1.0-7.0 -> -3.0-3.0,rescaled
+sus_de_pos_2025,ueq_hedonic,8118,1.0,7.0,-3,3.0,rescaled 1.0-7.0 -> -3.0-3.0,rescaled
+sus_de_pos_2025,ueq_pragmatic,11726,1.0,7.0,-3,3.0,rescaled 1.0-7.0 -> -3.0-3.0,rescaled
+tlx_formats_uas_2023,effort,3888,0.0,100.0,0,20.0,rescaled 0.0-100.0 -> 0.0-20.0,rescaled
+tlx_formats_uas_2023,frustration,3888,0.0,100.0,0,20.0,rescaled 0.0-100.0 -> 0.0-20.0,rescaled
+tlx_formats_uas_2023,mental_demand,3888,0.0,100.0,0,20.0,rescaled 0.0-100.0 -> 0.0-20.0,rescaled
+tlx_formats_uas_2023,performance,3888,0.0,100.0,0,20.0,rescaled 0.0-100.0 -> 0.0-20.0,rescaled
+tlx_formats_uas_2023,physical_demand,3888,0.0,100.0,0,20.0,rescaled 0.0-100.0 -> 0.0-20.0,rescaled
+tlx_formats_uas_2023,temporal_demand,3888,0.0,100.0,0,20.0,rescaled 0.0-100.0 -> 0.0-20.0,rescaled
+tool_embodiment_2025,effort,142,0.0,95.0,0,20.0,rescaled 0.0-100.0 -> 0.0-20.0,rescaled
+tool_embodiment_2025,frustration,141,0.0,90.0,0,20.0,rescaled 0.0-100.0 -> 0.0-20.0,rescaled
+tool_embodiment_2025,mental_demand,142,0.0,95.0,0,20.0,rescaled 0.0-100.0 -> 0.0-20.0,rescaled
+tool_embodiment_2025,performance,142,4.0,85.0,0,20.0,rescaled 0.0-100.0 -> 0.0-20.0,rescaled
+tool_embodiment_2025,physical_demand,142,0.0,95.0,0,20.0,rescaled 0.0-100.0 -> 0.0-20.0,rescaled
+tool_embodiment_2025,temporal_demand,142,3.0,90.0,0,20.0,rescaled 0.0-100.0 -> 0.0-20.0,rescaled
+visual_fidelity_curves_2015,effort,72,10.0,95.0,0,20.0,rescaled 0.0-100.0 -> 0.0-20.0,rescaled
+visual_fidelity_curves_2015,frustration,72,0.0,85.0,0,20.0,rescaled 0.0-100.0 -> 0.0-20.0,rescaled
+visual_fidelity_curves_2015,mental_demand,72,0.0,100.0,0,20.0,rescaled 0.0-100.0 -> 0.0-20.0,rescaled
+visual_fidelity_curves_2015,performance,72,10.0,85.0,0,20.0,rescaled 0.0-100.0 -> 0.0-20.0,rescaled
+visual_fidelity_curves_2015,physical_demand,72,0.0,80.0,0,20.0,rescaled 0.0-100.0 -> 0.0-20.0,rescaled
+visual_fidelity_curves_2015,temporal_demand,72,0.0,80.0,0,20.0,rescaled 0.0-100.0 -> 0.0-20.0,rescaled
+vr_shopping_demands_2026,effort,161,0.0,95.0,0,20.0,rescaled 0.0-100.0 -> 0.0-20.0,rescaled
+vr_shopping_demands_2026,frustration,161,0.0,100.0,0,20.0,rescaled 0.0-100.0 -> 0.0-20.0,rescaled
+vr_shopping_demands_2026,mental_demand,161,0.0,100.0,0,20.0,rescaled 0.0-100.0 -> 0.0-20.0,rescaled
+vr_shopping_demands_2026,performance,161,0.0,100.0,0,20.0,rescaled 0.0-100.0 -> 0.0-20.0,rescaled
+vr_shopping_demands_2026,physical_demand,161,0.0,80.0,0,20.0,rescaled 0.0-100.0 -> 0.0-20.0,rescaled
+vr_shopping_demands_2026,temporal_demand,161,0.0,100.0,0,20.0,rescaled 0.0-100.0 -> 0.0-20.0,rescaled
+build_3d_mr_2025,effort,61,1.0,9.0,0,20.0,,review_narrower_scale
+build_3d_mr_2025,frustration,61,1.0,4.0,0,20.0,,review_narrower_scale
+build_3d_mr_2025,mental_demand,61,2.0,9.0,0,20.0,,review_narrower_scale
+build_3d_mr_2025,physical_demand,61,1.0,3.0,0,20.0,,review_narrower_scale
+build_3d_mr_2025,temporal_demand,61,1.0,9.0,0,20.0,,review_narrower_scale
+build_pc_mar_2026,effort,60,1.0,5.0,0,20.0,,review_narrower_scale
+build_pc_mar_2026,frustration,60,1.0,4.0,0,20.0,,review_narrower_scale
+build_pc_mar_2026,mental_demand,60,5.0,9.0,0,20.0,,review_narrower_scale
+build_pc_mar_2026,physical_demand,60,1.0,1.0,0,20.0,,review_narrower_scale
+build_pc_mar_2026,temporal_demand,60,1.0,4.0,0,20.0,,review_narrower_scale
+ehmi_infrastructure_2024,perceived_risk,129,0.0,8.0,1,100.0,,review_narrower_scale
+fov_snapturn_tvcg24,fms_score,201,0.0,8.5,0,20.0,,review_narrower_scale
+incar_vr_gain_chi24,ssq_disorientation,204,0.0,97.44,0,292.32,,review_narrower_scale
+incar_vr_gain_chi24,ssq_nausea,204,0.0,76.32,0,200.34,,review_narrower_scale
+incar_vr_gain_chi24,ssq_total,204,0.0,108.46,0,235.62,,review_narrower_scale
+midair_map_making_2026,SUS6,30,1.0,3.0,1,5.0,,review_narrower_scale
+music_intensity_driving_2021,ssq_total,34,0.0,6.0,0,235.62,,review_narrower_scale
+nl2tap_filter_2026,physical_demand,85,0.0,0.0,0,20.0,,review_narrower_scale
+spot_voice_gesture_2025,error_rate,3460,0.0,3.0,0,100.0,,review_narrower_scale
+teleport_distance_accuracy_2025,error_rate,1800,0.0,25.0,0,100.0,,review_narrower_scale
+vr_spirit_ataxia_2023,ssq_disorientation,10,0.0,47.61904761904761,0,292.32,,review_narrower_scale
+vr_spirit_ataxia_2023,ssq_nausea,10,0.0,42.85714285714285,0,200.34,,review_narrower_scale
+vr_spirit_ataxia_2023,ssq_oculomotor,10,0.0,23.809523809523807,0,159.18,,review_narrower_scale

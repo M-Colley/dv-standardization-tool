@@ -1,0 +1,156 @@
+dv,studies,columns,distinct_raw_labels,share_matched_by_study_mappings,example_labels
+mental_demand,40,99,34,0.576,MentalLoad; mental_demand; TLX1; MD; Mental; TLX 1.1
+effort,34,63,37,0.984,Effort; EF; TLX5; tlx_1_5; TASK_1_B; HLFM_TLX_Eff
+frustration,33,56,34,0.982,Frustration; fr; TLX6; tlx_1_6; HLFM_TLX_Frus; LyrLouNASA6
+physical_demand,32,61,36,0.984,physical_demand; PD; Physical; TLX2; TLX 2.2; tlx_1_2
+temporal_demand,32,55,33,0.982,temporal_demand; TD; Temporal; TLX3; tlx_1_3; HLFM_TLX_TemD
+performance,28,51,30,0.98,Performance; pf; TLX4; tlx_1_4; HLFM_TLX_Perf; LyrLouNASA4
+task_completion_time,19,753,21,1.0,total time; completion_time_s; TaskCompletionTime.A; MT; rt; total_time_s
+SUS1,12,19,11,0.895,SUS1; u1; a_sus0; Mid-Air Gesture_Q1; b_sus0; item_1
+SUS7,12,19,11,0.895,SUS7; u7; a_sus6; Mid-Air Gesture_Q7; b_sus6; item_7
+SUS8,12,19,11,0.895,SUS8; u8; a_sus7; Mid-Air Gesture_Q8; b_sus7; item_8
+SUS9,12,19,11,0.895,SUS9; u9; a_sus8; Mid-Air Gesture_Q9; b_sus8; item_9
+SUS10,12,18,11,0.889,SUS10; u10; a_sus9; b_sus9; item_10; Mid-Air Gesture_Q10
+SUS3,12,18,11,0.889,SUS3; u3; a_sus2; b_sus2; item_3; Mid-Air Gesture_Q3
+SUS4,12,18,11,0.889,SUS4; u4; a_sus3; b_sus3; item_4; Mid-Air Gesture_Q4
+SUS5,12,18,11,0.889,SUS5; u5; a_sus4; b_sus4; item_5; Mid-Air Gesture_Q5
+SUS6,12,18,11,0.889,SUS6; u6; a_sus5; b_sus5; item_6; Mid-Air Gesture_Q6
+SUS2,12,17,11,0.882,SUS2; u2; a_sus1; b_sus1; item_2; Mid-Air Gesture_Q2
+TLX_SCORE,11,20,16,1.0,overall_score; TLX.A.Route[0.best-100.worst]; raw_overall_workload; NASA Overall; Index Score; Raw_TLX
+trust_rating,10,70,25,0.457,Trust; overall_trust; Trust_0; toast_1; Q12.1_5; Trust_1
+task_success,10,16,12,1.0,task_success; failure_identified; ResultLayerCorrect; Correct; accuracy; table_successfull
+understanding_rating,8,93,53,0.602,Understanding; VFA_E1D_Eindeutigkeit; Q39_3; the_instructions_of_the_car_in_concept_10_above_are_clear_to_me; Q12.4_1; av.intent
+AOA6,8,23,16,0.913,Q40_6; Q126_6; a7; aoa6; accept6; Q93_6
+AOA9,8,23,16,0.913,Q40_9; Q126_9; a10; aoa9; accept9; Q93_9
+AOA1,8,22,16,0.909,Q40_1; a1; aoa1; Q126_1; accept1; Q93_1
+AOA2,8,22,16,0.909,Q40_2; a2; aoa2; Q126_2; accept2; Q93_2
+AOA3,8,22,16,0.909,Q40_3; a4; aoa3; Q126_3; accept3; Q93_3
+AOA4,8,22,16,0.909,Q40_4; a5; aoa4; Q126_4; accept4; Q93_4
+AOA5,8,22,16,0.909,Q40_5; a6; aoa5; Q126_5; accept5; Q93_5
+AOA7,8,22,16,0.909,Q40_7; a8; aoa7; Q126_7; accept7; Q93_7
+AOA8,8,22,16,0.909,Q40_8; a9; aoa8; Q126_8; accept8; Q93_8
+perceived_safety,7,61,22,0.393,PerceivedSafety; safety; Perceived safety 1; question_10a_would_you_feel_safe_to_cross_in_front_of_the_car_above; Perceived safety 2; Perceived safety 3
+ueq_s_1,6,10,6,1.0,ueqs1; ueqs_german_sq001; UEQS_FBL_obstructive; ueq.p.support; UEQs_mode_obstructive; UEQs_1_obstructive
+ueq_s_2,6,10,6,1.0,ueqs2; ueqs_german_sq002; UEQS_FBL_complicated; ueq.p.ease; UEQs_mode_complicated; UEQs_2_complicated
+ueq_s_3,6,10,6,1.0,ueqs3; ueqs_german_sq003; UEQS_FBL_inefficient; ueq.p.efficiency; UEQs_mode_inefficient; UEQs_3_inefficient
+ueq_s_4,6,10,6,1.0,ueqs4; ueqs_german_sq004; UEQS_FBL_confusing; ueq.p.clarity; UEQs_mode_confusing; UEQs_4_confusing
+ueq_s_5,6,10,6,1.0,ueqs5; ueqs_german_sq005; UEQS_FBL_boring; ueq.h.excite; UEQs_mode_boring; UEQs_5_boring
+ueq_s_6,6,10,6,1.0,ueqs6; ueqs_german_sq006; UEQS_FBL_notinteresting; ueq.h.interest; UEQs_mode_not interesting; UEQs_6_not interesting
+ueq_s_7,6,10,6,1.0,ueqs7; ueqs_german_sq007; UEQS_FBL_conventional; ueq.h.inventive; UEQs_mode_conventional; UEQs_7_conventional
+ueq_s_8,6,8,5,1.0,ueqs8; UEQS_FBL_usual; ueq.h.novelty; UEQs_mode_usual; UEQs_8_usual
+valence,5,16,15,1.0,HLFM_Aff_Ple; Valence; HLSM_Aff_Ple; HLNM_Aff_Ple; LLFM_Aff_Ple; LLSM_Aff_Ple
+perceived_safety_item_01,5,7,3,0.857,perceivedSafety1; perceived_safety_sq001; PerSafe01
+perceived_safety_item_02,5,7,3,0.857,perceivedSafety2; perceived_safety_sq002; PerSafe02
+perceived_safety_item_03,5,7,3,0.857,perceivedSafety3; perceived_safety_sq003; PerSafe03
+perceived_safety_item_04,5,7,3,0.857,perceivedSafety4; perceived_safety_sq004; PerSafe04
+perceived_risk,4,219,4,1.0,"ArduinoData1; risk; PR; Perceived criticality of the interaction, from 1 (harmless) to 10 (uncontrollable)"
+aesthetics_rating,4,55,17,0.327,Aesthetics; Visuals_styl; Q39_4; Visuals_2lookFeel; Visuals_aesthetics; Q92_4
+acceptance_rating,4,40,4,0.075,Acceptance; A4; QAAD_overall Acceptance_17Items_Weighted Mean; planeusage
+ueq_pragmatic,4,27,25,1.0,ueq04; UEQ_persp_01; UEQ_SF_Pragmatic; ueqs_prag; ueq08; ueq09
+efficiency,4,22,21,1.0,TP; combined_efficiency; A1; A2; A3; B1
+ueq_hedonic,4,20,18,1.0,ueq03; UEQ_nov_01; UEQ_SF_Hedonic; ueqs_hed; ueq05; ueq06
+arousal,4,16,14,1.0,HLFM_Aff_Aro; LyrLouAGArousal; HLSM_Aff_Aro; HLNM_Aff_Aro; LLFM_Aff_Aro; LLSM_Aff_Aro
+number_of_collisions,3,724,3,0.006,collision with cars; Crash; collisions_per_run
+ueq_attractiveness,3,18,15,1.0,Attractiveness.A[-3.worst-3.best]; ueq01; UEQ_att_01; Attractiveness.B[-3.worst-3.best]; Attractiveness.C[-3.worst-3.best]; ueq12
+hr_bpm,3,15,13,1.0,HLFMHRAve; LyrLouMeanHR; HR Mean; HLSMHRAve; HLNMHRAve; LLFMHRAve
+hrv_rmssd,3,15,13,1.0,HLFMRMSSD; LyrLouRMSSD; RMSSD; HLSMRMSSD; HLNMRMSSD; LLFMRMSSD
+sart_supply,3,14,4,1.0,SART4; SART5; SART6; SART7
+user_satisfaction,3,13,12,1.0,umux1; umux2; umux3; umux4; I am satisfied with it; I would recommend it to a friend
+sart_demand,3,12,3,1.0,SART1; SART2; SART3
+sart_understanding,3,12,4,1.0,SART8; SART9; SART10; SSART10
+takeover_time,3,12,11,1.0,baseline1; A. Hands-on-wheel time (s)*; baseline 2; baseline 3; NDTR 1; NDTR 2
+error_rate,3,7,6,1.0,dup_mistakes; ER_pct; error_rate_pct; lr_mistakes; other_mistakes; FailedJumps
+utaut_performance_expectancy,3,6,4,0.667,Performance Expectancy 1; PE; Performance Expectancy 2; Performance Expectancy 3
+tia_k02,3,5,4,1.0,trustiaunderp_sq001; TiA_U1; TiA_Understanding1; Trust3
+tia_k07,3,5,4,1.0,trustiaunderp_sq002; TiA_U2; TiA_Understanding2; Trust4
+tia_k09,3,5,2,1.0,TiA_Trust1; trustiaunderp_sq003
+tia_k11,3,5,4,1.0,trustiaunderp_sq004; TiA_U3; TiA_Understanding3; Trust5
+tia_k14,3,5,2,1.0,TiA_Trust2; trustiaunderp_sq005
+tia_k16,3,5,4,1.0,trustiaunderp_sq006; TiA_U4; TiA_Understanding4; Trust6
+interaction_events,3,3,3,1.0,total_turns; numruns; n_commands
+ssq_disorientation,3,3,2,1.0,Disorientation; Sub_Disorientation Post
+ssq_nausea,3,3,2,1.0,Nausea; Sub_Nausea Post
+ssq_oculomotor,3,3,3,1.0,Oculomotor; Sub_Oculomotr Post; oculomotor disturbancies
+ssq_total,3,3,3,1.0,SSQ_Total; SSQ_Total Post; SSQTotalScore
+sts_ad_item_02,3,3,2,1.0,performbetter; ST2
+sts_ad_item_05,3,3,2,1.0,unsafeJudgement; ST5
+sts_ad_item_06,3,3,3,1.0,reacted_appropriate; reactapprop; ST6
+ttc,3,3,3,1.0,TTC; min_TTC(s); A. Minimum TTC (s)*
+usability,3,3,3,1.0,SUS_SCORE; sus; Sum
+crossing_initiation_time,2,748,28,0.037,time before; CIT_1_overall; CIT_2_overall; CIT_3_overal; CIT_4_overall; CIT_5_overall
+ssq_blurred_vision,2,43,2,1.0,longssq_11; SSQ Post_11
+ssq_burping,2,43,2,1.0,longssq_16; SSQ Post_16
+ssq_difficulty_concentrating,2,43,2,1.0,longssq_09; SSQ Post_9
+ssq_difficulty_focusing,2,43,2,1.0,longssq_05; SSQ Post_5
+ssq_dizzy_eyes_closed,2,43,2,1.0,longssq_13; SSQ Post_13
+ssq_dizzy_eyes_open,2,43,2,1.0,longssq_12; SSQ Post_12
+ssq_eye_strain,2,43,2,1.0,longssq_04; SSQ Post_4
+ssq_fatigue,2,43,2,1.0,longssq_02; SSQ Post_2
+ssq_fullness_of_head,2,43,2,1.0,longssq_10; SSQ Post_10
+ssq_general_discomfort,2,43,2,1.0,longssq_01; SSQ Post_1
+ssq_headache,2,43,2,1.0,longssq_03; SSQ Post_3
+ssq_increased_salivation,2,43,2,1.0,longssq_06; SSQ Post_6
+ssq_nausea_item,2,43,2,1.0,longssq_08; SSQ Post_8
+ssq_stomach_awareness,2,43,2,1.0,longssq_15; SSQ Post_15
+ssq_sweating,2,43,2,1.0,longssq_07; SSQ Post_7
+ssq_vertigo,2,43,2,1.0,longssq_14; SSQ Post_14
+engagement_level,2,14,13,1.0,Q5_1; ENGAGE; Q5_2; Q5_3; Q5_4; Q5_5
+sdlp,2,7,4,1.0,SDLP; Low; Medium; High
+fixation_duration,2,5,3,1.0,avg_fixation_duration_s; Average_duration_of_fixations; FixationDuration_ms
+headway,2,4,3,1.0,M1. Headway (m); min_THW(s); M2. Headway (m)
+pupil_dilation,2,3,2,1.0,Average_pupil_diameter; PupilDiameter_mm
+eda_gsr,2,2,2,1.0,Amplitude Mean; SCR_metric_mean
+sart_total,2,2,1,1.0,SART
+touch_offset,2,2,2,1.0,TouchOffset; ErrorMM
+pedestrian_crossing_time,1,720,1,0.0,time on intersection
+time_after_crossing,1,720,1,0.0,time after
+jian_trust,1,24,7,1.0,j6; j8; j9; j10; j11; j12
+godspeed_perceived_intelligence,1,19,18,1.0,t1. Unintelligent vs Intelligent; t2. Unintelligent vs Intelligent; t3. Unintelligent vs Intelligent; t4. Unintelligent vs Intelligent; t5. Unintelligent vs Intelligent; t6. Unintelligent vs Intelligent
+godspeed_animacy,1,18,18,1.0,t1. Mechanical vs oganic; t2. Mechanical vs oganic; t3. Mechanical vs oganic; t4. Mechanical vs oganic; t5. Mechanical vs oganic; t6. Mechanical vs oganic
+godspeed_anthropomorphism,1,18,18,1.0,t1. Machine-like vs human-like; t2. Machine-like vs human-like; t3. Machine-like vs human-like; t4. Machine-like vs human-like; t5. Machine-like vs human-like; t6. Machine-like vs human-like
+godspeed_likeability,1,18,18,1.0,t1. Dislike vs like; t2. Dislike vs like; t3. Dislike vs like; t4. Dislike vs like; t5. Dislike vs like; t6. Dislike vs like
+godspeed_perceived_safety,1,18,18,1.0,t1. Anxious vs Relaxed; t2. Anxious vs Relaxed; t3. Anxious vs Relaxed; t4. Anxious vs Relaxed; t5. Anxious vs Relaxed; t6. Anxious vs Relaxed
+rsme,1,7,6,1.0,LyrLouMentEff; LyrSofMentEff; NonLyrLouEff; NonLyrSofEff; ConUrbEff; ConTalkEff
+ipq_spatial_presence,1,6,5,1.0,ipq03; ipq06; ipq09; ipq10; ipq13
+fixation_count,1,4,2,1.0,n_fixations; Number_of_fixations
+ipq_involvement,1,4,3,1.0,ipq07; ipq11; ipq14
+ueq_efficiency,1,4,3,1.0,Efficiency.A[-3.worst-3.best]; Efficiency.B[-3.worst-3.best]; Efficiency.C[-3.worst-3.best]
+ueq_novelty,1,4,3,1.0,Novelty.A[-3.worst-3.best]; Novelty.B[-3.worst-3.best]; Novelty.C[-3.worst-3.best]
+ueq_perspicuity,1,4,3,1.0,Perspicuity.A[-3.worst-3.best]; Perspicuity.B[-3.worst-3.best]; Perspicuity.C[-3.worst-3.best]
+ueq_stimulation,1,4,3,1.0,Stimulation.A[-3.worst-3.best]; Stimulation.B[-3.worst-3.best]; Stimulation.C[-3.worst-3.best]
+utaut_effort_expectancy,1,4,3,1.0,Effort Expectancy 1; Effort Expectancy 2; Effort Expectancy 3
+utaut_facilitating_conditions,1,4,3,1.0,Facilitating Conditions 1; Facilitating Conditions 2; Facilitating Conditions 3
+utaut_social_influence,1,4,3,1.0,Social Influence 1; Social Influence 2; Social Influence 3
+ueq_dependability,1,3,3,1.0,Dependability.A[-3.worst-3.best]; Dependability.B[-3.worst-3.best]; Dependability.C[-3.worst-3.best]
+utaut_behavioral_intention,1,3,2,1.0,Behavioral Intention 1; Behavioral Intention 2
+AOA_SATISFYING,1,1,1,1.0,Satisfaction (-2 to 2)
+AOA_USEFULNESS,1,1,1,1.0,Usefulness (-2 to 2)
+collaboration_quality,1,1,1,1.0,fluency
+conflict_item_01,1,1,1,1.0,C1
+conflict_item_02,1,1,1,1.0,C2
+conflict_item_03,1,1,1,1.0,C3
+conflict_item_04,1,1,1,1.0,C4
+conflict_item_05,1,1,1,1.0,C5
+dominance,1,1,1,1.0,Dominance (1 to 9)
+dwell_time,1,1,1,1.0,VisitDuration_ms
+fms_score,1,1,1,1.0,ADS
+intervention_responsiveness,1,1,1,1.0,Responsiveness
+ipq_experienced_realism,1,1,1,1.0,Presence
+ipq_general_presence,1,1,1,1.0,ipq08
+paas_mental_effort,1,1,1,1.0,mental_effort
+perceived_vehicle_influence,1,1,1,1.0,A3
+psychological_reactance,1,1,1,1.0,Reactance
+situational_awareness,1,1,1,0.0,SA
+sleepiness,1,1,1,1.0,Sleepiness
+social_presence,1,1,1,1.0,copresence
+sts_ad_item_01,1,1,1,1.0,ST1
+sts_ad_item_03,1,1,1,1.0,ST3
+sts_ad_item_04,1,1,1,1.0,ST4
+task_feasibility_item_01,1,1,1,1.0,A1
+task_feasibility_item_02,1,1,1,1.0,A2
+tia_item_01,1,1,1,0.0,TiA01
+tia_item_02,1,1,1,0.0,TiA02
+tia_item_03,1,1,1,0.0,TiA03
+tia_item_04,1,1,1,0.0,TiA04
+tia_item_05,1,1,1,0.0,TiA05
+tia_item_06,1,1,1,0.0,TiA06

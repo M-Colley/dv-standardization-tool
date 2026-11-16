@@ -31,3 +31,12 @@ v3.3:
   date: '2026-11-07'
   changes:
   - New DV touch_offset (performance, mm, lower_is_better), the Euclidean distance between a touch and the target centre; road_bumps_touch (TouchOffset, px converted with the authors' 0.19 mm per px) and handsize_touch_mobilehci19 (ErrorMM) map to it
+v3.4:
+  date: '2026-11-15'
+  changes:
+  - 43 DVs for standard instruments of SIGCHI venues that had none, each with range, direction, scale type and citation; aliases are instrument-specific so that they match no column of the 88 corpus studies (checked by a batch run of all 88 before and after)
+  - 'Usability and UX: umux_score, umux_lite_score (0-100), seq_rating (Single Ease Question, 1-7), csi_score (Creativity Support Index, 0-100); UES-SF subscales ues_focused_attention, ues_perceived_usability, ues_aesthetic_appeal and ues_reward as items of engagement_level (the UES total)'
+  - 'Games: the 11 PXI constructs (-3..3) and the 7 GEQ core components (0-4); IMI interest/enjoyment, perceived competence, effort/importance, pressure/tension, perceived choice and value/usefulness (1-7); Flow Short Scale total, fluency and absorption (1-7)'
+  - 'VR: misc_rating (Misery Scale, 0-10), slater_usoh_steed_presence (mean of six 1-7 items), embodiment_score (Avatar Embodiment Questionnaire, 1-7)'
+  - 'Input: words_per_minute, kspc, msd_error_rate, total_error_rate (text entry) and fitts_throughput (bits/s); efficiency keeps its throughput alias for existing mappings'
+  - schema_meta.yaml describes the schema as it is (version, scope, repository, license) instead of the v0.1 placeholders

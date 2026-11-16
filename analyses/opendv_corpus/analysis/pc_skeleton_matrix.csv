@@ -1,0 +1,10 @@
+,perceived_safety,sart_demand,sart_supply,sart_understanding,sts_ad_item_02,sts_ad_item_05,sts_ad_item_06,tia_understanding_predictability,trust_rating
+perceived_safety,0,0,0,1,1,0,0,0,1
+sart_demand,0,0,1,0,0,0,0,0,1
+sart_supply,0,1,0,1,0,0,0,0,0
+sart_understanding,1,0,1,0,0,0,0,1,1
+sts_ad_item_02,1,0,0,0,0,1,0,1,0
+sts_ad_item_05,0,0,0,0,1,0,1,1,0
+sts_ad_item_06,0,0,0,0,0,1,0,1,1
+tia_understanding_predictability,0,0,0,1,1,1,1,0,1
+trust_rating,1,1,0,1,0,0,1,1,0

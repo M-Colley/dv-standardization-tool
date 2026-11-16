@@ -58,13 +58,16 @@ nav:
       - Multi-study analysis: multi_study_analysis_guide.md
       - Cross-study relations: cross_study_insights.md
       - Dataset guidelines: dataset_guidelines.md
+      - Mapping a study (CHI and SIGCHI venues): sigchi_mapping_guide.md
       - Schema design: schema_design.md
   - Reference:
+      - DV schema reference: schema_reference.md
       - Python API: api.md
       - Architecture: architecture.md
       - Directory map: directory_map.md
   - Research:
       - Research agenda: research_agenda.md
+      - OpenDV corpus (88 studies): opendv_corpus.md
       - Confirmatory shortlist test: confirmatory_shortlist_results.md
       - Pre-registration: preregistration_confirmatory_shortlist.md
       - Open-data studies: open_data_candidates.md

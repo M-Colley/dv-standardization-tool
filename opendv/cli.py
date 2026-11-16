@@ -11,6 +11,7 @@ standardize  Single-study DV standardization (opendv.convert_dv)
 batch        Batch standardization across multiple studies (opendv.run_batch_standardization)
 analyze      Multi-study meta-analysis (opendv.analysis.multi_study_analysis)
 validate     Schema validation (opendv.validate_schema)
+check-mapping  Check a study mapping file against the schema (opendv.mapping_check)
 review       Review LLM and unmapped column mappings (opendv.mapping_review)
 ui           Start the Streamlit interface (opendv/ui/app.py)
 plugins      List installed plugins (opendv.plugins)
@@ -29,6 +30,7 @@ examples:
   opendv batch --manifest sources_manifest.yaml
   opendv analyze --output-dir results/
   opendv validate schemas/standard_dv_mapping.yaml
+  opendv check-mapping schemas/roads_chi25_mapping.yaml
   opendv review queue --batch-dir data/processed/catalog_meta_analysis
 """
 
@@ -77,6 +79,11 @@ def _build_parser() -> argparse.ArgumentParser:
         "ui",
         help="Start the Streamlit interface",
         description="Start the Streamlit app; further arguments go to `streamlit run`.",
+    )
+    subparsers.add_parser(
+        "check-mapping",
+        help="Check a study mapping file against the schema before running the batch",
+        add_help=False,
     )
     subparsers.add_parser("plugins", help="List installed OpenDV plugins")
     subparsers.add_parser(
@@ -171,6 +178,12 @@ def _run_validate(argv: list[str]) -> None:
     print("[OK] Schema is valid!\n")
 
 
+def _run_check_mapping(argv: list[str]) -> None:
+    from opendv.mapping_check import main
+
+    sys.exit(main(argv))
+
+
 def _run_review(argv: list[str]) -> None:
     from opendv.mapping_review import main
 
@@ -199,6 +212,7 @@ _DISPATCH = {
     "batch": _run_batch,
     "analyze": _run_analyze,
     "validate": _run_validate,
+    "check-mapping": _run_check_mapping,
     "review": _run_review,
     "ui": _run_ui,
     "plugins": _run_plugins,

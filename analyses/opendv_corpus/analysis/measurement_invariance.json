@@ -1,0 +1,4415 @@
+[
+  {
+    "scale": "sus_score",
+    "lavaan": "0.7.3",
+    "n_obs": 2131,
+    "groups": {
+      "ehmi_for_all_chi26": 720,
+      "fido2_auth_chi23": 87,
+      "human_swarm_pfm_2025": 360,
+      "navigable_wim_2026": 108,
+      "nl2tap_filter_2026": 85,
+      "pairsonic_cscw24": 47,
+      "roads_chi25": 276,
+      "sus_de_pos_2025": 448
+    },
+    "clusters": {
+      "ehmi_for_all_chi26": 40,
+      "fido2_auth_chi23": 87,
+      "human_swarm_pfm_2025": 180,
+      "navigable_wim_2026": 36,
+      "nl2tap_filter_2026": 85,
+      "pairsonic_cscw24": 47,
+      "roads_chi25": 23,
+      "sus_de_pos_2025": 448
+    },
+    "cluster_robust": false,
+    "one_observation_per_cluster": [
+      "fido2_auth_chi23",
+      "nl2tap_filter_2026",
+      "pairsonic_cscw24",
+      "sus_de_pos_2025"
+    ],
+    "levels": {
+      "configural": {
+        "chisq.scaled": 1192.168509,
+        "df.scaled": 280,
+        "pvalue.scaled": 0,
+        "cfi.robust": 0.898451,
+        "tli.robust": 0.869437,
+        "rmsea.robust": 0.120251,
+        "srmr": 0.066363,
+        "aic": 53099.329493,
+        "bic": 54458.772685,
+        "converged": true,
+        "warning": "",
+        "std_loadings": [
+          {
+            "group": "ehmi_for_all_chi26",
+            "item": "SUS1",
+            "std_loading": 0.820037054305765
+          },
+          {
+            "group": "ehmi_for_all_chi26",
+            "item": "SUS2",
+            "std_loading": 0.613053914123796
+          },
+          {
+            "group": "ehmi_for_all_chi26",
+            "item": "SUS3",
+            "std_loading": 0.89989119133399
+          },
+          {
+            "group": "ehmi_for_all_chi26",
+            "item": "SUS4",
+            "std_loading": 0.408059812775109
+          },
+          {
+            "group": "ehmi_for_all_chi26",
+            "item": "SUS5",
+            "std_loading": 0.836611730964822
+          },
+          {
+            "group": "ehmi_for_all_chi26",
+            "item": "SUS6",
+            "std_loading": 0.647449562719143
+          },
+          {
+            "group": "ehmi_for_all_chi26",
+            "item": "SUS7",
+            "std_loading": 0.807412289044965
+          },
+          {
+            "group": "ehmi_for_all_chi26",
+            "item": "SUS8",
+            "std_loading": 0.49434473946434
+          },
+          {
+            "group": "ehmi_for_all_chi26",
+            "item": "SUS9",
+            "std_loading": 0.831247793266294
+          },
+          {
+            "group": "ehmi_for_all_chi26",
+            "item": "SUS10",
+            "std_loading": 0.503044880550929
+          },
+          {
+            "group": "fido2_auth_chi23",
+            "item": "SUS1",
+            "std_loading": 0.351017672171405
+          },
+          {
+            "group": "fido2_auth_chi23",
+            "item": "SUS2",
+            "std_loading": 0.662123604474479
+          },
+          {
+            "group": "fido2_auth_chi23",
+            "item": "SUS3",
+            "std_loading": 0.431483482194709
+          },
+          {
+            "group": "fido2_auth_chi23",
+            "item": "SUS4",
+            "std_loading": 0.158244900229999
+          },
+          {
+            "group": "fido2_auth_chi23",
+            "item": "SUS5",
+            "std_loading": 0.290513669524279
+          },
+          {
+            "group": "fido2_auth_chi23",
+            "item": "SUS6",
+            "std_loading": 0.103879465647126
+          },
+          {
+            "group": "fido2_auth_chi23",
+            "item": "SUS7",
+            "std_loading": 0.388960087565439
+          },
+          {
+            "group": "fido2_auth_chi23",
+            "item": "SUS8",
+            "std_loading": 0.689565947244202
+          },
+          {
+            "group": "fido2_auth_chi23",
+            "item": "SUS9",
+            "std_loading": 0.581673485678843
+          },
+          {
+            "group": "fido2_auth_chi23",
+            "item": "SUS10",
+            "std_loading": 0.376528670039815
+          },
+          {
+            "group": "human_swarm_pfm_2025",
+            "item": "SUS1",
+            "std_loading": 0.469599488679306
+          },
+          {
+            "group": "human_swarm_pfm_2025",
+            "item": "SUS2",
+            "std_loading": 0.781177500521786
+          },
+          {
+            "group": "human_swarm_pfm_2025",
+            "item": "SUS3",
+            "std_loading": 0.831557212936724
+          },
+          {
+            "group": "human_swarm_pfm_2025",
+            "item": "SUS4",
+            "std_loading": 0.546808898450285
+          },
+          {
+            "group": "human_swarm_pfm_2025",
+            "item": "SUS5",
+            "std_loading": 0.594674895467187
+          },
+          {
+            "group": "human_swarm_pfm_2025",
+            "item": "SUS6",
+            "std_loading": 0.597188213008287
+          },
+          {
+            "group": "human_swarm_pfm_2025",
+            "item": "SUS7",
+            "std_loading": 0.775209786879084
+          },
+          {
+            "group": "human_swarm_pfm_2025",
+            "item": "SUS8",
+            "std_loading": 0.726542090547948
+          },
+          {
+            "group": "human_swarm_pfm_2025",
+            "item": "SUS9",
+            "std_loading": 0.762024866960434
+          },
+          {
+            "group": "human_swarm_pfm_2025",
+            "item": "SUS10",
+            "std_loading": 0.508073186709215
+          },
+          {
+            "group": "navigable_wim_2026",
+            "item": "SUS1",
+            "std_loading": 0.560015959674705
+          },
+          {
+            "group": "navigable_wim_2026",
+            "item": "SUS2",
+            "std_loading": 0.483763587593478
+          },
+          {
+            "group": "navigable_wim_2026",
+            "item": "SUS3",
+            "std_loading": 0.810247829511246
+          },
+          {
+            "group": "navigable_wim_2026",
+            "item": "SUS4",
+            "std_loading": 0.557332448375168
+          },
+          {
+            "group": "navigable_wim_2026",
+            "item": "SUS5",
+            "std_loading": 0.715667025238079
+          },
+          {
+            "group": "navigable_wim_2026",
+            "item": "SUS6",
+            "std_loading": 0.683598220913408
+          },
+          {
+            "group": "navigable_wim_2026",
+            "item": "SUS7",
+            "std_loading": 0.554846687117342
+          },
+          {
+            "group": "navigable_wim_2026",
+            "item": "SUS8",
+            "std_loading": 0.383310284529501
+          },
+          {
+            "group": "navigable_wim_2026",
+            "item": "SUS9",
+            "std_loading": 0.837760692794369
+          },
+          {
+            "group": "navigable_wim_2026",
+            "item": "SUS10",
+            "std_loading": 0.395940552382345
+          },
+          {
+            "group": "nl2tap_filter_2026",
+            "item": "SUS1",
+            "std_loading": 0.499665736309497
+          },
+          {
+            "group": "nl2tap_filter_2026",
+            "item": "SUS2",
+            "std_loading": 0.679908544323035
+          },
+          {
+            "group": "nl2tap_filter_2026",
+            "item": "SUS3",
+            "std_loading": 0.7129911132101
+          },
+          {
+            "group": "nl2tap_filter_2026",
+            "item": "SUS4",
+            "std_loading": 0.537983713122054
+          },
+          {
+            "group": "nl2tap_filter_2026",
+            "item": "SUS5",
+            "std_loading": 0.610392556941453
+          },
+          {
+            "group": "nl2tap_filter_2026",
+            "item": "SUS6",
+            "std_loading": 0.598731619032102
+          },
+          {
+            "group": "nl2tap_filter_2026",
+            "item": "SUS7",
+            "std_loading": 0.654672996061911
+          },
+          {
+            "group": "nl2tap_filter_2026",
+            "item": "SUS8",
+            "std_loading": 0.73314016136233
+          },
+          {
+            "group": "nl2tap_filter_2026",
+            "item": "SUS9",
+            "std_loading": 0.673483314918379
+          },
+          {
+            "group": "nl2tap_filter_2026",
+            "item": "SUS10",
+            "std_loading": 0.243472614989882
+          },
+          {
+            "group": "pairsonic_cscw24",
+            "item": "SUS1",
+            "std_loading": 0.591474566604918
+          },
+          {
+            "group": "pairsonic_cscw24",
+            "item": "SUS2",
+            "std_loading": 0.356777646276017
+          },
+          {
+            "group": "pairsonic_cscw24",
+            "item": "SUS3",
+            "std_loading": 0.789242606140133
+          },
+          {
+            "group": "pairsonic_cscw24",
+            "item": "SUS4",
+            "std_loading": 0.374301716496082
+          },
+          {
+            "group": "pairsonic_cscw24",
+            "item": "SUS5",
+            "std_loading": 0.545006358307487
+          },
+          {
+            "group": "pairsonic_cscw24",
+            "item": "SUS6",
+            "std_loading": 0.542644131084683
+          },
+          {
+            "group": "pairsonic_cscw24",
+            "item": "SUS7",
+            "std_loading": 0.678779404996679
+          },
+          {
+            "group": "pairsonic_cscw24",
+            "item": "SUS8",
+            "std_loading": 0.76543573880645
+          },
+          {
+            "group": "pairsonic_cscw24",
+            "item": "SUS9",
+            "std_loading": 0.617439903938889
+          },
+          {
+            "group": "pairsonic_cscw24",
+            "item": "SUS10",
+            "std_loading": 0.392765278615114
+          },
+          {
+            "group": "roads_chi25",
+            "item": "SUS1",
+            "std_loading": 0.868423578904777
+          },
+          {
+            "group": "roads_chi25",
+            "item": "SUS2",
+            "std_loading": 0.787842671794864
+          },
+          {
+            "group": "roads_chi25",
+            "item": "SUS3",
+            "std_loading": 0.899620465037035
+          },
+          {
+            "group": "roads_chi25",
+            "item": "SUS4",
+            "std_loading": 0.417754682095541
+          },
+          {
+            "group": "roads_chi25",
+            "item": "SUS5",
+            "std_loading": 0.67418876182389
+          },
+          {
+            "group": "roads_chi25",
+            "item": "SUS6",
+            "std_loading": 0.47636739855999
+          },
+          {
+            "group": "roads_chi25",
+            "item": "SUS7",
+            "std_loading": 0.753015327915321
+          },
+          {
+            "group": "roads_chi25",
+            "item": "SUS8",
+            "std_loading": 0.838178069532148
+          },
+          {
+            "group": "roads_chi25",
+            "item": "SUS9",
+            "std_loading": 0.77515337120121
+          },
+          {
+            "group": "roads_chi25",
+            "item": "SUS10",
+            "std_loading": 0.459127477983698
+          },
+          {
+            "group": "sus_de_pos_2025",
+            "item": "SUS1",
+            "std_loading": 0.535244883963596
+          },
+          {
+            "group": "sus_de_pos_2025",
+            "item": "SUS2",
+            "std_loading": 0.837290547288352
+          },
+          {
+            "group": "sus_de_pos_2025",
+            "item": "SUS3",
+            "std_loading": 0.860383787211395
+          },
+          {
+            "group": "sus_de_pos_2025",
+            "item": "SUS4",
+            "std_loading": 0.425678150779796
+          },
+          {
+            "group": "sus_de_pos_2025",
+            "item": "SUS5",
+            "std_loading": 0.75520319534712
+          },
+          {
+            "group": "sus_de_pos_2025",
+            "item": "SUS6",
+            "std_loading": 0.724286876370402
+          },
+          {
+            "group": "sus_de_pos_2025",
+            "item": "SUS7",
+            "std_loading": 0.777578527319257
+          },
+          {
+            "group": "sus_de_pos_2025",
+            "item": "SUS8",
+            "std_loading": 0.743050233827312
+          },
+          {
+            "group": "sus_de_pos_2025",
+            "item": "SUS9",
+            "std_loading": 0.693455226479659
+          },
+          {
+            "group": "sus_de_pos_2025",
+            "item": "SUS10",
+            "std_loading": 0.557465116164828
+          }
+        ]
+      },
+      "metric": {
+        "chisq.scaled": 1553.163682,
+        "df.scaled": 343,
+        "pvalue.scaled": 0,
+        "cfi.robust": 0.865239,
+        "tli.robust": 0.85856,
+        "rmsea.robust": 0.125159,
+        "srmr": 0.118454,
+        "aic": 53400.65964,
+        "bic": 54403.248994,
+        "converged": true,
+        "warning": "",
+        "std_loadings": [
+          {
+            "group": "ehmi_for_all_chi26",
+            "item": "SUS1",
+            "std_loading": 0.778542735110425
+          },
+          {
+            "group": "ehmi_for_all_chi26",
+            "item": "SUS2",
+            "std_loading": 0.720943464115446
+          },
+          {
+            "group": "ehmi_for_all_chi26",
+            "item": "SUS3",
+            "std_loading": 0.891089762115482
+          },
+          {
+            "group": "ehmi_for_all_chi26",
+            "item": "SUS4",
+            "std_loading": 0.471215051917805
+          },
+          {
+            "group": "ehmi_for_all_chi26",
+            "item": "SUS5",
+            "std_loading": 0.78827773416761
+          },
+          {
+            "group": "ehmi_for_all_chi26",
+            "item": "SUS6",
+            "std_loading": 0.660516271149473
+          },
+          {
+            "group": "ehmi_for_all_chi26",
+            "item": "SUS7",
+            "std_loading": 0.819552699821428
+          },
+          {
+            "group": "ehmi_for_all_chi26",
+            "item": "SUS8",
+            "std_loading": 0.628585016044489
+          },
+          {
+            "group": "ehmi_for_all_chi26",
+            "item": "SUS9",
+            "std_loading": 0.796246333995662
+          },
+          {
+            "group": "ehmi_for_all_chi26",
+            "item": "SUS10",
+            "std_loading": 0.548909232100636
+          },
+          {
+            "group": "fido2_auth_chi23",
+            "item": "SUS1",
+            "std_loading": 0.412139506919367
+          },
+          {
+            "group": "fido2_auth_chi23",
+            "item": "SUS2",
+            "std_loading": 0.620614053019435
+          },
+          {
+            "group": "fido2_auth_chi23",
+            "item": "SUS3",
+            "std_loading": 0.434562170971062
+          },
+          {
+            "group": "fido2_auth_chi23",
+            "item": "SUS4",
+            "std_loading": 0.216500630507219
+          },
+          {
+            "group": "fido2_auth_chi23",
+            "item": "SUS5",
+            "std_loading": 0.385986173954654
+          },
+          {
+            "group": "fido2_auth_chi23",
+            "item": "SUS6",
+            "std_loading": 0.263944637342882
+          },
+          {
+            "group": "fido2_auth_chi23",
+            "item": "SUS7",
+            "std_loading": 0.473413067058184
+          },
+          {
+            "group": "fido2_auth_chi23",
+            "item": "SUS8",
+            "std_loading": 0.632319353137011
+          },
+          {
+            "group": "fido2_auth_chi23",
+            "item": "SUS9",
+            "std_loading": 0.42796361562738
+          },
+          {
+            "group": "fido2_auth_chi23",
+            "item": "SUS10",
+            "std_loading": 0.405155367669014
+          },
+          {
+            "group": "human_swarm_pfm_2025",
+            "item": "SUS1",
+            "std_loading": 0.600793568631177
+          },
+          {
+            "group": "human_swarm_pfm_2025",
+            "item": "SUS2",
+            "std_loading": 0.754115769401611
+          },
+          {
+            "group": "human_swarm_pfm_2025",
+            "item": "SUS3",
+            "std_loading": 0.842566870190175
+          },
+          {
+            "group": "human_swarm_pfm_2025",
+            "item": "SUS4",
+            "std_loading": 0.366697448549338
+          },
+          {
+            "group": "human_swarm_pfm_2025",
+            "item": "SUS5",
+            "std_loading": 0.661983297522667
+          },
+          {
+            "group": "human_swarm_pfm_2025",
+            "item": "SUS6",
+            "std_loading": 0.606520555325375
+          },
+          {
+            "group": "human_swarm_pfm_2025",
+            "item": "SUS7",
+            "std_loading": 0.765548616633569
+          },
+          {
+            "group": "human_swarm_pfm_2025",
+            "item": "SUS8",
+            "std_loading": 0.712097535039501
+          },
+          {
+            "group": "human_swarm_pfm_2025",
+            "item": "SUS9",
+            "std_loading": 0.753422385118673
+          },
+          {
+            "group": "human_swarm_pfm_2025",
+            "item": "SUS10",
+            "std_loading": 0.396345104857616
+          },
+          {
+            "group": "navigable_wim_2026",
+            "item": "SUS1",
+            "std_loading": 0.598998135647021
+          },
+          {
+            "group": "navigable_wim_2026",
+            "item": "SUS2",
+            "std_loading": 0.585941929322058
+          },
+          {
+            "group": "navigable_wim_2026",
+            "item": "SUS3",
+            "std_loading": 0.803994530821249
+          },
+          {
+            "group": "navigable_wim_2026",
+            "item": "SUS4",
+            "std_loading": 0.353010636412586
+          },
+          {
+            "group": "navigable_wim_2026",
+            "item": "SUS5",
+            "std_loading": 0.709480708183494
+          },
+          {
+            "group": "navigable_wim_2026",
+            "item": "SUS6",
+            "std_loading": 0.684303069408389
+          },
+          {
+            "group": "navigable_wim_2026",
+            "item": "SUS7",
+            "std_loading": 0.621494445221105
+          },
+          {
+            "group": "navigable_wim_2026",
+            "item": "SUS8",
+            "std_loading": 0.564036914160589
+          },
+          {
+            "group": "navigable_wim_2026",
+            "item": "SUS9",
+            "std_loading": 0.732632763839066
+          },
+          {
+            "group": "navigable_wim_2026",
+            "item": "SUS10",
+            "std_loading": 0.364842274315898
+          },
+          {
+            "group": "nl2tap_filter_2026",
+            "item": "SUS1",
+            "std_loading": 0.572660323849391
+          },
+          {
+            "group": "nl2tap_filter_2026",
+            "item": "SUS2",
+            "std_loading": 0.606409856039045
+          },
+          {
+            "group": "nl2tap_filter_2026",
+            "item": "SUS3",
+            "std_loading": 0.787233680644936
+          },
+          {
+            "group": "nl2tap_filter_2026",
+            "item": "SUS4",
+            "std_loading": 0.279634976235274
+          },
+          {
+            "group": "nl2tap_filter_2026",
+            "item": "SUS5",
+            "std_loading": 0.669715987120426
+          },
+          {
+            "group": "nl2tap_filter_2026",
+            "item": "SUS6",
+            "std_loading": 0.547463760571897
+          },
+          {
+            "group": "nl2tap_filter_2026",
+            "item": "SUS7",
+            "std_loading": 0.621835887446265
+          },
+          {
+            "group": "nl2tap_filter_2026",
+            "item": "SUS8",
+            "std_loading": 0.643141102098417
+          },
+          {
+            "group": "nl2tap_filter_2026",
+            "item": "SUS9",
+            "std_loading": 0.652951000690468
+          },
+          {
+            "group": "nl2tap_filter_2026",
+            "item": "SUS10",
+            "std_loading": 0.383477598600595
+          },
+          {
+            "group": "pairsonic_cscw24",
+            "item": "SUS1",
+            "std_loading": 0.572031994861653
+          },
+          {
+            "group": "pairsonic_cscw24",
+            "item": "SUS2",
+            "std_loading": 0.393146205850244
+          },
+          {
+            "group": "pairsonic_cscw24",
+            "item": "SUS3",
+            "std_loading": 0.810990560634369
+          },
+          {
+            "group": "pairsonic_cscw24",
+            "item": "SUS4",
+            "std_loading": 0.360549359721551
+          },
+          {
+            "group": "pairsonic_cscw24",
+            "item": "SUS5",
+            "std_loading": 0.58681536701263
+          },
+          {
+            "group": "pairsonic_cscw24",
+            "item": "SUS6",
+            "std_loading": 0.588100250834095
+          },
+          {
+            "group": "pairsonic_cscw24",
+            "item": "SUS7",
+            "std_loading": 0.609144228951337
+          },
+          {
+            "group": "pairsonic_cscw24",
+            "item": "SUS8",
+            "std_loading": 0.602182892403563
+          },
+          {
+            "group": "pairsonic_cscw24",
+            "item": "SUS9",
+            "std_loading": 0.628265893247196
+          },
+          {
+            "group": "pairsonic_cscw24",
+            "item": "SUS10",
+            "std_loading": 0.52295429953831
+          },
+          {
+            "group": "roads_chi25",
+            "item": "SUS1",
+            "std_loading": 0.84595905403281
+          },
+          {
+            "group": "roads_chi25",
+            "item": "SUS2",
+            "std_loading": 0.752163412165918
+          },
+          {
+            "group": "roads_chi25",
+            "item": "SUS3",
+            "std_loading": 0.897221471236828
+          },
+          {
+            "group": "roads_chi25",
+            "item": "SUS4",
+            "std_loading": 0.349997481555169
+          },
+          {
+            "group": "roads_chi25",
+            "item": "SUS5",
+            "std_loading": 0.759923616625455
+          },
+          {
+            "group": "roads_chi25",
+            "item": "SUS6",
+            "std_loading": 0.601313929093093
+          },
+          {
+            "group": "roads_chi25",
+            "item": "SUS7",
+            "std_loading": 0.748066686720856
+          },
+          {
+            "group": "roads_chi25",
+            "item": "SUS8",
+            "std_loading": 0.764204672191733
+          },
+          {
+            "group": "roads_chi25",
+            "item": "SUS9",
+            "std_loading": 0.812799857319842
+          },
+          {
+            "group": "roads_chi25",
+            "item": "SUS10",
+            "std_loading": 0.46384647048752
+          },
+          {
+            "group": "sus_de_pos_2025",
+            "item": "SUS1",
+            "std_loading": 0.657982561007501
+          },
+          {
+            "group": "sus_de_pos_2025",
+            "item": "SUS2",
+            "std_loading": 0.694352839803593
+          },
+          {
+            "group": "sus_de_pos_2025",
+            "item": "SUS3",
+            "std_loading": 0.86942063679549
+          },
+          {
+            "group": "sus_de_pos_2025",
+            "item": "SUS4",
+            "std_loading": 0.501350157195605
+          },
+          {
+            "group": "sus_de_pos_2025",
+            "item": "SUS5",
+            "std_loading": 0.768282962153014
+          },
+          {
+            "group": "sus_de_pos_2025",
+            "item": "SUS6",
+            "std_loading": 0.660423691483211
+          },
+          {
+            "group": "sus_de_pos_2025",
+            "item": "SUS7",
+            "std_loading": 0.769169857301602
+          },
+          {
+            "group": "sus_de_pos_2025",
+            "item": "SUS8",
+            "std_loading": 0.694070676301496
+          },
+          {
+            "group": "sus_de_pos_2025",
+            "item": "SUS9",
+            "std_loading": 0.76386457154962
+          },
+          {
+            "group": "sus_de_pos_2025",
+            "item": "SUS10",
+            "std_loading": 0.517509127808466
+          }
+        ],
+        "lrt_chisq_diff": 360.8826837989,
+        "lrt_df_diff": 63,
+        "lrt_pvalue": 2.32175104085432e-43
+      },
+      "scalar": {
+        "chisq.scaled": 2687.84772,
+        "df.scaled": 406,
+        "pvalue.scaled": 0,
+        "cfi.robust": 0.751678,
+        "tli.robust": 0.779813,
+        "rmsea.robust": 0.156161,
+        "srmr": 0.152325,
+        "aic": 54544.344206,
+        "bic": 55190.079722,
+        "converged": true,
+        "warning": "",
+        "std_loadings": [
+          {
+            "group": "ehmi_for_all_chi26",
+            "item": "SUS1",
+            "std_loading": 0.777116908058807
+          },
+          {
+            "group": "ehmi_for_all_chi26",
+            "item": "SUS2",
+            "std_loading": 0.705138748030577
+          },
+          {
+            "group": "ehmi_for_all_chi26",
+            "item": "SUS3",
+            "std_loading": 0.889078853580701
+          },
+          {
+            "group": "ehmi_for_all_chi26",
+            "item": "SUS4",
+            "std_loading": 0.455008013693692
+          },
+          {
+            "group": "ehmi_for_all_chi26",
+            "item": "SUS5",
+            "std_loading": 0.789355007612217
+          },
+          {
+            "group": "ehmi_for_all_chi26",
+            "item": "SUS6",
+            "std_loading": 0.656081594185792
+          },
+          {
+            "group": "ehmi_for_all_chi26",
+            "item": "SUS7",
+            "std_loading": 0.817703360581304
+          },
+          {
+            "group": "ehmi_for_all_chi26",
+            "item": "SUS8",
+            "std_loading": 0.638576458624655
+          },
+          {
+            "group": "ehmi_for_all_chi26",
+            "item": "SUS9",
+            "std_loading": 0.792804102689147
+          },
+          {
+            "group": "ehmi_for_all_chi26",
+            "item": "SUS10",
+            "std_loading": 0.544685453695368
+          },
+          {
+            "group": "fido2_auth_chi23",
+            "item": "SUS1",
+            "std_loading": 0.405542626811314
+          },
+          {
+            "group": "fido2_auth_chi23",
+            "item": "SUS2",
+            "std_loading": 0.606021663558092
+          },
+          {
+            "group": "fido2_auth_chi23",
+            "item": "SUS3",
+            "std_loading": 0.417408164203088
+          },
+          {
+            "group": "fido2_auth_chi23",
+            "item": "SUS4",
+            "std_loading": 0.20214812292097
+          },
+          {
+            "group": "fido2_auth_chi23",
+            "item": "SUS5",
+            "std_loading": 0.381730920060161
+          },
+          {
+            "group": "fido2_auth_chi23",
+            "item": "SUS6",
+            "std_loading": 0.248846184665005
+          },
+          {
+            "group": "fido2_auth_chi23",
+            "item": "SUS7",
+            "std_loading": 0.453284601838528
+          },
+          {
+            "group": "fido2_auth_chi23",
+            "item": "SUS8",
+            "std_loading": 0.5961001767125
+          },
+          {
+            "group": "fido2_auth_chi23",
+            "item": "SUS9",
+            "std_loading": 0.418760573199662
+          },
+          {
+            "group": "fido2_auth_chi23",
+            "item": "SUS10",
+            "std_loading": 0.396502278679678
+          },
+          {
+            "group": "human_swarm_pfm_2025",
+            "item": "SUS1",
+            "std_loading": 0.597431908735403
+          },
+          {
+            "group": "human_swarm_pfm_2025",
+            "item": "SUS2",
+            "std_loading": 0.736019625635819
+          },
+          {
+            "group": "human_swarm_pfm_2025",
+            "item": "SUS3",
+            "std_loading": 0.8413402355882
+          },
+          {
+            "group": "human_swarm_pfm_2025",
+            "item": "SUS4",
+            "std_loading": 0.336888208992958
+          },
+          {
+            "group": "human_swarm_pfm_2025",
+            "item": "SUS5",
+            "std_loading": 0.664130949680717
+          },
+          {
+            "group": "human_swarm_pfm_2025",
+            "item": "SUS6",
+            "std_loading": 0.592913334048819
+          },
+          {
+            "group": "human_swarm_pfm_2025",
+            "item": "SUS7",
+            "std_loading": 0.748410536338712
+          },
+          {
+            "group": "human_swarm_pfm_2025",
+            "item": "SUS8",
+            "std_loading": 0.716542011463072
+          },
+          {
+            "group": "human_swarm_pfm_2025",
+            "item": "SUS9",
+            "std_loading": 0.742376229275258
+          },
+          {
+            "group": "human_swarm_pfm_2025",
+            "item": "SUS10",
+            "std_loading": 0.352830716409697
+          },
+          {
+            "group": "navigable_wim_2026",
+            "item": "SUS1",
+            "std_loading": 0.589496283608657
+          },
+          {
+            "group": "navigable_wim_2026",
+            "item": "SUS2",
+            "std_loading": 0.57208659523832
+          },
+          {
+            "group": "navigable_wim_2026",
+            "item": "SUS3",
+            "std_loading": 0.811615241699979
+          },
+          {
+            "group": "navigable_wim_2026",
+            "item": "SUS4",
+            "std_loading": 0.316899629989164
+          },
+          {
+            "group": "navigable_wim_2026",
+            "item": "SUS5",
+            "std_loading": 0.679476595462797
+          },
+          {
+            "group": "navigable_wim_2026",
+            "item": "SUS6",
+            "std_loading": 0.638629113718505
+          },
+          {
+            "group": "navigable_wim_2026",
+            "item": "SUS7",
+            "std_loading": 0.621831295704818
+          },
+          {
+            "group": "navigable_wim_2026",
+            "item": "SUS8",
+            "std_loading": 0.504496826552109
+          },
+          {
+            "group": "navigable_wim_2026",
+            "item": "SUS9",
+            "std_loading": 0.731442006802188
+          },
+          {
+            "group": "navigable_wim_2026",
+            "item": "SUS10",
+            "std_loading": 0.34011773021447
+          },
+          {
+            "group": "nl2tap_filter_2026",
+            "item": "SUS1",
+            "std_loading": 0.569165807579174
+          },
+          {
+            "group": "nl2tap_filter_2026",
+            "item": "SUS2",
+            "std_loading": 0.593737031350854
+          },
+          {
+            "group": "nl2tap_filter_2026",
+            "item": "SUS3",
+            "std_loading": 0.782321711910918
+          },
+          {
+            "group": "nl2tap_filter_2026",
+            "item": "SUS4",
+            "std_loading": 0.23510568152512
+          },
+          {
+            "group": "nl2tap_filter_2026",
+            "item": "SUS5",
+            "std_loading": 0.661207652110063
+          },
+          {
+            "group": "nl2tap_filter_2026",
+            "item": "SUS6",
+            "std_loading": 0.542496483475925
+          },
+          {
+            "group": "nl2tap_filter_2026",
+            "item": "SUS7",
+            "std_loading": 0.58712066008139
+          },
+          {
+            "group": "nl2tap_filter_2026",
+            "item": "SUS8",
+            "std_loading": 0.655149370154645
+          },
+          {
+            "group": "nl2tap_filter_2026",
+            "item": "SUS9",
+            "std_loading": 0.643957083368594
+          },
+          {
+            "group": "nl2tap_filter_2026",
+            "item": "SUS10",
+            "std_loading": 0.379285881883351
+          },
+          {
+            "group": "pairsonic_cscw24",
+            "item": "SUS1",
+            "std_loading": 0.52352534323376
+          },
+          {
+            "group": "pairsonic_cscw24",
+            "item": "SUS2",
+            "std_loading": 0.38410955913964
+          },
+          {
+            "group": "pairsonic_cscw24",
+            "item": "SUS3",
+            "std_loading": 0.815508197979134
+          },
+          {
+            "group": "pairsonic_cscw24",
+            "item": "SUS4",
+            "std_loading": 0.339554379307225
+          },
+          {
+            "group": "pairsonic_cscw24",
+            "item": "SUS5",
+            "std_loading": 0.585269468209573
+          },
+          {
+            "group": "pairsonic_cscw24",
+            "item": "SUS6",
+            "std_loading": 0.585928650853696
+          },
+          {
+            "group": "pairsonic_cscw24",
+            "item": "SUS7",
+            "std_loading": 0.606417122023005
+          },
+          {
+            "group": "pairsonic_cscw24",
+            "item": "SUS8",
+            "std_loading": 0.618291909695073
+          },
+          {
+            "group": "pairsonic_cscw24",
+            "item": "SUS9",
+            "std_loading": 0.626825289738462
+          },
+          {
+            "group": "pairsonic_cscw24",
+            "item": "SUS10",
+            "std_loading": 0.462781888384415
+          },
+          {
+            "group": "roads_chi25",
+            "item": "SUS1",
+            "std_loading": 0.805402374256738
+          },
+          {
+            "group": "roads_chi25",
+            "item": "SUS2",
+            "std_loading": 0.7377619059733
+          },
+          {
+            "group": "roads_chi25",
+            "item": "SUS3",
+            "std_loading": 0.898009217193668
+          },
+          {
+            "group": "roads_chi25",
+            "item": "SUS4",
+            "std_loading": 0.296507194733645
+          },
+          {
+            "group": "roads_chi25",
+            "item": "SUS5",
+            "std_loading": 0.757346916075513
+          },
+          {
+            "group": "roads_chi25",
+            "item": "SUS6",
+            "std_loading": 0.595950815110761
+          },
+          {
+            "group": "roads_chi25",
+            "item": "SUS7",
+            "std_loading": 0.73786081729697
+          },
+          {
+            "group": "roads_chi25",
+            "item": "SUS8",
+            "std_loading": 0.779758918190973
+          },
+          {
+            "group": "roads_chi25",
+            "item": "SUS9",
+            "std_loading": 0.810249447684052
+          },
+          {
+            "group": "roads_chi25",
+            "item": "SUS10",
+            "std_loading": 0.412220648657067
+          },
+          {
+            "group": "sus_de_pos_2025",
+            "item": "SUS1",
+            "std_loading": 0.560002108208553
+          },
+          {
+            "group": "sus_de_pos_2025",
+            "item": "SUS2",
+            "std_loading": 0.655992800448715
+          },
+          {
+            "group": "sus_de_pos_2025",
+            "item": "SUS3",
+            "std_loading": 0.864464076249528
+          },
+          {
+            "group": "sus_de_pos_2025",
+            "item": "SUS4",
+            "std_loading": 0.460133676388201
+          },
+          {
+            "group": "sus_de_pos_2025",
+            "item": "SUS5",
+            "std_loading": 0.770713428359466
+          },
+          {
+            "group": "sus_de_pos_2025",
+            "item": "SUS6",
+            "std_loading": 0.654954072186159
+          },
+          {
+            "group": "sus_de_pos_2025",
+            "item": "SUS7",
+            "std_loading": 0.767516185888505
+          },
+          {
+            "group": "sus_de_pos_2025",
+            "item": "SUS8",
+            "std_loading": 0.712891835685344
+          },
+          {
+            "group": "sus_de_pos_2025",
+            "item": "SUS9",
+            "std_loading": 0.741168961069195
+          },
+          {
+            "group": "sus_de_pos_2025",
+            "item": "SUS10",
+            "std_loading": 0.505521572423952
+          }
+        ],
+        "lrt_chisq_diff": 1257.9153174917,
+        "lrt_df_diff": 63,
+        "lrt_pvalue": 1.14570754456819e-221
+      }
+    },
+    "items": [
+      "SUS1",
+      "SUS2",
+      "SUS3",
+      "SUS4",
+      "SUS5",
+      "SUS6",
+      "SUS7",
+      "SUS8",
+      "SUS9",
+      "SUS10"
+    ]
+  },
+  {
+    "scale": "nasa_tlx_score",
+    "lavaan": "0.7.3",
+    "n_obs": 7540,
+    "groups": {
+      "concurrent_speech_2022": 640,
+      "curved_dragging_vr_ijhci26": 288,
+      "dev_creativity_eyetracking_2026": 40,
+      "ehmi_infrastructure_2024": 129,
+      "function_allocation_hrc_2026": 104,
+      "human_swarm_pfm_2025": 360,
+      "incar_vr_gain_chi24": 204,
+      "layer_interaction_elastic_2022": 69,
+      "music_intensity_driving_2021": 34,
+      "music_tempo_taskload_2022": 46,
+      "navigable_wim_2026": 108,
+      "nl2tap_filter_2026": 85,
+      "p300_attention_bci_2024": 47,
+      "physio_hrc_2025": 286,
+      "roads_chi25": 276,
+      "running_into_traffic_chi26": 288,
+      "shared_autonomy_2026": 88,
+      "steering_gain_2022": 96,
+      "tlx_formats_uas_2023": 3888,
+      "tool_embodiment_2025": 141,
+      "visual_fidelity_curves_2015": 72,
+      "vr_shopping_demands_2026": 154,
+      "woz_adaptation_ijhcs24": 97
+    },
+    "clusters": {
+      "concurrent_speech_2022": 40,
+      "curved_dragging_vr_ijhci26": 24,
+      "dev_creativity_eyetracking_2026": 40,
+      "ehmi_infrastructure_2024": 43,
+      "function_allocation_hrc_2026": 26,
+      "human_swarm_pfm_2025": 180,
+      "incar_vr_gain_chi24": 17,
+      "layer_interaction_elastic_2022": 23,
+      "music_intensity_driving_2021": 34,
+      "music_tempo_taskload_2022": 46,
+      "navigable_wim_2026": 36,
+      "nl2tap_filter_2026": 85,
+      "p300_attention_bci_2024": 47,
+      "physio_hrc_2025": 112,
+      "roads_chi25": 23,
+      "running_into_traffic_chi26": 24,
+      "shared_autonomy_2026": 11,
+      "steering_gain_2022": 24,
+      "tlx_formats_uas_2023": 36,
+      "tool_embodiment_2025": 72,
+      "visual_fidelity_curves_2015": 24,
+      "vr_shopping_demands_2026": 22,
+      "woz_adaptation_ijhcs24": 97
+    },
+    "cluster_robust": false,
+    "one_observation_per_cluster": [
+      "dev_creativity_eyetracking_2026",
+      "music_intensity_driving_2021",
+      "music_tempo_taskload_2022",
+      "nl2tap_filter_2026",
+      "p300_attention_bci_2024",
+      "woz_adaptation_ijhcs24"
+    ],
+    "levels": {
+      "configural": {
+        "error": "lavaan->lav_data_full():  \n   some variables have no variance in group 12 : x2"
+      },
+      "metric": {
+        "error": "lavaan->lav_data_full():  \n   some variables have no variance in group 12 : x2"
+      },
+      "scalar": {
+        "error": "lavaan->lav_data_full():  \n   some variables have no variance in group 12 : x2"
+      }
+    },
+    "items": [
+      "mental_demand",
+      "physical_demand",
+      "temporal_demand",
+      "performance",
+      "effort",
+      "frustration"
+    ]
+  },
+  {
+    "scale": "aoa_usefulness",
+    "lavaan": "0.7.3",
+    "n_obs": 2774,
+    "groups": {
+      "ar_pedestrian_online_2023": 1174,
+      "coupled_hmd_2022": 51,
+      "ehmi_for_all_chi26": 720,
+      "fido2_auth_chi23": 89,
+      "function_allocation_hrc_2026": 104,
+      "human_swarm_pfm_2025": 360,
+      "roads_chi25": 276
+    },
+    "clusters": {
+      "ar_pedestrian_online_2023": 1164,
+      "coupled_hmd_2022": 17,
+      "ehmi_for_all_chi26": 40,
+      "fido2_auth_chi23": 89,
+      "function_allocation_hrc_2026": 26,
+      "human_swarm_pfm_2025": 180,
+      "roads_chi25": 23
+    },
+    "cluster_robust": false,
+    "one_observation_per_cluster": [
+      "fido2_auth_chi23"
+    ],
+    "levels": {
+      "configural": {
+        "chisq.scaled": 119.099472,
+        "df.scaled": 35,
+        "pvalue.scaled": 0,
+        "cfi.robust": 0.987989,
+        "tli.robust": 0.975978,
+        "rmsea.robust": 0.090877,
+        "srmr": 0.017205,
+        "aic": 27520.092369,
+        "bic": 28142.537157,
+        "converged": true,
+        "warning": "",
+        "std_loadings": [
+          {
+            "group": "ar_pedestrian_online_2023",
+            "item": "AOA1",
+            "std_loading": 0.890305646651622
+          },
+          {
+            "group": "ar_pedestrian_online_2023",
+            "item": "AOA3",
+            "std_loading": 0.736984880377753
+          },
+          {
+            "group": "ar_pedestrian_online_2023",
+            "item": "AOA5",
+            "std_loading": 0.927147576370805
+          },
+          {
+            "group": "ar_pedestrian_online_2023",
+            "item": "AOA7",
+            "std_loading": 0.938516872429011
+          },
+          {
+            "group": "ar_pedestrian_online_2023",
+            "item": "AOA9",
+            "std_loading": 0.771717502258208
+          },
+          {
+            "group": "coupled_hmd_2022",
+            "item": "AOA1",
+            "std_loading": 0.953553757755031
+          },
+          {
+            "group": "coupled_hmd_2022",
+            "item": "AOA3",
+            "std_loading": 0.68940682790448
+          },
+          {
+            "group": "coupled_hmd_2022",
+            "item": "AOA5",
+            "std_loading": 0.901228196305099
+          },
+          {
+            "group": "coupled_hmd_2022",
+            "item": "AOA7",
+            "std_loading": 0.81121783965731
+          },
+          {
+            "group": "coupled_hmd_2022",
+            "item": "AOA9",
+            "std_loading": 0.633231170559896
+          },
+          {
+            "group": "ehmi_for_all_chi26",
+            "item": "AOA1",
+            "std_loading": 0.897871310785836
+          },
+          {
+            "group": "ehmi_for_all_chi26",
+            "item": "AOA3",
+            "std_loading": 0.808593389112155
+          },
+          {
+            "group": "ehmi_for_all_chi26",
+            "item": "AOA5",
+            "std_loading": 0.88351898975955
+          },
+          {
+            "group": "ehmi_for_all_chi26",
+            "item": "AOA7",
+            "std_loading": 0.892124857167392
+          },
+          {
+            "group": "ehmi_for_all_chi26",
+            "item": "AOA9",
+            "std_loading": -0.139600610533202
+          },
+          {
+            "group": "fido2_auth_chi23",
+            "item": "AOA1",
+            "std_loading": 0.768057798811817
+          },
+          {
+            "group": "fido2_auth_chi23",
+            "item": "AOA3",
+            "std_loading": 0.438705904142748
+          },
+          {
+            "group": "fido2_auth_chi23",
+            "item": "AOA5",
+            "std_loading": 0.608032823432811
+          },
+          {
+            "group": "fido2_auth_chi23",
+            "item": "AOA7",
+            "std_loading": 0.885603604236915
+          },
+          {
+            "group": "fido2_auth_chi23",
+            "item": "AOA9",
+            "std_loading": 0.255282089607796
+          },
+          {
+            "group": "function_allocation_hrc_2026",
+            "item": "AOA1",
+            "std_loading": 0.90981525620164
+          },
+          {
+            "group": "function_allocation_hrc_2026",
+            "item": "AOA3",
+            "std_loading": 0.638399688300505
+          },
+          {
+            "group": "function_allocation_hrc_2026",
+            "item": "AOA5",
+            "std_loading": 0.8235801519737
+          },
+          {
+            "group": "function_allocation_hrc_2026",
+            "item": "AOA7",
+            "std_loading": 0.863804756413094
+          },
+          {
+            "group": "function_allocation_hrc_2026",
+            "item": "AOA9",
+            "std_loading": 0.0284398504781523
+          },
+          {
+            "group": "human_swarm_pfm_2025",
+            "item": "AOA1",
+            "std_loading": 0.679462812461728
+          },
+          {
+            "group": "human_swarm_pfm_2025",
+            "item": "AOA3",
+            "std_loading": 0.844871134026276
+          },
+          {
+            "group": "human_swarm_pfm_2025",
+            "item": "AOA5",
+            "std_loading": 0.792932961669835
+          },
+          {
+            "group": "human_swarm_pfm_2025",
+            "item": "AOA7",
+            "std_loading": 0.85147957814995
+          },
+          {
+            "group": "human_swarm_pfm_2025",
+            "item": "AOA9",
+            "std_loading": 0.389910396392684
+          },
+          {
+            "group": "roads_chi25",
+            "item": "AOA1",
+            "std_loading": 0.8847707423516
+          },
+          {
+            "group": "roads_chi25",
+            "item": "AOA3",
+            "std_loading": 0.865948761345891
+          },
+          {
+            "group": "roads_chi25",
+            "item": "AOA5",
+            "std_loading": 0.859729318519808
+          },
+          {
+            "group": "roads_chi25",
+            "item": "AOA7",
+            "std_loading": 0.887145976166131
+          },
+          {
+            "group": "roads_chi25",
+            "item": "AOA9",
+            "std_loading": 0.135533435247715
+          }
+        ]
+      },
+      "metric": {
+        "chisq.scaled": 586.195288,
+        "df.scaled": 59,
+        "pvalue.scaled": 0,
+        "cfi.robust": 0.931165,
+        "tli.robust": 0.918331,
+        "rmsea.robust": 0.16756,
+        "srmr": 0.170622,
+        "aic": 28039.792975,
+        "bic": 28519.964669,
+        "converged": true,
+        "warning": "",
+        "std_loadings": [
+          {
+            "group": "ar_pedestrian_online_2023",
+            "item": "AOA1",
+            "std_loading": 0.888565737689632
+          },
+          {
+            "group": "ar_pedestrian_online_2023",
+            "item": "AOA3",
+            "std_loading": 0.772617580023467
+          },
+          {
+            "group": "ar_pedestrian_online_2023",
+            "item": "AOA5",
+            "std_loading": 0.931273979542297
+          },
+          {
+            "group": "ar_pedestrian_online_2023",
+            "item": "AOA7",
+            "std_loading": 0.937497311053323
+          },
+          {
+            "group": "ar_pedestrian_online_2023",
+            "item": "AOA9",
+            "std_loading": 0.640238265007066
+          },
+          {
+            "group": "coupled_hmd_2022",
+            "item": "AOA1",
+            "std_loading": 0.93098286331782
+          },
+          {
+            "group": "coupled_hmd_2022",
+            "item": "AOA3",
+            "std_loading": 0.744896419321007
+          },
+          {
+            "group": "coupled_hmd_2022",
+            "item": "AOA5",
+            "std_loading": 0.905011302624238
+          },
+          {
+            "group": "coupled_hmd_2022",
+            "item": "AOA7",
+            "std_loading": 0.849690803071585
+          },
+          {
+            "group": "coupled_hmd_2022",
+            "item": "AOA9",
+            "std_loading": 0.597478392936993
+          },
+          {
+            "group": "ehmi_for_all_chi26",
+            "item": "AOA1",
+            "std_loading": 0.89510354616366
+          },
+          {
+            "group": "ehmi_for_all_chi26",
+            "item": "AOA3",
+            "std_loading": 0.805903503988963
+          },
+          {
+            "group": "ehmi_for_all_chi26",
+            "item": "AOA5",
+            "std_loading": 0.878201060721281
+          },
+          {
+            "group": "ehmi_for_all_chi26",
+            "item": "AOA7",
+            "std_loading": 0.876464957984442
+          },
+          {
+            "group": "ehmi_for_all_chi26",
+            "item": "AOA9",
+            "std_loading": 0.451985381290875
+          },
+          {
+            "group": "fido2_auth_chi23",
+            "item": "AOA1",
+            "std_loading": 0.788824592968668
+          },
+          {
+            "group": "fido2_auth_chi23",
+            "item": "AOA3",
+            "std_loading": 0.561814569579386
+          },
+          {
+            "group": "fido2_auth_chi23",
+            "item": "AOA5",
+            "std_loading": 0.625389201739229
+          },
+          {
+            "group": "fido2_auth_chi23",
+            "item": "AOA7",
+            "std_loading": 0.820793373173765
+          },
+          {
+            "group": "fido2_auth_chi23",
+            "item": "AOA9",
+            "std_loading": 0.292182124294283
+          },
+          {
+            "group": "function_allocation_hrc_2026",
+            "item": "AOA1",
+            "std_loading": 0.875307944262474
+          },
+          {
+            "group": "function_allocation_hrc_2026",
+            "item": "AOA3",
+            "std_loading": 0.692100267900178
+          },
+          {
+            "group": "function_allocation_hrc_2026",
+            "item": "AOA5",
+            "std_loading": 0.831414538672171
+          },
+          {
+            "group": "function_allocation_hrc_2026",
+            "item": "AOA7",
+            "std_loading": 0.863173652008063
+          },
+          {
+            "group": "function_allocation_hrc_2026",
+            "item": "AOA9",
+            "std_loading": 0.357982283100978
+          },
+          {
+            "group": "human_swarm_pfm_2025",
+            "item": "AOA1",
+            "std_loading": 0.742213870623502
+          },
+          {
+            "group": "human_swarm_pfm_2025",
+            "item": "AOA3",
+            "std_loading": 0.750519485990393
+          },
+          {
+            "group": "human_swarm_pfm_2025",
+            "item": "AOA5",
+            "std_loading": 0.821115875144594
+          },
+          {
+            "group": "human_swarm_pfm_2025",
+            "item": "AOA7",
+            "std_loading": 0.843974990975009
+          },
+          {
+            "group": "human_swarm_pfm_2025",
+            "item": "AOA9",
+            "std_loading": 0.421480630140413
+          },
+          {
+            "group": "roads_chi25",
+            "item": "AOA1",
+            "std_loading": 0.906073522524661
+          },
+          {
+            "group": "roads_chi25",
+            "item": "AOA3",
+            "std_loading": 0.78881714606959
+          },
+          {
+            "group": "roads_chi25",
+            "item": "AOA5",
+            "std_loading": 0.834456456189579
+          },
+          {
+            "group": "roads_chi25",
+            "item": "AOA7",
+            "std_loading": 0.891275050049688
+          },
+          {
+            "group": "roads_chi25",
+            "item": "AOA9",
+            "std_loading": 0.429230394015953
+          }
+        ],
+        "lrt_chisq_diff": 528.2080037381,
+        "lrt_df_diff": 24,
+        "lrt_pvalue": 2.27960937414474e-96
+      },
+      "scalar": {
+        "chisq.scaled": 1180.794814,
+        "df.scaled": 83,
+        "pvalue.scaled": 0,
+        "cfi.robust": 0.864111,
+        "tli.robust": 0.885394,
+        "rmsea.robust": 0.198494,
+        "srmr": 0.292074,
+        "aic": 28655.778106,
+        "bic": 28993.676705,
+        "converged": true,
+        "warning": "",
+        "std_loadings": [
+          {
+            "group": "ar_pedestrian_online_2023",
+            "item": "AOA1",
+            "std_loading": 0.863348353829526
+          },
+          {
+            "group": "ar_pedestrian_online_2023",
+            "item": "AOA3",
+            "std_loading": 0.796649911348954
+          },
+          {
+            "group": "ar_pedestrian_online_2023",
+            "item": "AOA5",
+            "std_loading": 0.927150716282317
+          },
+          {
+            "group": "ar_pedestrian_online_2023",
+            "item": "AOA7",
+            "std_loading": 0.934688055676696
+          },
+          {
+            "group": "ar_pedestrian_online_2023",
+            "item": "AOA9",
+            "std_loading": 0.790963522933203
+          },
+          {
+            "group": "coupled_hmd_2022",
+            "item": "AOA1",
+            "std_loading": 0.894864955597122
+          },
+          {
+            "group": "coupled_hmd_2022",
+            "item": "AOA3",
+            "std_loading": 0.765841467555509
+          },
+          {
+            "group": "coupled_hmd_2022",
+            "item": "AOA5",
+            "std_loading": 0.889187893619099
+          },
+          {
+            "group": "coupled_hmd_2022",
+            "item": "AOA7",
+            "std_loading": 0.831871237262043
+          },
+          {
+            "group": "coupled_hmd_2022",
+            "item": "AOA9",
+            "std_loading": 0.726386376502347
+          },
+          {
+            "group": "ehmi_for_all_chi26",
+            "item": "AOA1",
+            "std_loading": 0.867975260452553
+          },
+          {
+            "group": "ehmi_for_all_chi26",
+            "item": "AOA3",
+            "std_loading": 0.839345103663428
+          },
+          {
+            "group": "ehmi_for_all_chi26",
+            "item": "AOA5",
+            "std_loading": 0.876619793415045
+          },
+          {
+            "group": "ehmi_for_all_chi26",
+            "item": "AOA7",
+            "std_loading": 0.864267128507699
+          },
+          {
+            "group": "ehmi_for_all_chi26",
+            "item": "AOA9",
+            "std_loading": 0.513908766696766
+          },
+          {
+            "group": "fido2_auth_chi23",
+            "item": "AOA1",
+            "std_loading": 0.752717760696634
+          },
+          {
+            "group": "fido2_auth_chi23",
+            "item": "AOA3",
+            "std_loading": 0.604934589552295
+          },
+          {
+            "group": "fido2_auth_chi23",
+            "item": "AOA5",
+            "std_loading": 0.621398138818005
+          },
+          {
+            "group": "fido2_auth_chi23",
+            "item": "AOA7",
+            "std_loading": 0.802311039097768
+          },
+          {
+            "group": "fido2_auth_chi23",
+            "item": "AOA9",
+            "std_loading": 0.325848658175379
+          },
+          {
+            "group": "function_allocation_hrc_2026",
+            "item": "AOA1",
+            "std_loading": 0.834909359687245
+          },
+          {
+            "group": "function_allocation_hrc_2026",
+            "item": "AOA3",
+            "std_loading": 0.726155611502646
+          },
+          {
+            "group": "function_allocation_hrc_2026",
+            "item": "AOA5",
+            "std_loading": 0.83157780856298
+          },
+          {
+            "group": "function_allocation_hrc_2026",
+            "item": "AOA7",
+            "std_loading": 0.836373678752779
+          },
+          {
+            "group": "function_allocation_hrc_2026",
+            "item": "AOA9",
+            "std_loading": 0.460815733263937
+          },
+          {
+            "group": "human_swarm_pfm_2025",
+            "item": "AOA1",
+            "std_loading": 0.70928280437295
+          },
+          {
+            "group": "human_swarm_pfm_2025",
+            "item": "AOA3",
+            "std_loading": 0.79646708835183
+          },
+          {
+            "group": "human_swarm_pfm_2025",
+            "item": "AOA5",
+            "std_loading": 0.810948910368451
+          },
+          {
+            "group": "human_swarm_pfm_2025",
+            "item": "AOA7",
+            "std_loading": 0.828616686463249
+          },
+          {
+            "group": "human_swarm_pfm_2025",
+            "item": "AOA9",
+            "std_loading": 0.551166437545952
+          },
+          {
+            "group": "roads_chi25",
+            "item": "AOA1",
+            "std_loading": 0.870633522110534
+          },
+          {
+            "group": "roads_chi25",
+            "item": "AOA3",
+            "std_loading": 0.828935470270925
+          },
+          {
+            "group": "roads_chi25",
+            "item": "AOA5",
+            "std_loading": 0.837721445327848
+          },
+          {
+            "group": "roads_chi25",
+            "item": "AOA7",
+            "std_loading": 0.891010668523733
+          },
+          {
+            "group": "roads_chi25",
+            "item": "AOA9",
+            "std_loading": 0.511363039413724
+          }
+        ],
+        "lrt_chisq_diff": 650.0582115628,
+        "lrt_df_diff": 24,
+        "lrt_pvalue": 7.70098348519546e-122
+      }
+    },
+    "items": [
+      "AOA1",
+      "AOA3",
+      "AOA5",
+      "AOA7",
+      "AOA9"
+    ]
+  },
+  {
+    "scale": "aoa_satisfying",
+    "lavaan": "0.7.3",
+    "n_obs": 2774,
+    "groups": {
+      "ar_pedestrian_online_2023": 1174,
+      "coupled_hmd_2022": 51,
+      "ehmi_for_all_chi26": 720,
+      "fido2_auth_chi23": 89,
+      "function_allocation_hrc_2026": 104,
+      "human_swarm_pfm_2025": 360,
+      "roads_chi25": 276
+    },
+    "clusters": {
+      "ar_pedestrian_online_2023": 1164,
+      "coupled_hmd_2022": 17,
+      "ehmi_for_all_chi26": 40,
+      "fido2_auth_chi23": 89,
+      "function_allocation_hrc_2026": 26,
+      "human_swarm_pfm_2025": 180,
+      "roads_chi25": 23
+    },
+    "cluster_robust": false,
+    "one_observation_per_cluster": [
+      "fido2_auth_chi23"
+    ],
+    "levels": {
+      "configural": {
+        "chisq.scaled": 330.195731,
+        "df.scaled": 14,
+        "pvalue.scaled": 0,
+        "cfi.robust": 0.940219,
+        "tli.robust": 0.820657,
+        "rmsea.robust": 0.300489,
+        "srmr": 0.032071,
+        "aic": 21871.595907,
+        "bic": 22369.551737,
+        "converged": true,
+        "warning": "",
+        "std_loadings": [
+          {
+            "group": "ar_pedestrian_online_2023",
+            "item": "AOA2",
+            "std_loading": 0.924663610878084
+          },
+          {
+            "group": "ar_pedestrian_online_2023",
+            "item": "AOA4",
+            "std_loading": 0.927166694566091
+          },
+          {
+            "group": "ar_pedestrian_online_2023",
+            "item": "AOA6",
+            "std_loading": 0.789863521783467
+          },
+          {
+            "group": "ar_pedestrian_online_2023",
+            "item": "AOA8",
+            "std_loading": 0.735661036099976
+          },
+          {
+            "group": "coupled_hmd_2022",
+            "item": "AOA2",
+            "std_loading": 0.77892586307876
+          },
+          {
+            "group": "coupled_hmd_2022",
+            "item": "AOA4",
+            "std_loading": 0.68274873313948
+          },
+          {
+            "group": "coupled_hmd_2022",
+            "item": "AOA6",
+            "std_loading": 0.898114765039056
+          },
+          {
+            "group": "coupled_hmd_2022",
+            "item": "AOA8",
+            "std_loading": 0.89648632469884
+          },
+          {
+            "group": "ehmi_for_all_chi26",
+            "item": "AOA2",
+            "std_loading": 0.92578358361044
+          },
+          {
+            "group": "ehmi_for_all_chi26",
+            "item": "AOA4",
+            "std_loading": 0.880278921844638
+          },
+          {
+            "group": "ehmi_for_all_chi26",
+            "item": "AOA6",
+            "std_loading": 0.858508460349176
+          },
+          {
+            "group": "ehmi_for_all_chi26",
+            "item": "AOA8",
+            "std_loading": 0.782085663167516
+          },
+          {
+            "group": "fido2_auth_chi23",
+            "item": "AOA2",
+            "std_loading": 0.522007776689592
+          },
+          {
+            "group": "fido2_auth_chi23",
+            "item": "AOA4",
+            "std_loading": 0.588298070026296
+          },
+          {
+            "group": "fido2_auth_chi23",
+            "item": "AOA6",
+            "std_loading": 0.907772752002641
+          },
+          {
+            "group": "fido2_auth_chi23",
+            "item": "AOA8",
+            "std_loading": 0.516738039426555
+          },
+          {
+            "group": "function_allocation_hrc_2026",
+            "item": "AOA2",
+            "std_loading": 0.83766200185955
+          },
+          {
+            "group": "function_allocation_hrc_2026",
+            "item": "AOA4",
+            "std_loading": 0.922453075291925
+          },
+          {
+            "group": "function_allocation_hrc_2026",
+            "item": "AOA6",
+            "std_loading": 0.906713203242175
+          },
+          {
+            "group": "function_allocation_hrc_2026",
+            "item": "AOA8",
+            "std_loading": 0.831799205815811
+          },
+          {
+            "group": "human_swarm_pfm_2025",
+            "item": "AOA2",
+            "std_loading": 0.791021216097489
+          },
+          {
+            "group": "human_swarm_pfm_2025",
+            "item": "AOA4",
+            "std_loading": 0.852481251374937
+          },
+          {
+            "group": "human_swarm_pfm_2025",
+            "item": "AOA6",
+            "std_loading": 0.853168250710108
+          },
+          {
+            "group": "human_swarm_pfm_2025",
+            "item": "AOA8",
+            "std_loading": 0.871333932510459
+          },
+          {
+            "group": "roads_chi25",
+            "item": "AOA2",
+            "std_loading": 0.905300200665384
+          },
+          {
+            "group": "roads_chi25",
+            "item": "AOA4",
+            "std_loading": 0.875861375900141
+          },
+          {
+            "group": "roads_chi25",
+            "item": "AOA6",
+            "std_loading": 0.893973742015513
+          },
+          {
+            "group": "roads_chi25",
+            "item": "AOA8",
+            "std_loading": 0.846960805868591
+          }
+        ]
+      },
+      "metric": {
+        "chisq.scaled": 487.149509,
+        "df.scaled": 32,
+        "pvalue.scaled": 0,
+        "cfi.robust": 0.930075,
+        "tli.robust": 0.908223,
+        "rmsea.robust": 0.214958,
+        "srmr": 0.059736,
+        "aic": 21939.618718,
+        "bic": 22330.869727,
+        "converged": true,
+        "warning": "",
+        "std_loadings": [
+          {
+            "group": "ar_pedestrian_online_2023",
+            "item": "AOA2",
+            "std_loading": 0.916752512828738
+          },
+          {
+            "group": "ar_pedestrian_online_2023",
+            "item": "AOA4",
+            "std_loading": 0.913599846409977
+          },
+          {
+            "group": "ar_pedestrian_online_2023",
+            "item": "AOA6",
+            "std_loading": 0.820871292878416
+          },
+          {
+            "group": "ar_pedestrian_online_2023",
+            "item": "AOA8",
+            "std_loading": 0.766862435540407
+          },
+          {
+            "group": "coupled_hmd_2022",
+            "item": "AOA2",
+            "std_loading": 0.803329713723407
+          },
+          {
+            "group": "coupled_hmd_2022",
+            "item": "AOA4",
+            "std_loading": 0.759780294251942
+          },
+          {
+            "group": "coupled_hmd_2022",
+            "item": "AOA6",
+            "std_loading": 0.896247976682916
+          },
+          {
+            "group": "coupled_hmd_2022",
+            "item": "AOA8",
+            "std_loading": 0.807084846623822
+          },
+          {
+            "group": "ehmi_for_all_chi26",
+            "item": "AOA2",
+            "std_loading": 0.912930815505776
+          },
+          {
+            "group": "ehmi_for_all_chi26",
+            "item": "AOA4",
+            "std_loading": 0.897577674610092
+          },
+          {
+            "group": "ehmi_for_all_chi26",
+            "item": "AOA6",
+            "std_loading": 0.847550831127081
+          },
+          {
+            "group": "ehmi_for_all_chi26",
+            "item": "AOA8",
+            "std_loading": 0.789352955158887
+          },
+          {
+            "group": "fido2_auth_chi23",
+            "item": "AOA2",
+            "std_loading": 0.739456008333411
+          },
+          {
+            "group": "fido2_auth_chi23",
+            "item": "AOA4",
+            "std_loading": 0.544908264084965
+          },
+          {
+            "group": "fido2_auth_chi23",
+            "item": "AOA6",
+            "std_loading": 0.631452170650223
+          },
+          {
+            "group": "fido2_auth_chi23",
+            "item": "AOA8",
+            "std_loading": 0.537703033025202
+          },
+          {
+            "group": "function_allocation_hrc_2026",
+            "item": "AOA2",
+            "std_loading": 0.871679566563777
+          },
+          {
+            "group": "function_allocation_hrc_2026",
+            "item": "AOA4",
+            "std_loading": 0.91575685784925
+          },
+          {
+            "group": "function_allocation_hrc_2026",
+            "item": "AOA6",
+            "std_loading": 0.902759098554033
+          },
+          {
+            "group": "function_allocation_hrc_2026",
+            "item": "AOA8",
+            "std_loading": 0.781680117495217
+          },
+          {
+            "group": "human_swarm_pfm_2025",
+            "item": "AOA2",
+            "std_loading": 0.846390576092204
+          },
+          {
+            "group": "human_swarm_pfm_2025",
+            "item": "AOA4",
+            "std_loading": 0.855002851090101
+          },
+          {
+            "group": "human_swarm_pfm_2025",
+            "item": "AOA6",
+            "std_loading": 0.816078617661802
+          },
+          {
+            "group": "human_swarm_pfm_2025",
+            "item": "AOA8",
+            "std_loading": 0.837757298576265
+          },
+          {
+            "group": "roads_chi25",
+            "item": "AOA2",
+            "std_loading": 0.904233193243357
+          },
+          {
+            "group": "roads_chi25",
+            "item": "AOA4",
+            "std_loading": 0.883517792159152
+          },
+          {
+            "group": "roads_chi25",
+            "item": "AOA6",
+            "std_loading": 0.890452630092288
+          },
+          {
+            "group": "roads_chi25",
+            "item": "AOA8",
+            "std_loading": 0.842900936656146
+          }
+        ],
+        "lrt_chisq_diff": 98.4632576013,
+        "lrt_df_diff": 18,
+        "lrt_pvalue": 4.23146747118814e-13
+      },
+      "scalar": {
+        "chisq.scaled": 730.480993,
+        "df.scaled": 50,
+        "pvalue.scaled": 0,
+        "cfi.robust": 0.90588,
+        "tli.robust": 0.920939,
+        "rmsea.robust": 0.199511,
+        "srmr": 0.081473,
+        "aic": 22123.116758,
+        "bic": 22407.662947,
+        "converged": true,
+        "warning": "",
+        "std_loadings": [
+          {
+            "group": "ar_pedestrian_online_2023",
+            "item": "AOA2",
+            "std_loading": 0.881896447616199
+          },
+          {
+            "group": "ar_pedestrian_online_2023",
+            "item": "AOA4",
+            "std_loading": 0.885567154049693
+          },
+          {
+            "group": "ar_pedestrian_online_2023",
+            "item": "AOA6",
+            "std_loading": 0.851399267143643
+          },
+          {
+            "group": "ar_pedestrian_online_2023",
+            "item": "AOA8",
+            "std_loading": 0.81311605918939
+          },
+          {
+            "group": "coupled_hmd_2022",
+            "item": "AOA2",
+            "std_loading": 0.756203956340717
+          },
+          {
+            "group": "coupled_hmd_2022",
+            "item": "AOA4",
+            "std_loading": 0.700161621285988
+          },
+          {
+            "group": "coupled_hmd_2022",
+            "item": "AOA6",
+            "std_loading": 0.919418226810297
+          },
+          {
+            "group": "coupled_hmd_2022",
+            "item": "AOA8",
+            "std_loading": 0.845126553402985
+          },
+          {
+            "group": "ehmi_for_all_chi26",
+            "item": "AOA2",
+            "std_loading": 0.891031498710117
+          },
+          {
+            "group": "ehmi_for_all_chi26",
+            "item": "AOA4",
+            "std_loading": 0.88787052753685
+          },
+          {
+            "group": "ehmi_for_all_chi26",
+            "item": "AOA6",
+            "std_loading": 0.86599899971935
+          },
+          {
+            "group": "ehmi_for_all_chi26",
+            "item": "AOA8",
+            "std_loading": 0.816000992927183
+          },
+          {
+            "group": "fido2_auth_chi23",
+            "item": "AOA2",
+            "std_loading": 0.696082088744856
+          },
+          {
+            "group": "fido2_auth_chi23",
+            "item": "AOA4",
+            "std_loading": 0.503389667056254
+          },
+          {
+            "group": "fido2_auth_chi23",
+            "item": "AOA6",
+            "std_loading": 0.653797712368305
+          },
+          {
+            "group": "fido2_auth_chi23",
+            "item": "AOA8",
+            "std_loading": 0.574019289161738
+          },
+          {
+            "group": "function_allocation_hrc_2026",
+            "item": "AOA2",
+            "std_loading": 0.857469069559202
+          },
+          {
+            "group": "function_allocation_hrc_2026",
+            "item": "AOA4",
+            "std_loading": 0.898738873537474
+          },
+          {
+            "group": "function_allocation_hrc_2026",
+            "item": "AOA6",
+            "std_loading": 0.915157109543048
+          },
+          {
+            "group": "function_allocation_hrc_2026",
+            "item": "AOA8",
+            "std_loading": 0.816101404535349
+          },
+          {
+            "group": "human_swarm_pfm_2025",
+            "item": "AOA2",
+            "std_loading": 0.822441221045684
+          },
+          {
+            "group": "human_swarm_pfm_2025",
+            "item": "AOA4",
+            "std_loading": 0.831426264047505
+          },
+          {
+            "group": "human_swarm_pfm_2025",
+            "item": "AOA6",
+            "std_loading": 0.829786905179012
+          },
+          {
+            "group": "human_swarm_pfm_2025",
+            "item": "AOA8",
+            "std_loading": 0.872512670642339
+          },
+          {
+            "group": "roads_chi25",
+            "item": "AOA2",
+            "std_loading": 0.876183921812464
+          },
+          {
+            "group": "roads_chi25",
+            "item": "AOA4",
+            "std_loading": 0.861866678809075
+          },
+          {
+            "group": "roads_chi25",
+            "item": "AOA6",
+            "std_loading": 0.904277556250706
+          },
+          {
+            "group": "roads_chi25",
+            "item": "AOA8",
+            "std_loading": 0.867767772047268
+          }
+        ],
+        "lrt_chisq_diff": 235.8076985784,
+        "lrt_df_diff": 18,
+        "lrt_pvalue": 6.19362904374628e-40
+      }
+    },
+    "items": [
+      "AOA2",
+      "AOA4",
+      "AOA6",
+      "AOA8"
+    ]
+  },
+  {
+    "scale": "perceived_safety_score",
+    "lavaan": "0.7.3",
+    "n_obs": 4680,
+    "groups": {
+      "3d_display_comp_vehicle": 45,
+      "bvi_auditory_hav_autoui26": 105,
+      "ehmi_for_all_chi26": 720,
+      "ehmi_optimization_chi25": 740,
+      "fact_av": 2600,
+      "longitudinal_usa_germany_ehmi": 470
+    },
+    "clusters": {
+      "3d_display_comp_vehicle": 15,
+      "bvi_auditory_hav_autoui26": 35,
+      "ehmi_for_all_chi26": 40,
+      "ehmi_optimization_chi25": 37,
+      "fact_av": 130,
+      "longitudinal_usa_germany_ehmi": 55
+    },
+    "cluster_robust": true,
+    "one_observation_per_cluster": [],
+    "levels": {
+      "configural": {
+        "chisq.scaled": 95.994946,
+        "df.scaled": 12,
+        "pvalue.scaled": 0,
+        "cfi.robust": 0.969763,
+        "tli.robust": 0.90929,
+        "rmsea.robust": 0.251074,
+        "srmr": 0.018404,
+        "aic": 51956.758701,
+        "bic": 52421.234545,
+        "converged": true,
+        "warning": "",
+        "std_loadings": [
+          {
+            "group": "3d_display_comp_vehicle",
+            "item": "perceived_safety_item_01",
+            "std_loading": 0.914973939189777
+          },
+          {
+            "group": "3d_display_comp_vehicle",
+            "item": "perceived_safety_item_02",
+            "std_loading": 0.700424382039653
+          },
+          {
+            "group": "3d_display_comp_vehicle",
+            "item": "perceived_safety_item_03",
+            "std_loading": 0.959290117751556
+          },
+          {
+            "group": "3d_display_comp_vehicle",
+            "item": "perceived_safety_item_04",
+            "std_loading": 0.858921404136611
+          },
+          {
+            "group": "bvi_auditory_hav_autoui26",
+            "item": "perceived_safety_item_01",
+            "std_loading": 0.851375565913217
+          },
+          {
+            "group": "bvi_auditory_hav_autoui26",
+            "item": "perceived_safety_item_02",
+            "std_loading": 0.856328745036565
+          },
+          {
+            "group": "bvi_auditory_hav_autoui26",
+            "item": "perceived_safety_item_03",
+            "std_loading": 0.921974523386852
+          },
+          {
+            "group": "bvi_auditory_hav_autoui26",
+            "item": "perceived_safety_item_04",
+            "std_loading": 0.938155139675665
+          },
+          {
+            "group": "ehmi_for_all_chi26",
+            "item": "perceived_safety_item_01",
+            "std_loading": 0.910307422053928
+          },
+          {
+            "group": "ehmi_for_all_chi26",
+            "item": "perceived_safety_item_02",
+            "std_loading": 0.877934495934273
+          },
+          {
+            "group": "ehmi_for_all_chi26",
+            "item": "perceived_safety_item_03",
+            "std_loading": 0.871046584462134
+          },
+          {
+            "group": "ehmi_for_all_chi26",
+            "item": "perceived_safety_item_04",
+            "std_loading": 0.888588880246439
+          },
+          {
+            "group": "ehmi_optimization_chi25",
+            "item": "perceived_safety_item_01",
+            "std_loading": 0.952538280751778
+          },
+          {
+            "group": "ehmi_optimization_chi25",
+            "item": "perceived_safety_item_02",
+            "std_loading": 0.947716230773925
+          },
+          {
+            "group": "ehmi_optimization_chi25",
+            "item": "perceived_safety_item_03",
+            "std_loading": 0.884179851507927
+          },
+          {
+            "group": "ehmi_optimization_chi25",
+            "item": "perceived_safety_item_04",
+            "std_loading": 0.923938918436447
+          },
+          {
+            "group": "fact_av",
+            "item": "perceived_safety_item_01",
+            "std_loading": 0.914218698630826
+          },
+          {
+            "group": "fact_av",
+            "item": "perceived_safety_item_02",
+            "std_loading": 0.880202167625172
+          },
+          {
+            "group": "fact_av",
+            "item": "perceived_safety_item_03",
+            "std_loading": 0.918281696283665
+          },
+          {
+            "group": "fact_av",
+            "item": "perceived_safety_item_04",
+            "std_loading": 0.936622583039034
+          },
+          {
+            "group": "longitudinal_usa_germany_ehmi",
+            "item": "perceived_safety_item_01",
+            "std_loading": 0.900071169571141
+          },
+          {
+            "group": "longitudinal_usa_germany_ehmi",
+            "item": "perceived_safety_item_02",
+            "std_loading": 0.928939005686538
+          },
+          {
+            "group": "longitudinal_usa_germany_ehmi",
+            "item": "perceived_safety_item_03",
+            "std_loading": 0.934021979738212
+          },
+          {
+            "group": "longitudinal_usa_germany_ehmi",
+            "item": "perceived_safety_item_04",
+            "std_loading": 0.863921727359883
+          }
+        ]
+      },
+      "metric": {
+        "chisq.scaled": 143.551478,
+        "df.scaled": 27,
+        "pvalue.scaled": 0,
+        "cfi.robust": 0.96596,
+        "tli.robust": 0.954613,
+        "rmsea.robust": 0.177599,
+        "srmr": 0.046991,
+        "aic": 52070.564289,
+        "bic": 52438.274332,
+        "converged": true,
+        "warning": "",
+        "std_loadings": [
+          {
+            "group": "3d_display_comp_vehicle",
+            "item": "perceived_safety_item_01",
+            "std_loading": 0.918118795983298
+          },
+          {
+            "group": "3d_display_comp_vehicle",
+            "item": "perceived_safety_item_02",
+            "std_loading": 0.732857412232839
+          },
+          {
+            "group": "3d_display_comp_vehicle",
+            "item": "perceived_safety_item_03",
+            "std_loading": 0.943555718480487
+          },
+          {
+            "group": "3d_display_comp_vehicle",
+            "item": "perceived_safety_item_04",
+            "std_loading": 0.880107741699688
+          },
+          {
+            "group": "bvi_auditory_hav_autoui26",
+            "item": "perceived_safety_item_01",
+            "std_loading": 0.885064022460034
+          },
+          {
+            "group": "bvi_auditory_hav_autoui26",
+            "item": "perceived_safety_item_02",
+            "std_loading": 0.87085928068181
+          },
+          {
+            "group": "bvi_auditory_hav_autoui26",
+            "item": "perceived_safety_item_03",
+            "std_loading": 0.910663414552444
+          },
+          {
+            "group": "bvi_auditory_hav_autoui26",
+            "item": "perceived_safety_item_04",
+            "std_loading": 0.914038753131731
+          },
+          {
+            "group": "ehmi_for_all_chi26",
+            "item": "perceived_safety_item_01",
+            "std_loading": 0.921410460219277
+          },
+          {
+            "group": "ehmi_for_all_chi26",
+            "item": "perceived_safety_item_02",
+            "std_loading": 0.891513825436983
+          },
+          {
+            "group": "ehmi_for_all_chi26",
+            "item": "perceived_safety_item_03",
+            "std_loading": 0.832200221215827
+          },
+          {
+            "group": "ehmi_for_all_chi26",
+            "item": "perceived_safety_item_04",
+            "std_loading": 0.88067699123994
+          },
+          {
+            "group": "ehmi_optimization_chi25",
+            "item": "perceived_safety_item_01",
+            "std_loading": 0.942367139347001
+          },
+          {
+            "group": "ehmi_optimization_chi25",
+            "item": "perceived_safety_item_02",
+            "std_loading": 0.954166110773227
+          },
+          {
+            "group": "ehmi_optimization_chi25",
+            "item": "perceived_safety_item_03",
+            "std_loading": 0.877924740246678
+          },
+          {
+            "group": "ehmi_optimization_chi25",
+            "item": "perceived_safety_item_04",
+            "std_loading": 0.92394188258732
+          },
+          {
+            "group": "fact_av",
+            "item": "perceived_safety_item_01",
+            "std_loading": 0.909231163524637
+          },
+          {
+            "group": "fact_av",
+            "item": "perceived_safety_item_02",
+            "std_loading": 0.861967497358781
+          },
+          {
+            "group": "fact_av",
+            "item": "perceived_safety_item_03",
+            "std_loading": 0.925728688797418
+          },
+          {
+            "group": "fact_av",
+            "item": "perceived_safety_item_04",
+            "std_loading": 0.940298969214999
+          },
+          {
+            "group": "longitudinal_usa_germany_ehmi",
+            "item": "perceived_safety_item_01",
+            "std_loading": 0.919534897792669
+          },
+          {
+            "group": "longitudinal_usa_germany_ehmi",
+            "item": "perceived_safety_item_02",
+            "std_loading": 0.927691044851366
+          },
+          {
+            "group": "longitudinal_usa_germany_ehmi",
+            "item": "perceived_safety_item_03",
+            "std_loading": 0.913835781624043
+          },
+          {
+            "group": "longitudinal_usa_germany_ehmi",
+            "item": "perceived_safety_item_04",
+            "std_loading": 0.860425979555979
+          }
+        ],
+        "lrt_chisq_diff": 30.9996076038,
+        "lrt_df_diff": 15,
+        "lrt_pvalue": 0.0087859393476198
+      },
+      "scalar": {
+        "chisq.scaled": 271.065099,
+        "df.scaled": 42,
+        "pvalue.scaled": 0,
+        "cfi.robust": 0.9469,
+        "tli.robust": 0.954485,
+        "rmsea.robust": 0.177848,
+        "srmr": 0.057794,
+        "aic": 52448.613515,
+        "bic": 52719.557758,
+        "converged": true,
+        "warning": "",
+        "std_loadings": [
+          {
+            "group": "3d_display_comp_vehicle",
+            "item": "perceived_safety_item_01",
+            "std_loading": 0.919111285635063
+          },
+          {
+            "group": "3d_display_comp_vehicle",
+            "item": "perceived_safety_item_02",
+            "std_loading": 0.736811533452926
+          },
+          {
+            "group": "3d_display_comp_vehicle",
+            "item": "perceived_safety_item_03",
+            "std_loading": 0.940403929556928
+          },
+          {
+            "group": "3d_display_comp_vehicle",
+            "item": "perceived_safety_item_04",
+            "std_loading": 0.873403357766005
+          },
+          {
+            "group": "bvi_auditory_hav_autoui26",
+            "item": "perceived_safety_item_01",
+            "std_loading": 0.881202051726778
+          },
+          {
+            "group": "bvi_auditory_hav_autoui26",
+            "item": "perceived_safety_item_02",
+            "std_loading": 0.871167265428644
+          },
+          {
+            "group": "bvi_auditory_hav_autoui26",
+            "item": "perceived_safety_item_03",
+            "std_loading": 0.909698373642082
+          },
+          {
+            "group": "bvi_auditory_hav_autoui26",
+            "item": "perceived_safety_item_04",
+            "std_loading": 0.913294181784469
+          },
+          {
+            "group": "ehmi_for_all_chi26",
+            "item": "perceived_safety_item_01",
+            "std_loading": 0.920602945214961
+          },
+          {
+            "group": "ehmi_for_all_chi26",
+            "item": "perceived_safety_item_02",
+            "std_loading": 0.895235602923965
+          },
+          {
+            "group": "ehmi_for_all_chi26",
+            "item": "perceived_safety_item_03",
+            "std_loading": 0.808001520962873
+          },
+          {
+            "group": "ehmi_for_all_chi26",
+            "item": "perceived_safety_item_04",
+            "std_loading": 0.875825171729364
+          },
+          {
+            "group": "ehmi_optimization_chi25",
+            "item": "perceived_safety_item_01",
+            "std_loading": 0.941878121157511
+          },
+          {
+            "group": "ehmi_optimization_chi25",
+            "item": "perceived_safety_item_02",
+            "std_loading": 0.951807030373288
+          },
+          {
+            "group": "ehmi_optimization_chi25",
+            "item": "perceived_safety_item_03",
+            "std_loading": 0.870041083403673
+          },
+          {
+            "group": "ehmi_optimization_chi25",
+            "item": "perceived_safety_item_04",
+            "std_loading": 0.922153865478754
+          },
+          {
+            "group": "fact_av",
+            "item": "perceived_safety_item_01",
+            "std_loading": 0.908973070866309
+          },
+          {
+            "group": "fact_av",
+            "item": "perceived_safety_item_02",
+            "std_loading": 0.862910805559737
+          },
+          {
+            "group": "fact_av",
+            "item": "perceived_safety_item_03",
+            "std_loading": 0.921862379413238
+          },
+          {
+            "group": "fact_av",
+            "item": "perceived_safety_item_04",
+            "std_loading": 0.939471982938519
+          },
+          {
+            "group": "longitudinal_usa_germany_ehmi",
+            "item": "perceived_safety_item_01",
+            "std_loading": 0.914953821098709
+          },
+          {
+            "group": "longitudinal_usa_germany_ehmi",
+            "item": "perceived_safety_item_02",
+            "std_loading": 0.932164786072768
+          },
+          {
+            "group": "longitudinal_usa_germany_ehmi",
+            "item": "perceived_safety_item_03",
+            "std_loading": 0.908285324518817
+          },
+          {
+            "group": "longitudinal_usa_germany_ehmi",
+            "item": "perceived_safety_item_04",
+            "std_loading": 0.851981004708972
+          }
+        ],
+        "lrt_chisq_diff": 169.4999507819,
+        "lrt_df_diff": 15,
+        "lrt_pvalue": 3.07988583011785e-28
+      }
+    },
+    "items": [
+      "perceived_safety_item_01",
+      "perceived_safety_item_02",
+      "perceived_safety_item_03",
+      "perceived_safety_item_04"
+    ]
+  },
+  {
+    "scale": "ueq_pragmatic",
+    "lavaan": "0.7.3",
+    "n_obs": 1111,
+    "groups": {
+      "av_prevalence_ehmi_autoui24": 64,
+      "bvi_auditory_hav_autoui26": 105,
+      "ehmi_state_intent_mtap24": 87,
+      "longitudinal_usa_germany_ehmi": 470,
+      "navigable_wim_2026": 108,
+      "running_into_traffic_chi26": 277
+    },
+    "clusters": {
+      "av_prevalence_ehmi_autoui24": 64,
+      "bvi_auditory_hav_autoui26": 35,
+      "ehmi_state_intent_mtap24": 87,
+      "longitudinal_usa_germany_ehmi": 55,
+      "navigable_wim_2026": 36,
+      "running_into_traffic_chi26": 24
+    },
+    "cluster_robust": false,
+    "one_observation_per_cluster": [
+      "av_prevalence_ehmi_autoui24",
+      "ehmi_state_intent_mtap24"
+    ],
+    "levels": {
+      "configural": {
+        "chisq.scaled": 30.946895,
+        "df.scaled": 12,
+        "pvalue.scaled": 0.002007,
+        "cfi.robust": 0.991774,
+        "tli.robust": 0.975322,
+        "rmsea.robust": 0.108408,
+        "srmr": 0.018162,
+        "aic": 13705.669531,
+        "bic": 14066.606668,
+        "converged": true,
+        "warning": "",
+        "std_loadings": [
+          {
+            "group": "av_prevalence_ehmi_autoui24",
+            "item": "ueq_s_1",
+            "std_loading": 0.588422874346342
+          },
+          {
+            "group": "av_prevalence_ehmi_autoui24",
+            "item": "ueq_s_2",
+            "std_loading": 0.90243930816443
+          },
+          {
+            "group": "av_prevalence_ehmi_autoui24",
+            "item": "ueq_s_3",
+            "std_loading": 0.642116242417088
+          },
+          {
+            "group": "av_prevalence_ehmi_autoui24",
+            "item": "ueq_s_4",
+            "std_loading": 0.770724744562837
+          },
+          {
+            "group": "bvi_auditory_hav_autoui26",
+            "item": "ueq_s_1",
+            "std_loading": 0.862140779660687
+          },
+          {
+            "group": "bvi_auditory_hav_autoui26",
+            "item": "ueq_s_2",
+            "std_loading": 0.756022039500183
+          },
+          {
+            "group": "bvi_auditory_hav_autoui26",
+            "item": "ueq_s_3",
+            "std_loading": 0.912415682314668
+          },
+          {
+            "group": "bvi_auditory_hav_autoui26",
+            "item": "ueq_s_4",
+            "std_loading": 0.84251579218849
+          },
+          {
+            "group": "ehmi_state_intent_mtap24",
+            "item": "ueq_s_1",
+            "std_loading": 0.684785749863027
+          },
+          {
+            "group": "ehmi_state_intent_mtap24",
+            "item": "ueq_s_2",
+            "std_loading": 0.485014086686413
+          },
+          {
+            "group": "ehmi_state_intent_mtap24",
+            "item": "ueq_s_3",
+            "std_loading": 0.750529744491736
+          },
+          {
+            "group": "ehmi_state_intent_mtap24",
+            "item": "ueq_s_4",
+            "std_loading": 0.458493919020816
+          },
+          {
+            "group": "longitudinal_usa_germany_ehmi",
+            "item": "ueq_s_1",
+            "std_loading": 0.885507979007776
+          },
+          {
+            "group": "longitudinal_usa_germany_ehmi",
+            "item": "ueq_s_2",
+            "std_loading": 0.912496825731511
+          },
+          {
+            "group": "longitudinal_usa_germany_ehmi",
+            "item": "ueq_s_3",
+            "std_loading": 0.922205450673042
+          },
+          {
+            "group": "longitudinal_usa_germany_ehmi",
+            "item": "ueq_s_4",
+            "std_loading": 0.923200653906878
+          },
+          {
+            "group": "navigable_wim_2026",
+            "item": "ueq_s_1",
+            "std_loading": 0.715237821589848
+          },
+          {
+            "group": "navigable_wim_2026",
+            "item": "ueq_s_2",
+            "std_loading": 0.872224951861374
+          },
+          {
+            "group": "navigable_wim_2026",
+            "item": "ueq_s_3",
+            "std_loading": 0.736759823061484
+          },
+          {
+            "group": "navigable_wim_2026",
+            "item": "ueq_s_4",
+            "std_loading": 0.845199676727018
+          },
+          {
+            "group": "running_into_traffic_chi26",
+            "item": "ueq_s_1",
+            "std_loading": 0.806530489514086
+          },
+          {
+            "group": "running_into_traffic_chi26",
+            "item": "ueq_s_2",
+            "std_loading": 0.819648118326641
+          },
+          {
+            "group": "running_into_traffic_chi26",
+            "item": "ueq_s_3",
+            "std_loading": 0.920060090809669
+          },
+          {
+            "group": "running_into_traffic_chi26",
+            "item": "ueq_s_4",
+            "std_loading": 0.706086022046758
+          }
+        ]
+      },
+      "metric": {
+        "chisq.scaled": 60.907097,
+        "df.scaled": 27,
+        "pvalue.scaled": 0.0002,
+        "cfi.robust": 0.98564,
+        "tli.robust": 0.980853,
+        "rmsea.robust": 0.09549,
+        "srmr": 0.053028,
+        "aic": 13714.903992,
+        "bic": 14000.645892,
+        "converged": true,
+        "warning": "",
+        "std_loadings": [
+          {
+            "group": "av_prevalence_ehmi_autoui24",
+            "item": "ueq_s_1",
+            "std_loading": 0.705103111702694
+          },
+          {
+            "group": "av_prevalence_ehmi_autoui24",
+            "item": "ueq_s_2",
+            "std_loading": 0.857542491704263
+          },
+          {
+            "group": "av_prevalence_ehmi_autoui24",
+            "item": "ueq_s_3",
+            "std_loading": 0.680095744126941
+          },
+          {
+            "group": "av_prevalence_ehmi_autoui24",
+            "item": "ueq_s_4",
+            "std_loading": 0.714728617978911
+          },
+          {
+            "group": "bvi_auditory_hav_autoui26",
+            "item": "ueq_s_1",
+            "std_loading": 0.835580137370507
+          },
+          {
+            "group": "bvi_auditory_hav_autoui26",
+            "item": "ueq_s_2",
+            "std_loading": 0.816915859053529
+          },
+          {
+            "group": "bvi_auditory_hav_autoui26",
+            "item": "ueq_s_3",
+            "std_loading": 0.902160030584882
+          },
+          {
+            "group": "bvi_auditory_hav_autoui26",
+            "item": "ueq_s_4",
+            "std_loading": 0.838011543352511
+          },
+          {
+            "group": "ehmi_state_intent_mtap24",
+            "item": "ueq_s_1",
+            "std_loading": 0.623239120382494
+          },
+          {
+            "group": "ehmi_state_intent_mtap24",
+            "item": "ueq_s_2",
+            "std_loading": 0.617785544597819
+          },
+          {
+            "group": "ehmi_state_intent_mtap24",
+            "item": "ueq_s_3",
+            "std_loading": 0.691060117647368
+          },
+          {
+            "group": "ehmi_state_intent_mtap24",
+            "item": "ueq_s_4",
+            "std_loading": 0.453096080450554
+          },
+          {
+            "group": "longitudinal_usa_germany_ehmi",
+            "item": "ueq_s_1",
+            "std_loading": 0.886205839809461
+          },
+          {
+            "group": "longitudinal_usa_germany_ehmi",
+            "item": "ueq_s_2",
+            "std_loading": 0.910405091661834
+          },
+          {
+            "group": "longitudinal_usa_germany_ehmi",
+            "item": "ueq_s_3",
+            "std_loading": 0.925903278020775
+          },
+          {
+            "group": "longitudinal_usa_germany_ehmi",
+            "item": "ueq_s_4",
+            "std_loading": 0.920281205491475
+          },
+          {
+            "group": "navigable_wim_2026",
+            "item": "ueq_s_1",
+            "std_loading": 0.75678093698247
+          },
+          {
+            "group": "navigable_wim_2026",
+            "item": "ueq_s_2",
+            "std_loading": 0.814348421535411
+          },
+          {
+            "group": "navigable_wim_2026",
+            "item": "ueq_s_3",
+            "std_loading": 0.812581423846713
+          },
+          {
+            "group": "navigable_wim_2026",
+            "item": "ueq_s_4",
+            "std_loading": 0.79376632063462
+          },
+          {
+            "group": "running_into_traffic_chi26",
+            "item": "ueq_s_1",
+            "std_loading": 0.817884574347178
+          },
+          {
+            "group": "running_into_traffic_chi26",
+            "item": "ueq_s_2",
+            "std_loading": 0.815839742688201
+          },
+          {
+            "group": "running_into_traffic_chi26",
+            "item": "ueq_s_3",
+            "std_loading": 0.887760493266826
+          },
+          {
+            "group": "running_into_traffic_chi26",
+            "item": "ueq_s_4",
+            "std_loading": 0.773030663124557
+          }
+        ],
+        "lrt_chisq_diff": 29.7811815741,
+        "lrt_df_diff": 15,
+        "lrt_pvalue": 0.012735457494147
+      },
+      "scalar": {
+        "chisq.scaled": 102.513043,
+        "df.scaled": 42,
+        "pvalue.scaled": 1e-06,
+        "cfi.robust": 0.97676,
+        "tli.robust": 0.98008,
+        "rmsea.robust": 0.097399,
+        "srmr": 0.060409,
+        "aic": 13727.99938,
+        "bic": 13938.546043,
+        "converged": true,
+        "warning": "",
+        "std_loadings": [
+          {
+            "group": "av_prevalence_ehmi_autoui24",
+            "item": "ueq_s_1",
+            "std_loading": 0.704782139282755
+          },
+          {
+            "group": "av_prevalence_ehmi_autoui24",
+            "item": "ueq_s_2",
+            "std_loading": 0.838044060241274
+          },
+          {
+            "group": "av_prevalence_ehmi_autoui24",
+            "item": "ueq_s_3",
+            "std_loading": 0.659751828603518
+          },
+          {
+            "group": "av_prevalence_ehmi_autoui24",
+            "item": "ueq_s_4",
+            "std_loading": 0.69977591907463
+          },
+          {
+            "group": "bvi_auditory_hav_autoui26",
+            "item": "ueq_s_1",
+            "std_loading": 0.837687281882777
+          },
+          {
+            "group": "bvi_auditory_hav_autoui26",
+            "item": "ueq_s_2",
+            "std_loading": 0.818307441993578
+          },
+          {
+            "group": "bvi_auditory_hav_autoui26",
+            "item": "ueq_s_3",
+            "std_loading": 0.900303034223632
+          },
+          {
+            "group": "bvi_auditory_hav_autoui26",
+            "item": "ueq_s_4",
+            "std_loading": 0.835714719788604
+          },
+          {
+            "group": "ehmi_state_intent_mtap24",
+            "item": "ueq_s_1",
+            "std_loading": 0.621225792393446
+          },
+          {
+            "group": "ehmi_state_intent_mtap24",
+            "item": "ueq_s_2",
+            "std_loading": 0.619399034584443
+          },
+          {
+            "group": "ehmi_state_intent_mtap24",
+            "item": "ueq_s_3",
+            "std_loading": 0.685598704238216
+          },
+          {
+            "group": "ehmi_state_intent_mtap24",
+            "item": "ueq_s_4",
+            "std_loading": 0.435135879739775
+          },
+          {
+            "group": "longitudinal_usa_germany_ehmi",
+            "item": "ueq_s_1",
+            "std_loading": 0.887374707106026
+          },
+          {
+            "group": "longitudinal_usa_germany_ehmi",
+            "item": "ueq_s_2",
+            "std_loading": 0.913064813826498
+          },
+          {
+            "group": "longitudinal_usa_germany_ehmi",
+            "item": "ueq_s_3",
+            "std_loading": 0.924445183949184
+          },
+          {
+            "group": "longitudinal_usa_germany_ehmi",
+            "item": "ueq_s_4",
+            "std_loading": 0.917985472404978
+          },
+          {
+            "group": "navigable_wim_2026",
+            "item": "ueq_s_1",
+            "std_loading": 0.758687180399964
+          },
+          {
+            "group": "navigable_wim_2026",
+            "item": "ueq_s_2",
+            "std_loading": 0.7940826781016
+          },
+          {
+            "group": "navigable_wim_2026",
+            "item": "ueq_s_3",
+            "std_loading": 0.803939229197244
+          },
+          {
+            "group": "navigable_wim_2026",
+            "item": "ueq_s_4",
+            "std_loading": 0.785168258661269
+          },
+          {
+            "group": "running_into_traffic_chi26",
+            "item": "ueq_s_1",
+            "std_loading": 0.819086567847214
+          },
+          {
+            "group": "running_into_traffic_chi26",
+            "item": "ueq_s_2",
+            "std_loading": 0.818560068293799
+          },
+          {
+            "group": "running_into_traffic_chi26",
+            "item": "ueq_s_3",
+            "std_loading": 0.883796292722384
+          },
+          {
+            "group": "running_into_traffic_chi26",
+            "item": "ueq_s_4",
+            "std_loading": 0.768694118891863
+          }
+        ],
+        "lrt_chisq_diff": 43.3688356034,
+        "lrt_df_diff": 15,
+        "lrt_pvalue": 0.000137974560969873
+      }
+    },
+    "items": [
+      "ueq_s_1",
+      "ueq_s_2",
+      "ueq_s_3",
+      "ueq_s_4"
+    ]
+  },
+  {
+    "scale": "ueq_hedonic",
+    "lavaan": "0.7.3",
+    "n_obs": 940,
+    "groups": {
+      "av_prevalence_ehmi_autoui24": 64,
+      "bvi_auditory_hav_autoui26": 105,
+      "ehmi_state_intent_mtap24": 86,
+      "longitudinal_usa_germany_ehmi": 296,
+      "navigable_wim_2026": 108,
+      "running_into_traffic_chi26": 281
+    },
+    "clusters": {
+      "av_prevalence_ehmi_autoui24": 64,
+      "bvi_auditory_hav_autoui26": 35,
+      "ehmi_state_intent_mtap24": 86,
+      "longitudinal_usa_germany_ehmi": 26,
+      "navigable_wim_2026": 36,
+      "running_into_traffic_chi26": 24
+    },
+    "cluster_robust": false,
+    "one_observation_per_cluster": [
+      "av_prevalence_ehmi_autoui24",
+      "ehmi_state_intent_mtap24"
+    ],
+    "levels": {
+      "configural": {
+        "chisq.scaled": 100.504479,
+        "df.scaled": 12,
+        "pvalue.scaled": 0,
+        "cfi.robust": 0.936901,
+        "tli.robust": 0.810704,
+        "rmsea.robust": 0.285405,
+        "srmr": 0.049431,
+        "aic": 11748.2079,
+        "bic": 12097.111251,
+        "converged": true,
+        "warning": "",
+        "std_loadings": [
+          {
+            "group": "av_prevalence_ehmi_autoui24",
+            "item": "ueq_s_5",
+            "std_loading": 0.84626504420508
+          },
+          {
+            "group": "av_prevalence_ehmi_autoui24",
+            "item": "ueq_s_6",
+            "std_loading": 0.922190507576744
+          },
+          {
+            "group": "av_prevalence_ehmi_autoui24",
+            "item": "ueq_s_7",
+            "std_loading": 0.443601097541433
+          },
+          {
+            "group": "av_prevalence_ehmi_autoui24",
+            "item": "ueq_s_8",
+            "std_loading": 0.453910671126837
+          },
+          {
+            "group": "bvi_auditory_hav_autoui26",
+            "item": "ueq_s_5",
+            "std_loading": 0.913297020257018
+          },
+          {
+            "group": "bvi_auditory_hav_autoui26",
+            "item": "ueq_s_6",
+            "std_loading": 0.915941055253599
+          },
+          {
+            "group": "bvi_auditory_hav_autoui26",
+            "item": "ueq_s_7",
+            "std_loading": 0.877804294024586
+          },
+          {
+            "group": "bvi_auditory_hav_autoui26",
+            "item": "ueq_s_8",
+            "std_loading": 0.820889934967104
+          },
+          {
+            "group": "ehmi_state_intent_mtap24",
+            "item": "ueq_s_5",
+            "std_loading": 0.805754913133727
+          },
+          {
+            "group": "ehmi_state_intent_mtap24",
+            "item": "ueq_s_6",
+            "std_loading": 0.810755332863678
+          },
+          {
+            "group": "ehmi_state_intent_mtap24",
+            "item": "ueq_s_7",
+            "std_loading": 0.581210563008876
+          },
+          {
+            "group": "ehmi_state_intent_mtap24",
+            "item": "ueq_s_8",
+            "std_loading": 0.29204591624497
+          },
+          {
+            "group": "longitudinal_usa_germany_ehmi",
+            "item": "ueq_s_5",
+            "std_loading": 0.897589697059272
+          },
+          {
+            "group": "longitudinal_usa_germany_ehmi",
+            "item": "ueq_s_6",
+            "std_loading": 0.955122865043878
+          },
+          {
+            "group": "longitudinal_usa_germany_ehmi",
+            "item": "ueq_s_7",
+            "std_loading": 0.764519854169884
+          },
+          {
+            "group": "longitudinal_usa_germany_ehmi",
+            "item": "ueq_s_8",
+            "std_loading": 0.673346242118435
+          },
+          {
+            "group": "navigable_wim_2026",
+            "item": "ueq_s_5",
+            "std_loading": 0.891586316388575
+          },
+          {
+            "group": "navigable_wim_2026",
+            "item": "ueq_s_6",
+            "std_loading": 0.950877298546319
+          },
+          {
+            "group": "navigable_wim_2026",
+            "item": "ueq_s_7",
+            "std_loading": 0.546472436120098
+          },
+          {
+            "group": "navigable_wim_2026",
+            "item": "ueq_s_8",
+            "std_loading": 0.555811792258582
+          },
+          {
+            "group": "running_into_traffic_chi26",
+            "item": "ueq_s_5",
+            "std_loading": 0.932530310399458
+          },
+          {
+            "group": "running_into_traffic_chi26",
+            "item": "ueq_s_6",
+            "std_loading": 0.956952777502317
+          },
+          {
+            "group": "running_into_traffic_chi26",
+            "item": "ueq_s_7",
+            "std_loading": 0.560597747133441
+          },
+          {
+            "group": "running_into_traffic_chi26",
+            "item": "ueq_s_8",
+            "std_loading": 0.791343372915685
+          }
+        ]
+      },
+      "metric": {
+        "chisq.scaled": 180.877221,
+        "df.scaled": 27,
+        "pvalue.scaled": 0,
+        "cfi.robust": 0.908493,
+        "tli.robust": 0.877991,
+        "rmsea.robust": 0.229133,
+        "srmr": 0.112911,
+        "aic": 11805.358629,
+        "bic": 12081.573782,
+        "converged": true,
+        "warning": "",
+        "std_loadings": [
+          {
+            "group": "av_prevalence_ehmi_autoui24",
+            "item": "ueq_s_5",
+            "std_loading": 0.822006051863214
+          },
+          {
+            "group": "av_prevalence_ehmi_autoui24",
+            "item": "ueq_s_6",
+            "std_loading": 0.849176353401022
+          },
+          {
+            "group": "av_prevalence_ehmi_autoui24",
+            "item": "ueq_s_7",
+            "std_loading": 0.595193231444922
+          },
+          {
+            "group": "av_prevalence_ehmi_autoui24",
+            "item": "ueq_s_8",
+            "std_loading": 0.631706230764586
+          },
+          {
+            "group": "bvi_auditory_hav_autoui26",
+            "item": "ueq_s_5",
+            "std_loading": 0.920597734573312
+          },
+          {
+            "group": "bvi_auditory_hav_autoui26",
+            "item": "ueq_s_6",
+            "std_loading": 0.946014391839193
+          },
+          {
+            "group": "bvi_auditory_hav_autoui26",
+            "item": "ueq_s_7",
+            "std_loading": 0.794104619033146
+          },
+          {
+            "group": "bvi_auditory_hav_autoui26",
+            "item": "ueq_s_8",
+            "std_loading": 0.696756557028421
+          },
+          {
+            "group": "ehmi_state_intent_mtap24",
+            "item": "ueq_s_5",
+            "std_loading": 0.770196890597055
+          },
+          {
+            "group": "ehmi_state_intent_mtap24",
+            "item": "ueq_s_6",
+            "std_loading": 0.791785139904393
+          },
+          {
+            "group": "ehmi_state_intent_mtap24",
+            "item": "ueq_s_7",
+            "std_loading": 0.517312383114841
+          },
+          {
+            "group": "ehmi_state_intent_mtap24",
+            "item": "ueq_s_8",
+            "std_loading": 0.528393250424546
+          },
+          {
+            "group": "longitudinal_usa_germany_ehmi",
+            "item": "ueq_s_5",
+            "std_loading": 0.913385967150531
+          },
+          {
+            "group": "longitudinal_usa_germany_ehmi",
+            "item": "ueq_s_6",
+            "std_loading": 0.937830974276214
+          },
+          {
+            "group": "longitudinal_usa_germany_ehmi",
+            "item": "ueq_s_7",
+            "std_loading": 0.715305518611151
+          },
+          {
+            "group": "longitudinal_usa_germany_ehmi",
+            "item": "ueq_s_8",
+            "std_loading": 0.741260595782573
+          },
+          {
+            "group": "navigable_wim_2026",
+            "item": "ueq_s_5",
+            "std_loading": 0.891912806921568
+          },
+          {
+            "group": "navigable_wim_2026",
+            "item": "ueq_s_6",
+            "std_loading": 0.919588657132389
+          },
+          {
+            "group": "navigable_wim_2026",
+            "item": "ueq_s_7",
+            "std_loading": 0.6600516160502
+          },
+          {
+            "group": "navigable_wim_2026",
+            "item": "ueq_s_8",
+            "std_loading": 0.6507081123046
+          },
+          {
+            "group": "running_into_traffic_chi26",
+            "item": "ueq_s_5",
+            "std_loading": 0.935100772867409
+          },
+          {
+            "group": "running_into_traffic_chi26",
+            "item": "ueq_s_6",
+            "std_loading": 0.957148825789263
+          },
+          {
+            "group": "running_into_traffic_chi26",
+            "item": "ueq_s_7",
+            "std_loading": 0.650870067485961
+          },
+          {
+            "group": "running_into_traffic_chi26",
+            "item": "ueq_s_8",
+            "std_loading": 0.702918930189304
+          }
+        ],
+        "lrt_chisq_diff": 71.8098668354,
+        "lrt_df_diff": 15,
+        "lrt_pvalue": 2.12213713085614e-09
+      },
+      "scalar": {
+        "chisq.scaled": 358.738064,
+        "df.scaled": 42,
+        "pvalue.scaled": 0,
+        "cfi.robust": 0.827092,
+        "tli.robust": 0.851793,
+        "rmsea.robust": 0.252538,
+        "srmr": 0.168936,
+        "aic": 11989.593741,
+        "bic": 12193.120695,
+        "converged": true,
+        "warning": "",
+        "std_loadings": [
+          {
+            "group": "av_prevalence_ehmi_autoui24",
+            "item": "ueq_s_5",
+            "std_loading": 0.815608666230728
+          },
+          {
+            "group": "av_prevalence_ehmi_autoui24",
+            "item": "ueq_s_6",
+            "std_loading": 0.872691775149531
+          },
+          {
+            "group": "av_prevalence_ehmi_autoui24",
+            "item": "ueq_s_7",
+            "std_loading": 0.584718456491308
+          },
+          {
+            "group": "av_prevalence_ehmi_autoui24",
+            "item": "ueq_s_8",
+            "std_loading": 0.480244739515279
+          },
+          {
+            "group": "bvi_auditory_hav_autoui26",
+            "item": "ueq_s_5",
+            "std_loading": 0.916572148314192
+          },
+          {
+            "group": "bvi_auditory_hav_autoui26",
+            "item": "ueq_s_6",
+            "std_loading": 0.945612087446546
+          },
+          {
+            "group": "bvi_auditory_hav_autoui26",
+            "item": "ueq_s_7",
+            "std_loading": 0.806408204755748
+          },
+          {
+            "group": "bvi_auditory_hav_autoui26",
+            "item": "ueq_s_8",
+            "std_loading": 0.689679822837512
+          },
+          {
+            "group": "ehmi_state_intent_mtap24",
+            "item": "ueq_s_5",
+            "std_loading": 0.761866985836852
+          },
+          {
+            "group": "ehmi_state_intent_mtap24",
+            "item": "ueq_s_6",
+            "std_loading": 0.797125442968452
+          },
+          {
+            "group": "ehmi_state_intent_mtap24",
+            "item": "ueq_s_7",
+            "std_loading": 0.533762830364004
+          },
+          {
+            "group": "ehmi_state_intent_mtap24",
+            "item": "ueq_s_8",
+            "std_loading": 0.500305181577414
+          },
+          {
+            "group": "longitudinal_usa_germany_ehmi",
+            "item": "ueq_s_5",
+            "std_loading": 0.907873057908679
+          },
+          {
+            "group": "longitudinal_usa_germany_ehmi",
+            "item": "ueq_s_6",
+            "std_loading": 0.941968858923875
+          },
+          {
+            "group": "longitudinal_usa_germany_ehmi",
+            "item": "ueq_s_7",
+            "std_loading": 0.732334353480584
+          },
+          {
+            "group": "longitudinal_usa_germany_ehmi",
+            "item": "ueq_s_8",
+            "std_loading": 0.730608763027185
+          },
+          {
+            "group": "navigable_wim_2026",
+            "item": "ueq_s_5",
+            "std_loading": 0.885957337794701
+          },
+          {
+            "group": "navigable_wim_2026",
+            "item": "ueq_s_6",
+            "std_loading": 0.924117665599289
+          },
+          {
+            "group": "navigable_wim_2026",
+            "item": "ueq_s_7",
+            "std_loading": 0.664184017524412
+          },
+          {
+            "group": "navigable_wim_2026",
+            "item": "ueq_s_8",
+            "std_loading": 0.606058255252036
+          },
+          {
+            "group": "running_into_traffic_chi26",
+            "item": "ueq_s_5",
+            "std_loading": 0.92836486613335
+          },
+          {
+            "group": "running_into_traffic_chi26",
+            "item": "ueq_s_6",
+            "std_loading": 0.961071101821325
+          },
+          {
+            "group": "running_into_traffic_chi26",
+            "item": "ueq_s_7",
+            "std_loading": 0.650477373035631
+          },
+          {
+            "group": "running_into_traffic_chi26",
+            "item": "ueq_s_8",
+            "std_loading": 0.666730407785035
+          }
+        ],
+        "lrt_chisq_diff": 192.6881947482,
+        "lrt_df_diff": 15,
+        "lrt_pvalue": 6.47164360852301e-33
+      }
+    },
+    "items": [
+      "ueq_s_5",
+      "ueq_s_6",
+      "ueq_s_7",
+      "ueq_s_8"
+    ]
+  },
+  {
+    "scale": "ssq_nausea_score",
+    "lavaan": "0.7.3",
+    "n_obs": 277,
+    "groups": {
+      "fov_snapturn_tvcg24": 201,
+      "music_intensity_driving_2021": 34,
+      "vr_classroom_asa_2022": 42
+    },
+    "clusters": {
+      "fov_snapturn_tvcg24": 201,
+      "music_intensity_driving_2021": 34,
+      "vr_classroom_asa_2022": 21
+    },
+    "cluster_robust": false,
+    "one_observation_per_cluster": [
+      "fov_snapturn_tvcg24",
+      "music_intensity_driving_2021"
+    ],
+    "levels": {
+      "configural": {
+        "error": "lavaan->lav_data_full():  \n   some variables have no variance in group 2 : x3 x7"
+      },
+      "metric": {
+        "error": "lavaan->lav_data_full():  \n   some variables have no variance in group 2 : x3 x7"
+      },
+      "scalar": {
+        "error": "lavaan->lav_data_full():  \n   some variables have no variance in group 2 : x3 x7"
+      }
+    },
+    "items": [
+      "ssq_general_discomfort",
+      "ssq_increased_salivation",
+      "ssq_sweating",
+      "ssq_nausea_item",
+      "ssq_difficulty_concentrating",
+      "ssq_stomach_awareness",
+      "ssq_burping"
+    ]
+  },
+  {
+    "scale": "ssq_oculomotor_score",
+    "lavaan": "0.7.3",
+    "n_obs": 277,
+    "groups": {
+      "fov_snapturn_tvcg24": 201,
+      "music_intensity_driving_2021": 34,
+      "vr_classroom_asa_2022": 42
+    },
+    "clusters": {
+      "fov_snapturn_tvcg24": 201,
+      "music_intensity_driving_2021": 34,
+      "vr_classroom_asa_2022": 21
+    },
+    "cluster_robust": false,
+    "one_observation_per_cluster": [
+      "fov_snapturn_tvcg24",
+      "music_intensity_driving_2021"
+    ],
+    "levels": {
+      "configural": {
+        "error": "lavaan->lav_data_full():  \n   some variables have no variance in group 2 : x4"
+      },
+      "metric": {
+        "error": "lavaan->lav_data_full():  \n   some variables have no variance in group 2 : x4"
+      },
+      "scalar": {
+        "error": "lavaan->lav_data_full():  \n   some variables have no variance in group 2 : x4"
+      }
+    },
+    "items": [
+      "ssq_general_discomfort",
+      "ssq_fatigue",
+      "ssq_headache",
+      "ssq_eye_strain",
+      "ssq_difficulty_focusing",
+      "ssq_difficulty_concentrating",
+      "ssq_blurred_vision"
+    ]
+  },
+  {
+    "scale": "ssq_disorientation_score",
+    "lavaan": "0.7.3",
+    "n_obs": 277,
+    "groups": {
+      "fov_snapturn_tvcg24": 201,
+      "music_intensity_driving_2021": 34,
+      "vr_classroom_asa_2022": 42
+    },
+    "clusters": {
+      "fov_snapturn_tvcg24": 201,
+      "music_intensity_driving_2021": 34,
+      "vr_classroom_asa_2022": 21
+    },
+    "cluster_robust": false,
+    "one_observation_per_cluster": [
+      "fov_snapturn_tvcg24",
+      "music_intensity_driving_2021"
+    ],
+    "levels": {
+      "configural": {
+        "error": "lavaan->lav_data_full():  \n   some variables have no variance in group 2 : x3 x5 x7"
+      },
+      "metric": {
+        "error": "lavaan->lav_data_full():  \n   some variables have no variance in group 2 : x3 x5 x7"
+      },
+      "scalar": {
+        "error": "lavaan->lav_data_full():  \n   some variables have no variance in group 2 : x3 x5 x7"
+      }
+    },
+    "items": [
+      "ssq_difficulty_focusing",
+      "ssq_nausea_item",
+      "ssq_fullness_of_head",
+      "ssq_blurred_vision",
+      "ssq_dizzy_eyes_open",
+      "ssq_dizzy_eyes_closed",
+      "ssq_vertigo"
+    ]
+  },
+  {
+    "scale": "ssq_total_score",
+    "lavaan": "0.7.3",
+    "n_obs": 277,
+    "groups": {
+      "fov_snapturn_tvcg24": 201,
+      "music_intensity_driving_2021": 34,
+      "vr_classroom_asa_2022": 42
+    },
+    "clusters": {
+      "fov_snapturn_tvcg24": 201,
+      "music_intensity_driving_2021": 34,
+      "vr_classroom_asa_2022": 21
+    },
+    "cluster_robust": false,
+    "one_observation_per_cluster": [
+      "fov_snapturn_tvcg24",
+      "music_intensity_driving_2021"
+    ],
+    "levels": {
+      "configural": {
+        "error": "lavaan->lav_data_full():  \n   some variables have no variance in group 2 : x3 x7 x10 x13 x14 x16"
+      },
+      "metric": {
+        "error": "lavaan->lav_data_full():  \n   some variables have no variance in group 2 : x3 x7 x10 x13 x14 x16"
+      },
+      "scalar": {
+        "error": "lavaan->lav_data_full():  \n   some variables have no variance in group 2 : x3 x7 x10 x13 x14 x16"
+      }
+    },
+    "items": [
+      "ssq_general_discomfort",
+      "ssq_increased_salivation",
+      "ssq_sweating",
+      "ssq_nausea_item",
+      "ssq_difficulty_concentrating",
+      "ssq_stomach_awareness",
+      "ssq_burping",
+      "ssq_fatigue",
+      "ssq_headache",
+      "ssq_eye_strain",
+      "ssq_difficulty_focusing",
+      "ssq_blurred_vision",
+      "ssq_fullness_of_head",
+      "ssq_dizzy_eyes_open",
+      "ssq_dizzy_eyes_closed",
+      "ssq_vertigo"
+    ]
+  },
+  {
+    "scale": "tia_understanding_predictability",
+    "lavaan": "0.7.3",
+    "n_obs": 3115,
+    "groups": {
+      "3d_display_comp_vehicle": 45,
+      "fact_av": 2600,
+      "longitudinal_usa_germany_ehmi": 470
+    },
+    "clusters": {
+      "3d_display_comp_vehicle": 15,
+      "fact_av": 130,
+      "longitudinal_usa_germany_ehmi": 55
+    },
+    "cluster_robust": true,
+    "one_observation_per_cluster": [],
+    "levels": {
+      "configural": {
+        "chisq.scaled": 252.600635,
+        "df.scaled": 6,
+        "pvalue.scaled": 0,
+        "cfi.robust": 0.883466,
+        "tli.robust": 0.650398,
+        "rmsea.robust": 0.283342,
+        "srmr": 0.073039,
+        "aic": 34169.991863,
+        "bic": 34387.575302,
+        "converged": true,
+        "warning": "",
+        "std_loadings": [
+          {
+            "group": "3d_display_comp_vehicle",
+            "item": "tia_k02",
+            "std_loading": 0.651153297899567
+          },
+          {
+            "group": "3d_display_comp_vehicle",
+            "item": "tia_k07",
+            "std_loading": 0.85767162805195
+          },
+          {
+            "group": "3d_display_comp_vehicle",
+            "item": "tia_k11",
+            "std_loading": 0.726326660295209
+          },
+          {
+            "group": "3d_display_comp_vehicle",
+            "item": "tia_k16",
+            "std_loading": 0.69759337195206
+          },
+          {
+            "group": "fact_av",
+            "item": "tia_k02",
+            "std_loading": 0.870886444557444
+          },
+          {
+            "group": "fact_av",
+            "item": "tia_k07",
+            "std_loading": 0.497177688320574
+          },
+          {
+            "group": "fact_av",
+            "item": "tia_k11",
+            "std_loading": 0.827721486056395
+          },
+          {
+            "group": "fact_av",
+            "item": "tia_k16",
+            "std_loading": 0.504163357681177
+          },
+          {
+            "group": "longitudinal_usa_germany_ehmi",
+            "item": "tia_k02",
+            "std_loading": 0.674984925834311
+          },
+          {
+            "group": "longitudinal_usa_germany_ehmi",
+            "item": "tia_k07",
+            "std_loading": 0.812180263959327
+          },
+          {
+            "group": "longitudinal_usa_germany_ehmi",
+            "item": "tia_k11",
+            "std_loading": 0.506524043929196
+          },
+          {
+            "group": "longitudinal_usa_germany_ehmi",
+            "item": "tia_k16",
+            "std_loading": 0.851662716435053
+          }
+        ]
+      },
+      "metric": {
+        "chisq.scaled": 426.601949,
+        "df.scaled": 12,
+        "pvalue.scaled": 0,
+        "cfi.robust": 0.844758,
+        "tli.robust": 0.767137,
+        "rmsea.robust": 0.231246,
+        "srmr": 0.092819,
+        "aic": 34331.241453,
+        "bic": 34512.560986,
+        "converged": true,
+        "warning": "",
+        "std_loadings": [
+          {
+            "group": "3d_display_comp_vehicle",
+            "item": "tia_k02",
+            "std_loading": 0.725455921639693
+          },
+          {
+            "group": "3d_display_comp_vehicle",
+            "item": "tia_k07",
+            "std_loading": 0.711870288687463
+          },
+          {
+            "group": "3d_display_comp_vehicle",
+            "item": "tia_k11",
+            "std_loading": 0.781278289267444
+          },
+          {
+            "group": "3d_display_comp_vehicle",
+            "item": "tia_k16",
+            "std_loading": 0.683011679302105
+          },
+          {
+            "group": "fact_av",
+            "item": "tia_k02",
+            "std_loading": 0.866774564958942
+          },
+          {
+            "group": "fact_av",
+            "item": "tia_k07",
+            "std_loading": 0.54445097328601
+          },
+          {
+            "group": "fact_av",
+            "item": "tia_k11",
+            "std_loading": 0.807103508012613
+          },
+          {
+            "group": "fact_av",
+            "item": "tia_k16",
+            "std_loading": 0.550270385020156
+          },
+          {
+            "group": "longitudinal_usa_germany_ehmi",
+            "item": "tia_k02",
+            "std_loading": 0.756905742802441
+          },
+          {
+            "group": "longitudinal_usa_germany_ehmi",
+            "item": "tia_k07",
+            "std_loading": 0.616289161969065
+          },
+          {
+            "group": "longitudinal_usa_germany_ehmi",
+            "item": "tia_k11",
+            "std_loading": 0.723008935381293
+          },
+          {
+            "group": "longitudinal_usa_germany_ehmi",
+            "item": "tia_k16",
+            "std_loading": 0.657121608874718
+          }
+        ],
+        "lrt_chisq_diff": 146.0885466578,
+        "lrt_df_diff": 6,
+        "lrt_pvalue": 5.19167287859956e-29
+      },
+      "scalar": {
+        "chisq.scaled": 495.662112,
+        "df.scaled": 18,
+        "pvalue.scaled": 0,
+        "cfi.robust": 0.818445,
+        "tli.robust": 0.818445,
+        "rmsea.robust": 0.204187,
+        "srmr": 0.100959,
+        "aic": 34442.254393,
+        "bic": 34587.31002,
+        "converged": true,
+        "warning": "",
+        "std_loadings": [
+          {
+            "group": "3d_display_comp_vehicle",
+            "item": "tia_k02",
+            "std_loading": 0.720088288249573
+          },
+          {
+            "group": "3d_display_comp_vehicle",
+            "item": "tia_k07",
+            "std_loading": 0.728898863109495
+          },
+          {
+            "group": "3d_display_comp_vehicle",
+            "item": "tia_k11",
+            "std_loading": 0.765423849488689
+          },
+          {
+            "group": "3d_display_comp_vehicle",
+            "item": "tia_k16",
+            "std_loading": 0.695322040826338
+          },
+          {
+            "group": "fact_av",
+            "item": "tia_k02",
+            "std_loading": 0.863711745846099
+          },
+          {
+            "group": "fact_av",
+            "item": "tia_k07",
+            "std_loading": 0.5633959593008
+          },
+          {
+            "group": "fact_av",
+            "item": "tia_k11",
+            "std_loading": 0.796142506953378
+          },
+          {
+            "group": "fact_av",
+            "item": "tia_k16",
+            "std_loading": 0.564887751791199
+          },
+          {
+            "group": "longitudinal_usa_germany_ehmi",
+            "item": "tia_k02",
+            "std_loading": 0.759901711660075
+          },
+          {
+            "group": "longitudinal_usa_germany_ehmi",
+            "item": "tia_k07",
+            "std_loading": 0.629286345268579
+          },
+          {
+            "group": "longitudinal_usa_germany_ehmi",
+            "item": "tia_k11",
+            "std_loading": 0.687283270955878
+          },
+          {
+            "group": "longitudinal_usa_germany_ehmi",
+            "item": "tia_k16",
+            "std_loading": 0.6749063555242
+          }
+        ],
+        "lrt_chisq_diff": 73.2274330299,
+        "lrt_df_diff": 6,
+        "lrt_pvalue": 8.88861944265967e-14
+      }
+    },
+    "items": [
+      "tia_k02",
+      "tia_k07",
+      "tia_k11",
+      "tia_k16"
+    ]
+  },
+  {
+    "scale": "tia_trust_in_automation",
+    "lavaan": "0.7.3",
+    "n_obs": 620,
+    "groups": {
+      "3d_display_comp_vehicle": 45,
+      "bvi_auditory_hav_autoui26": 105,
+      "longitudinal_usa_germany_ehmi": 470
+    },
+    "clusters": {
+      "3d_display_comp_vehicle": 15,
+      "bvi_auditory_hav_autoui26": 35,
+      "longitudinal_usa_germany_ehmi": 55
+    },
+    "cluster_robust": true,
+    "one_observation_per_cluster": [],
+    "levels": {
+      "configural": {
+        "chisq.scaled": null,
+        "df.scaled": -3,
+        "pvalue.scaled": null,
+        "cfi.robust": null,
+        "tli.robust": null,
+        "rmsea.robust": 0,
+        "srmr": 0,
+        "aic": 2806.169708,
+        "bic": 2885.904658,
+        "converged": true,
+        "warning": "lavaan->lav_model_vcov():  \n   The variance-covariance matrix of the estimated parameters (vcov) does not \n   appear to be positive definite! The smallest eigenvalue (= -5.697850e-02) \n   is smaller than zero. This may be a symptom that the model is not \n   identified.",
+        "std_loadings": [
+          {
+            "group": "3d_display_comp_vehicle",
+            "item": "tia_k09",
+            "std_loading": 0.920480953719859
+          },
+          {
+            "group": "3d_display_comp_vehicle",
+            "item": "tia_k14",
+            "std_loading": 0.974570673984186
+          },
+          {
+            "group": "bvi_auditory_hav_autoui26",
+            "item": "tia_k09",
+            "std_loading": 0.927616712425913
+          },
+          {
+            "group": "bvi_auditory_hav_autoui26",
+            "item": "tia_k14",
+            "std_loading": 0.979382152337597
+          },
+          {
+            "group": "longitudinal_usa_germany_ehmi",
+            "item": "tia_k09",
+            "std_loading": 1.02258334603986
+          },
+          {
+            "group": "longitudinal_usa_germany_ehmi",
+            "item": "tia_k14",
+            "std_loading": 0.780382851396618
+          }
+        ]
+      },
+      "metric": {
+        "chisq.scaled": null,
+        "df.scaled": -1,
+        "pvalue.scaled": null,
+        "cfi.robust": null,
+        "tli.robust": null,
+        "rmsea.robust": 0,
+        "srmr": 0,
+        "aic": 2802.169708,
+        "bic": 2873.045219,
+        "converged": true,
+        "warning": "lavaan->lav_model_vcov():  \n   The variance-covariance matrix of the estimated parameters (vcov) does not \n   appear to be positive definite! The smallest eigenvalue (= -1.384135e-02) \n   is smaller than zero. This may be a symptom that the model is not \n   identified.",
+        "std_loadings": [
+          {
+            "group": "3d_display_comp_vehicle",
+            "item": "tia_k09",
+            "std_loading": 0.956620116715459
+          },
+          {
+            "group": "3d_display_comp_vehicle",
+            "item": "tia_k14",
+            "std_loading": 0.937753400997116
+          },
+          {
+            "group": "bvi_auditory_hav_autoui26",
+            "item": "tia_k09",
+            "std_loading": 0.971800238781775
+          },
+          {
+            "group": "bvi_auditory_hav_autoui26",
+            "item": "tia_k14",
+            "std_loading": 0.93485389426663
+          },
+          {
+            "group": "longitudinal_usa_germany_ehmi",
+            "item": "tia_k09",
+            "std_loading": 0.911518249604331
+          },
+          {
+            "group": "longitudinal_usa_germany_ehmi",
+            "item": "tia_k14",
+            "std_loading": 0.875469588344039
+          }
+        ]
+      },
+      "scalar": {
+        "chisq.scaled": 0.354289,
+        "df.scaled": 1,
+        "pvalue.scaled": 0.551695,
+        "cfi.robust": 1,
+        "tli.robust": 1.001634,
+        "rmsea.robust": 0,
+        "srmr": 0.001952,
+        "aic": 2798.387732,
+        "bic": 2860.403805,
+        "converged": true,
+        "warning": "",
+        "std_loadings": [
+          {
+            "group": "3d_display_comp_vehicle",
+            "item": "tia_k09",
+            "std_loading": 0.8972498794199
+          },
+          {
+            "group": "3d_display_comp_vehicle",
+            "item": "tia_k14",
+            "std_loading": 0.999413478639975
+          },
+          {
+            "group": "bvi_auditory_hav_autoui26",
+            "item": "tia_k09",
+            "std_loading": 0.911816369493693
+          },
+          {
+            "group": "bvi_auditory_hav_autoui26",
+            "item": "tia_k14",
+            "std_loading": 0.996324410545608
+          },
+          {
+            "group": "longitudinal_usa_germany_ehmi",
+            "item": "tia_k09",
+            "std_loading": 0.855277800301907
+          },
+          {
+            "group": "longitudinal_usa_germany_ehmi",
+            "item": "tia_k14",
+            "std_loading": 0.933035857598621
+          }
+        ]
+      }
+    },
+    "items": [
+      "tia_k09",
+      "tia_k14"
+    ]
+  }
+]

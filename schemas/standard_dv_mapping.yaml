@@ -1,5 +1,5 @@
-version: "3.3"
-updated: "2026-11-07"
+version: "3.4"
+updated: "2026-11-15"
 
 # all `cluster` values must match an ID in thematic_clusters.yaml
 
@@ -2156,3 +2156,606 @@ dvs:
     aliases: [kss, kss_score, karolinska_sleepiness, drowsiness]
     instruments: ["KSS (Karolinska Sleepiness Scale)"]
     notes: "1 = extremely alert, 9 = very sleepy / fighting sleep."
+
+  # ── v3.4: standard instruments of SIGCHI venues that had no DV ─────────────
+  # Aliases are instrument-specific on purpose: shared aliases win over study
+  # mappings, so a short or generic alias would capture unrelated columns in
+  # other studies. Map short column names (Q1, A1, FA) in the study mapping.
+
+  - id: umux_score
+    label: "UMUX (Usability Metric for User Experience)"
+    cluster: ux_satisfaction
+    measurement:
+      category: Score
+      primary_unit: "0–100"
+      allowed_units: ["0–100"]
+      scale_type: interval
+      direction: higher_is_better
+      canonical_range: [0, 100]
+    aliases: [umux, umux_total, umux_score]
+    instruments: ["UMUX (Finstad 2010)"]
+    notes: >
+      Four 7-point items. Odd items score (response − 1), even items
+      (7 − response); the sum / 24 × 100.
+
+  - id: umux_lite_score
+    label: "UMUX-Lite"
+    cluster: ux_satisfaction
+    measurement:
+      category: Score
+      primary_unit: "0–100"
+      allowed_units: ["0–100"]
+      scale_type: interval
+      direction: higher_is_better
+      canonical_range: [0, 100]
+    aliases: [umux_lite, umuxlite, umux_lite_score]
+    instruments: ["UMUX-Lite (Lewis, Utesch & Maher 2013)"]
+    notes: >
+      UMUX items 1 and 3 (7-point): (item1 + item3 − 2) / 12 × 100. Some
+      studies report the regression-adjusted score (0.65 × raw + 22.9), which
+      is on the SUS scale; say which one in the study mapping.
+
+  - id: seq_rating
+    label: "Single Ease Question (SEQ)"
+    cluster: ux_satisfaction
+    measurement:
+      category: Likert
+      primary_unit: "7-point (1–7)"
+      allowed_units: ["7-point (1–7)"]
+      scale_type: ordinal
+      direction: higher_is_better
+      canonical_range: [1, 7]
+    aliases: [single_ease_question, seq_rating, seq_score]
+    instruments: ["SEQ (Sauro & Dumas 2009)"]
+    notes: "Asked after each task: 1 = very difficult, 7 = very easy."
+
+  - id: ues_focused_attention
+    label: "UES-SF – Focused Attention"
+    cluster: ux_satisfaction
+    measurement:
+      category: Likert
+      primary_unit: "5-point (1–5)"
+      allowed_units: ["5-point (1–5)"]
+      scale_type: ordinal
+      direction: higher_is_better
+      canonical_range: [1, 5]
+    aliases: [ues_fa, ues_focused_attention]
+    instruments: ["UES-SF (O'Brien, Cairns & Hall 2018)"]
+    subitem_of: engagement_level
+
+  - id: ues_perceived_usability
+    label: "UES-SF – Perceived Usability"
+    cluster: ux_satisfaction
+    measurement:
+      category: Likert
+      primary_unit: "5-point (1–5)"
+      allowed_units: ["5-point (1–5)"]
+      scale_type: ordinal
+      direction: higher_is_better
+      canonical_range: [1, 5]
+    aliases: [ues_pu, ues_perceived_usability]
+    instruments: ["UES-SF (O'Brien, Cairns & Hall 2018)"]
+    subitem_of: engagement_level
+    notes: "The items are negatively worded; higher = better after reverse-scoring."
+
+  - id: ues_aesthetic_appeal
+    label: "UES-SF – Aesthetic Appeal"
+    cluster: ux_satisfaction
+    measurement:
+      category: Likert
+      primary_unit: "5-point (1–5)"
+      allowed_units: ["5-point (1–5)"]
+      scale_type: ordinal
+      direction: higher_is_better
+      canonical_range: [1, 5]
+    aliases: [ues_ae, ues_aesthetic_appeal]
+    instruments: ["UES-SF (O'Brien, Cairns & Hall 2018)"]
+    subitem_of: engagement_level
+
+  - id: ues_reward
+    label: "UES-SF – Reward"
+    cluster: ux_satisfaction
+    measurement:
+      category: Likert
+      primary_unit: "5-point (1–5)"
+      allowed_units: ["5-point (1–5)"]
+      scale_type: ordinal
+      direction: higher_is_better
+      canonical_range: [1, 5]
+    aliases: [ues_rw, ues_reward]
+    instruments: ["UES-SF (O'Brien, Cairns & Hall 2018)"]
+    subitem_of: engagement_level
+
+  - id: csi_score
+    label: "Creativity Support Index (CSI)"
+    cluster: ux_satisfaction
+    measurement:
+      category: Score
+      primary_unit: "0–100"
+      allowed_units: ["0–100"]
+      scale_type: interval
+      direction: higher_is_better
+      canonical_range: [0, 100]
+    aliases: [creativity_support_index, csi_score, csi_total]
+    instruments: ["CSI (Cherry & Latulipe 2014)"]
+    notes: "Factor scores weighted by the paired-factor comparisons, scaled to 0–100."
+
+  - id: pxi_ease_of_control
+    label: "PXI – Ease of Control"
+    cluster: ux_satisfaction
+    measurement:
+      category: Likert
+      primary_unit: "7-point (−3–3)"
+      allowed_units: ["7-point (−3–3)"]
+      scale_type: ordinal
+      direction: higher_is_better
+      canonical_range: [-3, 3]
+    aliases: [pxi_ease_of_control, pxi_eoc]
+    instruments: ["PXI (Vanden Abeele et al. 2020)"]
+    notes: "Each PXI construct is the mean of three items from −3 (strongly disagree) to 3 (strongly agree)."
+
+  - id: pxi_progress_feedback
+    label: "PXI – Progress Feedback"
+    cluster: ux_satisfaction
+    measurement:
+      category: Likert
+      primary_unit: "7-point (−3–3)"
+      allowed_units: ["7-point (−3–3)"]
+      scale_type: ordinal
+      direction: higher_is_better
+      canonical_range: [-3, 3]
+    aliases: [pxi_progress_feedback, pxi_pf]
+    instruments: ["PXI (Vanden Abeele et al. 2020)"]
+
+  - id: pxi_audiovisual_appeal
+    label: "PXI – Audiovisual Appeal"
+    cluster: ux_satisfaction
+    measurement:
+      category: Likert
+      primary_unit: "7-point (−3–3)"
+      allowed_units: ["7-point (−3–3)"]
+      scale_type: ordinal
+      direction: higher_is_better
+      canonical_range: [-3, 3]
+    aliases: [pxi_audiovisual_appeal, pxi_ava]
+    instruments: ["PXI (Vanden Abeele et al. 2020)"]
+
+  - id: pxi_clarity_of_goals
+    label: "PXI – Goals and Rules"
+    cluster: ux_satisfaction
+    measurement:
+      category: Likert
+      primary_unit: "7-point (−3–3)"
+      allowed_units: ["7-point (−3–3)"]
+      scale_type: ordinal
+      direction: higher_is_better
+      canonical_range: [-3, 3]
+    aliases: [pxi_clarity_of_goals, pxi_goals_and_rules, pxi_gr]
+    instruments: ["PXI (Vanden Abeele et al. 2020)"]
+
+  - id: pxi_challenge
+    label: "PXI – Challenge"
+    cluster: ux_satisfaction
+    measurement:
+      category: Likert
+      primary_unit: "7-point (−3–3)"
+      allowed_units: ["7-point (−3–3)"]
+      scale_type: ordinal
+      direction: higher_is_better
+      canonical_range: [-3, 3]
+    aliases: [pxi_challenge, pxi_ch]
+    instruments: ["PXI (Vanden Abeele et al. 2020)"]
+    notes: "Agreement that the challenge fit the player's skill (higher = better fit)."
+
+  - id: pxi_mastery
+    label: "PXI – Mastery"
+    cluster: ux_satisfaction
+    measurement:
+      category: Likert
+      primary_unit: "7-point (−3–3)"
+      allowed_units: ["7-point (−3–3)"]
+      scale_type: ordinal
+      direction: higher_is_better
+      canonical_range: [-3, 3]
+    aliases: [pxi_mastery, pxi_ma]
+    instruments: ["PXI (Vanden Abeele et al. 2020)"]
+
+  - id: pxi_curiosity
+    label: "PXI – Curiosity"
+    cluster: ux_satisfaction
+    measurement:
+      category: Likert
+      primary_unit: "7-point (−3–3)"
+      allowed_units: ["7-point (−3–3)"]
+      scale_type: ordinal
+      direction: higher_is_better
+      canonical_range: [-3, 3]
+    aliases: [pxi_curiosity, pxi_cu]
+    instruments: ["PXI (Vanden Abeele et al. 2020)"]
+
+  - id: pxi_immersion
+    label: "PXI – Immersion"
+    cluster: ux_satisfaction
+    measurement:
+      category: Likert
+      primary_unit: "7-point (−3–3)"
+      allowed_units: ["7-point (−3–3)"]
+      scale_type: ordinal
+      direction: higher_is_better
+      canonical_range: [-3, 3]
+    aliases: [pxi_immersion, pxi_im]
+    instruments: ["PXI (Vanden Abeele et al. 2020)"]
+
+  - id: pxi_autonomy
+    label: "PXI – Autonomy"
+    cluster: ux_satisfaction
+    measurement:
+      category: Likert
+      primary_unit: "7-point (−3–3)"
+      allowed_units: ["7-point (−3–3)"]
+      scale_type: ordinal
+      direction: higher_is_better
+      canonical_range: [-3, 3]
+    aliases: [pxi_autonomy, pxi_au]
+    instruments: ["PXI (Vanden Abeele et al. 2020)"]
+
+  - id: pxi_meaning
+    label: "PXI – Meaning"
+    cluster: ux_satisfaction
+    measurement:
+      category: Likert
+      primary_unit: "7-point (−3–3)"
+      allowed_units: ["7-point (−3–3)"]
+      scale_type: ordinal
+      direction: higher_is_better
+      canonical_range: [-3, 3]
+    aliases: [pxi_meaning, pxi_me]
+    instruments: ["PXI (Vanden Abeele et al. 2020)"]
+
+  - id: pxi_enjoyment
+    label: "PXI – Enjoyment"
+    cluster: ux_satisfaction
+    measurement:
+      category: Likert
+      primary_unit: "7-point (−3–3)"
+      allowed_units: ["7-point (−3–3)"]
+      scale_type: ordinal
+      direction: higher_is_better
+      canonical_range: [-3, 3]
+    aliases: [pxi_enjoyment, pxi_en]
+    instruments: ["PXI (Vanden Abeele et al. 2020)"]
+
+  - id: geq_competence
+    label: "GEQ – Competence"
+    cluster: ux_satisfaction
+    measurement:
+      category: Likert
+      primary_unit: "5-point (0–4)"
+      allowed_units: ["5-point (0–4)"]
+      scale_type: ordinal
+      direction: higher_is_better
+      canonical_range: [0, 4]
+    aliases: [geq_competence]
+    instruments: ["GEQ core module (IJsselsteijn, de Kort & Poels 2013)"]
+    notes: "Each GEQ component is the mean of its items from 0 (not at all) to 4 (extremely)."
+
+  - id: geq_immersion
+    label: "GEQ – Sensory and Imaginative Immersion"
+    cluster: ux_satisfaction
+    measurement:
+      category: Likert
+      primary_unit: "5-point (0–4)"
+      allowed_units: ["5-point (0–4)"]
+      scale_type: ordinal
+      direction: higher_is_better
+      canonical_range: [0, 4]
+    aliases: [geq_immersion, geq_sensory_imaginative_immersion]
+    instruments: ["GEQ core module (IJsselsteijn, de Kort & Poels 2013)"]
+
+  - id: geq_flow
+    label: "GEQ – Flow"
+    cluster: ux_satisfaction
+    measurement:
+      category: Likert
+      primary_unit: "5-point (0–4)"
+      allowed_units: ["5-point (0–4)"]
+      scale_type: ordinal
+      direction: higher_is_better
+      canonical_range: [0, 4]
+    aliases: [geq_flow]
+    instruments: ["GEQ core module (IJsselsteijn, de Kort & Poels 2013)"]
+
+  - id: geq_challenge
+    label: "GEQ – Challenge"
+    cluster: ux_satisfaction
+    measurement:
+      category: Likert
+      primary_unit: "5-point (0–4)"
+      allowed_units: ["5-point (0–4)"]
+      scale_type: ordinal
+      direction: neutral
+      canonical_range: [0, 4]
+    aliases: [geq_challenge]
+    instruments: ["GEQ core module (IJsselsteijn, de Kort & Poels 2013)"]
+
+  - id: geq_tension
+    label: "GEQ – Tension/Annoyance"
+    cluster: affective_emotion
+    measurement:
+      category: Likert
+      primary_unit: "5-point (0–4)"
+      allowed_units: ["5-point (0–4)"]
+      scale_type: ordinal
+      direction: lower_is_better
+      canonical_range: [0, 4]
+    aliases: [geq_tension, geq_tension_annoyance]
+    instruments: ["GEQ core module (IJsselsteijn, de Kort & Poels 2013)"]
+
+  - id: geq_negative_affect
+    label: "GEQ – Negative Affect"
+    cluster: affective_emotion
+    measurement:
+      category: Likert
+      primary_unit: "5-point (0–4)"
+      allowed_units: ["5-point (0–4)"]
+      scale_type: ordinal
+      direction: lower_is_better
+      canonical_range: [0, 4]
+    aliases: [geq_negative_affect]
+    instruments: ["GEQ core module (IJsselsteijn, de Kort & Poels 2013)"]
+
+  - id: geq_positive_affect
+    label: "GEQ – Positive Affect"
+    cluster: affective_emotion
+    measurement:
+      category: Likert
+      primary_unit: "5-point (0–4)"
+      allowed_units: ["5-point (0–4)"]
+      scale_type: ordinal
+      direction: higher_is_better
+      canonical_range: [0, 4]
+    aliases: [geq_positive_affect]
+    instruments: ["GEQ core module (IJsselsteijn, de Kort & Poels 2013)"]
+
+  - id: imi_interest_enjoyment
+    label: "IMI – Interest/Enjoyment"
+    cluster: ux_satisfaction
+    measurement:
+      category: Likert
+      primary_unit: "7-point (1–7)"
+      allowed_units: ["7-point (1–7)"]
+      scale_type: ordinal
+      direction: higher_is_better
+      canonical_range: [1, 7]
+    aliases: [imi_interest_enjoyment, imi_enjoyment]
+    instruments: ["IMI (Ryan 1982; McAuley, Duncan & Tammen 1989)"]
+    notes: "Each IMI subscale is the mean of its items from 1 (not at all true) to 7 (very true)."
+
+  - id: imi_perceived_competence
+    label: "IMI – Perceived Competence"
+    cluster: ux_satisfaction
+    measurement:
+      category: Likert
+      primary_unit: "7-point (1–7)"
+      allowed_units: ["7-point (1–7)"]
+      scale_type: ordinal
+      direction: higher_is_better
+      canonical_range: [1, 7]
+    aliases: [imi_perceived_competence, imi_competence]
+    instruments: ["IMI (Ryan 1982; McAuley, Duncan & Tammen 1989)"]
+
+  - id: imi_effort_importance
+    label: "IMI – Effort/Importance"
+    cluster: ux_satisfaction
+    measurement:
+      category: Likert
+      primary_unit: "7-point (1–7)"
+      allowed_units: ["7-point (1–7)"]
+      scale_type: ordinal
+      direction: neutral
+      canonical_range: [1, 7]
+    aliases: [imi_effort_importance, imi_effort]
+    instruments: ["IMI (Ryan 1982; McAuley, Duncan & Tammen 1989)"]
+
+  - id: imi_pressure_tension
+    label: "IMI – Pressure/Tension"
+    cluster: affective_emotion
+    measurement:
+      category: Likert
+      primary_unit: "7-point (1–7)"
+      allowed_units: ["7-point (1–7)"]
+      scale_type: ordinal
+      direction: lower_is_better
+      canonical_range: [1, 7]
+    aliases: [imi_pressure_tension, imi_pressure]
+    instruments: ["IMI (Ryan 1982; McAuley, Duncan & Tammen 1989)"]
+
+  - id: imi_perceived_choice
+    label: "IMI – Perceived Choice"
+    cluster: ux_satisfaction
+    measurement:
+      category: Likert
+      primary_unit: "7-point (1–7)"
+      allowed_units: ["7-point (1–7)"]
+      scale_type: ordinal
+      direction: higher_is_better
+      canonical_range: [1, 7]
+    aliases: [imi_perceived_choice, imi_choice]
+    instruments: ["IMI (Ryan 1982; McAuley, Duncan & Tammen 1989)"]
+
+  - id: imi_value_usefulness
+    label: "IMI – Value/Usefulness"
+    cluster: ux_satisfaction
+    measurement:
+      category: Likert
+      primary_unit: "7-point (1–7)"
+      allowed_units: ["7-point (1–7)"]
+      scale_type: ordinal
+      direction: higher_is_better
+      canonical_range: [1, 7]
+    aliases: [imi_value_usefulness, imi_value]
+    instruments: ["IMI (Ryan 1982; McAuley, Duncan & Tammen 1989)"]
+
+  - id: misc_rating
+    label: "Misery Scale (MISC) motion-sickness rating"
+    cluster: physiological_biometric
+    measurement:
+      category: Likert
+      primary_unit: "11-point (0–10)"
+      allowed_units: ["11-point (0–10)"]
+      scale_type: ordinal
+      direction: lower_is_better
+      canonical_range: [0, 10]
+    aliases: [misery_scale, misc_rating, misc_score]
+    instruments: ["MISC (Bos, MacKinnon & Patterson 2005)"]
+    notes: >
+      0 = no problems, 1 = some discomfort without specific symptoms, 2–5 =
+      vague to severe symptoms without nausea, 6–9 = slight to severe nausea,
+      10 = vomiting. Often logged repeatedly; say in the mapping whether a
+      column is a mean, a maximum or a single rating.
+
+  - id: slater_usoh_steed_presence
+    label: "Presence (Slater–Usoh–Steed questionnaire)"
+    cluster: ux_satisfaction
+    measurement:
+      category: Likert
+      primary_unit: "7-point (1–7)"
+      allowed_units: ["7-point (1–7)"]
+      scale_type: ordinal
+      direction: higher_is_better
+      canonical_range: [1, 7]
+    aliases: [slater_usoh_steed_presence, sus_presence_questionnaire, sus_pq]
+    instruments: ["SUS presence questionnaire (Slater, Usoh & Steed 1994; Usoh et al. 2000)"]
+    notes: >
+      Mean of the six 7-point items. The original score counts the items
+      answered 6 or 7 (0–6); that count is not on this scale and needs its own
+      column. Not the System Usability Scale.
+
+  - id: flow_fks_total
+    label: "Flow Short Scale (FKS) – Flow"
+    cluster: ux_satisfaction
+    measurement:
+      category: Likert
+      primary_unit: "7-point (1–7)"
+      allowed_units: ["7-point (1–7)"]
+      scale_type: ordinal
+      direction: higher_is_better
+      canonical_range: [1, 7]
+    aliases: [flow_short_scale, flow_kurzskala, fks_total, fks_flow]
+    instruments: ["FKS (Rheinberg, Vollmeyer & Engeser 2003)"]
+    notes: "Mean of the 10 flow items; fluency (6 items) and absorption (4 items) are its factors."
+
+  - id: flow_fks_fluency
+    label: "Flow Short Scale – Fluency of Performance"
+    cluster: ux_satisfaction
+    measurement:
+      category: Likert
+      primary_unit: "7-point (1–7)"
+      allowed_units: ["7-point (1–7)"]
+      scale_type: ordinal
+      direction: higher_is_better
+      canonical_range: [1, 7]
+    aliases: [fks_fluency, flow_fluency]
+    instruments: ["FKS (Rheinberg, Vollmeyer & Engeser 2003)"]
+    subitem_of: flow_fks_total
+
+  - id: flow_fks_absorption
+    label: "Flow Short Scale – Absorption by Activity"
+    cluster: ux_satisfaction
+    measurement:
+      category: Likert
+      primary_unit: "7-point (1–7)"
+      allowed_units: ["7-point (1–7)"]
+      scale_type: ordinal
+      direction: higher_is_better
+      canonical_range: [1, 7]
+    aliases: [fks_absorption, flow_absorption]
+    instruments: ["FKS (Rheinberg, Vollmeyer & Engeser 2003)"]
+    subitem_of: flow_fks_total
+
+  - id: embodiment_score
+    label: "Avatar Embodiment"
+    cluster: ux_satisfaction
+    measurement:
+      category: Likert
+      primary_unit: "7-point (1–7)"
+      allowed_units: ["7-point (1–7)"]
+      scale_type: ordinal
+      direction: higher_is_better
+      canonical_range: [1, 7]
+    aliases: [avatar_embodiment, embodiment_score, embodiment_total]
+    instruments: ["Avatar Embodiment Questionnaire (Peck & Gonzalez-Franco 2021)"]
+    notes: >
+      Embodiment on the questionnaire's 1–7 agreement scale. The earlier
+      version (Gonzalez-Franco & Peck 2018) uses −3..3 and needs shifting by 4.
+      Ad-hoc ownership or agency items belong in their own columns.
+
+  - id: words_per_minute
+    label: "Text Entry Rate (WPM)"
+    cluster: performance
+    measurement:
+      category: Continuous
+      primary_unit: "words per minute"
+      allowed_units: ["wpm"]
+      scale_type: ratio
+      direction: higher_is_better
+    aliases: [wpm, words_per_minute, entry_rate_wpm, typing_speed_wpm]
+    instruments: []
+    notes: "(|T| − 1) / S × 60 / 5, with |T| the transcribed length and S seconds (MacKenzie 2002)."
+
+  - id: kspc
+    label: "Keystrokes per Character (KSPC)"
+    cluster: performance
+    measurement:
+      category: Continuous
+      primary_unit: "keystrokes per character"
+      allowed_units: ["ratio"]
+      scale_type: ratio
+      direction: lower_is_better
+    aliases: [kspc, keystrokes_per_character]
+    instruments: []
+    notes: "Input stream length / transcribed length (Soukoreff & MacKenzie 2001)."
+
+  - id: msd_error_rate
+    label: "Uncorrected Error Rate (MSD)"
+    cluster: performance
+    measurement:
+      category: Proportion
+      primary_unit: "percent"
+      allowed_units: ["%", "proportion"]
+      scale_type: ratio
+      direction: lower_is_better
+      canonical_range: [0, 100]
+    aliases: [msd_error_rate, msd_er, uncorrected_error_rate]
+    instruments: []
+    notes: "Minimum string distance / max(|P|, |T|) × 100 (Soukoreff & MacKenzie 2003)."
+
+  - id: total_error_rate
+    label: "Total Error Rate (TER)"
+    cluster: performance
+    measurement:
+      category: Proportion
+      primary_unit: "percent"
+      allowed_units: ["%", "proportion"]
+      scale_type: ratio
+      direction: lower_is_better
+      canonical_range: [0, 100]
+    aliases: [total_error_rate, ter_percent]
+    instruments: []
+    notes: "(INF + IF) / (C + INF + IF) × 100, corrected and uncorrected errors (Soukoreff & MacKenzie 2003)."
+
+  - id: fitts_throughput
+    label: "Throughput (Fitts' law, bits/s)"
+    cluster: performance
+    measurement:
+      category: Continuous
+      primary_unit: "bits/s"
+      allowed_units: ["bits/s", "bps"]
+      scale_type: ratio
+      direction: higher_is_better
+    aliases: [fitts_throughput, throughput_bps, throughput_bits_per_s]
+    instruments: []
+    notes: >
+      Effective index of difficulty / movement time (ISO 9241-411; Soukoreff &
+      MacKenzie 2004). Curved Dragging maps its nominal throughput to
+      efficiency (schema ≤ 3.3); new mappings use this DV.

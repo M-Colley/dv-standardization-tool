@@ -1,18 +1,27 @@
-schema_name: Standard DV Mapping for HCI
-version: '0.1'
-last_updated: '2025-06-29'
-author: Meriem Mehri
-description: This schema defines standardized dependent variable (DV) names and common
-  aliases to support interoperability and reproducibility in HCI research datasets.
-  It is part of an MSc dissertation exploring open data reporting practices and harmonization.
-repository: https://github.com/your-username/OpenDV-HCI
+schema_name: OpenDV-HCI standard DV schema
+version: '3.4'
+last_updated: '2026-11-15'
+description: Standardized names, measurement metadata (unit, range, direction, scale type)
+  and aliases for the dependent variables of HCI studies, so that open datasets from CHI and
+  other SIGCHI venues can be mapped to one vocabulary, pooled and compared. The DVs are in
+  standard_dv_mapping.yaml; schema_changelog.yaml lists every change; instruments.yaml scores
+  questionnaires from their items.
+scope: Dependent variables of user studies (performance, workload, usability and UX, trust and
+  safety, presence and sickness, affect, physiology, eye tracking). Design factors, demographics
+  and identifiers are not DVs; map them to meta_* names in the study mapping.
+coverage_evidence: 88 studies with open data (39 development, 19 + 30 held out), mapped without
+  the LLM; the 49 held-out studies were mapped with schema 3.2 and 3.3 without adding a DV
+  (analyses/opendv_corpus/, docs/sigchi_mapping_guide.md).
+repository: https://github.com/M-Colley/dv-standardization-tool
 license: MIT
-contact: meriem.mehri@example.com
-intended_use: To facilitate column harmonization in open HCI datasets, improve comparability
-  across studies, and support tool-based variable standardization.
+contact: Issues of the repository above
+original_author: Meriem Mehri (schema v0.1-v0.2, MSc dissertation, University College London, 2025)
+intended_use: Map the columns of a study's open data to schema DVs (study mapping YAML), check
+  the mapping, then standardize and pool across studies with opendv batch and opendv analyze.
 citation:
-  author: Meriem Mehri
-  title: 'OpenDV-HCI: A Naming Scheme and Conversion Tool for Dependent Variables
-    in HCI Datasets'
-  year: '2025'
-  note: MSc Dissertation, University College London
+  software: CITATION.cff of the repository
+  original_schema:
+    author: Meriem Mehri
+    title: 'OpenDV-HCI: A Naming Scheme and Conversion Tool for Dependent Variables in HCI Datasets'
+    year: '2025'
+    note: MSc Dissertation, University College London

@@ -1,0 +1,1634 @@
+# Batch manifest of the whole OpenDV corpus (88 studies), written by
+#   python -m analyses.opendv_corpus.build_manifest
+# Do not edit by hand; edit the set's own manifest and rerun the script.
+# Sets: development (sources_manifest_no4tu.yaml), heldout_1 (analyses/heldout/sources_manifest.yaml),
+# heldout_2 (analyses/heldout_2/sources_manifest.yaml). Data: the 11 remote development sources are
+# fetched by the batch (use --cache-dir); the others are read from data/raw/development,
+# data/raw/heldout and data/raw/heldout_2 (see each set's fetch command in docs/reproducibility.md).
+sources:
+- study_set: development
+  source_id: roads_chi25
+  source_type: github_repo
+  location: https://github.com/M-Colley/roads-chi25-data
+  ref: main
+  publication_doi: 10.1145/3706598.3713476
+  mapping_path: schemas/roads_chi25_mapping.yaml
+  include_globs:
+  - '**/*.csv'
+  - '**/*.xlsx'
+  - '**/*.xls'
+  - '**/*.tsv'
+  exclude_globs:
+  - '**/ClearedLogs/**'
+  use_llm_deduction: true
+- study_set: development
+  source_id: ehmi_optimization_chi25
+  source_type: github_repo
+  location: https://github.com/M-Colley/ehmi-optimization-chi25-data
+  ref: main
+  publication_doi: 10.1145/3706598.3714187
+  include_globs:
+  - '**/*.csv'
+  - '**/*.xlsx'
+  - '**/*.xls'
+  - '**/*.tsv'
+  exclude_globs:
+  - '**/ExecutionTimes.csv'
+  - '**/HypervolumePerEvaluation.csv'
+  - '**/first upload/**'
+  - '**/last year/**'
+  - '**/ehmi-optimization-chi25-demographic-data.csv'
+  table_options:
+    '**/ObservationsPerEvaluation.csv':
+      drop_columns:
+      - MentalLoad
+    '**/QuestionnaireResponses.csv':
+      drop_columns:
+      - Trust1
+      - Trust2
+      - Understanding1
+      - Understanding2
+      - Understanding3
+      - Understanding4
+  use_llm_deduction: true
+- study_set: development
+  source_id: osf_cwd6h
+  source_type: osf_project
+  location: https://osf.io/cwd6h/overview
+  publication_doi: 10.1145/3706598.3713762
+  include_globs:
+  - '**/*.csv'
+  - '**/*.xlsx'
+  - '**/*.xls'
+  - '**/*.tsv'
+  extract_archives: true
+  archive_max_depth: 3
+  use_llm_deduction: true
+  mapping_path: schemas/osf_cwd6h_mapping.yaml
+  override_standard_aliases: true
+  llm_context: ArduinoData1 encodes Perceived Risk on a 1-100 VAS scale.
+- study_set: development
+  source_id: road_bumps_touch
+  source_type: github_repo
+  location: https://github.com/interactionlab/Touch-Interaction-with-Road-Bumps/tree/master/data
+  publication_doi: 10.1145/3239060.3239071
+  include_globs:
+  - '**/*.csv'
+  mapping_path: schemas/road_bumps_touch_mapping.yaml
+  override_standard_aliases: true
+  use_llm_deduction: true
+- study_set: development
+  source_id: 3d_display_comp_vehicle
+  source_type: github_repo
+  location: https://github.com/M-Colley/3d-display-comp-vehicle
+  ref: main
+  publication_doi: 10.1145/3626705.3627786
+  mapping_path: schemas/3d_display_comp_vehicle_mapping.yaml
+  include_globs:
+  - '**/*.csv'
+  - '**/*.xlsx'
+  - '**/*.xls'
+  llm_context: 'Study on 3D display technologies (LumePad, LookingGlass, 2D) in automated vehicles. DVs: TLX1, SART, TiA Trust,
+    Understanding, Perceived Safety.'
+  use_llm_deduction: true
+- study_set: development
+  source_id: longitudinal_usa_germany_ehmi
+  source_type: github_repo
+  location: https://github.com/M-Colley/longitudinal_usa_germany_eHMI_comparison
+  ref: main
+  mapping_path: schemas/longitudinal_usa_germany_ehmi_mapping.yaml
+  include_globs:
+  - '**/*.csv'
+  - '**/*.xlsx'
+  - '**/*.xls'
+  exclude_globs:
+  - '**/LoggingEyeTracking*'
+  - '**/LoggingPosition*'
+  - '**/LoggingTotal*'
+  - '**/position_all*'
+  - '**/DemoData*'
+  - '**/temp_dataframe*'
+  llm_context: 'Longitudinal USA/Germany eHMI comparison. DVs: TLX1 (mental demand), Trust (TiA), Understanding, UEQ-S, Perceived
+    Safety.'
+  use_llm_deduction: true
+- study_set: development
+  source_id: ehmi_for_all_chi26
+  source_type: github_repo
+  location: https://github.com/M-Colley/ehmi-for-all-chi26-data
+  ref: main
+  publication_doi: 10.1145/3772318.3790585
+  mapping_path: schemas/ehmi_for_all_chi26_mapping.yaml
+  include_globs:
+  - '**/*.csv'
+  - '**/*.xlsx'
+  - '**/*.xls'
+  exclude_globs:
+  - '**/plots/**'
+  llm_context: 'eHMI effects on pedestrians, drivers, cyclists in VR (CHI 2026). DVs: TLX1, SUS, AOA Usefulness/Satisfying,
+    Trust, Perceived Safety.'
+  use_llm_deduction: true
+- study_set: development
+  source_id: fact_av
+  source_type: github_repo
+  location: https://github.com/M-Colley/FACT-AV
+  ref: main
+  include_globs:
+  - data/all_combined_prepared.xlsx
+  mapping_path: schemas/fact_av_mapping.yaml
+  override_standard_aliases: true
+  llm_context: 'FACT-AV study on trust and acceptance factors for automated vehicles. understanding_rating is the sART Understanding
+    subscale (0–20), NOT an eHMI comprehension item — it is mapped to sart_understanding.
+
+    '
+  use_llm_deduction: true
+- study_set: development
+  source_id: running_into_traffic_chi26
+  source_type: web_dataset
+  location: https://zenodo.org/records/18344381/files/RunIntoTraffic.zip?download=1
+  publication_doi: 10.1145/3772318.3790401
+  include_globs:
+  - '**/*.csv'
+  exclude_globs:
+  - '**/running_ranking.csv'
+  extract_archives: true
+  archive_max_depth: 2
+  mapping_path: schemas/running_into_traffic_mapping.yaml
+  llm_context: 'Al-Taie et al. (CHI 2026) "Running into Traffic." Per-trial questionnaire data for runner–AV interaction with
+    eHMIs. Columns prefixed tlx.* are NASA-TLX subscales (mental/physical/rush=temporal/success=performance/ effort/stress=frustration).
+    safety, trust, risk are the corresponding perception ratings. ueq.p.* and ueq.h.* are UEQ-Short pragmatic and hedonic
+    items respectively. running_ranking.csv encodes per-condition rankings (Overall/Walking/Running × eHMI condition) which
+    are not direct DV scores and intentionally remain unmapped.
+
+    '
+  use_llm_deduction: true
+- study_set: development
+  source_id: psych_conflict_handling
+  source_type: github_repo
+  location: https://github.com/as116/psychological-conflict-handling-strategies
+  ref: main
+  publication_doi: 10.1145/3678511
+  include_globs:
+  - '**/*.csv'
+  - '**/*.xlsx'
+  - '**/*.xls'
+  mapping_path: schemas/psych_conflict_handling_mapping.yaml
+  llm_context: 'Stampf, Colley et al. (IMWUT 2024) "Examining Psychological Conflict-Handling Strategies for Highly Automated
+    Vehicles." VR driving-simulator study, 36 participants x 12 persuasion conditions. StudyResults.xlsx sheet "Blatt 1":
+    C1-C5 = perceived user-vehicle conflict items (5-point), ST1-ST6 = STS-AD situational-trust items (7-point; items 2/4/5
+    reverse-scored), A1-A2 = task-feasibility items, A3 = perceived vehicle influence on the user''s decision, A4 = acceptance.
+    Cells hold textual Likert labels (English for C*/ST*, German for A*), so the explicit mapping is authoritative; the LLM
+    fallback is unlikely to improve on it.
+
+    '
+  use_llm_deduction: true
+- study_set: development
+  source_id: scrolling_in_the_deep_chi25
+  source_type: github_repo
+  location: https://github.com/luca-maxim/scrollingInTheDeep
+  ref: main
+  publication_doi: 10.1145/3706598.3713187
+  include_globs:
+  - '**/*.csv'
+  mapping_path: schemas/scrolling_in_the_deep_mapping.yaml
+  llm_context: 'Meinhardt, Colley et al. (CHI ''25) "Scrolling in the Deep." In-situ study of digital-wellbeing intervention
+    effectiveness during infinite scrolling. The only study data is data_scrolling_in_the_deep.csv (the rest of the repo is
+    the Android app). DVs: Valence (SAM, 1-5), Reactance (psychological reactance, 1-5), Sleepiness (KSS, 1-9), Responsiveness
+    (latency to the intervention, seconds). App_Name, At_Home, Current_Activity, Multitasking, Social_Situation are contextual
+    IVs and Age/Gender are demographics — all locked as meta_* in the mapping.
+
+    '
+  use_llm_deduction: true
+- study_set: development
+  source_id: incar_vr_gain_chi24
+  source_type: local_path
+  location: data/raw/development/incar_vr_gain_chi24
+  publication_doi: 10.1145/3613904.3642298
+  include_globs:
+  - '*.csv'
+  mapping_path: schemas/incar_vr_gain_chi24_mapping.yaml
+  override_standard_aliases: true
+  use_llm_deduction: true
+- study_set: development
+  source_id: bvi_auditory_hav_autoui26
+  source_type: local_path
+  location: data/raw/development/bvi_auditory_hav_autoui26
+  publication_doi: 10.1145/3828157.3828774
+  include_globs:
+  - '*.xlsx'
+  table_options:
+    bvi-auditory-hav.xlsx:
+      sheet: Results
+  mapping_path: schemas/bvi_auditory_hav_autoui26_mapping.yaml
+  override_standard_aliases: true
+  use_llm_deduction: true
+- study_set: development
+  source_id: av_prevalence_ehmi_autoui24
+  source_type: local_path
+  location: data/raw/development/av_prevalence_ehmi_autoui24
+  publication_doi: 10.1145/3640792.3675723
+  include_globs:
+  - data.csv
+  mapping_path: schemas/av_prevalence_ehmi_autoui24_mapping.yaml
+  override_standard_aliases: true
+  use_llm_deduction: true
+- study_set: development
+  source_id: ehmi_state_intent_mtap24
+  source_type: local_path
+  location: data/raw/development/ehmi_state_intent_mtap24
+  publication_doi: 10.1007/s11042-024-20497-0
+  include_globs:
+  - data.csv
+  mapping_path: schemas/ehmi_state_intent_mtap24_mapping.yaml
+  override_standard_aliases: true
+  use_llm_deduction: true
+- study_set: development
+  source_id: av_acceptance_vr_ijhci24
+  source_type: local_path
+  location: data/raw/development/av_acceptance_vr_ijhci24
+  publication_doi: 10.1080/10447318.2024.2358577
+  include_globs:
+  - Questionnaire_data/raw_data/*.csv
+  mapping_path: schemas/av_acceptance_vr_ijhci24_mapping.yaml
+  override_standard_aliases: true
+  use_llm_deduction: true
+- study_set: development
+  source_id: fido2_auth_chi23
+  source_type: local_path
+  location: data/raw/development/fido2_auth_chi23
+  publication_doi: 10.1145/3544548.3580993
+  include_globs:
+  - '**/data.csv'
+  mapping_path: schemas/fido2_auth_chi23_mapping.yaml
+  override_standard_aliases: true
+  use_llm_deduction: true
+- study_set: development
+  source_id: pairsonic_cscw24
+  source_type: local_path
+  location: data/raw/development/pairsonic_cscw24
+  publication_doi: 10.1145/3686964
+  include_globs:
+  - '**/data.csv'
+  mapping_path: schemas/pairsonic_cscw24_mapping.yaml
+  override_standard_aliases: true
+  use_llm_deduction: true
+- study_set: development
+  source_id: curved_dragging_vr_ijhci26
+  source_type: local_path
+  location: data/raw/development/curved_dragging_vr_ijhci26
+  publication_doi: 10.1080/10447318.2026.2738094
+  include_globs:
+  - '*.xlsx'
+  table_options:
+    subjective_workload_processed_condition_data.xlsx:
+      sheet: NASA_TLX_Data
+      header: 1
+      pivot:
+        index:
+        - experiment
+        - measurement_condition
+        - subject_id
+        - curvature
+        - curvature_code
+        - depth_m
+        columns: subscale
+        values: score
+  mapping_path: schemas/curved_dragging_vr_ijhci26_mapping.yaml
+  override_standard_aliases: true
+  use_llm_deduction: true
+- study_set: development
+  source_id: fov_snapturn_tvcg24
+  source_type: local_path
+  location: data/raw/development/fov_snapturn_tvcg24
+  publication_doi: 10.1109/TVCG.2024.3470214
+  include_globs:
+  - Data/*.csv
+  mapping_path: schemas/fov_snapturn_tvcg24_mapping.yaml
+  override_standard_aliases: true
+  use_llm_deduction: true
+- study_set: development
+  source_id: handsize_touch_mobilehci19
+  source_type: local_path
+  location: data/raw/development/handsize_touch_mobilehci19
+  publication_doi: 10.1145/3338286.3340115
+  include_globs:
+  - data-raw/*.csv
+  mapping_path: schemas/handsize_touch_mobilehci19_mapping.yaml
+  override_standard_aliases: true
+  use_llm_deduction: true
+- study_set: development
+  source_id: woz_adaptation_ijhcs24
+  source_type: local_path
+  location: data/raw/development/woz_adaptation_ijhcs24
+  publication_doi: 10.1016/j.ijhcs.2024.103440
+  include_globs:
+  - '*.xlsx'
+  table_options:
+    NSF2151464_Study2_ResearchData.xlsx:
+      header: 1
+  mapping_path: schemas/woz_adaptation_ijhcs24_mapping.yaml
+  override_standard_aliases: true
+  use_llm_deduction: true
+- study_set: development
+  source_id: gaze_platformer_chi24
+  source_type: local_path
+  location: data/raw/development/gaze_platformer_chi24
+  publication_doi: 10.1145/3613904.3641909
+  include_globs:
+  - '*.xlsx'
+  mapping_path: schemas/gaze_platformer_chi24_mapping.yaml
+  override_standard_aliases: true
+  use_llm_deduction: true
+- study_set: development
+  source_id: ehmi_car_body_2020
+  source_type: local_path
+  location: data/raw/development/ehmi_car_body_2020
+  publication_doi: 10.1145/3404983.3410011
+  include_globs:
+  - '*.sav'
+  mapping_path: schemas/ehmi_car_body_2020_mapping.yaml
+  override_standard_aliases: true
+  use_llm_deduction: true
+- study_set: development
+  source_id: tlx_formats_uas_2023
+  source_type: local_path
+  location: data/raw/development/tlx_formats_uas_2023
+  publication_doi: 10.1109/THMS.2023.3263482
+  include_globs:
+  - nasa_tlx_multi_response.csv
+  mapping_path: schemas/tlx_formats_uas_2023_mapping.yaml
+  override_standard_aliases: true
+  use_llm_deduction: true
+- study_set: development
+  source_id: tactile_sa_display_2022
+  source_type: local_path
+  location: data/raw/development/tactile_sa_display_2022
+  publication_doi: 10.1109/CIVEMSA53371.2022.9853690
+  include_globs:
+  - Complete_dataset.csv
+  mapping_path: schemas/tactile_sa_display_2022_mapping.yaml
+  override_standard_aliases: true
+  use_llm_deduction: true
+- study_set: development
+  source_id: short_videos_memory_2023
+  source_type: local_path
+  location: data/raw/development/short_videos_memory_2023
+  publication_doi: 10.1145/3544548.3580778
+  include_globs:
+  - data/acc.csv
+  - data/q.csv
+  - data/rt.csv
+  mapping_path: schemas/short_videos_memory_2023_mapping.yaml
+  override_standard_aliases: true
+  use_llm_deduction: true
+- study_set: development
+  source_id: driving_style_automated_2021
+  source_type: local_path
+  location: data/raw/development/driving_style_automated_2021
+  publication_doi: 10.1016/j.apergo.2021.103428
+  include_globs:
+  - supplementary materials/data.xlsx
+  mapping_path: schemas/driving_style_automated_2021_mapping.yaml
+  override_standard_aliases: true
+  use_llm_deduction: true
+- study_set: development
+  source_id: ar_pedestrian_online_2023
+  source_type: local_path
+  location: data/raw/development/ar_pedestrian_online_2023
+  publication_doi: 10.1016/j.trf.2023.02.005
+  include_globs:
+  - raw_data.xlsx
+  mapping_path: schemas/ar_pedestrian_online_2023_mapping.yaml
+  override_standard_aliases: true
+  use_llm_deduction: true
+- study_set: development
+  source_id: perceived_risk_merging_2022
+  source_type: local_path
+  location: data/raw/development/perceived_risk_merging_2022
+  publication_doi: 10.1016/j.trf.2022.02.016
+  include_globs:
+  - Data/SubjectiveRatings.xlsx
+  mapping_path: schemas/perceived_risk_merging_2022_mapping.yaml
+  override_standard_aliases: true
+  use_llm_deduction: true
+- study_set: development
+  source_id: ehmi_survey_crowd_2019
+  source_type: local_path
+  location: data/raw/development/ehmi_survey_crowd_2019
+  publication_doi: 10.1016/j.trf.2019.10.013
+  include_globs:
+  - data/Survey 1/data_s1.xlsx
+  - data/Survey 2/data_s2.xlsx
+  mapping_path: schemas/ehmi_survey_crowd_2019_mapping.yaml
+  override_standard_aliases: true
+  use_llm_deduction: true
+- study_set: development
+  source_id: reflexion_mapping_2025
+  source_type: local_path
+  location: data/raw/development/reflexion_mapping_2025
+  publication_doi: 10.1109/ICSA-C65153.2025.00068
+  include_globs:
+  - ProbandData.csv
+  mapping_path: schemas/reflexion_mapping_2025_mapping.yaml
+  override_standard_aliases: true
+  use_llm_deduction: true
+- study_set: development
+  source_id: sensecobot_fusion_2024
+  source_type: local_path
+  location: data/raw/development/sensecobot_fusion_2024
+  publication_doi: 10.1145/3610977.3636440
+  include_globs:
+  - SenseCobotFusion/Labels.csv
+  - SenseCobotFusion/SenseCobotFusion.csv
+  mapping_path: schemas/sensecobot_fusion_2024_mapping.yaml
+  override_standard_aliases: true
+  use_llm_deduction: false
+- study_set: development
+  source_id: myocontrol_intent_2025
+  source_type: local_path
+  location: data/raw/development/myocontrol_intent_2025
+  publication_doi: 10.1109/ICORR66766.2025.11063080
+  include_globs:
+  - NASA TLX.csv
+  - testResults.csv
+  mapping_path: schemas/myocontrol_intent_2025_mapping.yaml
+  override_standard_aliases: true
+  use_llm_deduction: true
+- study_set: development
+  source_id: artv_ornaments_2025
+  source_type: local_path
+  location: data/raw/development/artv_ornaments_2025
+  publication_doi: 10.1145/3706370.3727854
+  include_globs:
+  - Study-2-Questionnaire_Cleaned.xlsx
+  table_options:
+    Study-2-Questionnaire_Cleaned.xlsx:
+      skip_rows:
+      - 0
+      - 1
+  mapping_path: schemas/artv_ornaments_2025_mapping.yaml
+  override_standard_aliases: true
+  use_llm_deduction: true
+- study_set: development
+  source_id: nl2tap_filter_2026
+  source_type: local_path
+  location: data/raw/development/nl2tap_filter_2026
+  publication_doi: 10.1080/0144929X.2026.2711012
+  include_globs:
+  - '**/user_study/participants.csv'
+  - '**/user_study/sus_responses.csv'
+  - '**/user_study/tlx_responses.csv'
+  - '**/user_study/toast_responses.csv'
+  - '**/user_study/scenario_sessions.csv'
+  table_options:
+    '**/user_study/toast_responses.csv':
+      rename:
+        item_1: toast_1
+        item_2: toast_2
+        item_3: toast_3
+        item_4: toast_4
+        item_5: toast_5
+        item_6: toast_6
+        item_7: toast_7
+        item_8: toast_8
+        item_9: toast_9
+  mapping_path: schemas/nl2tap_filter_2026_mapping.yaml
+  override_standard_aliases: true
+  use_llm_deduction: true
+- study_set: development
+  source_id: visual_fidelity_curves_2015
+  source_type: local_path
+  location: data/raw/development/visual_fidelity_curves_2015
+  publication_doi: 10.1080/00140139.2015.1005172
+  include_globs:
+  - '*.xlsx'
+  table_options:
+    Questionnaire DATA.xlsx:
+      sheet: TLX
+    Dependent Measures.xlsx:
+      sheet: SDLP
+      header: 1
+  mapping_path: schemas/visual_fidelity_curves_2015_mapping.yaml
+  override_standard_aliases: true
+  use_llm_deduction: true
+- study_set: development
+  source_id: music_tempo_taskload_2022
+  source_type: local_path
+  location: data/raw/development/music_tempo_taskload_2022
+  publication_doi: 10.1080/00140139.2021.2003872
+  include_globs:
+  - '*.sav'
+  mapping_path: schemas/music_tempo_taskload_2022_mapping.yaml
+  override_standard_aliases: true
+  use_llm_deduction: true
+- study_set: development
+  source_id: concurrent_speech_2022
+  source_type: local_path
+  location: data/raw/development/concurrent_speech_2022
+  publication_doi: 10.1016/j.ijhcs.2021.102728
+  include_globs:
+  - '*.csv'
+  table_options:
+    '*.csv':
+      pivot:
+        index:
+        - user_id
+        - combination_id
+        - stimulus_id
+        - stimulus_type
+        - stimulus_form
+        - combination_title
+        - baseline_type
+        columns: question_type
+        values: response_submitted
+  mapping_path: schemas/concurrent_speech_2022_mapping.yaml
+  override_standard_aliases: true
+  use_llm_deduction: true
+- study_set: heldout_1
+  source_id: ai_label_trust_2025
+  source_type: local_path
+  location: data/raw/heldout/ai_label_trust_2025
+  publication_doi: 10.1038/s41598-025-85558-2
+  license: CC-BY-4.0
+  include_globs:
+  - Data/ANON_Trust_in_AI_Main_Study.csv
+  mapping_path: analyses/heldout/mappings/ai_label_trust_2025_mapping.yaml
+  override_standard_aliases: true
+- study_set: heldout_1
+  source_id: ar_pedestrian_outdoor_2024
+  source_type: local_path
+  location: data/raw/heldout/ar_pedestrian_outdoor_2024
+  publication_doi: 10.3389/frobt.2024.1324060
+  license: CC-BY-4.0
+  include_globs:
+  - '*/Post-experiment questionnaire.xlsx'
+  mapping_path: analyses/heldout/mappings/ar_pedestrian_outdoor_2024_mapping.yaml
+  override_standard_aliases: true
+- study_set: heldout_1
+  source_id: av_acceptance_diverse_2025
+  source_type: local_path
+  location: data/raw/heldout/av_acceptance_diverse_2025
+  publication_doi: 10.1145/3743049.3743051
+  license: CC-BY-4.0
+  include_globs:
+  - '*.xlsx'
+  mapping_path: analyses/heldout/mappings/av_acceptance_diverse_2025_mapping.yaml
+  override_standard_aliases: true
+- study_set: heldout_1
+  source_id: coupled_hmd_2022
+  source_type: local_path
+  location: data/raw/heldout/coupled_hmd_2022
+  publication_doi: 10.1016/j.apergo.2022.103825
+  license: CC0-1.0
+  include_globs:
+  - '*/All_questionnaire_results.xlsx'
+  table_options:
+    '*All_questionnaire_results.xlsx':
+      sheet: Post-block pedestrian
+  mapping_path: analyses/heldout/mappings/coupled_hmd_2022_mapping.yaml
+  override_standard_aliases: true
+- study_set: heldout_1
+  source_id: coupled_sim_2022
+  source_type: local_path
+  location: data/raw/heldout/coupled_sim_2022
+  publication_doi: 10.1145/3543174.3546849
+  license: CC-BY-4.0
+  include_globs:
+  - '*/interim_questionnaire.xlsx'
+  - '*/opening_questionnaire.xlsx'
+  mapping_path: analyses/heldout/mappings/coupled_sim_2022_mapping.yaml
+  override_standard_aliases: true
+- study_set: heldout_1
+  source_id: dev_creativity_eyetracking_2026
+  source_type: local_path
+  location: data/raw/heldout/dev_creativity_eyetracking_2026
+  publication_doi: 10.1145/3794860.3794891
+  license: CC-BY-4.0
+  include_globs:
+  - '*.csv'
+  mapping_path: analyses/heldout/mappings/dev_creativity_eyetracking_2026_mapping.yaml
+  override_standard_aliases: true
+- study_set: heldout_1
+  source_id: driving_style_takeover_2024
+  source_type: local_path
+  location: data/raw/heldout/driving_style_takeover_2024
+  publication_doi: 10.1016/j.apergo.2024.104366
+  license: CC-BY-4.0
+  include_globs:
+  - '*/Table.xlsx'
+  mapping_path: analyses/heldout/mappings/driving_style_takeover_2024_mapping.yaml
+  override_standard_aliases: true
+- study_set: heldout_1
+  source_id: ehmi_infrastructure_2024
+  source_type: local_path
+  location: data/raw/heldout/ehmi_infrastructure_2024
+  publication_doi: 10.59490/ejtir.2024.24.2.7273
+  license: CC-BY-4.0
+  include_globs:
+  - '*/Open data.xlsx'
+  table_options:
+    '*Open data.xlsx':
+      sheet: Subjective measures
+  mapping_path: analyses/opendv_corpus/mappings/ehmi_infrastructure_2024_mapping.yaml
+  override_standard_aliases: true
+  mapping_corrected_from: analyses/heldout/mappings/ehmi_infrastructure_2024_mapping.yaml
+- study_set: heldout_1
+  source_id: function_allocation_hrc_2026
+  source_type: local_path
+  location: data/raw/heldout/function_allocation_hrc_2026
+  publication_doi: 10.1109/lra.2025.3632607
+  license: CC-BY-4.0
+  include_globs:
+  - '*.xlsx'
+  mapping_path: analyses/heldout/mappings/function_allocation_hrc_2026_mapping.yaml
+  override_standard_aliases: true
+- study_set: heldout_1
+  source_id: midair_map_making_2026
+  source_type: local_path
+  location: data/raw/heldout/midair_map_making_2026
+  publication_doi: 10.1080/15230406.2026.2619027
+  license: CC-BY-4.0
+  include_globs:
+  - '*.csv'
+  mapping_path: analyses/heldout/mappings/midair_map_making_2026_mapping.yaml
+  override_standard_aliases: true
+- study_set: heldout_1
+  source_id: multiscale_teleport_2024
+  source_type: local_path
+  location: data/raw/heldout/multiscale_teleport_2024
+  publication_doi: 10.1109/tvcg.2024.3372043
+  license: CC-BY-4.0
+  include_globs:
+  - '*.csv'
+  mapping_path: analyses/heldout/mappings/multiscale_teleport_2024_mapping.yaml
+  override_standard_aliases: true
+- study_set: heldout_1
+  source_id: music_intensity_driving_2021
+  source_type: local_path
+  location: data/raw/heldout/music_intensity_driving_2021
+  publication_doi: 10.1016/j.trf.2021.05.022
+  license: CC-BY-4.0
+  include_globs:
+  - '*.sav'
+  mapping_path: analyses/opendv_corpus/mappings/music_intensity_driving_2021_mapping.yaml
+  override_standard_aliases: true
+  mapping_corrected_from: analyses/heldout/mappings/music_intensity_driving_2021_mapping.yaml
+- study_set: heldout_1
+  source_id: ndrt_takeover_l3_2025
+  source_type: local_path
+  location: data/raw/heldout/ndrt_takeover_l3_2025
+  publication_doi: 10.1186/s12544-025-00745-6
+  license: CC-BY-4.0
+  include_globs:
+  - data_Zenodo.xlsx
+  table_options:
+    data_Zenodo.xlsx:
+      sheet: takeover time
+  mapping_path: analyses/heldout/mappings/ndrt_takeover_l3_2025_mapping.yaml
+  override_standard_aliases: true
+- study_set: heldout_1
+  source_id: physio_hrc_2025
+  source_type: local_path
+  location: data/raw/heldout/physio_hrc_2025
+  publication_doi: 10.1109/iros60139.2025.11245894
+  license: CC-BY-4.0
+  include_globs:
+  - '*/questionnaires/*.csv'
+  mapping_path: analyses/heldout/mappings/physio_hrc_2025_mapping.yaml
+  override_standard_aliases: true
+- study_set: heldout_1
+  source_id: proxemics_ar_agent_2022
+  source_type: local_path
+  location: data/raw/heldout/proxemics_ar_agent_2022
+  publication_doi: 10.1145/3491102.3517593
+  license: CC-BY-4.0
+  include_globs:
+  - '*.csv'
+  mapping_path: analyses/heldout/mappings/proxemics_ar_agent_2022_mapping.yaml
+  override_standard_aliases: true
+- study_set: heldout_1
+  source_id: robot_feeding_2025
+  source_type: local_path
+  location: data/raw/heldout/robot_feeding_2025
+  publication_doi: 10.1109/hri61500.2025.10974182
+  license: CC-BY-4.0
+  include_globs:
+  - Study 2 Data/Quantitative/Subjective/NASA_TLX.csv
+  mapping_path: analyses/heldout/mappings/robot_feeding_2025_mapping.yaml
+  override_standard_aliases: true
+- study_set: heldout_1
+  source_id: robot_teaching_2023
+  source_type: local_path
+  location: data/raw/heldout/robot_teaching_2023
+  publication_doi: 10.3850/978-981-18-8071-1_p241-cd
+  license: CC-BY-4.0
+  include_globs:
+  - '*.csv'
+  mapping_path: analyses/heldout/mappings/robot_teaching_2023_mapping.yaml
+  override_standard_aliases: true
+- study_set: heldout_1
+  source_id: shared_autonomy_2026
+  source_type: local_path
+  location: data/raw/heldout/shared_autonomy_2026
+  publication_doi: 10.1109/tnsre.2026.3657400
+  license: CC-BY-4.0
+  include_globs:
+  - ds_qs_zen.csv
+  - ds_run_info_zen.csv
+  mapping_path: analyses/opendv_corpus/mappings/shared_autonomy_2026_mapping.yaml
+  override_standard_aliases: true
+  mapping_corrected_from: analyses/heldout/mappings/shared_autonomy_2026_mapping.yaml
+- study_set: heldout_1
+  source_id: tool_embodiment_2025
+  source_type: local_path
+  location: data/raw/heldout/tool_embodiment_2025
+  publication_doi: 10.3389/frvir.2025.1637212
+  license: CC-BY-4.0
+  include_globs:
+  - '*.csv'
+  mapping_path: analyses/heldout/mappings/tool_embodiment_2025_mapping.yaml
+  override_standard_aliases: true
+- study_set: heldout_2
+  source_id: ar_telepresence_arm_2023
+  source_type: local_path
+  location: data/raw/heldout_2/ar_telepresence_arm_2023
+  publication_doi: 10.1049/cim2.12085
+  license: CC-BY-4.0
+  include_globs:
+  - '**/Data/responses.csv'
+  - '**/Data/blocks_count.csv'
+  table_options:
+    '**/Data/responses.csv':
+      wide_to_long:
+        id:
+        - 'Participant number:'
+        level: block
+        levels:
+        - 1
+        - 2
+        - 3
+        - 4
+        - 5
+        - 6
+        columns:
+          condition:
+          - Which condition was played? (filled in by experimenter)
+          - Which condition was played? (filled in by experimenter).1
+          - Which condition was played? (filled in by experimenter).2
+          - Which condition was played? (filled in by experimenter).3
+          - Which condition was played? (filled in by experimenter).4
+          - Which condition was played? (filled in by experimenter).5
+          umux1:
+          - UMUX questionnaire [The system's capabilities meet my requirements]
+          - UMUX questionnaire [The system's capabilities meet my requirements].1
+          - UMUX questionnaire [The system's capabilities meet my requirements].2
+          - UMUX questionnaire [The system's capabilities meet my requirements].3
+          - UMUX questionnaire [The system's capabilities meet my requirements].4
+          - UMUX questionnaire [The system's capabilities meet my requirements].5
+          umux2:
+          - UMUX questionnaire [Using this system is a frustrating experience]
+          - UMUX questionnaire [Using this system is a frustrating experience].1
+          - UMUX questionnaire [Using this system is a frustrating experience].2
+          - UMUX questionnaire [Using this system is a frustrating experience].3
+          - UMUX questionnaire [Using this system is a frustrating experience].4
+          - UMUX questionnaire [Using this system is a frustrating experience].5
+          umux3:
+          - UMUX questionnaire [The system is easy to use]
+          - UMUX questionnaire [The system is easy to use].1
+          - UMUX questionnaire [The system is easy to use].2
+          - UMUX questionnaire [The system is easy to use].3
+          - UMUX questionnaire [The system is easy to use].4
+          - UMUX questionnaire [The system is easy to use].5
+          umux4:
+          - UMUX questionnaire [I have to spend too much time correcting things with this system]
+          - UMUX questionnaire [I have to spend too much time correcting things with this system].1
+          - UMUX questionnaire [I have to spend too much time correcting things with this system].2
+          - UMUX questionnaire [I have to spend too much time correcting things with this system].3
+          - UMUX questionnaire [I have to spend too much time correcting things with this system].4
+          - UMUX questionnaire [I have to spend too much time correcting things with this system].5
+  mapping_path: analyses/heldout_2/mappings/ar_telepresence_arm_2023_mapping.yaml
+  override_standard_aliases: true
+- study_set: heldout_2
+  source_id: build_3d_mr_2025
+  source_type: local_path
+  location: data/raw/heldout_2/build_3d_mr_2025
+  publication_doi: 10.28991/esj-2024-sied1-024
+  license: CC-BY-4.0
+  include_globs:
+  - Data_NASA-TLX.xlsx
+  table_options:
+    Data_NASA-TLX.xlsx:
+      sheet: Hoja3
+  mapping_path: analyses/heldout_2/mappings/build_3d_mr_2025_mapping.yaml
+  override_standard_aliases: true
+- study_set: heldout_2
+  source_id: build_pc_mar_2026
+  source_type: local_path
+  location: data/raw/heldout_2/build_pc_mar_2026
+  publication_doi: 10.1155/hbe2/3687910
+  license: CC-BY-4.0
+  include_globs:
+  - NASA_MAR.xlsx
+  table_options:
+    NASA_MAR.xlsx:
+      sheet: Hoja8
+  mapping_path: analyses/heldout_2/mappings/build_pc_mar_2026_mapping.yaml
+  override_standard_aliases: true
+- study_set: heldout_2
+  source_id: chatgpt_roleplay_2025
+  source_type: local_path
+  location: data/raw/heldout_2/chatgpt_roleplay_2025
+  publication_doi: 10.5220/0013235400003932
+  license: CC-BY-4.0
+  include_globs:
+  - Usability of ChatGPT(1-20).xlsx
+  mapping_path: analyses/heldout_2/mappings/chatgpt_roleplay_2025_mapping.yaml
+  override_standard_aliases: true
+- study_set: heldout_2
+  source_id: citizen_science_tutorial_2021
+  source_type: local_path
+  location: data/raw/heldout_2/citizen_science_tutorial_2021
+  publication_doi: 10.1007/s42489-021-00083-2
+  license: CC-BY-4.0
+  include_globs:
+  - ORIGINALDATA_*.csv
+  table_options:
+    ORIGINALDATA_*.csv:
+      skip_rows:
+      - 0
+      - 1
+  mapping_path: analyses/heldout_2/mappings/citizen_science_tutorial_2021_mapping.yaml
+  override_standard_aliases: true
+- study_set: heldout_2
+  source_id: debugging_cps_ar_vr_2026
+  source_type: local_path
+  location: data/raw/heldout_2/debugging_cps_ar_vr_2026
+  publication_doi: 10.1109/tvcg.2026.3747542
+  license: CC-BY-4.0
+  include_globs:
+  - ismar26a-sub1461-i9.csv
+  table_options:
+    ismar26a-sub1461-i9.csv:
+      wide_to_long:
+        id:
+        - rttttttttt
+        - Age
+        - Gender
+        level: condition
+        levels:
+        - Ex-Situ AR
+        - In-Situ AR
+        - In-Situ VR
+        columns:
+          scenario:
+          - Ex-Situ AR_Scenario
+          - In-Situ AR_Scenario
+          - In-Situ VR_Scenario
+          numruns:
+          - Ex-Situ AR_NumRuns
+          - In-Situ AR_NumRuns
+          - In-Situ VR_NumRuns
+          tasktime:
+          - Ex-Situ AR_TaskTime
+          - In-Situ AR_TaskTime
+          - In-Situ VR_TaskTime
+          failure_identified:
+          - Ex-Situ AR_FailureIdentified
+          - In-Situ AR_FailureIdentified
+          - In-Situ VR_FailureIdentified
+          defect_resolved:
+          - Ex-Situ AR_DefectResolved
+          - In-Situ AR_DefectResolved
+          - In-Situ VR_DefectResolved
+          sms:
+          - Ex-Situ AR_SMS
+          - In-Situ AR_SMS
+          - In-Situ VR_SMS
+          ueqs_prag:
+          - Ex-Situ AR_UEQS_Prag
+          - In-Situ AR_UEQS_Prag
+          - In-Situ VR_UEQS_Prag
+          ueqs_hed:
+          - Ex-Situ AR_UEQS_Hed
+          - In-Situ AR_UEQS_Hed
+          - In-Situ VR_UEQS_Hed
+          ueqs:
+          - Ex-Situ AR_UEQS
+          - In-Situ AR_UEQS
+          - In-Situ VR_UEQS
+          flow:
+          - Ex-Situ AR_Flow
+          - In-Situ AR_Flow
+          - In-Situ VR_Flow
+          tlx:
+          - Ex-Situ AR_TLX
+          - In-Situ AR_TLX
+          - In-Situ VR_TLX
+          sus:
+          - Ex-Situ AR_SUS
+          - In-Situ AR_SUS
+          - In-Situ VR_SUS
+  mapping_path: analyses/heldout_2/mappings/debugging_cps_ar_vr_2026_mapping.yaml
+  override_standard_aliases: true
+- study_set: heldout_2
+  source_id: developers_prompt_docgen_2024
+  source_type: local_path
+  location: data/raw/heldout_2/developers_prompt_docgen_2024
+  publication_doi: 10.1109/icsme58944.2024.00058
+  license: MIT
+  include_globs:
+  - '**/RQ2/UEQ/UEQ-results-all.xlsx'
+  table_options:
+    '**/UEQ-results-all.xlsx':
+      sheet:
+      - Data1
+      - Data2
+      header: 4
+      row_id: respondent
+      rename:
+        '1': ueq01
+        '2': ueq02
+        '3': ueq03
+        '4': ueq04
+        '5': ueq05
+        '6': ueq06
+        '7': ueq07
+        '8': ueq08
+        '9': ueq09
+        '10': ueq10
+        '11': ueq11
+        '12': ueq12
+        '13': ueq13
+        '14': ueq14
+        '15': ueq15
+        '16': ueq16
+        '17': ueq17
+        '18': ueq18
+        '19': ueq19
+        '20': ueq20
+        '21': ueq21
+        '22': ueq22
+        '23': ueq23
+        '24': ueq24
+        '25': ueq25
+        '26': ueq26
+  mapping_path: analyses/heldout_2/mappings/developers_prompt_docgen_2024_mapping.yaml
+  override_standard_aliases: true
+- study_set: heldout_2
+  source_id: exergame_children_2025
+  source_type: local_path
+  location: data/raw/heldout_2/exergame_children_2025
+  publication_doi: 10.1371/journal.pone.0326371
+  license: CC0-1.0
+  include_globs:
+  - Processed_Data/NASA-TLX.csv
+  table_options:
+    Processed_Data/NASA-TLX.csv:
+      wide_to_long:
+        id:
+        - id
+        - age
+        level: level
+        levels:
+        - mlow
+        - mchall
+        - mhigh
+        - clow
+        - cchall
+        - chigh
+        columns:
+          mental:
+          - mlowmental
+          - mchallmental
+          - mhighmental
+          - clowmental
+          - cchallmental
+          - chighmental
+          physical:
+          - mlowphysical
+          - mchallphysical
+          - mhighphysical
+          - clowphysical
+          - cchallphysical
+          - chighphysical
+          temporal:
+          - mlowtemporal
+          - mchalltemporal
+          - mhightemporal
+          - clowtemporal
+          - cchalltemporal
+          - chightemporal
+          effort:
+          - mloweffort
+          - mchalleffort
+          - mhigheffort
+          - cloweffort
+          - cchalleffort
+          - chigheffort
+          frustration:
+          - mlowfrustration
+          - mchallfrustration
+          - mhighfrustration
+          - clowfrustration
+          - cchallfrustration
+          - chighfrustration
+  mapping_path: analyses/heldout_2/mappings/exergame_children_2025_mapping.yaml
+  override_standard_aliases: true
+- study_set: heldout_2
+  source_id: handover_reaction_time_2025
+  source_type: local_path
+  location: data/raw/heldout_2/handover_reaction_time_2025
+  publication_doi: 10.1109/hri61500.2025.10973851
+  license: CC-BY-4.0
+  include_globs:
+  - 03_evaluation/export/data_Questions.csv
+  mapping_path: analyses/heldout_2/mappings/handover_reaction_time_2025_mapping.yaml
+  override_standard_aliases: true
+- study_set: heldout_2
+  source_id: human_swarm_pfm_2025
+  source_type: local_path
+  location: data/raw/heldout_2/human_swarm_pfm_2025
+  publication_doi: 10.1145/3727989
+  license: CC-BY-4.0
+  include_globs:
+  - form_data_*.csv
+  mapping_path: analyses/opendv_corpus/mappings/human_swarm_pfm_2025_mapping.yaml
+  override_standard_aliases: true
+  mapping_corrected_from: analyses/heldout_2/mappings/human_swarm_pfm_2025_mapping.yaml
+- study_set: heldout_2
+  source_id: layer_interaction_elastic_2022
+  source_type: local_path
+  location: data/raw/heldout_2/layer_interaction_elastic_2022
+  publication_doi: 10.1145/3531073.3531101
+  license: CC-BY-4.0
+  include_globs:
+  - '**/data/questionnaires/NASA_RTLX_complete.tsv'
+  mapping_path: analyses/heldout_2/mappings/layer_interaction_elastic_2022_mapping.yaml
+  override_standard_aliases: true
+- study_set: heldout_2
+  source_id: mr_airplane_layouts_2021
+  source_type: local_path
+  location: data/raw/heldout_2/mr_airplane_layouts_2021
+  publication_doi: 10.1109/ismar52148.2021.00042
+  license: CC-BY-4.0
+  include_globs:
+  - dataForR.csv
+  mapping_path: analyses/opendv_corpus/mappings/mr_airplane_layouts_2021_mapping.yaml
+  override_standard_aliases: true
+  mapping_corrected_from: analyses/heldout_2/mappings/mr_airplane_layouts_2021_mapping.yaml
+- study_set: heldout_2
+  source_id: navigable_wim_2026
+  source_type: local_path
+  location: data/raw/heldout_2/navigable_wim_2026
+  publication_doi: 10.1109/tvcg.2026.3747512
+  license: CC-BY-4.0
+  include_globs:
+  - '**/Questionnaires/Fragebogen_Daten.csv'
+  table_options:
+    '**/Fragebogen_Daten.csv':
+      wide_to_long:
+        id:
+        - v_1
+        - v_2
+        - v_3
+        level: block
+        levels:
+        - 1
+        - 2
+        - 3
+        columns:
+          condition:
+          - v_162
+          - v_163
+          - v_164
+          ueqs1:
+          - v_17
+          - v_73
+          - v_115
+          ueqs2:
+          - v_18
+          - v_74
+          - v_116
+          ueqs3:
+          - v_19
+          - v_75
+          - v_117
+          ueqs4:
+          - v_20
+          - v_76
+          - v_118
+          ueqs5:
+          - v_21
+          - v_77
+          - v_119
+          ueqs6:
+          - v_22
+          - v_78
+          - v_120
+          ueqs7:
+          - v_23
+          - v_79
+          - v_121
+          ueqs8:
+          - v_24
+          - v_80
+          - v_122
+          sus1:
+          - v_26
+          - v_82
+          - v_124
+          sus2:
+          - v_27
+          - v_83
+          - v_125
+          sus3:
+          - v_28
+          - v_84
+          - v_126
+          sus4:
+          - v_29
+          - v_85
+          - v_127
+          sus5:
+          - v_30
+          - v_86
+          - v_128
+          sus6:
+          - v_31
+          - v_87
+          - v_129
+          sus7:
+          - v_32
+          - v_88
+          - v_130
+          sus8:
+          - v_33
+          - v_89
+          - v_131
+          sus9:
+          - v_34
+          - v_90
+          - v_132
+          sus10:
+          - v_35
+          - v_91
+          - v_133
+          md:
+          - v_40
+          - v_93
+          - v_135
+          pd:
+          - v_41
+          - v_94
+          - v_136
+          td:
+          - v_42
+          - v_95
+          - v_137
+          pf:
+          - v_43
+          - v_96
+          - v_138
+          ef:
+          - v_44
+          - v_97
+          - v_139
+          fr:
+          - v_45
+          - v_98
+          - v_140
+          ipq01:
+          - v_55
+          - v_142
+          - v_100
+          ipq02:
+          - v_58
+          - v_143
+          - v_101
+          ipq03:
+          - v_59
+          - v_144
+          - v_102
+          ipq04:
+          - v_60
+          - v_145
+          - v_103
+          ipq05:
+          - v_61
+          - v_146
+          - v_104
+          ipq06:
+          - v_62
+          - v_147
+          - v_105
+          ipq07:
+          - v_63
+          - v_148
+          - v_106
+          ipq08:
+          - v_64
+          - v_149
+          - v_107
+          ipq09:
+          - v_65
+          - v_150
+          - v_108
+          ipq10:
+          - v_66
+          - v_151
+          - v_109
+          ipq11:
+          - v_67
+          - v_152
+          - v_110
+          ipq12:
+          - v_68
+          - v_153
+          - v_111
+          ipq13:
+          - v_69
+          - v_154
+          - v_112
+          ipq14:
+          - v_70
+          - v_155
+          - v_113
+  mapping_path: analyses/heldout_2/mappings/navigable_wim_2026_mapping.yaml
+  override_standard_aliases: true
+- study_set: heldout_2
+  source_id: p300_attention_bci_2024
+  source_type: local_path
+  location: data/raw/heldout_2/p300_attention_bci_2024
+  publication_doi: 10.2196/46135
+  license: CC-BY-4.0
+  include_globs:
+  - Questionnaire scores.csv
+  mapping_path: analyses/heldout_2/mappings/p300_attention_bci_2024_mapping.yaml
+  override_standard_aliases: true
+- study_set: heldout_2
+  source_id: pipeblocks_cicd_2025
+  source_type: local_path
+  location: data/raw/heldout_2/pipeblocks_cicd_2025
+  publication_doi: 10.1109/vl-hcc65237.2025.00025
+  license: CC-BY-4.0
+  include_globs:
+  - '**/NASA TLX.csv/NASA TLX.csv'
+  - '**/sus.csv'
+  mapping_path: analyses/heldout_2/mappings/pipeblocks_cicd_2025_mapping.yaml
+  override_standard_aliases: true
+- study_set: heldout_2
+  source_id: remote_takeover_replay_2026
+  source_type: local_path
+  location: data/raw/heldout_2/remote_takeover_replay_2026
+  publication_doi: 10.1145/3811427.3811435
+  license: CC-BY-4.0
+  include_globs:
+  - 02_data/bayesian-RMANOVA.csv
+  mapping_path: analyses/heldout_2/mappings/remote_takeover_replay_2026_mapping.yaml
+  override_standard_aliases: true
+- study_set: heldout_2
+  source_id: risky_driving_age_2017
+  source_type: local_path
+  location: data/raw/heldout_2/risky_driving_age_2017
+  publication_doi: 10.1371/journal.pone.0185909
+  license: CC-BY-4.0
+  include_globs:
+  - Dataset_*_Scenario.xlsx
+  mapping_path: analyses/heldout_2/mappings/risky_driving_age_2017_mapping.yaml
+  override_standard_aliases: true
+- study_set: heldout_2
+  source_id: simulst_subtitles_2026
+  source_type: local_path
+  location: data/raw/heldout_2/simulst_subtitles_2026
+  publication_doi: 10.1080/10447318.2026.2734668
+  license: CC-BY-4.0
+  include_globs:
+  - de-identified questionnaire data.xlsx
+  table_options:
+    de-identified questionnaire data.xlsx:
+      sheet:
+      - flickering
+      - non_flickering
+      header: 1
+      wide_to_long:
+        id:
+        - Experiment No.实验编号
+        - sheet
+        level: video
+        levels:
+        - 1
+        - 2
+        columns:
+          mental_effort:
+          - 24、How mentally demanding was the task? 观看该视频过程的心智负荷如何？
+          - 41、How mentally demanding was the task? 观看该视频过程的心智负荷如何？
+          satisfaction:
+          - 27、Overall, how satisfied were you with the subtitle experience?总体而言，您对字幕体验的满意度如何？
+          - 44、Overall, how satisfied were you with the subtitle experience?总体而言，您对字幕体验的满意度如何？
+  mapping_path: analyses/heldout_2/mappings/simulst_subtitles_2026_mapping.yaml
+  override_standard_aliases: true
+- study_set: heldout_2
+  source_id: spot_voice_gesture_2025
+  source_type: local_path
+  location: data/raw/heldout_2/spot_voice_gesture_2025
+  publication_doi: 10.1145/3729540
+  license: CC-BY-4.0
+  include_globs:
+  - '**/Data per participant and measure.xlsx'
+  table_options:
+    '**/Data per participant and measure.xlsx':
+      header: 1
+      wide_to_long:
+        id:
+        - Participant number
+        level: condition
+        levels:
+        - Voice Walking
+        - Voice Standing
+        - Gesture Walking
+        - Gesture Standing
+        columns:
+          inter_command_time:
+          - Voice Walking
+          - Voice Standing
+          - Gesture Walking
+          - Gesture Standing
+          n_commands:
+          - Voice Walking.2
+          - Voice Standing.2
+          - Gesture Walking.2
+          - Gesture Standing.2
+          dup_mistakes:
+          - Voice Walking.14
+          - Voice Standing.14
+          - Gesture Walking.14
+          - Gesture Standing.14
+          lr_mistakes:
+          - Voice Walking.16
+          - Voice Standing.16
+          - Gesture Walking.16
+          - Gesture Standing.16
+          other_mistakes:
+          - Voice Walking.18
+          - Voice Standing.18
+          - Gesture Walking.18
+          - Gesture Standing.18
+  mapping_path: analyses/heldout_2/mappings/spot_voice_gesture_2025_mapping.yaml
+  override_standard_aliases: true
+- study_set: heldout_2
+  source_id: steering_gain_2022
+  source_type: local_path
+  location: data/raw/heldout_2/steering_gain_2022
+  publication_doi: 10.1177/00187208221127944
+  license: CC-BY-4.0
+  include_globs:
+  - '**/Questionnaires.xlsx'
+  table_options:
+    '**/Questionnaires.xlsx':
+      sheet: Post-trial
+      header: 2
+      wide_to_long:
+        id:
+        - 'Unnamed: 0'
+        level: condition
+        levels:
+        - FL
+        - FH
+        - MI
+        - DI
+        columns:
+          md:
+          - FL.3
+          - FH.3
+          - MI.3
+          - DI.3
+          pd:
+          - FL.4
+          - FH.4
+          - MI.4
+          - DI.4
+          td:
+          - FL.5
+          - FH.5
+          - MI.5
+          - DI.5
+          pf:
+          - FL.6
+          - FH.6
+          - MI.6
+          - DI.6
+          ef:
+          - FL.7
+          - FH.7
+          - MI.7
+          - DI.7
+          fr:
+          - FL.8
+          - FH.8
+          - MI.8
+          - DI.8
+          overall:
+          - FL.9
+          - FH.9
+          - MI.9
+          - DI.9
+  mapping_path: analyses/heldout_2/mappings/steering_gain_2022_mapping.yaml
+  override_standard_aliases: true
+- study_set: heldout_2
+  source_id: sus_de_pos_2025
+  source_type: local_path
+  location: data/raw/heldout_2/sus_de_pos_2025
+  publication_doi: 10.1080/10447318.2024.2434720
+  license: CC-BY-4.0
+  include_globs:
+  - Study 2/SUS_DE_pos_study_2_data.xlsx
+  table_options:
+    Study 2/SUS_DE_pos_study_2_data.xlsx:
+      row_id: respondent
+  mapping_path: analyses/heldout_2/mappings/sus_de_pos_2025_mapping.yaml
+  override_standard_aliases: true
+- study_set: heldout_2
+  source_id: teleoperation_latency_2026
+  source_type: local_path
+  location: data/raw/heldout_2/teleoperation_latency_2026
+  publication_doi: 10.1109/ro-man72286.2026.11714563
+  license: CC-BY-4.0
+  include_globs:
+  - latency_teleoperation_user_study_data.tsv
+  table_options:
+    latency_teleoperation_user_study_data.tsv:
+      pivot:
+        index:
+        - participant
+        - condition_number
+        columns: task
+        values: performance_metric
+  mapping_path: analyses/heldout_2/mappings/teleoperation_latency_2026_mapping.yaml
+  override_standard_aliases: true
+- study_set: heldout_2
+  source_id: teleport_distance_accuracy_2025
+  source_type: local_path
+  location: data/raw/heldout_2/teleport_distance_accuracy_2025
+  publication_doi: 10.1109/tvcg.2025.3632345
+  license: CC-BY-4.0
+  include_globs:
+  - data_user_platform_velocity.csv
+  mapping_path: analyses/heldout_2/mappings/teleport_distance_accuracy_2025_mapping.yaml
+  override_standard_aliases: true
+- study_set: heldout_2
+  source_id: turn_by_turn_wayfinding_2010
+  source_type: local_path
+  location: data/raw/heldout_2/turn_by_turn_wayfinding_2010
+  publication_doi: 10.1177/154193121005402305
+  license: CC0-1.0
+  include_globs:
+  - Fenech_2010_acoustic_GPS_final.sav
+  mapping_path: analyses/heldout_2/mappings/turn_by_turn_wayfinding_2010_mapping.yaml
+  override_standard_aliases: true
+- study_set: heldout_2
+  source_id: vibrotactile_elastic_2023
+  source_type: local_path
+  location: data/raw/heldout_2/vibrotactile_elastic_2023
+  publication_doi: 10.1145/3603555.3608534
+  license: CC-BY-4.0
+  include_globs:
+  - '**/export/data/results_experiment.csv'
+  mapping_path: analyses/heldout_2/mappings/vibrotactile_elastic_2023_mapping.yaml
+  override_standard_aliases: true
+- study_set: heldout_2
+  source_id: vr_classroom_asa_2022
+  source_type: local_path
+  location: data/raw/heldout_2/vr_classroom_asa_2022
+  publication_doi: 10.3390/ijerph192416569
+  license: CC-BY-4.0
+  include_globs:
+  - '**/asaExperiment_rawData/asaVRpoc_0_allResultsRaw.xlsx'
+  - '**/rawResultsQuestionnaire/*.csv'
+  table_options:
+    '**/rawResultsQuestionnaire/*.csv':
+      pivot:
+        index:
+        - Proband_ID
+        - Scene
+        columns: Question
+        values: Answer
+  mapping_path: analyses/heldout_2/mappings/vr_classroom_asa_2022_mapping.yaml
+  override_standard_aliases: true
+- study_set: heldout_2
+  source_id: vr_classroom_noise_2025
+  source_type: local_path
+  location: data/raw/heldout_2/vr_classroom_noise_2025
+  publication_doi: 10.1038/s41598-025-18232-2
+  license: CC-BY-4.0
+  include_globs:
+  - '**/raw/avASA_noise_NASA_TLX_raw.xlsx'
+  table_options:
+    '**/avASA_noise_NASA_TLX_raw.xlsx':
+      sheet: avASA_noise_NASA_TLX
+      wide_to_long:
+        id:
+        - Proband_ID
+        level: condition
+        levels:
+        - SI
+        - CL
+        - SP
+        - WN
+        columns:
+          q1:
+          - SI_01
+          - CL_01
+          - SP_01
+          - WN_01
+          q2:
+          - SI_02
+          - CL_02
+          - SP_02
+          - WN_02
+          q3:
+          - SI_03
+          - CL_03
+          - SP_03
+          - WN_03
+          q4:
+          - SI_04
+          - CL_04
+          - SP_04
+          - WN_04
+          q5:
+          - SI_05
+          - CL_05
+          - SP_05
+          - WN_05
+          q6:
+          - SI_06
+          - CL_06
+          - SP_06
+          - WN_06
+  mapping_path: analyses/opendv_corpus/mappings/vr_classroom_noise_2025_mapping.yaml
+  override_standard_aliases: true
+  mapping_corrected_from: analyses/heldout_2/mappings/vr_classroom_noise_2025_mapping.yaml
+- study_set: heldout_2
+  source_id: vr_propaganda_retention_2024
+  source_type: local_path
+  location: data/raw/heldout_2/vr_propaganda_retention_2024
+  publication_doi: 10.1016/j.chb.2024.108503
+  license: CC-BY-4.0
+  include_globs:
+  - data_CHB.csv
+  mapping_path: analyses/heldout_2/mappings/vr_propaganda_retention_2024_mapping.yaml
+  override_standard_aliases: true
+- study_set: heldout_2
+  source_id: vr_shopping_demands_2026
+  source_type: local_path
+  location: data/raw/heldout_2/vr_shopping_demands_2026
+  publication_doi: 10.2196/84893
+  license: CC-BY-4.0
+  include_globs:
+  - '**/nasa-tlx-results.xlsx'
+  table_options:
+    '**/nasa-tlx-results.xlsx':
+      sheet:
+      - mental
+      - physical
+      - temporal
+      - performance
+      - effort
+      - frustration
+      wide_to_long:
+        id:
+        - participant
+        - sheet
+        level: condition
+        levels: &id001
+        - c1
+        - c2
+        - c3
+        - c4
+        - c5
+        - c6
+        - c7
+        columns:
+          score: *id001
+      pivot:
+        index:
+        - participant
+        - condition
+        columns: sheet
+        values: score
+  mapping_path: analyses/heldout_2/mappings/vr_shopping_demands_2026_mapping.yaml
+  override_standard_aliases: true
+- study_set: heldout_2
+  source_id: vr_spirit_ataxia_2023
+  source_type: local_path
+  location: data/raw/heldout_2/vr_spirit_ataxia_2023
+  publication_doi: 10.3390/brainsci13071017
+  license: CC-BY-4.0
+  include_globs:
+  - Zenodo_Malerbaetal2023.xlsx
+  table_options:
+    Zenodo_Malerbaetal2023.xlsx:
+      sheet:
+      - SUS
+      - SSQ
+  mapping_path: analyses/heldout_2/mappings/vr_spirit_ataxia_2023_mapping.yaml
+  override_standard_aliases: true

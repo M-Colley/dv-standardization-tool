@@ -25,6 +25,8 @@ or from Python, see the [Python API](api.md).
 
 ## Where to go next
 
+- [Mapping a study](sigchi_mapping_guide.md): how to map the data of a CHI or other SIGCHI paper, with the [DV schema reference](schema_reference.md) and `opendv check-mapping`.
+- [OpenDV corpus](opendv_corpus.md): one analysis of 88 studies with open data, which shows what the mapping makes comparable.
 - [Overview](overview.md) and [usage workflows](usage_workflows.md): what the tool does and the common workflows.
 - [Multi-study analysis](multi_study_analysis_guide.md): the meta-analysis, contrasts, invariance and multiverse outputs.
 - [Cross-study relations](cross_study_insights.md): what harmonization reveals that no single study shows, and what the LLM fallback adds.

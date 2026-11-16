@@ -1,0 +1,111 @@
+normalized_label,studies,dvs,example,n_dvs
+a1,3,AOA1; efficiency; task_feasibility_item_01,A1,3
+a2,3,AOA2; efficiency; task_feasibility_item_02,A2,3
+perceivedsafety1,5,perceived_safety; perceived_safety_item_01,perceivedSafety1,2
+perceivedsafety2,5,perceived_safety; perceived_safety_item_02,perceivedSafety2,2
+perceivedsafety3,5,perceived_safety; perceived_safety_item_03,perceivedSafety3,2
+a3,2,efficiency; perceived_vehicle_influence,A3,2
+a4,2,AOA3; acceptance_rating,A4,2
+c1,2,conflict_item_01; efficiency,C1,2
+c2,2,conflict_item_02; efficiency,C2,2
+c3,2,conflict_item_03; efficiency,C3,2
+mentaleffort,2,mental_demand; paas_mental_effort,mental effort,2
+tlx12,2,mental_demand; physical_demand,TLX 1.2,2
+tlx21,2,mental_demand; physical_demand,TLX 2.1,2
+trust3,2,tia_k02; trust_rating,Trust3,2
+trust4,2,tia_k07; trust_rating,Trust4,2
+trust5,2,tia_k11; trust_rating,Trust5,2
+trust6,2,tia_k16; trust_rating,Trust6,2
+effort,11,effort,Effort,1
+frustration,9,frustration,Frustration,1
+performance,9,performance,Performance,1
+mentaldemand,6,mental_demand,mental_demand,1
+physicaldemand,6,physical_demand,physical_demand,1
+tlx1,6,mental_demand,TLX1,1
+ef,5,effort,EF,1
+md,5,mental_demand,MD,1
+pd,5,physical_demand,PD,1
+sus1,5,SUS1,SUS1,1
+sus10,5,SUS10,SUS10,1
+sus2,5,SUS2,SUS2,1
+sus3,5,SUS3,SUS3,1
+sus4,5,SUS4,SUS4,1
+sus5,5,SUS5,SUS5,1
+sus6,5,SUS6,SUS6,1
+sus7,5,SUS7,SUS7,1
+sus8,5,SUS8,SUS8,1
+sus9,5,SUS9,SUS9,1
+td,5,temporal_demand,TD,1
+temporaldemand,5,temporal_demand,temporal_demand,1
+mental,4,mental_demand,Mental,1
+perceivedsafety4,4,perceived_safety_item_04,perceivedSafety4,1
+physical,4,physical_demand,Physical,1
+temporal,4,temporal_demand,Temporal,1
+trust,4,trust_rating,Trust,1
+fr,3,frustration,fr,1
+pf,3,performance,pf,1
+sart1,3,sart_demand,SART1,1
+sart2,3,sart_demand,SART2,1
+sart3,3,sart_demand,SART3,1
+sart4,3,sart_supply,SART4,1
+sart5,3,sart_supply,SART5,1
+sart6,3,sart_supply,SART6,1
+sart7,3,sart_supply,SART7,1
+sart8,3,sart_understanding,SART8,1
+sart9,3,sart_understanding,SART9,1
+tiatrust1,3,tia_k09,TiA_Trust1,1
+tiatrust2,3,tia_k14,TiA_Trust2,1
+ueqs1,3,ueq_s_1,ueqs1,1
+ueqs2,3,ueq_s_2,ueqs2,1
+ueqs3,3,ueq_s_3,ueqs3,1
+ueqs4,3,ueq_s_4,ueqs4,1
+ueqs5,3,ueq_s_5,ueqs5,1
+ueqs6,3,ueq_s_6,ueqs6,1
+ueqs7,3,ueq_s_7,ueqs7,1
+ueqs8,3,ueq_s_8,ueqs8,1
+aoa1,2,AOA1,aoa1,1
+aoa2,2,AOA2,aoa2,1
+aoa3,2,AOA3,aoa3,1
+aoa4,2,AOA4,aoa4,1
+aoa5,2,AOA5,aoa5,1
+aoa6,2,AOA6,aoa6,1
+aoa7,2,AOA7,aoa7,1
+aoa8,2,AOA8,aoa8,1
+aoa9,2,AOA9,aoa9,1
+completiontimes,2,task_completion_time,completion_time_s,1
+disorientation,2,ssq_disorientation,Disorientation,1
+fl,2,frustration,FL,1
+nausea,2,ssq_nausea,Nausea,1
+pe,2,utaut_performance_expectancy,PE,1
+performbetter,2,sts_ad_item_02,performbetter,1
+q1261,2,AOA1,Q126_1,1
+q1262,2,AOA2,Q126_2,1
+q1263,2,AOA3,Q126_3,1
+q1264,2,AOA4,Q126_4,1
+q1265,2,AOA5,Q126_5,1
+q1266,2,AOA6,Q126_6,1
+q1267,2,AOA7,Q126_7,1
+q1268,2,AOA8,Q126_8,1
+q1269,2,AOA9,Q126_9,1
+q401,2,AOA1,Q40_1,1
+q402,2,AOA2,Q40_2,1
+q403,2,AOA3,Q40_3,1
+q404,2,AOA4,Q40_4,1
+q405,2,AOA5,Q40_5,1
+q406,2,AOA6,Q40_6,1
+q407,2,AOA7,Q40_7,1
+q408,2,AOA8,Q40_8,1
+q409,2,AOA9,Q40_9,1
+rt,2,task_completion_time,rt,1
+safety,2,perceived_safety,safety,1
+sart,2,sart_total,SART,1
+sart10,2,sart_understanding,SART10,1
+tlx11,2,mental_demand,TLX 1.1,1
+tlx2,2,physical_demand,TLX2,1
+tlx22,2,physical_demand,TLX 2.2,1
+tlx3,2,temporal_demand,TLX3,1
+tlx4,2,performance,TLX4,1
+tlx5,2,effort,TLX5,1
+tlx6,2,frustration,TLX6,1
+tlxmental,2,mental_demand,tlx.mental,1
+unsafejudgement,2,sts_ad_item_05,unsafeJudgement,1
