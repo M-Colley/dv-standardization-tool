@@ -29,6 +29,16 @@
 #     are items 1-7; web.R takes com_eval_sq001 as item 8, but nothing documents that and the
 #     column correlates more with the pragmatic items (.73-.78) than an item of the hedonic
 #     scale would, so it is not mapped and the web files get no hedonic score.
+#   - NASA-TLX: the study asked mental demand only (TLX1, analysed alone in vr.R l.184-196;
+#     neither file has another TLX item). The VR file's TLX1 is mapped by the shared schema
+#     (alias tlx1). web.R renames the web files' tlx1_sq001 to TLX1 (l.88-98, l.150-152), stacks
+#     the German web rows on the VR rows (l.195) and compares TLX1 between the two studies as it
+#     is (l.204-215), so both files use one coding. Observed, integers only: VR 1-20 (296
+#     answers, 37 at 1, none at 0), web Germany 2-20 (84), web USA 1-18 (90, 8 at 1). Mapped on
+#     2026-11-16 without a scale conversion, as the VR column is. Until then only the LLM mapped
+#     it (correctly), and that column was set aside for the VR file's curated TLX1, so the web
+#     participants had no mental demand. Whether the 20 options mean 1-20 or 0-20 minus its
+#     lowest mark is not documented for either file; the registry reads 1..20 as the 0-20 coding.
 
 # --- Dependent measures: VR study (data-main.xlsx) -----------------------------------------
 TiA_Trust1: tia_k09                     # TiA trust, "I trust the system", 1-5
@@ -51,6 +61,7 @@ ueqs7: ueq_s_7
 ueqs8: ueq_s_8
 
 # --- Dependent measures: web study (QuestionnaireResult_Germany/USA.xlsx) --------------------
+tlx1_sq001: mental_demand               # web.R: TLX1 (NASA-TLX mental demand), see the notes
 trustiaunderp_sq001: tia_k02            # web.R: TiA_Understanding1
 trustiaunderp_sq002: tia_k07            # TiA_Understanding2, reverse-keyed
 trustiaunderp_sq003: tia_k09            # TiA_Trust1
@@ -85,3 +96,27 @@ crossing_decision_owt: meta_rating_crossing_decision_other_traffic
 # "Behaved as usual" check (1-7) that web.R drops with the attention checks (l.139); the LLM
 # had mapped it to retention_time.
 typical_behavior: meta_check_typical_behavior
+# Communication evaluation of the eHMI, 1-7 ratings that vr.R analyses one by one with ART
+# ANOVAs (l.67-140): comEval2 polite | impolite (l.68), comEval3 machine-like (l.111),
+# comEval4 not clear (l.116), comEval5 naturalness (l.124), comEval6 appropriateness (l.131).
+# web.R renames the web files' com_eval_sq002-006 by position to comEval2-6 (l.88-98).
+# Locked on 2026-11-16. The LLM had mapped the web files' com_eval_sq004 to
+# perceived_safety_item_04; listed before the curated perceived_safety_sq004, its column took
+# the item's bare name, and until the analysis fix of that day the web files had no
+# perceived-safety score whenever it was set aside. With only that column locked, the LLM mapped
+# the VR file's comEval2 and comEval4 to the TLX total and comEval3 to temporal demand
+# (the batch prompt changed), so all ten are locked.
+comEval2: meta_rating_communication_polite
+comEval3: meta_rating_communication_machine_like
+comEval4: meta_rating_communication_not_clear
+comEval5: meta_rating_communication_natural
+comEval6: meta_rating_communication_appropriate
+com_eval_sq002: meta_rating_communication_polite
+com_eval_sq003: meta_rating_communication_machine_like
+com_eval_sq004: meta_rating_communication_not_clear
+com_eval_sq005: meta_rating_communication_natural
+com_eval_sq006: meta_rating_communication_appropriate
+# web.R takes com_eval_sq001 as ueqs8 (l.88-98); nothing documents that, and it correlates
+# .73-.78 with the pragmatic items (see UEQ-S above), so it stays out of the UEQ-S. Locked on
+# 2026-11-16 for the same reason as the comEval items.
+com_eval_sq001: meta_rating_communication_item_1_undocumented
