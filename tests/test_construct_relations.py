@@ -450,4 +450,6 @@ def test_llm_replay_sets_aside_llm_answers_of_an_automatic_dv(tmp_path):
     pd.testing.assert_series_equal(matrix["effort"], frame["effort"], check_names=False)
     assert [(r["column"], r["raw_column"], r["kept_instead"]) for r in frames.set_aside] == [
         ("perceived_safety__dup_900", "Sicherheit", "same table")]
-    assert frames.column_levels["s"] == {"perceived_safety": 1, "effort__dup_901": 3}
+    # The replayed column takes the bare name the hidden study mapping freed,
+    # as the batch would name it without that mapping (reclaim_freed_names).
+    assert frames.column_levels["s"] == {"perceived_safety": 1, "effort": 3}

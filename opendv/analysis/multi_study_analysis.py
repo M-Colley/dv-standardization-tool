@@ -325,6 +325,40 @@ def _llm_columns_to_drop(
     return [{name for name in names if key[name] in curated} for names, key in zip(llm, keys, strict=True)]
 
 
+def reclaim_freed_names(columns: Iterable[Any], removed: Iterable[Any]) -> Dict[str, str]:
+    """``{column: new name}``: each bare name a removed column held goes to
+    the first remaining column of the same DV in the table.
+
+    The batch names a table's columns of one DV in raw column order: the
+    first gets the bare name (``perceived_safety_item_04``), the others
+    ``__dup_N``. Registry scores (:func:`opendv.instruments.score_frame`) read
+    an item by its bare name only. So when the column with the bare name is
+    left out (an LLM-mapped column set aside for a curated column of its DV,
+    or a column above a relations level), the next column takes the bare
+    name, which the batch would have given it without the removed column.
+    Until 2026-11-16 it kept its ``__dup_N`` name and the item was missing
+    from the table: Longitudinal US/DE's web files list ``com_eval_sq004``
+    (LLM-mapped to ``perceived_safety_item_04``) before their curated
+    ``perceived_safety_sq004``, so setting the LLM column aside left them
+    without a perceived-safety score.
+
+    Columns of a DV are averaged per row wherever no score is involved
+    (:func:`_canonical_numeric_frame`), so renaming them changes nothing else.
+    """
+    remaining = [str(c) for c in columns]
+    freed = {
+        str(c) for c in removed if not is_item_suffixed(str(c)) and _strip_dup_suffix(str(c)) == str(c)
+    } - set(remaining)
+    renames: Dict[str, str] = {}
+    for name in remaining:
+        if is_item_suffixed(name):
+            continue
+        base = _strip_dup_suffix(name)
+        if base != name and base in freed and base not in renames.values():
+            renames[name] = base
+    return renames
+
+
 class StudyFrames(dict):
     """``{study: frame}`` as :func:`load_studies` returns it.
 
@@ -778,6 +812,9 @@ def load_studies(
         default) leaves one out when the study has a column of the same DV
         mapped by a study mapping, the schema or a header match, and keeps the
         rest; ``"exclude"`` leaves all of them out; ``"keep"`` keeps all.
+        When a column left out held the bare name of its DV, the table's next
+        column of that DV takes the name before scores are computed
+        (:func:`reclaim_freed_names`).
         Design and metadata columns are always kept. Without
         ``column_provenance`` nothing is known about the columns and all are
         kept.
@@ -939,6 +976,13 @@ def _assemble_study(
     for (dataset_id, df, categories), drop in zip(tables, drops, strict=True):
         if drop:
             df = df.drop(columns=[col for col in df.columns if str(col) in drop])
+            # A curated twin of a set-aside column takes its bare name, so
+            # registry scores read it (see reclaim_freed_names).
+            renames = reclaim_freed_names(df.columns, drop)
+            if renames:
+                df = df.rename(columns=renames)
+                categories = {renames.get(name, name): category
+                              for name, category in categories.items() if name not in drop}
             for column in sorted(drop):
                 set_aside.append({
                     "study": project_key,
