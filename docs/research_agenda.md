@@ -500,9 +500,10 @@ effect:
 - **Scale harmonization now decides the NASA-TLX subscales.** With 23
   studies `mental_demand` was robust: all 32 estimates lay in 7.35–8.13 and
   every interval covered the default. With 39 studies (k = 19 in every
-  specification) the estimates range from 8.12 to 17.47 and 44% of the
+  specification) the estimates range from 8.20 to 17.54 and 44% of the
   intervals miss the default. The harmonized specifications stay together
-  (8.12–8.15); the raw ones (15.5–17.5) pool six added studies' 0–100
+  (8.20–8.25; 8.12–8.15 until Longitudinal US/DE's web study joined on
+  2026-11-16); the raw ones (15.5–17.5) pool six added studies' 0–100
   ratings with 0–20 ones. Until FOV Snap-Turn's and Gaze Platformer's
   questionnaire items were locked (later on 2026-11-14) the specifications
   with LLM mappings had k = 21 and the range was 7.73–17.48 (harmonized
@@ -532,8 +533,9 @@ effect:
   out without LLM mappings because another column of their items' DVs was
   LLM-mapped.
 - **Fragile:**
-  - `perceived_safety` (k = 10) moves from 1.38 to 2.72, entirely with
-    scale harmonization (raw 2.71–2.72, harmonized 1.38–1.39); 6% of the
+  - `perceived_safety` (k = 10) moves from 1.32 to 2.67, entirely with
+    scale harmonization (raw 2.65–2.67, harmonized 1.32–1.34; 1.38–2.72
+    until Longitudinal US/DE's web files were scored on 2026-11-16); 6% of the
     intervals miss the default. Until the audit the Faas items of 3D
     display, FACT-AV and Longitudinal US/DE were LLM-mapped, so k was 7
     without and 11 with LLM mappings (with osf_cwd6h's self-rated driving
@@ -579,7 +581,7 @@ effect:
   items `Enjoyment_fun` and `Enjoyment_entertaining` as mental demand
   (28.9% and 5.0% of the all-mappings pool's weight). Since 2026-11-14
   every column of the two studies without a schema DV is locked, and the
-  all-mappings mental-demand pool is the LLM-excluded one (k = 19, 8.13).
+  all-mappings mental-demand pool is the LLM-excluded one (k = 19, 8.20).
   The audit of 2026-11-15 found 344 of the 378 LLM-mapped columns still
   pooled not to have the right DV (`analyses/llm_mapping_audit/`).
 - **Fragility that was a data error:** `performance` ranged from 8.73 to
@@ -647,22 +649,27 @@ for the 39 development studies (2026-11-05); the 23-study values of
   hedonic quality on an undocumented BVI item; mental demand × STS-AD trust
   (found on 2026-11-14) on three columns none of which is an STS-AD item.
   With the mappings fixed no LLM column is pooled and the `llm` level equals
-  the curated one; the curated level gains perceived safety × TiA trust
-  (between r = 0.69, within r = 0.62, three studies each) and mental demand ×
-  TiA trust (within, r = −0.38), now on correctly scored TiA subscales, and
-  workload × perceived safety within persons rests on seven curated studies
-  (r = −0.40, q = .009). On the 16 added studies the LLM gives the curated
+  the curated one; the curated level gains mental demand × TiA trust
+  (within, r = −0.35, q = .009, three studies), now on correctly scored TiA
+  subscales, and workload × perceived safety within persons rests on seven
+  curated studies (r = −0.38, q = .009). Perceived safety × TiA trust (r =
+  0.69 between, 0.62 within) was a curated finding only until 2026-11-16:
+  an LLM column of a perceived-safety item had kept Longitudinal US/DE's web
+  study (29 of 55 participants) out of the score, and with them it is r =
+  0.56 [−0.05, 0.87] and 0.57 [0.05, 0.84], no finding, as in PR #50's
+  corpus without the LLM. So even with every LLM column set aside, the LLM
+  could still change a curated result through a column's name. On the 16 added studies the LLM gives the curated
   DV for 17% of the curated columns (36% on the first 23 since the audit;
   41% before).
 - **Can the LLM replace curation? No.** With the LLM's leave-alias-out
   answers in place of the curated mappings, 67 of 314 curated DV columns
-  kept their DV (999 of 1,330 since the fixes of 2026-11-15, 720 of them
+  kept their DV (999 of 1,332 since the fixes of 2026-11-15, 720 of them
   eHMI-for-All's total time and 216 osf_cwd6h's perceived risk in their log
   files). Within persons the replay recovers 10 of
   the 25 curated findings (13 of 16 before the audit added curated
   findings), but the shared schema alone recovers 14, because the added
   TLX studies name their subscales plainly; between persons it recovers
-  none of 21 (one of 19 before), and none of the usability–workload
+  none of 20 (one of 19 before), and none of the usability–workload
   relations. Where both pool
   a pair the correlations agree closely (median |Δr| 0.06–0.07), so the
   cost is coverage and misassignment, not distorted estimates. This is a

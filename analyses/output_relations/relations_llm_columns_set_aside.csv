@@ -145,10 +145,6 @@ llm,ehmi_optimization_chi25,eHMI-bo-participantdata/u_9/QuestionnaireData_9/Ques
 llm,ehmi_optimization_chi25,eHMI-bo-participantdata/u_9/QuestionnaireData_9/QuestionnaireResponses.csv,acceptance_rating__dup_2,Acceptance2,acceptance_rating,other table
 llm,incar_vr_gain_chi24,FINAL_Questionnaires.csv,mental_demand__dup_2,Excitment,mental_demand,same table
 llm,incar_vr_gain_chi24,FinalQuestions.csv,task_success__dup_2,ExampleNr,task_success,same table
-llm,longitudinal_usa_germany_ehmi,QuestionnaireResult_Germany.xlsx,mental_demand,tlx1_sq001,mental_demand,other table
-llm,longitudinal_usa_germany_ehmi,QuestionnaireResult_Germany.xlsx,perceived_safety_item_04,com_eval_sq004,perceived_safety_item_04,same and other tables
-llm,longitudinal_usa_germany_ehmi,QuestionnaireResult_USA.xlsx,mental_demand,tlx1_sq001,mental_demand,other table
-llm,longitudinal_usa_germany_ehmi,QuestionnaireResult_USA.xlsx,perceived_safety_item_04,com_eval_sq004,perceived_safety_item_04,same and other tables
 llm,perceived_risk_merging_2022,Data/SubjectiveRatings.xlsx,ttc,min_gap (m),ttc,same table
 llm,perceived_risk_merging_2022,Data/SubjectiveRatings.xlsx,ttc__dup_2,min_speed(m/s),ttc,same table
 llm,roads_chi25,results-roads-final-chi25.xlsx,SUS1,reality,SUS1,other table
@@ -301,10 +297,8 @@ llm_replay,incar_vr_gain_chi24,FINAL_Questionnaires.csv,ssq_nausea__dup_908,meta
 llm_replay,incar_vr_gain_chi24,FINAL_Questionnaires.csv,ssq_disorientation__dup_910,meta_condition_mean__dup_3,ssq_disorientation,same table
 llm_replay,incar_vr_gain_chi24,FINAL_Questionnaires.csv,ssq_total__dup_911,meta_condition_mean__dup_4,ssq_total,same table
 llm_replay,incar_vr_gain_chi24,FINAL_Questionnaires.csv,ssq_total__dup_912,meta_motion_sickness_susceptibility,ssq_total,same table
-llm_replay,longitudinal_usa_germany_ehmi,QuestionnaireResult_Germany.xlsx,mental_demand,tlx1_sq001,mental_demand,other table
-llm_replay,longitudinal_usa_germany_ehmi,QuestionnaireResult_USA.xlsx,mental_demand,tlx1_sq001,mental_demand,other table
 llm_replay,roads_chi25,results-roads-final-chi25.xlsx,SUS1,reality,SUS1,other table
 llm_replay,short_videos_memory_2023,data/rt.csv,task_success__dup_900,meta_trial_responded,task_success,other table
 llm_replay,tlx_formats_uas_2023,nasa_tlx_multi_response.csv,mental_demand__dup_900,raw_overall_workload,mental_demand,same table
-llm_replay,concurrent_speech_2022,Investigating cognitive workload in concurrent speech-based information communication.csv,TLX_SCORE__dup_901,Index Score,TLX_SCORE,computed score
+llm_replay,concurrent_speech_2022,Investigating cognitive workload in concurrent speech-based information communication.csv,TLX_SCORE,Index Score,TLX_SCORE,computed score
 llm_replay,nl2tap_filter_2026,NL2TAP-user-study-replication/replication_package/data/user_study/scenario_sessions.csv,TLX_SCORE__dup_901,total_turns,TLX_SCORE,computed score

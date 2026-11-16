@@ -173,7 +173,18 @@ again found no pooled LLM-mapped column, and the LLM's answers repeat.
 ## Not in the audit
 
 - Columns the all-mappings analysis set aside (`analyses/output_python_full/llm_columns_set_aside.csv`)
-  did not feed a pooled result and were not audited.
+  did not feed a pooled result and were not audited. Two of them still mattered (changelog,
+  2026-11-16), both in Longitudinal US/DE's web files:
+  - `com_eval_sq004`, the "not clear" rating of the eHMI (vr.R l.116), mapped to perceived-safety
+    item 4. It was listed before the curated item, so it took the item's column name, and
+    setting it aside left the curated item unscored. The analysis now gives the name to the
+    curated column (`reclaim_freed_names`), and the comEval ratings are locked.
+  - `tlx1_sq001`, mental demand, mapped right, but set aside for the VR file's curated `TLX1`;
+    it is curated now.
+
+  The 15 answers left are still unaudited, and they are set aside. Among them, AV acceptance
+  VR's `Anxiety 1`-`3` (perceived safety) and perceived risk merging's `min_gap (m)` and
+  `min_speed(m/s)` (TTC) sit beside curated columns of their DV in the same table.
 - Curated (non-LLM) mappings were not audited. These came up while reading the sources:
   - FACT-AV: `schemas/fact_av_mapping.yaml` maps a column `understanding_rating` to
     `sart_understanding`, but the file's column is `Understanding` (the SART understanding
