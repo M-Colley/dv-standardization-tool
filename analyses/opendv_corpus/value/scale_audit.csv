@@ -1,5 +1,15 @@
 study,dv,n,min,max,range_lo,range_hi,scale_note,status
 3d_display_comp_vehicle,mental_demand,45,1.0,18.0,0,20.0,,in_range
+3d_display_comp_vehicle,perceived_safety_item_01,45,-2.0,3.0,-3,3.0,,in_range
+3d_display_comp_vehicle,perceived_safety_item_02,45,-3.0,3.0,-3,3.0,,in_range
+3d_display_comp_vehicle,perceived_safety_item_03,45,-2.0,3.0,-3,3.0,,in_range
+3d_display_comp_vehicle,perceived_safety_item_04,45,-2.0,3.0,-3,3.0,,in_range
+3d_display_comp_vehicle,sart_demand,180,0.0,20.0,0,20.0,,in_range
+3d_display_comp_vehicle,sart_supply,180,0.0,20.0,0,20.0,,in_range
+3d_display_comp_vehicle,sart_understanding,180,0.0,20.0,0,20.0,,in_range
+3d_display_comp_vehicle,sts_ad_item_02,45,1.0,7.0,1,7.0,,in_range
+3d_display_comp_vehicle,sts_ad_item_05,45,2.0,7.0,1,7.0,,in_range
+3d_display_comp_vehicle,sts_ad_item_06,45,2.0,7.0,1,7.0,,in_range
 ar_pedestrian_online_2023,aesthetics_rating,11344,1.0,5.0,1,7.0,,in_range
 ar_pedestrian_online_2023,understanding_rating,11344,1.0,5.0,1,5.0,,in_range
 ar_pedestrian_outdoor_2024,AOA1,119,0.8325393042503717,5.0,-2,2.0,,in_range
@@ -23,6 +33,9 @@ bvi_auditory_hav_autoui26,perceived_safety_item_01,105,-3.0,3.0,-3,3.0,,in_range
 bvi_auditory_hav_autoui26,perceived_safety_item_02,105,-3.0,3.0,-3,3.0,,in_range
 bvi_auditory_hav_autoui26,perceived_safety_item_03,105,-3.0,3.0,-3,3.0,,in_range
 bvi_auditory_hav_autoui26,perceived_safety_item_04,105,-3.0,3.0,-3,3.0,,in_range
+bvi_auditory_hav_autoui26,sart_demand,420,0.0,20.0,0,20.0,,in_range
+bvi_auditory_hav_autoui26,sart_supply,525,0.0,20.0,0,20.0,,in_range
+bvi_auditory_hav_autoui26,sart_understanding,420,0.0,20.0,0,20.0,,in_range
 chatgpt_roleplay_2025,SUS1,20,4.0,5.0,1,5.0,,in_range
 chatgpt_roleplay_2025,SUS10,20,1.0,5.0,1,5.0,,in_range
 chatgpt_roleplay_2025,SUS2,20,1.0,5.0,1,5.0,,in_range
@@ -109,6 +122,16 @@ ehmi_optimization_chi25,understanding_rating,740,1.0,5.0,1,5.0,,in_range
 ehmi_survey_crowd_2019,perceived_safety,32000,-1.0,1.0,-3,3.0,,in_range
 ehmi_survey_crowd_2019,understanding_rating,49808,1.0,5.0,1,5.0,,in_range
 fact_av,mental_demand,2600,1.0,20.0,0,20.0,,in_range
+fact_av,perceived_safety_item_01,2600,-3.0,3.0,-3,3.0,,in_range
+fact_av,perceived_safety_item_02,2600,-3.0,3.0,-3,3.0,,in_range
+fact_av,perceived_safety_item_03,2600,-3.0,3.0,-3,3.0,,in_range
+fact_av,perceived_safety_item_04,2600,-3.0,3.0,-3,3.0,,in_range
+fact_av,sart_demand,10400,0.0,20.0,0,20.0,,in_range
+fact_av,sart_supply,13000,0.0,20.0,0,20.0,,in_range
+fact_av,sart_understanding,10400,0.0,20.0,0,20.0,,in_range
+fact_av,sts_ad_item_02,2600,1.0,7.0,1,7.0,,in_range
+fact_av,sts_ad_item_05,2600,1.0,7.0,1,7.0,,in_range
+fact_av,sts_ad_item_06,2600,1.0,7.0,1,7.0,,in_range
 fact_av,trust_rating,2600,1.0,5.0,1,5.0,,in_range
 fido2_auth_chi23,SUS1,89,2.0,5.0,1,5.0,,in_range
 fido2_auth_chi23,SUS10,89,1.0,4.0,1,5.0,,in_range
@@ -153,6 +176,10 @@ incar_vr_gain_chi24,ssq_oculomotor,204,0.0,121.28,0,159.18,,in_range
 incar_vr_gain_chi24,task_success,2720,0.0,1.0,0,1.0,,in_range
 incar_vr_gain_chi24,temporal_demand,204,0.0,18.0,0,20.0,,in_range
 longitudinal_usa_germany_ehmi,mental_demand,296,1.0,20.0,0,20.0,,in_range
+longitudinal_usa_germany_ehmi,perceived_safety_item_01,470,-3.0,3.0,-3,3.0,,in_range
+longitudinal_usa_germany_ehmi,perceived_safety_item_02,470,-3.0,3.0,-3,3.0,,in_range
+longitudinal_usa_germany_ehmi,perceived_safety_item_03,470,-3.0,3.0,-3,3.0,,in_range
+longitudinal_usa_germany_ehmi,perceived_safety_item_04,470,-3.0,3.0,-3,3.0,,in_range
 midair_map_making_2026,SUS1,45,1.0,5.0,1,5.0,,in_range
 midair_map_making_2026,SUS10,30,1.0,4.0,1,5.0,,in_range
 midair_map_making_2026,SUS2,30,1.0,5.0,1,5.0,,in_range
@@ -218,6 +245,7 @@ nl2tap_filter_2026,SUS7,85,1.0,5.0,1,5.0,,in_range
 nl2tap_filter_2026,SUS8,85,1.0,5.0,1,5.0,,in_range
 nl2tap_filter_2026,SUS9,85,1.0,5.0,1,5.0,,in_range
 nl2tap_filter_2026,task_success,510,0.0,1.0,0,1.0,,in_range
+osf_cwd6h,perceived_risk,1811262,0.0,100.0,1,100.0,,in_range
 p300_attention_bci_2024,effort,47,7.0,20.0,0,20.0,,in_range
 p300_attention_bci_2024,frustration,47,1.0,18.0,0,20.0,,in_range
 p300_attention_bci_2024,mental_demand,47,2.0,20.0,0,20.0,,in_range
@@ -234,6 +262,7 @@ pairsonic_cscw24,SUS6,141,1.0,5.0,1,5.0,,in_range
 pairsonic_cscw24,SUS7,141,2.0,5.0,1,5.0,,in_range
 pairsonic_cscw24,SUS8,140,1.0,5.0,1,5.0,,in_range
 pairsonic_cscw24,SUS9,141,1.0,5.0,1,5.0,,in_range
+perceived_risk_merging_2022,perceived_risk,429,1.0,100.0,1,100.0,,in_range
 physio_hrc_2025,TLX_SCORE,261,21.0,73.6,0,100.0,,in_range
 physio_hrc_2025,task_success,195,0.0,1.0,0,1.0,,in_range
 pipeblocks_cicd_2025,SUS1,19,1.0,5.0,1,5.0,,in_range
@@ -310,16 +339,18 @@ roads_chi25,performance,276,1.0,20.0,0,20.0,,in_range
 roads_chi25,physical_demand,276,1.0,20.0,0,20.0,,in_range
 roads_chi25,temporal_demand,276,1.0,20.0,0,20.0,,in_range
 robot_feeding_2025,TLX_SCORE,10,38.33333333,66.66666667,0,100.0,,in_range
-running_into_traffic_chi26,effort,288,0.0,18.0,0,20.0,,in_range
-running_into_traffic_chi26,frustration,288,0.0,21.0,0,20.0,,in_range
-running_into_traffic_chi26,mental_demand,288,0.0,21.0,0,20.0,,in_range
-running_into_traffic_chi26,performance,288,0.0,21.0,0,20.0,,in_range
-running_into_traffic_chi26,physical_demand,288,0.0,21.0,0,20.0,,in_range
-running_into_traffic_chi26,temporal_demand,288,0.0,14.0,0,20.0,,in_range
+running_into_traffic_chi26,effort,288,0.0,17.142857142857142,0,20.0,,in_range
+running_into_traffic_chi26,frustration,288,0.0,20.0,0,20.0,,in_range
+running_into_traffic_chi26,mental_demand,288,0.0,20.0,0,20.0,,in_range
+running_into_traffic_chi26,perceived_risk,288,1.0,100.0,1,100.0,,in_range
+running_into_traffic_chi26,performance,288,0.0,20.0,0,20.0,,in_range
+running_into_traffic_chi26,physical_demand,288,0.0,20.0,0,20.0,,in_range
+running_into_traffic_chi26,temporal_demand,288,0.0,13.333333333333334,0,20.0,,in_range
 running_into_traffic_chi26,trust_rating,288,1.0,5.0,1,5.0,,in_range
 running_into_traffic_chi26,understanding_rating,288,1.0,5.0,1,5.0,,in_range
 scrolling_in_the_deep_chi25,psychological_reactance,927,1.0,5.0,1,5.0,,in_range
 scrolling_in_the_deep_chi25,sleepiness,927,1.0,9.0,1,9.0,,in_range
+scrolling_in_the_deep_chi25,valence,927,1.0,9.0,1,9.0,,in_range
 sensecobot_fusion_2024,effort,147,0.0,20.0,0,20.0,,in_range
 sensecobot_fusion_2024,frustration,21,0.0,20.0,0,20.0,,in_range
 sensecobot_fusion_2024,mental_demand,21,3.333333333333333,13.333333333333334,0,20.0,,in_range
@@ -419,7 +450,6 @@ exergame_children_2025,frustration,126,0.0,100.0,0,20.0,rescaled 0.0-100.0 -> 0.
 exergame_children_2025,mental_demand,126,0.0,100.0,0,20.0,rescaled 0.0-100.0 -> 0.0-20.0,rescaled
 exergame_children_2025,physical_demand,126,0.0,100.0,0,20.0,rescaled 0.0-100.0 -> 0.0-20.0,rescaled
 exergame_children_2025,temporal_demand,126,0.0,100.0,0,20.0,rescaled 0.0-100.0 -> 0.0-20.0,rescaled
-fact_av,understanding_rating,2600,3.0,21.0,1,5.0,rescaled 0.0-21.0 -> 1.0-5.0,rescaled
 fido2_auth_chi23,AOA1,89,1.0,4.0,-2,2.0,rescaled 1.0-5.0 -> -2.0-2.0,rescaled
 fido2_auth_chi23,AOA2,89,1.0,3.0,-2,2.0,rescaled 1.0-5.0 -> -2.0-2.0,rescaled
 fido2_auth_chi23,AOA3,89,3.0,5.0,-2,2.0,rescaled 1.0-5.0 -> -2.0-2.0,rescaled
@@ -535,9 +565,6 @@ build_pc_mar_2026,frustration,60,1.0,4.0,0,20.0,,review_narrower_scale
 build_pc_mar_2026,mental_demand,60,5.0,9.0,0,20.0,,review_narrower_scale
 build_pc_mar_2026,physical_demand,60,1.0,1.0,0,20.0,,review_narrower_scale
 build_pc_mar_2026,temporal_demand,60,1.0,4.0,0,20.0,,review_narrower_scale
-bvi_auditory_hav_autoui26,sart_demand,420,1.0,7.0,0,20.0,,review_narrower_scale
-bvi_auditory_hav_autoui26,sart_supply,525,1.0,7.0,0,20.0,,review_narrower_scale
-bvi_auditory_hav_autoui26,sart_understanding,420,1.0,7.0,0,20.0,,review_narrower_scale
 ehmi_infrastructure_2024,perceived_risk,129,0.0,8.0,1,100.0,,review_narrower_scale
 fov_snapturn_tvcg24,fms_score,201,0.0,8.5,0,20.0,,review_narrower_scale
 incar_vr_gain_chi24,ssq_disorientation,204,0.0,97.44,0,292.32,,review_narrower_scale
@@ -546,9 +573,6 @@ incar_vr_gain_chi24,ssq_total,204,0.0,108.46,0,235.62,,review_narrower_scale
 midair_map_making_2026,SUS6,30,1.0,3.0,1,5.0,,review_narrower_scale
 music_intensity_driving_2021,ssq_total,34,0.0,6.0,0,235.62,,review_narrower_scale
 nl2tap_filter_2026,physical_demand,85,0.0,0.0,0,20.0,,review_narrower_scale
-perceived_risk_merging_2022,perceived_risk,429,0.0,10.0,1,100.0,,review_narrower_scale
-running_into_traffic_chi26,perceived_risk,288,1.0,5.0,1,100.0,,review_narrower_scale
-scrolling_in_the_deep_chi25,valence,927,1.0,5.0,1,9.0,,review_narrower_scale
 spot_voice_gesture_2025,error_rate,3460,0.0,3.0,0,100.0,,review_narrower_scale
 teleport_distance_accuracy_2025,error_rate,1800,0.0,25.0,0,100.0,,review_narrower_scale
 vr_spirit_ataxia_2023,ssq_disorientation,10,0.0,47.61904761904761,0,292.32,,review_narrower_scale

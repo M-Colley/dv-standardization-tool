@@ -42,6 +42,14 @@ sources:
     '**/ObservationsPerEvaluation.csv':
       drop_columns:
       - MentalLoad
+    '**/QuestionnaireResponses.csv':
+      drop_columns:
+      - Trust1
+      - Trust2
+      - Understanding1
+      - Understanding2
+      - Understanding3
+      - Understanding4
   use_llm_deduction: true
 - study_set: development
   source_id: osf_cwd6h
@@ -57,6 +65,7 @@ sources:
   archive_max_depth: 3
   use_llm_deduction: true
   mapping_path: schemas/osf_cwd6h_mapping.yaml
+  override_standard_aliases: true
   llm_context: ArduinoData1 encodes Perceived Risk on a 1-100 VAS scale.
 - study_set: development
   source_id: road_bumps_touch
@@ -74,6 +83,7 @@ sources:
   location: https://github.com/M-Colley/3d-display-comp-vehicle
   ref: main
   publication_doi: 10.1145/3626705.3627786
+  mapping_path: schemas/3d_display_comp_vehicle_mapping.yaml
   include_globs:
   - '**/*.csv'
   - '**/*.xlsx'
@@ -86,6 +96,7 @@ sources:
   source_type: github_repo
   location: https://github.com/M-Colley/longitudinal_usa_germany_eHMI_comparison
   ref: main
+  mapping_path: schemas/longitudinal_usa_germany_ehmi_mapping.yaml
   include_globs:
   - '**/*.csv'
   - '**/*.xlsx'
@@ -430,7 +441,7 @@ sources:
   - SenseCobotFusion/SenseCobotFusion.csv
   mapping_path: schemas/sensecobot_fusion_2024_mapping.yaml
   override_standard_aliases: true
-  use_llm_deduction: true
+  use_llm_deduction: false
 - study_set: development
   source_id: myocontrol_intent_2025
   source_type: local_path

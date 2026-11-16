@@ -349,6 +349,8 @@ def figure(pool: pd.DataFrame, harm: pd.DataFrame, ref: pd.DataFrame, ladder: pd
         between = ladder[ladder["association"] == "between_person"].set_index("level")
         x = np.arange(len(LADDER_METRICS))
         width = 0.26
+        top = max(int(between.loc[lv, m]) for lv in levels for m, _ in LADDER_METRICS)
+        ax.set_ylim(0, top * 1.3)  # room for the legend above the bars and their labels
         for i, lv in enumerate(levels):
             vals = [int(between.loc[lv, m]) for m, _ in LADDER_METRICS]
             bars = ax.bar(x + (i - (len(levels) - 1) / 2) * width, vals, width * 0.9,
