@@ -15,8 +15,9 @@ identifiers, measures without a schema DV). The check reports:
     - mappings the batch will not apply as written:
         - the alias is also an alias of the shared DV schema with another target. The shared
           schema wins unless the manifest entry sets ``override_standard_aliases: true``;
-        - the alias is also an alias of the metadata, sensor or detection schema. Those can match
-          first, so a DV target can be lost (osf_cwd6h's ``ArduinoData1`` in schema 3.4);
+        - the alias is also an alias of the metadata, sensor or detection schema. Those win too
+          unless the manifest entry sets ``override_standard_aliases: true``, so a DV target can be
+          lost (osf_cwd6h's ``ArduinoData1``, read as a sensor channel until its entry set the flag);
         - the alias is on the batch's never-map list (identifiers and condition columns), so a
           DV target is ignored;
         - the same alias appears twice, differing only in case, with different targets;
@@ -146,9 +147,10 @@ def check_mapping(path: Path, *, override_standard_aliases: bool = False,
             add("warning", alias, target,
                 f"the shared DV schema maps this name to {shared} and wins; set "
                 "override_standard_aliases: true in the manifest entry to apply this mapping")
-        if low in other and not is_other and not (shared and shared == target):
+        if low in other and not is_other and not (shared and shared == target) and not override_standard_aliases:
             add("warning", alias, target,
-                f"also an alias of {other[low]}, which can match first; check the column in the batch's meta_view.csv")
+                f"also an alias of {other[low]}, which wins for tables of that type; set "
+                "override_standard_aliases: true in the manifest entry to apply this mapping")
         if _never_map(alias) and (is_dv or is_other):
             add("warning", alias, target, "on the batch's never-map list (identifiers, conditions); this mapping is ignored")
 

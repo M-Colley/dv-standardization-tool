@@ -61,8 +61,11 @@ def test_shared_alias_with_another_target_wins_unless_overridden(tmp_path, vocab
 
 def test_sensor_alias_can_capture_a_dv_column(tmp_path, vocab):
     # osf_cwd6h's perceived-risk column has the name of a sensor channel
-    report = check_mapping(_write(tmp_path, "ArduinoData1: perceived_risk\n"), vocabulary=vocab)
-    assert "sensor_arduino_data_1" in _messages(report, "warnings")["ArduinoData1"]
+    path = _write(tmp_path, "ArduinoData1: perceived_risk\n")
+    msg = _messages(check_mapping(path, vocabulary=vocab), "warnings")["ArduinoData1"]
+    assert "sensor_arduino_data_1" in msg and "override_standard_aliases" in msg
+    # The batch merges metadata and sensor aliases into the shared mapping that the flag overrides
+    assert check_mapping(path, override_standard_aliases=True, vocabulary=vocab)["warnings"] == []
 
 
 def test_never_map_names_and_case_duplicates(tmp_path, vocab):
