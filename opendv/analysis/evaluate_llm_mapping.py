@@ -60,6 +60,7 @@ from opendv.dv_retrieval import (  # noqa: E402
     get_retriever,
     mix_rankings,
     reciprocal_rank_fusion,
+    without_zero_scores,
 )
 from opendv.value_labels import (  # noqa: E402
     apply_missing_values,
@@ -127,6 +128,12 @@ class AskOptions:
     random order (seeded by ``order_seed`` and the column name) or alphabetically.
     ``num_samples > 1`` asks for that many sampled answers and takes their majority
     (``temperature``, ``sample_seed``).
+    ``drop_zero_scores`` leaves DVs whose definition (TF-IDF) score is 0 out of the
+    lexical ranking, so a ``definition`` shortlist is not padded with DVs that share
+    no character n-gram with the column (it can then be shorter, or empty).
+    ``vote_seeds`` asks each column again with the shortlist listed in one random
+    order per seed and combines the answers with ``vote_rule`` ("majority" or
+    "unanimous"; :func:`opendv.llm_utils.vote_over_orders`).
     """
 
     schema_path: str | None = None
@@ -135,6 +142,15 @@ class AskOptions:
     num_samples: int = 1
     temperature: float = 1.0
     sample_seed: int = 0
+    drop_zero_scores: bool = False
+    vote_seeds: tuple[int, ...] = ()
+    vote_rule: str = "majority"
+
+    def __post_init__(self) -> None:
+        if self.vote_seeds and self.num_samples > 1:
+            raise ValueError("order votes and sampled answers cannot be combined")
+        if self.vote_rule not in llm_utils.VOTE_RULES:
+            raise ValueError(f"vote rule must be one of {llm_utils.VOTE_RULES}, got {self.vote_rule!r}")
 
     @classmethod
     def from_args(cls, args: Any) -> AskOptions:
@@ -145,6 +161,9 @@ class AskOptions:
             num_samples=getattr(args, "samples", 1),
             temperature=getattr(args, "temperature", 1.0),
             sample_seed=getattr(args, "sample_seed", 0),
+            drop_zero_scores=bool(getattr(args, "drop_zero_scores", False)),
+            vote_seeds=tuple(int(s) for s in getattr(args, "vote_seeds", None) or ()),
+            vote_rule=getattr(args, "vote_rule", "majority"),
         )
 
 
@@ -155,9 +174,7 @@ def order_candidates(candidates: list[str], alias: str, order: str, seed: int = 
     if order == "alphabetical":
         return sorted(candidates, key=lambda dv: (dv.lower(), dv))
     if order == "shuffle":
-        digest = hashlib.sha256(f"{seed}\x1f{alias}".encode()).digest()
-        rng = np.random.default_rng(int.from_bytes(digest[:8], "little"))
-        return [candidates[i] for i in rng.permutation(len(candidates))]
+        return llm_utils.shuffle_candidates(list(candidates), alias, seed)
     raise ValueError(f"candidate order must be one of {CANDIDATE_ORDERS}, got {order!r}")
 
 
@@ -178,12 +195,15 @@ def _ask_llm(
     shortlist: str = "definition",
     options: AskOptions | None = None,
     response_cache: dict[str, str | None] | None = None,
+    details: dict[str, Any] | None = None,
 ) -> tuple[list[str], float, str | None]:
     """Shortlist, top fuzzy score and the LLM's answer for one column.
 
     ``response_cache`` maps :func:`response_cache_key` to an earlier answer, so a
     prompt that a rerun repeats exactly is not generated again (decoding is greedy,
-    or sampled with a fixed seed). Failed generations are not cached.
+    or sampled with a fixed seed). Failed generations are not cached. With order
+    votes each order's prompt is cached on its own (greedy key), and ``details``,
+    if given, receives the answers per order (``order_suggestions``).
     """
     options = options or AskOptions()
     schema_path = options.schema_path or str(DEFAULT_DV_SCHEMA_PATH)
@@ -192,7 +212,10 @@ def _ask_llm(
         # Leave-alias-out: the held-out alias is removed from every definition.
         n = len(candidates)
         depth = max(3 * n, 24)
-        lexical = [dv for dv, _ in get_retriever(schema_path).rank(alias, k=depth, exclude_alias=alias)]
+        ranked = get_retriever(schema_path).rank(alias, k=depth, exclude_alias=alias)
+        if options.drop_zero_scores:
+            ranked = without_zero_scores(ranked)
+        lexical = [dv for dv, _ in ranked]
         if shortlist not in ("definition", "definition_h"):
             dense = [
                 dv for dv, _ in get_dense_retriever(schema_path=schema_path).rank(alias, k=depth, exclude_alias=alias)
@@ -218,12 +241,32 @@ def _ask_llm(
     candidates = order_candidates(candidates, alias, options.candidate_order, options.order_seed)
     if not candidates or top_score < MIN_ATTEMPT_SCORE:
         return candidates, top_score, None
+    if not options.vote_seeds:
+        return candidates, top_score, _ask_once(alias, candidates, context, preferred_models, options, response_cache)
+    answers = [
+        _ask_once(alias, order, context, preferred_models, options, response_cache)
+        for order in llm_utils.candidate_orders(candidates, alias, options.vote_seeds)
+    ]
+    if details is not None:
+        details["order_suggestions"] = answers
+    return candidates, top_score, llm_utils.vote_over_orders(answers, candidates, options.vote_rule)
+
+
+def _ask_once(
+    alias: str,
+    candidates: list[str],
+    context: str,
+    preferred_models: list[str] | None,
+    options: AskOptions,
+    response_cache: dict[str, str | None] | None,
+) -> str | None:
+    """The LLM's answer to one prompt (the candidates in the order given), from the cache if it has it."""
     key = None
     if response_cache is not None:
         prompt = llm_utils.build_mapping_prompt(alias, candidates, context, options.schema_path)
         key = response_cache_key(llm_utils.select_local_model_candidates(preferred_models), prompt, options)
         if key in response_cache:
-            return candidates, top_score, response_cache[key]
+            return response_cache[key]
     before = len(llm_utils.generation_errors())
     suggestion = llm_utils.deduce_standard_name_with_local_llm(
         raw_column_name=alias,
@@ -237,13 +280,22 @@ def _ask_llm(
     )
     if key is not None and len(llm_utils.generation_errors()) == before:
         response_cache[key] = suggestion
-    return candidates, top_score, suggestion
+    return suggestion
 
 
 def prompt_fingerprint(alias: str, candidates: list[str], context: str, options: AskOptions) -> str:
-    """SHA-256 of the prompt an asked column gets (equal fingerprints, equal prompts)."""
-    prompt = llm_utils.build_mapping_prompt(alias, candidates, context, options.schema_path)
-    return hashlib.sha256(prompt.encode("utf-8")).hexdigest()
+    """SHA-256 of the prompt an asked column gets (equal fingerprints, equal prompts).
+
+    With order votes, the SHA-256 of the fingerprints of every order's prompt, so
+    the fingerprint changes when any of them does.
+    """
+    orders = llm_utils.candidate_orders(candidates, alias, options.vote_seeds) if options.vote_seeds else [candidates]
+    hashes = [
+        hashlib.sha256(llm_utils.build_mapping_prompt(alias, order, context, options.schema_path).encode("utf-8"))
+        .hexdigest()
+        for order in orders
+    ]
+    return hashes[0] if len(hashes) == 1 else hashlib.sha256("\n".join(hashes).encode("utf-8")).hexdigest()
 
 
 def _source_context(source: dict[str, Any], base_dir: Path, cache_dir: Path | None = None) -> str:
@@ -266,6 +318,11 @@ def _ask_llm_logged(*args: Any, **kwargs: Any) -> tuple[list[str], float, str | 
     shortlist, top_score, suggestion = _ask_llm(*args, **kwargs)
     errors = llm_utils.generation_errors()[before:]
     return shortlist, top_score, suggestion, errors[-1]["error"] if errors else None
+
+
+def _join_answers(answers: list[str | None] | None) -> str | None:
+    """The answers of an order vote as one field ("" for no answer), in the order they were asked."""
+    return None if answers is None else "|".join(answer or "" for answer in answers)
 
 
 def gold_items(meta_view: pd.DataFrame, dv_ids: set[str], max_per_source: int, seed: int) -> pd.DataFrame:
@@ -352,9 +409,10 @@ def run_e1(
                 alias = item.original_alias
                 profile = profile_columns(df, [alias]).get(alias)
                 t0 = time.perf_counter()
+                details: dict[str, Any] = {}
                 shortlist, top_score, suggestion, llm_error = _ask_llm_logged(
                     alias, _without_alias(mapping, alias), context, args.models, args.shortlist,
-                    options=options, response_cache=response_cache,
+                    options=options, response_cache=response_cache, details=details,
                 )
                 asked = bool(shortlist) and top_score >= MIN_ATTEMPT_SCORE
                 pre = name_rejection_reason(alias, columns) or (data_rejection_reason(profile) if profile else None)
@@ -384,6 +442,8 @@ def run_e1(
                     "seconds": round(time.perf_counter() - t0, 3),
                     "llm_error": llm_error,
                     "context_sha256": context_sha256,
+                    **({"order_suggestions": _join_answers(details.get("order_suggestions"))}
+                       if options.vote_seeds else {}),
                 })
             logger.info("E1 %s: %d items", source_id, len(group))
     return pd.DataFrame(rows)
@@ -524,6 +584,13 @@ def main() -> None:
                         help="Sampled answers per column, majority vote (default: 1 = greedy).")
     parser.add_argument("--temperature", type=float, default=1.0, help="Sampling temperature for --samples > 1.")
     parser.add_argument("--sample-seed", type=int, default=0, help="Seed set before each sampled generation.")
+    parser.add_argument("--drop-zero-scores", action="store_true",
+                        help="Leave DVs with a definition score of 0 out of the shortlist (no padding).")
+    parser.add_argument("--vote-seeds", type=lambda text: [int(s) for s in text.split(",") if s.strip()],
+                        default=[], metavar="S1,S2",
+                        help="Also ask with the shortlist shuffled by each seed and combine the answers.")
+    parser.add_argument("--vote-rule", choices=llm_utils.VOTE_RULES, default="majority",
+                        help="How --vote-seeds combines the answers (default: %(default)s).")
     args = parser.parse_args()
     args.models = [m.strip() for m in args.models.split(",") if m.strip()] if args.models else None
     try:

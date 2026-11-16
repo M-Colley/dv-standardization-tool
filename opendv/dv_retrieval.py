@@ -216,8 +216,29 @@ def get_retriever(schema_path: str = str(DEFAULT_DV_SCHEMA_PATH)) -> DefinitionR
     return DefinitionRetriever(load_dv_definitions(Path(schema_path)))
 
 
-def definition_shortlist(column_name: str, max_candidates: int = 8, **kwargs: Any) -> list[str]:
-    return [dv_id for dv_id, _ in get_retriever(**kwargs).rank(column_name, k=max_candidates)]
+def without_zero_scores(ranked: Iterable[tuple[str, float]]) -> list[tuple[str, float]]:
+    """The ranked ``(dv_id, score)`` pairs with a positive score.
+
+    A definition score of 0 means the DV shares no character n-gram with the
+    column. Such DVs come last in a ranking, in the order of the DV list (stable
+    sort), so a shortlist longer than the DVs with any overlap is padded with
+    them, in an order set by the schema file rather than by the column.
+    """
+    return [(dv_id, score) for dv_id, score in ranked if score > 0]
+
+
+def definition_shortlist(
+    column_name: str, max_candidates: int = 8, drop_zero_scores: bool = False, **kwargs: Any
+) -> list[str]:
+    """The ``max_candidates`` DVs whose definitions are most similar to the column name.
+
+    ``drop_zero_scores`` leaves out DVs that share no character n-gram with the
+    column (:func:`without_zero_scores`), so the list can be shorter or empty.
+    """
+    ranked = get_retriever(**kwargs).rank(column_name, k=max_candidates)
+    if drop_zero_scores:
+        ranked = without_zero_scores(ranked)
+    return [dv_id for dv_id, _ in ranked]
 
 
 # Best dense model in analyses/evaluate_shortlist_retrieval.py (real columns:
@@ -360,6 +381,7 @@ __all__ = [
     "apply_hierarchy",
     "construct_hierarchy",
     "definition_shortlist",
+    "without_zero_scores",
     "hierarchical_shortlist",
     "dense_shortlist",
     "get_dense_retriever",

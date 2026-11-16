@@ -871,6 +871,42 @@ def majority_vote(answers: Iterable[str | None], candidates: list[str]) -> str |
     return min(tied, key=lambda answer: (answer is None, rank.get(answer, len(rank)) if answer else 0))
 
 
+VOTE_RULES = ("majority", "unanimous")
+
+
+def shuffle_candidates(candidates: list[str], column: str, seed: int) -> list[str]:
+    """The candidates in a random order fixed by ``seed`` and the column name.
+
+    The generator is seeded by the SHA-256 of both, so a column keeps its order
+    for a given seed however the other columns are asked (the schema-stability
+    benchmark's ``candidate_order`` perturbation and the order votes).
+    """
+    import numpy as np
+
+    digest = hashlib.sha256(f"{seed}\x1f{column}".encode()).digest()
+    rng = np.random.default_rng(int.from_bytes(digest[:8], "little"))
+    return [candidates[i] for i in rng.permutation(len(candidates))]
+
+
+def candidate_orders(candidates: list[str], column: str, vote_seeds: Iterable[int]) -> list[list[str]]:
+    """The orders an order vote asks in: as given (retrieval rank), then one shuffle per seed."""
+    return [list(candidates), *(shuffle_candidates(list(candidates), column, seed) for seed in vote_seeds)]
+
+
+def vote_over_orders(answers: list[str | None], candidates: list[str], rule: str = "majority") -> str | None:
+    """Combine the answers to the same shortlist listed in several orders.
+
+    ``majority``: :func:`majority_vote` (ties go to the candidate ranked first in
+    ``candidates``, "no answer" last). ``unanimous``: the common answer if every
+    order gave the same one, otherwise None (abstain).
+    """
+    if rule == "majority":
+        return majority_vote(answers, candidates)
+    if rule == "unanimous":
+        return answers[0] if answers and all(answer == answers[0] for answer in answers) else None
+    raise ValueError(f"vote rule must be one of {VOTE_RULES}, got {rule!r}")
+
+
 def deduce_standard_name_with_local_llm(
     raw_column_name: str,
     canonical_candidates: Iterable[str],
@@ -881,6 +917,8 @@ def deduce_standard_name_with_local_llm(
     num_samples: int = 1,
     temperature: float = 1.0,
     sample_seed: int = 0,
+    vote_seeds: Iterable[int] = (),
+    vote_rule: str = "majority",
 ) -> str | None:
     """Infer the most appropriate canonical DV id from a local LLM.
 
@@ -889,10 +927,25 @@ def deduce_standard_name_with_local_llm(
     answers (``temperature``, ``sample_seed``) and returns their majority
     (:func:`majority_vote`; self-consistency). ``schema_path`` reads the
     candidates' definitions from another DV schema file.
+
+    ``vote_seeds`` asks again with the candidates listed in one random order
+    per seed (:func:`candidate_orders`; the given order is asked first) and
+    combines the answers with ``vote_rule`` (:func:`vote_over_orders`).
     """
     candidates = [str(c).strip() for c in canonical_candidates if str(c).strip()]
     if not raw_column_name or not candidates:
         return None
+    vote_seeds = tuple(vote_seeds)
+    if vote_seeds:
+        if num_samples > 1:
+            raise ValueError("order votes and sampled answers cannot be combined")
+        answers = [
+            deduce_standard_name_with_local_llm(
+                raw_column_name, order, source_root, preferred_models, repository_context, schema_path
+            )
+            for order in candidate_orders(candidates, str(raw_column_name), vote_seeds)
+        ]
+        return vote_over_orders(answers, candidates, vote_rule)
 
     model_list = select_local_model_candidates(preferred_models=preferred_models)
     context = repository_context

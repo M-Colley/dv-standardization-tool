@@ -22,6 +22,13 @@ Subcommands::
     python -m opendv.analysis.schema_stability run --condition e2b_definition ...
     python -m opendv.analysis.schema_stability analyze
     python -m opendv.analysis.schema_stability explore  # exploratory, added after the runs
+
+Follow-up (``docs/schema_stability_followup_design.md``): no zero-score padding
+and order votes, compared with the committed reference answers::
+
+    python -m opendv.analysis.schema_stability freeze-mappings  # the reference's mapping files
+    python -m opendv.analysis.schema_stability run --condition e2b_definition_nopad --extra-cache ...
+    python -m opendv.analysis.schema_stability followup
 """
 
 from __future__ import annotations
@@ -32,6 +39,8 @@ import gzip
 import hashlib
 import json
 import logging
+import re
+import subprocess
 import sys
 import time
 from collections.abc import Iterable, Iterator
@@ -55,6 +64,10 @@ BASE_SCHEMA = SCHEMAS_DIR / "standard_dv_mapping.yaml"
 DESIGN_DIR = Path("analyses/schema_stability")
 OUTPUT_DIR = Path("analyses/output_llm_evaluation/schema_stability")
 WORK_DIR = Path("data/processed/schema_stability")
+FOLLOWUP_OUTPUT_DIR = Path("analyses/output_llm_evaluation/schema_stability_followup")
+FOLLOWUP_WORK_DIR = Path("data/processed/schema_stability_followup")
+# The mapping files the reference ran with (schemas/ unchanged from ffabda7 to e2df354).
+MAPPINGS_COMMIT = "ffabda75b3da13bd309e33ce664f74de75c6288a"
 
 EDIT_FAMILIES = ("add", "remove", "reword")
 K_LEVELS = (1, 5)
@@ -233,13 +246,23 @@ class Condition:
     samples: int = 1
     temperature: float = 1.0
     sample_seed: int = MASTER_SEED
+    drop_zero_scores: bool = False  # follow-up: no zero-score padding of the shortlist
+    vote_seeds: tuple[int, ...] = ()  # follow-up: shuffles asked besides rank order
+    vote_rule: str = "majority"
 
     def applies(self, perturbation: Perturbation) -> bool:
         if perturbation.family == "candidate_order":
-            return self.candidate_order == "rank"
+            return self.candidate_order == "rank" and not self.vote_seeds
         if perturbation.family == "sample_seed":
-            return self.samples > 1
+            return self.samples > 1 or bool(self.vote_seeds)
+        if perturbation.family == "identity":
+            return not self.vote_seeds  # greedy prompts like the reference's; nopad's identity rerun checks them
         return True
+
+    def order_seeds(self, perturbation: Perturbation) -> tuple[int, ...]:
+        """The vote's shuffle seeds; ``sample_seed`` draws shift them to unused ones (1, 2 -> 3, 4 -> 5, 6)."""
+        shift = len(self.vote_seeds) * perturbation.sample_seed_offset
+        return tuple(seed + shift for seed in self.vote_seeds)
 
 
 CONDITIONS = {
@@ -259,6 +282,17 @@ COMPARISONS = (
     ("e2b_definition_sc5", "e2b_definition"),
     ("e2b_definition_alpha", "e2b_definition"),
 )
+# Follow-up conditions (docs/schema_stability_followup_design.md), compared with the
+# committed answers of the reference; Holm over 3 conditions x 4 outcomes.
+FOLLOWUP_CONDITIONS = {
+    c.name: c
+    for c in (
+        Condition("e2b_definition_nopad", drop_zero_scores=True),
+        Condition("e2b_definition_vote3", vote_seeds=(1, 2)),
+        Condition("e2b_definition_vote3u", vote_seeds=(1, 2), vote_rule="unanimous"),
+    )
+}
+ALL_CONDITIONS = CONDITIONS | FOLLOWUP_CONDITIONS
 
 
 @dataclass(frozen=True)
@@ -277,6 +311,15 @@ def default_halves(root: Path = Path("data/processed")) -> list[Half]:
         Half("first_23", root / "det23l", root / "manifest23.yaml", root / "cache"),
         Half("added_16", root / "det16l", root / "manifest16.yaml", root / "cache16"),
     ]
+
+
+def followup_halves(work_dir: Path = FOLLOWUP_WORK_DIR, root: Path = Path("data/processed")) -> list[Half]:
+    """The reference's halves, with the manifests ``freeze-mappings`` wrote (the reference's mapping files)."""
+    halves = [Half(h.name, h.batch_dir, work_dir / h.manifest.name, h.cache_dir) for h in default_halves(root)]
+    missing = [str(h.manifest) for h in halves if not h.manifest.is_file()]
+    if missing:
+        raise FileNotFoundError(f"{missing} missing: run the freeze-mappings subcommand first")
+    return halves
 
 
 def parse_half(spec: str) -> Half:
@@ -310,6 +353,66 @@ def curated_mapping_files(halves: Iterable[Half]) -> list[Path]:
             if source.get("mapping_path"):
                 files.add(Path(str(source["mapping_path"])))
     return sorted(files)
+
+
+_MAPPING_PATH_LINE = re.compile(r"^(?P<lead>\s*(?:-\s+)?mapping_path:\s*)(?P<path>\S+?)\s*$")
+
+
+def _git_show(commit: str, path: str) -> bytes:
+    return subprocess.run(["git", "show", f"{commit}:{path}"], capture_output=True, check=True).stdout
+
+
+def freeze_manifest_text(text: str, frozen: dict[str, str]) -> str:
+    """The manifest text with every ``mapping_path`` listed in ``frozen`` replaced; nothing else changes."""
+    lines = []
+    for line in text.splitlines(keepends=True):
+        body = line.rstrip("\r\n")
+        match = _MAPPING_PATH_LINE.match(body)
+        path = match.group("path").strip("'\"") if match else None
+        if path in frozen:
+            line = match.group("lead") + frozen[path] + line[len(body):]
+        lines.append(line)
+    return "".join(lines)
+
+
+def freeze_mappings(
+    manifests: list[Path], commit: str, out_dir: Path, git_show: Any = _git_show
+) -> dict[str, Any]:
+    """Copy each manifest's curated mapping files as of ``commit`` and point copies of the manifests at them.
+
+    The benchmark reads a study's mapping file for the fuzzy gate, the number of
+    candidates and the plausibility check, so a follow-up run reproduces the
+    reference's prompts only with the files the reference read. The copies go to
+    ``out_dir/mappings/``, the manifests to ``out_dir/<name>``.
+    """
+    frozen: dict[str, str] = {}
+    files: dict[str, str] = {}
+    mapping_dir = out_dir / "mappings"
+    mapping_dir.mkdir(parents=True, exist_ok=True)
+    for manifest in manifests:
+        for source in load_yaml(manifest).get("sources") or []:
+            path = str(source.get("mapping_path") or "").strip()
+            if not path or path in frozen:
+                continue
+            target = (mapping_dir / Path(path).name).as_posix()
+            if target in frozen.values():
+                raise ValueError(f"two mapping files named {Path(path).name}")
+            content = git_show(commit, Path(path).as_posix())
+            Path(target).write_bytes(content)
+            frozen[path] = target
+            files[path] = hashlib.sha256(content).hexdigest()
+    written = []
+    for manifest in manifests:
+        out = out_dir / manifest.name
+        out.write_text(freeze_manifest_text(manifest.read_text(encoding="utf-8"), frozen), encoding="utf-8")
+        paths = [str(s.get("mapping_path")) for s in load_yaml(out).get("sources") or [] if s.get("mapping_path")]
+        unfrozen = [p for p in paths if p not in frozen.values()]
+        if unfrozen:
+            raise ValueError(f"{out}: mapping paths left unfrozen: {unfrozen}")
+        written.append(out.as_posix())
+    record = {"commit": commit, "manifests": written, "mapping_files_sha256": files}
+    (out_dir / "frozen_mappings.json").write_text(json.dumps(record, indent=2), encoding="utf-8")
+    return record
 
 
 # ── Design ───────────────────────────────────────────────────────────────────
@@ -495,6 +598,8 @@ def run_perturbation(
             candidate_order=order, order_seed=perturbation.shuffle_seed or 0,
             samples=condition.samples, temperature=condition.temperature,
             sample_seed=condition.sample_seed + perturbation.sample_seed_offset,
+            drop_zero_scores=condition.drop_zero_scores, vote_seeds=condition.order_seeds(perturbation),
+            vote_rule=condition.vote_rule,
         )
         frame = run_e1(args, families, dv_ids, items=items[half.name],
                        response_cache=response_cache if perturbation.use_cache else None)
@@ -506,6 +611,7 @@ ANSWER_COLUMNS = [
     "condition", "perturbation", "half", "source_id", "dataset_id", "alias", "label_kind", "gold",
     "shortlist", "shortlist_top_score", "prompt_sha256", "suggestion", "pre_llm_rejection",
     "post_llm_rejection", "final_unchecked", "final_checked", "llm_error", "seconds",
+    "order_suggestions",  # order votes only: the answer under each order, "|"-joined ("" = no answer)
 ]
 
 
@@ -516,14 +622,28 @@ def run_condition(
     work_dir: Path,
     families_filter: set[str] | None = None,
     dry_run: bool = False,
+    extra_caches: Iterable[Path] = (),
 ) -> list[Path]:
-    """Run every applicable perturbation not run yet; one CSV per perturbation under ``work_dir``."""
+    """Run every applicable perturbation not run yet; one CSV per perturbation under ``work_dir``.
+
+    ``extra_caches`` are other runs' response caches, read but never written: a
+    prompt one of them answered is not generated again (the follow-up reads the
+    reference's). In a dry run they make the logged counts the prompts a real run
+    would generate.
+    """
     dv_ids = base_dv_ids()
     items = {half.name: benchmark_items(half, dv_ids) for half in halves}
     run_dir = work_dir / (f"dry_run_{condition.name}" if dry_run else condition.name)
     run_dir.mkdir(parents=True, exist_ok=True)
     cache_path = run_dir / "response_cache.jsonl"
     cache = {} if dry_run else load_response_cache(cache_path)
+    extra_caches = [Path(p) for p in extra_caches]
+    for path in extra_caches:
+        for key, answer in load_response_cache(path).items():
+            cache.setdefault(key, answer)
+    if extra_caches:
+        record = [{"path": p.as_posix(), "sha256": hashlib.sha256(p.read_bytes()).hexdigest()} for p in extra_caches]
+        (run_dir / "extra_caches.json").write_text(json.dumps(record, indent=2), encoding="utf-8")
     known = set(cache)
     written = []
     with memoized_contexts():
@@ -783,10 +903,24 @@ def read_answers(work_dir: Path, condition: str) -> pd.DataFrame:
     if not frames:
         return pd.DataFrame()
     answers = pd.concat(frames, ignore_index=True)
-    for column in ("gold", "suggestion", "final_unchecked", "final_checked", "shortlist", "prompt_sha256", "llm_error"):
+    return _as_answers(answers)
+
+
+_OBJECT_COLUMNS = ("gold", "suggestion", "final_unchecked", "final_checked", "shortlist", "prompt_sha256", "llm_error",
+                   "order_suggestions")
+
+
+def _as_answers(answers: pd.DataFrame) -> pd.DataFrame:
+    """None (not NaN) for a missing answer, label or shortlist."""
+    for column in _OBJECT_COLUMNS:
         if column in answers:
             answers[column] = answers[column].astype(object).where(answers[column].notna(), None)
     return answers
+
+
+def read_answers_file(path: Path) -> pd.DataFrame:
+    """A condition's answers as ``analyze`` writes them (``answers_<condition>.csv.gz``)."""
+    return _as_answers(pd.read_csv(path, low_memory=False))
 
 
 def analyze(design: dict[str, Any], work_dir: Path, output_dir: Path, n_boot: int = 10_000) -> dict[str, Any]:
@@ -799,25 +933,11 @@ def analyze(design: dict[str, Any], work_dir: Path, output_dir: Path, n_boot: in
         if answers.empty or "base" not in set(answers["perturbation"]):
             continue
         conditions_run.append(name)
-        with gzip.open(output_dir / f"answers_{name}.csv.gz", "wt", encoding="utf-8", newline="") as handle:
-            answers[[c for c in ANSWER_COLUMNS if c in answers]].to_csv(handle, index=False)
-        for answer in ("final_checked", "final_unchecked"):
-            flips = flip_table(answers, perturbations, answer)
-            for set_name in SETS:
-                chosen = select_set(flips, set_name)
-                if chosen.empty:
-                    continue
-                rows.append({
-                    "condition": name, "answer": answer.removeprefix("final_"), "set": set_name,
-                    "n_perturbations": int(chosen["perturbation"].nunique()),
-                    **summarize_set(chosen, n_boot), **accuracy_change(chosen, n_boot),
-                })
-            primary = per_item_rates(select_set(flips, "schema_edits"))
-            item_rates[(name, answer)] = primary
-            if answer == "final_checked":
-                base = answers[answers["perturbation"] == "base"].set_index(ITEM_KEY)
-                table = primary.join(base[["gold", "final_checked"]], on=ITEM_KEY)
-                per_column.append(table.assign(condition=name).rename(columns={"final_checked": "base_answer"}))
+        write_answers(answers, output_dir / f"answers_{name}.csv.gz")
+        condition_rows, condition_columns, condition_rates = condition_flip_tables(name, answers, perturbations, n_boot)
+        rows += condition_rows
+        per_column += condition_columns
+        item_rates |= condition_rates
     summary = pd.DataFrame(rows)
     summary.to_csv(output_dir / "flip_rates.csv", index=False)
     reference = reference_accuracy(work_dir, conditions_run)
@@ -836,6 +956,36 @@ def analyze(design: dict[str, Any], work_dir: Path, output_dir: Path, n_boot: in
     }
     (output_dir / "summary.json").write_text(json.dumps(result, indent=2, default=_json_default), encoding="utf-8")
     return result
+
+
+def write_answers(answers: pd.DataFrame, path: Path) -> None:
+    with gzip.open(path, "wt", encoding="utf-8", newline="") as handle:
+        answers[[c for c in ANSWER_COLUMNS if c in answers]].to_csv(handle, index=False)
+
+
+def condition_flip_tables(
+    name: str, answers: pd.DataFrame, perturbations: dict[str, Perturbation], n_boot: int
+) -> tuple[list[dict[str, Any]], list[pd.DataFrame], dict[tuple[str, str], pd.DataFrame]]:
+    """One condition's ``flip_rates`` rows, per-column schema-edit rates and per-item rates (both answers)."""
+    rows, per_column, item_rates = [], [], {}
+    for answer in ("final_checked", "final_unchecked"):
+        flips = flip_table(answers, perturbations, answer)
+        for set_name in SETS:
+            chosen = select_set(flips, set_name)
+            if chosen.empty:
+                continue
+            rows.append({
+                "condition": name, "answer": answer.removeprefix("final_"), "set": set_name,
+                "n_perturbations": int(chosen["perturbation"].nunique()),
+                **summarize_set(chosen, n_boot), **accuracy_change(chosen, n_boot),
+            })
+        primary = per_item_rates(select_set(flips, "schema_edits"))
+        item_rates[(name, answer)] = primary
+        if answer == "final_checked":
+            base = answers[answers["perturbation"] == "base"].set_index(ITEM_KEY)
+            table = primary.join(base[["gold", "final_checked"]], on=ITEM_KEY)
+            per_column.append(table.assign(condition=name).rename(columns={"final_checked": "base_answer"}))
+    return rows, per_column, item_rates
 
 
 def reference_accuracy(work_dir: Path, conditions: list[str]) -> pd.DataFrame:
@@ -862,11 +1012,14 @@ def reference_accuracy(work_dir: Path, conditions: list[str]) -> pd.DataFrame:
 
 
 def compare_conditions(
-    item_rates: dict[tuple[str, str], pd.DataFrame], conditions_run: list[str], n_boot: int
+    item_rates: dict[tuple[str, str], pd.DataFrame],
+    conditions_run: list[str],
+    n_boot: int,
+    comparisons: Iterable[tuple[str, str]] = COMPARISONS,
 ) -> pd.DataFrame:
     rows = []
     for answer in ("final_checked", "final_unchecked"):
-        for condition, reference in COMPARISONS:
+        for condition, reference in comparisons:
             if condition not in conditions_run or reference not in conditions_run:
                 continue
             a, b = item_rates[(condition, answer)], item_rates[(reference, answer)]
@@ -1092,6 +1245,312 @@ def explore(work_dir: Path, output_dir: Path, n_boot: int = 10_000, schema_path:
     return result
 
 
+# ── Follow-up: no zero-score padding and order votes ─────────────────────────
+# Pre-specified in docs/schema_stability_followup_design.md; compared with the
+# committed answers of the reference (answers_e2b_definition.csv.gz).
+
+FOLLOWUP_OUTCOMES = ("dv_accuracy", "non_dv_mapped", "precision", "schema_edit_flip_rate")
+NOPAD, VOTE, VOTE_UNANIMOUS = FOLLOWUP_CONDITIONS
+
+
+def base_answers(answers: pd.DataFrame) -> pd.DataFrame:
+    """The analysed columns' answers under the unchanged schema."""
+    return answers[(answers["perturbation"] == "base") & answers["label_kind"].isin(ANALYSIS_KINDS)]
+
+
+def _same(a: Iterable[Any], b: Iterable[Any]) -> np.ndarray:
+    """Element-wise equality with "no answer" (None or NaN) equal to itself."""
+    return np.array([_answer(x) == _answer(y) for x, y in zip(a, b, strict=True)], dtype=bool)
+
+
+def _correct(answers: pd.Series, gold: pd.Series) -> pd.Series:
+    return pd.Series(_same(answers, gold), index=answers.index) & answers.notna()
+
+
+def ratio_comparison(
+    num_a: pd.Series, den_a: pd.Series, num_b: pd.Series, den_b: pd.Series, clusters: pd.Series,
+    n_boot: int = 10_000, n_perm: int = 100_000, seed: int = MASTER_SEED,
+) -> dict[str, float]:
+    """Difference of two paired ratios (sum num / sum den), e.g. precision of accepted answers.
+
+    The interval resamples clusters and recomputes both ratios; the two-sided p
+    swaps the conditions within randomly chosen whole clusters (for a mean this
+    is :func:`sign_flip_test`).
+    """
+    frame = pd.DataFrame({
+        "na": num_a.to_numpy(float), "da": den_a.to_numpy(float), "nb": num_b.to_numpy(float),
+        "db": den_b.to_numpy(float), "c": clusters.to_numpy(),
+    }).groupby("c").sum()
+    na, da, nb, db = (frame[c].to_numpy() for c in ("na", "da", "nb", "db"))
+    with np.errstate(divide="ignore", invalid="ignore"):
+        observed = na.sum() / da.sum() - nb.sum() / db.sum()
+        picks = np.random.default_rng(seed).integers(0, len(na), size=(n_boot, len(na)))
+        boot = na[picks].sum(1) / da[picks].sum(1) - nb[picks].sum(1) / db[picks].sum(1)
+        swap = np.random.default_rng(seed).integers(0, 2, size=(n_perm, len(na))).astype(float)
+        a_num, a_den = na.sum() + swap @ (nb - na), da.sum() + swap @ (db - da)
+        b_num, b_den = nb.sum() - swap @ (nb - na), db.sum() - swap @ (db - da)
+        null = a_num / a_den - b_num / b_den
+    if not np.isfinite(observed):
+        p = np.nan
+    else:
+        p = float((1 + np.sum(np.abs(null) >= abs(observed) - 1e-12)) / (1 + n_perm)) if observed != 0 else 1.0
+    boot = boot[np.isfinite(boot)]
+    return {
+        "value": float(na.sum() / da.sum()) if da.sum() else np.nan,
+        "value_reference": float(nb.sum() / db.sum()) if db.sum() else np.nan,
+        "difference": float(observed),
+        "difference_ci_low": float(np.percentile(boot, 2.5)) if boot.size else np.nan,
+        "difference_ci_high": float(np.percentile(boot, 97.5)) if boot.size else np.nan, "p": p,
+    }
+
+
+def condition_outcomes(name: str, answers: pd.DataFrame) -> list[dict[str, Any]]:
+    """Accuracy, non-DV columns mapped and precision under the unchanged schema (Wilson intervals)."""
+    from opendv.analysis.evaluate_llm_mapping import wilson
+
+    base = base_answers(answers)
+    dv = base[base["label_kind"] == "dv"]
+    non_dv = base[base["label_kind"] == "curated_non_dv"]
+    rows = []
+    for answer in ("final_checked", "final_unchecked"):
+        accuracy = wilson(int(_correct(dv[answer], dv["gold"]).sum()), len(dv))
+        mapped = wilson(int(non_dv[answer].notna().sum()), len(non_dv))
+        accepted = base[base[answer].notna()]
+        precision = wilson(int(_correct(accepted[answer], accepted["gold"]).sum()), len(accepted))
+        rows.append({
+            "condition": name, "answer": answer.removeprefix("final_"),
+            "dv_accuracy_k": accuracy["k"], "dv_n": accuracy["n"], "dv_accuracy": accuracy["rate"],
+            "dv_accuracy_ci_low": accuracy["ci95"][0], "dv_accuracy_ci_high": accuracy["ci95"][1],
+            "non_dv_mapped_k": mapped["k"], "non_dv_n": mapped["n"], "non_dv_mapped": mapped["rate"],
+            "non_dv_mapped_ci_low": mapped["ci95"][0], "non_dv_mapped_ci_high": mapped["ci95"][1],
+            "accepted_dv_mappings": precision["n"], "correct_accepted": precision["k"],
+            "precision": precision["rate"], "precision_ci_low": precision["ci95"][0],
+            "precision_ci_high": precision["ci95"][1],
+            "asked": int(base["prompt_sha256"].notna().sum()), "n_items": int(len(base)),
+            "llm_errors": int(answers.loc[answers["perturbation"] == "base", "llm_error"].notna().sum()),
+        })
+    return rows
+
+
+def outcome_comparisons(
+    answers: dict[str, pd.DataFrame],
+    item_rates: dict[tuple[str, str], pd.DataFrame],
+    comparisons: Iterable[tuple[str, str]],
+    n_boot: int = 10_000,
+    n_perm: int = 100_000,
+) -> pd.DataFrame:
+    """The four pre-specified outcomes of each condition against the reference, paired by column.
+
+    Holm over every checked-answer test; unchecked answers are descriptive.
+    """
+    rows = []
+    for answer in ("final_checked", "final_unchecked"):
+        for condition, reference in comparisons:
+            if condition not in answers or reference not in answers:
+                continue
+            paired = base_answers(answers[condition]).merge(
+                base_answers(answers[reference]), on=ITEM_KEY, suffixes=("", "_ref")
+            )
+            head = {"answer": answer.removeprefix("final_"), "condition": condition, "reference": reference}
+            for kind, outcome in (("dv", "dv_accuracy"), ("curated_non_dv", "non_dv_mapped")):
+                part = paired[paired["label_kind"] == kind]
+                if kind == "dv":
+                    hit, hit_ref = _correct(part[answer], part["gold"]), _correct(part[f"{answer}_ref"], part["gold"])
+                else:
+                    hit, hit_ref = part[answer].notna(), part[f"{answer}_ref"].notna()
+                difference = hit.astype(float) - hit_ref.astype(float)
+                mean, low, high = cluster_bootstrap(difference, part["source_id"], n_boot)
+                rows.append({
+                    **head, "outcome": outcome, "n_items": int(len(part)),
+                    "n_studies": int(part["source_id"].nunique()),
+                    "k": int(hit.sum()), "k_reference": int(hit_ref.sum()),
+                    "value": float(hit.mean()), "value_reference": float(hit_ref.mean()),
+                    "difference": mean, "difference_ci_low": low, "difference_ci_high": high,
+                    "n_gained": int((difference > 0).sum()), "n_lost": int((difference < 0).sum()),
+                    "p": sign_flip_test(difference, part["source_id"], n_perm),
+                })
+            accepted, accepted_ref = paired[answer].notna(), paired[f"{answer}_ref"].notna()
+            correct, correct_ref = _correct(paired[answer], paired["gold"]), _correct(paired[f"{answer}_ref"],
+                                                                                       paired["gold"])
+            ratio = ratio_comparison(correct, accepted, correct_ref, accepted_ref, paired["source_id"], n_boot, n_perm)
+            rows.append({
+                **head, "outcome": "precision", "n_items": int(len(paired)),
+                "n_studies": int(paired["source_id"].nunique()),
+                "k": int(correct.sum()), "k_reference": int(correct_ref.sum()),
+                "n_accepted": int(accepted.sum()), "n_accepted_reference": int(accepted_ref.sum()), **ratio,
+            })
+            rates = item_rates[(condition, answer)].merge(item_rates[(reference, answer)], on=ITEM_KEY,
+                                                          suffixes=("", "_ref"))
+            difference = rates["rate"] - rates["rate_ref"]
+            mean, low, high = cluster_bootstrap(difference, rates["source_id"], n_boot)
+            rows.append({
+                **head, "outcome": "schema_edit_flip_rate", "n_items": int(len(rates)),
+                "n_studies": int(rates["source_id"].nunique()),
+                "value": float(rates["rate"].mean()), "value_reference": float(rates["rate_ref"].mean()),
+                "difference": mean, "difference_ci_low": low, "difference_ci_high": high,
+                "p": sign_flip_test(difference, rates["source_id"], n_perm),
+            })
+    out = pd.DataFrame(rows)
+    if not out.empty:
+        out["p_holm"] = np.nan
+        checked = out["answer"] == "checked"
+        out.loc[checked, "p_holm"] = holm(out.loc[checked, "p"].tolist())
+    return out
+
+
+def integrity_checks(answers: dict[str, pd.DataFrame]) -> pd.DataFrame:
+    """Does the follow-up reproduce the reference wherever a condition leaves the prompt as it was?
+
+    ``nopad``: where its shortlist is the reference's, the prompt and the answers
+    must be the reference's. The votes: the shortlist and the rank-order answer
+    must be the reference's; the two vote rules must have the same three answers.
+    """
+    key = [*ITEM_KEY, "perturbation"]
+    rows = []
+
+    def add(check: str, condition: str, compared: pd.Series, same: np.ndarray) -> None:
+        rows.append({"check": check, "condition": condition, "n_compared": int(len(same)),
+                     "n_mismatched": int((~same).sum()),
+                     "perturbations_mismatched": "|".join(sorted(set(compared[~same]))) if (~same).any() else ""})
+
+    reference = answers.get(REFERENCE)
+    if reference is not None and NOPAD in answers:
+        paired = answers[NOPAD].merge(reference, on=key, suffixes=("", "_ref"))
+        same_list = _same(paired["shortlist"], paired["shortlist_ref"])
+        kept = paired[same_list]
+        rows.append({"check": "shortlist as the reference's", "condition": NOPAD, "n_compared": int(len(paired)),
+                     "n_mismatched": int((~same_list).sum()),
+                     "perturbations_mismatched": f"{int((~same_list & (paired['perturbation'] == 'base')).sum())} "
+                                                 "under the unchanged schema (expected: the padded shortlists)"})
+        add("same shortlist: same prompt", NOPAD, kept["perturbation"],
+            _same(kept["prompt_sha256"], kept["prompt_sha256_ref"]))
+        for column in ("suggestion", "final_checked"):
+            add(f"same shortlist: same {column}", NOPAD, kept["perturbation"],
+                _same(kept[column], kept[f"{column}_ref"]))
+    for vote in (VOTE, VOTE_UNANIMOUS):
+        if reference is None or vote not in answers:
+            continue
+        paired = answers[vote].merge(reference, on=key, suffixes=("", "_ref"))
+        add("shortlist as the reference's", vote, paired["perturbation"],
+            _same(paired["shortlist"], paired["shortlist_ref"]))
+        first = [None if s is None else (str(s).split("|")[0] or None) for s in paired["order_suggestions"]]
+        add("rank-order answer as the reference's", vote, paired["perturbation"],
+            _same(first, paired["suggestion_ref"]))
+    if VOTE in answers and VOTE_UNANIMOUS in answers:
+        paired = answers[VOTE].merge(answers[VOTE_UNANIMOUS], on=key, suffixes=("", "_u"))
+        add("same answers under the three orders", f"{VOTE} / {VOTE_UNANIMOUS}", paired["perturbation"],
+            _same(paired["order_suggestions"], paired["order_suggestions_u"]))
+    return pd.DataFrame(rows)
+
+
+def padded_columns(reference: pd.DataFrame, nopad: pd.DataFrame) -> pd.DataFrame:
+    """The columns whose shortlist ``nopad`` shortens under the unchanged schema, with both answers."""
+    paired = base_answers(nopad).merge(base_answers(reference), on=ITEM_KEY, suffixes=("", "_ref"))
+    changed = paired[~_same(paired["shortlist"], paired["shortlist_ref"])].copy()
+    out = changed[[*ITEM_KEY, "label_kind", "gold"]].copy()
+    out["shortlist_reference"] = changed["shortlist_ref"]
+    out["shortlist_nopad"] = changed["shortlist"]
+    out["n_candidates_nopad"] = [0 if s is None else len(str(s).split("|")) for s in changed["shortlist"]]
+    for answer in ("final_unchecked", "final_checked"):
+        out[f"reference_{answer}"] = changed[f"{answer}_ref"]
+        out[f"nopad_{answer}"] = changed[answer]
+    out["status_reference"] = [answer_status(k, _answer(g), _answer(a)) for k, g, a in
+                               zip(out["label_kind"], out["gold"], out["reference_final_checked"], strict=True)]
+    out["status_nopad"] = [answer_status(k, _answer(g), _answer(a)) for k, g, a in
+                           zip(out["label_kind"], out["gold"], out["nopad_final_checked"], strict=True)]
+    return out.reset_index(drop=True)
+
+
+AGREEMENT_GROUPS = ("all three orders agree", "two agree", "all three differ")
+
+
+def vote_agreement(vote: pd.DataFrame, n_boot: int = 10_000) -> pd.DataFrame:
+    """How often the three orders agree under the unchanged schema, and how good the answers are by agreement.
+
+    Accuracy and precision are those of ``vote``'s own final answers.
+    """
+    asked = base_answers(vote)
+    asked = asked[asked["order_suggestions"].notna()].copy()
+    asked["n_distinct"] = [len(set(str(s).split("|"))) for s in asked["order_suggestions"]]
+    asked["agreement"] = asked["n_distinct"].map(dict(enumerate(AGREEMENT_GROUPS, start=1)))
+    rows = []
+    for group in AGREEMENT_GROUPS:
+        part = asked[asked["agreement"] == group]
+        dv = part[part["label_kind"] == "dv"]
+        row: dict[str, Any] = {"agreement": group, "n_asked": int(len(part)),
+                               "share": float(len(part) / len(asked)) if len(asked) else np.nan,
+                               "n_dv_columns": int(len(dv)), "n_non_dv_columns": int(len(part) - len(dv))}
+        for answer in ("final_checked", "final_unchecked"):
+            label = answer.removeprefix("final_")
+            accepted = part[part[answer].notna()]
+            correct = _correct(accepted[answer], accepted["gold"]).astype(float)
+            mean, low, high = cluster_bootstrap(correct, accepted["source_id"], n_boot)
+            row |= {f"{label}_accepted": int(len(accepted)), f"{label}_correct": int(correct.sum()),
+                    f"{label}_precision": mean, f"{label}_precision_ci_low": low,
+                    f"{label}_precision_ci_high": high,
+                    f"{label}_dv_accuracy": float(_correct(dv[answer], dv["gold"]).mean()) if len(dv) else np.nan}
+        rows.append(row)
+    return pd.DataFrame(rows)
+
+
+def analyze_followup(
+    design: dict[str, Any],
+    work_dir: Path,
+    output_dir: Path,
+    reference_answers: Path = OUTPUT_DIR / f"answers_{REFERENCE}.csv.gz",
+    n_boot: int = 10_000,
+    n_perm: int = 100_000,
+) -> dict[str, Any]:
+    """The follow-up's pre-specified outcomes, integrity checks and secondary tables."""
+    perturbations = {p.name: p for p in perturbations_from_design(design)}
+    output_dir.mkdir(parents=True, exist_ok=True)
+    answers = {REFERENCE: read_answers_file(reference_answers)}
+    for name in FOLLOWUP_CONDITIONS:
+        frame = read_answers(work_dir, name)
+        if not frame.empty and "base" in set(frame["perturbation"]):
+            answers[name] = frame
+            write_answers(frame, output_dir / f"answers_{name}.csv.gz")
+    integrity = integrity_checks(answers)
+    integrity.to_csv(output_dir / "integrity_checks.csv", index=False)
+    rows, per_column, item_rates, outcomes = [], [], {}, []
+    for name, frame in answers.items():
+        condition_rows, condition_columns, condition_rates = condition_flip_tables(name, frame, perturbations, n_boot)
+        rows += condition_rows
+        per_column += condition_columns
+        item_rates |= condition_rates
+        outcomes += condition_outcomes(name, frame)
+    pd.DataFrame(rows).to_csv(output_dir / "flip_rates.csv", index=False)
+    pd.concat(per_column, ignore_index=True).to_csv(output_dir / "per_column_flip_rates.csv", index=False)
+    pd.DataFrame(outcomes).to_csv(output_dir / "condition_outcomes.csv", index=False)
+    comparisons = outcome_comparisons(answers, item_rates, [(c, REFERENCE) for c in FOLLOWUP_CONDITIONS],
+                                      n_boot, n_perm)
+    comparisons.to_csv(output_dir / "outcome_comparisons.csv", index=False)
+    result: dict[str, Any] = {
+        "conditions": list(answers), "n_boot": n_boot, "n_perm": n_perm,
+        "reference_answers": reference_answers.as_posix(),
+        "reference_answers_sha256": hashlib.sha256(reference_answers.read_bytes()).hexdigest(),
+        "integrity_checks": integrity.to_dict(orient="records"),
+        "condition_outcomes": outcomes,
+        "outcome_comparisons": comparisons.to_dict(orient="records"),
+    }
+    if NOPAD in answers:
+        padded = padded_columns(answers[REFERENCE], answers[NOPAD])
+        padded.to_csv(output_dir / "padded_columns.csv", index=False)
+        result["padded_columns"] = {
+            "n": int(len(padded)), "not_asked_any_more": int((padded["n_candidates_nopad"] == 0).sum()),
+            "checked_answer_changed": int((~_same(padded["reference_final_checked"],
+                                                  padded["nopad_final_checked"])).sum()),
+            "status_changes": padded.groupby(["status_reference", "status_nopad"]).size().reset_index(name="n")
+            .to_dict(orient="records"),
+        }
+    if VOTE in answers:
+        agreement = vote_agreement(answers[VOTE], n_boot)
+        agreement.to_csv(output_dir / "vote_agreement.csv", index=False)
+        result["vote_agreement"] = agreement.to_dict(orient="records")
+    (output_dir / "summary.json").write_text(json.dumps(result, indent=2, default=_json_default), encoding="utf-8")
+    return result
+
+
 # ── CLI ──────────────────────────────────────────────────────────────────────
 
 
@@ -1101,62 +1560,90 @@ def main(argv: list[str] | None = None) -> None:
         logging.getLogger(noisy).setLevel(logging.WARNING)
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     sub = parser.add_subparsers(dest="command", required=True)
-    for command in ("plan", "dry-run", "run", "analyze", "explore"):
+    for command in ("plan", "dry-run", "run", "analyze", "explore", "freeze-mappings", "followup"):
         p = sub.add_parser(command)
         p.add_argument("--half", type=parse_half, action="append", default=None,
-                       help="NAME=BATCH_DIR,MANIFEST,CACHE_DIR (default: det23l and det16l of data/processed).")
-        p.add_argument("--work-dir", type=Path, default=WORK_DIR)
-        p.add_argument("--output-dir", type=Path, default=OUTPUT_DIR)
+                       help="NAME=BATCH_DIR,MANIFEST,CACHE_DIR (default: det23l and det16l of data/processed; "
+                            "for the follow-up with the manifests freeze-mappings wrote).")
+        p.add_argument("--work-dir", type=Path, default=None,
+                       help=f"Default: {WORK_DIR.as_posix()} ({FOLLOWUP_WORK_DIR.as_posix()} for the follow-up).")
+        p.add_argument("--output-dir", type=Path, default=None,
+                       help=f"Default: {OUTPUT_DIR.as_posix()} ({FOLLOWUP_OUTPUT_DIR.as_posix()} for the follow-up).")
+        if command in ("run", "dry-run", "followup"):
+            p.add_argument("--design", type=Path, default=None,
+                           help="design.json (default: in the output folder; the committed one for the follow-up).")
         if command in ("run", "dry-run"):
-            p.add_argument("--condition", choices=sorted(CONDITIONS), required=command == "run",
+            p.add_argument("--condition", choices=sorted(ALL_CONDITIONS), required=command == "run",
                            default="e2b_definition")
+            p.add_argument("--extra-cache", type=Path, action="append", default=[],
+                           help="Another run's response_cache.jsonl, read but not written (repeatable).")
         if command == "run":
             p.add_argument("--cpu-ple", nargs=2, type=Path, metavar=("WEIGHTS_DIR", "TOKENIZER_DIR"), default=None,
                            help="Load the condition's model with its per-layer embeddings on the CPU "
                                 "(install_cpu_ple_pipeline), weights and tokenizer from these snapshot folders.")
             p.add_argument("--families", default=None, help="Comma-separated families to run (default: all).")
-        if command in ("analyze", "explore"):
+        if command == "freeze-mappings":
+            p.add_argument("--commit", default=MAPPINGS_COMMIT, help="Commit to copy the mapping files from.")
+            p.add_argument("--manifest", type=Path, action="append", default=None,
+                           help="Manifest to freeze (default: data/processed/manifest23.yaml and manifest16.yaml).")
+        if command == "followup":
+            p.add_argument("--reference-answers", type=Path, default=OUTPUT_DIR / f"answers_{REFERENCE}.csv.gz")
+        if command in ("analyze", "explore", "followup"):
             p.add_argument("--n-boot", type=int, default=10_000)
     args = parser.parse_args(argv)
+    followup = (args.command in ("freeze-mappings", "followup")
+                or getattr(args, "condition", None) in FOLLOWUP_CONDITIONS)
+    work_dir = args.work_dir or (FOLLOWUP_WORK_DIR if followup else WORK_DIR)
+    output_dir = args.output_dir or (FOLLOWUP_OUTPUT_DIR if followup else OUTPUT_DIR)
+    design_path = getattr(args, "design", None) or (OUTPUT_DIR if followup else output_dir) / "design.json"
     if args.command == "explore":
-        explore(args.work_dir, args.output_dir, args.n_boot)
+        explore(work_dir, output_dir, args.n_boot)
         return
-    halves = args.half or default_halves()
-    design_path = args.output_dir / "design.json"
+    if args.command == "freeze-mappings":
+        record = freeze_mappings(args.manifest or [h.manifest for h in default_halves()], args.commit, work_dir)
+        print(f"{len(record['mapping_files_sha256'])} mapping files of {args.commit[:7]}; "
+              f"manifests {record['manifests']}")
+        return
     if args.command == "plan":
-        design = build_design(halves)
-        args.output_dir.mkdir(parents=True, exist_ok=True)
+        design = build_design(args.half or default_halves())
+        output_dir.mkdir(parents=True, exist_ok=True)
         design_path.write_text(json.dumps(design, indent=2), encoding="utf-8")
         for perturbation in perturbations_from_design(design):
-            materialize_schema(perturbation, args.work_dir)
+            materialize_schema(perturbation, work_dir)
         print(f"{len(design['perturbations'])} perturbations, {len(design['unrelated_dvs'])} unrelated DVs")
         return
     design = json.loads(design_path.read_text(encoding="utf-8"))
+    if args.command == "followup":
+        analyze_followup(design, work_dir, output_dir, args.reference_answers, args.n_boot)
+        return
+    halves = args.half or (followup_halves(work_dir) if followup else default_halves())
     if args.command == "dry-run":
-        run_condition(CONDITIONS[args.condition], design, halves, args.work_dir, dry_run=True)
-        table = dry_run_summary(design, args.work_dir, args.condition)
-        table.to_csv(args.work_dir / f"dry_run_{args.condition}.csv", index=False)
+        run_condition(ALL_CONDITIONS[args.condition], design, halves, work_dir, dry_run=True,
+                      extra_caches=args.extra_cache)
+        table = dry_run_summary(design, work_dir, args.condition)
+        table.to_csv(work_dir / f"dry_run_{args.condition}.csv", index=False)
         print(table.to_string(index=False))
         return
     if args.command == "run":
         families = set(args.families.split(",")) if args.families else None
-        condition = CONDITIONS[args.condition]
+        condition = ALL_CONDITIONS[args.condition]
         if args.cpu_ple:
             install_cpu_ple_pipeline(condition.model, *args.cpu_ple)
-        run_condition(condition, design, halves, args.work_dir, families)
+        run_condition(condition, design, halves, work_dir, families, extra_caches=args.extra_cache)
         from opendv import llm_utils
 
         if llm_utils.generation_errors():
             sys.exit(f"{len(llm_utils.generation_errors())} generation errors; rerun the affected perturbations")
         return
-    analyze(design, args.work_dir, args.output_dir, args.n_boot)
+    analyze(design, work_dir, output_dir, args.n_boot)
 
 
 __all__ = [
-    "CONDITIONS", "Condition", "Perturbation", "accuracy_comparisons", "analyze", "answer_position",
-    "apply_perturbation", "build_design", "check_perturbation", "cluster_bootstrap", "explore", "flip_table",
-    "holm", "plan_perturbations", "tie_flags",
-    "protected_dvs", "sign_flip_test", "unrelated_dvs",
+    "ALL_CONDITIONS", "CONDITIONS", "Condition", "FOLLOWUP_CONDITIONS", "Perturbation", "accuracy_comparisons",
+    "analyze", "analyze_followup", "answer_position", "apply_perturbation", "build_design", "check_perturbation",
+    "cluster_bootstrap", "explore", "flip_table", "freeze_mappings", "holm", "integrity_checks",
+    "outcome_comparisons", "plan_perturbations", "protected_dvs", "ratio_comparison", "sign_flip_test",
+    "tie_flags", "unrelated_dvs", "vote_agreement",
 ]
 
 
