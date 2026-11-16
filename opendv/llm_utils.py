@@ -13,6 +13,7 @@ import io
 import logging
 import os
 import re
+from collections import Counter
 from functools import lru_cache
 from pathlib import Path
 from typing import Any, Callable, Iterable
@@ -323,7 +324,7 @@ def _dedupe_case_insensitive(values: Iterable[str]) -> list[str]:
     return ordered
 
 
-@lru_cache(maxsize=1)
+@lru_cache(maxsize=4)
 def _load_candidate_schema_metadata(schema_path: str = str(DEFAULT_DV_SCHEMA_PATH)) -> dict[str, dict[str, object]]:
     path = Path(schema_path)
     if not path.is_file():
@@ -358,16 +359,19 @@ def _load_candidate_schema_metadata(schema_path: str = str(DEFAULT_DV_SCHEMA_PAT
     return metadata
 
 
-def _format_candidate_reference(candidates: Iterable[str], query: str | None = None) -> str:
+def _format_candidate_reference(
+    candidates: Iterable[str], query: str | None = None, schema_path: str | Path | None = None
+) -> str:
     """One reference line per candidate DV (label, cluster, aliases, ...).
 
     Aliases equal to the column being asked about (ignoring case) are left
     out. In the pipeline such a column is mapped before the LLM is asked, so
     nothing changes there; in the leave-alias-out benchmark the held-out alias
     would otherwise be printed next to the correct answer (until 2026-11-04
-    for 86 of 265 E1 and 216 of 300 E2 items).
+    for 86 of 265 E1 and 216 of 300 E2 items). ``schema_path`` reads the
+    definitions from another DV schema file (the schema-stability benchmark).
     """
-    metadata = _load_candidate_schema_metadata()
+    metadata = _load_candidate_schema_metadata(str(schema_path or DEFAULT_DV_SCHEMA_PATH))
     lines: list[str] = []
     hidden = str(query).strip().lower() if query is not None else None
 
@@ -750,7 +754,10 @@ def generation_errors() -> list[dict[str, str]]:
     return list(_GENERATION_ERRORS)
 
 
-def _generate(model_name: str, prompt: str) -> str:
+def _generate(
+    model_name: str, prompt: str, num_samples: int = 1, temperature: float = 1.0, sample_seed: int = 0
+) -> list[str]:
+    """Generated texts for ``prompt``: one greedy answer, or ``num_samples`` sampled ones."""
     generator = _get_text_generation_pipeline(model_name)
     tokenizer = getattr(generator, "tokenizer", None)
     chat_template = getattr(tokenizer, "chat_template", None) if tokenizer else None
@@ -762,13 +769,28 @@ def _generate(model_name: str, prompt: str) -> str:
         )
     else:
         model_input = prompt
+    if num_samples <= 1:
+        output = generator(
+            model_input,
+            max_new_tokens=64,
+            do_sample=False,
+            return_full_text=False,
+        )
+        return [output[0].get("generated_text", "")]
+    # Self-consistency: num_samples sampled answers to one prompt. The seed is
+    # set before every call, so an identical prompt draws identical samples.
+    import torch  # type: ignore
+
+    torch.manual_seed(int(sample_seed))
     output = generator(
         model_input,
         max_new_tokens=64,
-        do_sample=False,
+        do_sample=True,
+        temperature=float(temperature),
+        num_return_sequences=int(num_samples),
         return_full_text=False,
     )
-    return output[0].get("generated_text", "")
+    return [item.get("generated_text", "") for item in output]
 
 
 def _get_text_generation_pipeline(model_name: str):
@@ -803,27 +825,14 @@ def _get_text_generation_pipeline(model_name: str):
     return new_pipeline
 
 
-def deduce_standard_name_with_local_llm(
+def build_mapping_prompt(
     raw_column_name: str,
-    canonical_candidates: Iterable[str],
-    source_root: str | Path | None = None,
-    preferred_models: list[str] | None = None,
-    repository_context: str | None = None,
-) -> str | None:
-    """Infer the most appropriate canonical DV id from a local LLM.
-
-    Returns one candidate from `canonical_candidates` when possible.
-    """
-    candidates = [str(c).strip() for c in canonical_candidates if str(c).strip()]
-    if not raw_column_name or not candidates:
-        return None
-
-    model_list = select_local_model_candidates(preferred_models=preferred_models)
-    context = repository_context
-    if context is None:
-        context = collect_repository_context(source_root) if source_root else ""
-
-    candidate_reference = _format_candidate_reference(candidates, query=raw_column_name)
+    candidates: list[str],
+    context: str = "",
+    schema_path: str | Path | None = None,
+) -> str:
+    """The prompt that asks the LLM to map one column to one of ``candidates`` (in their order)."""
+    candidate_reference = _format_candidate_reference(candidates, query=raw_column_name, schema_path=schema_path)
     prompt = (
         "You standardize HCI dependent variable columns into canonical identifiers.\n"
         "Choose exactly one identifier from the candidate list. Do not invent new identifiers.\n\n"
@@ -847,17 +856,62 @@ def deduce_standard_name_with_local_llm(
             f"\nRepository context:\n{context}\n"
         )
     prompt += "\nRespond with only one canonical identifier from the candidate reference above."
+    return prompt
+
+
+def majority_vote(answers: Iterable[str | None], candidates: list[str]) -> str | None:
+    """Most frequent answer; ties go to the candidate listed first, "no answer" (None) last."""
+    answers = list(answers)
+    if not answers:
+        return None
+    counts = Counter(answers)
+    best = max(counts.values())
+    rank = {candidate: index for index, candidate in enumerate(candidates)}
+    tied = [answer for answer, count in counts.items() if count == best]
+    return min(tied, key=lambda answer: (answer is None, rank.get(answer, len(rank)) if answer else 0))
+
+
+def deduce_standard_name_with_local_llm(
+    raw_column_name: str,
+    canonical_candidates: Iterable[str],
+    source_root: str | Path | None = None,
+    preferred_models: list[str] | None = None,
+    repository_context: str | None = None,
+    schema_path: str | Path | None = None,
+    num_samples: int = 1,
+    temperature: float = 1.0,
+    sample_seed: int = 0,
+) -> str | None:
+    """Infer the most appropriate canonical DV id from a local LLM.
+
+    Returns one candidate from `canonical_candidates` when possible.
+    Generation is greedy; ``num_samples > 1`` instead samples that many
+    answers (``temperature``, ``sample_seed``) and returns their majority
+    (:func:`majority_vote`; self-consistency). ``schema_path`` reads the
+    candidates' definitions from another DV schema file.
+    """
+    candidates = [str(c).strip() for c in canonical_candidates if str(c).strip()]
+    if not raw_column_name or not candidates:
+        return None
+
+    model_list = select_local_model_candidates(preferred_models=preferred_models)
+    context = repository_context
+    if context is None:
+        context = collect_repository_context(source_root) if source_root else ""
+
+    prompt = build_mapping_prompt(raw_column_name, candidates, context, schema_path)
+    sampling = {"num_samples": num_samples, "temperature": temperature, "sample_seed": sample_seed}
 
     for model_name in model_list:
         try:
             try:
-                text = _generate(model_name, prompt)
+                texts = _generate(model_name, prompt, **sampling)
             except Exception as exc:
                 if type(exc).__name__ != "OutOfMemoryError":
                     raise
                 # Shared GPU: free cached blocks and try once more.
                 _release_torch_memory()
-                text = _generate(model_name, prompt)
+                texts = _generate(model_name, prompt, **sampling)
         except Exception as exc:  # noqa: BLE001
             error = f"{type(exc).__name__}: {exc}".splitlines()[0][:300]
             _GENERATION_ERRORS.append({"model": model_name, "column": str(raw_column_name), "error": error})
@@ -865,7 +919,11 @@ def deduce_standard_name_with_local_llm(
             _release_torch_memory()
             continue
 
-        answer = _extract_candidate_from_llm_output(text, candidates)
+        text = texts[0] if texts else ""
+        if num_samples <= 1:
+            answer = _extract_candidate_from_llm_output(text, candidates)
+        else:
+            answer = majority_vote([_extract_candidate_from_llm_output(t, candidates) for t in texts], candidates)
         if answer:
             logger.debug(
                 "LLM deduction: '%s' -> '%s' (model=%s, raw=%r)",

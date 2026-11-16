@@ -1,0 +1,270 @@
+# DVs that a perturbation of the "add" family adds to the DV schema (docs/schema_stability_design.md).
+#
+# Fixed on 2026-11-15, before any LLM answer under a perturbed schema was seen. Rules:
+# - 20 entries, split over the schema's clusters in proportion to their size in schema 3.3
+#   (ux_satisfaction 7, safety_trust 5, cognitive_load 3, physiological_biometric 2,
+#   performance 1, behavioral_interaction 1, affective_emotion 1; the two clusters with
+#   one or two DVs get none);
+# - established HCI, driving or psychophysiology measures with ids that are not in the schema;
+# - none is another instrument for a construct the schema already has (no usability, trust,
+#   workload, sickness or presence scale), so none is a correct answer for a gold DV column;
+# - none of the 39 development studies measures it: no column name or curated `meta_*` name
+#   contains the construct's keywords (checked for wpm, typing, throughput, flow, promoter,
+#   respiration, temperature, glance, steering, recall, n-back, boredom, ...);
+# - written in the schema's own format; one in three has notes, as in the schema (50 of 163).
+dvs:
+
+  - id: text_entry_rate
+    label: "Text Entry Rate"
+    cluster: performance
+    measurement:
+      category: Continuous
+      primary_unit: "words per minute"
+      allowed_units: ["wpm", "characters per second"]
+      scale_type: ratio
+      direction: higher_is_better
+    aliases: [typing_speed, wpm, words_per_minute, entry_rate]
+    instruments: []
+    notes: "Words per minute, a word being five characters including spaces."
+
+  - id: undo_actions
+    label: "Undo Actions"
+    cluster: behavioral_interaction
+    measurement:
+      category: Count
+      primary_unit: count
+      allowed_units: ["count"]
+      scale_type: ratio
+      direction: lower_is_better
+    aliases: [undo_count, n_undo, undos, revert_actions]
+    instruments: []
+
+  - id: n_back_accuracy
+    label: "N-Back Accuracy"
+    cluster: cognitive_load
+    measurement:
+      category: Accuracy
+      primary_unit: proportion
+      allowed_units: ["proportion", "percentage"]
+      scale_type: ratio
+      direction: higher_is_better
+      canonical_range: [0, 1]
+    aliases: [nback_accuracy, n_back_correct, nback_hit_rate, two_back_accuracy]
+    instruments: ["n-back task"]
+
+  - id: mind_wandering_rate
+    label: "Mind Wandering Rate"
+    cluster: cognitive_load
+    measurement:
+      category: Proportion
+      primary_unit: proportion
+      allowed_units: ["proportion", "percentage"]
+      scale_type: ratio
+      direction: lower_is_better
+      canonical_range: [0, 1]
+    aliases: [mw_rate, off_task_reports, task_unrelated_thought, probe_caught_mw]
+    instruments: ["thought probes"]
+    notes: "Share of thought probes answered as off-task."
+
+  - id: pvt_lapses
+    label: "PVT Lapses"
+    cluster: cognitive_load
+    measurement:
+      category: Count
+      primary_unit: count
+      allowed_units: ["count"]
+      scale_type: ratio
+      direction: lower_is_better
+    aliases: [pvt_lapse_count, vigilance_lapses, lapses_500ms, pvt_errors]
+    instruments: ["Psychomotor Vigilance Task (PVT)"]
+
+  - id: near_miss_count
+    label: "Near Misses"
+    cluster: safety_trust
+    measurement:
+      category: Count
+      primary_unit: count
+      allowed_units: ["count"]
+      scale_type: ratio
+      direction: lower_is_better
+    aliases: [near_misses, near_crash_count, critical_encounters, safety_critical_events]
+    instruments: []
+
+  - id: post_encroachment_time
+    label: "Post-Encroachment Time"
+    cluster: safety_trust
+    measurement:
+      category: Time
+      primary_unit: seconds
+      allowed_units: [s, ms]
+      scale_type: ratio
+      direction: higher_is_better
+    aliases: [pet, PET, encroachment_time, post_encroachment]
+    instruments: []
+    notes: "Time between the first road user leaving the conflict zone and the second one entering it."
+
+  - id: red_light_violations
+    label: "Red-Light Violations"
+    cluster: safety_trust
+    measurement:
+      category: Count
+      primary_unit: count
+      allowed_units: ["count"]
+      scale_type: ratio
+      direction: lower_is_better
+    aliases: [red_light_running, signal_violations, ran_red_light, rlr_count]
+    instruments: []
+
+  - id: hard_braking_events
+    label: "Hard Braking Events"
+    cluster: safety_trust
+    measurement:
+      category: Count
+      primary_unit: count
+      allowed_units: ["count"]
+      scale_type: ratio
+      direction: lower_is_better
+    aliases: [harsh_braking, hard_brakes, emergency_braking_count, strong_decelerations]
+    instruments: []
+
+  - id: cyclist_passing_distance
+    label: "Cyclist Passing Distance"
+    cluster: safety_trust
+    measurement:
+      category: Continuous
+      primary_unit: meters
+      allowed_units: ["meters"]
+      scale_type: ratio
+      direction: higher_is_better
+    aliases: [passing_distance, overtaking_clearance, lateral_clearance_cyclist, bike_passing_gap]
+    instruments: []
+    notes: "Lateral distance when a car overtakes a cyclist."
+
+  - id: net_promoter_score
+    label: "Net Promoter Score"
+    cluster: ux_satisfaction
+    measurement:
+      category: Likert
+      primary_unit: "11-point (0–10)"
+      allowed_units: ["11-point (0–10)"]
+      scale_type: ordinal
+      direction: higher_is_better
+      canonical_range: [0, 10]
+    aliases: [nps, NPS, likelihood_to_recommend, recommend_score]
+    instruments: ["NPS"]
+
+  - id: flow_experience
+    label: "Flow Experience (FKS)"
+    cluster: ux_satisfaction
+    measurement:
+      category: Likert
+      primary_unit: "7-point (1–7)"
+      allowed_units: ["7-point (1–7)"]
+      scale_type: ordinal
+      direction: higher_is_better
+      canonical_range: [1, 7]
+    aliases: [flow_score, fks, flow_short_scale, absorption_flow]
+    instruments: ["Flow Short Scale (Rheinberg et al. 2003)"]
+    notes: "Mean of the ten flow items (fluency and absorption)."
+
+  - id: mecue_product_loyalty
+    label: "meCUE — Product Loyalty"
+    cluster: ux_satisfaction
+    measurement:
+      category: Likert
+      primary_unit: "7-point (1–7)"
+      allowed_units: ["7-point (1–7)"]
+      scale_type: ordinal
+      direction: higher_is_better
+      canonical_range: [1, 7]
+    aliases: [mecue_loyalty, product_loyalty, mecue_pl, loyalty_score]
+    instruments: ["meCUE"]
+
+  - id: cognitive_absorption
+    label: "Cognitive Absorption"
+    cluster: ux_satisfaction
+    measurement:
+      category: Likert
+      primary_unit: "7-point (1–7)"
+      allowed_units: ["7-point (1–7)"]
+      scale_type: ordinal
+      direction: higher_is_better
+      canonical_range: [1, 7]
+    aliases: [cog_absorption, temporal_dissociation, focused_immersion, ca_score]
+    instruments: ["Agarwal & Karahanna 2000"]
+
+  - id: customer_effort_score
+    label: "Customer Effort Score"
+    cluster: ux_satisfaction
+    measurement:
+      category: Likert
+      primary_unit: "7-point (1–7)"
+      allowed_units: ["7-point (1–7)"]
+      scale_type: ordinal
+      direction: lower_is_better
+      canonical_range: [1, 7]
+    aliases: [ces, CES, effort_score_service, service_effort]
+    instruments: ["CES"]
+
+  - id: perceived_value
+    label: "Perceived Value"
+    cluster: ux_satisfaction
+    measurement:
+      category: Likert
+      primary_unit: "5-point (1–5)"
+      allowed_units: ["5-point (1–5)"]
+      scale_type: ordinal
+      direction: higher_is_better
+      canonical_range: [1, 5]
+    aliases: [value_for_money, perval, perceived_value_score, value_perception]
+    instruments: ["PERVAL (Sweeney & Soutar 2001)"]
+
+  - id: willingness_to_pay
+    label: "Willingness to Pay"
+    cluster: ux_satisfaction
+    measurement:
+      category: Continuous
+      primary_unit: currency
+      allowed_units: ["currency"]
+      scale_type: ratio
+      direction: neutral
+    aliases: [wtp, WTP, max_price, price_willingness]
+    instruments: []
+    notes: "Highest price a participant states they would pay."
+
+  - id: respiration_rate
+    label: "Respiration Rate"
+    cluster: physiological_biometric
+    measurement:
+      category: Physiological
+      primary_unit: "breaths per minute"
+      allowed_units: ["breaths per minute"]
+      scale_type: ratio
+      direction: neutral
+    aliases: [breathing_rate, resp_rate, respiratory_rate, breaths_per_min]
+    instruments: ["respiration belt"]
+
+  - id: skin_temperature
+    label: "Skin Temperature"
+    cluster: physiological_biometric
+    measurement:
+      category: Physiological
+      primary_unit: "°C"
+      allowed_units: ["°C"]
+      scale_type: interval
+      direction: neutral
+    aliases: [skin_temp, peripheral_temperature, temp_c, wrist_temperature]
+    instruments: ["Empatica E4"]
+
+  - id: boredom
+    label: "Boredom"
+    cluster: affective_emotion
+    measurement:
+      category: Likert
+      primary_unit: "7-point (1–7)"
+      allowed_units: ["7-point (1–7)"]
+      scale_type: ordinal
+      direction: lower_is_better
+      canonical_range: [1, 7]
+    aliases: [boredom_score, msbs, state_boredom, bored]
+    instruments: ["Multidimensional State Boredom Scale (MSBS)"]
