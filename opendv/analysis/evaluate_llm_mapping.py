@@ -28,6 +28,17 @@ Example::
         --batch-dir data/processed/bench/new2_w8/batch \\
         --cache-dir data/processed/bench/cache \\
         --output-dir analyses/output_llm_evaluation
+
+``gemma-4-E4B-it`` on a 16 GB GPU, its per-layer embeddings in CPU memory
+(``llm_utils.configure_cpu_ple``; ``analyses/model_comparison/run.sh``)::
+
+    python -m opendv.analysis.evaluate_llm_mapping ... --models google/gemma-4-E4B-it \\
+        --cpu-ple $HUB/models--google--gemma-4-E4B-it/snapshots/<weights revision> \\
+                  $HUB/models--google--gemma-4-E4B-it/snapshots/<tokenizer revision>
+
+A model named in ``--models`` that would not be used (its memory estimate does
+not fit, or ``DV_LLM_MODELS`` replaces it) stops the run instead of leaving
+every item unanswered.
 """
 
 from __future__ import annotations
@@ -36,6 +47,7 @@ import argparse
 import hashlib
 import json
 import logging
+import os
 import sys
 import time
 from dataclasses import dataclass
@@ -470,6 +482,50 @@ def summarize(items: pd.DataFrame, dv_ids: set[str]) -> dict[str, Any]:
     return out
 
 
+def check_requested_models(requested: list[str] | None) -> list[str]:
+    """The models the benchmark will ask, or ``ValueError`` if one it was told to use is not among them.
+
+    ``select_local_model_candidates`` drops a model whose memory estimate does not
+    fit, and ``DV_LLM_MODELS`` replaces ``--models``; either would leave the
+    benchmark answering with another model, or with none (every item an
+    abstention), without an error.
+    """
+    selected = llm_utils.select_local_model_candidates(requested)
+    missing = [model for model in requested or [] if model not in selected]
+    if missing:
+        override = os.getenv("DV_LLM_MODELS", "").strip()
+        reason = (
+            f"DV_LLM_MODELS={override!r} replaces --models" if override
+            else "its memory estimate exceeds the available memory; for a Gemma 'E' model, --cpu-ple keeps "
+                 "its per-layer embeddings on the CPU"
+        )
+        raise ValueError(f"requested model(s) {', '.join(missing)} would not be used: {reason}")
+    if not selected:
+        raise ValueError("no LLM fits this machine's memory (select_local_model_candidates returned none)")
+    return selected
+
+
+def model_placement(models: list[str]) -> dict[str, Any]:
+    """How each model was loaded: the snapshot folders of a CPU per-layer-embedding placement."""
+    out: dict[str, Any] = {}
+    for model in models:
+        placement = llm_utils.cpu_ple_placement(model)
+        out[model] = (
+            {"per_layer_embeddings": "cpu", "weights_snapshot": placement.weights_dir.name,
+             "tokenizer_snapshot": placement.tokenizer_dir.name, "device": placement.device}
+            if placement else {"per_layer_embeddings": "default"}
+        )
+    return out
+
+
+def cuda_peak_memory_gb() -> float | None:
+    """Largest GPU memory this process allocated (None without CUDA in use)."""
+    torch = sys.modules.get("torch")
+    if torch is None or not torch.cuda.is_available() or not torch.cuda.is_initialized():
+        return None
+    return round(torch.cuda.max_memory_allocated() / 1024**3, 2)
+
+
 def load_subsets(specs: list[str]) -> dict[str, set[str]]:
     """``NAME=SOURCES_YAML`` -> {name: source ids listed under the file's ``sources:``}."""
     import yaml
@@ -524,8 +580,26 @@ def main() -> None:
                         help="Sampled answers per column, majority vote (default: 1 = greedy).")
     parser.add_argument("--temperature", type=float, default=1.0, help="Sampling temperature for --samples > 1.")
     parser.add_argument("--sample-seed", type=int, default=0, help="Seed set before each sampled generation.")
+    parser.add_argument("--cpu-ple", nargs=2, default=None, metavar=("WEIGHTS_DIR", "TOKENIZER_DIR"),
+                        help="Load the one --models model (a Gemma 'E' model) with its per-layer embeddings in CPU "
+                             "memory, weights and tokenizer from these local snapshot folders "
+                             "(llm_utils.configure_cpu_ple; gemma-4-E4B-it on a 16 GB GPU).")
     args = parser.parse_args()
     args.models = [m.strip() for m in args.models.split(",") if m.strip()] if args.models else None
+    if args.cpu_ple:
+        if not args.models or len(args.models) != 1:
+            parser.error("--cpu-ple needs exactly one model in --models")
+        for folder in args.cpu_ple:
+            if not Path(folder).is_dir():
+                parser.error(f"--cpu-ple: {folder} is not a folder")
+        try:
+            llm_utils.configure_cpu_ple(args.models[0], *args.cpu_ple)
+        except ValueError as exc:
+            parser.error(f"--cpu-ple: {exc}")
+    try:
+        models = check_requested_models(args.models)
+    except ValueError as exc:
+        parser.error(str(exc))
     try:
         subsets = load_subsets(args.subset)
     except (OSError, ValueError, KeyError, TypeError) as exc:
@@ -544,7 +618,9 @@ def main() -> None:
     items.to_csv(output_dir / "llm_mapping_evaluation_items.csv", index=False)
     summary = {
         "generated_at": datetime.now(timezone.utc).isoformat(),
-        "models": llm_utils.select_local_model_candidates(args.models),
+        "models": models,
+        "model_placement": model_placement(models),
+        "cuda_peak_memory_gb": cuda_peak_memory_gb(),
         "plausibility_rules_version": load_rules().version,
         "shortlist": args.shortlist,
         "ask_options": AskOptions.from_args(args).__dict__,

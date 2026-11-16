@@ -403,37 +403,15 @@ def install_cpu_ple_pipeline(model_id: str, weights_dir: Path, tokenizer_dir: Pa
     looked up. The model is loaded on the CPU, everything but that table moves
     to the GPU (10.4 GB), and the lookups run on the CPU, their result moving to
     the GPU. A lookup is a gather and its scale a power of two, so the numbers
-    are those of a model held wholly on the GPU. The pipeline is put into
-    ``llm_utils``' single-slot cache, where ``_get_text_generation_pipeline``
-    finds it. The model's memory estimate (``MODEL_MIN_MEMORY_GB``, 18 GB for
-    the whole model) is set to the 12 GB this placement needs on the GPU, so the
-    memory filter of ``select_local_model_candidates`` keeps it.
+    are those of a model held wholly on the GPU. Since 2026-11-16 this is
+    ``llm_utils.install_cpu_ple_pipeline``: the placement is registered
+    (``llm_utils.configure_cpu_ple``), so the memory filter of
+    ``select_local_model_candidates`` counts the 12 GB it needs on the GPU
+    instead of the whole model's 18 GB, and a reload uses the same placement.
     """
-    import torch
-    from transformers import AutoModelForCausalLM, AutoTokenizer, pipeline
-
     from opendv import llm_utils
 
-    class CpuLookup(torch.nn.Module):
-        def __init__(self, embedding: torch.nn.Module) -> None:
-            super().__init__()
-            self.__dict__["embedding"] = embedding  # not a submodule: .to() leaves it on the CPU
-
-        def forward(self, input_ids: torch.Tensor) -> torch.Tensor:
-            return self.embedding(input_ids.to("cpu")).to(input_ids.device)
-
-    tokenizer = AutoTokenizer.from_pretrained(tokenizer_dir)
-    model = AutoModelForCausalLM.from_pretrained(weights_dir, dtype=torch.bfloat16, device_map="cpu")
-    language_model = model.model.language_model
-    table = language_model.embed_tokens_per_layer
-    language_model.embed_tokens_per_layer = None
-    model.to("cuda:0")
-    language_model.embed_tokens_per_layer = CpuLookup(table)
-    model.eval()
-    llm_utils._clear_pipeline_cache()
-    llm_utils._PIPELINE_CACHE[model_id] = pipeline("text-generation", model=model, tokenizer=tokenizer)
-    llm_utils._MODELS_USED.setdefault(model_id, None)
-    llm_utils.MODEL_MIN_MEMORY_GB[model_id] = 12.0
+    llm_utils.install_cpu_ple_pipeline(model_id, weights_dir, tokenizer_dir)
 
 
 @contextmanager
