@@ -27,3 +27,6 @@ $PY -m opendv.analysis.schema_stability run --condition e4b_definition --cpu-ple
 
 # 3. Flip rates, accuracy changes and the paired comparisons.
 $PY -m opendv.analysis.schema_stability analyze
+
+# 4. Exploratory mechanism analyses, added after the runs (not in the design note).
+$PY -m opendv.analysis.schema_stability explore

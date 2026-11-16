@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import copy
+import json
 from collections import Counter
 
 import numpy as np
@@ -81,7 +82,7 @@ def test_remove_reword_add_and_permute():
     original = copy.deepcopy(SCHEMA)
     p = ss.Perturbation("x", "remove", removed=("c",))
     assert ids(ss.apply_perturbation(SCHEMA, p, POOL, REWORD)) == ["a", "b", "d", "e"]
-    assert SCHEMA == original  # input untouched
+    assert original == SCHEMA  # input untouched
 
     p = ss.Perturbation("x", "reword", reworded=("b", "d"))
     out = {e["id"]: e for e in ss.apply_perturbation(SCHEMA, p, POOL, REWORD)["dvs"]}
@@ -382,3 +383,83 @@ def test_analyze_end_to_end(tmp_path):
     assert (tmp_path / "out" / "answers_e2b_definition.csv.gz").exists()
     reference = pd.read_csv(tmp_path / "out" / "reference_accuracy.csv")
     assert set(reference["dv_n"]) == {18}
+
+
+# ── exploratory ──────────────────────────────────────────────────────────────
+
+
+def test_tie_flags_groups():
+    scores = {"a": 0.5, "b": 0.2, "c": 0.2, "d": 0.0, "e": 0.0}
+    tied = ss.tie_flags(scores, ["a", "b"])  # c (left out) ties with b
+    assert tied["tie_at_cut"] and tied["n_zero"] == 0 and tied["tie_group"] == "tie at the cut"
+    assert ss.tie_flags(scores, ["a", "b", "c"])["tie_group"] == "no tie"
+    padded = ss.tie_flags(scores, ["a", "b", "c", "d"])
+    assert padded["n_zero"] == 1 and padded["tie_group"] == "zero-score candidates"
+    assert ss.tie_flags(scores, list(scores))["tie_at_cut"] is False  # nothing left out
+    assert ss.tie_flags(scores, ["zz"])["tie_group"] is None
+
+
+def test_answer_position():
+    assert ss.answer_position("b", "a|b|c") == 2
+    assert ss.answer_position(None, "a|b") == 0
+    assert ss.answer_position(np.nan, "a|b") == 0
+    assert ss.answer_position("x", "a|b") == -1
+
+
+def test_explore_end_to_end(tmp_path, monkeypatch):
+    schema_path = tmp_path / "schema.yaml"
+    schema_path.write_text(yaml.safe_dump(SCHEMA), encoding="utf-8")
+    out = tmp_path / "out"
+    out.mkdir()
+    design = {"perturbations": [
+        {"name": "base", "family": "base"},
+        {"name": "remove_k1_d1", "family": "remove", "k": 1, "draw": 1, "removed": ["e"]},
+        {"name": "candidate_order_d1", "family": "candidate_order", "draw": 1},
+    ]}
+    (out / "design.json").write_text(json.dumps(design), encoding="utf-8")
+    for condition, right in (("e2b_definition", False), ("e2b_definition_alpha", True)):
+        work = tmp_path / "work" / condition
+        work.mkdir(parents=True)
+        rows = []
+        for study in range(4):
+            for column, alias in enumerate(("a1", "b1", "d1")):
+                gold = "a" if column < 2 else None
+                answer = "a" if right or column == 1 else None
+                rows.append({"condition": condition, "half": "h", "source_id": f"s{study}", "dataset_id": "t.csv",
+                             "alias": alias, "label_kind": "dv" if gold else "curated_non_dv", "gold": gold,
+                             "shortlist": "a|b", "prompt_sha256": "p", "llm_error": None, "suggestion": answer,
+                             "final_unchecked": answer, "final_checked": answer})
+        frame = pd.DataFrame(rows)
+        frame.assign(perturbation="base").to_csv(work / "base.csv", index=False)
+        frame.assign(perturbation="remove_k1_d1").to_csv(work / "remove_k1_d1.csv", index=False)
+        frame.assign(perturbation="candidate_order_d1", shortlist="b|a").to_csv(
+            work / "candidate_order_d1.csv", index=False)
+    result = ss.explore(tmp_path / "work", out, n_boot=200, schema_path=schema_path)
+    assert result["conditions"] == ["e2b_definition", "e2b_definition_alpha"]
+    ties = pd.read_csv(out / "shortlist_ties.csv")
+    assert len(ties) == 12 and ties["tie_group"].notna().all()
+    by_tie = pd.read_csv(out / "flip_rate_by_tie.csv")
+    assert set(by_tie["condition"]) == {"e2b_definition", "e2b_definition_alpha"}
+    assert by_tie["flip_rate"].fillna(0).eq(0).all()  # nothing flipped
+    positions = pd.read_csv(out / "answer_positions.csv").set_index(["condition", "runs", "position"])
+    assert positions.loc[("e2b_definition", "reference", 1), "n"] == 4  # b1 answered "a", listed first
+    assert positions.loc[("e2b_definition", "candidate_order", 2), "n"] == 4  # "a" listed second
+    accuracy = pd.read_csv(out / "accuracy_comparisons.csv").set_index(["answer", "metric"])
+    row = accuracy.loc[("checked", "accuracy")]
+    assert row["n_items"] == 8 and row["n_gained"] == 4 and row["n_lost"] == 0
+    assert row["difference"] == pytest.approx(0.5) and row["largest_study_net"] == 1
+    assert accuracy.loc[("checked", "non_dv_mapped"), "n_gained"] == 4
+    by_answer = pd.read_csv(out / "stability_by_answer.csv").set_index(["condition", "answer", "group"])
+    reference = by_answer.loc[("e2b_definition", "checked")]
+    assert reference.loc["DV column, correct DV", "n_items"] == 4  # b1: answer "a" = gold
+    assert reference.loc["DV column, no DV", "n_items"] == 4  # a1: no answer
+    assert reference.loc["non-DV column, no DV", "n_items"] == 4
+    assert reference.loc["DV answer, never flipped", "precision"] == 1.0
+
+
+def test_answer_status():
+    assert ss.answer_status("dv", "a", "a") == "DV column, correct DV"
+    assert ss.answer_status("dv", "a", "b") == "DV column, other DV"
+    assert ss.answer_status("dv", "a", None) == "DV column, no DV"
+    assert ss.answer_status("curated_non_dv", None, "b") == "non-DV column, mapped to a DV"
+    assert ss.answer_status("curated_non_dv", None, None) == "non-DV column, no DV"

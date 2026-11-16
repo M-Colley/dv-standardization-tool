@@ -21,6 +21,7 @@ Subcommands::
     python -m opendv.analysis.schema_stability dry-run  # prompts only, no LLM
     python -m opendv.analysis.schema_stability run --condition e2b_definition ...
     python -m opendv.analysis.schema_stability analyze
+    python -m opendv.analysis.schema_stability explore  # exploratory, added after the runs
 """
 
 from __future__ import annotations
@@ -614,6 +615,8 @@ def flip_table(
         set(str(a).split("|")) != set(str(b).split("|"))
         for a, b in zip(rows["shortlist"].fillna(""), rows["shortlist_base"].fillna(""), strict=True)
     ]
+    base_shortlists = [set(str(s).split("|")) for s in rows["shortlist_base"].fillna("")]
+    out["to_base_candidate"] = [a is not None and a in s for a, s in zip(after, base_shortlists, strict=True)]
     touched = pert.map(lambda p: set(p.added) | set(p.reworded))
     out["to_touched_dv"] = [a is not None and a in t for a, t in zip(after, touched, strict=True)]
     out["from_touched_dv"] = [b is not None and b in t for b, t in zip(before, touched, strict=True)]
@@ -698,7 +701,10 @@ def summarize_set(flips: pd.DataFrame, n_boot: int) -> dict[str, Any]:
     mean, low, high = cluster_bootstrap(rates["rate"], rates["source_id"], n_boot)
     changed = valid[valid["prompt_changed"]]
     flipped = valid[valid["flip"]]
-    order_only = valid[valid["prompt_changed"] & ~valid["set_changed"]]
+    # A changed prompt with the same candidate set: their order or reference lines changed.
+    same_set = valid[valid["prompt_changed"] & ~valid["set_changed"]]
+    new_set = valid[valid["prompt_changed"] & valid["set_changed"]]
+    to_dv = flipped[flipped["answer"].notna()]
     none_base = valid[valid["base_answer"].isna()]
     dv_base = valid[valid["base_answer"].notna()]
     return {
@@ -711,8 +717,12 @@ def summarize_set(flips: pd.DataFrame, n_boot: int) -> dict[str, Any]:
         "prompt_changed_rate": float(valid["prompt_changed"].mean()) if len(valid) else np.nan,
         "shortlist_set_changed_rate": float(valid["set_changed"].mean()) if len(valid) else np.nan,
         "flip_rate_given_prompt_changed": float(changed["flip"].mean()) if len(changed) else np.nan,
-        "flip_rate_given_order_only_change": float(order_only["flip"].mean()) if len(order_only) else np.nan,
+        "flip_rate_given_set_changed": float(new_set["flip"].mean()) if len(new_set) else np.nan,
+        "flip_rate_given_same_set_prompt_change": float(same_set["flip"].mean()) if len(same_set) else np.nan,
         "flips_with_unchanged_prompt": int((valid["flip"] & ~valid["prompt_changed"]).sum()),
+        "n_flips": int(len(flipped)),
+        "flips_to_dv": int(len(to_dv)),
+        "flips_to_base_candidate": int(to_dv["to_base_candidate"].sum()),
         "flips_to_touched_dv": int(flipped["to_touched_dv"].sum()),
         "flips_from_touched_dv": int(flipped["from_touched_dv"].sum()),
         "none_to_dv_rate": float(none_base["answer"].notna().mean()) if len(none_base) else np.nan,
@@ -898,6 +908,190 @@ def dry_run_summary(design: dict[str, Any], work_dir: Path, condition: str) -> p
     ).reset_index()
 
 
+# ── Exploratory (added after the runs, not in the design note) ───────────────
+
+REFERENCE = "e2b_definition"
+DEFINITION_CONDITIONS = tuple(name for name, c in CONDITIONS.items() if c.shortlist == "definition")
+TIE_GROUPS = ("zero-score candidates", "tie at the cut", "no tie")
+
+
+def tie_flags(scores: dict[str, float], shortlist: list[str]) -> dict[str, Any]:
+    """How a definition shortlist ends: candidates with score 0, and a tie with the best DV left out.
+
+    Ties are broken by schema position (stable sort), so a tied shortlist depends on the order of the DV list.
+    """
+    inside = [scores[dv] for dv in shortlist if dv in scores]
+    outside = [score for dv, score in scores.items() if dv not in set(shortlist)]
+    if not inside:
+        return {"n_candidates": len(shortlist), "n_zero": np.nan, "tie_at_cut": np.nan, "tie_group": None}
+    n_zero = int(sum(score == 0 for score in inside))
+    tie = bool(outside) and min(inside) == max(outside)
+    group = TIE_GROUPS[0] if n_zero else TIE_GROUPS[1] if tie else TIE_GROUPS[2]
+    return {"n_candidates": len(shortlist), "n_zero": n_zero, "tie_at_cut": tie, "tie_group": group}
+
+
+def shortlist_ties(base: pd.DataFrame, schema_path: Path = BASE_SCHEMA) -> pd.DataFrame:
+    """Tie flags of every asked column's reference shortlist (``definition``, leave-alias-out scores)."""
+    from opendv.dv_retrieval import get_retriever
+
+    retriever = get_retriever(str(schema_path))
+    asked = base[base["prompt_sha256"].notna() & base["label_kind"].isin(ANALYSIS_KINDS)]
+    rows = []
+    for row in asked.itertuples(index=False):
+        scores = dict(retriever.rank(row.alias, k=100_000, exclude_alias=row.alias))
+        rows.append({**{c: getattr(row, c) for c in ITEM_KEY}, **tie_flags(scores, str(row.shortlist).split("|"))})
+    return pd.DataFrame(rows)
+
+
+def flip_rate_by_tie(item_rates: pd.DataFrame, ties: pd.DataFrame, n_boot: int) -> list[dict[str, Any]]:
+    joined = item_rates.merge(ties[[*ITEM_KEY, "tie_group"]], on=ITEM_KEY)
+    rows = []
+    for group in TIE_GROUPS:
+        part = joined[joined["tie_group"] == group]
+        mean, low, high = cluster_bootstrap(part["rate"], part["source_id"], n_boot)
+        rows.append({"tie_group": group, "n_items": int(len(part)), "n_studies": int(part["source_id"].nunique()),
+                     "flip_rate": mean, "flip_rate_ci_low": low, "flip_rate_ci_high": high})
+    return rows
+
+
+ANSWER_STATUSES = (
+    "DV column, correct DV", "DV column, other DV", "DV column, no DV",
+    "non-DV column, mapped to a DV", "non-DV column, no DV",
+)
+
+
+def answer_status(label_kind: str, gold: Any, answer: Any) -> str:
+    """The reference answer's kind: right or wrong DV, or no DV, on a DV or a curated non-DV column."""
+    if label_kind != "dv":
+        return ANSWER_STATUSES[3] if answer is not None else ANSWER_STATUSES[4]
+    if answer is None:
+        return ANSWER_STATUSES[2]
+    return ANSWER_STATUSES[0] if answer == gold else ANSWER_STATUSES[1]
+
+
+def stability_by_answer(flips: pd.DataFrame, n_boot: int) -> list[dict[str, Any]]:
+    """Schema-edit flip rate by the kind of reference answer, and the precision of stable vs. unstable DV answers."""
+    rates = per_item_rates(flips)
+    first = flips.drop_duplicates(ITEM_KEY).set_index(ITEM_KEY)[["gold", "base_answer"]]
+    rates = rates.join(first, on=ITEM_KEY)
+    rates["status"] = [answer_status(k, _answer(g), _answer(a))
+                       for k, g, a in zip(rates["label_kind"], rates["gold"], rates["base_answer"], strict=True)]
+    rows = []
+    for status in ANSWER_STATUSES:
+        part = rates[rates["status"] == status]
+        mean, low, high = cluster_bootstrap(part["rate"], part["source_id"], n_boot)
+        rows.append({"group": status, "n_items": int(len(part)), "flip_rate": mean,
+                     "flip_rate_ci_low": low, "flip_rate_ci_high": high})
+    answered = rates[rates["base_answer"].notna()]
+    for stable, label in ((True, "DV answer, never flipped"), (False, "DV answer, flipped at least once")):
+        part = answered[(answered["flips"] == 0) == stable]
+        correct = (part["base_answer"] == part["gold"]).astype(float)
+        mean, low, high = cluster_bootstrap(correct, part["source_id"], n_boot)
+        rows.append({"group": label, "n_items": int(len(part)), "precision": mean,
+                     "precision_ci_low": low, "precision_ci_high": high})
+    return rows
+
+
+def answer_position(suggestion: Any, shortlist: Any) -> int:
+    """1-based position of the LLM's answer in the shortlist as listed; 0 for no answer, -1 if not listed."""
+    if not isinstance(suggestion, str):
+        return 0
+    listed = str(shortlist).split("|") if isinstance(shortlist, str) else []
+    return listed.index(suggestion) + 1 if suggestion in listed else -1
+
+
+def answer_positions(answers: pd.DataFrame) -> pd.DataFrame:
+    """Share of asked prompts answered with the candidate at each listed position (unchecked answer)."""
+    asked = answers[answers["prompt_sha256"].notna() & answers["label_kind"].isin(ANALYSIS_KINDS)]
+    rows = []
+    for name, chosen in (("reference", asked["perturbation"] == "base"),
+                         ("candidate_order", asked["perturbation"].str.startswith("candidate_order"))):
+        part = asked[chosen]
+        if part.empty:
+            continue
+        positions = pd.Series([answer_position(s, sl) for s, sl in zip(part["suggestion"], part["shortlist"],
+                                                                         strict=True)])
+        lengths = part["shortlist"].map(lambda s: len(str(s).split("|")))
+        for position, count in positions.value_counts().sort_index().items():
+            rows.append({"runs": name, "position": int(position), "n": int(count), "share": count / len(part),
+                         "n_prompts": int(len(part)), "mean_candidates": float(lengths.mean())})
+    return pd.DataFrame(rows)
+
+
+def accuracy_comparisons(work_dir: Path, conditions: list[str], n_boot: int) -> pd.DataFrame:
+    """Each condition's reference answers against the reference condition's, paired by column."""
+    bases = {}
+    for name in conditions:
+        answers = read_answers(work_dir, name)
+        bases[name] = answers[(answers["perturbation"] == "base") & answers["label_kind"].isin(ANALYSIS_KINDS)]
+    rows = []
+    for name in conditions:
+        if name == REFERENCE or REFERENCE not in bases:
+            continue
+        for answer in ("final_checked", "final_unchecked"):
+            for kind, metric in (("dv", "accuracy"), ("curated_non_dv", "non_dv_mapped")):
+                a, b = (bases[c][bases[c]["label_kind"] == kind] for c in (name, REFERENCE))
+                paired = a.merge(b, on=ITEM_KEY, suffixes=("", "_ref"))
+                if kind == "dv":
+                    hit, hit_ref = paired[answer] == paired["gold"], paired[f"{answer}_ref"] == paired["gold"]
+                else:
+                    hit, hit_ref = paired[answer].notna(), paired[f"{answer}_ref"].notna()
+                difference = hit.astype(float) - hit_ref.astype(float)
+                mean, low, high = cluster_bootstrap(difference, paired["source_id"], n_boot)
+                by_study = difference.groupby(paired["source_id"]).sum()
+                rows.append({
+                    "answer": answer.removeprefix("final_"), "metric": metric, "condition": name,
+                    "reference": REFERENCE, "n_items": int(len(paired)), "n_studies": int(by_study.size),
+                    "rate": float(hit.mean()), "rate_reference": float(hit_ref.mean()),
+                    "difference": mean, "difference_ci_low": low, "difference_ci_high": high,
+                    "p_sign_flip": sign_flip_test(difference, paired["source_id"]),
+                    "n_gained": int((difference > 0).sum()), "n_lost": int((difference < 0).sum()),
+                    "largest_study": str(by_study.abs().idxmax()) if by_study.any() else None,
+                    "largest_study_net": int(by_study.loc[by_study.abs().idxmax()]) if by_study.any() else 0,
+                })
+    return pd.DataFrame(rows)
+
+
+def explore(work_dir: Path, output_dir: Path, n_boot: int = 10_000, schema_path: Path = BASE_SCHEMA) -> dict[str, Any]:
+    """Exploratory mechanism analyses of the finished runs (not pre-specified; see the results' deviations)."""
+    output_dir.mkdir(parents=True, exist_ok=True)
+    conditions = [name for name in CONDITIONS if (work_dir / name / "base.csv").is_file()]
+    result: dict[str, Any] = {"conditions": conditions, "n_boot": n_boot}
+    design = json.loads((output_dir / "design.json").read_text(encoding="utf-8"))
+    perturbations = {p.name: p for p in perturbations_from_design(design)}
+    by_answer = []
+    for name in conditions:
+        for answer in ("final_checked", "final_unchecked"):
+            flips = select_set(flip_table(read_answers(work_dir, name), perturbations, answer), "schema_edits")
+            by_answer += [{"condition": name, "answer": answer.removeprefix("final_"), **row}
+                          for row in stability_by_answer(flips, n_boot)]
+    pd.DataFrame(by_answer).to_csv(output_dir / "stability_by_answer.csv", index=False)
+    result["stability_by_answer"] = by_answer
+    if REFERENCE in conditions:
+        reference = read_answers(work_dir, REFERENCE)
+        ties = shortlist_ties(reference[reference["perturbation"] == "base"], schema_path)
+        ties.to_csv(output_dir / "shortlist_ties.csv", index=False)
+        result["tie_groups"] = ties["tie_group"].value_counts().to_dict()
+        by_tie = []
+        for name in (c for c in conditions if c in DEFINITION_CONDITIONS):
+            for answer in ("final_checked", "final_unchecked"):
+                flips = flip_table(read_answers(work_dir, name), perturbations, answer)
+                for set_name in ("schema_edits", "schema_order"):
+                    rates = per_item_rates(select_set(flips, set_name))
+                    by_tie += [{"condition": name, "answer": answer.removeprefix("final_"), "set": set_name, **row}
+                               for row in flip_rate_by_tie(rates, ties, n_boot)]
+        pd.DataFrame(by_tie).to_csv(output_dir / "flip_rate_by_tie.csv", index=False)
+        result["flip_rate_by_tie"] = by_tie
+    positions = [answer_positions(read_answers(work_dir, name)).assign(condition=name) for name in conditions]
+    positions = pd.concat(positions, ignore_index=True) if positions else pd.DataFrame()
+    positions.to_csv(output_dir / "answer_positions.csv", index=False)
+    accuracy = accuracy_comparisons(work_dir, conditions, n_boot)
+    accuracy.to_csv(output_dir / "accuracy_comparisons.csv", index=False)
+    result["accuracy_comparisons"] = accuracy.to_dict(orient="records")
+    (output_dir / "exploratory.json").write_text(json.dumps(result, indent=2, default=_json_default), encoding="utf-8")
+    return result
+
+
 # ── CLI ──────────────────────────────────────────────────────────────────────
 
 
@@ -907,7 +1101,7 @@ def main(argv: list[str] | None = None) -> None:
         logging.getLogger(noisy).setLevel(logging.WARNING)
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     sub = parser.add_subparsers(dest="command", required=True)
-    for command in ("plan", "dry-run", "run", "analyze"):
+    for command in ("plan", "dry-run", "run", "analyze", "explore"):
         p = sub.add_parser(command)
         p.add_argument("--half", type=parse_half, action="append", default=None,
                        help="NAME=BATCH_DIR,MANIFEST,CACHE_DIR (default: det23l and det16l of data/processed).")
@@ -921,9 +1115,12 @@ def main(argv: list[str] | None = None) -> None:
                            help="Load the condition's model with its per-layer embeddings on the CPU "
                                 "(install_cpu_ple_pipeline), weights and tokenizer from these snapshot folders.")
             p.add_argument("--families", default=None, help="Comma-separated families to run (default: all).")
-        if command == "analyze":
+        if command in ("analyze", "explore"):
             p.add_argument("--n-boot", type=int, default=10_000)
     args = parser.parse_args(argv)
+    if args.command == "explore":
+        explore(args.work_dir, args.output_dir, args.n_boot)
+        return
     halves = args.half or default_halves()
     design_path = args.output_dir / "design.json"
     if args.command == "plan":
@@ -956,8 +1153,9 @@ def main(argv: list[str] | None = None) -> None:
 
 
 __all__ = [
-    "CONDITIONS", "Condition", "Perturbation", "analyze", "apply_perturbation", "build_design",
-    "check_perturbation", "cluster_bootstrap", "flip_table", "holm", "plan_perturbations",
+    "CONDITIONS", "Condition", "Perturbation", "accuracy_comparisons", "analyze", "answer_position",
+    "apply_perturbation", "build_design", "check_perturbation", "cluster_bootstrap", "explore", "flip_table",
+    "holm", "plan_perturbations", "tie_flags",
     "protected_dvs", "sign_flip_test", "unrelated_dvs",
 ]
 
