@@ -78,3 +78,6 @@ Gender: meta_demographic_gender              # f / m
 #   programmed braking onset at 6.6 s; the basis of the paper's early/late crosser
 #   split), FBL_Active_During_Decision (1 = the frontal brake light was already on
 #   at the decision; clicked yielding AV trials only).
+
+# Locked after the LLM-mapping audit of 2026-11-15 (analyses/llm_mapping_audit/): the LLM had mapped it to task_completion_time.
+Decision_Time: meta_crossing_decision_time_ms   # ms from video onset to the crossing decision

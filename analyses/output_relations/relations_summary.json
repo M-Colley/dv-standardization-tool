@@ -17,11 +17,11 @@
       "level": "names",
       "level_label": "identical raw column names",
       "association": "between_person",
-      "studies_with_relations": 29,
-      "pairs_pooled_k2": 31,
-      "pairs_pooled_k3": 14,
-      "cross_construct_pairs_k3": 0,
-      "participants": 2700,
+      "studies_with_relations": 30,
+      "pairs_pooled_k2": 36,
+      "pairs_pooled_k3": 17,
+      "cross_construct_pairs_k3": 3,
+      "participants": 2715,
       "findings": 4,
       "cross_construct_findings": 0,
       "generalizing_findings": 2
@@ -30,13 +30,13 @@
       "level": "names",
       "level_label": "identical raw column names",
       "association": "within_person",
-      "studies_with_relations": 19,
-      "pairs_pooled_k2": 16,
-      "pairs_pooled_k3": 12,
-      "cross_construct_pairs_k3": 0,
-      "participants": 711,
-      "findings": 9,
-      "cross_construct_findings": 0,
+      "studies_with_relations": 20,
+      "pairs_pooled_k2": 21,
+      "pairs_pooled_k3": 15,
+      "cross_construct_pairs_k3": 3,
+      "participants": 726,
+      "findings": 10,
+      "cross_construct_findings": 1,
       "generalizing_findings": 2
     },
     {
@@ -44,7 +44,7 @@
       "level_label": "+ shared schema, header matching, instrument scoring",
       "association": "between_person",
       "studies_with_relations": 13,
-      "pairs_pooled_k2": 26,
+      "pairs_pooled_k2": 24,
       "pairs_pooled_k3": 21,
       "cross_construct_pairs_k3": 0,
       "participants": 612,
@@ -57,7 +57,7 @@
       "level_label": "+ shared schema, header matching, instrument scoring",
       "association": "within_person",
       "studies_with_relations": 11,
-      "pairs_pooled_k2": 23,
+      "pairs_pooled_k2": 22,
       "pairs_pooled_k3": 21,
       "cross_construct_pairs_k3": 0,
       "participants": 458,
@@ -69,38 +69,38 @@
       "level": "curated",
       "level_label": "+ study mapping files",
       "association": "between_person",
-      "studies_with_relations": 31,
-      "pairs_pooled_k2": 84,
-      "pairs_pooled_k3": 35,
-      "cross_construct_pairs_k3": 12,
-      "participants": 2853,
-      "findings": 19,
-      "cross_construct_findings": 5,
+      "studies_with_relations": 33,
+      "pairs_pooled_k2": 108,
+      "pairs_pooled_k3": 51,
+      "cross_construct_pairs_k3": 28,
+      "participants": 2923,
+      "findings": 21,
+      "cross_construct_findings": 7,
       "generalizing_findings": 7
     },
     {
       "level": "curated",
       "level_label": "+ study mapping files",
       "association": "within_person",
-      "studies_with_relations": 19,
-      "pairs_pooled_k2": 46,
-      "pairs_pooled_k3": 24,
-      "cross_construct_pairs_k3": 2,
-      "participants": 711,
-      "findings": 16,
-      "cross_construct_findings": 1,
-      "generalizing_findings": 9
+      "studies_with_relations": 21,
+      "pairs_pooled_k2": 67,
+      "pairs_pooled_k3": 41,
+      "cross_construct_pairs_k3": 19,
+      "participants": 781,
+      "findings": 25,
+      "cross_construct_findings": 9,
+      "generalizing_findings": 11
     },
     {
       "level": "llm",
       "level_label": "+ local-LLM fallback, for DVs a study has no other column of",
       "association": "between_person",
-      "studies_with_relations": 36,
-      "pairs_pooled_k2": 191,
-      "pairs_pooled_k3": 76,
-      "cross_construct_pairs_k3": 53,
-      "participants": 3021,
-      "findings": 20,
+      "studies_with_relations": 33,
+      "pairs_pooled_k2": 108,
+      "pairs_pooled_k3": 51,
+      "cross_construct_pairs_k3": 28,
+      "participants": 2923,
+      "findings": 21,
       "cross_construct_findings": 7,
       "generalizing_findings": 7
     },
@@ -109,23 +109,23 @@
       "level_label": "+ local-LLM fallback, for DVs a study has no other column of",
       "association": "within_person",
       "studies_with_relations": 21,
-      "pairs_pooled_k2": 90,
+      "pairs_pooled_k2": 67,
       "pairs_pooled_k3": 41,
       "cross_construct_pairs_k3": 19,
-      "participants": 782,
-      "findings": 19,
-      "cross_construct_findings": 4,
-      "generalizing_findings": 9
+      "participants": 781,
+      "findings": 25,
+      "cross_construct_findings": 9,
+      "generalizing_findings": 11
     }
   ],
   "llm_columns_set_aside": {
     "rule": "a study's LLM-mapped column of a DV is set aside when the study has a column of that DV mapped without the LLM (a study mapping, the shared schema or a header match; in the replay the study mappings are hidden), or a registry score computed from such columns",
     "llm": {
-      "columns": 213,
-      "studies": 11
+      "columns": 153,
+      "studies": 6
     },
     "llm_replay": {
-      "columns": 195,
+      "columns": 156,
       "studies": 10
     }
   },
@@ -135,56 +135,56 @@
       "analyses\\output_llm_evaluation\\added_2026_11_05\\llm_mapping_evaluation_items.csv"
     ],
     "columns": {
-      "curated_dv_columns": 314,
-      "answered": 241,
-      "unanswered_or_rejected": 73,
-      "same_dv_as_curated": 67,
-      "curated_non_dv_mapped_by_llm": 1109
+      "curated_dv_columns": 1330,
+      "answered": 1205,
+      "unanswered_or_rejected": 125,
+      "same_dv_as_curated": 999,
+      "curated_non_dv_mapped_by_llm": 1438
     },
     "conclusions_vs_curated": [
       {
         "level": "automatic",
         "association": "between_person",
-        "reference_findings": 19,
+        "reference_findings": 21,
         "findings": 6,
         "confirmed": 6,
         "sign_flipped": 0,
         "unsupported": 0,
-        "pairs_pooled_in_both": 26,
-        "median_abs_difference_r": 0.04454100488740412
+        "pairs_pooled_in_both": 24,
+        "median_abs_difference_r": 0.03939164394418915
       },
       {
         "level": "automatic",
         "association": "within_person",
-        "reference_findings": 16,
+        "reference_findings": 25,
         "findings": 14,
         "confirmed": 14,
         "sign_flipped": 0,
         "unsupported": 0,
-        "pairs_pooled_in_both": 23,
-        "median_abs_difference_r": 0.027395056246214855
+        "pairs_pooled_in_both": 22,
+        "median_abs_difference_r": 0.02422096278530625
       },
       {
         "level": "llm_replay",
         "association": "between_person",
-        "reference_findings": 19,
-        "findings": 1,
-        "confirmed": 1,
+        "reference_findings": 21,
+        "findings": 0,
+        "confirmed": 0,
         "sign_flipped": 0,
         "unsupported": 0,
-        "pairs_pooled_in_both": 41,
-        "median_abs_difference_r": 0.05408099218355447
+        "pairs_pooled_in_both": 40,
+        "median_abs_difference_r": 0.05529339311907465
       },
       {
         "level": "llm_replay",
         "association": "within_person",
-        "reference_findings": 16,
-        "findings": 15,
-        "confirmed": 13,
+        "reference_findings": 25,
+        "findings": 11,
+        "confirmed": 10,
         "sign_flipped": 0,
-        "unsupported": 2,
+        "unsupported": 1,
         "pairs_pooled_in_both": 28,
-        "median_abs_difference_r": 0.046934470302267245
+        "median_abs_difference_r": 0.038499713548497544
       }
     ]
   }

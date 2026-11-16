@@ -92,6 +92,21 @@ HrsDriving: meta_experience_driving_hours
 HrsPassenger: meta_experience_passenger_hours
 HrsDrivingGlasgow: meta_experience_driving_glasgow
 
+# --- Measures without a schema DV (locked) -------------------------------------
+# Locked after the LLM-mapping audit of 2026-11-15 (analyses/llm_mapping_audit/): the LLM had mapped the maximum MISC to STS-AD trust,
+# the mean MISC to DALI, Relaxation to TiA trust, the estimated speeds and distance to
+# headway, Godspeed safety and task time, and NewQuestion to UEQ stimulation.
+MaxMS: meta_misc_max                       # maximum Misery Scale rating of a Section, 0-10
+MeanMS: meta_misc_mean                     # time-averaged MISC of a Section, 0-10
+MSOnsetTotal: meta_misc_onset_min          # minutes to the first MISC > 0
+MSOnsetDurationInTask: meta_misc_onset_in_task_min
+Relaxation: meta_rating_relaxation         # ride experience, 0-10
+Distance: meta_estimate_distance_km        # estimated distance of a Section
+SpeedReal: meta_estimate_speed_real_kmh    # estimated real speed
+SpeedVR: meta_estimate_speed_virtual_kmh   # estimated virtual speed
+SpeedCompare: meta_rating_speed_comparison # 1-5, wording not documented
+NewQuestion: meta_undocumented             # FinalQuestions.csv, 1-2, undocumented
+
 # --- Left out (not in the mapping) --------------------------------------------
 # DVs with no fitting schema id:
 #   MeanMS, MaxMS, MAXCondition (MISC 0-10), MSOnsetTotal, MSOnsetDurationInTask

@@ -1,9 +1,9 @@
 level,level_label,association,studies_with_relations,pairs_pooled_k2,pairs_pooled_k3,cross_construct_pairs_k3,participants,findings,cross_construct_findings,generalizing_findings
-names,identical raw column names,between_person,29,31,14,0,2700,4,0,2
-names,identical raw column names,within_person,19,16,12,0,711,9,0,2
-automatic,"+ shared schema, header matching, instrument scoring",between_person,13,26,21,0,612,6,0,3
-automatic,"+ shared schema, header matching, instrument scoring",within_person,11,23,21,0,458,14,0,1
-curated,+ study mapping files,between_person,31,84,35,12,2853,19,5,7
-curated,+ study mapping files,within_person,19,46,24,2,711,16,1,9
-llm,"+ local-LLM fallback, for DVs a study has no other column of",between_person,36,191,76,53,3021,20,7,7
-llm,"+ local-LLM fallback, for DVs a study has no other column of",within_person,21,90,41,19,782,19,4,9
+names,identical raw column names,between_person,30,36,17,3,2715,4,0,2
+names,identical raw column names,within_person,20,21,15,3,726,10,1,2
+automatic,"+ shared schema, header matching, instrument scoring",between_person,13,24,21,0,612,6,0,3
+automatic,"+ shared schema, header matching, instrument scoring",within_person,11,22,21,0,458,14,0,1
+curated,+ study mapping files,between_person,33,108,51,28,2923,21,7,7
+curated,+ study mapping files,within_person,21,67,41,19,781,25,9,11
+llm,"+ local-LLM fallback, for DVs a study has no other column of",between_person,33,108,51,28,2923,21,7,7
+llm,"+ local-LLM fallback, for DVs a study has no other column of",within_person,21,67,41,19,781,25,9,11

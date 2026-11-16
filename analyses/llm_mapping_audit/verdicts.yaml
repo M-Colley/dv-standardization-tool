@@ -1,0 +1,681 @@
+# Verdicts on the LLM-mapped columns the all-mappings analysis pooled
+# (inventory.csv, batch run lock39 of 2026-11-14). Written on 2026-11-15 from each
+# study's codebook, paper, README or analysis script, before any mapping was changed.
+#
+# One entry is one decision. `columns` lists raw column names; `pattern` is a regular
+# expression the whole raw column name must match. An entry covers every file the column
+# occurs in (e.g. 37 per-participant questionnaire files) and every standardized column
+# made from it (including a batch composite of LLM-mapped items). `llm_dv`, when given,
+# restricts the entry to columns the LLM mapped to that DV.
+#
+# verdict:
+#   correct    the LLM's DV is right
+#   wrong_dv   the column measures another schema DV (target)
+#   not_a_dv   no schema DV fits
+#   unclear    the documentation does not settle it (missing says what is missing);
+#              llm_dv_ruled_out: true when it does rule out the LLM's DV
+# target: the right schema DV (wrong_dv), or the LLM's DV (correct).
+# evidence: document and section.
+#
+# Documents named "(cache)" are files of the study's repository in the batch's download
+# cache (data/processed/cache/<source>_<hash>/); "(raw)" ones are under
+# data/raw/development/<source>/. "mapping header" is the curated mapping file's header
+# in schemas/, which cites the codebook it was written from.
+
+# --- 3d_display_comp_vehicle -------------------------------------------------------------
+- study: 3d_display_comp_vehicle
+  columns: [SART1, SART2, SART3]
+  verdict: wrong_dv
+  target: sart_demand
+  evidence: >-
+    3d-comp-vehicle.R (cache) l.53-58: Demand = SART1 + SART2 + SART3, Supply = SART4..7,
+    Understanding = SART8..10, SA = Understanding - (Demand - Supply). A single item is not
+    the SART total (U - (D - S)); averaging all ten items mixes the demand items, which
+    enter the total negatively, with the others.
+- study: 3d_display_comp_vehicle
+  columns: [SART4, SART5, SART6, SART7]
+  verdict: wrong_dv
+  target: sart_supply
+  evidence: 3d-comp-vehicle.R (cache) l.55, Supply = SART4 + SART5 + SART6 + SART7.
+- study: 3d_display_comp_vehicle
+  columns: [SART8, SART9, SART10]
+  verdict: wrong_dv
+  target: sart_understanding
+  evidence: 3d-comp-vehicle.R (cache) l.56, Understanding = SART8 + SART9 + SART10.
+- study: 3d_display_comp_vehicle
+  columns: [TiA_Trust1, TiA_Trust2]
+  verdict: correct
+  target: tia_trust_in_automation
+  evidence: >-
+    3d-comp-vehicle.R (cache) l.61: overallTiATrust = mean(TiA_Trust1, TiA_Trust2), the
+    trust subscale of Koerber's TiA (items 9 and 14), as in the same lab's
+    bvi_auditory_hav_autoui26 (mapping header, notes).
+- study: 3d_display_comp_vehicle
+  columns: [TiA_U1, TiA_U2, TiA_U3, TiA_U4]
+  verdict: wrong_dv
+  target: tia_understanding_predictability
+  evidence: >-
+    3d-comp-vehicle.R (cache) l.63-67: TiA_U2 and TiA_U4 reversed (6 - x),
+    overallTiAUnderstanding = mean of TiA_U1..4, plotted as "Understanding": the
+    understanding/predictability subscale of Koerber's TiA (items 2, 7, 11, 16; 7 and 16
+    reverse-keyed), not its trust subscale. The data agree: U2 and U4 correlate negatively
+    with U1, U3 and the trust items.
+- study: 3d_display_comp_vehicle
+  columns: [perceivedSafety1, perceivedSafety3, perceivedSafety4]
+  verdict: correct
+  target: perceived_safety
+  evidence: >-
+    3d-comp-vehicle.R (cache) l.70: ps_score = mean of perceivedSafety1..4, -3..+3, the
+    Faas et al. (2020) perceived-safety items the lab uses (bvi_auditory_hav_autoui26
+    mapping header).
+- study: 3d_display_comp_vehicle
+  columns: [perceive_distances_better, perceive_surroundings_better]
+  verdict: not_a_dv
+  evidence: >-
+    3d-comp-vehicle.R (cache) l.77 and l.181-192: separate 1-7 items on how well the display
+    let participants perceive distances and the surroundings, analysed one by one; not a
+    perceived-safety item (the scale is perceivedSafety1-4, -3..+3).
+- study: 3d_display_comp_vehicle
+  columns: [predict_paths]
+  verdict: not_a_dv
+  evidence: >-
+    3d-comp-vehicle.R (cache) l.163-165: single 1-7 item "Predict Vehicle Path", analysed on
+    its own; not an item of Koerber's TiA understanding/predictability subscale (TiA_U1-4,
+    1-5).
+- study: 3d_display_comp_vehicle
+  columns: [unsafeJudgement]
+  verdict: wrong_dv
+  target: sts_ad_item_05
+  evidence: >-
+    Colley et al. MUM '23 (DOI 10.1145/3626705.3627786; full text at uni-ulm.de/.../MUM_2023_3D_Display_final_compressed.pdf), sec. 3.3 Measurements: the Judgement subscale of the Situational Trust Scale for Automated Driving,
+    "The automated vehicle made an unsafe judgment in this situation" (STS-AD item 5,
+    reverse-keyed; schema sts_ad_item_05). The study used three of the six STS-AD items
+    (Performance, Judgement, Reaction). Not the Faas et al. perceived-safety scale.
+- study: 3d_display_comp_vehicle
+  columns: [performbetter]
+  verdict: wrong_dv
+  target: sts_ad_item_02
+  evidence: >-
+    Colley et al. MUM '23 (DOI 10.1145/3626705.3627786; full text at uni-ulm.de/.../MUM_2023_3D_Display_final_compressed.pdf), sec. 3.3 Measurements: the STS-AD Performance item, "I would have performed better than the automated
+    vehicle in this situation" (STS-AD item 2, reverse-keyed); not NASA-TLX performance.
+- study: 3d_display_comp_vehicle
+  columns: [drivingstyle]
+  verdict: not_a_dv
+  evidence: >-
+    Colley et al. MUM '23 (DOI 10.1145/3626705.3627786; full text at uni-ulm.de/.../MUM_2023_3D_Display_final_compressed.pdf), sec. 3.3 Measurements: a self-developed item, "How would you rate the driving style of the automated
+    vehicle?" (1 = completely safe to 7 = completely dangerous), listed with the study's
+    capability ratings; not an STS-AD item. The closest schema DV, perceived_risk, is a risk
+    rating of the situation (VAS), not a rating of the vehicle's driving style.
+
+# --- ar_pedestrian_online_2023 (question texts: row 2 of raw_data.xlsx, Qualtrics export) ---
+- study: ar_pedestrian_online_2023
+  columns: [Q33, Q36, Q86, Q89, Q97, Q100, Q108, Q111, Q119, Q122, Q130, Q133, Q141, Q144, Q152, Q155, Q163, Q166]
+  verdict: not_a_dv
+  evidence: >-
+    raw_data.xlsx (raw), question-text row: "The interface in the video above is intuitive
+    for signalling 'Please (do NOT) cross the road'" (1-7), one per interface block; mapping
+    header lists the intuitiveness items as having no schema DV. Not SUS items.
+- study: ar_pedestrian_online_2023
+  columns: [Q34, Q37, Q87, Q90, Q98, Q101, Q109, Q112, Q120, Q123, Q131, Q134, Q142, Q145, Q153, Q156, Q164, Q167]
+  verdict: not_a_dv
+  evidence: >-
+    raw_data.xlsx (raw), question-text row: "The interface in the video above convinced me
+    (NOT) to cross the road" (1-7), the persuasion items; not SUS items.
+- study: ar_pedestrian_online_2023
+  pattern: 'Q(39|92|114|125|136|147|158|169)_1'
+  verdict: not_a_dv
+  evidence: >-
+    raw_data.xlsx (raw), question-text row: "Do you think that the interface was triggered
+    too early or too late?" (1-5, bipolar timing judgement).
+- study: ar_pedestrian_online_2023
+  pattern: 'Q(39|92|103|114|125|136|147|158|169)_2'
+  verdict: not_a_dv
+  evidence: >-
+    raw_data.xlsx (raw), question-text row: "Do you think that the interface is too small or
+    too large?" (1-5, bipolar size judgement).
+- study: ar_pedestrian_online_2023
+  columns: [Q43]
+  verdict: not_a_dv
+  evidence: >-
+    raw_data.xlsx (raw), question-text row: "In future traffic, the communication from AR
+    interfaces would be useful for crossing the road." A single ad-hoc closing item about AR
+    interfaces in general, not a SUS item nor an item of the TAM usefulness scale.
+- study: ar_pedestrian_online_2023
+  columns: [Q45, Q47, Q50]
+  verdict: not_a_dv
+  evidence: >-
+    raw_data.xlsx (raw), question-text row: "I prefer interfaces mapped to the street rather
+    than on the vehicle" / "with text rather than ... graphical elements" / "that move around
+    with my head" (design preferences).
+- study: ar_pedestrian_online_2023
+  columns: [Q51]
+  verdict: not_a_dv
+  evidence: >-
+    raw_data.xlsx (raw), question-text row: "I would like to have the ability to customise
+    these AR interfaces."
+- study: ar_pedestrian_online_2023
+  columns: [Q52]
+  verdict: not_a_dv
+  evidence: >-
+    raw_data.xlsx (raw), question-text row: "... if I own AR glasses, I am likely to use such
+    interfaces as an aid for crossing" - a single ad-hoc intention item about AR interfaces in
+    general, not a SUS item nor the UTAUT behavioural-intention scale.
+
+# --- av_acceptance_vr_ijhci24 (codebook Questionnaire_data/items/EEDA_questionnaire.xlsx) ---
+- study: av_acceptance_vr_ijhci24
+  pattern: 'Attitude towards Technology [123]'
+  verdict: not_a_dv
+  evidence: >-
+    EEDA_questionnaire.xlsx (raw), sheet english: "Using the vehicle would be a good idea" /
+    "... would make driving more interesting" / "... would be fun" - the AVAM attitude
+    factor (Hewitt et al. 2019), which has no schema DV; not AttrakDiff hedonic identity.
+- study: av_acceptance_vr_ijhci24
+  pattern: 'Methods of Control [123]'
+  verdict: not_a_dv
+  evidence: >-
+    EEDA_questionnaire.xlsx (raw), sheet english: "How important would your eyes / hands /
+    feet be when using the vehicle?" - not a conflict rating.
+- study: av_acceptance_vr_ijhci24
+  pattern: 'Self-Efficacy [123]'
+  verdict: not_a_dv
+  evidence: >-
+    EEDA_questionnaire.xlsx (raw), sheet english: "I could reach my destination using the
+    vehicle if I had ... assistance" - AVAM self-efficacy, not NASA-TLX effort.
+
+# --- av_prevalence_ehmi_autoui24 ------------------------------------------------------------
+- study: av_prevalence_ehmi_autoui24
+  columns: [Decision_Time]
+  verdict: not_a_dv
+  evidence: >-
+    readme.html (raw) and the dissertation cited in the mapping header (sec. 8.3.4): ms from
+    video onset to the click marking the decision to cross; participants were told not to
+    mark the moment they would start crossing. A decision latency in a video task, not the
+    completion time of a task.
+
+# --- bvi_auditory_hav_autoui26 ----------------------------------------------------------------
+- study: bvi_auditory_hav_autoui26
+  columns: ['Trust[SQ003]', 'Trust[SQ004]', 'Trust[SQ005]']
+  verdict: unclear
+  missing: >-
+    the wording of the three further items of the "Trust" question group (1-5); neither the
+    Zenodo record nor bvi-auditory-hav.R (raw) uses or names them (the script scores trust
+    from TiA_Trust1-2 only, l.81). SQ003 and SQ005 correlate negatively with the trust items.
+  evidence: bvi-auditory-hav.R (raw) l.81 and l.176-190; mapping header, "Unresolved".
+- study: bvi_auditory_hav_autoui26
+  columns: [informationCommunica]
+  verdict: not_a_dv
+  evidence: >-
+    bvi-auditory-hav.R (raw) l.325-348: "presence of all relevant information" ("All relevant
+    information has been communicated", 1-5, mapping header), analysed on its own; not trust.
+
+# --- concurrent_speech_2022 (question texts in the data's question_text column) ---------------
+- study: concurrent_speech_2022
+  columns: [Like]
+  verdict: not_a_dv
+  evidence: >-
+    question_text of the CSV (raw), quoted in the mapping header: "How much did you like this
+    combination?" (0-100) about a pair of audio streams; not the Godspeed likeability scale
+    (robot/agent perception, 5 semantic differentials).
+- study: concurrent_speech_2022
+  columns: [Frequent]
+  verdict: not_a_dv
+  evidence: >-
+    question_text (raw), mapping header: "How frequently would you be using this combination
+    of streams?" (0-100); not an eye-tracking measure.
+
+# --- driving_style_automated_2021 ---------------------------------------------------------------
+- study: driving_style_automated_2021
+  pattern: '[td]\d+\. How automated was the car \?'
+  verdict: not_a_dv
+  evidence: >-
+    forms/2. Questionnaire after trajectory trial.pdf and 4. ... deceleration trial.pdf (raw),
+    question 1: "How automated was the way the car drove in this trial?" 1 = manual driving,
+    5 = automated driving - perceived automation of a passing car, not trust.
+
+# --- ehmi_car_body_2020 -------------------------------------------------------------------------
+- study: ehmi_car_body_2020
+  pattern: 'VFA_N?E1[DKLP]_Erkennbarkeit'
+  verdict: not_a_dv
+  evidence: >-
+    "AV-to-Manual driver communication clarity questionnaire and Cronbach's Alpha
+    Results.pdf" (raw), appendix A.1, item 1: "The signals can be seen clearly" (six-point
+    agreement) - visibility of the signal; neither social presence nor a Van der Laan item.
+
+# --- ehmi_for_all_chi26 -----------------------------------------------------------------------------
+- study: ehmi_for_all_chi26
+  columns: ['total time']
+  verdict: correct
+  target: task_completion_time
+  evidence: >-
+    eHMI_all_road_users_logs.R (cache) l.122-125 and l.255-288: "total time" in s of each
+    scenario run (time before + on + after the intersection), analysed as "Total Time (s)";
+    its three parts are mapped by the shared schema (crossing_initiation_time,
+    pedestrian_crossing_time, time_after_crossing). One decision for the 720 log files.
+- study: ehmi_for_all_chi26
+  columns: ['interest[ease]']
+  verdict: unclear
+  missing: >-
+    the wording of the LimeSurvey subquestion interest[ease] (1-5) in the post-study
+    questionnaire; the repository has no questionnaire export, and
+    eHMI_all_road_users_main.R (cache) l.550-563 reports interest[interest], [ease] and
+    [reality] only as participant descriptors.
+  evidence: eHMI_all_road_users_main.R (cache) l.550-563; results-survey-final.xlsx (cache).
+
+# --- ehmi_optimization_chi25 (37 per-participant QuestionnaireResponses.csv) ---------------------
+- study: ehmi_optimization_chi25
+  columns: [Trust2]
+  verdict: wrong_dv
+  target: tia_trust_in_automation
+  evidence: >-
+    Evaluation_CHI25_eHMI_Optimization.R (cache) l.68: trust = (Trust1 + Trust2) / 2 on 1-5,
+    the two-item trust subscale of Koerber's TiA the lab uses (TiA_Trust1-2 in its other
+    studies); Jian et al.'s scale has 12 items on 7 points. One decision for the 37 files.
+- study: ehmi_optimization_chi25
+  columns: [Understanding1, Understanding2, Understanding3, Understanding4]
+  verdict: wrong_dv
+  target: tia_understanding_predictability
+  evidence: >-
+    Evaluation_CHI25_eHMI_Optimization.R (cache) l.71: predictability = mean of
+    Understanding1, 6 - Understanding2, Understanding3, 6 - Understanding4 (1-5), Koerber's
+    TiA understanding/predictability subscale; not SART understanding (0-20, situation
+    awareness). One decision for the 37 files.
+
+# --- fact_av (data/all_combined_prepared.xlsx; README "Data Schema"; scores checked on the data) ---
+- study: fact_av
+  columns: [SART1, SART2, SART3]
+  verdict: wrong_dv
+  target: sart_demand
+  evidence: >-
+    Checked on all_combined_prepared.xlsx (cache): the file's Demand column equals SART1 +
+    SART2 + SART3 on every row (the lab's 10-D SART, as in 3d-comp-vehicle.R l.53-58).
+- study: fact_av
+  columns: [SART4, SART5, SART6, SART7]
+  verdict: wrong_dv
+  target: sart_supply
+  evidence: Checked on the data (cache) - Supply equals SART4 + ... + SART7 on every row.
+- study: fact_av
+  columns: [SART8, SART9, SSART10]
+  verdict: correct
+  target: sart_understanding
+  evidence: >-
+    Checked on the data (cache): Understanding equals SART8 + SART9 + SSART10 on every row;
+    SA = Understanding - (Demand - Supply). Items of the understanding subscale, as mapped in
+    bvi_auditory_hav_autoui26.
+- study: fact_av
+  columns: [Supply]
+  verdict: correct
+  target: sart_supply
+  evidence: Checked on the data (cache) - SART supply subscale, sum of SART4-7 (4-28).
+- study: fact_av
+  columns: [Trust2]
+  verdict: wrong_dv
+  target: tia_trust_in_automation
+  evidence: >-
+    README.md (cache), "Data Schema": trust is the aggregated 1-5 rating and Trust1-5 its
+    "individual trust sub-scale items"; checked on the data, trust = (Trust1 + Trust2) / 2 on
+    every row, the lab's two-item TiA trust subscale. Not Jian et al.'s 12-item 7-point
+    scale.
+- study: fact_av
+  columns: [Trust4, Trust5]
+  verdict: wrong_dv
+  target: tia_understanding_predictability
+  evidence: >-
+    Checked on the data (cache): the file's predictability column equals the mean of 6 -
+    Trust3, Trust4, Trust5 and 6 - Trust6 on every row, so Trust3-6 are the four TiA
+    understanding/predictability items (two reverse-keyed). Not Jian et al.'s scale.
+- study: fact_av
+  columns: [predictability]
+  verdict: correct
+  target: tia_understanding_predictability
+  evidence: >-
+    Checked on the data (cache): the authors' TiA understanding/predictability score of
+    Trust3-6. It reverses Trust3 and Trust6, but Trust3 correlates +.79 with the trust items
+    and Trust4 -.41, so Trust4 (not Trust3) is the reverse-keyed item; the stored score is
+    the right construct with one item keyed the wrong way.
+- study: fact_av
+  columns: [perceivedSafety1, perceivedSafety2, perceivedSafety3, perceivedSafety4, perceivedSafety_score]
+  verdict: correct
+  target: perceived_safety
+  evidence: >-
+    Checked on the data (cache): perceivedSafety_score = mean of perceivedSafety1-4 on every
+    row, -3..+3, the Faas et al. items the lab scores as ps_score (3d-comp-vehicle.R l.70).
+- study: fact_av
+  columns: [unsafeJudgement]
+  verdict: wrong_dv
+  target: sts_ad_item_05
+  evidence: >-
+    FACT-AV's paper is not published (README: citation 'once the paper is out of review'), so the wording is taken from the same lab's item set with the same LimeSurvey codes: the 3D display study (MUM '23, sec. 3.3, codes confirmed by 3d-comp-vehicle.R) and Colley et al. IMWUT 2022 (DOI 10.1145/3534609), sec. 4.3: unsafeJudgement is the STS-AD Judgement item ("The automated vehicle made an
+    unsafe judgment in this situation", 1-7, reverse-keyed); not perceived safety.
+- study: fact_av
+  columns: [performbetter]
+  verdict: wrong_dv
+  target: sts_ad_item_02
+  evidence: >-
+    FACT-AV's paper is not published (README: citation 'once the paper is out of review'), so the wording is taken from the same lab's item set with the same LimeSurvey codes: the 3D display study (MUM '23, sec. 3.3, codes confirmed by 3d-comp-vehicle.R) and Colley et al. IMWUT 2022 (DOI 10.1145/3534609), sec. 4.3: performbetter is the STS-AD Performance item ("I would have performed better than
+    the automated vehicle in this situation", 1-7, reverse-keyed); not NASA-TLX performance.
+- study: fact_av
+  columns: [reactapprop]
+  verdict: wrong_dv
+  target: sts_ad_item_06
+  evidence: >-
+    FACT-AV's paper is not published (README: citation 'once the paper is out of review'), so the wording is taken from the same lab's item set with the same LimeSurvey codes: the 3D display study (MUM '23, sec. 3.3, codes confirmed by 3d-comp-vehicle.R) and Colley et al. IMWUT 2022 (DOI 10.1145/3534609), sec. 4.3: the STS-AD Reaction item ("The automated vehicle reacted appropriately to the
+    environment", 1-7; reacted_appropriate in the 3D display study); not TiA propensity to
+    trust, which is a trait scale.
+- study: fact_av
+  columns: [drivingstyle]
+  verdict: not_a_dv
+  evidence: >-
+    FACT-AV's paper is not published (README: citation 'once the paper is out of review'), so the wording is taken from the same lab's item set with the same LimeSurvey codes: the 3D display study (MUM '23, sec. 3.3, codes confirmed by 3d-comp-vehicle.R) and Colley et al. IMWUT 2022 (DOI 10.1145/3534609), sec. 4.3: driving style of the automated vehicle, 1 = completely safe to 7 = completely
+    dangerous, a self-developed item; not STS-AD trust.
+- study: fact_av
+  columns: [complex]
+  verdict: unclear
+  llm_dv_ruled_out: true
+  missing: >-
+    the wording of `complex` (1-5) in FACT-AV's own questionnaire; the paper is not published.
+    In the lab's IMWUT 2022 study the same code is "I found the visualizations unnecessarily
+    complex" (1-5), one of two items adapted from the SUS, which would make it an adapted SUS
+    item 2. Either way it is not the 7-point STS-AD trust composite.
+  evidence: >-
+    FACT-AV's paper is not published (README: citation 'once the paper is out of review'), so the wording is taken from the same lab's item set with the same LimeSurvey codes: the 3D display study (MUM '23, sec. 3.3, codes confirmed by 3d-comp-vehicle.R) and Colley et al. IMWUT 2022 (DOI 10.1145/3534609), sec. 4.3; README.md (cache) has no column definitions for it.
+- study: fact_av
+  columns: [expected]
+  verdict: not_a_dv
+  evidence: >-
+    FACT-AV's paper is not published (README: citation 'once the paper is out of review'), so the wording is taken from the same lab's item set with the same LimeSurvey codes: the 3D display study (MUM '23, sec. 3.3, codes confirmed by 3d-comp-vehicle.R) and Colley et al. IMWUT 2022 (DOI 10.1145/3534609), sec. 4.3: "The automated vehicle drove as I expected at all times" (1-7), one of the
+    expected-behaviour items (with clearReason and willdo); not UTAUT effort expectancy.
+- study: fact_av
+  columns: [moreper]
+  verdict: not_a_dv
+  evidence: >-
+    FACT-AV's paper is not published (README: citation 'once the paper is out of review'), so the wording is taken from the same lab's item set with the same LimeSurvey codes: the 3D display study (MUM '23, sec. 3.3, codes confirmed by 3d-comp-vehicle.R) and Colley et al. IMWUT 2022 (DOI 10.1145/3534609), sec. 4.3: "would have liked more information regarding the automated vehicle's
+    perception" (1-7; morepre and moreego for predictions and future path); not UEQ
+    dependability.
+- study: fact_av
+  columns: [pintention]
+  verdict: not_a_dv
+  evidence: >-
+    FACT-AV's paper is not published (README: citation 'once the paper is out of review'), so the wording is taken from the same lab's item set with the same LimeSurvey codes: the 3D display study (MUM '23, sec. 3.3, codes confirmed by 3d-comp-vehicle.R) and Colley et al. IMWUT 2022 (DOI 10.1145/3534609), sec. 4.3: "The automated vehicle predicts all pedestrian intentions in every scene
+    perfectly" (1-7; ppaths for vehicle paths), a capability rating; not UTAUT behavioural
+    intention.
+
+# --- incar_vr_gain_chi24 (mapping header, from the paper and the Zenodo record) -----------------
+- study: incar_vr_gain_chi24
+  columns: [MaxMS, MeanMS]
+  verdict: not_a_dv
+  evidence: >-
+    Mapping header, notes: maximum and time-averaged Misery Scale (MISC, 0-10) per Section,
+    rated continuously during the drive; no schema DV fits MISC (fms_score is the FMS, 0-20).
+    Neither STS-AD trust nor DALI.
+- study: incar_vr_gain_chi24
+  columns: [MSOnsetTotal, MSOnsetDurationInTask]
+  verdict: not_a_dv
+  evidence: >-
+    Mapping header, "Left out": minutes to the first MISC > 0 (motion-sickness onset); neither
+    a NASA-TLX score nor a task completion time.
+- study: incar_vr_gain_chi24
+  columns: [Relaxation]
+  verdict: not_a_dv
+  evidence: >-
+    Mapping header, notes: ride-experience rating for each Section, 0 (not relaxing at all)
+    to 10 (extremely relaxing); not trust in automation.
+- study: incar_vr_gain_chi24
+  columns: [Distance, SpeedReal, SpeedVR]
+  verdict: not_a_dv
+  evidence: >-
+    Mapping header, "Left out": participants' estimates of the distance (km) and of the real
+    and virtual speed (km/h) of a Section; not headway, task time or Godspeed safety.
+- study: incar_vr_gain_chi24
+  columns: [SpeedCompare]
+  verdict: not_a_dv
+  evidence: >-
+    Mapping header, "Left out": a 1-5 comparison of speeds (wording not documented) in a
+    speed-estimation block; a rating, not a completion time, and no schema DV covers speed
+    perception.
+- study: incar_vr_gain_chi24
+  columns: [NewQuestion]
+  verdict: unclear
+  llm_dv_ruled_out: true
+  missing: >-
+    the meaning of NewQuestion (values 1-2) in FinalQuestions.csv, one row per answered
+    reading-comprehension question; undocumented in the record and the paper (mapping
+    header, "Unresolved"). A two-valued field of the answer log is not a UEQ subscale score.
+  evidence: Mapping header, "Unresolved (FinalQuestions.csv)".
+
+# --- longitudinal_usa_germany_ehmi (repository M-Colley/longitudinal_usa_germany_eHMI_comparison) ---
+- study: longitudinal_usa_germany_ehmi
+  columns: [TiA_Trust1, TiA_Trust2]
+  verdict: correct
+  target: tia_trust_in_automation
+  evidence: vr.R (cache) l.46, overallTiATrust = mean(TiA_Trust1, TiA_Trust2) (TiA trust subscale).
+- study: longitudinal_usa_germany_ehmi
+  columns: [TiA_Understanding1, TiA_Understanding2, TiA_Understanding3, TiA_Understanding4]
+  verdict: wrong_dv
+  target: tia_understanding_predictability
+  evidence: >-
+    vr.R (cache) l.42-45: items 2 and 4 reversed, overallTiAUnderstanding = mean of the four
+    (Koerber TiA understanding/predictability, 1-5); not the SART understanding subscale.
+    Items 2 and 4 correlate negatively with 1 and 3 in the data.
+- study: longitudinal_usa_germany_ehmi
+  columns: [perceivedSafety1, perceivedSafety2, perceivedSafety3, perceivedSafety4]
+  verdict: correct
+  target: perceived_safety
+  evidence: vr.R (cache) l.34, ps_score = mean of perceivedSafety1-4 (Faas et al., -3..+3).
+- study: longitudinal_usa_germany_ehmi
+  columns: [perceived_safety_sq001, perceived_safety_sq002, perceived_safety_sq003, perceived_safety_sq004]
+  verdict: correct
+  target: perceived_safety
+  evidence: >-
+    web.R (cache) l.88-98 renames the web files' columns by position: perceived_safety_sq001-4
+    become perceivedSafety1-4, scored as ps_score (l.107). One decision for the German and the
+    US file.
+- study: longitudinal_usa_germany_ehmi
+  columns: [trustiaunderp_sq001, trustiaunderp_sq002, trustiaunderp_sq004, trustiaunderp_sq006]
+  verdict: wrong_dv
+  target: tia_understanding_predictability
+  evidence: >-
+    web.R (cache) l.88-98 renames trustiaunderp_sq001..006 to TiA_Understanding1,
+    TiA_Understanding2, TiA_Trust1, TiA_Understanding3, TiA_Trust2, TiA_Understanding4 -
+    Koerber's item order 2, 7, 9, 11, 14, 16. sq001/2/4/6 are the understanding/predictability
+    items; the LLM's tia_item_01..06 are the schema's placeholders for TiA items of
+    undocumented identity, here mapped by position and pooled with other studies' items of
+    the same number. One decision for the German and the US file.
+- study: longitudinal_usa_germany_ehmi
+  columns: [trustiaunderp_sq003, trustiaunderp_sq005]
+  verdict: wrong_dv
+  target: tia_trust_in_automation
+  evidence: >-
+    web.R (cache) l.88-98: sq003 and sq005 become TiA_Trust1 and TiA_Trust2 (Koerber items 9
+    and 14), scored as overallTiATrust.
+- study: longitudinal_usa_germany_ehmi
+  columns: [crossingDecisionComm, crossingDecisionSpeed, crossing_decision_speed]
+  verdict: not_a_dv
+  evidence: >-
+    vr.R (cache) l.49 and l.287-366: 1-7 ratings (crossingDecisionSpeed, Dist, Comm, Owt)
+    analysed with ART ANOVAs and averaged into crossing_decision - ratings of what the
+    crossing decision rested on, not a crossing duration in s. web.R l.88-98 renames
+    crossing_decision_speed to crossingDecisionSpeed.
+- study: longitudinal_usa_germany_ehmi
+  columns: [typical_behavior]
+  verdict: not_a_dv
+  evidence: >-
+    web.R (cache) l.97 and l.139: typicalBehavior, a 1-7 rating dropped with the attention
+    checks; not a dwell time.
+- study: longitudinal_usa_germany_ehmi
+  columns: [ueqs1, ueqs2, ueqs3, ueqs4]
+  verdict: correct
+  target: ueq_pragmatic
+  evidence: vr.R (cache) l.38, pragmatic_quality = mean of ueqs1-4 (UEQ-S, 1-7).
+- study: longitudinal_usa_germany_ehmi
+  columns: [ueqs5, ueqs6]
+  verdict: wrong_dv
+  target: ueq_hedonic
+  evidence: vr.R (cache) l.39, hedonic_quality = mean of ueqs5-8.
+- study: longitudinal_usa_germany_ehmi
+  columns: [ueqs_german_sq001, ueqs_german_sq002, ueqs_german_sq003, ueqs_german_sq004]
+  verdict: correct
+  target: ueq_pragmatic
+  evidence: >-
+    web.R (cache) l.88-98 renames ueqs_german_sq001-007 to ueqs1-7; l.111 scores pragmatic
+    quality from ueqs1-4.
+- study: longitudinal_usa_germany_ehmi
+  columns: [ueqs_german_sq005, ueqs_german_sq006, ueqs_german_sq007]
+  verdict: wrong_dv
+  target: ueq_hedonic
+  evidence: >-
+    web.R (cache) l.88-98 and l.112: ueqs_german_sq005-007 become ueqs5-7, scored as hedonic
+    quality with ueqs8 (com_eval_sq001 in these files).
+
+# --- music_tempo_taskload_2022 (SPSS variable labels, read with pyreadstat) -----------------------
+- study: music_tempo_taskload_2022
+  pattern: '(HL|LL)(FM|SM|NM)HRMax(_A)?'
+  verdict: not_a_dv
+  evidence: >-
+    Variable labels in the .sav (raw): "<drive> HR Max", the maximum heart rate (bpm) of a
+    drive; hr_bpm is mapped from the mean (HRAve) and no schema DV holds the maximum. The
+    _A block repeats HLNM (HLNMHRMax_A has 986). Not a lateral acceleration.
+- study: music_tempo_taskload_2022
+  pattern: '(HL|LL)(FM|SM|NM)HRMin(_A)?'
+  verdict: not_a_dv
+  evidence: >-
+    Variable labels in the .sav (raw): "<drive> HR Min", minimum heart rate of a drive; not
+    trust.
+- study: music_tempo_taskload_2022
+  pattern: '(HL|LL)(FM|SM|NM)SDNN(_A)?'
+  verdict: not_a_dv
+  evidence: >-
+    Variable labels in the .sav (raw): "<drive> SDNN", a heart-rate-variability index; the
+    schema's only HRV DV is RMSSD (mapped from <drive>RMSSD), and sensecobot_fusion_2024 locks
+    SDNN for the same reason. Not task feasibility or trust.
+- study: music_tempo_taskload_2022
+  pattern: 'Beh_(HL|LL)(FM|SM|NM)_(Car|Ped)'
+  verdict: unclear
+  missing: >-
+    what the Beh_<drive>_Ped/Garb/Traf/Car variables (0-4) count; the .sav has no labels for
+    them and the figshare record no codebook (mapping header: presumably behavioural responses
+    to four hazard types).
+  evidence: .sav variable labels (raw, none for Beh_*); mapping header, notes.
+
+# --- myocontrol_intent_2025 -----------------------------------------------------------------------
+- study: myocontrol_intent_2025
+  columns: [table_enter_target_first_time, table_final_mean, table_fine_gross_ratio, table_fine_mean, table_fine_std]
+  verdict: unclear
+  llm_dv_ruled_out: true
+  missing: >-
+    definitions of the TAC-test trial measures in testResults.csv; the Zenodo record documents
+    only the NASA-TLX file (mapping header). A myoelectric robot-control test has no
+    takeover, Van der Laan rating, pedestrian crossing, eye fixation or lane position, so the
+    LLM's DVs are ruled out.
+  evidence: Mapping header (record text quoted), files and notes.
+
+# --- nl2tap_filter_2026 ------------------------------------------------------------------------------
+- study: nl2tap_filter_2026
+  columns: [eval_confidence]
+  verdict: not_a_dv
+  evidence: >-
+    Replication package README.md (raw), file table: scenario_sessions.csv, one row per
+    scenario session, without column definitions; eval_confidence (1-5) sits between
+    eval_behavioral_match and eval_code_correct, the evaluation of the generated rule
+    (mapping header: the participant's confidence that the rule does what they intended).
+    Whoever gave it, a confidence rating about a trigger-action rule fits no schema DV; it is
+    not a user-vehicle conflict item.
+
+# --- osf_cwd6h (Demographics/Demographics.csv; item texts are the column headers) ---------------
+- study: osf_cwd6h
+  pattern: "I (always|am confident|feel safe|occasionally|regularly).*"
+  verdict: not_a_dv
+  evidence: >-
+    Demographics.csv (cache) column headers: self-reported driving habits and confidence
+    measured once in the demographic questionnaire ("I always drive within the posted speed
+    limits", "I regularly use my phone while driving", ...); traits, not responses to the
+    study's conditions, and none is an item of the instruments the LLM named.
+
+# --- pairsonic_cscw24 --------------------------------------------------------------------------------
+- study: pairsonic_cscw24
+  columns: [a_sec, b_sec]
+  verdict: not_a_dv
+  evidence: >-
+    README.md and contact-exchange-in-groups.Rmd (raw zip), via the mapping header: perceived
+    security, "I think that this system is secure" (1-5), for the first and second system.
+- study: pairsonic_cscw24
+  columns: [pref]
+  verdict: not_a_dv
+  evidence: Mapping header (README.md) - forced-choice preference, 1 = first system, 2 = second.
+
+# --- perceived_risk_merging_2022 -------------------------------------------------------------------
+- study: perceived_risk_merging_2022
+  columns: ['max_braking(0~1)']
+  verdict: not_a_dv
+  evidence: >-
+    README.md (raw) l.21 and l.35: "max_brake: The maximum brake applied by the human driver
+    during the event (ranging from 0 to 1)", a pedal position, not a reaction time.
+
+# --- roads_chi25 (repository M-Colley/roads-chi25-data) ---------------------------------------------
+- study: roads_chi25
+  columns: [gaming]
+  verdict: not_a_dv
+  evidence: >-
+    Evaluation_CHI25_ROADS.R (cache) l.352-354: "mean hours gaming per week", a demographic
+    in the sheet "Remote Operation - Demographic" (0-45).
+- study: roads_chi25
+  columns: [ease]
+  verdict: unclear
+  missing: >-
+    the wording of `ease` (1-5) in the demographic sheet of results-roads-final-chi25.xlsx;
+    the repository has no questionnaire export, and Evaluation_CHI25_ROADS.R l.356-364
+    reports interest, ease and reality only as participant descriptors.
+  evidence: Evaluation_CHI25_ROADS.R (cache) l.352-364; results-roads-final-chi25.xlsx sheet name.
+
+# --- sensecobot_fusion_2024 (SenseCobotFusion/Readme.txt) ------------------------------------------
+- study: sensecobot_fusion_2024
+  pattern: '(P4|P8|T8|C4|F4|Cz|Pz|O1|O2|F3)(_(alpha|beta|theta)|_beta/(P4|P8|T8|C4|F4)_alpha|_(F4|T7)_coherence) (Mean|Std|Min|Max|Median)'
+  verdict: not_a_dv
+  evidence: >-
+    Readme.txt (raw), "EEG Metrics": power spectral density of an EEG channel in the theta,
+    alpha or beta band, beta/alpha ratios and inter-channel coherence, per task (statistic
+    over the task). No schema DV is an EEG feature; in particular O2_theta Max is not the SSQ
+    oculomotor score and the C4/F4/P4 features are not NASA-TLX performance.
+- study: sensecobot_fusion_2024
+  pattern: 'Amplitude (Std|Min|Median)'
+  verdict: not_a_dv
+  evidence: >-
+    Readme.txt (raw), "GSR Metrics": statistics of the skin-conductance response amplitude
+    (uS); eda_gsr is mapped from Amplitude Mean, and the other statistics are not the schema
+    DV (mapping header). Not trust or task time.
+- study: sensecobot_fusion_2024
+  pattern: '(Joy|Sadness|Engagement|Confusion|Attention) (Mean|Std|Min|Max|Median)'
+  verdict: not_a_dv
+  evidence: >-
+    Readme.txt (raw), "EMO Metrics": scores of a facial-expression classifier on video
+    (Joy, Sadness, Engagement, Confusion, Attention), summarised per task. Not the
+    self-reported engagement, stress, PANAS or conflict ratings the LLM named.
+- study: sensecobot_fusion_2024
+  columns: [NASA_3]
+  verdict: unclear
+  llm_dv_ruled_out: true
+  missing: >-
+    which NASA-TLX subscale NASA_3 is and how it is keyed: Readme.txt names the cumulative
+    NASA-TLX of Labels.csv but not the order of its columns (NASA_1, NASA_1, NASA_2 ...
+    NASA_5). It is one subscale on 1-7, so the LLM's TLX total is ruled out.
+  evidence: Readme.txt (raw), "Label"; mapping header, notes on NASA_3.
+
+# --- woz_adaptation_ijhcs24 (mapping header, from the paper; block labels in row 0 of the sheet) ---
+- study: woz_adaptation_ijhcs24
+  pattern: 'IMI [1-8](\.[12])?'
+  verdict: not_a_dv
+  evidence: >-
+    NSF2151464_Study2_ResearchData.xlsx (raw) row 0 block labels and the paper (mapping
+    header): the 8-item Intrinsic Motivation Inventory (1-7) after each interval; the schema
+    has no IMI DV, and these are neither trust, STS-AD, TiA nor SUS items.
+- study: woz_adaptation_ijhcs24
+  pattern: 'Difficulty \d+(\.[12])?'
+  verdict: not_a_dv
+  evidence: >-
+    Mapping header (paper): the MATB difficulty level (1-12) the adaptation set in each minute
+    of an interval - a system setting, not efficiency or UEQ novelty.
+- study: woz_adaptation_ijhcs24
+  pattern: 'Interval [123]'
+  verdict: not_a_dv
+  evidence: >-
+    Row 0 of the sheet (raw): "Relative liking at end of session", a 0-100 VAS per interval;
+    not a crossing time.

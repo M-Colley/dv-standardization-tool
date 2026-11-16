@@ -34,9 +34,18 @@ sources:
     # The optimizer's log stores MentalLoad as an objective to maximize
     # (11 - answer for 720 of 740 evaluations); the participants' answers are
     # in QuestionnaireResponses.csv. Keeping both averaged them to a constant.
+    # The questionnaire's TiA items are dropped as well (LLM-mapping audit, 2026-11-15): the
+    # log's Trust is (Trust1 + Trust2) / 2 and its Understanding the unreversed mean of
+    # Understanding1-4 on every row, and the shared schema maps those. Kept, the items scored
+    # the same answers a second time (the LLM had mapped Trust2 to Jian trust and
+    # Understanding1-4 to SART understanding). Whether items 2 and 4 are reverse-keyed is
+    # open: the analysis script reverses them, but in the data they correlate positively with
+    # items 1 and 3.
     table_options:
       "**/ObservationsPerEvaluation.csv":
         drop_columns: [MentalLoad]
+      "**/QuestionnaireResponses.csv":
+        drop_columns: [Trust1, Trust2, Understanding1, Understanding2, Understanding3, Understanding4]
     use_llm_deduction: true
 
   - source_id: osf_cwd6h
@@ -52,6 +61,9 @@ sources:
     archive_max_depth: 3
     use_llm_deduction: true
     mapping_path: schemas/osf_cwd6h_mapping.yaml
+    # ArduinoData1 is the perceived-risk VAS; the shared sensor schema also lists the name
+    # (sensor_arduino_data_1) and won until 2026-11-15, so the study mapping must override it.
+    override_standard_aliases: true
     llm_context: "ArduinoData1 encodes Perceived Risk on a 1-100 VAS scale."
 
   # The data/ folder's four R_*.csv tables are the per-participant results the
@@ -75,6 +87,7 @@ sources:
     location: https://github.com/M-Colley/3d-display-comp-vehicle
     ref: main
     publication_doi: 10.1145/3626705.3627786
+    mapping_path: schemas/3d_display_comp_vehicle_mapping.yaml
     include_globs:
       - "**/*.csv"
       - "**/*.xlsx"
@@ -86,6 +99,7 @@ sources:
     source_type: github_repo
     location: https://github.com/M-Colley/longitudinal_usa_germany_eHMI_comparison
     ref: main
+    mapping_path: schemas/longitudinal_usa_germany_ehmi_mapping.yaml
     include_globs:
       - "**/*.csv"
       - "**/*.xlsx"
@@ -122,9 +136,9 @@ sources:
     include_globs:
       - "data/all_combined_prepared.xlsx"
     mapping_path: schemas/fact_av_mapping.yaml
-    # The custom mapping renames `understanding_rating` to `sart_understanding`.
-    # That alias collides with the standard schema (where understanding_rating
-    # is a canonical) so the source-precedence flag is required.
+    # The source mapping locks the stored SART sums (Understanding is an alias of
+    # understanding_rating in the shared schema) and maps the SART, TiA and STS-AD
+    # items; the source-precedence flag lets it override the shared aliases.
     override_standard_aliases: true
     llm_context: >
       FACT-AV study on trust and acceptance factors for automated vehicles.
@@ -436,7 +450,14 @@ sources:
     include_globs: ["SenseCobotFusion/Labels.csv", "SenseCobotFusion/SenseCobotFusion.csv"]
     mapping_path: schemas/sensecobot_fusion_2024_mapping.yaml
     override_standard_aliases: true
-    use_llm_deduction: true
+    # No LLM step (LLM-mapping audit, 2026-11-15). The mapping covers every schema DV the
+    # study measured (NASA-TLX, heart rate, RMSSD, skin conductance); its other ~630 columns
+    # are ECG, EEG, GSR and facial-expression features without a schema DV (mapping header).
+    # The LLM had mapped 70 of them (EEG band powers to NASA-TLX performance and the SSQ
+    # oculomotor score, facial scores to engagement and stress), and once those were locked
+    # it mapped 34 others. Locking each feature instead would add them all to the
+    # benchmark's curated non-DV items.
+    use_llm_deduction: false
 
   - source_id: myocontrol_intent_2025
     source_type: local_path

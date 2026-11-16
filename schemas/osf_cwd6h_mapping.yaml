@@ -8,3 +8,16 @@ ArduinoData1: perceived_risk
 arduino_data_1: perceived_risk
 perceivedRisk: perceived_risk
 perceived_risk: perceived_risk
+
+# Self-reported driving habits in Demographics/Demographics.csv (the item texts are the column
+# names), measured once per participant; no schema DV. Locked after the
+# LLM-mapping audit of 2026-11-15 (analyses/llm_mapping_audit/): the LLM had mapped them to Godspeed and Faas
+# perceived safety, STS-AD trust, TiA familiarity, collaboration quality and DALI.
+"I regularly use my phone while driving (e.g. for messages, calls, navigation).": meta_demographic_driving_habit
+"I always drive within the posted speed limits.": meta_demographic_driving_habit
+"I always maintain the prescribed safety distance (half the speed in km/h, measured in meters) when driving a car.": meta_demographic_driving_habit
+"I am confident in my ability to drive well unfamiliar areas": meta_demographic_driving_habit
+"I am confident in my ability to drive effectively in city traffic.": meta_demographic_driving_habit
+"I feel safe on the road, even under bad weather conditions..": meta_demographic_driving_habit
+"I occasionally become distracted in traffic (e.g., due to other thoughts or external stimuli).": meta_demographic_driving_habit
+"I always stop at junctions and ensure that everything is clear, even when the traffic lights are green.": meta_demographic_driving_habit

@@ -1,0 +1,93 @@
+# Source-specific column mapping for 3d_display_comp_vehicle
+# Paper: Colley, Stampf, Fischer, Rukzio. "Effects of 3D Displays on Mental Workload,
+#   Situation Awareness, Trust, and Performance Assessment in Automated Vehicles." MUM '23.
+#   DOI 10.1145/3626705.3627786; full text on uni-ulm.de
+#   (MUM_2023_3D_Display_final_compressed.pdf). Sec. 3.3 (Measurements) gives the
+#   instruments and the wording of every item.
+# Data: github.com/M-Colley/3d-display-comp-vehicle (main). No codebook; 3d-comp-vehicle.R
+#   scores the instruments and is read as one (not run).
+#
+# Files: 3d-comp-vehicle-main.xlsx, one row per participant x display (15 x 3, within
+#   subjects: 2D baseline, LumePad, LookingGlass); 3d-comp-vehicle-final.xlsx, the
+#   post-study questionnaire (no DV mapped).
+#
+# Written on 2026-11-15 from the LLM-mapping audit (analyses/llm_mapping_audit/). Until then
+# the source had no mapping file: TLX1 was mapped by the shared schema and the columns below
+# by the LLM fallback, which put all ten SART items under the SART total, the TiA
+# understanding items under TiA trust, two STS-AD items under perceived safety and NASA-TLX
+# performance, and the driving-style rating under STS-AD trust.
+#
+# Notes:
+#   - TiA (Koerber), 1-5: trust = TiA_Trust1-2 ("I trust the system.", "I can rely on the
+#     system."), understanding/predictability = TiA_U1-4 with U2 and U4 reversed (R l.61-67;
+#     the paper: two direct, two inverse items), i.e. Koerber's items 2, 7, 11 and 16. Mapped
+#     to the registry items (schemas/instruments.yaml), which score both subscales and
+#     reverse items 7 and 16. In the data U2 and U4 correlate negatively with U1, U3 and the
+#     trust items, as reverse-keyed items should.
+#   - Perceived safety: Faas et al. (2020), four semantic differentials, -3..+3, averaged
+#     to ps_score (R l.70) -> registry items perceived_safety_item_01..04.
+#   - SART: ten items, 1-7; Demand = SART1-3, Supply = SART4-7, Understanding = SART8-10,
+#     SA = U - (D - S) (R l.53-58). The schema has no SART item ids, so the items take
+#     their subscale ids, as in bvi_auditory_hav_autoui26; the items (1-7) are converted
+#     to the schema's 0-20 (scale_conversions at the end).
+#   - STS-AD (Holthausen et al. 2020): three of its six items, 1-7. Performance (item 2) and
+#     Judgement (item 5) are worded against trust and reversed below, as the source analysis
+#     of psych_conflict_handling does (ST2_inv, ST5_inv).
+
+# --- Dependent measures ------------------------------------------------------------
+TiA_Trust1: tia_k09                  # TiA trust, 1-5
+TiA_Trust2: tia_k14
+TiA_U1: tia_k02                      # TiA understanding/predictability, direct, 1-5
+TiA_U2: tia_k07                      # inverse (reversed by the registry)
+TiA_U3: tia_k11                      # direct
+TiA_U4: tia_k16                      # inverse (reversed by the registry)
+perceivedSafety1: perceived_safety_item_01   # Faas et al. 2020, -3..+3
+perceivedSafety2: perceived_safety_item_02
+perceivedSafety3: perceived_safety_item_03
+perceivedSafety4: perceived_safety_item_04
+SART1: sart_demand                   # SART item, 1-7
+SART2: sart_demand
+SART3: sart_demand
+SART4: sart_supply
+SART5: sart_supply
+SART6: sart_supply
+SART7: sart_supply
+SART8: sart_understanding
+SART9: sart_understanding
+SART10: sart_understanding
+performbetter: sts_ad_item_02        # "I would have performed better than the automated vehicle in this situation" (reversed below)
+unsafeJudgement: sts_ad_item_05      # "The automated vehicle made an unsafe judgment in this situation" (reversed below)
+reacted_appropriate: sts_ad_item_06  # "The automated vehicle reacted appropriately to the environment"
+
+# --- Self-developed items without a schema DV (locked so the LLM cannot map them) --
+# 7-point items on the vehicle's capabilities and the display (paper sec. 3.3), analysed one
+# by one (R l.153-244). The LLM had mapped drivingstyle to STS-AD trust, predict_paths to
+# TiA understanding, the two perceive_* items to perceived safety, and recognized_vehicle
+# and recognize_road_users to NASA-TLX mental demand.
+drivingstyle: meta_rating_driving_style                     # 1 = completely safe .. 7 = completely dangerous
+recognized_vehicle: meta_rating_recognizes_all_vehicles
+predict_paths: meta_rating_predicts_vehicle_paths
+certain_drive_to: meta_rating_recognizes_where_vehicles_drive
+longitudinal: meta_rating_longitudinal_guidance
+lateral: meta_rating_lateral_guidance
+clear_av_will_do: meta_rating_clear_what_vehicle_does_next
+recognize_road_users: meta_rating_display_road_users
+perceive_distances_better: meta_rating_display_distances
+perceive_surroundings_better: meta_rating_display_surroundings
+
+# --- Reverse-keyed items -------------------------------------------------------------
+reverse_items:
+  - columns: [performbetter, unsafeJudgement]
+    scale_range: [1, 7]
+    reason: STS-AD items 2 and 5 are worded against trust (Holthausen et al. 2020); reversed as in psych_conflict_handling
+
+# --- Scale ---------------------------------------------------------------------------
+# The SART items are 7-point ratings (1-7); the schema's SART subscales are on 0-20 and the
+# analysis cannot tell a 1-7 item from a 0-20 score, since 1-7 fits inside 0-20. Converted
+# linearly (1 -> 0, 7 -> 20), as for 1-7 NASA-TLX items in sensecobot_fusion_2024 (added
+# 2026-11-15; BVI auditory HAV, 3D display and FACT-AV give the same items).
+scale_conversions:
+  - columns: [SART1, SART2, SART3, SART4, SART5, SART6, SART7, SART8, SART9, SART10]
+    from: [1, 7]
+    to: [0, 20]
+    reason: 10-D SART items rated 1-7; the schema's SART subscales are on 0-20

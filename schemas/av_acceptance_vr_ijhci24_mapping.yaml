@@ -28,10 +28,10 @@
 #   someone who could help me", German "only with the help of other people".
 # - gender, Driving licence and the Dilemma decision answers mix German and
 #   English labels (e.g. Maennlich/male, Ja/Yes; "Hund " has a trailing space).
-# - Left unmapped (no fitting schema DV): Attitude towards Technology 1-3,
-#   Self-Efficacy 1-3, Anxiety 1-3, Methods of Control 1-3 (importance of
-#   eyes / hands / feet, 1-7), Dilemma decision 1-4 (categorical choice of
-#   whom to save in an unavoidable collision).
+# - No fitting schema DV: Attitude towards Technology 1-3, Self-Efficacy 1-3,
+#   Methods of Control 1-3 (importance of eyes / hands / feet, 1-7; these three
+#   are locked below), Anxiety 1-3 and Dilemma decision 1-4 (categorical choice
+#   of whom to save in an unavoidable collision; left unmapped).
 
 # --- Dependent measures: AVAM / UTAUT factors (1-7 agreement) -----------------
 Performance Expectancy 1: utaut_performance_expectancy   # reach destination quickly
@@ -53,6 +53,19 @@ Behavioral Intention 2: utaut_behavioral_intention       # plan to obtain and us
 Perceived safety 1: perceived_safety         # "would be dangerous" - reverse-keyed
 Perceived safety 2: perceived_safety         # "would feel safe"
 Perceived safety 3: perceived_safety         # "would trust the vehicle"
+
+# --- AVAM factors without a schema DV (locked) ---------------------------------
+# Locked after the LLM-mapping audit of 2026-11-15 (analyses/llm_mapping_audit/): the LLM had mapped attitude to AttrakDiff hedonic
+# identity, methods of control to perceived conflict and self-efficacy to NASA-TLX effort.
+"Attitude towards Technology 1": meta_avam_attitude    # "Using the vehicle would be a good idea"
+"Attitude towards Technology 2": meta_avam_attitude    # "... would make driving more interesting"
+"Attitude towards Technology 3": meta_avam_attitude    # "... would be fun"
+"Self-Efficacy 1": meta_avam_self_efficacy              # reach my destination with the built-in instruction
+"Self-Efficacy 2": meta_avam_self_efficacy              # ... with no assistance
+"Self-Efficacy 3": meta_avam_self_efficacy              # ... if someone could help me
+"Methods of Control 1": meta_avam_methods_of_control    # importance of the eyes, 1-7
+"Methods of Control 2": meta_avam_methods_of_control    # ... of the hands
+"Methods of Control 3": meta_avam_methods_of_control    # ... of the feet
 
 # --- Identifiers and bookkeeping ----------------------------------------------
 id: meta_response_id                         # running row number 1-517

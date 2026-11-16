@@ -1,0 +1,22 @@
+# Round 2 of the audit (2026-11-15): the LLM-mapped columns the all-mappings analysis would
+# pool after the fixes of round 1 (inventory of the batch run audit39, before its analysis).
+# None of them was mapped in lock39: locking a study's columns changes the prompts the LLM
+# sees for the rest of that table, and it mapped 40 columns of two studies it had left
+# unmapped or mapped elsewhere before. Format as in ../verdicts.yaml; written before the
+# round-2 fixes.
+
+- study: ehmi_car_body_2020
+  pattern: 'VFA_N?E1[DKLP]_Gef(ü|ue)hlErkannt'
+  verdict: not_a_dv
+  evidence: >-
+    "AV-to-Manual driver communication clarity questionnaire and Cronbach's Alpha
+    Results.pdf" (raw), appendix A.1, item 2: "I have the feeling that the vehicle detected
+    me" (six-point agreement); neither IPQ presence nor a Van der Laan item. One decision for
+    the four columns (and the batch's composite of them).
+- study: sensecobot_fusion_2024
+  pattern: '(C3|C4|Cz|F3|F4|F7|F8|Fz|O2|P4|P8|Pz|T8)(_(alpha|beta|theta)|_(C3|F3|F4|F7|F8|Fz|P3|Pz|T7|T8)_coherence) (Mean|Std|Min|Max|Median)'
+  verdict: not_a_dv
+  evidence: >-
+    Readme.txt (raw), "EEG Metrics": band powers and inter-channel coherence of the EEG per
+    task, as in round 1 (decision sensecobot_fusion_2024#80 of ../verdicts.yaml). Not IPQ
+    spatial presence, DALI interference, Jian trust, STS-AD item 2 or NASA-TLX performance.

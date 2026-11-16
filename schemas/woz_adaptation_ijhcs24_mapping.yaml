@@ -60,6 +60,73 @@
 "TLX 5.2": effort
 "TLX 6.2": frustration
 
+# --- Measures without a schema DV (locked) ---------------------------------------
+# Locked after the LLM-mapping audit of 2026-11-15 (analyses/llm_mapping_audit/): the LLM had mapped the IMI items to
+# trust, STS-AD, TiA and SUS items, the difficulty levels to efficiency and UEQ novelty, and
+# the liking VAS to pedestrian crossing time. "IMI k" = 8-item Intrinsic Motivation Inventory
+# (1-7), "Difficulty k" = MATB difficulty level (1-12) in minute k, ".1"/".2" = intervals 2
+# and 3; "Interval k" = relative liking of interval k at the end (VAS 0-100).
+"IMI 1": meta_imi_item
+"IMI 1.1": meta_imi_item
+"IMI 1.2": meta_imi_item
+"IMI 2": meta_imi_item
+"IMI 2.1": meta_imi_item
+"IMI 2.2": meta_imi_item
+"IMI 3": meta_imi_item
+"IMI 3.1": meta_imi_item
+"IMI 3.2": meta_imi_item
+"IMI 4": meta_imi_item
+"IMI 4.1": meta_imi_item
+"IMI 4.2": meta_imi_item
+"IMI 5": meta_imi_item
+"IMI 5.1": meta_imi_item
+"IMI 5.2": meta_imi_item
+"IMI 6": meta_imi_item
+"IMI 6.1": meta_imi_item
+"IMI 6.2": meta_imi_item
+"IMI 7": meta_imi_item
+"IMI 7.1": meta_imi_item
+"IMI 7.2": meta_imi_item
+"IMI 8": meta_imi_item
+"IMI 8.1": meta_imi_item
+"IMI 8.2": meta_imi_item
+"Difficulty 1": meta_matb_difficulty_level
+"Difficulty 1.1": meta_matb_difficulty_level
+"Difficulty 1.2": meta_matb_difficulty_level
+"Difficulty 2": meta_matb_difficulty_level
+"Difficulty 2.1": meta_matb_difficulty_level
+"Difficulty 2.2": meta_matb_difficulty_level
+"Difficulty 3": meta_matb_difficulty_level
+"Difficulty 3.1": meta_matb_difficulty_level
+"Difficulty 3.2": meta_matb_difficulty_level
+"Difficulty 4": meta_matb_difficulty_level
+"Difficulty 4.1": meta_matb_difficulty_level
+"Difficulty 4.2": meta_matb_difficulty_level
+"Difficulty 5": meta_matb_difficulty_level
+"Difficulty 5.1": meta_matb_difficulty_level
+"Difficulty 5.2": meta_matb_difficulty_level
+"Difficulty 6": meta_matb_difficulty_level
+"Difficulty 6.1": meta_matb_difficulty_level
+"Difficulty 6.2": meta_matb_difficulty_level
+"Difficulty 7": meta_matb_difficulty_level
+"Difficulty 7.1": meta_matb_difficulty_level
+"Difficulty 7.2": meta_matb_difficulty_level
+"Difficulty 8": meta_matb_difficulty_level
+"Difficulty 8.1": meta_matb_difficulty_level
+"Difficulty 8.2": meta_matb_difficulty_level
+"Difficulty 9": meta_matb_difficulty_level
+"Difficulty 9.1": meta_matb_difficulty_level
+"Difficulty 9.2": meta_matb_difficulty_level
+"Difficulty 10": meta_matb_difficulty_level
+"Difficulty 10.1": meta_matb_difficulty_level
+"Difficulty 10.2": meta_matb_difficulty_level
+"Difficulty 11": meta_matb_difficulty_level
+"Difficulty 11.1": meta_matb_difficulty_level
+"Difficulty 11.2": meta_matb_difficulty_level
+"Interval 1": meta_relative_liking
+"Interval 2": meta_relative_liking
+"Interval 3": meta_relative_liking
+
 # --- Conditions ---------------------------------------------------------------
 "Participant ID": meta_participant_id
 "Group": meta_condition_adaptation_behavior   # SingleSmall, SingleModerate, ImmediateLow, ImmediateHigh, IrreversibleHigh (between groups)
