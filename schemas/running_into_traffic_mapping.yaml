@@ -61,6 +61,9 @@ reverse_items:
 # and positively with perceived safety (0.42) and trust (0.40), and it loads
 # -0.54 on a one-factor TLX model (ROADS: +0.25). The Zenodo record has no
 # questionnaire to confirm the wording. Reverse-scored (21 - x) to TLX polarity.
+# Confirmed on 2026-11-15: the mean of the six subscales with success reversed is 2.70
+# (walking) and 5.08 (running), the paper's "Crossing Workload" in Table 1 (arXiv
+# 2603.13664); as stored it would be 5.49 and 7.11.
   - columns: ["tlx.success"]
     scale_range: [0, 21]
     reason: TLX performance keyed as success (high = good); mean 17.7 of 21, negative correlation with the other TLX subscales, loading -0.54
@@ -80,9 +83,12 @@ instruction: instruction_clarity
 
 # --- Scale ---------------------------------------------------------------------------
 # The six NASA-TLX subscales run 0..21 in the data (22 steps; every subscale reaches 0, most
-# reach 21), one point wider than the schema's 0-20, so neither the analysis nor the
+# reach 21). The paper does not state the format; the first author's thesis (Glasgow 2025,
+# Appendix B.2) gives the lab's TLX items with responses 0-21, and the paper's workload
+# means are reproduced on 0-21 (above). That is one point wider than the schema's 0-20, so neither the analysis nor the
 # instrument registry recognises the scale: the registry fell back to 0-100 and scored the
-# TLX total about 5x too low (3.89). `risk` is a 1-5 rating, which fits inside the schema's
+# TLX total about 5x too low (3.89). `risk` is "My crossing decision was risky" (paper sec. 3.5,
+# 5-point, strongly disagree to strongly agree), a 1-5 rating which fits inside the schema's
 # 1-100 perceived-risk VAS and was pooled unconverted. Both converted linearly, endpoint to
 # endpoint (added 2026-11-15; tlx.success is reversed on 0-21 first, see above).
 scale_conversions:

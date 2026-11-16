@@ -240,6 +240,11 @@ studies:
 
   osf_cwd6h:
     participant: Participant ID
+    # The drive logs (Studie_Logs_Raw_Data/NN_car/Car_[Not_]Critical_k.csv, 8 per
+    # participant) carry no id; their folder is the participant (01-27, the
+    # Demographics ids 1-27). Without it each of their ~1.8 million samples of
+    # ArduinoData1 (perceived risk, mapped since 2026-11-15) counted as a participant.
+    participant_from_file: '(?:^|/)0*(\d+)_car/'
     domain: automotive
     factors: []
 

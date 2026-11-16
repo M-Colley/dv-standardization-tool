@@ -86,6 +86,9 @@ mappings); "E2" holds out schema aliases. Model: `google/gemma-4-E2B-it`
 | Curated data dropped with an LLM column | Provenance was one category per study × DV, so one LLM-mapped column marked a DV whose other columns were curated; when several columns stood for one DV, the one with more rows won | 20 study × DV pairs: the LLM-excluded `mental_demand` pool left out five studies that report it (k = 14 instead of 19); with all mappings SenseCobot's EEG ratios were stacked with its NASA-TLX ratings (study mean 0.39 of 20, 17.5% of Fig. 4's weight) | Provenance per column; LLM columns left out column by column, and a study's curated column of a DV preferred over its LLM columns (2026-11-14, `tests/test_llm_column_exclusion.py`) |
 | Another questionnaire read as the NASA-TLX | The plausibility rules check names, types and ranges, not the instrument. The LLM composed four VRNQ game-mechanics items of FOV Snap-Turn (physical movement, picking up items, using items, two-handed interaction; 1–7, higher = better) and two PXI enjoyment items of Gaze Platformer into NASA-TLX mental demand; neither study used the NASA-TLX | Fig. 4 (all mappings) pooled 21 studies, 7.73 [6.41, 9.05] (HKSJ), with FOV Snap-Turn at 28.9% of the weight; 55 more columns of the two studies were read as other DVs (e.g. eye-strain symptoms as pedestrian crossing time, IMI competence as TiA reliability) | Every column of the two studies without a schema DV locked as `meta_*` in its mapping (2026-11-14). Fig. 4 is now 19 curated studies, 8.14 [6.83, 9.45], the same pool as without LLM mappings, and is drawn from the LLM-excluded pool |
 | LLM mappings checked only where they surfaced | Wrong LLM columns were locked one study at a time, after they showed up in a figure (Curved Dragging, FOV Snap-Turn, Gaze Platformer), so the errors found were the conspicuous ones | Of the 378 LLM-mapped columns the all-mappings analysis still pooled (22 studies; 56 of its 88 DVs had LLM rows), 34 had the right DV: in-situ precision 9.0% [6.5, 12.3] (Wilson), 14.0% [8.2, 22.8] of 86 decisions. The three STS-AD trust columns behind the `llm`-level finding mental demand × STS-AD trust were a driving-style rating, a usability item and a maximum motion-sickness rating; SenseCobot's NASA-TLX performance was 36 EEG band powers | Every pooled LLM column audited against its study's documentation, verdicts committed before the fixes (`analyses/llm_mapping_audit/`, 2026-11-15); right ones curated, wrong ones remapped or locked. Locking part of a table moved the LLM to its other columns (40 new wrong mappings), so the gate in the rerun repeats the inventory after the batch, SenseCobot is left out of the LLM step and eHMI on the car body is fully mapped. No LLM column is pooled now |
+| A shared alias over a study mapping | osf_cwd6h's mapping sends `ArduinoData1` (its perceived-risk VAS) to `perceived_risk` and says it overrides the sensor schema; without `override_standard_aliases` the shared sensor alias won | The study's main DV never reached a pool; once the LLM audit locked its LLM-mapped demographic items it contributed no DV at all | Flag set (2026-11-15): perceived risk pools three studies. `opendv check-mapping` (PR #50) lists study aliases a shared schema captures first; across 88 studies this was the only DV target lost that way |
+| A scale narrower than the DV's | Values inside the canonical range are taken to be on it, so 1–7 SART items under 0–20 subscales, a 5-point SAM under the 9-point, 0–10 and 1–5 risk ratings under a 1–100 VAS and a 0–21 NASA-TLX pass unconverted | Pooled perceived risk 2.88 from a 0–10 and a 1–5 rating; the instrument registry scored Running into Traffic's 0–21 TLX on 0–100 (total 3.89 instead of 18.52) | Declared `scale_conversions`, endpoint to endpoint (2026-11-15), from PR #50's scale screen and each study's documentation (Running into Traffic: the paper's workload means are reproduced on 0–21) |
+| Samples counted as participants | osf_cwd6h's drive logs carry no participant id (it is their folder), so each of their 1,811,262 samples of perceived risk counted as a participant | The fixed-effect safety/trust subgroup pool gave osf_cwd6h 99.8% of its weight; the random-effects pools hardly moved | Participant ids from the log folders (`participant_from_file`, 2026-11-15): 27 participants. Known and still open: the DV pools take a study's variance from its rows (sd²/rows; participant means are a multiverse axis), and the exploratory PCA composite weights rows, so its PC1 (83%) is mostly osf_cwd6h's perceived risk |
 | Fixed-effect meta-regression | The slope test ignored residual heterogeneity | p < .05 for 60% of null slopes (τ = 0.5, k = 6); 36 of 50 DVs "significant" | Random-effects meta-regression with the Knapp-Hartung test |
 | Participant ids from the wrong column | Aggregation used the first ID-like column | eHMI for All lost every survey DV at the participant level | Declared participant columns for all studies (23 then, 39 now) |
 
@@ -440,9 +443,9 @@ VRNQ-like questionnaires, design preferences, demographics. The right ones
 are columns whose names already say what they are (Faas perceived-safety
 items, UEQ-S pragmatic items, TiA trust items). After the fixes the audit's
 curated columns join the gold set: with `definition` the LLM gives the
-curated DV for 109 of 300 DV columns (36%; 4 of the 42 new ones), `dense_h`
-137 (47 vs. 19 discordant, p = 0.001), `mixed_h` 129 (30 vs. 10,
-p = 0.002); checked precision 16%, 21% and 20%; curated non-DVs mapped to a
+curated DV for 110 of 301 DV columns (37%; 5 of the 43 new ones, osf_cwd6h's
+perceived risk among them), `dense_h` 138 (47 vs. 19 discordant, p = 0.001),
+`mixed_h` 130 (30 vs. 10, p = 0.002); checked precision 16%, 21% and 20%; curated non-DVs mapped to a
 DV 392, 381 and 380 of 540. On the 16 added studies 71 of 423 as before, and
 the LLM maps 206 of the 217 newly locked non-DV columns to a DV after the
 check (precision 13.7% → 9.8%). Locking only the wrong columns of a table is
@@ -497,9 +500,9 @@ effect:
 - **Scale harmonization now decides the NASA-TLX subscales.** With 23
   studies `mental_demand` was robust: all 32 estimates lay in 7.35–8.13 and
   every interval covered the default. With 39 studies (k = 19 in every
-  specification) the estimates range from 8.14 to 17.48 and 44% of the
+  specification) the estimates range from 8.12 to 17.47 and 44% of the
   intervals miss the default. The harmonized specifications stay together
-  (8.14–8.16); the raw ones (15.5–17.5) pool six added studies' 0–100
+  (8.12–8.15); the raw ones (15.5–17.5) pool six added studies' 0–100
   ratings with 0–20 ones. Until FOV Snap-Turn's and Gaze Platformer's
   questionnaire items were locked (later on 2026-11-14) the specifications
   with LLM mappings had k = 21 and the range was 7.73–17.48 (harmonized
@@ -513,9 +516,11 @@ effect:
   the same (harmonized ranges within 1, raw ones 13–23). A choice that did
   not matter for 23 studies decides the estimate once studies with another
   response format join.
-- **Robust:** the NASA-TLX total `TLX_SCORE` (k = 13), 37.98–38.03 on its
+- **Robust:** the NASA-TLX total `TLX_SCORE` (k = 13), 39.12–39.17 on its
   0–100 scale (27.4–34.7), every interval covering the default; SUS
-  `usability` (k = 6), 74.24–74.42. Until the audit (2026-11-15) the
+  `usability` (k = 6), 74.24–74.42. Until 2026-11-15 Running into Traffic's
+  total was scored on 0–100 (3.89 instead of 18.52): its subscales run 0–21,
+  which fits no coding the registry knew (37.98–38.03). Until the audit (2026-11-15) the
   specifications with LLM mappings added SenseCobot's EEG features and its
   undocumented `NASA_3` as a 14th TLX total (35.46–38.03). Until Curved Dragging's end-point
   columns were locked (2026-11-14) the range was 32.95–38.69 (k = 11–14):
@@ -574,7 +579,7 @@ effect:
   items `Enjoyment_fun` and `Enjoyment_entertaining` as mental demand
   (28.9% and 5.0% of the all-mappings pool's weight). Since 2026-11-14
   every column of the two studies without a schema DV is locked, and the
-  all-mappings mental-demand pool is the LLM-excluded one (k = 19, 8.14).
+  all-mappings mental-demand pool is the LLM-excluded one (k = 19, 8.13).
   The audit of 2026-11-15 found 344 of the 378 LLM-mapped columns still
   pooled not to have the right DV (`analyses/llm_mapping_audit/`).
 - **Fragility that was a data error:** `performance` ranged from 8.73 to
@@ -651,8 +656,9 @@ for the 39 development studies (2026-11-05); the 23-study values of
   41% before).
 - **Can the LLM replace curation? No.** With the LLM's leave-alias-out
   answers in place of the curated mappings, 67 of 314 curated DV columns
-  kept their DV (783 of 1,114 since the audit, 720 of them eHMI-for-All's
-  total time in its log files). Within persons the replay recovers 10 of
+  kept their DV (999 of 1,330 since the fixes of 2026-11-15, 720 of them
+  eHMI-for-All's total time and 216 osf_cwd6h's perceived risk in their log
+  files). Within persons the replay recovers 10 of
   the 25 curated findings (13 of 16 before the audit added curated
   findings), but the shared schema alone recovers 14, because the added
   TLX studies name their subscales plainly; between persons it recovers

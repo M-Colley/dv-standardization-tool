@@ -26,14 +26,14 @@ captions is computed from the run artifacts.
 | Columns mapped | 26,217 / 27,886 (94%) | `run_summary.json` |
 | LLM-deduced aliases accepted / rejected by the plausibility check | 17 / 234 (all 17 set aside by a curated column of their DV) | `llm_deductions.json`, `llm_rejected_suggestions.json` |
 | Canonical DVs surfaced | 106 | `dv_presence_matrix.csv` |
-| Datasets with ≥ 1 canonical DV | 38 of 39 (osf_cwd6h's only DVs were LLM-mapped demographic items) | `dv_presence_matrix.csv` |
+| Datasets with ≥ 1 canonical DV | 39 of 39 (osf_cwd6h's perceived risk since the second run of 2026-11-15; 38 after the audit's first run, when its only DVs had been LLM-mapped demographic items) | `dv_presence_matrix.csv` |
 | Meta-analyzable DVs (k ≥ 2): all mappings / without LLM-mapped columns | 62 / 62 (no LLM-mapped column is pooled since the audit) | `meta_analysis_summary*.csv` |
-| DVs pooled across ≥ 3 studies: all / without LLM-mapped columns | 48 / 48 | `meta_analysis_summary*.csv` |
+| DVs pooled across ≥ 3 studies: all / without LLM-mapped columns | 49 / 49 | `meta_analysis_summary*.csv` |
 | **Mean pairwise DV overlap** | **Jaccard = 0.086** | `dv_overlap_details.csv` |
 | Most similar pairs | Handsize ↔ road bumps (1.0; both report only task completion time and touch offset); TLX formats, WoZ adaptation and concurrent speech (1.0 each pair; only the NASA-TLX) | `dv_overlap_details.csv` |
-| **NASA-TLX Mental Demand, without LLM-mapped columns (Fig. 4; k = 19)** | 8.14; Wald [6.40, 9.87]; HKSJ [6.83, 9.45]; I² = 99.7%, τ² = 14.6 | `meta_analysis_summary_llm_excluded.csv` |
-| NASA-TLX Mental Demand, all mappings (k = 19; the same pool) | 8.14; Wald [6.40, 9.87]; HKSJ [6.83, 9.45] | `meta_analysis_summary.csv` |
-| Multiverse range of the Mental Demand estimate (32 specifications) | 8.14–17.48 (harmonized scales: 8.14–8.16) | `output_multiverse/multiverse_summary.csv` |
+| **NASA-TLX Mental Demand, without LLM-mapped columns (Fig. 4; k = 19)** | 8.13; Wald [6.39, 9.86]; HKSJ [6.80, 9.45]; I² = 99.7%, τ² = 14.6 | `meta_analysis_summary_llm_excluded.csv` |
+| NASA-TLX Mental Demand, all mappings (k = 19; the same pool) | 8.13; Wald [6.39, 9.86]; HKSJ [6.80, 9.45] | `meta_analysis_summary.csv` |
+| Multiverse range of the Mental Demand estimate (32 specifications) | 8.12–17.47 (harmonized scales: 8.12–8.15) | `output_multiverse/multiverse_summary.csv` |
 | Condition contrast: eHMI vs. none on Mental Demand (2 studies) | −0.54 SD; Wald [−0.73, −0.35]; HKSJ [−1.91, 0.84] | `contrast_meta_analysis.csv` |
 | Condition contrast: higher vs. lowest task demand on the NASA-TLX total (3 studies) | +0.97 SD; Wald [0.41, 1.53]; HKSJ [−0.10, 2.03]; I² = 88% | `contrast_meta_analysis.csv` |
 | Causal DAG (DirectLiNGAM) | fit on 2,600 complete-case rows, **all from FACT-AV** (a within-study DAG; Running into Traffic's 270 rows until 2026-11-15) | `analysis_results.json` (`studies_used`) |
@@ -43,7 +43,7 @@ captions is computed from the run artifacts.
 - **`fig0_teaser`** — 2×2 overview combining (a)–(d) for the paper's first page.
 - **`fig1_pipeline`** — *From an open catalog to comparable evidence.* Corpus
   attrition through the pipeline: 39 sources, 106 canonical DVs, 62 poolable
-  DVs, of which 48 are pooled across ≥ 3 studies.
+  DVs, of which 49 are pooled across ≥ 3 studies.
 - **`fig2_presence_matrix`** — *Dependent-variable coverage across 39 open HCI
   datasets.* Cells mark a canonical DV present in a dataset, colored by
   thematic cluster. Marginals show per-DV study count and per-dataset DV
@@ -76,7 +76,7 @@ captions is computed from the run artifacts.
    Since the audit's fixes (2026-11-15) the 17 LLM answers left are all set
    aside beside a curated column of their DV (`llm_columns_set_aside.csv`), so
    the all-mappings tables equal the `*_llm_excluded` ones: 62
-   meta-analyzable DVs, 48 with k ≥ 3. Fig. 1, Fig. 2, Fig. 3 and the PCA
+   meta-analyzable DVs, 49 with k ≥ 3. Fig. 1, Fig. 2, Fig. 3 and the PCA
    composite use all mappings, which now means the same columns. Fig. 4 is
    drawn from the LLM-excluded pool since 2026-11-14. Its all-mappings pool
    had two LLM rows until they were found to be other questionnaires and
@@ -84,13 +84,17 @@ captions is computed from the run artifacts.
    (VRNQ game-mechanics items, 28.9% of the weight) and Gaze Platformer's
    `Enjoyment_fun` and `Enjoyment_entertaining` (PXI enjoyment items, 5.0%);
    the pool went from k = 21, 7.73 [6.41, 9.05] to k = 19, 8.14 [6.83, 9.45]
-   (HKSJ). Until 2026-11-14 SenseCobot's EEG beta/alpha ratios, LLM-mapped to mental
+   (HKSJ), and to 8.13 [6.80, 9.45] when Running into Traffic's 0–21 NASA-TLX
+   was put on 0–20 (2026-11-15). Until 2026-11-14 SenseCobot's EEG beta/alpha ratios, LLM-mapped to mental
    demand, were pooled together with its NASA-TLX ratings (study mean 0.39 of
    20, 17.5% of the weight); its row is now the rating (6.98, 0.3%).
 2. **Observation-level n.** Meta-analysis weights use row counts, not
    participants, so large row-level exports (TLX formats with 3,888 rows,
    FACT-AV with 2,600) weigh heavily. The participant-level alternative is one axis of the multiverse
-   (`analyses/output_multiverse/`).
+   (`analyses/output_multiverse/`). Since 2026-11-15 osf_cwd6h's perceived risk
+   adds 1,811,262 samples of 27 participants; in its random-effects pool (τ² = 76)
+   the three studies still weigh about the same, but the PCA composite, which
+   weights rows, now has it as its first component (82.9% of the variance).
 3. **Scale harmonization decides many estimates.** Six of the added studies
    record the NASA-TLX on 0–100. Pooled on their raw scales the subscales
    move from 6–8 to 13–23 on the schema's 0–20, and `perceived_safety` from 1.38

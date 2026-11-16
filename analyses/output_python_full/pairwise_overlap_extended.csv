@@ -22,7 +22,7 @@ study_a,study_b,jaccard,sorensen_dice,overlap_coefficient
 3d_display_comp_vehicle,music_tempo_taskload_2022,0.041666666666666664,0.08,0.09090909090909091
 3d_display_comp_vehicle,myocontrol_intent_2025,0.045454545454545456,0.08695652173913043,0.1111111111111111
 3d_display_comp_vehicle,nl2tap_filter_2026,0.02857142857142857,0.05555555555555555,0.07142857142857142
-3d_display_comp_vehicle,osf_cwd6h,0.0,0.0,
+3d_display_comp_vehicle,osf_cwd6h,0.0,0.0,0.0
 3d_display_comp_vehicle,pairsonic_cscw24,0.0,0.0,0.0
 3d_display_comp_vehicle,perceived_risk_merging_2022,0.0,0.0,0.0
 3d_display_comp_vehicle,psych_conflict_handling,0.11538461538461539,0.20689655172413793,0.21428571428571427
@@ -59,7 +59,7 @@ ar_pedestrian_online_2023,longitudinal_usa_germany_ehmi,0.0,0.0,0.0
 ar_pedestrian_online_2023,music_tempo_taskload_2022,0.0,0.0,0.0
 ar_pedestrian_online_2023,myocontrol_intent_2025,0.0,0.0,0.0
 ar_pedestrian_online_2023,nl2tap_filter_2026,0.0,0.0,0.0
-ar_pedestrian_online_2023,osf_cwd6h,0.0,0.0,
+ar_pedestrian_online_2023,osf_cwd6h,0.0,0.0,0.0
 ar_pedestrian_online_2023,pairsonic_cscw24,0.0,0.0,0.0
 ar_pedestrian_online_2023,perceived_risk_merging_2022,0.0,0.0,0.0
 ar_pedestrian_online_2023,psych_conflict_handling,0.0,0.0,0.0
@@ -95,7 +95,7 @@ artv_ornaments_2025,longitudinal_usa_germany_ehmi,0.18181818181818182,0.30769230
 artv_ornaments_2025,music_tempo_taskload_2022,0.0,0.0,0.0
 artv_ornaments_2025,myocontrol_intent_2025,0.0,0.0,0.0
 artv_ornaments_2025,nl2tap_filter_2026,0.0,0.0,0.0
-artv_ornaments_2025,osf_cwd6h,0.0,0.0,
+artv_ornaments_2025,osf_cwd6h,0.0,0.0,0.0
 artv_ornaments_2025,pairsonic_cscw24,0.0,0.0,0.0
 artv_ornaments_2025,perceived_risk_merging_2022,0.0,0.0,0.0
 artv_ornaments_2025,psych_conflict_handling,0.0,0.0,0.0
@@ -130,7 +130,7 @@ av_acceptance_vr_ijhci24,longitudinal_usa_germany_ehmi,0.06666666666666667,0.125
 av_acceptance_vr_ijhci24,music_tempo_taskload_2022,0.0,0.0,0.0
 av_acceptance_vr_ijhci24,myocontrol_intent_2025,0.0,0.0,0.0
 av_acceptance_vr_ijhci24,nl2tap_filter_2026,0.0,0.0,0.0
-av_acceptance_vr_ijhci24,osf_cwd6h,0.0,0.0,
+av_acceptance_vr_ijhci24,osf_cwd6h,0.0,0.0,0.0
 av_acceptance_vr_ijhci24,pairsonic_cscw24,0.0,0.0,0.0
 av_acceptance_vr_ijhci24,perceived_risk_merging_2022,0.0,0.0,0.0
 av_acceptance_vr_ijhci24,psych_conflict_handling,0.0,0.0,0.0
@@ -164,7 +164,7 @@ av_prevalence_ehmi_autoui24,longitudinal_usa_germany_ehmi,0.2,0.3333333333333333
 av_prevalence_ehmi_autoui24,music_tempo_taskload_2022,0.0,0.0,0.0
 av_prevalence_ehmi_autoui24,myocontrol_intent_2025,0.0,0.0,0.0
 av_prevalence_ehmi_autoui24,nl2tap_filter_2026,0.0,0.0,0.0
-av_prevalence_ehmi_autoui24,osf_cwd6h,0.0,0.0,
+av_prevalence_ehmi_autoui24,osf_cwd6h,0.0,0.0,0.0
 av_prevalence_ehmi_autoui24,pairsonic_cscw24,0.0,0.0,0.0
 av_prevalence_ehmi_autoui24,perceived_risk_merging_2022,0.0,0.0,0.0
 av_prevalence_ehmi_autoui24,psych_conflict_handling,0.0,0.0,0.0
@@ -197,7 +197,7 @@ bvi_auditory_hav_autoui26,longitudinal_usa_germany_ehmi,0.6923076923076923,0.818
 bvi_auditory_hav_autoui26,music_tempo_taskload_2022,0.045454545454545456,0.08695652173913043,0.09090909090909091
 bvi_auditory_hav_autoui26,myocontrol_intent_2025,0.05,0.09523809523809523,0.1111111111111111
 bvi_auditory_hav_autoui26,nl2tap_filter_2026,0.030303030303030304,0.058823529411764705,0.08333333333333333
-bvi_auditory_hav_autoui26,osf_cwd6h,0.0,0.0,
+bvi_auditory_hav_autoui26,osf_cwd6h,0.0,0.0,0.0
 bvi_auditory_hav_autoui26,pairsonic_cscw24,0.0,0.0,0.0
 bvi_auditory_hav_autoui26,perceived_risk_merging_2022,0.0,0.0,0.0
 bvi_auditory_hav_autoui26,psych_conflict_handling,0.0,0.0,0.0
@@ -229,7 +229,7 @@ concurrent_speech_2022,longitudinal_usa_germany_ehmi,0.0625,0.11764705882352941,
 concurrent_speech_2022,music_tempo_taskload_2022,0.6363636363636364,0.7777777777777778,1.0
 concurrent_speech_2022,myocontrol_intent_2025,0.7777777777777778,0.875,1.0
 concurrent_speech_2022,nl2tap_filter_2026,0.3181818181818182,0.4827586206896552,1.0
-concurrent_speech_2022,osf_cwd6h,0.0,0.0,
+concurrent_speech_2022,osf_cwd6h,0.0,0.0,0.0
 concurrent_speech_2022,pairsonic_cscw24,0.0,0.0,0.0
 concurrent_speech_2022,perceived_risk_merging_2022,0.0,0.0,0.0
 concurrent_speech_2022,psych_conflict_handling,0.0,0.0,0.0
@@ -260,7 +260,7 @@ curved_dragging_vr_ijhci26,longitudinal_usa_germany_ehmi,0.05263157894736842,0.1
 curved_dragging_vr_ijhci26,music_tempo_taskload_2022,0.5,0.6666666666666666,0.7
 curved_dragging_vr_ijhci26,myocontrol_intent_2025,0.7272727272727273,0.8421052631578947,0.8888888888888888
 curved_dragging_vr_ijhci26,nl2tap_filter_2026,0.3333333333333333,0.5,0.8
-curved_dragging_vr_ijhci26,osf_cwd6h,0.0,0.0,
+curved_dragging_vr_ijhci26,osf_cwd6h,0.0,0.0,0.0
 curved_dragging_vr_ijhci26,pairsonic_cscw24,0.0,0.0,0.0
 curved_dragging_vr_ijhci26,perceived_risk_merging_2022,0.0,0.0,0.0
 curved_dragging_vr_ijhci26,psych_conflict_handling,0.0,0.0,0.0
@@ -290,7 +290,7 @@ driving_style_automated_2021,longitudinal_usa_germany_ehmi,0.0,0.0,0.0
 driving_style_automated_2021,music_tempo_taskload_2022,0.0,0.0,0.0
 driving_style_automated_2021,myocontrol_intent_2025,0.0,0.0,0.0
 driving_style_automated_2021,nl2tap_filter_2026,0.0,0.0,0.0
-driving_style_automated_2021,osf_cwd6h,0.0,0.0,
+driving_style_automated_2021,osf_cwd6h,0.0,0.0,0.0
 driving_style_automated_2021,pairsonic_cscw24,0.0,0.0,0.0
 driving_style_automated_2021,perceived_risk_merging_2022,0.0,0.0,0.0
 driving_style_automated_2021,psych_conflict_handling,0.0,0.0,0.0
@@ -319,7 +319,7 @@ ehmi_car_body_2020,longitudinal_usa_germany_ehmi,0.0,0.0,0.0
 ehmi_car_body_2020,music_tempo_taskload_2022,0.0,0.0,0.0
 ehmi_car_body_2020,myocontrol_intent_2025,0.0,0.0,0.0
 ehmi_car_body_2020,nl2tap_filter_2026,0.0,0.0,0.0
-ehmi_car_body_2020,osf_cwd6h,0.0,0.0,
+ehmi_car_body_2020,osf_cwd6h,0.0,0.0,0.0
 ehmi_car_body_2020,pairsonic_cscw24,0.0,0.0,0.0
 ehmi_car_body_2020,perceived_risk_merging_2022,0.0,0.0,0.0
 ehmi_car_body_2020,psych_conflict_handling,0.0,0.0,0.0
@@ -347,7 +347,7 @@ ehmi_for_all_chi26,longitudinal_usa_germany_ehmi,0.13953488372093023,0.244897959
 ehmi_for_all_chi26,music_tempo_taskload_2022,0.02040816326530612,0.04,0.09090909090909091
 ehmi_for_all_chi26,myocontrol_intent_2025,0.043478260869565216,0.08333333333333333,0.2222222222222222
 ehmi_for_all_chi26,nl2tap_filter_2026,0.2708333333333333,0.4262295081967213,0.5909090909090909
-ehmi_for_all_chi26,osf_cwd6h,0.0,0.0,
+ehmi_for_all_chi26,osf_cwd6h,0.0,0.0,0.0
 ehmi_for_all_chi26,pairsonic_cscw24,0.28205128205128205,0.44,1.0
 ehmi_for_all_chi26,perceived_risk_merging_2022,0.0,0.0,0.0
 ehmi_for_all_chi26,psych_conflict_handling,0.0,0.0,0.0
@@ -374,7 +374,7 @@ ehmi_optimization_chi25,longitudinal_usa_germany_ehmi,0.15384615384615385,0.2666
 ehmi_optimization_chi25,music_tempo_taskload_2022,0.06666666666666667,0.125,0.2
 ehmi_optimization_chi25,myocontrol_intent_2025,0.07692307692307693,0.14285714285714285,0.2
 ehmi_optimization_chi25,nl2tap_filter_2026,0.08,0.14814814814814814,0.4
-ehmi_optimization_chi25,osf_cwd6h,0.0,0.0,
+ehmi_optimization_chi25,osf_cwd6h,0.0,0.0,0.0
 ehmi_optimization_chi25,pairsonic_cscw24,0.0,0.0,0.0
 ehmi_optimization_chi25,perceived_risk_merging_2022,0.125,0.2222222222222222,0.25
 ehmi_optimization_chi25,psych_conflict_handling,0.05263157894736842,0.1,0.2
@@ -400,7 +400,7 @@ ehmi_state_intent_mtap24,longitudinal_usa_germany_ehmi,0.16666666666666666,0.285
 ehmi_state_intent_mtap24,music_tempo_taskload_2022,0.0,0.0,0.0
 ehmi_state_intent_mtap24,myocontrol_intent_2025,0.0,0.0,0.0
 ehmi_state_intent_mtap24,nl2tap_filter_2026,0.04,0.07692307692307693,0.25
-ehmi_state_intent_mtap24,osf_cwd6h,0.0,0.0,
+ehmi_state_intent_mtap24,osf_cwd6h,0.0,0.0,0.0
 ehmi_state_intent_mtap24,pairsonic_cscw24,0.0,0.0,0.0
 ehmi_state_intent_mtap24,perceived_risk_merging_2022,0.14285714285714285,0.25,0.25
 ehmi_state_intent_mtap24,psych_conflict_handling,0.0,0.0,0.0
@@ -425,7 +425,7 @@ ehmi_survey_crowd_2019,longitudinal_usa_germany_ehmi,0.09090909090909091,0.16666
 ehmi_survey_crowd_2019,music_tempo_taskload_2022,0.0,0.0,0.0
 ehmi_survey_crowd_2019,myocontrol_intent_2025,0.0,0.0,0.0
 ehmi_survey_crowd_2019,nl2tap_filter_2026,0.0,0.0,0.0
-ehmi_survey_crowd_2019,osf_cwd6h,0.0,0.0,
+ehmi_survey_crowd_2019,osf_cwd6h,0.0,0.0,0.0
 ehmi_survey_crowd_2019,pairsonic_cscw24,0.0,0.0,0.0
 ehmi_survey_crowd_2019,perceived_risk_merging_2022,0.0,0.0,0.0
 ehmi_survey_crowd_2019,psych_conflict_handling,0.0,0.0,0.0
@@ -449,7 +449,7 @@ fact_av,longitudinal_usa_germany_ehmi,0.3888888888888889,0.56,0.7
 fact_av,music_tempo_taskload_2022,0.04,0.07692307692307693,0.09090909090909091
 fact_av,myocontrol_intent_2025,0.043478260869565216,0.08333333333333333,0.1111111111111111
 fact_av,nl2tap_filter_2026,0.05714285714285714,0.10810810810810811,0.13333333333333333
-fact_av,osf_cwd6h,0.0,0.0,
+fact_av,osf_cwd6h,0.0,0.0,0.0
 fact_av,pairsonic_cscw24,0.0,0.0,0.0
 fact_av,perceived_risk_merging_2022,0.05555555555555555,0.10526315789473684,0.25
 fact_av,psych_conflict_handling,0.1111111111111111,0.2,0.2
@@ -472,7 +472,7 @@ fido2_auth_chi23,longitudinal_usa_germany_ehmi,0.0,0.0,0.0
 fido2_auth_chi23,music_tempo_taskload_2022,0.0,0.0,0.0
 fido2_auth_chi23,myocontrol_intent_2025,0.0,0.0,0.0
 fido2_auth_chi23,nl2tap_filter_2026,0.3333333333333333,0.5,0.5
-fido2_auth_chi23,osf_cwd6h,0.0,0.0,
+fido2_auth_chi23,osf_cwd6h,0.0,0.0,0.0
 fido2_auth_chi23,pairsonic_cscw24,0.5,0.6666666666666666,1.0
 fido2_auth_chi23,perceived_risk_merging_2022,0.0,0.0,0.0
 fido2_auth_chi23,psych_conflict_handling,0.0,0.0,0.0
@@ -494,7 +494,7 @@ fov_snapturn_tvcg24,longitudinal_usa_germany_ehmi,0.0,0.0,0.0
 fov_snapturn_tvcg24,music_tempo_taskload_2022,0.0,0.0,0.0
 fov_snapturn_tvcg24,myocontrol_intent_2025,0.0,0.0,0.0
 fov_snapturn_tvcg24,nl2tap_filter_2026,0.0,0.0,0.0
-fov_snapturn_tvcg24,osf_cwd6h,0.0,0.0,
+fov_snapturn_tvcg24,osf_cwd6h,0.0,0.0,0.0
 fov_snapturn_tvcg24,pairsonic_cscw24,0.0,0.0,0.0
 fov_snapturn_tvcg24,perceived_risk_merging_2022,0.0,0.0,0.0
 fov_snapturn_tvcg24,psych_conflict_handling,0.0,0.0,0.0
@@ -515,7 +515,7 @@ gaze_platformer_chi24,longitudinal_usa_germany_ehmi,0.0,0.0,0.0
 gaze_platformer_chi24,music_tempo_taskload_2022,0.0,0.0,0.0
 gaze_platformer_chi24,myocontrol_intent_2025,0.0,0.0,0.0
 gaze_platformer_chi24,nl2tap_filter_2026,0.0,0.0,0.0
-gaze_platformer_chi24,osf_cwd6h,0.0,0.0,
+gaze_platformer_chi24,osf_cwd6h,0.0,0.0,0.0
 gaze_platformer_chi24,pairsonic_cscw24,0.0,0.0,0.0
 gaze_platformer_chi24,perceived_risk_merging_2022,0.0,0.0,0.0
 gaze_platformer_chi24,psych_conflict_handling,0.0,0.0,0.0
@@ -535,7 +535,7 @@ handsize_touch_mobilehci19,longitudinal_usa_germany_ehmi,0.0,0.0,0.0
 handsize_touch_mobilehci19,music_tempo_taskload_2022,0.0,0.0,0.0
 handsize_touch_mobilehci19,myocontrol_intent_2025,0.1,0.18181818181818182,0.5
 handsize_touch_mobilehci19,nl2tap_filter_2026,0.043478260869565216,0.08333333333333333,0.5
-handsize_touch_mobilehci19,osf_cwd6h,0.0,0.0,
+handsize_touch_mobilehci19,osf_cwd6h,0.0,0.0,0.0
 handsize_touch_mobilehci19,pairsonic_cscw24,0.0,0.0,0.0
 handsize_touch_mobilehci19,perceived_risk_merging_2022,0.0,0.0,0.0
 handsize_touch_mobilehci19,psych_conflict_handling,0.0,0.0,0.0
@@ -554,7 +554,7 @@ incar_vr_gain_chi24,longitudinal_usa_germany_ehmi,0.09090909090909091,0.16666666
 incar_vr_gain_chi24,music_tempo_taskload_2022,0.3888888888888889,0.56,0.6363636363636364
 incar_vr_gain_chi24,myocontrol_intent_2025,0.5333333333333333,0.6956521739130435,0.8888888888888888
 incar_vr_gain_chi24,nl2tap_filter_2026,0.2857142857142857,0.4444444444444444,0.5714285714285714
-incar_vr_gain_chi24,osf_cwd6h,0.0,0.0,
+incar_vr_gain_chi24,osf_cwd6h,0.0,0.0,0.0
 incar_vr_gain_chi24,pairsonic_cscw24,0.0,0.0,0.0
 incar_vr_gain_chi24,perceived_risk_merging_2022,0.0,0.0,0.0
 incar_vr_gain_chi24,psych_conflict_handling,0.0,0.0,0.0
@@ -572,7 +572,7 @@ incar_vr_gain_chi24,woz_adaptation_ijhcs24,0.5,0.6666666666666666,1.0
 longitudinal_usa_germany_ehmi,music_tempo_taskload_2022,0.05,0.09523809523809523,0.1
 longitudinal_usa_germany_ehmi,myocontrol_intent_2025,0.05555555555555555,0.10526315789473684,0.1111111111111111
 longitudinal_usa_germany_ehmi,nl2tap_filter_2026,0.03225806451612903,0.0625,0.1
-longitudinal_usa_germany_ehmi,osf_cwd6h,0.0,0.0,
+longitudinal_usa_germany_ehmi,osf_cwd6h,0.0,0.0,0.0
 longitudinal_usa_germany_ehmi,pairsonic_cscw24,0.0,0.0,0.0
 longitudinal_usa_germany_ehmi,perceived_risk_merging_2022,0.0,0.0,0.0
 longitudinal_usa_germany_ehmi,psych_conflict_handling,0.0,0.0,0.0
@@ -589,7 +589,7 @@ longitudinal_usa_germany_ehmi,visual_fidelity_curves_2015,0.058823529411764705,0
 longitudinal_usa_germany_ehmi,woz_adaptation_ijhcs24,0.0625,0.11764705882352941,0.14285714285714285
 music_tempo_taskload_2022,myocontrol_intent_2025,0.5384615384615384,0.7,0.7777777777777778
 music_tempo_taskload_2022,nl2tap_filter_2026,0.2692307692307692,0.42424242424242425,0.6363636363636364
-music_tempo_taskload_2022,osf_cwd6h,0.0,0.0,
+music_tempo_taskload_2022,osf_cwd6h,0.0,0.0,0.0
 music_tempo_taskload_2022,pairsonic_cscw24,0.0,0.0,0.0
 music_tempo_taskload_2022,perceived_risk_merging_2022,0.0,0.0,0.0
 music_tempo_taskload_2022,psych_conflict_handling,0.0,0.0,0.0
@@ -605,7 +605,7 @@ music_tempo_taskload_2022,tlx_formats_uas_2023,0.6363636363636364,0.777777777777
 music_tempo_taskload_2022,visual_fidelity_curves_2015,0.5833333333333334,0.7368421052631579,0.875
 music_tempo_taskload_2022,woz_adaptation_ijhcs24,0.6363636363636364,0.7777777777777778,1.0
 myocontrol_intent_2025,nl2tap_filter_2026,0.4090909090909091,0.5806451612903226,1.0
-myocontrol_intent_2025,osf_cwd6h,0.0,0.0,
+myocontrol_intent_2025,osf_cwd6h,0.0,0.0,0.0
 myocontrol_intent_2025,pairsonic_cscw24,0.0,0.0,0.0
 myocontrol_intent_2025,perceived_risk_merging_2022,0.0,0.0,0.0
 myocontrol_intent_2025,psych_conflict_handling,0.0,0.0,0.0
@@ -620,7 +620,7 @@ myocontrol_intent_2025,tactile_sa_display_2022,0.09090909090909091,0.16666666666
 myocontrol_intent_2025,tlx_formats_uas_2023,0.7777777777777778,0.875,1.0
 myocontrol_intent_2025,visual_fidelity_curves_2015,0.7,0.8235294117647058,0.875
 myocontrol_intent_2025,woz_adaptation_ijhcs24,0.7777777777777778,0.875,1.0
-nl2tap_filter_2026,osf_cwd6h,0.0,0.0,
+nl2tap_filter_2026,osf_cwd6h,0.0,0.0,0.0
 nl2tap_filter_2026,pairsonic_cscw24,0.5,0.6666666666666666,1.0
 nl2tap_filter_2026,perceived_risk_merging_2022,0.04,0.07692307692307693,0.25
 nl2tap_filter_2026,psych_conflict_handling,0.0,0.0,0.0
@@ -635,20 +635,20 @@ nl2tap_filter_2026,tactile_sa_display_2022,0.041666666666666664,0.08,0.333333333
 nl2tap_filter_2026,tlx_formats_uas_2023,0.3181818181818182,0.4827586206896552,1.0
 nl2tap_filter_2026,visual_fidelity_curves_2015,0.30434782608695654,0.4666666666666667,0.875
 nl2tap_filter_2026,woz_adaptation_ijhcs24,0.3181818181818182,0.4827586206896552,1.0
-osf_cwd6h,pairsonic_cscw24,0.0,0.0,
-osf_cwd6h,perceived_risk_merging_2022,0.0,0.0,
-osf_cwd6h,psych_conflict_handling,0.0,0.0,
-osf_cwd6h,reflexion_mapping_2025,0.0,0.0,
-osf_cwd6h,road_bumps_touch,0.0,0.0,
-osf_cwd6h,roads_chi25,0.0,0.0,
-osf_cwd6h,running_into_traffic_chi26,0.0,0.0,
-osf_cwd6h,scrolling_in_the_deep_chi25,0.0,0.0,
-osf_cwd6h,sensecobot_fusion_2024,0.0,0.0,
-osf_cwd6h,short_videos_memory_2023,0.0,0.0,
-osf_cwd6h,tactile_sa_display_2022,0.0,0.0,
-osf_cwd6h,tlx_formats_uas_2023,0.0,0.0,
-osf_cwd6h,visual_fidelity_curves_2015,0.0,0.0,
-osf_cwd6h,woz_adaptation_ijhcs24,0.0,0.0,
+osf_cwd6h,pairsonic_cscw24,0.0,0.0,0.0
+osf_cwd6h,perceived_risk_merging_2022,0.25,0.4,1.0
+osf_cwd6h,psych_conflict_handling,0.0,0.0,0.0
+osf_cwd6h,reflexion_mapping_2025,0.0,0.0,0.0
+osf_cwd6h,road_bumps_touch,0.0,0.0,0.0
+osf_cwd6h,roads_chi25,0.0,0.0,0.0
+osf_cwd6h,running_into_traffic_chi26,0.07692307692307693,0.14285714285714285,1.0
+osf_cwd6h,scrolling_in_the_deep_chi25,0.0,0.0,0.0
+osf_cwd6h,sensecobot_fusion_2024,0.0,0.0,0.0
+osf_cwd6h,short_videos_memory_2023,0.0,0.0,0.0
+osf_cwd6h,tactile_sa_display_2022,0.0,0.0,0.0
+osf_cwd6h,tlx_formats_uas_2023,0.0,0.0,0.0
+osf_cwd6h,visual_fidelity_curves_2015,0.0,0.0,0.0
+osf_cwd6h,woz_adaptation_ijhcs24,0.0,0.0,0.0
 pairsonic_cscw24,perceived_risk_merging_2022,0.0,0.0,0.0
 pairsonic_cscw24,psych_conflict_handling,0.0,0.0,0.0
 pairsonic_cscw24,reflexion_mapping_2025,0.6111111111111112,0.7586206896551724,1.0

@@ -58,7 +58,8 @@ log_IMG: meta_derived_log_initial_merging_gap
 inverse_IMG: meta_derived_inverse_initial_merging_gap
 
 # --- Scale ---------------------------------------------------------------------------
-# PR is a verbal rating on 0-10 (notes above); the schema's perceived_risk is a VAS on 1-100,
+# PR is the verbal answer to "How dangerous do you think was the previous event?" on 0-10
+# (paper sec. 2.2.4 and 3.1.2; "0 to 10 for no to very high risk" in He's thesis, TU Delft 2024); the schema's perceived_risk is a VAS on 1-100,
 # into which 0-10 fits, so the analysis would pool it unconverted. Converted linearly
 # (0 -> 1, 10 -> 100; added 2026-11-15). TRU (0-10) already falls outside trust_rating's
 # 1-5 and is rescaled by the analysis.

@@ -135,10 +135,10 @@
       "analyses\\output_llm_evaluation\\added_2026_11_05\\llm_mapping_evaluation_items.csv"
     ],
     "columns": {
-      "curated_dv_columns": 1114,
-      "answered": 989,
+      "curated_dv_columns": 1330,
+      "answered": 1205,
       "unanswered_or_rejected": 125,
-      "same_dv_as_curated": 783,
+      "same_dv_as_curated": 999,
       "curated_non_dv_mapped_by_llm": 1438
     },
     "conclusions_vs_curated": [
@@ -151,7 +151,7 @@
         "sign_flipped": 0,
         "unsupported": 0,
         "pairs_pooled_in_both": 24,
-        "median_abs_difference_r": 0.03939164394418909
+        "median_abs_difference_r": 0.03939164394418915
       },
       {
         "level": "automatic",
@@ -162,7 +162,7 @@
         "sign_flipped": 0,
         "unsupported": 0,
         "pairs_pooled_in_both": 22,
-        "median_abs_difference_r": 0.024220962785306166
+        "median_abs_difference_r": 0.02422096278530625
       },
       {
         "level": "llm_replay",
@@ -184,7 +184,7 @@
         "sign_flipped": 0,
         "unsupported": 1,
         "pairs_pooled_in_both": 28,
-        "median_abs_difference_r": 0.03849971354849757
+        "median_abs_difference_r": 0.038499713548497544
       }
     ]
   }

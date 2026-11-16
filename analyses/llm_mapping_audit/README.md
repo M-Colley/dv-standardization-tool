@@ -164,6 +164,12 @@ LLM-excluded one and the relations' `llm` level equals the curated one. What mov
 pools gained by the newly curated columns, all-mappings pools that disappeared, relations,
 benchmark) is in the changelog entry of 2026-11-15.
 
+The committed outputs come from a second run the same day (`data/processed/audit39b`), after
+curated columns outside the audit were fixed: osf_cwd6h's perceived risk, which a shared
+alias overrode, and seven columns on scales narrower than their DV's (SART items on 1-7,
+valence on a 5-figure SAM, two perceived-risk ratings, a 0-21 NASA-TLX). The inventory
+again found no pooled LLM-mapped column, and the LLM's answers repeat.
+
 ## Not in the audit
 
 - Columns the all-mappings analysis set aside (`analyses/output_python_full/llm_columns_set_aside.csv`)
@@ -183,3 +189,8 @@ benchmark) is in the changelog entry of 2026-11-15.
     `understanding_rating`. Its questionnaire items 2 and 4 correlate positively with items 1
     and 3, so whether they were reverse-keyed in this study is open (the paper names two
     inverse items, the analysis script reverses items 2 and 4).
+  - Fixed after the audit (changelog, second entry of 2026-11-15): osf_cwd6h's `ArduinoData1`
+    never reached `perceived_risk` (the shared sensor alias won), and its drive logs had no
+    participant ids; SART items (1-7), Scrolling in the Deep's valence (1-5), perceived risk
+    merging's `PR` (0-10) and Running into Traffic's `risk` (1-5) and NASA-TLX (0-21) were
+    pooled as if on their DV's wider scale.
