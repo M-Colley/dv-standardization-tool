@@ -1,0 +1,1434 @@
+half,source_id,dataset_id,alias,n_candidates,n_zero,tie_at_cut,tie_group
+first_23,3d_display_comp_vehicle,3d-comp-vehicle-main.xlsx,TLX1,8,0,False,no tie
+first_23,av_acceptance_vr_ijhci24,Questionnaire_data/raw_data/EEDA_Qdata.csv,Driving experience,8,0,False,no tie
+first_23,av_acceptance_vr_ijhci24,Questionnaire_data/raw_data/EEDA_Qdata.csv,Driving licence,8,0,False,no tie
+first_23,av_acceptance_vr_ijhci24,Questionnaire_data/raw_data/EEDA_Qdata.csv,age,8,0,False,no tie
+first_23,av_acceptance_vr_ijhci24,Questionnaire_data/raw_data/EEDA_Qdata.csv,date,8,0,False,no tie
+first_23,av_acceptance_vr_ijhci24,Questionnaire_data/raw_data/EEDA_Qdata.csv,gender,8,0,False,no tie
+first_23,av_acceptance_vr_ijhci24,Questionnaire_data/raw_data/EEDA_Qdata.csv,uid,8,7,True,zero-score candidates
+first_23,av_acceptance_vr_ijhci24,Questionnaire_data/raw_data/EEDA_Qdata.csv,Behavioral Intention 1,8,0,False,no tie
+first_23,av_acceptance_vr_ijhci24,Questionnaire_data/raw_data/EEDA_Qdata.csv,Behavioral Intention 2,8,0,False,no tie
+first_23,av_acceptance_vr_ijhci24,Questionnaire_data/raw_data/EEDA_Qdata.csv,Effort Expectancy 1,8,0,False,no tie
+first_23,av_acceptance_vr_ijhci24,Questionnaire_data/raw_data/EEDA_Qdata.csv,Effort Expectancy 2,8,0,False,no tie
+first_23,av_acceptance_vr_ijhci24,Questionnaire_data/raw_data/EEDA_Qdata.csv,Effort Expectancy 3,8,0,False,no tie
+first_23,av_acceptance_vr_ijhci24,Questionnaire_data/raw_data/EEDA_Qdata.csv,Facilitating Conditions 1,8,0,False,no tie
+first_23,av_acceptance_vr_ijhci24,Questionnaire_data/raw_data/EEDA_Qdata.csv,Facilitating Conditions 2,8,0,False,no tie
+first_23,av_acceptance_vr_ijhci24,Questionnaire_data/raw_data/EEDA_Qdata.csv,Facilitating Conditions 3,8,0,False,no tie
+first_23,av_acceptance_vr_ijhci24,Questionnaire_data/raw_data/EEDA_Qdata.csv,Perceived safety 1,8,0,False,no tie
+first_23,av_acceptance_vr_ijhci24,Questionnaire_data/raw_data/EEDA_Qdata.csv,Perceived safety 2,8,0,False,no tie
+first_23,av_acceptance_vr_ijhci24,Questionnaire_data/raw_data/EEDA_Qdata.csv,Perceived safety 3,8,0,False,no tie
+first_23,av_acceptance_vr_ijhci24,Questionnaire_data/raw_data/EEDA_Qdata.csv,Performance Expectancy 1,8,0,False,no tie
+first_23,av_acceptance_vr_ijhci24,Questionnaire_data/raw_data/EEDA_Qdata.csv,Performance Expectancy 2,8,0,False,no tie
+first_23,av_acceptance_vr_ijhci24,Questionnaire_data/raw_data/EEDA_Qdata.csv,Performance Expectancy 3,8,0,False,no tie
+first_23,av_acceptance_vr_ijhci24,Questionnaire_data/raw_data/EEDA_Qdata.csv,Social Influence 1,8,0,False,no tie
+first_23,av_acceptance_vr_ijhci24,Questionnaire_data/raw_data/EEDA_Qdata.csv,Social Influence 2,8,0,False,no tie
+first_23,av_acceptance_vr_ijhci24,Questionnaire_data/raw_data/EEDA_Qdata.csv,Social Influence 3,8,0,False,no tie
+first_23,av_prevalence_ehmi_autoui24,data.csv,AV_Prevalence,8,0,False,no tie
+first_23,av_prevalence_ehmi_autoui24,data.csv,Age,8,0,False,no tie
+first_23,av_prevalence_ehmi_autoui24,data.csv,Gender,8,0,False,no tie
+first_23,av_prevalence_ehmi_autoui24,data.csv,Perceive_FBL_Well,8,0,False,no tie
+first_23,av_prevalence_ehmi_autoui24,data.csv,Perceive_Mode_Well,8,0,False,no tie
+first_23,av_prevalence_ehmi_autoui24,data.csv,Percieve_Vehicle_Well,8,0,False,no tie
+first_23,av_prevalence_ehmi_autoui24,data.csv,Target_Vehicle_Behavior,8,0,False,no tie
+first_23,av_prevalence_ehmi_autoui24,data.csv,Target_Vehicle_Type,8,0,False,no tie
+first_23,av_prevalence_ehmi_autoui24,data.csv,Task_Category,8,0,False,no tie
+first_23,av_prevalence_ehmi_autoui24,data.csv,Trial_Id,8,0,False,no tie
+first_23,av_prevalence_ehmi_autoui24,data.csv,Trial_Nr,8,0,False,no tie
+first_23,bvi_auditory_hav_autoui26,bvi-auditory-hav.xlsx,VIP,8,3,True,zero-score candidates
+first_23,bvi_auditory_hav_autoui26,bvi-auditory-hav.xlsx,SART1,8,0,False,no tie
+first_23,bvi_auditory_hav_autoui26,bvi-auditory-hav.xlsx,SART10,8,0,False,no tie
+first_23,bvi_auditory_hav_autoui26,bvi-auditory-hav.xlsx,SART2,8,0,False,no tie
+first_23,bvi_auditory_hav_autoui26,bvi-auditory-hav.xlsx,SART3,8,0,False,no tie
+first_23,bvi_auditory_hav_autoui26,bvi-auditory-hav.xlsx,SART4,8,0,False,no tie
+first_23,bvi_auditory_hav_autoui26,bvi-auditory-hav.xlsx,SART5,8,0,False,no tie
+first_23,bvi_auditory_hav_autoui26,bvi-auditory-hav.xlsx,SART6,8,0,False,no tie
+first_23,bvi_auditory_hav_autoui26,bvi-auditory-hav.xlsx,SART7,8,0,False,no tie
+first_23,bvi_auditory_hav_autoui26,bvi-auditory-hav.xlsx,SART8,8,0,False,no tie
+first_23,bvi_auditory_hav_autoui26,bvi-auditory-hav.xlsx,SART9,8,0,False,no tie
+first_23,bvi_auditory_hav_autoui26,bvi-auditory-hav.xlsx,perceivedSafety1,8,0,False,no tie
+first_23,bvi_auditory_hav_autoui26,bvi-auditory-hav.xlsx,perceivedSafety2,8,0,False,no tie
+first_23,bvi_auditory_hav_autoui26,bvi-auditory-hav.xlsx,perceivedSafety3,8,0,False,no tie
+first_23,bvi_auditory_hav_autoui26,bvi-auditory-hav.xlsx,perceivedSafety4,8,0,False,no tie
+first_23,bvi_auditory_hav_autoui26,bvi-auditory-hav.xlsx,tlx_mental,8,0,False,no tie
+first_23,curved_dragging_vr_ijhci26,experiment_1_curvilinear_processed_condition_data.xlsx,A,8,0,False,no tie
+first_23,curved_dragging_vr_ijhci26,experiment_1_curvilinear_processed_condition_data.xlsx,D,8,6,True,zero-score candidates
+first_23,curved_dragging_vr_ijhci26,experiment_1_curvilinear_processed_condition_data.xlsx,ER,8,0,False,no tie
+first_23,curved_dragging_vr_ijhci26,experiment_2_angular_processed_condition_data.xlsx,LogAplusW,8,0,True,tie at the cut
+first_23,curved_dragging_vr_ijhci26,experiment_2_angular_processed_condition_data.xlsx,LogW,8,0,False,no tie
+first_23,curved_dragging_vr_ijhci26,experiment_1_curvilinear_processed_condition_data.xlsx,R,8,8,True,zero-score candidates
+first_23,curved_dragging_vr_ijhci26,experiment_2_angular_processed_condition_data.xlsx,S,8,4,True,zero-score candidates
+first_23,curved_dragging_vr_ijhci26,experiment_1_curvilinear_processed_condition_data.xlsx,W,8,8,True,zero-score candidates
+first_23,curved_dragging_vr_ijhci26,experiment_2_angular_processed_condition_data.xlsx,We,8,3,True,zero-score candidates
+first_23,curved_dragging_vr_ijhci26,experiment_2_angular_processed_condition_data.xlsx,avg_Ae,8,4,True,zero-score candidates
+first_23,curved_dragging_vr_ijhci26,experiment_2_angular_processed_condition_data.xlsx,avg_abs_dx,8,4,True,zero-score candidates
+first_23,curved_dragging_vr_ijhci26,subjective_workload_processed_condition_data.xlsx,curvature,8,0,False,no tie
+first_23,curved_dragging_vr_ijhci26,subjective_workload_processed_condition_data.xlsx,curvature_code,8,0,False,no tie
+first_23,curved_dragging_vr_ijhci26,subjective_workload_processed_condition_data.xlsx,depth_m,8,0,False,no tie
+first_23,curved_dragging_vr_ijhci26,experiment_2_angular_processed_condition_data.xlsx,dx,8,8,True,zero-score candidates
+first_23,curved_dragging_vr_ijhci26,experiment_2_angular_processed_condition_data.xlsx,error_rate,8,0,False,no tie
+first_23,curved_dragging_vr_ijhci26,subjective_workload_processed_condition_data.xlsx,experiment,8,0,False,no tie
+first_23,curved_dragging_vr_ijhci26,subjective_workload_processed_condition_data.xlsx,measurement_condition,8,0,False,no tie
+first_23,curved_dragging_vr_ijhci26,experiment_1_curvilinear_processed_condition_data.xlsx,subject,8,0,False,no tie
+first_23,curved_dragging_vr_ijhci26,experiment_1_curvilinear_processed_condition_data.xlsx,ER_pct,8,0,False,no tie
+first_23,curved_dragging_vr_ijhci26,subjective_workload_processed_condition_data.xlsx,Effort,8,0,False,no tie
+first_23,curved_dragging_vr_ijhci26,subjective_workload_processed_condition_data.xlsx,Frustration,8,0,False,no tie
+first_23,curved_dragging_vr_ijhci26,subjective_workload_processed_condition_data.xlsx,Mental,8,0,False,no tie
+first_23,curved_dragging_vr_ijhci26,subjective_workload_processed_condition_data.xlsx,Performance,8,0,False,no tie
+first_23,curved_dragging_vr_ijhci26,subjective_workload_processed_condition_data.xlsx,Physical,8,0,False,no tie
+first_23,curved_dragging_vr_ijhci26,experiment_1_curvilinear_processed_condition_data.xlsx,TP,8,8,True,zero-score candidates
+first_23,curved_dragging_vr_ijhci26,subjective_workload_processed_condition_data.xlsx,Temporal,8,0,False,no tie
+first_23,curved_dragging_vr_ijhci26,experiment_2_angular_processed_condition_data.xlsx,error_rate_pct,8,0,False,no tie
+first_23,ehmi_for_all_chi26,results-survey-main.xlsx,PerSafe01,8,0,False,no tie
+first_23,ehmi_for_all_chi26,results-survey-main.xlsx,PerSafe02,8,0,False,no tie
+first_23,ehmi_for_all_chi26,results-survey-main.xlsx,PerSafe03,8,0,False,no tie
+first_23,ehmi_for_all_chi26,results-survey-main.xlsx,PerSafe04,8,0,False,no tie
+first_23,ehmi_for_all_chi26,results-survey-main.xlsx,SUS1,8,0,True,tie at the cut
+first_23,ehmi_for_all_chi26,results-survey-main.xlsx,SUS10,8,0,False,no tie
+first_23,ehmi_for_all_chi26,results-survey-main.xlsx,SUS2,8,0,True,tie at the cut
+first_23,ehmi_for_all_chi26,results-survey-main.xlsx,SUS3,8,0,True,tie at the cut
+first_23,ehmi_for_all_chi26,results-survey-main.xlsx,SUS4,8,0,True,tie at the cut
+first_23,ehmi_for_all_chi26,results-survey-main.xlsx,SUS5,8,0,True,tie at the cut
+first_23,ehmi_for_all_chi26,results-survey-main.xlsx,SUS6,8,0,True,tie at the cut
+first_23,ehmi_for_all_chi26,results-survey-main.xlsx,SUS7,8,0,False,no tie
+first_23,ehmi_for_all_chi26,results-survey-main.xlsx,SUS8,8,0,False,no tie
+first_23,ehmi_for_all_chi26,results-survey-main.xlsx,SUS9,8,0,True,tie at the cut
+first_23,ehmi_for_all_chi26,results-survey-main.xlsx,TLX1,8,0,False,no tie
+first_23,ehmi_for_all_chi26,results-survey-main.xlsx,TiA01,8,0,False,no tie
+first_23,ehmi_for_all_chi26,results-survey-main.xlsx,TiA02,8,0,False,no tie
+first_23,ehmi_for_all_chi26,results-survey-main.xlsx,TiA03,8,0,False,no tie
+first_23,ehmi_for_all_chi26,results-survey-main.xlsx,TiA04,8,0,False,no tie
+first_23,ehmi_for_all_chi26,results-survey-main.xlsx,TiA05,8,0,False,no tie
+first_23,ehmi_for_all_chi26,results-survey-main.xlsx,TiA06,8,0,False,no tie
+first_23,ehmi_for_all_chi26,results-survey-main.xlsx,aoa1,8,0,False,no tie
+first_23,ehmi_for_all_chi26,results-survey-main.xlsx,aoa2,8,0,False,no tie
+first_23,ehmi_for_all_chi26,results-survey-main.xlsx,aoa3,8,0,False,no tie
+first_23,ehmi_for_all_chi26,results-survey-main.xlsx,aoa4,8,0,False,no tie
+first_23,ehmi_for_all_chi26,results-survey-main.xlsx,aoa5,8,0,False,no tie
+first_23,ehmi_for_all_chi26,results-survey-main.xlsx,aoa6,8,0,False,no tie
+first_23,ehmi_for_all_chi26,results-survey-main.xlsx,aoa7,8,0,False,no tie
+first_23,ehmi_for_all_chi26,results-survey-main.xlsx,aoa8,8,0,False,no tie
+first_23,ehmi_for_all_chi26,results-survey-main.xlsx,aoa9,8,0,True,tie at the cut
+first_23,ehmi_for_all_chi26,data/Log_10_A_time.csv,collision with cars,8,0,False,no tie
+first_23,ehmi_for_all_chi26,data/Log_10_A_time.csv,time after,8,0,False,no tie
+first_23,ehmi_for_all_chi26,data/Log_10_A_time.csv,time before,8,0,False,no tie
+first_23,ehmi_for_all_chi26,data/Log_10_A_time.csv,time on intersection,8,0,False,no tie
+first_23,ehmi_optimization_chi25,eHMI-bo-participantdata/u_10/ObservationsPerEvaluation.csv,IsPareto,8,0,False,no tie
+first_23,ehmi_optimization_chi25,eHMI-bo-participantdata/u_10/ObservationsPerEvaluation.csv,Phase,8,0,False,no tie
+first_23,ehmi_optimization_chi25,eHMI-bo-participantdata/u_10/ObservationsPerEvaluation.csv,Run,8,8,True,zero-score candidates
+first_23,ehmi_optimization_chi25,eHMI-bo-participantdata/u_10/ObservationsPerEvaluation.csv,Timestamp,8,0,False,no tie
+first_23,ehmi_optimization_chi25,eHMI-bo-participantdata/u_10/QuestionnaireData_10/QuestionnaireResponses.csv,run,8,8,True,zero-score candidates
+first_23,ehmi_optimization_chi25,eHMI-bo-participantdata/u_10/ObservationsPerEvaluation.csv,Acceptance,8,0,False,no tie
+first_23,ehmi_optimization_chi25,eHMI-bo-participantdata/u_10/ObservationsPerEvaluation.csv,Aesthetics,8,0,False,no tie
+first_23,ehmi_optimization_chi25,eHMI-bo-participantdata/u_10/QuestionnaireData_10/QuestionnaireResponses.csv,MentalLoad,8,0,False,no tie
+first_23,ehmi_optimization_chi25,eHMI-bo-participantdata/u_10/ObservationsPerEvaluation.csv,PerceivedSafety,8,0,False,no tie
+first_23,ehmi_optimization_chi25,eHMI-bo-participantdata/u_10/ObservationsPerEvaluation.csv,Trust,8,0,False,no tie
+first_23,ehmi_optimization_chi25,eHMI-bo-participantdata/u_10/ObservationsPerEvaluation.csv,Understanding,8,0,False,no tie
+first_23,ehmi_state_intent_mtap24,data.csv,Group_Name,8,0,False,no tie
+first_23,ehmi_state_intent_mtap24,data.csv,Group_Nr,8,0,False,no tie
+first_23,ehmi_state_intent_mtap24,data.csv,age,8,0,False,no tie
+first_23,ehmi_state_intent_mtap24,data.csv,gender,8,0,False,no tie
+first_23,ehmi_state_intent_mtap24,data.csv,perceived behavior/intent well,8,0,False,no tie
+first_23,ehmi_state_intent_mtap24,data.csv,perceived status well,8,0,False,no tie
+first_23,ehmi_state_intent_mtap24,data.csv,perceived vehicle well,8,0,False,no tie
+first_23,ehmi_state_intent_mtap24,data.csv,CIT_1_AV,8,0,False,no tie
+first_23,ehmi_state_intent_mtap24,data.csv,CIT_1_CV_yielding,8,0,False,no tie
+first_23,ehmi_state_intent_mtap24,data.csv,CIT_1_overall,8,0,False,no tie
+first_23,ehmi_state_intent_mtap24,data.csv,CIT_2_AV,8,0,False,no tie
+first_23,ehmi_state_intent_mtap24,data.csv,CIT_2_CV_yielding,8,0,False,no tie
+first_23,ehmi_state_intent_mtap24,data.csv,CIT_2_overall,8,0,False,no tie
+first_23,ehmi_state_intent_mtap24,data.csv,CIT_3_AV,8,0,False,no tie
+first_23,ehmi_state_intent_mtap24,data.csv,CIT_3_CV_yielding,8,0,False,no tie
+first_23,ehmi_state_intent_mtap24,data.csv,CIT_3_overal,8,0,False,no tie
+first_23,ehmi_state_intent_mtap24,data.csv,CIT_4_AV,8,0,False,no tie
+first_23,ehmi_state_intent_mtap24,data.csv,CIT_4_overall,8,0,False,no tie
+first_23,ehmi_state_intent_mtap24,data.csv,CIT_5_AV,8,0,False,no tie
+first_23,ehmi_state_intent_mtap24,data.csv,CIT_5_V_yielding,8,0,False,no tie
+first_23,ehmi_state_intent_mtap24,data.csv,CIT_5_overall,8,0,False,no tie
+first_23,ehmi_state_intent_mtap24,data.csv,CIT_6_AV,8,0,False,no tie
+first_23,ehmi_state_intent_mtap24,data.csv,CIT_6_CV_yielding,8,0,False,no tie
+first_23,ehmi_state_intent_mtap24,data.csv,CIT_6_overall,8,0,False,no tie
+first_23,ehmi_state_intent_mtap24,data.csv,CIT_CV_1_non-yielding,8,0,False,no tie
+first_23,ehmi_state_intent_mtap24,data.csv,CIT_CV_1_overall,8,0,False,no tie
+first_23,ehmi_state_intent_mtap24,data.csv,CIT_CV_2_non-yielding,8,0,False,no tie
+first_23,ehmi_state_intent_mtap24,data.csv,CIT_CV_2_overall,8,0,False,no tie
+first_23,ehmi_state_intent_mtap24,data.csv,CIT_CV_3_non-yielding,8,0,False,no tie
+first_23,ehmi_state_intent_mtap24,data.csv,CIT_CV_3_overall,8,0,False,no tie
+first_23,ehmi_state_intent_mtap24,data.csv,CIT_CV_5_non-yielding,8,0,False,no tie
+first_23,ehmi_state_intent_mtap24,data.csv,CIT_CV_5_overall,8,0,False,no tie
+first_23,ehmi_state_intent_mtap24,data.csv,CIT_CV_6_non-yielding,8,0,False,no tie
+first_23,ehmi_state_intent_mtap24,data.csv,CIT_CV_6_overall,8,0,False,no tie
+first_23,ehmi_state_intent_mtap24,data.csv,Trust_0,8,0,False,no tie
+first_23,ehmi_state_intent_mtap24,data.csv,Trust_1,8,0,False,no tie
+first_23,ehmi_state_intent_mtap24,data.csv,Trust_2,8,0,False,no tie
+first_23,ehmi_state_intent_mtap24,data.csv,Trust_3,8,0,False,no tie
+first_23,ehmi_state_intent_mtap24,data.csv,Trust_4,8,0,False,no tie
+first_23,ehmi_state_intent_mtap24,data.csv,Trust_5,8,0,False,no tie
+first_23,ehmi_state_intent_mtap24,data.csv,Trust_6,8,0,False,no tie
+first_23,fact_av,data/all_combined_prepared.xlsx,SA,8,0,False,no tie
+first_23,fact_av,data/all_combined_prepared.xlsx,TLX1,8,0,False,no tie
+first_23,fact_av,data/all_combined_prepared.xlsx,Understanding,8,0,False,no tie
+first_23,fact_av,data/all_combined_prepared.xlsx,trust,8,0,False,no tie
+first_23,fido2_auth_chi23,__extracted_archives/fido2-lab-study-code-and-dataset/data.csv,age,8,0,False,no tie
+first_23,fido2_auth_chi23,__extracted_archives/fido2-lab-study-code-and-dataset/data.csv,education,8,0,False,no tie
+first_23,fido2_auth_chi23,__extracted_archives/fido2-lab-study-code-and-dataset/data.csv,factor_app,8,0,False,no tie
+first_23,fido2_auth_chi23,__extracted_archives/fido2-lab-study-code-and-dataset/data.csv,factor_gen,8,0,False,no tie
+first_23,fido2_auth_chi23,__extracted_archives/fido2-lab-study-code-and-dataset/data.csv,factor_key,8,0,False,no tie
+first_23,fido2_auth_chi23,__extracted_archives/fido2-lab-study-code-and-dataset/data.csv,factor_sms,8,0,False,no tie
+first_23,fido2_auth_chi23,__extracted_archives/fido2-lab-study-code-and-dataset/data.csv,factor_tan,8,0,False,no tie
+first_23,fido2_auth_chi23,__extracted_archives/fido2-lab-study-code-and-dataset/data.csv,gender,8,0,False,no tie
+first_23,fido2_auth_chi23,__extracted_archives/fido2-lab-study-code-and-dataset/data.csv,iphone,8,0,False,no tie
+first_23,fido2_auth_chi23,__extracted_archives/fido2-lab-study-code-and-dataset/data.csv,privacy1,8,0,False,no tie
+first_23,fido2_auth_chi23,__extracted_archives/fido2-lab-study-code-and-dataset/data.csv,privacy2,8,0,False,no tie
+first_23,fido2_auth_chi23,__extracted_archives/fido2-lab-study-code-and-dataset/data.csv,privacy3,8,0,False,no tie
+first_23,fido2_auth_chi23,__extracted_archives/fido2-lab-study-code-and-dataset/data.csv,privacy4,8,0,False,no tie
+first_23,fido2_auth_chi23,__extracted_archives/fido2-lab-study-code-and-dataset/data.csv,tech1,8,0,False,no tie
+first_23,fido2_auth_chi23,__extracted_archives/fido2-lab-study-code-and-dataset/data.csv,tech2,8,0,False,no tie
+first_23,fido2_auth_chi23,__extracted_archives/fido2-lab-study-code-and-dataset/data.csv,tech3,8,0,False,no tie
+first_23,fido2_auth_chi23,__extracted_archives/fido2-lab-study-code-and-dataset/data.csv,tech4,8,0,False,no tie
+first_23,fido2_auth_chi23,__extracted_archives/fido2-lab-study-code-and-dataset/data.csv,tech5,8,0,False,no tie
+first_23,fido2_auth_chi23,__extracted_archives/fido2-lab-study-code-and-dataset/data.csv,tech6,8,0,False,no tie
+first_23,fido2_auth_chi23,__extracted_archives/fido2-lab-study-code-and-dataset/data.csv,tech7,8,0,False,no tie
+first_23,fido2_auth_chi23,__extracted_archives/fido2-lab-study-code-and-dataset/data.csv,tech8,8,0,False,no tie
+first_23,fido2_auth_chi23,__extracted_archives/fido2-lab-study-code-and-dataset/data.csv,tech9,8,0,False,no tie
+first_23,fido2_auth_chi23,__extracted_archives/fido2-lab-study-code-and-dataset/data.csv,accept1,8,0,False,no tie
+first_23,fido2_auth_chi23,__extracted_archives/fido2-lab-study-code-and-dataset/data.csv,accept2,8,0,False,no tie
+first_23,fido2_auth_chi23,__extracted_archives/fido2-lab-study-code-and-dataset/data.csv,accept3,8,0,False,no tie
+first_23,fido2_auth_chi23,__extracted_archives/fido2-lab-study-code-and-dataset/data.csv,accept4,8,0,False,no tie
+first_23,fido2_auth_chi23,__extracted_archives/fido2-lab-study-code-and-dataset/data.csv,accept5,8,0,False,no tie
+first_23,fido2_auth_chi23,__extracted_archives/fido2-lab-study-code-and-dataset/data.csv,accept6,8,0,False,no tie
+first_23,fido2_auth_chi23,__extracted_archives/fido2-lab-study-code-and-dataset/data.csv,accept7,8,0,False,no tie
+first_23,fido2_auth_chi23,__extracted_archives/fido2-lab-study-code-and-dataset/data.csv,accept8,8,0,False,no tie
+first_23,fido2_auth_chi23,__extracted_archives/fido2-lab-study-code-and-dataset/data.csv,accept9,8,0,False,no tie
+first_23,fido2_auth_chi23,__extracted_archives/fido2-lab-study-code-and-dataset/data.csv,sus1,8,0,True,tie at the cut
+first_23,fido2_auth_chi23,__extracted_archives/fido2-lab-study-code-and-dataset/data.csv,sus10,8,0,False,no tie
+first_23,fido2_auth_chi23,__extracted_archives/fido2-lab-study-code-and-dataset/data.csv,sus2,8,0,True,tie at the cut
+first_23,fido2_auth_chi23,__extracted_archives/fido2-lab-study-code-and-dataset/data.csv,sus3,8,0,True,tie at the cut
+first_23,fido2_auth_chi23,__extracted_archives/fido2-lab-study-code-and-dataset/data.csv,sus4,8,0,True,tie at the cut
+first_23,fido2_auth_chi23,__extracted_archives/fido2-lab-study-code-and-dataset/data.csv,sus5,8,0,True,tie at the cut
+first_23,fido2_auth_chi23,__extracted_archives/fido2-lab-study-code-and-dataset/data.csv,sus6,8,0,True,tie at the cut
+first_23,fido2_auth_chi23,__extracted_archives/fido2-lab-study-code-and-dataset/data.csv,sus7,8,0,False,no tie
+first_23,fido2_auth_chi23,__extracted_archives/fido2-lab-study-code-and-dataset/data.csv,sus8,8,0,False,no tie
+first_23,fido2_auth_chi23,__extracted_archives/fido2-lab-study-code-and-dataset/data.csv,sus9,8,0,True,tie at the cut
+first_23,fov_snapturn_tvcg24,Data/FOV&SnapTurnDataOSF_Revision.csv,ADS0,8,0,False,no tie
+first_23,fov_snapturn_tvcg24,Data/FOV&SnapTurnDataOSF_Revision.csv,ADS12,8,0,False,no tie
+first_23,fov_snapturn_tvcg24,Data/FOV&SnapTurnDataOSF_Revision.csv,ADS16,8,0,False,no tie
+first_23,fov_snapturn_tvcg24,Data/FOV&SnapTurnDataOSF_Revision.csv,ADS20,8,0,False,no tie
+first_23,fov_snapturn_tvcg24,Data/FOV&SnapTurnDataOSF_Revision.csv,ADS4,8,0,False,no tie
+first_23,fov_snapturn_tvcg24,Data/FOV&SnapTurnDataOSF_Revision.csv,ADS8,8,0,False,no tie
+first_23,fov_snapturn_tvcg24,Data/FOV&SnapTurnDataOSF_Revision.csv,AGE,8,0,False,no tie
+first_23,fov_snapturn_tvcg24,Data/FOV&SnapTurnDataOSF_Revision.csv,Assistance1_1,8,0,False,no tie
+first_23,fov_snapturn_tvcg24,Data/FOV&SnapTurnDataOSF_Revision.csv,Assistance2_1,8,0,False,no tie
+first_23,fov_snapturn_tvcg24,Data/FOV&SnapTurnDataOSF_Revision.csv,Assistance2_2,8,0,False,no tie
+first_23,fov_snapturn_tvcg24,Data/FOV&SnapTurnDataOSF_Revision.csv,Assistance2_3,8,0,False,no tie
+first_23,fov_snapturn_tvcg24,Data/FOV&SnapTurnDataOSF_Revision.csv,Assistance2_4,8,0,False,no tie
+first_23,fov_snapturn_tvcg24,Data/FOV&SnapTurnDataOSF_Revision.csv,Assistance3_1,8,0,False,no tie
+first_23,fov_snapturn_tvcg24,Data/FOV&SnapTurnDataOSF_Revision.csv,Assistance4,8,0,False,no tie
+first_23,fov_snapturn_tvcg24,Data/FOV&SnapTurnDataOSF_Revision.csv,BlurredVision,8,0,False,no tie
+first_23,fov_snapturn_tvcg24,Data/FOV&SnapTurnDataOSF_Revision.csv,Burping,8,0,False,no tie
+first_23,fov_snapturn_tvcg24,Data/FOV&SnapTurnDataOSF_Revision.csv,DiffConcentrating,8,0,False,no tie
+first_23,fov_snapturn_tvcg24,Data/FOV&SnapTurnDataOSF_Revision.csv,DiffFocusing,8,0,False,no tie
+first_23,fov_snapturn_tvcg24,Data/FOV&SnapTurnDataOSF_Revision.csv,DizzyEyesClosed,8,0,False,no tie
+first_23,fov_snapturn_tvcg24,Data/FOV&SnapTurnDataOSF_Revision.csv,DizzyEyesOpen,8,0,False,no tie
+first_23,fov_snapturn_tvcg24,Data/FOV&SnapTurnDataOSF_Revision.csv,EDUCATION,8,0,False,no tie
+first_23,fov_snapturn_tvcg24,Data/FOV&SnapTurnDataOSF_Revision.csv,ETHNICITY,8,0,False,no tie
+first_23,fov_snapturn_tvcg24,Data/FOV&SnapTurnDataOSF_Revision.csv,ETHNICITY_Other,8,0,False,no tie
+first_23,fov_snapturn_tvcg24,Data/FOV&SnapTurnDataOSF_Revision.csv,Early FMS,8,0,False,no tie
+first_23,fov_snapturn_tvcg24,Data/FOV&SnapTurnDataOSF_Revision.csv,End early?,8,0,False,no tie
+first_23,fov_snapturn_tvcg24,Data/FOV&SnapTurnDataOSF_Revision.csv,EyeStrain,8,0,False,no tie
+first_23,fov_snapturn_tvcg24,Data/FOV&SnapTurnDataOSF_Revision.csv,FMS0,8,0,False,no tie
+first_23,fov_snapturn_tvcg24,Data/FOV&SnapTurnDataOSF_Revision.csv,FMS12,8,0,False,no tie
+first_23,fov_snapturn_tvcg24,Data/FOV&SnapTurnDataOSF_Revision.csv,FMS16,8,0,False,no tie
+first_23,fov_snapturn_tvcg24,Data/FOV&SnapTurnDataOSF_Revision.csv,FMS20,8,0,False,no tie
+first_23,fov_snapturn_tvcg24,Data/FOV&SnapTurnDataOSF_Revision.csv,FMS4,8,0,False,no tie
+first_23,fov_snapturn_tvcg24,Data/FOV&SnapTurnDataOSF_Revision.csv,FMS8,8,0,False,no tie
+first_23,fov_snapturn_tvcg24,Data/FOV&SnapTurnDataOSF_Revision.csv,Final FMS,8,0,False,no tie
+first_23,fov_snapturn_tvcg24,Data/FOV&SnapTurnDataOSF_Revision.csv,FullnessofHead,8,0,False,no tie
+first_23,fov_snapturn_tvcg24,Data/FOV&SnapTurnDataOSF_Revision.csv,GENDER,8,0,False,no tie
+first_23,fov_snapturn_tvcg24,Data/FOV&SnapTurnDataOSF_Revision.csv,Game hrs/wk,8,0,False,no tie
+first_23,fov_snapturn_tvcg24,Data/FOV&SnapTurnDataOSF_Revision.csv,Game hrs/wk day,8,0,False,no tie
+first_23,fov_snapturn_tvcg24,Data/FOV&SnapTurnDataOSF_Revision.csv,Game hrs/wk end,8,0,False,no tie
+first_23,fov_snapturn_tvcg24,Data/FOV&SnapTurnDataOSF_Revision.csv,General1,8,0,False,no tie
+first_23,fov_snapturn_tvcg24,Data/FOV&SnapTurnDataOSF_Revision.csv,GeneralDiscomfort,8,0,False,no tie
+first_23,fov_snapturn_tvcg24,Data/FOV&SnapTurnDataOSF_Revision.csv,Headache,8,0,False,no tie
+first_23,fov_snapturn_tvcg24,Data/FOV&SnapTurnDataOSF_Revision.csv,IPD,8,4,True,zero-score candidates
+first_23,fov_snapturn_tvcg24,Data/FOV&SnapTurnDataOSF_Revision.csv,MSSQ 1,8,0,False,no tie
+first_23,fov_snapturn_tvcg24,Data/FOV&SnapTurnDataOSF_Revision.csv,MSSQ Adult Total,8,0,False,no tie
+first_23,fov_snapturn_tvcg24,Data/FOV&SnapTurnDataOSF_Revision.csv,MSSQ Adult a_1,8,0,False,no tie
+first_23,fov_snapturn_tvcg24,Data/FOV&SnapTurnDataOSF_Revision.csv,MSSQ Adult a_2,8,0,False,no tie
+first_23,fov_snapturn_tvcg24,Data/FOV&SnapTurnDataOSF_Revision.csv,MSSQ Adult a_3,8,0,False,no tie
+first_23,fov_snapturn_tvcg24,Data/FOV&SnapTurnDataOSF_Revision.csv,MSSQ Adult a_4,8,0,False,no tie
+first_23,fov_snapturn_tvcg24,Data/FOV&SnapTurnDataOSF_Revision.csv,MSSQ Adult a_5,8,0,False,no tie
+first_23,fov_snapturn_tvcg24,Data/FOV&SnapTurnDataOSF_Revision.csv,MSSQ Adult a_6,8,0,False,no tie
+first_23,fov_snapturn_tvcg24,Data/FOV&SnapTurnDataOSF_Revision.csv,MSSQ Adult a_7,8,0,False,no tie
+first_23,fov_snapturn_tvcg24,Data/FOV&SnapTurnDataOSF_Revision.csv,MSSQ Adult a_8,8,0,False,no tie
+first_23,fov_snapturn_tvcg24,Data/FOV&SnapTurnDataOSF_Revision.csv,MSSQ Adult a_9,8,0,False,no tie
+first_23,fov_snapturn_tvcg24,Data/FOV&SnapTurnDataOSF_Revision.csv,MSSQ Adult b_1,8,0,False,no tie
+first_23,fov_snapturn_tvcg24,Data/FOV&SnapTurnDataOSF_Revision.csv,MSSQ Adult b_2,8,0,False,no tie
+first_23,fov_snapturn_tvcg24,Data/FOV&SnapTurnDataOSF_Revision.csv,MSSQ Adult b_3,8,0,False,no tie
+first_23,fov_snapturn_tvcg24,Data/FOV&SnapTurnDataOSF_Revision.csv,MSSQ Adult b_4,8,0,False,no tie
+first_23,fov_snapturn_tvcg24,Data/FOV&SnapTurnDataOSF_Revision.csv,MSSQ Adult b_5,8,0,False,no tie
+first_23,fov_snapturn_tvcg24,Data/FOV&SnapTurnDataOSF_Revision.csv,MSSQ Adult b_6,8,0,False,no tie
+first_23,fov_snapturn_tvcg24,Data/FOV&SnapTurnDataOSF_Revision.csv,MSSQ Adult b_7,8,0,False,no tie
+first_23,fov_snapturn_tvcg24,Data/FOV&SnapTurnDataOSF_Revision.csv,MSSQ Adult b_8,8,0,False,no tie
+first_23,fov_snapturn_tvcg24,Data/FOV&SnapTurnDataOSF_Revision.csv,MSSQ Adult b_9,8,0,False,no tie
+first_23,fov_snapturn_tvcg24,Data/FOV&SnapTurnDataOSF_Revision.csv,MSSQ Adult c_1,8,0,False,no tie
+first_23,fov_snapturn_tvcg24,Data/FOV&SnapTurnDataOSF_Revision.csv,MSSQ Adult c_2,8,0,False,no tie
+first_23,fov_snapturn_tvcg24,Data/FOV&SnapTurnDataOSF_Revision.csv,MSSQ Adult c_3,8,0,False,no tie
+first_23,fov_snapturn_tvcg24,Data/FOV&SnapTurnDataOSF_Revision.csv,MSSQ Adult c_4,8,0,False,no tie
+first_23,fov_snapturn_tvcg24,Data/FOV&SnapTurnDataOSF_Revision.csv,MSSQ Adult c_5,8,0,False,no tie
+first_23,fov_snapturn_tvcg24,Data/FOV&SnapTurnDataOSF_Revision.csv,MSSQ Adult c_6,8,0,False,no tie
+first_23,fov_snapturn_tvcg24,Data/FOV&SnapTurnDataOSF_Revision.csv,MSSQ Adult c_7,8,0,False,no tie
+first_23,fov_snapturn_tvcg24,Data/FOV&SnapTurnDataOSF_Revision.csv,MSSQ Adult c_8,8,0,False,no tie
+first_23,fov_snapturn_tvcg24,Data/FOV&SnapTurnDataOSF_Revision.csv,MSSQ Adult c_9,8,0,False,no tie
+first_23,fov_snapturn_tvcg24,Data/FOV&SnapTurnDataOSF_Revision.csv,MSSQ Child Total,8,0,False,no tie
+first_23,fov_snapturn_tvcg24,Data/FOV&SnapTurnDataOSF_Revision.csv,MSSQ Child a_1,8,0,False,no tie
+first_23,fov_snapturn_tvcg24,Data/FOV&SnapTurnDataOSF_Revision.csv,MSSQ Child a_2,8,0,False,no tie
+first_23,fov_snapturn_tvcg24,Data/FOV&SnapTurnDataOSF_Revision.csv,MSSQ Child a_3,8,0,False,no tie
+first_23,fov_snapturn_tvcg24,Data/FOV&SnapTurnDataOSF_Revision.csv,MSSQ Child a_4,8,0,False,no tie
+first_23,fov_snapturn_tvcg24,Data/FOV&SnapTurnDataOSF_Revision.csv,MSSQ Child a_5,8,0,False,no tie
+first_23,fov_snapturn_tvcg24,Data/FOV&SnapTurnDataOSF_Revision.csv,MSSQ Child a_6,8,0,False,no tie
+first_23,fov_snapturn_tvcg24,Data/FOV&SnapTurnDataOSF_Revision.csv,MSSQ Child a_7,8,0,False,no tie
+first_23,fov_snapturn_tvcg24,Data/FOV&SnapTurnDataOSF_Revision.csv,MSSQ Child a_8,8,0,False,no tie
+first_23,fov_snapturn_tvcg24,Data/FOV&SnapTurnDataOSF_Revision.csv,MSSQ Child a_9,8,0,False,no tie
+first_23,fov_snapturn_tvcg24,Data/FOV&SnapTurnDataOSF_Revision.csv,MSSQ Child b_1,8,0,False,no tie
+first_23,fov_snapturn_tvcg24,Data/FOV&SnapTurnDataOSF_Revision.csv,MSSQ Child b_2,8,0,False,no tie
+first_23,fov_snapturn_tvcg24,Data/FOV&SnapTurnDataOSF_Revision.csv,MSSQ Child b_3,8,0,False,no tie
+first_23,fov_snapturn_tvcg24,Data/FOV&SnapTurnDataOSF_Revision.csv,MSSQ Child b_4,8,0,False,no tie
+first_23,fov_snapturn_tvcg24,Data/FOV&SnapTurnDataOSF_Revision.csv,MSSQ Child b_5,8,0,False,no tie
+first_23,fov_snapturn_tvcg24,Data/FOV&SnapTurnDataOSF_Revision.csv,MSSQ Child b_6,8,0,False,no tie
+first_23,fov_snapturn_tvcg24,Data/FOV&SnapTurnDataOSF_Revision.csv,MSSQ Child b_7,8,0,False,no tie
+first_23,fov_snapturn_tvcg24,Data/FOV&SnapTurnDataOSF_Revision.csv,MSSQ Child b_8,8,0,False,no tie
+first_23,fov_snapturn_tvcg24,Data/FOV&SnapTurnDataOSF_Revision.csv,MSSQ Child b_9,8,0,False,no tie
+first_23,fov_snapturn_tvcg24,Data/FOV&SnapTurnDataOSF_Revision.csv,MSSQ Child c_1,8,0,False,no tie
+first_23,fov_snapturn_tvcg24,Data/FOV&SnapTurnDataOSF_Revision.csv,MSSQ Child c_2,8,0,False,no tie
+first_23,fov_snapturn_tvcg24,Data/FOV&SnapTurnDataOSF_Revision.csv,MSSQ Child c_3,8,0,False,no tie
+first_23,fov_snapturn_tvcg24,Data/FOV&SnapTurnDataOSF_Revision.csv,MSSQ Child c_4,8,0,False,no tie
+first_23,fov_snapturn_tvcg24,Data/FOV&SnapTurnDataOSF_Revision.csv,MSSQ Child c_5,8,0,False,no tie
+first_23,fov_snapturn_tvcg24,Data/FOV&SnapTurnDataOSF_Revision.csv,MSSQ Child c_6,8,0,False,no tie
+first_23,fov_snapturn_tvcg24,Data/FOV&SnapTurnDataOSF_Revision.csv,MSSQ Child c_7,8,0,False,no tie
+first_23,fov_snapturn_tvcg24,Data/FOV&SnapTurnDataOSF_Revision.csv,MSSQ Child c_8,8,0,False,no tie
+first_23,fov_snapturn_tvcg24,Data/FOV&SnapTurnDataOSF_Revision.csv,MSSQ Child c_9,8,0,False,no tie
+first_23,fov_snapturn_tvcg24,Data/FOV&SnapTurnDataOSF_Revision.csv,MSSQ Total,8,0,False,no tie
+first_23,fov_snapturn_tvcg24,Data/FOV&SnapTurnDataOSF_Revision.csv,Mechanics1_1,8,0,False,no tie
+first_23,fov_snapturn_tvcg24,Data/FOV&SnapTurnDataOSF_Revision.csv,Mechanics1_2,8,0,False,no tie
+first_23,fov_snapturn_tvcg24,Data/FOV&SnapTurnDataOSF_Revision.csv,Mechanics1_3,8,0,False,no tie
+first_23,fov_snapturn_tvcg24,Data/FOV&SnapTurnDataOSF_Revision.csv,Mechanics1_4,8,0,False,no tie
+first_23,fov_snapturn_tvcg24,Data/FOV&SnapTurnDataOSF_Revision.csv,Mechanics1_5,8,0,False,no tie
+first_23,fov_snapturn_tvcg24,Data/FOV&SnapTurnDataOSF_Revision.csv,Mechanics1b,8,0,False,no tie
+first_23,fov_snapturn_tvcg24,Data/FOV&SnapTurnDataOSF_Revision.csv,Mitigation,8,0,False,no tie
+first_23,fov_snapturn_tvcg24,Data/FOV&SnapTurnDataOSF_Revision.csv,Nausea,8,0,False,no tie
+first_23,fov_snapturn_tvcg24,Data/FOV&SnapTurnDataOSF_Revision.csv,SSQ Pre_1,8,0,False,no tie
+first_23,fov_snapturn_tvcg24,Data/FOV&SnapTurnDataOSF_Revision.csv,SSQ Pre_10,8,0,False,no tie
+first_23,fov_snapturn_tvcg24,Data/FOV&SnapTurnDataOSF_Revision.csv,SSQ Pre_11,8,0,False,no tie
+first_23,fov_snapturn_tvcg24,Data/FOV&SnapTurnDataOSF_Revision.csv,SSQ Pre_12,8,0,False,no tie
+first_23,fov_snapturn_tvcg24,Data/FOV&SnapTurnDataOSF_Revision.csv,SSQ Pre_13,8,0,False,no tie
+first_23,fov_snapturn_tvcg24,Data/FOV&SnapTurnDataOSF_Revision.csv,SSQ Pre_14,8,0,False,no tie
+first_23,fov_snapturn_tvcg24,Data/FOV&SnapTurnDataOSF_Revision.csv,SSQ Pre_15,8,0,False,no tie
+first_23,fov_snapturn_tvcg24,Data/FOV&SnapTurnDataOSF_Revision.csv,SSQ Pre_16,8,0,False,no tie
+first_23,fov_snapturn_tvcg24,Data/FOV&SnapTurnDataOSF_Revision.csv,SSQ Pre_2,8,0,False,no tie
+first_23,fov_snapturn_tvcg24,Data/FOV&SnapTurnDataOSF_Revision.csv,SSQ Pre_3,8,0,False,no tie
+first_23,fov_snapturn_tvcg24,Data/FOV&SnapTurnDataOSF_Revision.csv,SSQ Pre_4,8,0,False,no tie
+first_23,fov_snapturn_tvcg24,Data/FOV&SnapTurnDataOSF_Revision.csv,SSQ Pre_5,8,0,False,no tie
+first_23,fov_snapturn_tvcg24,Data/FOV&SnapTurnDataOSF_Revision.csv,SSQ Pre_6,8,0,False,no tie
+first_23,fov_snapturn_tvcg24,Data/FOV&SnapTurnDataOSF_Revision.csv,SSQ Pre_7,8,0,False,no tie
+first_23,fov_snapturn_tvcg24,Data/FOV&SnapTurnDataOSF_Revision.csv,SSQ Pre_8,8,0,False,no tie
+first_23,fov_snapturn_tvcg24,Data/FOV&SnapTurnDataOSF_Revision.csv,SSQ Pre_9,8,0,False,no tie
+first_23,fov_snapturn_tvcg24,Data/FOV&SnapTurnDataOSF_Revision.csv,SSQ_PostLog,8,0,False,no tie
+first_23,fov_snapturn_tvcg24,Data/FOV&SnapTurnDataOSF_Revision.csv,SSQ_Total,8,0,False,no tie
+first_23,fov_snapturn_tvcg24,Data/FOV&SnapTurnDataOSF_Revision.csv,SalivationIncrease,8,0,False,no tie
+first_23,fov_snapturn_tvcg24,Data/FOV&SnapTurnDataOSF_Revision.csv,Seconds played,8,0,False,no tie
+first_23,fov_snapturn_tvcg24,Data/FOV&SnapTurnDataOSF_Revision.csv,StomachAwareness,8,0,False,no tie
+first_23,fov_snapturn_tvcg24,Data/FOV&SnapTurnDataOSF_Revision.csv,Sub_Disorientation,8,0,False,no tie
+first_23,fov_snapturn_tvcg24,Data/FOV&SnapTurnDataOSF_Revision.csv,Sub_Nausea,8,0,False,no tie
+first_23,fov_snapturn_tvcg24,Data/FOV&SnapTurnDataOSF_Revision.csv,Sub_Oculomotor,8,0,False,no tie
+first_23,fov_snapturn_tvcg24,Data/FOV&SnapTurnDataOSF_Revision.csv,Sweating,8,0,False,no tie
+first_23,fov_snapturn_tvcg24,Data/FOV&SnapTurnDataOSF_Revision.csv,Time played (%),8,0,False,no tie
+first_23,fov_snapturn_tvcg24,Data/FOV&SnapTurnDataOSF_Revision.csv,User1_1,8,0,False,no tie
+first_23,fov_snapturn_tvcg24,Data/FOV&SnapTurnDataOSF_Revision.csv,User1_2,8,0,False,no tie
+first_23,fov_snapturn_tvcg24,Data/FOV&SnapTurnDataOSF_Revision.csv,User1_3,8,0,False,no tie
+first_23,fov_snapturn_tvcg24,Data/FOV&SnapTurnDataOSF_Revision.csv,User1_4,8,0,False,no tie
+first_23,fov_snapturn_tvcg24,Data/FOV&SnapTurnDataOSF_Revision.csv,User1_5,8,0,False,no tie
+first_23,fov_snapturn_tvcg24,Data/FOV&SnapTurnDataOSF_Revision.csv,User1b,8,0,False,no tie
+first_23,fov_snapturn_tvcg24,Data/FOV&SnapTurnDataOSF_Revision.csv,VIMSQ 1_1,8,0,False,no tie
+first_23,fov_snapturn_tvcg24,Data/FOV&SnapTurnDataOSF_Revision.csv,VIMSQ 1_2,8,0,False,no tie
+first_23,fov_snapturn_tvcg24,Data/FOV&SnapTurnDataOSF_Revision.csv,VIMSQ 1_3,8,0,False,no tie
+first_23,fov_snapturn_tvcg24,Data/FOV&SnapTurnDataOSF_Revision.csv,VIMSQ 1_4,8,0,False,no tie
+first_23,fov_snapturn_tvcg24,Data/FOV&SnapTurnDataOSF_Revision.csv,VIMSQ 1_5,8,0,False,no tie
+first_23,fov_snapturn_tvcg24,Data/FOV&SnapTurnDataOSF_Revision.csv,VIMSQ 2,8,0,False,no tie
+first_23,fov_snapturn_tvcg24,Data/FOV&SnapTurnDataOSF_Revision.csv,VIMSQ 2b,8,0,False,no tie
+first_23,fov_snapturn_tvcg24,Data/FOV&SnapTurnDataOSF_Revision.csv,VIMSQ Total,8,0,False,no tie
+first_23,fov_snapturn_tvcg24,Data/FOV&SnapTurnDataOSF_Revision.csv,VR Experience,8,0,False,no tie
+first_23,fov_snapturn_tvcg24,Data/FOV&SnapTurnDataOSF_Revision.csv,Vertigo,8,0,False,no tie
+first_23,fov_snapturn_tvcg24,Data/FOV&SnapTurnDataOSF_Revision.csv,Video 1_13_TEXT,8,0,False,no tie
+first_23,fov_snapturn_tvcg24,Data/FOV&SnapTurnDataOSF_Revision.csv,Video FPS,8,0,False,no tie
+first_23,fov_snapturn_tvcg24,Data/FOV&SnapTurnDataOSF_Revision.csv,Video Game Experience,8,0,False,no tie
+first_23,fov_snapturn_tvcg24,Data/FOV&SnapTurnDataOSF_Revision.csv,ADS,8,0,False,no tie
+first_23,fov_snapturn_tvcg24,Data/FOV&SnapTurnDataOSF_Revision.csv,SSQ_Total Post,8,0,False,no tie
+first_23,fov_snapturn_tvcg24,Data/FOV&SnapTurnDataOSF_Revision.csv,Sub_Disorientation Post,8,0,False,no tie
+first_23,fov_snapturn_tvcg24,Data/FOV&SnapTurnDataOSF_Revision.csv,Sub_Nausea Post,8,0,False,no tie
+first_23,fov_snapturn_tvcg24,Data/FOV&SnapTurnDataOSF_Revision.csv,Sub_Oculomotr Post,8,0,False,no tie
+first_23,gaze_platformer_chi24,game-data.xlsx,Competence_good,8,0,False,no tie
+first_23,gaze_platformer_chi24,game-data.xlsx,Competence_goodAfterTime,8,0,False,no tie
+first_23,gaze_platformer_chi24,game-data.xlsx,Competence_notGood,8,0,False,no tie
+first_23,gaze_platformer_chi24,game-data.xlsx,Competence_satisfied,8,0,False,no tie
+first_23,gaze_platformer_chi24,game-data.xlsx,Competence_skilled,8,0,False,no tie
+first_23,gaze_platformer_chi24,game-data.xlsx,Competence_veryGood,8,0,False,no tie
+first_23,gaze_platformer_chi24,game-data.xlsx,DESAfter_ache,8,0,False,no tie
+first_23,gaze_platformer_chi24,game-data.xlsx,DESAfter_blinking,8,0,False,no tie
+first_23,gaze_platformer_chi24,game-data.xlsx,DESAfter_blurred,8,0,False,no tie
+first_23,gaze_platformer_chi24,game-data.xlsx,DESAfter_burn,8,0,False,no tie
+first_23,gaze_platformer_chi24,game-data.xlsx,DESAfter_coloredHalos,8,0,False,no tie
+first_23,gaze_platformer_chi24,game-data.xlsx,DESAfter_concedntrating,8,0,False,no tie
+first_23,gaze_platformer_chi24,game-data.xlsx,DESAfter_double,8,0,False,no tie
+first_23,gaze_platformer_chi24,game-data.xlsx,DESAfter_dry,8,0,False,no tie
+first_23,gaze_platformer_chi24,game-data.xlsx,DESAfter_foreignBody,8,0,False,no tie
+first_23,gaze_platformer_chi24,game-data.xlsx,DESAfter_heavy,8,0,False,no tie
+first_23,gaze_platformer_chi24,game-data.xlsx,DESAfter_hot,8,0,False,no tie
+first_23,gaze_platformer_chi24,game-data.xlsx,DESAfter_irritated,8,0,False,no tie
+first_23,gaze_platformer_chi24,game-data.xlsx,DESAfter_light,8,0,False,no tie
+first_23,gaze_platformer_chi24,game-data.xlsx,DESAfter_neck,8,0,False,no tie
+first_23,gaze_platformer_chi24,game-data.xlsx,DESAfter_redness,8,0,False,no tie
+first_23,gaze_platformer_chi24,game-data.xlsx,DESAfter_shoulder,8,0,False,no tie
+first_23,gaze_platformer_chi24,game-data.xlsx,DESAfter_soreness,8,0,False,no tie
+first_23,gaze_platformer_chi24,game-data.xlsx,DESAfter_strain,8,0,False,no tie
+first_23,gaze_platformer_chi24,game-data.xlsx,DESAfter_tearing,8,0,False,no tie
+first_23,gaze_platformer_chi24,game-data.xlsx,DESAfter_watering,8,0,False,no tie
+first_23,gaze_platformer_chi24,game-data.xlsx,DESAfter_worsenSight,8,0,False,no tie
+first_23,gaze_platformer_chi24,game-data.xlsx,DESBefore_ache,8,0,False,no tie
+first_23,gaze_platformer_chi24,game-data.xlsx,DESBefore_blinking,8,0,False,no tie
+first_23,gaze_platformer_chi24,game-data.xlsx,DESBefore_blurred,8,0,False,no tie
+first_23,gaze_platformer_chi24,game-data.xlsx,DESBefore_burn,8,0,False,no tie
+first_23,gaze_platformer_chi24,game-data.xlsx,DESBefore_coloredHalos,8,0,False,no tie
+first_23,gaze_platformer_chi24,game-data.xlsx,DESBefore_concedntrating,8,0,False,no tie
+first_23,gaze_platformer_chi24,game-data.xlsx,DESBefore_double,8,0,False,no tie
+first_23,gaze_platformer_chi24,game-data.xlsx,DESBefore_dry,8,0,False,no tie
+first_23,gaze_platformer_chi24,game-data.xlsx,DESBefore_foreignBody,8,0,False,no tie
+first_23,gaze_platformer_chi24,game-data.xlsx,DESBefore_heavy,8,0,False,no tie
+first_23,gaze_platformer_chi24,game-data.xlsx,DESBefore_hot,8,0,False,no tie
+first_23,gaze_platformer_chi24,game-data.xlsx,DESBefore_irritated,8,0,False,no tie
+first_23,gaze_platformer_chi24,game-data.xlsx,DESBefore_light,8,0,False,no tie
+first_23,gaze_platformer_chi24,game-data.xlsx,DESBefore_neck,8,0,False,no tie
+first_23,gaze_platformer_chi24,game-data.xlsx,DESBefore_redness,8,0,False,no tie
+first_23,gaze_platformer_chi24,game-data.xlsx,DESBefore_shoulder,8,0,False,no tie
+first_23,gaze_platformer_chi24,game-data.xlsx,DESBefore_soreness,8,0,False,no tie
+first_23,gaze_platformer_chi24,game-data.xlsx,DESBefore_strain,8,0,False,no tie
+first_23,gaze_platformer_chi24,game-data.xlsx,DESBefore_tearing,8,0,False,no tie
+first_23,gaze_platformer_chi24,game-data.xlsx,DESBefore_watering,8,0,False,no tie
+first_23,gaze_platformer_chi24,game-data.xlsx,DESBefore_worsenSight,8,0,False,no tie
+first_23,gaze_platformer_chi24,game-data.xlsx,Days,8,0,False,no tie
+first_23,gaze_platformer_chi24,game-final.xlsx,Dislike,8,0,False,no tie
+first_23,gaze_platformer_chi24,game-data.xlsx,Enjoyment_6goodTime,8,0,False,no tie
+first_23,gaze_platformer_chi24,game-data.xlsx,Enjoyment_boring,8,0,False,no tie
+first_23,gaze_platformer_chi24,game-data.xlsx,Enjoyment_enjoyed,8,0,False,no tie
+first_23,gaze_platformer_chi24,game-data.xlsx,Enjoyment_entertaining,8,0,False,no tie
+first_23,gaze_platformer_chi24,game-data.xlsx,Enjoyment_fun,8,0,False,no tie
+first_23,gaze_platformer_chi24,game-data.xlsx,Enjoyment_liked,8,0,False,no tie
+first_23,gaze_platformer_chi24,game-data.xlsx,GazeMouse,8,0,False,no tie
+first_23,gaze_platformer_chi24,game-final.xlsx,Help,8,0,False,no tie
+first_23,gaze_platformer_chi24,game-final.xlsx,Like,8,4,True,zero-score candidates
+first_23,gaze_platformer_chi24,game-data.xlsx,PlayGame,8,0,False,no tie
+first_23,gaze_platformer_chi24,game-demographic.xlsx,age,8,0,False,no tie
+first_23,gaze_platformer_chi24,game-data.xlsx,datestamp,8,0,False,no tie
+first_23,gaze_platformer_chi24,game-demographic.xlsx,education,8,0,False,no tie
+first_23,gaze_platformer_chi24,game-final.xlsx,eyeQuality,8,0,False,no tie
+first_23,gaze_platformer_chi24,game-demographic.xlsx,funGames,8,0,False,no tie
+first_23,gaze_platformer_chi24,game-demographic.xlsx,games,8,0,False,no tie
+first_23,gaze_platformer_chi24,game-demographic.xlsx,gender,8,0,False,no tie
+first_23,gaze_platformer_chi24,game-demographic.xlsx,jumpnrun,8,8,True,zero-score candidates
+first_23,gaze_platformer_chi24,game-demographic.xlsx,screentime,8,0,False,no tie
+first_23,gaze_platformer_chi24,game-data.xlsx,Visuals_2lookFeel,8,0,False,no tie
+first_23,gaze_platformer_chi24,game-data.xlsx,Visuals_aesthetics,8,0,False,no tie
+first_23,gaze_platformer_chi24,game-data.xlsx,Visuals_styl,8,0,False,no tie
+first_23,handsize_touch_mobilehci19,data-raw/HandSize.csv,PID,8,4,True,zero-score candidates
+first_23,handsize_touch_mobilehci19,data-raw/HandSize.csv,Phone,8,0,False,no tie
+first_23,handsize_touch_mobilehci19,data-raw/HandSize.csv,TargetX,8,0,False,no tie
+first_23,handsize_touch_mobilehci19,data-raw/HandSize.csv,TargetY,8,0,False,no tie
+first_23,handsize_touch_mobilehci19,data-raw/HandSize.csv,TouchX,8,0,False,no tie
+first_23,handsize_touch_mobilehci19,data-raw/HandSize.csv,TouchY,8,0,False,no tie
+first_23,handsize_touch_mobilehci19,data-raw/HandSize.csv,Trial,8,0,False,no tie
+first_23,handsize_touch_mobilehci19,data-raw/HandSize.csv,ErrorMM,8,0,False,no tie
+first_23,handsize_touch_mobilehci19,data-raw/HandSize.csv,SelectionTimeSeconds,8,0,False,no tie
+first_23,incar_vr_gain_chi24,FinalQuestions.csv,ActualParticipant,8,0,False,no tie
+first_23,incar_vr_gain_chi24,FINAL_Questionnaires.csv,Age,8,0,False,no tie
+first_23,incar_vr_gain_chi24,FinalQuestions.csv,AnswerTime,8,0,False,no tie
+first_23,incar_vr_gain_chi24,FINAL_Questionnaires.csv,Condition_Ranking,8,0,False,no tie
+first_23,incar_vr_gain_chi24,FINAL_Questionnaires.csv,Disorientation_All,8,0,False,no tie
+first_23,incar_vr_gain_chi24,FINAL_Questionnaires.csv,DriversLicense,8,0,False,no tie
+first_23,incar_vr_gain_chi24,FINAL_Questionnaires.csv,DurationOfTask,8,0,False,no tie
+first_23,incar_vr_gain_chi24,FINAL_Questionnaires.csv,DurationSection,8,0,False,no tie
+first_23,incar_vr_gain_chi24,FinalQuestions.csv,Example,8,0,False,no tie
+first_23,incar_vr_gain_chi24,FINAL_Questionnaires.csv,FPGamerGroup,8,0,False,no tie
+first_23,incar_vr_gain_chi24,FINAL_Questionnaires.csv,GamerGroup,8,0,False,no tie
+first_23,incar_vr_gain_chi24,FINAL_Questionnaires.csv,Gender,8,0,False,no tie
+first_23,incar_vr_gain_chi24,FINAL_Questionnaires.csv,HrsDriving,8,0,False,no tie
+first_23,incar_vr_gain_chi24,FINAL_Questionnaires.csv,HrsDrivingGlasgow,8,0,False,no tie
+first_23,incar_vr_gain_chi24,FINAL_Questionnaires.csv,HrsPassenger,8,0,False,no tie
+first_23,incar_vr_gain_chi24,FINAL_Questionnaires.csv,MSSQ,8,1,True,zero-score candidates
+first_23,incar_vr_gain_chi24,FINAL_Questionnaires.csv,NasaTLX_All,8,0,False,no tie
+first_23,incar_vr_gain_chi24,FINAL_Questionnaires.csv,Nausea_All,8,0,False,no tie
+first_23,incar_vr_gain_chi24,FINAL_Questionnaires.csv,Oculomotor_All,8,0,False,no tie
+first_23,incar_vr_gain_chi24,FINAL_Questionnaires.csv,PID,8,4,True,zero-score candidates
+first_23,incar_vr_gain_chi24,FinalQuestions.csv,Participant,8,0,False,no tie
+first_23,incar_vr_gain_chi24,FINAL_Questionnaires.csv,SSQ_Total_All,8,0,False,no tie
+first_23,incar_vr_gain_chi24,FINAL_Questionnaires.csv,Section,8,0,False,no tie
+first_23,incar_vr_gain_chi24,FINAL_Questionnaires.csv,Section_Ranking,8,0,False,no tie
+first_23,incar_vr_gain_chi24,FINAL_Questionnaires.csv,TotalDuration,8,0,False,no tie
+first_23,incar_vr_gain_chi24,FINAL_Questionnaires.csv,VRExperience,8,0,False,no tie
+first_23,incar_vr_gain_chi24,FinalQuestions.csv,Correct,8,0,False,no tie
+first_23,incar_vr_gain_chi24,FINAL_Questionnaires.csv,Disorientation,8,0,False,no tie
+first_23,incar_vr_gain_chi24,FINAL_Questionnaires.csv,Effort-NASA,8,0,False,no tie
+first_23,incar_vr_gain_chi24,FINAL_Questionnaires.csv,Frustration-NASA,8,0,False,no tie
+first_23,incar_vr_gain_chi24,FINAL_Questionnaires.csv,MentalDemand-NASA,8,0,False,no tie
+first_23,incar_vr_gain_chi24,FINAL_Questionnaires.csv,Nausea,8,0,False,no tie
+first_23,incar_vr_gain_chi24,FINAL_Questionnaires.csv,Oculomotor,8,0,False,no tie
+first_23,incar_vr_gain_chi24,FINAL_Questionnaires.csv,Performance-NASA,8,0,False,no tie
+first_23,incar_vr_gain_chi24,FINAL_Questionnaires.csv,PhysicalDemand-NASA,8,0,False,no tie
+first_23,incar_vr_gain_chi24,FINAL_Questionnaires.csv,Presence,8,0,False,no tie
+first_23,incar_vr_gain_chi24,FINAL_Questionnaires.csv,SSQ_Total,8,0,False,no tie
+first_23,incar_vr_gain_chi24,FINAL_Questionnaires.csv,Safety,8,0,False,no tie
+first_23,incar_vr_gain_chi24,FINAL_Questionnaires.csv,TemporalDemand-NASA,8,0,False,no tie
+first_23,longitudinal_usa_germany_ehmi,QuestionnaireFinal_Euro.xlsx,time_stamp,8,0,False,no tie
+first_23,longitudinal_usa_germany_ehmi,data-main.xlsx,TLX1,8,0,False,no tie
+first_23,osf_cwd6h,__extracted_archives/Study_Data_Study_Logs_Raw_Data/Studie_Logs_Raw_Data/01_car/Car_Critical_1.csv,HMDPosition,8,0,False,no tie
+first_23,osf_cwd6h,__extracted_archives/Study_Data_Study_Logs_Raw_Data/Studie_Logs_Raw_Data/01_car/Car_Critical_1.csv,HMDRotation,8,0,False,no tie
+first_23,osf_cwd6h,__extracted_archives/Study_Data_Study_Logs_Raw_Data/Studie_Logs_Raw_Data/01_car/Car_Critical_1.csv,LogTime,8,0,False,no tie
+first_23,osf_cwd6h,__extracted_archives/Study_Data_Study_Logs_Raw_Data/Studie_Logs_Raw_Data/01_car/Car_Critical_1.csv,VideoFrame,8,0,False,no tie
+first_23,osf_cwd6h,__extracted_archives/Study_Data_Study_Logs_Raw_Data/Studie_Logs_Raw_Data/01_car/Car_Critical_1.csv,captureTime,8,0,False,no tie
+first_23,osf_cwd6h,__extracted_archives/Study_Data_Study_Logs_Raw_Data/Studie_Logs_Raw_Data/01_car/Car_Critical_1.csv,frameNumber,8,0,False,no tie
+first_23,pairsonic_cscw24,__extracted_archives/pairsonic-study-code-and-dataset/data.csv,age,8,0,False,no tie
+first_23,pairsonic_cscw24,__extracted_archives/pairsonic-study-code-and-dataset/data.csv,ati0,8,0,False,no tie
+first_23,pairsonic_cscw24,__extracted_archives/pairsonic-study-code-and-dataset/data.csv,ati1,8,0,False,no tie
+first_23,pairsonic_cscw24,__extracted_archives/pairsonic-study-code-and-dataset/data.csv,ati2,8,0,False,no tie
+first_23,pairsonic_cscw24,__extracted_archives/pairsonic-study-code-and-dataset/data.csv,ati3,8,0,False,no tie
+first_23,pairsonic_cscw24,__extracted_archives/pairsonic-study-code-and-dataset/data.csv,ati4,8,0,False,no tie
+first_23,pairsonic_cscw24,__extracted_archives/pairsonic-study-code-and-dataset/data.csv,ati5,8,0,False,no tie
+first_23,pairsonic_cscw24,__extracted_archives/pairsonic-study-code-and-dataset/data.csv,ati6,8,0,False,no tie
+first_23,pairsonic_cscw24,__extracted_archives/pairsonic-study-code-and-dataset/data.csv,ati7,8,0,False,no tie
+first_23,pairsonic_cscw24,__extracted_archives/pairsonic-study-code-and-dataset/data.csv,ati8,8,0,False,no tie
+first_23,pairsonic_cscw24,__extracted_archives/pairsonic-study-code-and-dataset/data.csv,edu_professional,8,0,False,no tie
+first_23,pairsonic_cscw24,__extracted_archives/pairsonic-study-code-and-dataset/data.csv,edu_school,8,0,False,no tie
+first_23,pairsonic_cscw24,__extracted_archives/pairsonic-study-code-and-dataset/data.csv,gender,8,0,False,no tie
+first_23,pairsonic_cscw24,__extracted_archives/pairsonic-study-code-and-dataset/data.csv,group0_part,8,0,False,no tie
+first_23,pairsonic_cscw24,__extracted_archives/pairsonic-study-code-and-dataset/data.csv,group0_sec,8,0,False,no tie
+first_23,pairsonic_cscw24,__extracted_archives/pairsonic-study-code-and-dataset/data.csv,group0_size,8,0,False,no tie
+first_23,pairsonic_cscw24,__extracted_archives/pairsonic-study-code-and-dataset/data.csv,group1_part,8,0,False,no tie
+first_23,pairsonic_cscw24,__extracted_archives/pairsonic-study-code-and-dataset/data.csv,group1_sec,8,0,False,no tie
+first_23,pairsonic_cscw24,__extracted_archives/pairsonic-study-code-and-dataset/data.csv,group1_size,8,0,False,no tie
+first_23,pairsonic_cscw24,__extracted_archives/pairsonic-study-code-and-dataset/data.csv,group2_part,8,0,False,no tie
+first_23,pairsonic_cscw24,__extracted_archives/pairsonic-study-code-and-dataset/data.csv,group2_sec,8,0,False,no tie
+first_23,pairsonic_cscw24,__extracted_archives/pairsonic-study-code-and-dataset/data.csv,group2_size,8,0,False,no tie
+first_23,pairsonic_cscw24,__extracted_archives/pairsonic-study-code-and-dataset/data.csv,group3_part,8,0,False,no tie
+first_23,pairsonic_cscw24,__extracted_archives/pairsonic-study-code-and-dataset/data.csv,group3_sec,8,0,False,no tie
+first_23,pairsonic_cscw24,__extracted_archives/pairsonic-study-code-and-dataset/data.csv,group3_size,8,0,False,no tie
+first_23,pairsonic_cscw24,__extracted_archives/pairsonic-study-code-and-dataset/data.csv,group4_part,8,0,False,no tie
+first_23,pairsonic_cscw24,__extracted_archives/pairsonic-study-code-and-dataset/data.csv,group4_sec,8,0,False,no tie
+first_23,pairsonic_cscw24,__extracted_archives/pairsonic-study-code-and-dataset/data.csv,group4_size,8,0,False,no tie
+first_23,pairsonic_cscw24,__extracted_archives/pairsonic-study-code-and-dataset/data.csv,group5_part,8,0,False,no tie
+first_23,pairsonic_cscw24,__extracted_archives/pairsonic-study-code-and-dataset/data.csv,group5_sec,8,0,False,no tie
+first_23,pairsonic_cscw24,__extracted_archives/pairsonic-study-code-and-dataset/data.csv,group5_size,8,0,False,no tie
+first_23,pairsonic_cscw24,__extracted_archives/pairsonic-study-code-and-dataset/data.csv,group6_part,8,0,False,no tie
+first_23,pairsonic_cscw24,__extracted_archives/pairsonic-study-code-and-dataset/data.csv,group6_sec,8,0,False,no tie
+first_23,pairsonic_cscw24,__extracted_archives/pairsonic-study-code-and-dataset/data.csv,group6_size,8,0,False,no tie
+first_23,pairsonic_cscw24,__extracted_archives/pairsonic-study-code-and-dataset/data.csv,group7_part,8,0,False,no tie
+first_23,pairsonic_cscw24,__extracted_archives/pairsonic-study-code-and-dataset/data.csv,group7_sec,8,0,False,no tie
+first_23,pairsonic_cscw24,__extracted_archives/pairsonic-study-code-and-dataset/data.csv,group7_size,8,0,False,no tie
+first_23,pairsonic_cscw24,__extracted_archives/pairsonic-study-code-and-dataset/data.csv,group8_part,8,0,False,no tie
+first_23,pairsonic_cscw24,__extracted_archives/pairsonic-study-code-and-dataset/data.csv,group8_sec,8,0,False,no tie
+first_23,pairsonic_cscw24,__extracted_archives/pairsonic-study-code-and-dataset/data.csv,group8_size,8,0,False,no tie
+first_23,pairsonic_cscw24,__extracted_archives/pairsonic-study-code-and-dataset/data.csv,groups_total,8,0,False,no tie
+first_23,pairsonic_cscw24,__extracted_archives/pairsonic-study-code-and-dataset/data.csv,pairsonic_first,8,0,False,no tie
+first_23,pairsonic_cscw24,__extracted_archives/pairsonic-study-code-and-dataset/data.csv,smartphone_exp,8,0,False,no tie
+first_23,pairsonic_cscw24,__extracted_archives/pairsonic-study-code-and-dataset/data.csv,student,8,0,False,no tie
+first_23,pairsonic_cscw24,__extracted_archives/pairsonic-study-code-and-dataset/data.csv,a_sus0,8,0,True,tie at the cut
+first_23,pairsonic_cscw24,__extracted_archives/pairsonic-study-code-and-dataset/data.csv,a_sus1,8,0,True,tie at the cut
+first_23,pairsonic_cscw24,__extracted_archives/pairsonic-study-code-and-dataset/data.csv,a_sus2,8,0,True,tie at the cut
+first_23,pairsonic_cscw24,__extracted_archives/pairsonic-study-code-and-dataset/data.csv,a_sus3,8,0,True,tie at the cut
+first_23,pairsonic_cscw24,__extracted_archives/pairsonic-study-code-and-dataset/data.csv,a_sus4,8,0,True,tie at the cut
+first_23,pairsonic_cscw24,__extracted_archives/pairsonic-study-code-and-dataset/data.csv,a_sus5,8,0,True,tie at the cut
+first_23,pairsonic_cscw24,__extracted_archives/pairsonic-study-code-and-dataset/data.csv,a_sus6,8,0,True,tie at the cut
+first_23,pairsonic_cscw24,__extracted_archives/pairsonic-study-code-and-dataset/data.csv,a_sus7,8,0,False,no tie
+first_23,pairsonic_cscw24,__extracted_archives/pairsonic-study-code-and-dataset/data.csv,a_sus8,8,0,False,no tie
+first_23,pairsonic_cscw24,__extracted_archives/pairsonic-study-code-and-dataset/data.csv,a_sus9,8,0,True,tie at the cut
+first_23,pairsonic_cscw24,__extracted_archives/pairsonic-study-code-and-dataset/data.csv,b_sus0,8,0,True,tie at the cut
+first_23,pairsonic_cscw24,__extracted_archives/pairsonic-study-code-and-dataset/data.csv,b_sus1,8,0,True,tie at the cut
+first_23,pairsonic_cscw24,__extracted_archives/pairsonic-study-code-and-dataset/data.csv,b_sus2,8,0,True,tie at the cut
+first_23,pairsonic_cscw24,__extracted_archives/pairsonic-study-code-and-dataset/data.csv,b_sus3,8,0,True,tie at the cut
+first_23,pairsonic_cscw24,__extracted_archives/pairsonic-study-code-and-dataset/data.csv,b_sus4,8,0,True,tie at the cut
+first_23,pairsonic_cscw24,__extracted_archives/pairsonic-study-code-and-dataset/data.csv,b_sus5,8,0,True,tie at the cut
+first_23,pairsonic_cscw24,__extracted_archives/pairsonic-study-code-and-dataset/data.csv,b_sus6,8,0,True,tie at the cut
+first_23,pairsonic_cscw24,__extracted_archives/pairsonic-study-code-and-dataset/data.csv,b_sus7,8,0,False,no tie
+first_23,pairsonic_cscw24,__extracted_archives/pairsonic-study-code-and-dataset/data.csv,b_sus8,8,0,False,no tie
+first_23,pairsonic_cscw24,__extracted_archives/pairsonic-study-code-and-dataset/data.csv,b_sus9,8,0,True,tie at the cut
+first_23,psych_conflict_handling,StudyResults.xlsx,Sequence,8,0,False,no tie
+first_23,psych_conflict_handling,StudyResults.xlsx,A1,8,0,False,no tie
+first_23,psych_conflict_handling,StudyResults.xlsx,A2,8,0,False,no tie
+first_23,psych_conflict_handling,StudyResults.xlsx,A3,8,0,False,no tie
+first_23,psych_conflict_handling,StudyResults.xlsx,A4,8,0,False,no tie
+first_23,psych_conflict_handling,StudyResults.xlsx,ST1,8,0,False,no tie
+first_23,psych_conflict_handling,StudyResults.xlsx,ST2,8,0,False,no tie
+first_23,psych_conflict_handling,StudyResults.xlsx,ST3,8,0,False,no tie
+first_23,psych_conflict_handling,StudyResults.xlsx,ST4,8,0,False,no tie
+first_23,psych_conflict_handling,StudyResults.xlsx,ST5,8,0,False,no tie
+first_23,psych_conflict_handling,StudyResults.xlsx,ST6,8,0,False,no tie
+first_23,road_bumps_touch,R_TCT.csv,IsBump,8,0,False,no tie
+first_23,road_bumps_touch,R_Count_Down.csv,IsBumpVirtual,8,0,False,no tie
+first_23,road_bumps_touch,R_Count_Down.csv,PId,8,6,True,zero-score candidates
+first_23,road_bumps_touch,R_Count_Down.csv,SpeedCondition,8,0,False,no tie
+first_23,road_bumps_touch,R_Count_Down.csv,TouchId,8,0,False,no tie
+first_23,road_bumps_touch,R_Count_Down.csv,TouchType,8,0,False,no tie
+first_23,road_bumps_touch,R_TCT.csv,TCT,8,0,False,no tie
+first_23,road_bumps_touch,R_Offset.csv,TouchOffset,8,0,False,no tie
+first_23,roads_chi25,results-roads-chi25.xlsx,SUS1,8,0,True,tie at the cut
+first_23,roads_chi25,results-roads-chi25.xlsx,SUS10,8,0,False,no tie
+first_23,roads_chi25,results-roads-chi25.xlsx,SUS2,8,0,True,tie at the cut
+first_23,roads_chi25,results-roads-chi25.xlsx,SUS3,8,0,True,tie at the cut
+first_23,roads_chi25,results-roads-chi25.xlsx,SUS4,8,0,True,tie at the cut
+first_23,roads_chi25,results-roads-chi25.xlsx,SUS5,8,0,True,tie at the cut
+first_23,roads_chi25,results-roads-chi25.xlsx,SUS6,8,0,True,tie at the cut
+first_23,roads_chi25,results-roads-chi25.xlsx,SUS7,8,0,False,no tie
+first_23,roads_chi25,results-roads-chi25.xlsx,SUS8,8,0,False,no tie
+first_23,roads_chi25,results-roads-chi25.xlsx,SUS9,8,0,True,tie at the cut
+first_23,roads_chi25,results-roads-chi25.xlsx,TLX1,8,0,False,no tie
+first_23,roads_chi25,results-roads-chi25.xlsx,TLX2,8,0,False,no tie
+first_23,roads_chi25,results-roads-chi25.xlsx,TLX3,8,0,False,no tie
+first_23,roads_chi25,results-roads-chi25.xlsx,TLX4,8,0,False,no tie
+first_23,roads_chi25,results-roads-chi25.xlsx,TLX5,8,0,False,no tie
+first_23,roads_chi25,results-roads-chi25.xlsx,TLX6,8,0,False,no tie
+first_23,roads_chi25,results-roads-chi25.xlsx,aoa1,8,0,False,no tie
+first_23,roads_chi25,results-roads-chi25.xlsx,aoa2,8,0,False,no tie
+first_23,roads_chi25,results-roads-chi25.xlsx,aoa3,8,0,False,no tie
+first_23,roads_chi25,results-roads-chi25.xlsx,aoa4,8,0,False,no tie
+first_23,roads_chi25,results-roads-chi25.xlsx,aoa5,8,0,False,no tie
+first_23,roads_chi25,results-roads-chi25.xlsx,aoa6,8,0,False,no tie
+first_23,roads_chi25,results-roads-chi25.xlsx,aoa7,8,0,False,no tie
+first_23,roads_chi25,results-roads-chi25.xlsx,aoa8,8,0,False,no tie
+first_23,roads_chi25,results-roads-chi25.xlsx,aoa9,8,0,True,tie at the cut
+first_23,running_into_traffic_chi26,__extracted_archives/RunIntoTraffic/RunIntoTraffic/running_questionnaire.csv,speed,8,0,False,no tie
+first_23,running_into_traffic_chi26,__extracted_archives/RunIntoTraffic/RunIntoTraffic/running_questionnaire.csv,av.intent,8,0,False,no tie
+first_23,running_into_traffic_chi26,__extracted_archives/RunIntoTraffic/RunIntoTraffic/running_questionnaire.csv,risk,8,0,False,no tie
+first_23,running_into_traffic_chi26,__extracted_archives/RunIntoTraffic/RunIntoTraffic/running_questionnaire.csv,safety,8,0,False,no tie
+first_23,running_into_traffic_chi26,__extracted_archives/RunIntoTraffic/RunIntoTraffic/running_questionnaire.csv,tlx.effort,8,0,False,no tie
+first_23,running_into_traffic_chi26,__extracted_archives/RunIntoTraffic/RunIntoTraffic/running_questionnaire.csv,tlx.mental,8,0,False,no tie
+first_23,running_into_traffic_chi26,__extracted_archives/RunIntoTraffic/RunIntoTraffic/running_questionnaire.csv,tlx.physical,8,0,False,no tie
+first_23,running_into_traffic_chi26,__extracted_archives/RunIntoTraffic/RunIntoTraffic/running_questionnaire.csv,tlx.rush,8,0,False,no tie
+first_23,running_into_traffic_chi26,__extracted_archives/RunIntoTraffic/RunIntoTraffic/running_questionnaire.csv,tlx.stress,8,0,False,no tie
+first_23,running_into_traffic_chi26,__extracted_archives/RunIntoTraffic/RunIntoTraffic/running_questionnaire.csv,tlx.success,8,0,False,no tie
+first_23,running_into_traffic_chi26,__extracted_archives/RunIntoTraffic/RunIntoTraffic/running_questionnaire.csv,trust,8,0,False,no tie
+first_23,scrolling_in_the_deep_chi25,data_scrolling_in_the_deep.csv,Age,8,0,False,no tie
+first_23,scrolling_in_the_deep_chi25,data_scrolling_in_the_deep.csv,At_Home,8,0,False,no tie
+first_23,scrolling_in_the_deep_chi25,data_scrolling_in_the_deep.csv,Current_Activity,8,0,False,no tie
+first_23,scrolling_in_the_deep_chi25,data_scrolling_in_the_deep.csv,Gender,8,0,False,no tie
+first_23,scrolling_in_the_deep_chi25,data_scrolling_in_the_deep.csv,Multitasking,8,0,False,no tie
+first_23,scrolling_in_the_deep_chi25,data_scrolling_in_the_deep.csv,Social_Situation,8,0,False,no tie
+first_23,scrolling_in_the_deep_chi25,data_scrolling_in_the_deep.csv,Timestamp,8,0,False,no tie
+first_23,scrolling_in_the_deep_chi25,data_scrolling_in_the_deep.csv,Reactance,8,0,False,no tie
+first_23,scrolling_in_the_deep_chi25,data_scrolling_in_the_deep.csv,Responsiveness,8,0,False,no tie
+first_23,scrolling_in_the_deep_chi25,data_scrolling_in_the_deep.csv,Sleepiness,8,0,False,no tie
+first_23,scrolling_in_the_deep_chi25,data_scrolling_in_the_deep.csv,Valence,8,0,False,no tie
+first_23,woz_adaptation_ijhcs24,NSF2151464_Study2_ResearchData.xlsx,Age,8,0,False,no tie
+first_23,woz_adaptation_ijhcs24,NSF2151464_Study2_ResearchData.xlsx,Gender,8,0,False,no tie
+first_23,woz_adaptation_ijhcs24,NSF2151464_Study2_ResearchData.xlsx,TLX 1,8,0,False,no tie
+first_23,woz_adaptation_ijhcs24,NSF2151464_Study2_ResearchData.xlsx,TLX 1.1,8,0,False,no tie
+first_23,woz_adaptation_ijhcs24,NSF2151464_Study2_ResearchData.xlsx,TLX 1.2,8,0,False,no tie
+first_23,woz_adaptation_ijhcs24,NSF2151464_Study2_ResearchData.xlsx,TLX 2,8,0,False,no tie
+first_23,woz_adaptation_ijhcs24,NSF2151464_Study2_ResearchData.xlsx,TLX 2.1,8,0,False,no tie
+first_23,woz_adaptation_ijhcs24,NSF2151464_Study2_ResearchData.xlsx,TLX 2.2,8,0,False,no tie
+first_23,woz_adaptation_ijhcs24,NSF2151464_Study2_ResearchData.xlsx,TLX 3,8,0,False,no tie
+first_23,woz_adaptation_ijhcs24,NSF2151464_Study2_ResearchData.xlsx,TLX 3.1,8,0,False,no tie
+first_23,woz_adaptation_ijhcs24,NSF2151464_Study2_ResearchData.xlsx,TLX 3.2,8,0,False,no tie
+first_23,woz_adaptation_ijhcs24,NSF2151464_Study2_ResearchData.xlsx,TLX 4,8,0,False,no tie
+first_23,woz_adaptation_ijhcs24,NSF2151464_Study2_ResearchData.xlsx,TLX 4.1,8,0,False,no tie
+first_23,woz_adaptation_ijhcs24,NSF2151464_Study2_ResearchData.xlsx,TLX 4.2,8,0,False,no tie
+first_23,woz_adaptation_ijhcs24,NSF2151464_Study2_ResearchData.xlsx,TLX 5,8,0,False,no tie
+first_23,woz_adaptation_ijhcs24,NSF2151464_Study2_ResearchData.xlsx,TLX 5.1,8,0,False,no tie
+first_23,woz_adaptation_ijhcs24,NSF2151464_Study2_ResearchData.xlsx,TLX 5.2,8,0,False,no tie
+first_23,woz_adaptation_ijhcs24,NSF2151464_Study2_ResearchData.xlsx,TLX 6,8,0,False,no tie
+first_23,woz_adaptation_ijhcs24,NSF2151464_Study2_ResearchData.xlsx,TLX 6.1,8,0,False,no tie
+first_23,woz_adaptation_ijhcs24,NSF2151464_Study2_ResearchData.xlsx,TLX 6.2,8,0,False,no tie
+added_16,ar_pedestrian_online_2023,raw_data.xlsx,Q10,8,0,False,no tie
+added_16,ar_pedestrian_online_2023,raw_data.xlsx,Q105,8,0,False,no tie
+added_16,ar_pedestrian_online_2023,raw_data.xlsx,Q11,8,0,True,tie at the cut
+added_16,ar_pedestrian_online_2023,raw_data.xlsx,Q116,8,0,True,tie at the cut
+added_16,ar_pedestrian_online_2023,raw_data.xlsx,Q127,8,0,True,tie at the cut
+added_16,ar_pedestrian_online_2023,raw_data.xlsx,Q13,8,0,True,tie at the cut
+added_16,ar_pedestrian_online_2023,raw_data.xlsx,Q138,8,0,True,tie at the cut
+added_16,ar_pedestrian_online_2023,raw_data.xlsx,Q149,8,0,True,tie at the cut
+added_16,ar_pedestrian_online_2023,raw_data.xlsx,Q14_1,8,0,False,no tie
+added_16,ar_pedestrian_online_2023,raw_data.xlsx,Q14_2,8,0,False,no tie
+added_16,ar_pedestrian_online_2023,raw_data.xlsx,Q14_3,8,0,False,no tie
+added_16,ar_pedestrian_online_2023,raw_data.xlsx,Q14_4,8,0,False,no tie
+added_16,ar_pedestrian_online_2023,raw_data.xlsx,Q14_5,8,0,True,tie at the cut
+added_16,ar_pedestrian_online_2023,raw_data.xlsx,Q14_6,8,0,False,no tie
+added_16,ar_pedestrian_online_2023,raw_data.xlsx,Q14_7,8,0,False,no tie
+added_16,ar_pedestrian_online_2023,raw_data.xlsx,Q14_8,8,0,False,no tie
+added_16,ar_pedestrian_online_2023,raw_data.xlsx,Q14_9,8,0,False,no tie
+added_16,ar_pedestrian_online_2023,raw_data.xlsx,Q15,8,0,True,tie at the cut
+added_16,ar_pedestrian_online_2023,raw_data.xlsx,Q160,8,0,True,tie at the cut
+added_16,ar_pedestrian_online_2023,raw_data.xlsx,Q171,8,0,True,tie at the cut
+added_16,ar_pedestrian_online_2023,raw_data.xlsx,Q18,8,0,True,tie at the cut
+added_16,ar_pedestrian_online_2023,raw_data.xlsx,Q19,8,0,True,tie at the cut
+added_16,ar_pedestrian_online_2023,raw_data.xlsx,Q20,8,0,True,tie at the cut
+added_16,ar_pedestrian_online_2023,raw_data.xlsx,Q21,8,0,True,tie at the cut
+added_16,ar_pedestrian_online_2023,raw_data.xlsx,Q22,8,0,True,tie at the cut
+added_16,ar_pedestrian_online_2023,raw_data.xlsx,Q23,8,0,True,tie at the cut
+added_16,ar_pedestrian_online_2023,raw_data.xlsx,Q24,8,0,True,tie at the cut
+added_16,ar_pedestrian_online_2023,raw_data.xlsx,Q28,8,0,True,tie at the cut
+added_16,ar_pedestrian_online_2023,raw_data.xlsx,Q54,8,0,True,tie at the cut
+added_16,ar_pedestrian_online_2023,raw_data.xlsx,Q57,8,0,True,tie at the cut
+added_16,ar_pedestrian_online_2023,raw_data.xlsx,Q59,8,0,True,tie at the cut
+added_16,ar_pedestrian_online_2023,raw_data.xlsx,Q61,8,0,True,tie at the cut
+added_16,ar_pedestrian_online_2023,raw_data.xlsx,Q63,8,0,True,tie at the cut
+added_16,ar_pedestrian_online_2023,raw_data.xlsx,Q65,8,0,True,tie at the cut
+added_16,ar_pedestrian_online_2023,raw_data.xlsx,Q7,8,0,False,no tie
+added_16,ar_pedestrian_online_2023,raw_data.xlsx,Q8,8,0,False,no tie
+added_16,ar_pedestrian_online_2023,raw_data.xlsx,Q94,8,0,True,tie at the cut
+added_16,ar_pedestrian_online_2023,raw_data.xlsx,UserLanguage,8,0,False,no tie
+added_16,ar_pedestrian_online_2023,raw_data.xlsx,Q103_3,8,0,False,no tie
+added_16,ar_pedestrian_online_2023,raw_data.xlsx,Q103_4,8,0,False,no tie
+added_16,ar_pedestrian_online_2023,raw_data.xlsx,Q104_1,8,0,False,no tie
+added_16,ar_pedestrian_online_2023,raw_data.xlsx,Q104_2,8,0,False,no tie
+added_16,ar_pedestrian_online_2023,raw_data.xlsx,Q104_3,8,0,False,no tie
+added_16,ar_pedestrian_online_2023,raw_data.xlsx,Q104_4,8,0,False,no tie
+added_16,ar_pedestrian_online_2023,raw_data.xlsx,Q104_5,8,0,False,no tie
+added_16,ar_pedestrian_online_2023,raw_data.xlsx,Q104_6,8,0,False,no tie
+added_16,ar_pedestrian_online_2023,raw_data.xlsx,Q104_7,8,0,False,no tie
+added_16,ar_pedestrian_online_2023,raw_data.xlsx,Q104_8,8,0,False,no tie
+added_16,ar_pedestrian_online_2023,raw_data.xlsx,Q104_9,8,0,False,no tie
+added_16,ar_pedestrian_online_2023,raw_data.xlsx,Q114_3,8,0,False,no tie
+added_16,ar_pedestrian_online_2023,raw_data.xlsx,Q114_4,8,0,False,no tie
+added_16,ar_pedestrian_online_2023,raw_data.xlsx,Q115_1,8,0,False,no tie
+added_16,ar_pedestrian_online_2023,raw_data.xlsx,Q115_2,8,0,False,no tie
+added_16,ar_pedestrian_online_2023,raw_data.xlsx,Q115_3,8,0,False,no tie
+added_16,ar_pedestrian_online_2023,raw_data.xlsx,Q115_4,8,0,False,no tie
+added_16,ar_pedestrian_online_2023,raw_data.xlsx,Q115_5,8,0,True,tie at the cut
+added_16,ar_pedestrian_online_2023,raw_data.xlsx,Q115_6,8,0,False,no tie
+added_16,ar_pedestrian_online_2023,raw_data.xlsx,Q115_7,8,0,False,no tie
+added_16,ar_pedestrian_online_2023,raw_data.xlsx,Q115_8,8,0,False,no tie
+added_16,ar_pedestrian_online_2023,raw_data.xlsx,Q115_9,8,0,False,no tie
+added_16,ar_pedestrian_online_2023,raw_data.xlsx,Q125_3,8,0,False,no tie
+added_16,ar_pedestrian_online_2023,raw_data.xlsx,Q125_4,8,0,False,no tie
+added_16,ar_pedestrian_online_2023,raw_data.xlsx,Q126_1,8,0,False,no tie
+added_16,ar_pedestrian_online_2023,raw_data.xlsx,Q126_2,8,0,False,no tie
+added_16,ar_pedestrian_online_2023,raw_data.xlsx,Q126_3,8,0,False,no tie
+added_16,ar_pedestrian_online_2023,raw_data.xlsx,Q126_4,8,0,False,no tie
+added_16,ar_pedestrian_online_2023,raw_data.xlsx,Q126_5,8,0,True,tie at the cut
+added_16,ar_pedestrian_online_2023,raw_data.xlsx,Q126_6,8,0,False,no tie
+added_16,ar_pedestrian_online_2023,raw_data.xlsx,Q126_7,8,0,False,no tie
+added_16,ar_pedestrian_online_2023,raw_data.xlsx,Q126_8,8,0,False,no tie
+added_16,ar_pedestrian_online_2023,raw_data.xlsx,Q126_9,8,0,False,no tie
+added_16,ar_pedestrian_online_2023,raw_data.xlsx,Q136_3,8,0,False,no tie
+added_16,ar_pedestrian_online_2023,raw_data.xlsx,Q136_4,8,0,False,no tie
+added_16,ar_pedestrian_online_2023,raw_data.xlsx,Q137_1,8,0,False,no tie
+added_16,ar_pedestrian_online_2023,raw_data.xlsx,Q137_2,8,0,False,no tie
+added_16,ar_pedestrian_online_2023,raw_data.xlsx,Q137_3,8,0,False,no tie
+added_16,ar_pedestrian_online_2023,raw_data.xlsx,Q137_4,8,0,False,no tie
+added_16,ar_pedestrian_online_2023,raw_data.xlsx,Q137_5,8,0,True,tie at the cut
+added_16,ar_pedestrian_online_2023,raw_data.xlsx,Q137_6,8,0,False,no tie
+added_16,ar_pedestrian_online_2023,raw_data.xlsx,Q137_7,8,0,False,no tie
+added_16,ar_pedestrian_online_2023,raw_data.xlsx,Q137_8,8,0,False,no tie
+added_16,ar_pedestrian_online_2023,raw_data.xlsx,Q137_9,8,0,False,no tie
+added_16,ar_pedestrian_online_2023,raw_data.xlsx,Q147_3,8,0,False,no tie
+added_16,ar_pedestrian_online_2023,raw_data.xlsx,Q147_4,8,0,False,no tie
+added_16,ar_pedestrian_online_2023,raw_data.xlsx,Q148_1,8,0,False,no tie
+added_16,ar_pedestrian_online_2023,raw_data.xlsx,Q148_2,8,0,False,no tie
+added_16,ar_pedestrian_online_2023,raw_data.xlsx,Q148_3,8,0,False,no tie
+added_16,ar_pedestrian_online_2023,raw_data.xlsx,Q148_4,8,0,False,no tie
+added_16,ar_pedestrian_online_2023,raw_data.xlsx,Q148_5,8,0,True,tie at the cut
+added_16,ar_pedestrian_online_2023,raw_data.xlsx,Q148_6,8,0,False,no tie
+added_16,ar_pedestrian_online_2023,raw_data.xlsx,Q148_7,8,0,False,no tie
+added_16,ar_pedestrian_online_2023,raw_data.xlsx,Q148_8,8,0,False,no tie
+added_16,ar_pedestrian_online_2023,raw_data.xlsx,Q148_9,8,0,False,no tie
+added_16,ar_pedestrian_online_2023,raw_data.xlsx,Q158_3,8,0,False,no tie
+added_16,ar_pedestrian_online_2023,raw_data.xlsx,Q158_4,8,0,False,no tie
+added_16,ar_pedestrian_online_2023,raw_data.xlsx,Q159_1,8,0,False,no tie
+added_16,ar_pedestrian_online_2023,raw_data.xlsx,Q159_2,8,0,False,no tie
+added_16,ar_pedestrian_online_2023,raw_data.xlsx,Q159_3,8,0,False,no tie
+added_16,ar_pedestrian_online_2023,raw_data.xlsx,Q159_4,8,0,False,no tie
+added_16,ar_pedestrian_online_2023,raw_data.xlsx,Q159_5,8,0,True,tie at the cut
+added_16,ar_pedestrian_online_2023,raw_data.xlsx,Q159_6,8,0,False,no tie
+added_16,ar_pedestrian_online_2023,raw_data.xlsx,Q159_7,8,0,False,no tie
+added_16,ar_pedestrian_online_2023,raw_data.xlsx,Q159_8,8,0,False,no tie
+added_16,ar_pedestrian_online_2023,raw_data.xlsx,Q159_9,8,0,False,no tie
+added_16,ar_pedestrian_online_2023,raw_data.xlsx,Q169_3,8,0,False,no tie
+added_16,ar_pedestrian_online_2023,raw_data.xlsx,Q169_4,8,0,False,no tie
+added_16,ar_pedestrian_online_2023,raw_data.xlsx,Q170_1,8,0,False,no tie
+added_16,ar_pedestrian_online_2023,raw_data.xlsx,Q170_2,8,0,False,no tie
+added_16,ar_pedestrian_online_2023,raw_data.xlsx,Q170_3,8,0,False,no tie
+added_16,ar_pedestrian_online_2023,raw_data.xlsx,Q170_4,8,0,False,no tie
+added_16,ar_pedestrian_online_2023,raw_data.xlsx,Q170_5,8,0,True,tie at the cut
+added_16,ar_pedestrian_online_2023,raw_data.xlsx,Q170_6,8,0,False,no tie
+added_16,ar_pedestrian_online_2023,raw_data.xlsx,Q170_7,8,0,False,no tie
+added_16,ar_pedestrian_online_2023,raw_data.xlsx,Q170_8,8,0,False,no tie
+added_16,ar_pedestrian_online_2023,raw_data.xlsx,Q170_9,8,0,False,no tie
+added_16,ar_pedestrian_online_2023,raw_data.xlsx,Q39_3,8,0,False,no tie
+added_16,ar_pedestrian_online_2023,raw_data.xlsx,Q39_4,8,0,False,no tie
+added_16,ar_pedestrian_online_2023,raw_data.xlsx,Q40_1,8,0,False,no tie
+added_16,ar_pedestrian_online_2023,raw_data.xlsx,Q40_2,8,0,False,no tie
+added_16,ar_pedestrian_online_2023,raw_data.xlsx,Q40_3,8,0,False,no tie
+added_16,ar_pedestrian_online_2023,raw_data.xlsx,Q40_4,8,0,False,no tie
+added_16,ar_pedestrian_online_2023,raw_data.xlsx,Q40_5,8,0,True,tie at the cut
+added_16,ar_pedestrian_online_2023,raw_data.xlsx,Q40_6,8,0,False,no tie
+added_16,ar_pedestrian_online_2023,raw_data.xlsx,Q40_7,8,0,False,no tie
+added_16,ar_pedestrian_online_2023,raw_data.xlsx,Q40_8,8,0,False,no tie
+added_16,ar_pedestrian_online_2023,raw_data.xlsx,Q40_9,8,0,False,no tie
+added_16,ar_pedestrian_online_2023,raw_data.xlsx,Q92_3,8,0,False,no tie
+added_16,ar_pedestrian_online_2023,raw_data.xlsx,Q92_4,8,0,False,no tie
+added_16,ar_pedestrian_online_2023,raw_data.xlsx,Q93_1,8,0,False,no tie
+added_16,ar_pedestrian_online_2023,raw_data.xlsx,Q93_2,8,0,False,no tie
+added_16,ar_pedestrian_online_2023,raw_data.xlsx,Q93_3,8,0,False,no tie
+added_16,ar_pedestrian_online_2023,raw_data.xlsx,Q93_4,8,0,False,no tie
+added_16,ar_pedestrian_online_2023,raw_data.xlsx,Q93_5,8,0,True,tie at the cut
+added_16,ar_pedestrian_online_2023,raw_data.xlsx,Q93_6,8,0,False,no tie
+added_16,ar_pedestrian_online_2023,raw_data.xlsx,Q93_7,8,0,False,no tie
+added_16,ar_pedestrian_online_2023,raw_data.xlsx,Q93_8,8,0,False,no tie
+added_16,ar_pedestrian_online_2023,raw_data.xlsx,Q93_9,8,0,False,no tie
+added_16,artv_ornaments_2025,Study-2-Questionnaire_Cleaned.xlsx,5_Inverted,8,0,False,no tie
+added_16,artv_ornaments_2025,Study-2-Questionnaire_Cleaned.xlsx,6_Inverted,8,0,False,no tie
+added_16,artv_ornaments_2025,Study-2-Questionnaire_Cleaned.xlsx,7_inverted,8,0,False,no tie
+added_16,artv_ornaments_2025,Study-2-Questionnaire_Cleaned.xlsx,IEQ_Captivation,8,0,False,no tie
+added_16,artv_ornaments_2025,Study-2-Questionnaire_Cleaned.xlsx,IEQ_Comprehension,8,0,False,no tie
+added_16,artv_ornaments_2025,Study-2-Questionnaire_Cleaned.xlsx,IEQ_Real_World_Dissociation,8,0,False,no tie
+added_16,artv_ornaments_2025,Study-2-Questionnaire_Cleaned.xlsx,IEQ_Score,8,0,False,no tie
+added_16,artv_ornaments_2025,Study-2-Questionnaire_Cleaned.xlsx,IEQ_Transportation,8,0,False,no tie
+added_16,artv_ornaments_2025,Study-2-Questionnaire_Cleaned.xlsx,Q1_1,8,0,False,no tie
+added_16,artv_ornaments_2025,Study-2-Questionnaire_Cleaned.xlsx,Q1_10,8,0,False,no tie
+added_16,artv_ornaments_2025,Study-2-Questionnaire_Cleaned.xlsx,Q1_11,8,0,False,no tie
+added_16,artv_ornaments_2025,Study-2-Questionnaire_Cleaned.xlsx,Q1_12,8,0,False,no tie
+added_16,artv_ornaments_2025,Study-2-Questionnaire_Cleaned.xlsx,Q1_13,8,0,False,no tie
+added_16,artv_ornaments_2025,Study-2-Questionnaire_Cleaned.xlsx,Q1_14,8,0,False,no tie
+added_16,artv_ornaments_2025,Study-2-Questionnaire_Cleaned.xlsx,Q1_15,8,0,False,no tie
+added_16,artv_ornaments_2025,Study-2-Questionnaire_Cleaned.xlsx,Q1_16,8,0,False,no tie
+added_16,artv_ornaments_2025,Study-2-Questionnaire_Cleaned.xlsx,Q1_17,8,0,False,no tie
+added_16,artv_ornaments_2025,Study-2-Questionnaire_Cleaned.xlsx,Q1_18,8,0,False,no tie
+added_16,artv_ornaments_2025,Study-2-Questionnaire_Cleaned.xlsx,Q1_19,8,0,False,no tie
+added_16,artv_ornaments_2025,Study-2-Questionnaire_Cleaned.xlsx,Q1_2,8,0,False,no tie
+added_16,artv_ornaments_2025,Study-2-Questionnaire_Cleaned.xlsx,Q1_20,8,0,False,no tie
+added_16,artv_ornaments_2025,Study-2-Questionnaire_Cleaned.xlsx,Q1_21,8,0,False,no tie
+added_16,artv_ornaments_2025,Study-2-Questionnaire_Cleaned.xlsx,Q1_22,8,0,False,no tie
+added_16,artv_ornaments_2025,Study-2-Questionnaire_Cleaned.xlsx,Q1_23,8,0,False,no tie
+added_16,artv_ornaments_2025,Study-2-Questionnaire_Cleaned.xlsx,Q1_24,8,0,False,no tie
+added_16,artv_ornaments_2025,Study-2-Questionnaire_Cleaned.xlsx,Q1_3,8,0,False,no tie
+added_16,artv_ornaments_2025,Study-2-Questionnaire_Cleaned.xlsx,Q1_4,8,0,False,no tie
+added_16,artv_ornaments_2025,Study-2-Questionnaire_Cleaned.xlsx,Q1_5,8,0,False,no tie
+added_16,artv_ornaments_2025,Study-2-Questionnaire_Cleaned.xlsx,Q1_6,8,0,True,tie at the cut
+added_16,artv_ornaments_2025,Study-2-Questionnaire_Cleaned.xlsx,Q1_7,8,0,True,tie at the cut
+added_16,artv_ornaments_2025,Study-2-Questionnaire_Cleaned.xlsx,Q1_8,8,0,True,tie at the cut
+added_16,artv_ornaments_2025,Study-2-Questionnaire_Cleaned.xlsx,Q1_9,8,0,True,tie at the cut
+added_16,artv_ornaments_2025,Study-2-Questionnaire_Cleaned.xlsx,Q3_1,8,0,False,no tie
+added_16,artv_ornaments_2025,Study-2-Questionnaire_Cleaned.xlsx,Q3_2,8,0,False,no tie
+added_16,artv_ornaments_2025,Study-2-Questionnaire_Cleaned.xlsx,Q4,8,0,False,no tie
+added_16,artv_ornaments_2025,Study-2-Questionnaire_Cleaned.xlsx,Q6_1,8,0,True,tie at the cut
+added_16,artv_ornaments_2025,Study-2-Questionnaire_Cleaned.xlsx,Q6_2,8,0,True,tie at the cut
+added_16,artv_ornaments_2025,Study-2-Questionnaire_Cleaned.xlsx,Q6_3,8,0,False,no tie
+added_16,artv_ornaments_2025,Study-2-Questionnaire_Cleaned.xlsx,Q6_4,8,0,False,no tie
+added_16,artv_ornaments_2025,Study-2-Questionnaire_Cleaned.xlsx,Q6_5,8,0,False,no tie
+added_16,artv_ornaments_2025,Study-2-Questionnaire_Cleaned.xlsx,Q6_6,8,0,False,no tie
+added_16,artv_ornaments_2025,Study-2-Questionnaire_Cleaned.xlsx,Q6_7,8,0,False,no tie
+added_16,artv_ornaments_2025,Study-2-Questionnaire_Cleaned.xlsx,Q6_8,8,0,False,no tie
+added_16,artv_ornaments_2025,Study-2-Questionnaire_Cleaned.xlsx,Q7,8,0,False,no tie
+added_16,artv_ornaments_2025,Study-2-Questionnaire_Cleaned.xlsx,UEQ_1,8,0,False,no tie
+added_16,artv_ornaments_2025,Study-2-Questionnaire_Cleaned.xlsx,UEQ_2,8,0,False,no tie
+added_16,artv_ornaments_2025,Study-2-Questionnaire_Cleaned.xlsx,UEQ_3,8,0,False,no tie
+added_16,artv_ornaments_2025,Study-2-Questionnaire_Cleaned.xlsx,UEQ_4,8,0,False,no tie
+added_16,artv_ornaments_2025,Study-2-Questionnaire_Cleaned.xlsx,UEQ_5,8,0,False,no tie
+added_16,artv_ornaments_2025,Study-2-Questionnaire_Cleaned.xlsx,UEQ_6,8,0,False,no tie
+added_16,artv_ornaments_2025,Study-2-Questionnaire_Cleaned.xlsx,UEQ_7,8,0,False,no tie
+added_16,artv_ornaments_2025,Study-2-Questionnaire_Cleaned.xlsx,UEQ_8,8,0,False,no tie
+added_16,artv_ornaments_2025,Study-2-Questionnaire_Cleaned.xlsx,UEQ_SF,8,0,False,no tie
+added_16,artv_ornaments_2025,Study-2-Questionnaire_Cleaned.xlsx,UES_SF,8,0,False,no tie
+added_16,artv_ornaments_2025,Study-2-Questionnaire_Cleaned.xlsx,UES_SF_AE,8,0,False,no tie
+added_16,artv_ornaments_2025,Study-2-Questionnaire_Cleaned.xlsx,UES_SF_FA,8,0,False,no tie
+added_16,artv_ornaments_2025,Study-2-Questionnaire_Cleaned.xlsx,UES_SF_PU,8,0,False,no tie
+added_16,artv_ornaments_2025,Study-2-Questionnaire_Cleaned.xlsx,UES_SF_RW,8,0,False,no tie
+added_16,artv_ornaments_2025,Study-2-Questionnaire_Cleaned.xlsx,Q5_1,8,0,False,no tie
+added_16,artv_ornaments_2025,Study-2-Questionnaire_Cleaned.xlsx,Q5_10,8,0,False,no tie
+added_16,artv_ornaments_2025,Study-2-Questionnaire_Cleaned.xlsx,Q5_11,8,0,True,tie at the cut
+added_16,artv_ornaments_2025,Study-2-Questionnaire_Cleaned.xlsx,Q5_12,8,0,True,tie at the cut
+added_16,artv_ornaments_2025,Study-2-Questionnaire_Cleaned.xlsx,Q5_2,8,0,False,no tie
+added_16,artv_ornaments_2025,Study-2-Questionnaire_Cleaned.xlsx,Q5_3,8,0,False,no tie
+added_16,artv_ornaments_2025,Study-2-Questionnaire_Cleaned.xlsx,Q5_4,8,0,False,no tie
+added_16,artv_ornaments_2025,Study-2-Questionnaire_Cleaned.xlsx,Q5_5,8,0,False,no tie
+added_16,artv_ornaments_2025,Study-2-Questionnaire_Cleaned.xlsx,Q5_6,8,0,False,no tie
+added_16,artv_ornaments_2025,Study-2-Questionnaire_Cleaned.xlsx,Q5_7,8,0,False,no tie
+added_16,artv_ornaments_2025,Study-2-Questionnaire_Cleaned.xlsx,Q5_8,8,0,False,no tie
+added_16,artv_ornaments_2025,Study-2-Questionnaire_Cleaned.xlsx,Q5_9,8,0,False,no tie
+added_16,artv_ornaments_2025,Study-2-Questionnaire_Cleaned.xlsx,UEQ_SF_Hedonic,8,0,False,no tie
+added_16,artv_ornaments_2025,Study-2-Questionnaire_Cleaned.xlsx,UEQ_SF_Pragmatic,8,0,False,no tie
+added_16,concurrent_speech_2022,Investigating cognitive workload in concurrent speech-based information communication.csv,baseline_type,8,0,False,no tie
+added_16,concurrent_speech_2022,Investigating cognitive workload in concurrent speech-based information communication.csv,combination_id,8,0,False,no tie
+added_16,concurrent_speech_2022,Investigating cognitive workload in concurrent speech-based information communication.csv,combination_title,8,0,False,no tie
+added_16,concurrent_speech_2022,Investigating cognitive workload in concurrent speech-based information communication.csv,stimulus_form,8,0,False,no tie
+added_16,concurrent_speech_2022,Investigating cognitive workload in concurrent speech-based information communication.csv,stimulus_id,8,0,False,no tie
+added_16,concurrent_speech_2022,Investigating cognitive workload in concurrent speech-based information communication.csv,stimulus_type,8,0,False,no tie
+added_16,concurrent_speech_2022,Investigating cognitive workload in concurrent speech-based information communication.csv,Effort,8,0,False,no tie
+added_16,concurrent_speech_2022,Investigating cognitive workload in concurrent speech-based information communication.csv,Frustration,8,0,False,no tie
+added_16,concurrent_speech_2022,Investigating cognitive workload in concurrent speech-based information communication.csv,Index Score,8,0,False,no tie
+added_16,concurrent_speech_2022,Investigating cognitive workload in concurrent speech-based information communication.csv,Mental Demand,8,0,False,no tie
+added_16,concurrent_speech_2022,Investigating cognitive workload in concurrent speech-based information communication.csv,Performance,8,0,False,no tie
+added_16,concurrent_speech_2022,Investigating cognitive workload in concurrent speech-based information communication.csv,Physical Demand,8,0,False,no tie
+added_16,concurrent_speech_2022,Investigating cognitive workload in concurrent speech-based information communication.csv,Temporal Demand,8,0,False,no tie
+added_16,driving_style_automated_2021,supplementary materials/data.xlsx,Age,8,0,False,no tie
+added_16,driving_style_automated_2021,supplementary materials/data.xlsx,"Gender (1=male, 2=female)",8,0,False,no tie
+added_16,driving_style_automated_2021,supplementary materials/data.xlsx,How many km did you drive in the last 12 months?,8,0,False,no tie
+added_16,driving_style_automated_2021,supplementary materials/data.xlsx,How often did you drive a vehicle in the last 12 months?,8,0,False,no tie
+added_16,driving_style_automated_2021,supplementary materials/data.xlsx,Participant,8,0,False,no tie
+added_16,driving_style_automated_2021,supplementary materials/data.xlsx,Primory mode of transportation,8,0,False,no tie
+added_16,driving_style_automated_2021,supplementary materials/data.xlsx,Session,8,0,False,no tie
+added_16,driving_style_automated_2021,supplementary materials/data.xlsx,Transportation: other,8,0,False,no tie
+added_16,driving_style_automated_2021,supplementary materials/data.xlsx,d1. Explain your answer.,8,0,False,no tie
+added_16,driving_style_automated_2021,supplementary materials/data.xlsx,d2. Explain your answer.,8,0,False,no tie
+added_16,driving_style_automated_2021,supplementary materials/data.xlsx,d3. Explain your answer.,8,0,False,no tie
+added_16,driving_style_automated_2021,supplementary materials/data.xlsx,d4. Explain your answer.,8,0,False,no tie
+added_16,driving_style_automated_2021,supplementary materials/data.xlsx,d5. Explain your answer.,8,0,False,no tie
+added_16,driving_style_automated_2021,supplementary materials/data.xlsx,d6. Explain your answer.,8,0,False,no tie
+added_16,driving_style_automated_2021,supplementary materials/data.xlsx,d7. Explain your answer.,8,0,False,no tie
+added_16,driving_style_automated_2021,supplementary materials/data.xlsx,d8. Explain your answer.,8,0,False,no tie
+added_16,driving_style_automated_2021,supplementary materials/data.xlsx,t1. Explain your answer.,8,0,False,no tie
+added_16,driving_style_automated_2021,supplementary materials/data.xlsx,t10. Explain your answer.,8,0,False,no tie
+added_16,driving_style_automated_2021,supplementary materials/data.xlsx,t2. Explain your answer.,8,0,False,no tie
+added_16,driving_style_automated_2021,supplementary materials/data.xlsx,t3. Explain your answer.,8,0,False,no tie
+added_16,driving_style_automated_2021,supplementary materials/data.xlsx,t4. Explain your answer.,8,0,False,no tie
+added_16,driving_style_automated_2021,supplementary materials/data.xlsx,t5. Explain your answer.,8,0,False,no tie
+added_16,driving_style_automated_2021,supplementary materials/data.xlsx,t6. Explain your answer.,8,0,False,no tie
+added_16,driving_style_automated_2021,supplementary materials/data.xlsx,t7. Explain your answer.,8,0,False,no tie
+added_16,driving_style_automated_2021,supplementary materials/data.xlsx,t8. Explain your answer.,8,0,False,no tie
+added_16,driving_style_automated_2021,supplementary materials/data.xlsx,t9. Explain your answer.,8,0,False,no tie
+added_16,driving_style_automated_2021,supplementary materials/data.xlsx,d1. Anxious vs Relaxed,8,0,False,no tie
+added_16,driving_style_automated_2021,supplementary materials/data.xlsx,d1. Dislike vs like,8,0,False,no tie
+added_16,driving_style_automated_2021,supplementary materials/data.xlsx,d1. Machine-like vs human-like,8,0,False,no tie
+added_16,driving_style_automated_2021,supplementary materials/data.xlsx,d1. Mechanical vs oganic,8,0,False,no tie
+added_16,driving_style_automated_2021,supplementary materials/data.xlsx,d1. Unintelligent vs Intelligent,8,0,False,no tie
+added_16,driving_style_automated_2021,supplementary materials/data.xlsx,d2. Anxious vs Relaxed,8,0,False,no tie
+added_16,driving_style_automated_2021,supplementary materials/data.xlsx,d2. Dislike vs like,8,0,False,no tie
+added_16,driving_style_automated_2021,supplementary materials/data.xlsx,d2. Machine-like vs human-like,8,0,False,no tie
+added_16,driving_style_automated_2021,supplementary materials/data.xlsx,d2. Mechanical vs oganic,8,0,False,no tie
+added_16,driving_style_automated_2021,supplementary materials/data.xlsx,d2. Unintelligent vs Intelligent,8,0,False,no tie
+added_16,driving_style_automated_2021,supplementary materials/data.xlsx,d3. Anxious vs Relaxed,8,0,False,no tie
+added_16,driving_style_automated_2021,supplementary materials/data.xlsx,d3. Dislike vs like,8,0,False,no tie
+added_16,driving_style_automated_2021,supplementary materials/data.xlsx,d3. Machine-like vs human-like,8,0,False,no tie
+added_16,driving_style_automated_2021,supplementary materials/data.xlsx,d3. Mechanical vs oganic,8,0,False,no tie
+added_16,driving_style_automated_2021,supplementary materials/data.xlsx,d3. Unintelligent vs Intelligent,8,0,False,no tie
+added_16,driving_style_automated_2021,supplementary materials/data.xlsx,d4. Anxious vs Relaxed,8,0,False,no tie
+added_16,driving_style_automated_2021,supplementary materials/data.xlsx,d4. Dislike vs like,8,0,False,no tie
+added_16,driving_style_automated_2021,supplementary materials/data.xlsx,d4. Machine-like vs human-like,8,0,False,no tie
+added_16,driving_style_automated_2021,supplementary materials/data.xlsx,d4. Mechanical vs oganic,8,0,False,no tie
+added_16,driving_style_automated_2021,supplementary materials/data.xlsx,d4. Unintelligent vs Intelligent,8,0,False,no tie
+added_16,driving_style_automated_2021,supplementary materials/data.xlsx,d5. Anxious vs Relaxed,8,0,True,tie at the cut
+added_16,driving_style_automated_2021,supplementary materials/data.xlsx,d5. Dislike vs like,8,0,False,no tie
+added_16,driving_style_automated_2021,supplementary materials/data.xlsx,d5. Machine-like vs human-like,8,0,False,no tie
+added_16,driving_style_automated_2021,supplementary materials/data.xlsx,d5. Mechanical vs oganic,8,0,False,no tie
+added_16,driving_style_automated_2021,supplementary materials/data.xlsx,d5. Unintelligent vs Intelligent,8,0,False,no tie
+added_16,driving_style_automated_2021,supplementary materials/data.xlsx,d6. Anxious vs Relaxed,8,0,False,no tie
+added_16,driving_style_automated_2021,supplementary materials/data.xlsx,d6. Dislike vs like,8,0,False,no tie
+added_16,driving_style_automated_2021,supplementary materials/data.xlsx,d6. Machine-like vs human-like,8,0,False,no tie
+added_16,driving_style_automated_2021,supplementary materials/data.xlsx,d6. Mechanical vs oganic,8,0,False,no tie
+added_16,driving_style_automated_2021,supplementary materials/data.xlsx,d6. Unintelligent vs Intelligent,8,0,False,no tie
+added_16,driving_style_automated_2021,supplementary materials/data.xlsx,d7. Anxious vs Relaxed,8,0,True,tie at the cut
+added_16,driving_style_automated_2021,supplementary materials/data.xlsx,d7. Dislike vs like,8,0,False,no tie
+added_16,driving_style_automated_2021,supplementary materials/data.xlsx,d7. Machine-like vs human-like,8,0,False,no tie
+added_16,driving_style_automated_2021,supplementary materials/data.xlsx,d7. Mechanical vs oganic,8,0,False,no tie
+added_16,driving_style_automated_2021,supplementary materials/data.xlsx,d7. Unintelligent vs Intelligent,8,0,False,no tie
+added_16,driving_style_automated_2021,supplementary materials/data.xlsx,d8. Anxious vs Relaxed,8,0,True,tie at the cut
+added_16,driving_style_automated_2021,supplementary materials/data.xlsx,d8. Dislike vs like,8,0,False,no tie
+added_16,driving_style_automated_2021,supplementary materials/data.xlsx,d8. Machine-like vs human-like,8,0,False,no tie
+added_16,driving_style_automated_2021,supplementary materials/data.xlsx,d8. Mechanical vs oganic,8,0,False,no tie
+added_16,driving_style_automated_2021,supplementary materials/data.xlsx,d8. Unintelligent vs Intelligent,8,0,False,no tie
+added_16,driving_style_automated_2021,supplementary materials/data.xlsx,t1. Anxious vs Relaxed,8,0,False,no tie
+added_16,driving_style_automated_2021,supplementary materials/data.xlsx,t1. Dislike vs like,8,0,False,no tie
+added_16,driving_style_automated_2021,supplementary materials/data.xlsx,t1. Machine-like vs human-like,8,0,False,no tie
+added_16,driving_style_automated_2021,supplementary materials/data.xlsx,t1. Mechanical vs oganic,8,0,False,no tie
+added_16,driving_style_automated_2021,supplementary materials/data.xlsx,t1. Unintelligent vs Intelligent,8,0,False,no tie
+added_16,driving_style_automated_2021,supplementary materials/data.xlsx,t10. Anxious vs Relaxed,8,0,False,no tie
+added_16,driving_style_automated_2021,supplementary materials/data.xlsx,t10. Dislike vs like,8,0,False,no tie
+added_16,driving_style_automated_2021,supplementary materials/data.xlsx,t10. Machine-like vs human-like,8,0,False,no tie
+added_16,driving_style_automated_2021,supplementary materials/data.xlsx,t10. Mechanical vs oganic,8,0,False,no tie
+added_16,driving_style_automated_2021,supplementary materials/data.xlsx,t10. Unintelligent vs Intelligent,8,0,False,no tie
+added_16,driving_style_automated_2021,supplementary materials/data.xlsx,t2. Anxious vs Relaxed,8,0,False,no tie
+added_16,driving_style_automated_2021,supplementary materials/data.xlsx,t2. Dislike vs like,8,0,False,no tie
+added_16,driving_style_automated_2021,supplementary materials/data.xlsx,t2. Machine-like vs human-like,8,0,False,no tie
+added_16,driving_style_automated_2021,supplementary materials/data.xlsx,t2. Mechanical vs oganic,8,0,False,no tie
+added_16,driving_style_automated_2021,supplementary materials/data.xlsx,t2. Unintelligent vs Intelligent,8,0,False,no tie
+added_16,driving_style_automated_2021,supplementary materials/data.xlsx,t3. Anxious vs Relaxed,8,0,False,no tie
+added_16,driving_style_automated_2021,supplementary materials/data.xlsx,t3. Dislike vs like,8,0,False,no tie
+added_16,driving_style_automated_2021,supplementary materials/data.xlsx,t3. Machine-like vs human-like,8,0,False,no tie
+added_16,driving_style_automated_2021,supplementary materials/data.xlsx,t3. Mechanical vs oganic,8,0,False,no tie
+added_16,driving_style_automated_2021,supplementary materials/data.xlsx,t3. Unintelligent vs Intelligent,8,0,False,no tie
+added_16,driving_style_automated_2021,supplementary materials/data.xlsx,t4. Anxious vs Relaxed,8,0,False,no tie
+added_16,driving_style_automated_2021,supplementary materials/data.xlsx,t4. Dislike vs like,8,0,False,no tie
+added_16,driving_style_automated_2021,supplementary materials/data.xlsx,t4. Machine-like vs human-like,8,0,False,no tie
+added_16,driving_style_automated_2021,supplementary materials/data.xlsx,t4. Mechanical vs oganic,8,0,False,no tie
+added_16,driving_style_automated_2021,supplementary materials/data.xlsx,t4. Unintelligent vs Intelligent,8,0,False,no tie
+added_16,driving_style_automated_2021,supplementary materials/data.xlsx,t5. Anxious vs Relaxed,8,0,False,no tie
+added_16,driving_style_automated_2021,supplementary materials/data.xlsx,t5. Dislike vs like,8,0,False,no tie
+added_16,driving_style_automated_2021,supplementary materials/data.xlsx,t5. Machine-like vs human-like,8,0,False,no tie
+added_16,driving_style_automated_2021,supplementary materials/data.xlsx,t5. Mechanical vs oganic,8,0,False,no tie
+added_16,driving_style_automated_2021,supplementary materials/data.xlsx,t5. Unintelligent vs Intelligent,8,0,False,no tie
+added_16,driving_style_automated_2021,supplementary materials/data.xlsx,t6. Anxious vs Relaxed,8,0,True,tie at the cut
+added_16,driving_style_automated_2021,supplementary materials/data.xlsx,t6. Dislike vs like,8,0,False,no tie
+added_16,driving_style_automated_2021,supplementary materials/data.xlsx,t6. Machine-like vs human-like,8,0,False,no tie
+added_16,driving_style_automated_2021,supplementary materials/data.xlsx,t6. Mechanical vs oganic,8,0,False,no tie
+added_16,driving_style_automated_2021,supplementary materials/data.xlsx,t6. Unintelligent vs Intelligent,8,0,False,no tie
+added_16,driving_style_automated_2021,supplementary materials/data.xlsx,t7. Anxious vs Relaxed,8,0,False,no tie
+added_16,driving_style_automated_2021,supplementary materials/data.xlsx,t7. Dislike vs like,8,0,False,no tie
+added_16,driving_style_automated_2021,supplementary materials/data.xlsx,t7. Machine-like vs human-like,8,0,False,no tie
+added_16,driving_style_automated_2021,supplementary materials/data.xlsx,t7. Mechanical vs oganic,8,0,False,no tie
+added_16,driving_style_automated_2021,supplementary materials/data.xlsx,t7. Unintelligent vs Intelligent,8,0,False,no tie
+added_16,driving_style_automated_2021,supplementary materials/data.xlsx,t8. Anxious vs Relaxed,8,0,False,no tie
+added_16,driving_style_automated_2021,supplementary materials/data.xlsx,t8. Dislike vs like,8,0,False,no tie
+added_16,driving_style_automated_2021,supplementary materials/data.xlsx,t8. Machine-like vs human-like,8,0,False,no tie
+added_16,driving_style_automated_2021,supplementary materials/data.xlsx,t8. Mechanical vs oganic,8,0,False,no tie
+added_16,driving_style_automated_2021,supplementary materials/data.xlsx,t8. Unintelligent vs Intelligent,8,0,False,no tie
+added_16,driving_style_automated_2021,supplementary materials/data.xlsx,t9. Anxious vs Relaxed,8,0,True,tie at the cut
+added_16,driving_style_automated_2021,supplementary materials/data.xlsx,t9. Dislike vs like,8,0,False,no tie
+added_16,driving_style_automated_2021,supplementary materials/data.xlsx,t9. Machine-like vs human-like,8,0,False,no tie
+added_16,driving_style_automated_2021,supplementary materials/data.xlsx,t9. Mechanical vs oganic,8,0,False,no tie
+added_16,driving_style_automated_2021,supplementary materials/data.xlsx,t9. Unintelligent vs Intelligent,8,0,False,no tie
+added_16,ehmi_car_body_2020,data_MuC2020_AV-to-Manual driver communication clarity questionnaire.sav,Proband,8,0,False,no tie
+added_16,ehmi_car_body_2020,data_MuC2020_AV-to-Manual driver communication clarity questionnaire.sav,VFA_E1D_Eindeutigkeit,8,0,False,no tie
+added_16,ehmi_car_body_2020,data_MuC2020_AV-to-Manual driver communication clarity questionnaire.sav,VFA_E1K_Eindeutigkeit,8,0,False,no tie
+added_16,ehmi_car_body_2020,data_MuC2020_AV-to-Manual driver communication clarity questionnaire.sav,VFA_E1L_Eindeutigkeit,8,0,False,no tie
+added_16,ehmi_car_body_2020,data_MuC2020_AV-to-Manual driver communication clarity questionnaire.sav,VFA_E1P_Eindeutigkeit,8,0,False,no tie
+added_16,ehmi_car_body_2020,data_MuC2020_AV-to-Manual driver communication clarity questionnaire.sav,VFA_NE1D_Eindeutigkeit,8,0,False,no tie
+added_16,ehmi_car_body_2020,data_MuC2020_AV-to-Manual driver communication clarity questionnaire.sav,VFA_NE1K_Eindeutigkeit,8,0,False,no tie
+added_16,ehmi_car_body_2020,data_MuC2020_AV-to-Manual driver communication clarity questionnaire.sav,VFA_NE1L_Eindeutigkeit,8,0,False,no tie
+added_16,ehmi_car_body_2020,data_MuC2020_AV-to-Manual driver communication clarity questionnaire.sav,VFA_NE1P_Eindeutigkeit,8,0,False,no tie
+added_16,ehmi_survey_crowd_2019,data/Survey 1/data_s1.xlsx,_city,8,0,True,tie at the cut
+added_16,ehmi_survey_crowd_2019,data/Survey 1/data_s1.xlsx,_country,8,0,False,no tie
+added_16,ehmi_survey_crowd_2019,data/Survey 1/data_s1.xlsx,_created_at,8,0,False,no tie
+added_16,ehmi_survey_crowd_2019,data/Survey 1/data_s1.xlsx,_id,8,6,True,zero-score candidates
+added_16,ehmi_survey_crowd_2019,data/Survey 1/data_s1.xlsx,_ip,8,4,True,zero-score candidates
+added_16,ehmi_survey_crowd_2019,data/Survey 1/data_s1.xlsx,_started_at,8,0,False,no tie
+added_16,ehmi_survey_crowd_2019,data/Survey 1/data_s1.xlsx,_tainted,8,0,False,no tie
+added_16,ehmi_survey_crowd_2019,data/Survey 1/data_s1.xlsx,_trust,8,0,False,no tie
+added_16,ehmi_survey_crowd_2019,data/Survey 1/data_s1.xlsx,_unit_id,8,0,False,no tie
+added_16,ehmi_survey_crowd_2019,data/Survey 1/data_s1.xlsx,_worker_id,8,0,False,no tie
+added_16,ehmi_survey_crowd_2019,data/Survey 1/data_s1.xlsx,about_how_many_kilometers_miles_did_you_drive_in_the_last_12_months,8,0,False,no tie
+added_16,ehmi_survey_crowd_2019,data/Survey 1/data_s1.xlsx,at_which_age_did_you_obtain_your_first_license_for_driving_a_car_or_motorcycle,8,0,False,no tie
+added_16,ehmi_survey_crowd_2019,data/Survey 1/data_s1.xlsx,file1,8,0,False,no tie
+added_16,ehmi_survey_crowd_2019,data/Survey 1/data_s1.xlsx,file10,8,0,False,no tie
+added_16,ehmi_survey_crowd_2019,data/Survey 1/data_s1.xlsx,file11,8,0,False,no tie
+added_16,ehmi_survey_crowd_2019,data/Survey 1/data_s1.xlsx,file12,8,0,False,no tie
+added_16,ehmi_survey_crowd_2019,data/Survey 1/data_s1.xlsx,file13,8,0,False,no tie
+added_16,ehmi_survey_crowd_2019,data/Survey 1/data_s1.xlsx,file14,8,0,False,no tie
+added_16,ehmi_survey_crowd_2019,data/Survey 1/data_s1.xlsx,file15,8,0,False,no tie
+added_16,ehmi_survey_crowd_2019,data/Survey 1/data_s1.xlsx,file16,8,0,False,no tie
+added_16,ehmi_survey_crowd_2019,data/Survey 1/data_s1.xlsx,file17,8,0,False,no tie
+added_16,ehmi_survey_crowd_2019,data/Survey 1/data_s1.xlsx,file18,8,0,False,no tie
+added_16,ehmi_survey_crowd_2019,data/Survey 1/data_s1.xlsx,file19,8,0,False,no tie
+added_16,ehmi_survey_crowd_2019,data/Survey 1/data_s1.xlsx,file2,8,0,False,no tie
+added_16,ehmi_survey_crowd_2019,data/Survey 1/data_s1.xlsx,file20,8,0,False,no tie
+added_16,ehmi_survey_crowd_2019,data/Survey 1/data_s1.xlsx,file21,8,0,False,no tie
+added_16,ehmi_survey_crowd_2019,data/Survey 1/data_s1.xlsx,file22,8,0,False,no tie
+added_16,ehmi_survey_crowd_2019,data/Survey 1/data_s1.xlsx,file23,8,0,False,no tie
+added_16,ehmi_survey_crowd_2019,data/Survey 1/data_s1.xlsx,file24,8,0,False,no tie
+added_16,ehmi_survey_crowd_2019,data/Survey 1/data_s1.xlsx,file25,8,0,False,no tie
+added_16,ehmi_survey_crowd_2019,data/Survey 1/data_s1.xlsx,file26,8,0,False,no tie
+added_16,ehmi_survey_crowd_2019,data/Survey 1/data_s1.xlsx,file27,8,0,False,no tie
+added_16,ehmi_survey_crowd_2019,data/Survey 1/data_s1.xlsx,file28,8,0,False,no tie
+added_16,ehmi_survey_crowd_2019,data/Survey 1/data_s1.xlsx,file3,8,0,False,no tie
+added_16,ehmi_survey_crowd_2019,data/Survey 1/data_s1.xlsx,file4,8,0,False,no tie
+added_16,ehmi_survey_crowd_2019,data/Survey 1/data_s1.xlsx,file5,8,0,False,no tie
+added_16,ehmi_survey_crowd_2019,data/Survey 1/data_s1.xlsx,file6,8,0,False,no tie
+added_16,ehmi_survey_crowd_2019,data/Survey 1/data_s1.xlsx,file7,8,0,False,no tie
+added_16,ehmi_survey_crowd_2019,data/Survey 1/data_s1.xlsx,file8,8,0,False,no tie
+added_16,ehmi_survey_crowd_2019,data/Survey 1/data_s1.xlsx,file9,8,0,False,no tie
+added_16,ehmi_survey_crowd_2019,data/Survey 1/data_s1.xlsx,for_the_most_part_i_distrust_machines,8,0,False,no tie
+added_16,ehmi_survey_crowd_2019,data/Survey 1/data_s1.xlsx,have_you_read_and_understood_the_above_instructions,8,0,False,no tie
+added_16,ehmi_survey_crowd_2019,data/Survey 1/data_s1.xlsx,how_many_accidents_were_you_involved_in_when_driving_a_car_in_the_last_3_years_please_include_all_accidents_regardless_of_how_they_were_caused_how_slight_they_were_or_where_they_happened,8,0,False,no tie
+added_16,ehmi_survey_crowd_2019,data/Survey 1/data_s1.xlsx,how_often_do_you_do_the_following_becoming_angered_by_a_particular_type_of_driver_and_indicate_your_hostility_by_whatever_means_you_can,8,0,False,no tie
+added_16,ehmi_survey_crowd_2019,data/Survey 1/data_s1.xlsx,how_often_do_you_do_the_following_disregarding_the_speed_limit_on_a_motorway,8,0,False,no tie
+added_16,ehmi_survey_crowd_2019,data/Survey 1/data_s1.xlsx,how_often_do_you_do_the_following_disregarding_the_speed_limit_on_a_residential_road,8,0,False,no tie
+added_16,ehmi_survey_crowd_2019,data/Survey 1/data_s1.xlsx,how_often_do_you_do_the_following_driving_so_close_to_the_car_in_front_that_it_would_be_difficult_to_stop_in_an_emergency,8,0,False,no tie
+added_16,ehmi_survey_crowd_2019,data/Survey 1/data_s1.xlsx,how_often_do_you_do_the_following_racing_away_from_traffic_lights_with_the_intention_of_beating_the_driver_next_to_you,8,0,False,no tie
+added_16,ehmi_survey_crowd_2019,data/Survey 1/data_s1.xlsx,how_often_do_you_do_the_following_sounding_your_horn_to_indicate_your_annoyance_with_another_road_user,8,0,False,no tie
+added_16,ehmi_survey_crowd_2019,data/Survey 1/data_s1.xlsx,how_often_do_you_do_the_following_using_a_mobile_phone_without_a_hands_free_kit,8,0,False,no tie
+added_16,ehmi_survey_crowd_2019,data/Survey 1/data_s1.xlsx,i_am_likely_to_trust_a_machine_even_when_i_have_little_knowledge_about_it,8,0,False,no tie
+added_16,ehmi_survey_crowd_2019,data/Survey 1/data_s1.xlsx,i_usually_trust_machines_until_there_is_a_reason_not_to,8,0,False,no tie
+added_16,ehmi_survey_crowd_2019,data/Survey 1/data_s1.xlsx,i_would_trust_a_car_that_drives_automatically,8,0,False,no tie
+added_16,ehmi_survey_crowd_2019,data/Survey 1/data_s1.xlsx,in_general_i_would_rely_on_a_machine_to_assist_me,8,0,False,no tie
+added_16,ehmi_survey_crowd_2019,data/Survey 1/data_s1.xlsx,in_which_year_do_you_think_that_most_cars_will_be_able_to_drive_fully_automatically_in_your_country_of_residence,8,0,False,no tie
+added_16,ehmi_survey_crowd_2019,data/Survey 1/data_s1.xlsx,it_is_easy_for_me_to_trust_machines_to_do_their_job,8,0,False,no tie
+added_16,ehmi_survey_crowd_2019,data/Survey 1/data_s1.xlsx,my_tendency_to_trust_machines_is_high,8,0,False,no tie
+added_16,ehmi_survey_crowd_2019,data/Survey 1/data_s1.xlsx,on_average_how_often_did_you_drive_a_vehicle_in_the_last_12_months,8,0,False,no tie
+added_16,ehmi_survey_crowd_2019,data/Survey 1/data_s1.xlsx,please_provide_any_suggestions_that_could_help_engineers_to_build_safe_and_enjoyable_automated_cars,8,0,False,no tie
+added_16,ehmi_survey_crowd_2019,data/Survey 2/data_s2.xlsx,question_10b_if_you_think_that_the_message_on_the_car_above_is_ambiguous_please_explain_why,8,0,False,no tie
+added_16,ehmi_survey_crowd_2019,data/Survey 2/data_s2.xlsx,question_10c_what_is_the_color_of_the_textpixels_on_the_display_of_the_car_above,8,0,False,no tie
+added_16,ehmi_survey_crowd_2019,data/Survey 2/data_s2.xlsx,question_11b_if_you_think_that_the_message_on_the_car_above_is_ambiguous_please_explain_why,8,0,False,no tie
+added_16,ehmi_survey_crowd_2019,data/Survey 2/data_s2.xlsx,question_11c_what_is_the_color_of_the_textpixels_on_the_display_of_the_car_above,8,0,False,no tie
+added_16,ehmi_survey_crowd_2019,data/Survey 2/data_s2.xlsx,question_12b_if_you_think_that_the_message_on_the_car_above_is_ambiguous_please_explain_why,8,0,False,no tie
+added_16,ehmi_survey_crowd_2019,data/Survey 2/data_s2.xlsx,question_12c_what_is_the_color_of_the_textpixels_on_the_display_of_the_car_above,8,0,False,no tie
+added_16,ehmi_survey_crowd_2019,data/Survey 2/data_s2.xlsx,question_13b_if_you_think_that_the_message_on_the_car_above_is_ambiguous_please_explain_why,8,0,False,no tie
+added_16,ehmi_survey_crowd_2019,data/Survey 2/data_s2.xlsx,question_13c_what_is_the_color_of_the_textpixels_on_the_display_of_the_car_above,8,0,False,no tie
+added_16,ehmi_survey_crowd_2019,data/Survey 2/data_s2.xlsx,question_14b_if_you_think_that_the_message_on_the_car_above_is_ambiguous_please_explain_why,8,0,False,no tie
+added_16,ehmi_survey_crowd_2019,data/Survey 2/data_s2.xlsx,question_14c_what_is_the_color_of_the_textpixels_on_the_display_of_the_car_above,8,0,False,no tie
+added_16,ehmi_survey_crowd_2019,data/Survey 2/data_s2.xlsx,question_15b_if_you_think_that_the_message_on_the_car_above_is_ambiguous_please_explain_why,8,0,False,no tie
+added_16,ehmi_survey_crowd_2019,data/Survey 2/data_s2.xlsx,question_15c_what_is_the_color_of_the_textpixels_on_the_display_of_the_car_above,8,0,False,no tie
+added_16,ehmi_survey_crowd_2019,data/Survey 2/data_s2.xlsx,question_1b_if_you_think_that_the_message_on_the_car_above_is_unclear_please_explain_why,8,0,False,no tie
+added_16,ehmi_survey_crowd_2019,data/Survey 2/data_s2.xlsx,question_1c_what_is_the_color_of_the_textpixels_on_the_display_of_the_car_above,8,0,False,no tie
+added_16,ehmi_survey_crowd_2019,data/Survey 2/data_s2.xlsx,question_2b_if_you_think_that_the_message_on_the_car_above_is_ambiguous_please_explain_why,8,0,False,no tie
+added_16,ehmi_survey_crowd_2019,data/Survey 2/data_s2.xlsx,question_2c_what_is_the_color_of_the_textpixels_on_the_display_of_the_car_above,8,0,False,no tie
+added_16,ehmi_survey_crowd_2019,data/Survey 2/data_s2.xlsx,question_3b_if_you_think_that_the_message_on_the_car_above_is_ambiguous_please_explain_why,8,0,False,no tie
+added_16,ehmi_survey_crowd_2019,data/Survey 2/data_s2.xlsx,question_3c_what_is_the_color_of_the_textpixels_on_the_display_of_the_car_above,8,0,False,no tie
+added_16,ehmi_survey_crowd_2019,data/Survey 2/data_s2.xlsx,question_4b_if_you_think_that_the_message_on_the_car_above_is_ambiguous_please_explain_why,8,0,False,no tie
+added_16,ehmi_survey_crowd_2019,data/Survey 2/data_s2.xlsx,question_4c_what_is_the_color_of_the_textpixels_on_the_display_of_the_car_above,8,0,False,no tie
+added_16,ehmi_survey_crowd_2019,data/Survey 2/data_s2.xlsx,question_5b_if_you_think_that_the_message_on_the_car_above_is_ambiguous_please_explain_why,8,0,False,no tie
+added_16,ehmi_survey_crowd_2019,data/Survey 2/data_s2.xlsx,question_5c_what_is_the_color_of_the_textpixels_on_the_display_of_the_car_above,8,0,False,no tie
+added_16,ehmi_survey_crowd_2019,data/Survey 2/data_s2.xlsx,question_6b_if_you_think_that_the_message_on_the_car_above_is_ambiguous_please_explain_why,8,0,False,no tie
+added_16,ehmi_survey_crowd_2019,data/Survey 2/data_s2.xlsx,question_6c_what_is_the_color_of_the_textpixels_on_the_display_of_the_car_above,8,0,False,no tie
+added_16,ehmi_survey_crowd_2019,data/Survey 2/data_s2.xlsx,question_7b_if_you_think_that_the_message_on_the_car_above_is_ambiguous_please_explain_why,8,0,False,no tie
+added_16,ehmi_survey_crowd_2019,data/Survey 2/data_s2.xlsx,question_7c_what_is_the_color_of_the_textpixels_on_the_display_of_the_car_above,8,0,False,no tie
+added_16,ehmi_survey_crowd_2019,data/Survey 2/data_s2.xlsx,question_8b_if_you_think_that_the_message_on_the_car_above_is_ambiguous_please_explain_why,8,0,False,no tie
+added_16,ehmi_survey_crowd_2019,data/Survey 2/data_s2.xlsx,question_8c_what_is_the_color_of_the_textpixels_on_the_display_of_the_car_above,8,0,False,no tie
+added_16,ehmi_survey_crowd_2019,data/Survey 2/data_s2.xlsx,question_9b_if_you_think_that_the_message_on_the_car_above_is_ambiguous_please_explain_why,8,0,False,no tie
+added_16,ehmi_survey_crowd_2019,data/Survey 2/data_s2.xlsx,question_9c_what_is_the_color_of_the_textpixels_on_the_display_of_the_car_above,8,0,False,no tie
+added_16,ehmi_survey_crowd_2019,data/Survey 1/data_s1.xlsx,what_is_your_age,8,0,False,no tie
+added_16,ehmi_survey_crowd_2019,data/Survey 1/data_s1.xlsx,what_is_your_gender,8,0,False,no tie
+added_16,ehmi_survey_crowd_2019,data/Survey 1/data_s1.xlsx,what_is_your_primary_mode_of_transportation,8,0,False,no tie
+added_16,ehmi_survey_crowd_2019,data/Survey 1/data_s1.xlsx,what_message_does_the_car_show_in_concept_10_above,8,0,False,no tie
+added_16,ehmi_survey_crowd_2019,data/Survey 1/data_s1.xlsx,what_message_does_the_car_show_in_concept_11_above,8,0,False,no tie
+added_16,ehmi_survey_crowd_2019,data/Survey 1/data_s1.xlsx,what_message_does_the_car_show_in_concept_12_above,8,0,False,no tie
+added_16,ehmi_survey_crowd_2019,data/Survey 1/data_s1.xlsx,what_message_does_the_car_show_in_concept_13_above,8,0,False,no tie
+added_16,ehmi_survey_crowd_2019,data/Survey 1/data_s1.xlsx,what_message_does_the_car_show_in_concept_14_above,8,0,False,no tie
+added_16,ehmi_survey_crowd_2019,data/Survey 1/data_s1.xlsx,what_message_does_the_car_show_in_concept_15_above,8,0,False,no tie
+added_16,ehmi_survey_crowd_2019,data/Survey 1/data_s1.xlsx,what_message_does_the_car_show_in_concept_16_above,8,0,False,no tie
+added_16,ehmi_survey_crowd_2019,data/Survey 1/data_s1.xlsx,what_message_does_the_car_show_in_concept_17_above,8,0,False,no tie
+added_16,ehmi_survey_crowd_2019,data/Survey 1/data_s1.xlsx,what_message_does_the_car_show_in_concept_18_above,8,0,False,no tie
+added_16,ehmi_survey_crowd_2019,data/Survey 1/data_s1.xlsx,what_message_does_the_car_show_in_concept_19_above,8,0,False,no tie
+added_16,ehmi_survey_crowd_2019,data/Survey 1/data_s1.xlsx,what_message_does_the_car_show_in_concept_1_above,8,0,False,no tie
+added_16,ehmi_survey_crowd_2019,data/Survey 1/data_s1.xlsx,what_message_does_the_car_show_in_concept_20_above,8,0,False,no tie
+added_16,ehmi_survey_crowd_2019,data/Survey 1/data_s1.xlsx,what_message_does_the_car_show_in_concept_21_above,8,0,False,no tie
+added_16,ehmi_survey_crowd_2019,data/Survey 1/data_s1.xlsx,what_message_does_the_car_show_in_concept_22_above,8,0,False,no tie
+added_16,ehmi_survey_crowd_2019,data/Survey 1/data_s1.xlsx,what_message_does_the_car_show_in_concept_23_above,8,0,False,no tie
+added_16,ehmi_survey_crowd_2019,data/Survey 1/data_s1.xlsx,what_message_does_the_car_show_in_concept_24_above,8,0,False,no tie
+added_16,ehmi_survey_crowd_2019,data/Survey 1/data_s1.xlsx,what_message_does_the_car_show_in_concept_25_above,8,0,False,no tie
+added_16,ehmi_survey_crowd_2019,data/Survey 1/data_s1.xlsx,what_message_does_the_car_show_in_concept_26_above,8,0,False,no tie
+added_16,ehmi_survey_crowd_2019,data/Survey 1/data_s1.xlsx,what_message_does_the_car_show_in_concept_27_above,8,0,False,no tie
+added_16,ehmi_survey_crowd_2019,data/Survey 1/data_s1.xlsx,what_message_does_the_car_show_in_concept_28_above,8,0,False,no tie
+added_16,ehmi_survey_crowd_2019,data/Survey 1/data_s1.xlsx,what_message_does_the_car_show_in_concept_2_above,8,0,False,no tie
+added_16,ehmi_survey_crowd_2019,data/Survey 1/data_s1.xlsx,what_message_does_the_car_show_in_concept_3_above,8,0,False,no tie
+added_16,ehmi_survey_crowd_2019,data/Survey 1/data_s1.xlsx,what_message_does_the_car_show_in_concept_4_above,8,0,False,no tie
+added_16,ehmi_survey_crowd_2019,data/Survey 1/data_s1.xlsx,what_message_does_the_car_show_in_concept_5_above,8,0,False,no tie
+added_16,ehmi_survey_crowd_2019,data/Survey 1/data_s1.xlsx,what_message_does_the_car_show_in_concept_6_above,8,0,False,no tie
+added_16,ehmi_survey_crowd_2019,data/Survey 1/data_s1.xlsx,what_message_does_the_car_show_in_concept_7_above,8,0,False,no tie
+added_16,ehmi_survey_crowd_2019,data/Survey 1/data_s1.xlsx,what_message_does_the_car_show_in_concept_8_above,8,0,False,no tie
+added_16,ehmi_survey_crowd_2019,data/Survey 1/data_s1.xlsx,what_message_does_the_car_show_in_concept_9_above,8,0,False,no tie
+added_16,ehmi_survey_crowd_2019,data/Survey 1/data_s1.xlsx,when_i_start_using_a_new_device_i_usually_need_some_time_to_learn_how_it_works,8,0,False,no tie
+added_16,ehmi_survey_crowd_2019,data/Survey 1/data_s1.xlsx,when_i_use_a_new_device_for_the_first_time_i_usually_read_the_manual_before_using_it,8,0,False,no tie
+added_16,ehmi_survey_crowd_2019,data/Survey 2/data_s2.xlsx,question_10a_would_you_feel_safe_to_cross_in_front_of_the_car_above,8,0,False,no tie
+added_16,ehmi_survey_crowd_2019,data/Survey 2/data_s2.xlsx,question_11a_would_you_feel_safe_to_cross_in_front_of_the_car_above,8,0,False,no tie
+added_16,ehmi_survey_crowd_2019,data/Survey 2/data_s2.xlsx,question_12a_would_you_feel_safe_to_cross_in_front_of_the_car_above,8,0,False,no tie
+added_16,ehmi_survey_crowd_2019,data/Survey 2/data_s2.xlsx,question_13a_would_you_feel_safe_to_cross_in_front_of_the_car_above,8,0,False,no tie
+added_16,ehmi_survey_crowd_2019,data/Survey 2/data_s2.xlsx,question_14a_would_you_feel_safe_to_cross_in_front_of_the_car_above,8,0,False,no tie
+added_16,ehmi_survey_crowd_2019,data/Survey 2/data_s2.xlsx,question_15a_would_you_feel_safe_to_cross_in_front_of_the_car_above,8,0,False,no tie
+added_16,ehmi_survey_crowd_2019,data/Survey 2/data_s2.xlsx,question_1a_would_you_feel_safe_to_cross_in_front_of_the_car_above,8,0,False,no tie
+added_16,ehmi_survey_crowd_2019,data/Survey 2/data_s2.xlsx,question_2a_would_you_feel_safe_to_cross_in_front_of_the_car_above,8,0,False,no tie
+added_16,ehmi_survey_crowd_2019,data/Survey 2/data_s2.xlsx,question_3a_would_you_feel_safe_to_cross_in_front_of_the_car_above,8,0,False,no tie
+added_16,ehmi_survey_crowd_2019,data/Survey 2/data_s2.xlsx,question_4a_would_you_feel_safe_to_cross_in_front_of_the_car_above,8,0,False,no tie
+added_16,ehmi_survey_crowd_2019,data/Survey 2/data_s2.xlsx,question_5a_would_you_feel_safe_to_cross_in_front_of_the_car_above,8,0,False,no tie
+added_16,ehmi_survey_crowd_2019,data/Survey 2/data_s2.xlsx,question_6a_would_you_feel_safe_to_cross_in_front_of_the_car_above,8,0,False,no tie
+added_16,ehmi_survey_crowd_2019,data/Survey 2/data_s2.xlsx,question_7a_would_you_feel_safe_to_cross_in_front_of_the_car_above,8,0,False,no tie
+added_16,ehmi_survey_crowd_2019,data/Survey 2/data_s2.xlsx,question_8a_would_you_feel_safe_to_cross_in_front_of_the_car_above,8,0,False,no tie
+added_16,ehmi_survey_crowd_2019,data/Survey 2/data_s2.xlsx,question_9a_would_you_feel_safe_to_cross_in_front_of_the_car_above,8,0,False,no tie
+added_16,ehmi_survey_crowd_2019,data/Survey 1/data_s1.xlsx,the_instructions_of_the_car_in_concept_10_above_are_clear_to_me,8,0,False,no tie
+added_16,ehmi_survey_crowd_2019,data/Survey 1/data_s1.xlsx,the_instructions_of_the_car_in_concept_11_above_are_clear_to_me,8,0,False,no tie
+added_16,ehmi_survey_crowd_2019,data/Survey 1/data_s1.xlsx,the_instructions_of_the_car_in_concept_12_above_are_clear_to_me,8,0,False,no tie
+added_16,ehmi_survey_crowd_2019,data/Survey 1/data_s1.xlsx,the_instructions_of_the_car_in_concept_13_above_are_clear_to_me,8,0,False,no tie
+added_16,ehmi_survey_crowd_2019,data/Survey 1/data_s1.xlsx,the_instructions_of_the_car_in_concept_14_above_are_clear_to_me,8,0,False,no tie
+added_16,ehmi_survey_crowd_2019,data/Survey 1/data_s1.xlsx,the_instructions_of_the_car_in_concept_15_above_are_clear_to_me,8,0,False,no tie
+added_16,ehmi_survey_crowd_2019,data/Survey 1/data_s1.xlsx,the_instructions_of_the_car_in_concept_16_above_are_clear_to_me,8,0,False,no tie
+added_16,ehmi_survey_crowd_2019,data/Survey 1/data_s1.xlsx,the_instructions_of_the_car_in_concept_17_above_are_clear_to_me,8,0,False,no tie
+added_16,ehmi_survey_crowd_2019,data/Survey 1/data_s1.xlsx,the_instructions_of_the_car_in_concept_18_above_are_clear_to_me,8,0,False,no tie
+added_16,ehmi_survey_crowd_2019,data/Survey 1/data_s1.xlsx,the_instructions_of_the_car_in_concept_19_above_are_clear_to_me,8,0,False,no tie
+added_16,ehmi_survey_crowd_2019,data/Survey 1/data_s1.xlsx,the_instructions_of_the_car_in_concept_1_above_are_clear_to_me,8,0,False,no tie
+added_16,ehmi_survey_crowd_2019,data/Survey 1/data_s1.xlsx,the_instructions_of_the_car_in_concept_20_above_are_clear_to_me,8,0,False,no tie
+added_16,ehmi_survey_crowd_2019,data/Survey 1/data_s1.xlsx,the_instructions_of_the_car_in_concept_21_above_are_clear_to_me,8,0,False,no tie
+added_16,ehmi_survey_crowd_2019,data/Survey 1/data_s1.xlsx,the_instructions_of_the_car_in_concept_22_above_are_clear_to_me,8,0,False,no tie
+added_16,ehmi_survey_crowd_2019,data/Survey 1/data_s1.xlsx,the_instructions_of_the_car_in_concept_23_above_are_clear_to_me,8,0,False,no tie
+added_16,ehmi_survey_crowd_2019,data/Survey 1/data_s1.xlsx,the_instructions_of_the_car_in_concept_24_above_are_clear_to_me,8,0,False,no tie
+added_16,ehmi_survey_crowd_2019,data/Survey 1/data_s1.xlsx,the_instructions_of_the_car_in_concept_25_above_are_clear_to_me,8,0,False,no tie
+added_16,ehmi_survey_crowd_2019,data/Survey 1/data_s1.xlsx,the_instructions_of_the_car_in_concept_26_above_are_clear_to_me,8,0,False,no tie
+added_16,ehmi_survey_crowd_2019,data/Survey 1/data_s1.xlsx,the_instructions_of_the_car_in_concept_27_above_are_clear_to_me,8,0,False,no tie
+added_16,ehmi_survey_crowd_2019,data/Survey 1/data_s1.xlsx,the_instructions_of_the_car_in_concept_28_above_are_clear_to_me,8,0,False,no tie
+added_16,ehmi_survey_crowd_2019,data/Survey 1/data_s1.xlsx,the_instructions_of_the_car_in_concept_2_above_are_clear_to_me,8,0,False,no tie
+added_16,ehmi_survey_crowd_2019,data/Survey 1/data_s1.xlsx,the_instructions_of_the_car_in_concept_3_above_are_clear_to_me,8,0,False,no tie
+added_16,ehmi_survey_crowd_2019,data/Survey 1/data_s1.xlsx,the_instructions_of_the_car_in_concept_4_above_are_clear_to_me,8,0,False,no tie
+added_16,ehmi_survey_crowd_2019,data/Survey 1/data_s1.xlsx,the_instructions_of_the_car_in_concept_5_above_are_clear_to_me,8,0,False,no tie
+added_16,ehmi_survey_crowd_2019,data/Survey 1/data_s1.xlsx,the_instructions_of_the_car_in_concept_6_above_are_clear_to_me,8,0,False,no tie
+added_16,ehmi_survey_crowd_2019,data/Survey 1/data_s1.xlsx,the_instructions_of_the_car_in_concept_7_above_are_clear_to_me,8,0,False,no tie
+added_16,ehmi_survey_crowd_2019,data/Survey 1/data_s1.xlsx,the_instructions_of_the_car_in_concept_8_above_are_clear_to_me,8,0,False,no tie
+added_16,ehmi_survey_crowd_2019,data/Survey 1/data_s1.xlsx,the_instructions_of_the_car_in_concept_9_above_are_clear_to_me,8,0,False,no tie
+added_16,music_tempo_taskload_2022,Task Load and Music Tempo in Simulated Driving.sav,Age,8,0,False,no tie
+added_16,music_tempo_taskload_2022,Task Load and Music Tempo in Simulated Driving.sav,AgeGroup,8,0,False,no tie
+added_16,music_tempo_taskload_2022,Task Load and Music Tempo in Simulated Driving.sav,Height,8,0,False,no tie
+added_16,music_tempo_taskload_2022,Task Load and Music Tempo in Simulated Driving.sav,Personality,8,0,False,no tie
+added_16,music_tempo_taskload_2022,Task Load and Music Tempo in Simulated Driving.sav,Pp,8,8,True,zero-score candidates
+added_16,music_tempo_taskload_2022,Task Load and Music Tempo in Simulated Driving.sav,PreHR,8,0,False,no tie
+added_16,music_tempo_taskload_2022,Task Load and Music Tempo in Simulated Driving.sav,RestHR,8,0,False,no tie
+added_16,music_tempo_taskload_2022,Task Load and Music Tempo in Simulated Driving.sav,Sex,8,0,False,no tie
+added_16,music_tempo_taskload_2022,Task Load and Music Tempo in Simulated Driving.sav,Weight,8,0,False,no tie
+added_16,music_tempo_taskload_2022,Task Load and Music Tempo in Simulated Driving.sav,HLFMHRAve,8,0,False,no tie
+added_16,music_tempo_taskload_2022,Task Load and Music Tempo in Simulated Driving.sav,HLFMRMSSD,8,5,True,zero-score candidates
+added_16,music_tempo_taskload_2022,Task Load and Music Tempo in Simulated Driving.sav,HLFM_Aff_Aro,8,0,False,no tie
+added_16,music_tempo_taskload_2022,Task Load and Music Tempo in Simulated Driving.sav,HLFM_Aff_Ple,8,0,False,no tie
+added_16,music_tempo_taskload_2022,Task Load and Music Tempo in Simulated Driving.sav,HLFM_TLX_Eff,8,0,False,no tie
+added_16,music_tempo_taskload_2022,Task Load and Music Tempo in Simulated Driving.sav,HLFM_TLX_Frus,8,0,False,no tie
+added_16,music_tempo_taskload_2022,Task Load and Music Tempo in Simulated Driving.sav,HLFM_TLX_MenD,8,0,False,no tie
+added_16,music_tempo_taskload_2022,Task Load and Music Tempo in Simulated Driving.sav,HLFM_TLX_Perf,8,0,False,no tie
+added_16,music_tempo_taskload_2022,Task Load and Music Tempo in Simulated Driving.sav,HLFM_TLX_PhyD,8,0,False,no tie
+added_16,music_tempo_taskload_2022,Task Load and Music Tempo in Simulated Driving.sav,HLFM_TLX_TemD,8,0,False,no tie
+added_16,music_tempo_taskload_2022,Task Load and Music Tempo in Simulated Driving.sav,HLNMHRAve,8,0,False,no tie
+added_16,music_tempo_taskload_2022,Task Load and Music Tempo in Simulated Driving.sav,HLNMRMSSD,8,5,True,zero-score candidates
+added_16,music_tempo_taskload_2022,Task Load and Music Tempo in Simulated Driving.sav,HLNM_Aff_Aro,8,0,False,no tie
+added_16,music_tempo_taskload_2022,Task Load and Music Tempo in Simulated Driving.sav,HLNM_Aff_Ple,8,0,False,no tie
+added_16,music_tempo_taskload_2022,Task Load and Music Tempo in Simulated Driving.sav,HLNM_TLX_Eff,8,0,False,no tie
+added_16,music_tempo_taskload_2022,Task Load and Music Tempo in Simulated Driving.sav,HLNM_TLX_Frus,8,0,False,no tie
+added_16,music_tempo_taskload_2022,Task Load and Music Tempo in Simulated Driving.sav,HLNM_TLX_MenD,8,0,False,no tie
+added_16,music_tempo_taskload_2022,Task Load and Music Tempo in Simulated Driving.sav,HLNM_TLX_Perf,8,0,False,no tie
+added_16,music_tempo_taskload_2022,Task Load and Music Tempo in Simulated Driving.sav,HLNM_TLX_PhyD,8,0,False,no tie
+added_16,music_tempo_taskload_2022,Task Load and Music Tempo in Simulated Driving.sav,HLNM_TLX_TemD,8,0,False,no tie
+added_16,music_tempo_taskload_2022,Task Load and Music Tempo in Simulated Driving.sav,HLSMHRAve,8,0,False,no tie
+added_16,music_tempo_taskload_2022,Task Load and Music Tempo in Simulated Driving.sav,HLSMRMSSD,8,5,True,zero-score candidates
+added_16,music_tempo_taskload_2022,Task Load and Music Tempo in Simulated Driving.sav,HLSM_Aff_Aro,8,0,False,no tie
+added_16,music_tempo_taskload_2022,Task Load and Music Tempo in Simulated Driving.sav,HLSM_Aff_Ple,8,0,False,no tie
+added_16,music_tempo_taskload_2022,Task Load and Music Tempo in Simulated Driving.sav,HLSM_TLX_Eff,8,0,False,no tie
+added_16,music_tempo_taskload_2022,Task Load and Music Tempo in Simulated Driving.sav,HLSM_TLX_Frus,8,0,False,no tie
+added_16,music_tempo_taskload_2022,Task Load and Music Tempo in Simulated Driving.sav,HLSM_TLX_MenD,8,0,False,no tie
+added_16,music_tempo_taskload_2022,Task Load and Music Tempo in Simulated Driving.sav,HLSM_TLX_Perf,8,0,False,no tie
+added_16,music_tempo_taskload_2022,Task Load and Music Tempo in Simulated Driving.sav,HLSM_TLX_PhyD,8,0,False,no tie
+added_16,music_tempo_taskload_2022,Task Load and Music Tempo in Simulated Driving.sav,HLSM_TLX_TemD,8,0,False,no tie
+added_16,music_tempo_taskload_2022,Task Load and Music Tempo in Simulated Driving.sav,LLFMHRAve,8,0,False,no tie
+added_16,music_tempo_taskload_2022,Task Load and Music Tempo in Simulated Driving.sav,LLFMRMSSD,8,5,True,zero-score candidates
+added_16,music_tempo_taskload_2022,Task Load and Music Tempo in Simulated Driving.sav,LLFM_Aff_Aro,8,0,False,no tie
+added_16,music_tempo_taskload_2022,Task Load and Music Tempo in Simulated Driving.sav,LLFM_Aff_Ple,8,0,False,no tie
+added_16,music_tempo_taskload_2022,Task Load and Music Tempo in Simulated Driving.sav,LLFM_TLX_Eff,8,0,False,no tie
+added_16,music_tempo_taskload_2022,Task Load and Music Tempo in Simulated Driving.sav,LLFM_TLX_Frus,8,0,False,no tie
+added_16,music_tempo_taskload_2022,Task Load and Music Tempo in Simulated Driving.sav,LLFM_TLX_MenD,8,0,False,no tie
+added_16,music_tempo_taskload_2022,Task Load and Music Tempo in Simulated Driving.sav,LLFM_TLX_Perf,8,0,False,no tie
+added_16,music_tempo_taskload_2022,Task Load and Music Tempo in Simulated Driving.sav,LLFM_TLX_PhyD,8,0,False,no tie
+added_16,music_tempo_taskload_2022,Task Load and Music Tempo in Simulated Driving.sav,LLFM_TLX_TemD,8,0,False,no tie
+added_16,music_tempo_taskload_2022,Task Load and Music Tempo in Simulated Driving.sav,LLNMHRAve,8,0,False,no tie
+added_16,music_tempo_taskload_2022,Task Load and Music Tempo in Simulated Driving.sav,LLNMRMSSD,8,5,True,zero-score candidates
+added_16,music_tempo_taskload_2022,Task Load and Music Tempo in Simulated Driving.sav,LLNM_Aff_Aro,8,0,False,no tie
+added_16,music_tempo_taskload_2022,Task Load and Music Tempo in Simulated Driving.sav,LLNM_Aff_Ple,8,0,False,no tie
+added_16,music_tempo_taskload_2022,Task Load and Music Tempo in Simulated Driving.sav,LLNM_TLX_Eff,8,0,False,no tie
+added_16,music_tempo_taskload_2022,Task Load and Music Tempo in Simulated Driving.sav,LLNM_TLX_Frus,8,0,False,no tie
+added_16,music_tempo_taskload_2022,Task Load and Music Tempo in Simulated Driving.sav,LLNM_TLX_MenD,8,0,False,no tie
+added_16,music_tempo_taskload_2022,Task Load and Music Tempo in Simulated Driving.sav,LLNM_TLX_Perf,8,0,False,no tie
+added_16,music_tempo_taskload_2022,Task Load and Music Tempo in Simulated Driving.sav,LLNM_TLX_PhyD,8,0,False,no tie
+added_16,music_tempo_taskload_2022,Task Load and Music Tempo in Simulated Driving.sav,LLNM_TLX_TemD,8,0,False,no tie
+added_16,music_tempo_taskload_2022,Task Load and Music Tempo in Simulated Driving.sav,LLSMHRAve,8,0,False,no tie
+added_16,music_tempo_taskload_2022,Task Load and Music Tempo in Simulated Driving.sav,LLSMRMSSD,8,5,True,zero-score candidates
+added_16,music_tempo_taskload_2022,Task Load and Music Tempo in Simulated Driving.sav,LLSM_Aff_Aro,8,0,False,no tie
+added_16,music_tempo_taskload_2022,Task Load and Music Tempo in Simulated Driving.sav,LLSM_Aff_Ple,8,0,False,no tie
+added_16,music_tempo_taskload_2022,Task Load and Music Tempo in Simulated Driving.sav,LLSM_TLX_Eff,8,0,False,no tie
+added_16,music_tempo_taskload_2022,Task Load and Music Tempo in Simulated Driving.sav,LLSM_TLX_Frus,8,0,False,no tie
+added_16,music_tempo_taskload_2022,Task Load and Music Tempo in Simulated Driving.sav,LLSM_TLX_MenD,8,0,False,no tie
+added_16,music_tempo_taskload_2022,Task Load and Music Tempo in Simulated Driving.sav,LLSM_TLX_Perf,8,0,False,no tie
+added_16,music_tempo_taskload_2022,Task Load and Music Tempo in Simulated Driving.sav,LLSM_TLX_PhyD,8,0,False,no tie
+added_16,music_tempo_taskload_2022,Task Load and Music Tempo in Simulated Driving.sav,LLSM_TLX_TemD,8,0,False,no tie
+added_16,myocontrol_intent_2025,NASA TLX.csv,Participant,8,0,False,no tie
+added_16,myocontrol_intent_2025,NASA TLX.csv,TAC,8,0,False,no tie
+added_16,myocontrol_intent_2025,testResults.csv,table_intensity,8,0,False,no tie
+added_16,myocontrol_intent_2025,testResults.csv,table_subject,8,0,False,no tie
+added_16,myocontrol_intent_2025,testResults.csv,table_tac,8,0,False,no tie
+added_16,myocontrol_intent_2025,testResults.csv,table_task,8,0,False,no tie
+added_16,myocontrol_intent_2025,NASA TLX.csv,1,8,0,False,no tie
+added_16,myocontrol_intent_2025,NASA TLX.csv,2,8,0,False,no tie
+added_16,myocontrol_intent_2025,NASA TLX.csv,3,8,1,True,zero-score candidates
+added_16,myocontrol_intent_2025,NASA TLX.csv,4,8,1,True,zero-score candidates
+added_16,myocontrol_intent_2025,NASA TLX.csv,5,7,0,False,no tie
+added_16,myocontrol_intent_2025,NASA TLX.csv,6,7,0,False,no tie
+added_16,myocontrol_intent_2025,testResults.csv,table_completion_time,8,0,False,no tie
+added_16,myocontrol_intent_2025,testResults.csv,table_successfull,8,0,False,no tie
+added_16,nl2tap_filter_2026,NL2TAP-user-study-replication/replication_package/data/user_study/participants.csv,age,8,0,False,no tie
+added_16,nl2tap_filter_2026,NL2TAP-user-study-replication/replication_package/data/user_study/scenario_sessions.csv,attempt_number,8,0,False,no tie
+added_16,nl2tap_filter_2026,NL2TAP-user-study-replication/replication_package/data/user_study/scenario_sessions.csv,completed_at,8,0,False,no tie
+added_16,nl2tap_filter_2026,NL2TAP-user-study-replication/replication_package/data/user_study/participants.csv,computer_skills,8,0,False,no tie
+added_16,nl2tap_filter_2026,NL2TAP-user-study-replication/replication_package/data/user_study/participants.csv,education,8,0,False,no tie
+added_16,nl2tap_filter_2026,NL2TAP-user-study-replication/replication_package/data/user_study/scenario_sessions.csv,eval_code_correct,8,0,False,no tie
+added_16,nl2tap_filter_2026,NL2TAP-user-study-replication/replication_package/data/user_study/scenario_sessions.csv,evaluator_1,8,0,False,no tie
+added_16,nl2tap_filter_2026,NL2TAP-user-study-replication/replication_package/data/user_study/scenario_sessions.csv,evaluator_2,8,0,False,no tie
+added_16,nl2tap_filter_2026,NL2TAP-user-study-replication/replication_package/data/user_study/scenario_sessions.csv,exec_pass_rate,8,0,False,no tie
+added_16,nl2tap_filter_2026,NL2TAP-user-study-replication/replication_package/data/user_study/participants.csv,gender,8,0,False,no tie
+added_16,nl2tap_filter_2026,NL2TAP-user-study-replication/replication_package/data/user_study/participants.csv,ifttt_familiarity,8,0,False,no tie
+added_16,nl2tap_filter_2026,NL2TAP-user-study-replication/replication_package/data/user_study/scenario_sessions.csv,l1_api_valid,8,0,False,no tie
+added_16,nl2tap_filter_2026,NL2TAP-user-study-replication/replication_package/data/user_study/participants.csv,lang,8,0,True,tie at the cut
+added_16,nl2tap_filter_2026,NL2TAP-user-study-replication/replication_package/data/user_study/scenario_sessions.csv,oracle_consensus,8,0,True,tie at the cut
+added_16,nl2tap_filter_2026,NL2TAP-user-study-replication/replication_package/data/user_study/participants.csv,quality_flag,8,0,False,no tie
+added_16,nl2tap_filter_2026,NL2TAP-user-study-replication/replication_package/data/user_study/scenario_sessions.csv,sandbox_all_pass,8,0,False,no tie
+added_16,nl2tap_filter_2026,NL2TAP-user-study-replication/replication_package/data/user_study/scenario_sessions.csv,scenario_code,8,0,False,no tie
+added_16,nl2tap_filter_2026,NL2TAP-user-study-replication/replication_package/data/user_study/scenario_sessions.csv,scenario_index,8,0,False,no tie
+added_16,nl2tap_filter_2026,NL2TAP-user-study-replication/replication_package/data/user_study/scenario_sessions.csv,started_at,8,0,False,no tie
+added_16,nl2tap_filter_2026,NL2TAP-user-study-replication/replication_package/data/user_study/participants.csv,user_type,8,0,False,no tie
+added_16,nl2tap_filter_2026,NL2TAP-user-study-replication/replication_package/data/user_study/tlx_responses.csv,effort,8,0,False,no tie
+added_16,nl2tap_filter_2026,NL2TAP-user-study-replication/replication_package/data/user_study/tlx_responses.csv,frustration,8,0,False,no tie
+added_16,nl2tap_filter_2026,NL2TAP-user-study-replication/replication_package/data/user_study/sus_responses.csv,item_1,8,0,False,no tie
+added_16,nl2tap_filter_2026,NL2TAP-user-study-replication/replication_package/data/user_study/sus_responses.csv,item_10,8,0,False,no tie
+added_16,nl2tap_filter_2026,NL2TAP-user-study-replication/replication_package/data/user_study/sus_responses.csv,item_2,8,0,False,no tie
+added_16,nl2tap_filter_2026,NL2TAP-user-study-replication/replication_package/data/user_study/sus_responses.csv,item_3,8,0,False,no tie
+added_16,nl2tap_filter_2026,NL2TAP-user-study-replication/replication_package/data/user_study/sus_responses.csv,item_4,8,0,False,no tie
+added_16,nl2tap_filter_2026,NL2TAP-user-study-replication/replication_package/data/user_study/sus_responses.csv,item_5,8,0,True,tie at the cut
+added_16,nl2tap_filter_2026,NL2TAP-user-study-replication/replication_package/data/user_study/sus_responses.csv,item_6,8,0,False,no tie
+added_16,nl2tap_filter_2026,NL2TAP-user-study-replication/replication_package/data/user_study/sus_responses.csv,item_7,8,0,False,no tie
+added_16,nl2tap_filter_2026,NL2TAP-user-study-replication/replication_package/data/user_study/sus_responses.csv,item_8,8,0,False,no tie
+added_16,nl2tap_filter_2026,NL2TAP-user-study-replication/replication_package/data/user_study/sus_responses.csv,item_9,8,0,False,no tie
+added_16,nl2tap_filter_2026,NL2TAP-user-study-replication/replication_package/data/user_study/tlx_responses.csv,mental_demand,8,0,False,no tie
+added_16,nl2tap_filter_2026,NL2TAP-user-study-replication/replication_package/data/user_study/tlx_responses.csv,performance,8,0,False,no tie
+added_16,nl2tap_filter_2026,NL2TAP-user-study-replication/replication_package/data/user_study/tlx_responses.csv,physical_demand,8,0,False,no tie
+added_16,nl2tap_filter_2026,NL2TAP-user-study-replication/replication_package/data/user_study/scenario_sessions.csv,success,8,0,False,no tie
+added_16,nl2tap_filter_2026,NL2TAP-user-study-replication/replication_package/data/user_study/tlx_responses.csv,temporal_demand,8,0,False,no tie
+added_16,nl2tap_filter_2026,NL2TAP-user-study-replication/replication_package/data/user_study/toast_responses.csv,toast_1,8,0,False,no tie
+added_16,nl2tap_filter_2026,NL2TAP-user-study-replication/replication_package/data/user_study/toast_responses.csv,toast_2,8,0,False,no tie
+added_16,nl2tap_filter_2026,NL2TAP-user-study-replication/replication_package/data/user_study/toast_responses.csv,toast_3,8,0,False,no tie
+added_16,nl2tap_filter_2026,NL2TAP-user-study-replication/replication_package/data/user_study/toast_responses.csv,toast_4,8,0,False,no tie
+added_16,nl2tap_filter_2026,NL2TAP-user-study-replication/replication_package/data/user_study/toast_responses.csv,toast_5,8,0,False,no tie
+added_16,nl2tap_filter_2026,NL2TAP-user-study-replication/replication_package/data/user_study/toast_responses.csv,toast_6,8,0,False,no tie
+added_16,nl2tap_filter_2026,NL2TAP-user-study-replication/replication_package/data/user_study/toast_responses.csv,toast_7,8,0,False,no tie
+added_16,nl2tap_filter_2026,NL2TAP-user-study-replication/replication_package/data/user_study/toast_responses.csv,toast_8,8,0,False,no tie
+added_16,nl2tap_filter_2026,NL2TAP-user-study-replication/replication_package/data/user_study/toast_responses.csv,toast_9,8,0,False,no tie
+added_16,nl2tap_filter_2026,NL2TAP-user-study-replication/replication_package/data/user_study/scenario_sessions.csv,total_elapsed_s,8,0,False,no tie
+added_16,nl2tap_filter_2026,NL2TAP-user-study-replication/replication_package/data/user_study/scenario_sessions.csv,total_turns,8,0,False,no tie
+added_16,perceived_risk_merging_2022,Data/SubjectiveRatings.xlsx,AE,8,7,True,zero-score candidates
+added_16,perceived_risk_merging_2022,Data/SubjectiveRatings.xlsx,BI(m/s^2),8,0,False,no tie
+added_16,perceived_risk_merging_2022,Data/SubjectiveRatings.xlsx,ET,8,3,True,zero-score candidates
+added_16,perceived_risk_merging_2022,Data/SubjectiveRatings.xlsx,GEN,8,0,False,no tie
+added_16,perceived_risk_merging_2022,Data/SubjectiveRatings.xlsx,IMG(m),8,7,True,zero-score candidates
+added_16,perceived_risk_merging_2022,Data/SubjectiveRatings.xlsx,Participant,8,0,False,no tie
+added_16,perceived_risk_merging_2022,Data/SubjectiveRatings.xlsx,REP,8,0,False,no tie
+added_16,perceived_risk_merging_2022,Data/SubjectiveRatings.xlsx,inverse_IMG,8,0,False,no tie
+added_16,perceived_risk_merging_2022,Data/SubjectiveRatings.xlsx,inverse_min_THW,8,0,False,no tie
+added_16,perceived_risk_merging_2022,Data/SubjectiveRatings.xlsx,inverse_min_TTC,8,0,False,no tie
+added_16,perceived_risk_merging_2022,Data/SubjectiveRatings.xlsx,inverse_min_gap,8,0,False,no tie
+added_16,perceived_risk_merging_2022,Data/SubjectiveRatings.xlsx,log_IMG,8,0,False,no tie
+added_16,perceived_risk_merging_2022,Data/SubjectiveRatings.xlsx,log_min_THW,8,0,False,no tie
+added_16,perceived_risk_merging_2022,Data/SubjectiveRatings.xlsx,log_min_TTC,8,0,False,no tie
+added_16,perceived_risk_merging_2022,Data/SubjectiveRatings.xlsx,log_min_gap,8,0,False,no tie
+added_16,perceived_risk_merging_2022,Data/SubjectiveRatings.xlsx,virtual_AE,8,0,False,no tie
+added_16,perceived_risk_merging_2022,Data/SubjectiveRatings.xlsx,virtual_ET,8,0,False,no tie
+added_16,perceived_risk_merging_2022,Data/SubjectiveRatings.xlsx,virtual_GEN,8,0,False,no tie
+added_16,perceived_risk_merging_2022,Data/SubjectiveRatings.xlsx,virtual_REP,8,0,False,no tie
+added_16,perceived_risk_merging_2022,Data/SubjectiveRatings.xlsx,PR,8,0,False,no tie
+added_16,perceived_risk_merging_2022,Data/SubjectiveRatings.xlsx,TRU,8,0,False,no tie
+added_16,perceived_risk_merging_2022,Data/SubjectiveRatings.xlsx,min_THW(s),8,0,False,no tie
+added_16,perceived_risk_merging_2022,Data/SubjectiveRatings.xlsx,min_TTC(s),8,0,False,no tie
+added_16,reflexion_mapping_2025,ProbandData.csv,"Bitte bestätige, dass du mit der Verarbeitung deiner Daten in anonymisierter Form einverstanden bist. Eine Teilnahme ist freiwillig.",8,0,False,no tie
+added_16,reflexion_mapping_2025,ProbandData.csv,Bitte wähle deine Gruppe./A,8,0,False,no tie
+added_16,reflexion_mapping_2025,ProbandData.csv,Bitte wähle deine Gruppe./B,8,0,False,no tie
+added_16,reflexion_mapping_2025,ProbandData.csv,"Gibt es sonst noch etwas, was du gerne anmerken willst?",8,0,False,no tie
+added_16,reflexion_mapping_2025,ProbandData.csv,Gruppe,8,4,True,zero-score candidates
+added_16,reflexion_mapping_2025,ProbandData.csv,Ich bin,8,0,False,no tie
+added_16,reflexion_mapping_2025,ProbandData.csv,Ich bin an der Entwicklung der Software SEE beteiligt.,8,0,True,tie at the cut
+added_16,reflexion_mapping_2025,ProbandData.csv,Ich habe Erfahrungen mit Java-Entwicklung.,8,0,False,no tie
+added_16,reflexion_mapping_2025,ProbandData.csv,Ich habe Erfahrungen mit Java-Entwicklung./Ja,8,0,False,no tie
+added_16,reflexion_mapping_2025,ProbandData.csv,Ich habe Erfahrungen mit Java-Entwicklung./Nein,8,0,False,no tie
+added_16,reflexion_mapping_2025,ProbandData.csv,Ich habe Erfahrungen mit Spring Entwicklung.,8,0,False,no tie
+added_16,reflexion_mapping_2025,ProbandData.csv,Ich habe Erfahrungen mit Spring Entwicklung./Ja,8,0,False,no tie
+added_16,reflexion_mapping_2025,ProbandData.csv,Ich habe Erfahrungen mit Spring Entwicklung./Nein,8,0,False,no tie
+added_16,reflexion_mapping_2025,ProbandData.csv,Ich habe einen beruflichen Hintergrund im Bereich der Informatik.,8,0,False,no tie
+added_16,reflexion_mapping_2025,ProbandData.csv,Mein Alter ist:,8,0,False,no tie
+added_16,reflexion_mapping_2025,ProbandData.csv,Mein höchster Abschluss ist:,8,0,False,no tie
+added_16,reflexion_mapping_2025,ProbandData.csv,Meine Erfahrungen mit SEE sind,8,0,False,no tie
+added_16,reflexion_mapping_2025,ProbandData.csv,__version__,8,0,False,no tie
+added_16,reflexion_mapping_2025,ProbandData.csv,_index,8,0,False,no tie
+added_16,reflexion_mapping_2025,ProbandData.csv,_notes,8,0,False,no tie
+added_16,reflexion_mapping_2025,ProbandData.csv,_status,8,0,False,no tie
+added_16,reflexion_mapping_2025,ProbandData.csv,_submission_time,8,0,False,no tie
+added_16,reflexion_mapping_2025,ProbandData.csv,_submitted_by,8,0,False,no tie
+added_16,reflexion_mapping_2025,ProbandData.csv,_tags,8,0,False,no tie
+added_16,reflexion_mapping_2025,ProbandData.csv,_validation_status,8,0,False,no tie
+added_16,reflexion_mapping_2025,ProbandData.csv,end,8,0,False,no tie
+added_16,reflexion_mapping_2025,ProbandData.csv,see_task1_done_update,8,0,False,no tie
+added_16,reflexion_mapping_2025,ProbandData.csv,see_task1_start_update,8,0,False,no tie
+added_16,reflexion_mapping_2025,ProbandData.csv,see_task2_done_update,8,0,False,no tie
+added_16,reflexion_mapping_2025,ProbandData.csv,see_task2_start_update,8,0,False,no tie
+added_16,reflexion_mapping_2025,ProbandData.csv,see_task2a_ready_update,8,0,False,no tie
+added_16,reflexion_mapping_2025,ProbandData.csv,start,8,0,False,no tie
+added_16,reflexion_mapping_2025,ProbandData.csv,sus1,8,0,True,tie at the cut
+added_16,reflexion_mapping_2025,ProbandData.csv,sus10,8,0,False,no tie
+added_16,reflexion_mapping_2025,ProbandData.csv,sus2,8,0,True,tie at the cut
+added_16,reflexion_mapping_2025,ProbandData.csv,sus3,8,0,True,tie at the cut
+added_16,reflexion_mapping_2025,ProbandData.csv,sus4,8,0,True,tie at the cut
+added_16,reflexion_mapping_2025,ProbandData.csv,sus5,8,0,True,tie at the cut
+added_16,reflexion_mapping_2025,ProbandData.csv,sus6,8,0,True,tie at the cut
+added_16,reflexion_mapping_2025,ProbandData.csv,sus7,8,0,False,no tie
+added_16,reflexion_mapping_2025,ProbandData.csv,sus8,8,0,False,no tie
+added_16,reflexion_mapping_2025,ProbandData.csv,sus9,8,0,True,tie at the cut
+added_16,reflexion_mapping_2025,ProbandData.csv,tlx_1_1,8,0,False,no tie
+added_16,reflexion_mapping_2025,ProbandData.csv,tlx_1_2,8,0,False,no tie
+added_16,reflexion_mapping_2025,ProbandData.csv,tlx_1_3,8,0,False,no tie
+added_16,reflexion_mapping_2025,ProbandData.csv,tlx_1_4,8,0,False,no tie
+added_16,reflexion_mapping_2025,ProbandData.csv,tlx_1_5,8,0,False,no tie
+added_16,reflexion_mapping_2025,ProbandData.csv,tlx_1_6,8,0,False,no tie
+added_16,reflexion_mapping_2025,ProbandData.csv,tlx_2_1,8,0,False,no tie
+added_16,reflexion_mapping_2025,ProbandData.csv,tlx_2_2,8,0,False,no tie
+added_16,reflexion_mapping_2025,ProbandData.csv,tlx_2_3,8,0,False,no tie
+added_16,reflexion_mapping_2025,ProbandData.csv,tlx_2_4,8,0,False,no tie
+added_16,reflexion_mapping_2025,ProbandData.csv,tlx_2_5,8,0,False,no tie
+added_16,reflexion_mapping_2025,ProbandData.csv,tlx_2_6,8,0,False,no tie
+added_16,sensecobot_fusion_2024,SenseCobotFusion/Labels.csv,Participants,8,0,False,no tie
+added_16,sensecobot_fusion_2024,SenseCobotFusion/SenseCobotFusion.csv,Task,8,0,False,no tie
+added_16,sensecobot_fusion_2024,SenseCobotFusion/SenseCobotFusion.csv,Amplitude Mean,8,0,False,no tie
+added_16,sensecobot_fusion_2024,SenseCobotFusion/SenseCobotFusion.csv,HR Mean,8,0,False,no tie
+added_16,sensecobot_fusion_2024,SenseCobotFusion/Labels.csv,NASA_1,8,0,False,no tie
+added_16,sensecobot_fusion_2024,SenseCobotFusion/Labels.csv,NASA_1.1,8,0,False,no tie
+added_16,sensecobot_fusion_2024,SenseCobotFusion/Labels.csv,NASA_2,8,0,False,no tie
+added_16,sensecobot_fusion_2024,SenseCobotFusion/Labels.csv,NASA_4,8,0,False,no tie
+added_16,sensecobot_fusion_2024,SenseCobotFusion/Labels.csv,NASA_5,8,0,False,no tie
+added_16,sensecobot_fusion_2024,SenseCobotFusion/SenseCobotFusion.csv,RMSSD,8,5,True,zero-score candidates
+added_16,sensecobot_fusion_2024,SenseCobotFusion/Labels.csv,TASK_1_A,8,0,False,no tie
+added_16,sensecobot_fusion_2024,SenseCobotFusion/Labels.csv,TASK_1_B,8,0,False,no tie
+added_16,sensecobot_fusion_2024,SenseCobotFusion/Labels.csv,TASK_2_A,8,0,False,no tie
+added_16,sensecobot_fusion_2024,SenseCobotFusion/Labels.csv,TASK_2_B,8,0,False,no tie
+added_16,sensecobot_fusion_2024,SenseCobotFusion/Labels.csv,TASK_3_A,8,0,False,no tie
+added_16,sensecobot_fusion_2024,SenseCobotFusion/Labels.csv,TASK_3_B,8,0,False,no tie
+added_16,sensecobot_fusion_2024,SenseCobotFusion/Labels.csv,TASK_4_A,8,0,False,no tie
+added_16,sensecobot_fusion_2024,SenseCobotFusion/Labels.csv,TASK_4_B,8,0,False,no tie
+added_16,sensecobot_fusion_2024,SenseCobotFusion/Labels.csv,TASK_5_A,8,0,False,no tie
+added_16,sensecobot_fusion_2024,SenseCobotFusion/Labels.csv,TASK_5_B,8,0,False,no tie
+added_16,short_videos_memory_2023,data/q.csv,BSMARS,8,1,True,zero-score candidates
+added_16,short_videos_memory_2023,data/q.csv,META_CC,8,0,False,no tie
+added_16,short_videos_memory_2023,data/q.csv,META_CSC,8,0,False,no tie
+added_16,short_videos_memory_2023,data/q.csv,META_NC,8,0,False,no tie
+added_16,short_videos_memory_2023,data/q.csv,META_NEG,8,0,False,no tie
+added_16,short_videos_memory_2023,data/q.csv,META_POS,8,0,False,no tie
+added_16,short_videos_memory_2023,data/q.csv,SUQ,8,0,True,tie at the cut
+added_16,short_videos_memory_2023,data/rt.csv,correct,8,0,False,no tie
+added_16,short_videos_memory_2023,data/acc.csv,folder_id,8,0,False,no tie
+added_16,short_videos_memory_2023,data/acc.csv,measure,8,0,False,no tie
+added_16,short_videos_memory_2023,data/rt.csv,stimulus,8,0,False,no tie
+added_16,short_videos_memory_2023,data/rt.csv,success,8,0,False,no tie
+added_16,short_videos_memory_2023,data/acc.csv,task,8,0,False,no tie
+added_16,short_videos_memory_2023,data/q.csv,ENGAGE,8,0,False,no tie
+added_16,short_videos_memory_2023,data/rt.csv,rt,8,0,False,no tie
+added_16,tactile_sa_display_2022,Complete_dataset.csv,Attention Interference,8,0,False,no tie
+added_16,tactile_sa_display_2022,Complete_dataset.csv,Max intensity,8,0,False,no tie
+added_16,tactile_sa_display_2022,Complete_dataset.csv,WM Interference,8,0,False,no tie
+added_16,tactile_sa_display_2022,Complete_dataset.csv,distance,8,0,True,tie at the cut
+added_16,tactile_sa_display_2022,Complete_dataset.csv,NASA Overall,8,0,False,no tie
+added_16,tactile_sa_display_2022,Complete_dataset.csv,SART,8,0,False,no tie
+added_16,tactile_sa_display_2022,Complete_dataset.csv,TTC,8,7,True,zero-score candidates
+added_16,tlx_formats_uas_2023,nasa_tlx_multi_response.csv,num_points,8,0,False,no tie
+added_16,tlx_formats_uas_2023,nasa_tlx_multi_response.csv,path_visible,8,0,False,no tie
+added_16,tlx_formats_uas_2023,nasa_tlx_multi_response.csv,play_speed,8,0,False,no tie
+added_16,tlx_formats_uas_2023,nasa_tlx_multi_response.csv,response_type,8,0,False,no tie
+added_16,tlx_formats_uas_2023,nasa_tlx_multi_response.csv,searched_points,8,0,False,no tie
+added_16,tlx_formats_uas_2023,nasa_tlx_multi_response.csv,selected_points,8,0,False,no tie
+added_16,tlx_formats_uas_2023,nasa_tlx_multi_response.csv,video_id,8,0,False,no tie
+added_16,tlx_formats_uas_2023,nasa_tlx_multi_response.csv,effort,8,0,False,no tie
+added_16,tlx_formats_uas_2023,nasa_tlx_multi_response.csv,frustration,8,0,False,no tie
+added_16,tlx_formats_uas_2023,nasa_tlx_multi_response.csv,mental_demand,8,0,False,no tie
+added_16,tlx_formats_uas_2023,nasa_tlx_multi_response.csv,performance,8,0,False,no tie
+added_16,tlx_formats_uas_2023,nasa_tlx_multi_response.csv,physical_demand,8,0,False,no tie
+added_16,tlx_formats_uas_2023,nasa_tlx_multi_response.csv,raw_overall_workload,8,0,False,no tie
+added_16,tlx_formats_uas_2023,nasa_tlx_multi_response.csv,temporal_demand,8,0,False,no tie
+added_16,visual_fidelity_curves_2015,Questionnaire DATA.xlsx,Level,8,0,False,no tie
+added_16,visual_fidelity_curves_2015,Dependent Measures.xlsx,Participant,8,0,False,no tie
+added_16,visual_fidelity_curves_2015,Questionnaire DATA.xlsx,Run,8,8,True,zero-score candidates
+added_16,visual_fidelity_curves_2015,Dependent Measures.xlsx,Unnamed: 1,8,0,False,no tie
+added_16,visual_fidelity_curves_2015,Questionnaire DATA.xlsx,Effort,8,0,False,no tie
+added_16,visual_fidelity_curves_2015,Questionnaire DATA.xlsx,Frustrations,8,0,False,no tie
+added_16,visual_fidelity_curves_2015,Dependent Measures.xlsx,Low,8,0,False,no tie
+added_16,visual_fidelity_curves_2015,Questionnaire DATA.xlsx,Mental Demand,8,0,False,no tie
+added_16,visual_fidelity_curves_2015,Questionnaire DATA.xlsx,Performance,8,0,False,no tie
+added_16,visual_fidelity_curves_2015,Questionnaire DATA.xlsx,Physical Demand,8,0,False,no tie
+added_16,visual_fidelity_curves_2015,Questionnaire DATA.xlsx,Temporal Demand,8,0,False,no tie
