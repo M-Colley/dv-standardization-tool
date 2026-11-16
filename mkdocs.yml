@@ -73,6 +73,7 @@ nav:
       - "Pre-registration: second held-out test": preregistration_heldout_relations_2.md
       - Second held-out test: heldout_results_2.md
       - "Design: schema stability of LLM mappings": schema_stability_design.md
+      - "Design: E4B against E2B on the LLM benchmark": model_comparison_design.md
       - Summary: summary.md
       - Future plans: future_plans.md
   - Changelog: changelog.md
