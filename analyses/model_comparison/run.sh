@@ -18,6 +18,19 @@ E4B_WEIGHTS=$HUB/models--google--gemma-4-E4B-it/snapshots/fee6332c1abaafb77f6f96
 E4B_TOKENIZER=$HUB/models--google--gemma-4-E4B-it/snapshots/ee0ef6023621cff504d758262d4e04895a5af4a2
 OUT=analyses/output_llm_evaluation/model_comparison
 ROOT=$(pwd)
+# On a shared GPU: before each run, wait until this much GPU memory (MiB) is free (0: do not wait).
+# E4B needs 10.4 GB with its per-layer embeddings on the CPU, E2B about 10 GB.
+WAIT_FOR_GPU_MB=${WAIT_FOR_GPU_MB:-0}
+
+wait_for_gpu() {
+  [ "$WAIT_FOR_GPU_MB" -gt 0 ] || return 0
+  local free
+  while :; do
+    free=$(nvidia-smi --query-gpu=memory.free --format=csv,noheader,nounits | head -n 1 | tr -d '[:space:]')
+    [ "${free:-0}" -ge "$WAIT_FOR_GPU_MB" ] && return 0
+    sleep 60
+  done
+}
 
 # Python isolated (-I, -X utf8): no file in a data folder can shadow a module; only the repository root is added.
 runmod() {
@@ -49,6 +62,7 @@ run_cell() {  # MODEL SHORTLIST HALF
     added_16) args+=(--manifest "$TMP/manifest16.yaml" --batch-dir "$RUNS/det16b" --cache-dir "$CACHE16"
                      --e2-samples 0) ;;
   esac
+  wait_for_gpu
   echo "$(date '+%F %T') START $model $shortlist $half"
   runmod opendv.analysis.evaluate_llm_mapping "${args[@]}"
   echo "$(date '+%F %T') DONE  $model $shortlist $half"

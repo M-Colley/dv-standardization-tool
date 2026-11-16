@@ -390,3 +390,25 @@ def test_analyze_writes_every_output(tmp_path):
     assert summary["n_items"] == {"E1": 20, "E2": 6}
     assert len(summary["runs"]) == 8
     json.loads((tmp_path / "summary.json").read_text(encoding="utf-8"))
+
+
+def test_benchmark_stops_after_consecutive_generation_errors(monkeypatch):
+    calls = {"n": 0}
+
+    def fake_ask(alias, *args, **kwargs):
+        calls["n"] += 1
+        if alias != "ok":
+            llm_utils._GENERATION_ERRORS.append({"model": "m", "column": alias, "error": "OutOfMemoryError: x"})
+        return ["a"], 100.0, None
+
+    monkeypatch.setattr(ev, "_ask_llm", fake_ask)
+    monkeypatch.setattr(ev, "_consecutive_generation_errors", 0)
+    limit = ev.MAX_CONSECUTIVE_GENERATION_ERRORS
+    for _ in range(limit - 1):
+        assert ev._ask_llm_logged("bad")[3] == "OutOfMemoryError: x"
+    ev._ask_llm_logged("ok")  # a successful generation resets the streak
+    for _ in range(limit - 1):
+        ev._ask_llm_logged("bad")
+    with pytest.raises(RuntimeError, match="in a row failed"):
+        ev._ask_llm_logged("bad")
+    assert calls["n"] == 2 * limit

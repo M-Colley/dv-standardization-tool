@@ -272,11 +272,33 @@ def _source_context(source: dict[str, Any], base_dir: Path, cache_dir: Path | No
     )
 
 
+# A model that cannot run (e.g. it does not fit the free GPU memory of a shared GPU) fails
+# every item, and every item tries to load it again; the run stops after this many failed
+# generations in a row instead (its items would be reported as errors anyway).
+MAX_CONSECUTIVE_GENERATION_ERRORS = 20
+_consecutive_generation_errors = 0
+
+
 def _ask_llm_logged(*args: Any, **kwargs: Any) -> tuple[list[str], float, str | None, str | None]:
-    """``_ask_llm`` plus the generation error of this call, if one failed."""
+    """``_ask_llm`` plus the generation error of this call, if one failed.
+
+    Raises ``RuntimeError`` after ``MAX_CONSECUTIVE_GENERATION_ERRORS`` failed
+    generations without a successful one in between.
+    """
+    global _consecutive_generation_errors
     before = len(llm_utils.generation_errors())
     shortlist, top_score, suggestion = _ask_llm(*args, **kwargs)
     errors = llm_utils.generation_errors()[before:]
+    if errors:
+        _consecutive_generation_errors += 1
+        if _consecutive_generation_errors >= MAX_CONSECUTIVE_GENERATION_ERRORS:
+            _consecutive_generation_errors = 0
+            raise RuntimeError(
+                f"{MAX_CONSECUTIVE_GENERATION_ERRORS} LLM generations in a row failed (last: {errors[-1]['error']}); "
+                "stopping instead of failing every item. Rerun when the model fits."
+            )
+    elif shortlist and top_score >= MIN_ATTEMPT_SCORE:
+        _consecutive_generation_errors = 0
     return shortlist, top_score, suggestion, errors[-1]["error"] if errors else None
 
 
