@@ -28,3 +28,15 @@ Age: meta_demographic_age
 Gender: meta_demographic_gender
 # Participant_ID is auto-blocked by NEVER_MAP_NORMALIZED_COLUMNS and Timestamp
 # is in LLM_EXCLUDED_NORMALIZED_COLUMNS, so neither needs an entry here.
+
+# --- Scale ---------------------------------------------------------------------------
+# Valence is the 5-figure Self-Assessment Manikin ("How do you feel after the session?",
+# five SAM radio buttons sam1-sam5 in InfiniteScape's activity_after_rshci1.xml and
+# rhsci1_activity.kt, stored 1-5). The schema's valence is the 9-point SAM, into which 1-5
+# fits, so the analysis would pool it unconverted. The five figures are the odd points of the
+# nine-point version: 1 -> 1, 5 -> 9 (added 2026-11-15). The direction is taken as curated.
+scale_conversions:
+  - columns: [Valence]
+    from: [1, 5]
+    to: [1, 9]
+    reason: 5-figure SAM valence; the schema's valence is the 9-point SAM

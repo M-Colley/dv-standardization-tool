@@ -1,8 +1,8 @@
 # Source-specific mapping for roads_chi25 (github.com/M-Colley/roads-chi25-data)
 # Paper: Colley et al. (CHI 2025), DOI 10.1145/3706598.3713476.
 #
-# Columns are mapped by the standard schema aliases; this file only declares
-# how the Van der Laan items are keyed.
+# Columns are mapped by the standard schema aliases; this file declares how
+# the Van der Laan items are keyed and locks two demographic columns (end of file).
 #
 # Van der Laan acceptance (aoa1..aoa9, LimeSurvey -2..2 with neg1/neg2): +2 is
 # the first word of each item (useful, pleasant, bad, ...), the opposite of the
@@ -18,3 +18,9 @@ reverse_items:
   - columns: [aoa1, aoa2, aoa3, aoa4, aoa5, aoa6, aoa7, aoa8, aoa9]
     scale_range: [-2, 2]
     reason: +2 = first word of each item; the registry's [-2, 2] coding has -2 = first word
+
+# Participant descriptors in the sheet "Remote Operation - Demographic", reported with mean
+# and SD only (Evaluation_CHI25_ROADS.R l.352-364). Locked after the LLM-mapping audit of 2026-11-15 (analyses/llm_mapping_audit/):
+# the LLM had mapped gaming to Van der Laan satisfying and ease to task feasibility.
+gaming: meta_demographic_gaming_hours_per_week
+ease: meta_descriptor_undocumented     # 1-5, wording not in the repository

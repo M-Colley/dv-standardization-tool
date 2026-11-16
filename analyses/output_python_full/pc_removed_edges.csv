@@ -1,13 +1,22 @@
 from,to,conditioning_set,p_value
-TLX_SCORE,ueq_hedonic,['perceived_risk'],0.5914775096107465
-TLX_SCORE,ueq_pragmatic,['trust_rating'],0.1052275927619819
-perceived_risk,ueq_hedonic,['perceived_safety'],0.7952630129427465
-perceived_risk,ueq_pragmatic,['perceived_safety'],0.6644933633465726
-perceived_safety,ueq_hedonic,['trust_rating'],0.9950244537262598
-ueq_hedonic,understanding_rating,['trust_rating'],0.5631186675654964
-TLX_SCORE,trust_rating,"['perceived_risk', 'understanding_rating']",0.22814503920575202
-perceived_risk,trust_rating,"['perceived_safety', 'understanding_rating']",0.18666387360606906
-perceived_risk,understanding_rating,"['TLX_SCORE', 'perceived_safety']",0.09371320471980016
-perceived_safety,ueq_pragmatic,"['trust_rating', 'understanding_rating']",0.07371196036801919
-trust_rating,ueq_pragmatic,"['perceived_safety', 'understanding_rating']",0.07229171708494042
-understanding_rating,TLX_SCORE,"['perceived_safety', 'trust_rating']",0.1714364965601538
+perceived_safety,sart_demand,[],0.6972939190927514
+perceived_safety,sart_supply,[],0.8924778088243581
+sart_supply,sts_ad_item_06,[],0.16633943152758812
+sart_supply,tia_understanding_predictability,[],0.09720222065022344
+perceived_safety,sts_ad_item_05,['sts_ad_item_06'],0.3104949687367893
+perceived_safety,sts_ad_item_06,['trust_rating'],0.1204013322862787
+perceived_safety,tia_understanding_predictability,['trust_rating'],0.3476185183566367
+sart_demand,sts_ad_item_02,['sts_ad_item_06'],0.26468627774807696
+sart_demand,sts_ad_item_05,['sts_ad_item_06'],0.12575681280815765
+sart_demand,sts_ad_item_06,['trust_rating'],0.19337395597990614
+sart_demand,tia_understanding_predictability,['trust_rating'],0.3935575349915392
+sart_supply,sts_ad_item_02,['sart_demand'],0.06656020146231945
+sart_supply,sts_ad_item_05,['sart_understanding'],0.8419773529394652
+sart_supply,trust_rating,['sart_demand'],0.1508567815334576
+sart_understanding,sts_ad_item_02,['tia_understanding_predictability'],0.81314669687975
+sart_understanding,sts_ad_item_05,['tia_understanding_predictability'],0.41370068124172055
+sts_ad_item_02,trust_rating,['tia_understanding_predictability'],0.05304658319090949
+sts_ad_item_05,trust_rating,['tia_understanding_predictability'],0.2879045308408874
+sart_demand,sart_understanding,"['sart_supply', 'trust_rating']",0.9731923840551235
+sart_understanding,sts_ad_item_06,"['tia_understanding_predictability', 'trust_rating']",0.3142695139085001
+sts_ad_item_02,sts_ad_item_06,"['sts_ad_item_05', 'tia_understanding_predictability']",0.31193505700140145

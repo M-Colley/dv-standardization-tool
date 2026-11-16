@@ -36,9 +36,15 @@
 table_successfull: task_success           # 0/1
 table_completion_time: task_completion_time  # s (failed trials at the time limit)
 
-# Left unlabelled (no schema DV, undefined in the record): table_final_mean,
-# table_enter_target_first_time, table_fine_gross_ratio, table_fine_mean, table_fine_std,
-# table_path_efficiency.
+# Undefined in the record (no schema DV identifiable). Locked after the LLM-mapping audit of 2026-11-15 (analyses/llm_mapping_audit/):
+# the LLM had mapped them to takeover time, Van der Laan satisfying, pedestrian crossing
+# time, fixation duration and SDLP.
+table_final_mean: meta_tac_undocumented
+table_enter_target_first_time: meta_tac_undocumented
+table_fine_gross_ratio: meta_tac_undocumented
+table_fine_mean: meta_tac_undocumented
+table_fine_std: meta_tac_undocumented
+table_path_efficiency: meta_tac_undocumented
 
 # --- Participants and design ----------------------------------------------------
 Participant: meta_participant_id

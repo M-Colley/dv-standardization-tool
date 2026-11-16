@@ -31,8 +31,27 @@ Primory mode of transportation: meta_demographic_transport_mode
 How often did you drive a vehicle in the last 12 months?: meta_demographic_driving_frequency
 How many km did you drive in the last 12 months?: meta_demographic_driving_distance
 
-# Left unlabelled (no schema DV): "tN. / dN. How automated was the car ?" (perceived
-# automation, 1-5).
+# Perceived automation, "How automated was the way the car drove in this trial?" (1 = manual
+# driving, 5 = automated driving; forms/2. and 4.), has no schema DV. Locked after the
+# LLM-mapping audit of 2026-11-15 (analyses/llm_mapping_audit/): the LLM had mapped the items to STS-AD and TiA trust.
+"t1. How automated was the car ?": meta_rating_perceived_automation
+"t2. How automated was the car ?": meta_rating_perceived_automation
+"t3. How automated was the car ?": meta_rating_perceived_automation
+"t4. How automated was the car ?": meta_rating_perceived_automation
+"t5. How automated was the car ?": meta_rating_perceived_automation
+"t6. How automated was the car ?": meta_rating_perceived_automation
+"t7. How automated was the car ?": meta_rating_perceived_automation
+"t8. How automated was the car ?": meta_rating_perceived_automation
+"t9. How automated was the car ?": meta_rating_perceived_automation
+"t10. How automated was the car ?": meta_rating_perceived_automation
+"d1. How automated was the car ?": meta_rating_perceived_automation
+"d2. How automated was the car ?": meta_rating_perceived_automation
+"d3. How automated was the car ?": meta_rating_perceived_automation
+"d4. How automated was the car ?": meta_rating_perceived_automation
+"d5. How automated was the car ?": meta_rating_perceived_automation
+"d6. How automated was the car ?": meta_rating_perceived_automation
+"d7. How automated was the car ?": meta_rating_perceived_automation
+"d8. How automated was the car ?": meta_rating_perceived_automation
 
 # --- Dependent measures per trial: Godspeed items (1-5) ----------------------------
 t1. Machine-like vs human-like: godspeed_anthropomorphism

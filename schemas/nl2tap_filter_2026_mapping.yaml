@@ -69,8 +69,9 @@ success: task_success                 # correct / incorrect (value_labels)
 total_elapsed_s: task_completion_time # s
 total_turns: interaction_events       # chat turns to reach the final rule
 
-# Left unlabelled (no schema DV): eval_confidence, the participant's confidence that the
-# generated rule does what they intended (1-5).
+# No schema DV; locked after the LLM-mapping audit of 2026-11-15 (analyses/llm_mapping_audit/) (the LLM had
+# mapped it to perceived conflict).
+eval_confidence: meta_rating_rule_confidence   # confidence that the generated rule does what was intended, 1-5
 
 # --- Participants and design ----------------------------------------------------
 user_type: meta_group_expertise              # expert / non_expert (between)

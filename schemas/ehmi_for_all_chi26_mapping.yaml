@@ -1,8 +1,9 @@
 # Source-specific mapping for ehmi_for_all_chi26 (github.com/M-Colley/ehmi-for-all-chi26-data)
 # Paper: Colley et al. (CHI 2026), DOI 10.1145/3772318.3790585.
 #
-# Columns are mapped by the standard schema aliases; this file only declares
-# how the Van der Laan items are keyed.
+# Columns are mapped by the standard schema aliases; this file declares how
+# the Van der Laan items are keyed, the logs' total time and one locked column (end of
+# the notes below).
 #
 # Van der Laan acceptance (aoa1..aoa9, LimeSurvey -2..2 with neg1/neg2): +2 is
 # the first word of each item (useful, pleasant, bad, ...), the opposite of the
@@ -14,6 +15,16 @@
 #   registry's usefulness and satisfying scores without this reversal
 #   correlate -0.72 and -0.76 with it.
 # Reversing all nine items puts them on the registry's coding.
+#
+# Added after the LLM-mapping audit of 2026-11-15 (analyses/llm_mapping_audit/):
+# - "total time" of the per-run logs (data/Log_*_time.csv) is the time of a scenario run
+#   (time before + on + after the intersection, s), analysed as "Total Time (s)"
+#   (eHMI_all_road_users_logs.R l.122-125, l.255-288). The LLM had mapped it correctly; it is
+#   now curated. Its three parts are mapped by the shared schema.
+# - interest[ease] (1-5) is a post-study descriptor whose wording the repository does not
+#   give (eHMI_all_road_users_main.R l.550-563); the LLM had mapped it to TAM ease of use.
+"total time": task_completion_time
+"interest[ease]": meta_descriptor_undocumented
 reverse_items:
   - columns: [aoa1, aoa2, aoa3, aoa4, aoa5, aoa6, aoa7, aoa8, aoa9]
     scale_range: [-2, 2]

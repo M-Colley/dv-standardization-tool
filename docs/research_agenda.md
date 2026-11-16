@@ -85,6 +85,10 @@ mappings); "E2" holds out schema aliases. Model: `google/gemma-4-E2B-it`
 | LLM data in LLM-excluded outputs | Composite items were read as real scale items; scores computed from LLM-mapped items had no provenance | Pooled `perceived_safety_item_04` (LLM-excluded) rested on 5 studies instead of 3, two of them LLM composites with wrong item positions | Composite items not read as scale items; scores inherit their items' provenance |
 | Curated data dropped with an LLM column | Provenance was one category per study × DV, so one LLM-mapped column marked a DV whose other columns were curated; when several columns stood for one DV, the one with more rows won | 20 study × DV pairs: the LLM-excluded `mental_demand` pool left out five studies that report it (k = 14 instead of 19); with all mappings SenseCobot's EEG ratios were stacked with its NASA-TLX ratings (study mean 0.39 of 20, 17.5% of Fig. 4's weight) | Provenance per column; LLM columns left out column by column, and a study's curated column of a DV preferred over its LLM columns (2026-11-14, `tests/test_llm_column_exclusion.py`) |
 | Another questionnaire read as the NASA-TLX | The plausibility rules check names, types and ranges, not the instrument. The LLM composed four VRNQ game-mechanics items of FOV Snap-Turn (physical movement, picking up items, using items, two-handed interaction; 1–7, higher = better) and two PXI enjoyment items of Gaze Platformer into NASA-TLX mental demand; neither study used the NASA-TLX | Fig. 4 (all mappings) pooled 21 studies, 7.73 [6.41, 9.05] (HKSJ), with FOV Snap-Turn at 28.9% of the weight; 55 more columns of the two studies were read as other DVs (e.g. eye-strain symptoms as pedestrian crossing time, IMI competence as TiA reliability) | Every column of the two studies without a schema DV locked as `meta_*` in its mapping (2026-11-14). Fig. 4 is now 19 curated studies, 8.14 [6.83, 9.45], the same pool as without LLM mappings, and is drawn from the LLM-excluded pool |
+| LLM mappings checked only where they surfaced | Wrong LLM columns were locked one study at a time, after they showed up in a figure (Curved Dragging, FOV Snap-Turn, Gaze Platformer), so the errors found were the conspicuous ones | Of the 378 LLM-mapped columns the all-mappings analysis still pooled (22 studies; 56 of its 88 DVs had LLM rows), 34 had the right DV: in-situ precision 9.0% [6.5, 12.3] (Wilson), 14.0% [8.2, 22.8] of 86 decisions. The three STS-AD trust columns behind the `llm`-level finding mental demand × STS-AD trust were a driving-style rating, a usability item and a maximum motion-sickness rating; SenseCobot's NASA-TLX performance was 36 EEG band powers | Every pooled LLM column audited against its study's documentation, verdicts committed before the fixes (`analyses/llm_mapping_audit/`, 2026-11-15); right ones curated, wrong ones remapped or locked. Locking part of a table moved the LLM to its other columns (40 new wrong mappings), so the gate in the rerun repeats the inventory after the batch, SenseCobot is left out of the LLM step and eHMI on the car body is fully mapped. No LLM column is pooled now |
+| A shared alias over a study mapping | osf_cwd6h's mapping sends `ArduinoData1` (its perceived-risk VAS) to `perceived_risk` and says it overrides the sensor schema; without `override_standard_aliases` the shared sensor alias won | The study's main DV never reached a pool; once the LLM audit locked its LLM-mapped demographic items it contributed no DV at all | Flag set (2026-11-15): perceived risk pools three studies. `opendv check-mapping` (PR #50) lists study aliases a shared schema captures first; across 88 studies this was the only DV target lost that way |
+| A scale narrower than the DV's | Values inside the canonical range are taken to be on it, so 1–7 SART items under 0–20 subscales, a 5-point SAM under the 9-point, 0–10 and 1–5 risk ratings under a 1–100 VAS and a 0–21 NASA-TLX pass unconverted | Pooled perceived risk 2.88 from a 0–10 and a 1–5 rating; the instrument registry scored Running into Traffic's 0–21 TLX on 0–100 (total 3.89 instead of 18.52) | Declared `scale_conversions`, endpoint to endpoint (2026-11-15), from PR #50's scale screen and each study's documentation (Running into Traffic: the paper's workload means are reproduced on 0–21) |
+| Samples counted as participants | osf_cwd6h's drive logs carry no participant id (it is their folder), so each of their 1,811,262 samples of perceived risk counted as a participant | The fixed-effect safety/trust subgroup pool gave osf_cwd6h 99.8% of its weight; the random-effects pools hardly moved | Participant ids from the log folders (`participant_from_file`, 2026-11-15): 27 participants. Known and still open: the DV pools take a study's variance from its rows (sd²/rows; participant means are a multiverse axis), and the exploratory PCA composite weights rows, so its PC1 (83%) is mostly osf_cwd6h's perceived risk |
 | Fixed-effect meta-regression | The slope test ignored residual heterogeneity | p < .05 for 60% of null slopes (τ = 0.5, k = 6); 36 of 50 DVs "significant" | Random-effects meta-regression with the Knapp-Hartung test |
 | Participant ids from the wrong column | Aggregation used the first ID-like column | eHMI for All lost every survey DV at the participant level | Declared participant columns for all studies (23 then, 39 now) |
 | An implausible questionnaire coding | The instrument registry took the first coding that holds every answer; Running into Traffic's NASA-TLX subscales run 0..21, which only 0–100 holds | Its `TLX_SCORE` was 3.89 instead of about 19, in the development pool | A coding four or more times wider than one the answers miss by a single point is not used; the answers are read on the narrow coding widened by that point, 0–21 (2026-11-15, `tests/test_scale_plausibility.py`) |
@@ -430,6 +434,28 @@ curated non-DVs mapped to a DV rise from 59% (196 of 332) to 66% (271 of
 408) and precision falls from 25% to 21%: more of the pattern described
 below, questionnaires the schema does not cover.
 
+**In situ the LLM is worse than the benchmark says (2026-11-15).** The
+benchmark asks about columns a curator mapped, half of them DV columns. The
+columns the LLM maps in the pipeline are the ones nobody mapped, mostly not
+DVs. An audit of every LLM-mapped column the all-mappings analysis pooled
+(378 columns of 22 studies, verdicts from each study's documentation,
+committed before any fix; `analyses/llm_mapping_audit/`) found 34 with the
+right DV: 9.0% [6.5, 12.3] (Wilson; 9.5% leaving out the 19 columns the
+documentation does not settle), 14.0% [8.2, 22.8] of the 86 decisions. 276
+had no schema DV at all: EEG band powers, heart-rate statistics, IMI and
+VRNQ-like questionnaires, design preferences, demographics. The right ones
+are columns whose names already say what they are (Faas perceived-safety
+items, UEQ-S pragmatic items, TiA trust items). After the fixes the audit's
+curated columns join the gold set: with `definition` the LLM gives the
+curated DV for 110 of 301 DV columns (37%; 5 of the 43 new ones, osf_cwd6h's
+perceived risk among them), `dense_h` 138 (47 vs. 19 discordant, p = 0.001),
+`mixed_h` 130 (30 vs. 10, p = 0.002); checked precision 16%, 21% and 20%; curated non-DVs mapped to a
+DV 392, 381 and 380 of 540. On the 16 added studies 71 of 423 as before, and
+the LLM maps 206 of the 217 newly locked non-DV columns to a DV after the
+check (precision 13.7% → 9.8%). Locking only the wrong columns of a table is
+not stable either: the LLM then mapped 40 other columns of two studies, none
+of them right (round 2 of the audit).
+
 In the first run the original 11 studies' items were identical to the
 previous run, and, as in the confirmatory test, the filtered dense shortlists
 did not beat `definition` on studies they were not tuned on. Three patterns
@@ -466,19 +492,21 @@ P1 must confirm it on a held-out split.
 ### 2.3 Pooled estimates depend on harmonization choices (RQ3)
 
 The multiverse crosses five binary choices (32 specifications). Results for
-the 39 development studies (rerun of 2026-11-14 with LLM-mapped columns
-excluded per column, `analyses/output_multiverse/`; the 23-study run after
-the 2026-11-04 review fixes in parentheses). Since 2026-11-14 the
-"without LLM" arm leaves out LLM-mapped columns one by one and keeps a
-study's curated columns of the same DV, and the "all" arm sets a study's
-LLM columns aside where it has a curated column of the DV:
+the 39 development studies (rerun of 2026-11-15 after the LLM-mapping audit,
+`analyses/output_multiverse/`; the 23-study run after the 2026-11-04 review
+fixes in parentheses). Since 2026-11-14 the "without LLM" arm leaves out
+LLM-mapped columns one by one and keeps a study's curated columns of the same
+DV, and the "all" arm sets a study's LLM columns aside where it has a curated
+column of the DV. Since the audit no LLM-mapped column is left to pool, so the
+two arms give the same pools and the multiverse varies four choices in
+effect:
 
 - **Scale harmonization now decides the NASA-TLX subscales.** With 23
   studies `mental_demand` was robust: all 32 estimates lay in 7.35–8.13 and
   every interval covered the default. With 39 studies (k = 19 in every
-  specification) the estimates range from 8.14 to 17.48 and 44% of the
+  specification) the estimates range from 8.12 to 17.47 and 44% of the
   intervals miss the default. The harmonized specifications stay together
-  (8.14–8.16); the raw ones (15.5–17.5) pool six added studies' 0–100
+  (8.12–8.15); the raw ones (15.5–17.5) pool six added studies' 0–100
   ratings with 0–20 ones. Until FOV Snap-Turn's and Gaze Platformer's
   questionnaire items were locked (later on 2026-11-14) the specifications
   with LLM mappings had k = 21 and the range was 7.73–17.48 (harmonized
@@ -492,11 +520,13 @@ LLM columns aside where it has a curated column of the DV:
   the same (harmonized ranges within 1, raw ones 13–23). A choice that did
   not matter for 23 studies decides the estimate once studies with another
   response format join.
-- **Robust:** the NASA-TLX total `TLX_SCORE` (k = 13–14), 36.52–39.17 on its
-  0–100 scale, every interval covering the default; SUS
-  `usability` (k = 6), 74.24–74.42. Until 2026-11-15 the range was
-  35.46–38.03: Running into Traffic's subscales (0..21) were scored on 0–100,
-  so its total was 3.89 instead of 18.52 (see the table in §2.1). Until Curved Dragging's end-point
+- **Robust:** the NASA-TLX total `TLX_SCORE` (k = 13), 39.12–39.17 on its
+  0–100 scale (27.4–34.7), every interval covering the default; SUS
+  `usability` (k = 6), 74.24–74.42. Until 2026-11-15 Running into Traffic's
+  total was scored on 0–100 (3.89 instead of 18.52): its subscales run 0–21,
+  which fits no coding the registry knew (37.98–38.03). Until the audit (2026-11-15) the
+  specifications with LLM mappings added SenseCobot's EEG features and its
+  undocumented `NASA_3` as a 14th TLX total (35.46–38.03). Until Curved Dragging's end-point
   columns were locked (2026-11-14) the range was 32.95–38.69 (k = 11–14):
   the LLM read Curved Dragging's effective target width, in degrees, as the
   NASA-TLX total, and that column displaced the study's total computed from
@@ -506,32 +536,45 @@ LLM columns aside where it has a curated column of the DV:
   out without LLM mappings because another column of their items' DVs was
   LLM-mapped.
 - **Fragile:**
-  - `perceived_safety` (k = 7–11) moves from 1.18 to 3.12 (0.93 to 4.04),
-    entirely with scale harmonization (raw 2.89–3.12, harmonized
-    1.18–1.26); 28% of the intervals miss the default (28%);
-  - `understanding_rating` ranges from 3.80 to 5.73 (3.71–7.56), again by
-    scale harmonization alone.
+  - `perceived_safety` (k = 10) moves from 1.38 to 2.72, entirely with
+    scale harmonization (raw 2.71–2.72, harmonized 1.38–1.39); 6% of the
+    intervals miss the default. Until the audit the Faas items of 3D
+    display, FACT-AV and Longitudinal US/DE were LLM-mapped, so k was 7
+    without and 11 with LLM mappings (with osf_cwd6h's self-rated driving
+    safety), the range 1.18–3.12 (0.93 to 4.04) and 28% of the intervals
+    missed the default (28%);
+  - `understanding_rating` (k = 5) is 3.77 in every specification. Until the
+    audit it ranged from 3.80 to 5.73 (3.71–7.56), by scale harmonization
+    alone: FACT-AV's SART understanding sum (3–21) reached it through the
+    shared alias `Understanding`, against the intent of FACT-AV's mapping
+    file, whose one line named a column the data do not have.
 
   Before 2026-11-08 the two ranges were 0.85–3.70 and 3.51–7.64: wrong LLM
   mappings of road_bumps_touch (a speed bin as perceived safety) and ARTV
   ornaments widened them, and both studies' columns are no longer offered
   to the LLM.
-- **Fragility from LLM rows:** with LLM-mapped columns included,
-  `task_completion_time` spans 6.1 to 685 (to 1,331), because the LLM maps
-  AV Prevalence's decision times, in milliseconds, which its curated
-  mapping leaves out. Until 2026-11-14 it also averaged myocontrol's
+- **Fragility from LLM rows (until the audit):** with LLM-mapped columns
+  included, `task_completion_time` spanned 6.1 to 685 (to 1,331), because
+  the LLM mapped AV Prevalence's decision times, in milliseconds, which its
+  curated mapping leaves out (locked since 2026-11-15). Until 2026-11-14 it also averaged myocontrol's
   `table_path_efficiency` (up to 1.4 million), LLM-mapped to task
   completion time, into the study's curated task times (range 5.1–806); the
-  column is now set aside. Without LLM mappings it spans 2.73 to 37.56
-  (0.70–0.90 with 23 studies; 1.25–42.27 before myocontrol's curated task
-  times joined on 2026-11-14) by the τ² estimator alone: an NL2TAP scenario
-  takes 209 s, a myocontrol trial 15 s, a trial of the other studies (VR
-  dragging, touch selection on a phone and in a car, memory reaction time)
-  0.6–2 s, and REML weights the studies nearly equally. Times of different
-  tasks are not one quantity. `pedestrian_crossing_time` is still pooled
-  only with LLM-mapped columns (18.5–20.4 over 5 studies; 10.9–14.8 over 7
-  until Gaze Platformer's eye-strain ratings and FOV Snap-Turn's share of
-  the session played, both LLM-mapped to it, were locked on 2026-11-14). The plausibility
+  column is now set aside. It now spans 6.03 to 35.77 (k = 7) in every
+  arm, by the τ² estimator alone (2.73–37.56 over k = 6 without LLM
+  mappings before eHMI-for-All's scenario time, LLM-mapped and right, was
+  curated in the audit; 0.70–0.90 with 23 studies; 1.25–42.27 before
+  myocontrol's curated task times joined on 2026-11-14): an NL2TAP scenario
+  takes 209 s, an eHMI-for-All run 26 s, a myocontrol trial 15 s, a trial
+  of the other studies (VR dragging, touch selection on a phone and in a
+  car, memory reaction time) 0.6–2 s, and REML weights the studies nearly
+  equally. Times of different tasks are not one quantity.
+  `pedestrian_crossing_time` is no longer pooled: until the audit it was
+  pooled only with LLM-mapped columns (18.5–20.4 over 5 studies; 10.9–14.8
+  over 7 until Gaze Platformer's eye-strain ratings and FOV Snap-Turn's
+  share of the session played were locked on 2026-11-14), and none of them
+  was a crossing time (Longitudinal US/DE's crossing-decision ratings,
+  myocontrol's fine/gross ratio, PairSonic's perceived security, WoZ's
+  liking VAS). The plausibility
   rules check names, types and ranges, not whether a DV fits the study's
   domain: the LLM reads SenseCobot's EEG beta/alpha ratios as mental demand
   (until 2026-11-14 pooled with its ratings, 17.5% of the weight in the
@@ -540,18 +583,22 @@ LLM columns aside where it has a curated column of the DV:
   items `Enjoyment_fun` and `Enjoyment_entertaining` as mental demand
   (28.9% and 5.0% of the all-mappings pool's weight). Since 2026-11-14
   every column of the two studies without a schema DV is locked, and the
-  all-mappings mental-demand pool is the LLM-excluded one (k = 19, 8.14).
+  all-mappings mental-demand pool is the LLM-excluded one (k = 19, 8.13).
+  The audit of 2026-11-15 found 344 of the 378 LLM-mapped columns still
+  pooled not to have the right DV (`analyses/llm_mapping_audit/`).
 - **Fragility that was a data error:** `performance` ranged from 8.73 to
   15.01, the widest range of any DV, until Running into Traffic's
   reverse-keyed "success" item was fixed (2026-10-26); with 23 studies it
-  lay in 6.31–7.30 (k = 5–7), with 39 in 7.17–8.11 when harmonized
-  (k = 12–15). Van der Laan usefulness was negative in every specification
+  lay in 6.31–7.30 (k = 5–7), with 39 in 8.01–8.11 when harmonized
+  (k = 12; 7.17–8.11 over k = 12–15 until the audit, when SenseCobot's EEG
+  band powers and the STS-AD Performance item of 3D display and FACT-AV,
+  read as NASA-TLX performance, entered with LLM mappings). Van der Laan usefulness was negative in every specification
   (−0.63) until the item keying of ROADS and eHMI-for-All was fixed; it now
   lies in 0.73–1.57 (0.81–1.85). A wide or implausible multiverse range can
   flag a polarity error, not only a consequential harmonization choice.
 - **Interval width:** 95% interval widths differ by up to an order of
-  magnitude between Wald and HKSJ at small k (e.g. `perceived_safety`: 0.9
-  to 5.6; `mental_demand` 2.5 to 17.0). More studies narrow the widest:
+  magnitude between Wald and HKSJ at small k (e.g. `perceived_safety`: 1.0
+  to 3.6, 0.9 to 5.6 before the audit; `mental_demand` 2.5 to 17.0). More studies narrow the widest:
   `TLX_SCORE`'s widths, 12 to 143 over 3–5 studies, are 16 to 32 over 13–14.
 
 The multiverse turns "we pooled k studies" into "this estimate survives N of
@@ -596,22 +643,31 @@ for the 39 development studies (2026-11-05); the 23-study values of
   persons over 10–12 studies (12 of 15 pairs; none with 23 studies).
   *Performance* is the weakest link (between persons r = 0.13–0.24),
   consistent with the TLX's one-factor misfit (§4).
-- **The LLM's contribution.** It reaches 36 studies (31 without it). Its
-  extra cross-construct findings need review: perceived safety × TiA trust
-  (four studies, r = 0.63) rests on correct mappings in two studies, a
-  partly wrong one in a third and a wrong one (relaxation as trust) in the
-  fourth, yet looks homogeneous; trust × UEQ-S hedonic quality (new, three
-  studies since ARTV ornaments' immersion score, read as trust, was marked
-  never-map on 2026-11-08), and the LLM also reads minimum heart rate as
-  trust (music tempo). On the 16 added
-  studies it gives the curated DV for 17% of the curated columns (41% on
-  the first 23).
+- **The LLM's contribution.** It reached 36 studies (31 without it). Its
+  extra cross-construct findings needed review, and the audit of 2026-11-15
+  settled them: perceived safety × TiA trust (four studies, r = 0.63) rested
+  on correct mappings in two studies, TiA understanding items averaged into
+  trust in a third and a ride-relaxation rating in the fourth; trust × UEQ-S
+  hedonic quality on an undocumented BVI item; mental demand × STS-AD trust
+  (found on 2026-11-14) on three columns none of which is an STS-AD item.
+  With the mappings fixed no LLM column is pooled and the `llm` level equals
+  the curated one; the curated level gains perceived safety × TiA trust
+  (between r = 0.69, within r = 0.62, three studies each) and mental demand ×
+  TiA trust (within, r = −0.38), now on correctly scored TiA subscales, and
+  workload × perceived safety within persons rests on seven curated studies
+  (r = −0.40, q = .009). On the 16 added studies the LLM gives the curated
+  DV for 17% of the curated columns (36% on the first 23 since the audit;
+  41% before).
 - **Can the LLM replace curation? No.** With the LLM's leave-alias-out
   answers in place of the curated mappings, 67 of 314 curated DV columns
-  keep their DV. Within persons the replay recovers 13 of the 16 curated
-  findings, but the shared schema alone recovers 14, because the added
+  kept their DV (999 of 1,330 since the fixes of 2026-11-15, 720 of them
+  eHMI-for-All's total time and 216 osf_cwd6h's perceived risk in their log
+  files). Within persons the replay recovers 10 of
+  the 25 curated findings (13 of 16 before the audit added curated
+  findings), but the shared schema alone recovers 14, because the added
   TLX studies name their subscales plainly; between persons it recovers
-  one of 19, and none of the usability–workload relations. Where both pool
+  none of 21 (one of 19 before), and none of the usability–workload
+  relations. Where both pool
   a pair the correlations agree closely (median |Δr| 0.06–0.07), so the
   cost is coverage and misassignment, not distorted estimates. This is a
   conclusion-level evaluation of LLM harmonization; column accuracy alone

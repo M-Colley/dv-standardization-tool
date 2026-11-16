@@ -32,9 +32,38 @@ VFA_NE1P_Eindeutigkeit: understanding_rating  # pictogram, not detected
 VFA_NE1K_Eindeutigkeit: understanding_rating  # triangles + pictogram, not detected
 VFA_NE1L_Eindeutigkeit: understanding_rating  # headlight flasher, not detected
 
-# Left unlabelled (no schema DV): VFA_*_Erkennbarkeit (visibility of the signal),
-# VFA_*_GefuehlErkannt (felt detected by the vehicle), and the clarity sums *_Dim1, which add
-# visibility and felt detection to the unambiguity item mapped above.
+# "The signals can be seen clearly" (1-6), visibility of the signal: no schema DV. Locked after
+# the LLM-mapping audit of 2026-11-15 (analyses/llm_mapping_audit/): the LLM had mapped them to social presence and Van der Laan item 1.
+VFA_E1D_Erkennbarkeit: meta_rating_signal_visibility
+VFA_E1P_Erkennbarkeit: meta_rating_signal_visibility
+VFA_E1K_Erkennbarkeit: meta_rating_signal_visibility
+VFA_E1L_Erkennbarkeit: meta_rating_signal_visibility
+VFA_NE1D_Erkennbarkeit: meta_rating_signal_visibility
+VFA_NE1P_Erkennbarkeit: meta_rating_signal_visibility
+VFA_NE1K_Erkennbarkeit: meta_rating_signal_visibility
+VFA_NE1L_Erkennbarkeit: meta_rating_signal_visibility
+# "I have the feeling that the vehicle detected me" (1-6; the column names spell it
+# GefühlErkannt) and the clarity sums *_Dim1 (3-18), which add visibility and felt detection to
+# the unambiguity item mapped above: no schema DV. Locked in round 2 of the LLM-mapping audit
+# (2026-11-15): once the visibility items were locked, the LLM mapped four GefühlErkannt
+# columns to IPQ presence and Van der Laan item 1. With these locks the mapping covers every
+# column of the file and the LLM is not asked.
+VFA_E1D_GefühlErkannt: meta_rating_felt_detected
+VFA_E1K_GefühlErkannt: meta_rating_felt_detected
+VFA_E1L_GefühlErkannt: meta_rating_felt_detected
+VFA_E1P_GefühlErkannt: meta_rating_felt_detected
+VFA_NE1D_GefühlErkannt: meta_rating_felt_detected
+VFA_NE1K_GefühlErkannt: meta_rating_felt_detected
+VFA_NE1L_GefühlErkannt: meta_rating_felt_detected
+VFA_NE1P_GefühlErkannt: meta_rating_felt_detected
+Erkennen_Dreiecke_Dim1: meta_communication_clarity_sum
+Erkennen_KombinationDreiPikt_Dim1: meta_communication_clarity_sum
+Erkennen_Lichthupe_Dim1: meta_communication_clarity_sum
+Erkennen_Piktogramm_Dim1: meta_communication_clarity_sum
+NichtErkennen_Dreiecke_Dim1: meta_communication_clarity_sum
+NichtErkennen_KombinationDreiPikt_Dim1: meta_communication_clarity_sum
+NichtErkennen_Lichthupe_Dim1: meta_communication_clarity_sum
+NichtErkennen_Piktogramm_Dim1: meta_communication_clarity_sum
 
 # --- Participants ---------------------------------------------------------------
 Proband: meta_participant_id

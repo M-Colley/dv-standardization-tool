@@ -26,8 +26,9 @@ TRU: trust_rating              # trust after the event, 0-10
 min_TTC(s): ttc                # minimum time to collision during the event, s
 min_THW(s): headway            # minimum time headway during the event, s
 
-# Left unlabelled (no schema DV): min_gap (m), min_speed(m/s) and max_braking(0~1), the
-# driver's maximum brake-pedal position.
+# Left unlabelled (no schema DV): min_gap (m) and min_speed(m/s).
+# Locked after the LLM-mapping audit of 2026-11-15 (analyses/llm_mapping_audit/) (the LLM had mapped it to brake reaction time):
+"max_braking(0~1)": meta_max_brake_pedal_position   # README: maximum brake applied, 0-1
 
 # --- Participants and design ----------------------------------------------------
 Participant: meta_participant_id
@@ -55,3 +56,15 @@ inverse_min_TTC: meta_derived_inverse_min_ttc
 inverse_min_THW: meta_derived_inverse_min_thw
 log_IMG: meta_derived_log_initial_merging_gap
 inverse_IMG: meta_derived_inverse_initial_merging_gap
+
+# --- Scale ---------------------------------------------------------------------------
+# PR is the verbal answer to "How dangerous do you think was the previous event?" on 0-10
+# (paper sec. 2.2.4 and 3.1.2; "0 to 10 for no to very high risk" in He's thesis, TU Delft 2024); the schema's perceived_risk is a VAS on 1-100,
+# into which 0-10 fits, so the analysis would pool it unconverted. Converted linearly
+# (0 -> 1, 10 -> 100; added 2026-11-15). TRU (0-10) already falls outside trust_rating's
+# 1-5 and is rescaled by the analysis.
+scale_conversions:
+  - columns: [PR]
+    from: [0, 10]
+    to: [1, 100]
+    reason: perceived risk rated 0-10 after each event; the schema's perceived_risk is a 1-100 VAS

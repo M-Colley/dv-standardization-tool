@@ -481,15 +481,21 @@ class TestCanonicalRange(unittest.TestCase):
                 f"{dv} should be in 'safety_trust' cluster, got '{cluster}'",
             )
 
-    def test_fact_av_mapping_redirects_understanding(self):
-        """fact_av_mapping.yaml must map understanding_rating → sart_understanding."""
+    def test_fact_av_mapping_keeps_sart_understanding_out_of_ehmi_understanding(self):
+        """FACT-AV's `Understanding` column is the SART understanding sum (SART8 + SART9 +
+        SSART10). The shared schema's alias would send it to understanding_rating, the eHMI
+        comprehension rating, so the source mapping locks it, and the SART items carry
+        sart_understanding. Until 2026-11-15 the file mapped a column `understanding_rating`
+        that the data do not have, and the alias won."""
         mapping_path = REPO_ROOT / "schemas" / "fact_av_mapping.yaml"
         self.assertTrue(mapping_path.exists(), "schemas/fact_av_mapping.yaml must exist")
         data = yaml.safe_load(mapping_path.read_text(encoding="utf-8")) or {}
-        self.assertEqual(
-            data.get("understanding_rating"), "sart_understanding",
-            "fact_av_mapping must redirect understanding_rating → sart_understanding",
+        self.assertTrue(
+            str(data.get("Understanding", "")).startswith("meta_"),
+            "fact_av_mapping must lock the SART understanding sum `Understanding`",
         )
+        for item in ("SART8", "SART9", "SSART10"):
+            self.assertEqual(data.get(item), "sart_understanding", item)
 
 
 # ---------------------------------------------------------------------------

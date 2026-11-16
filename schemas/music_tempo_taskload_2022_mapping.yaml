@@ -32,8 +32,48 @@ Weight: meta_demographic_weight
 PreHR: meta_baseline_hr_pre
 RestHR: meta_baseline_hr_rest
 
-# Left unlabelled (no schema DV or undocumented): Beh_* hazard counts, *_WordSrch, the other
-# heart-rate statistics (*HRMin, *HRMax, *SDNN) and the duplicated HLNM*_A block.
+# Left unlabelled (no schema DV or undocumented): *_WordSrch.
+# Locked after the LLM-mapping audit of 2026-11-15 (analyses/llm_mapping_audit/) (the LLM had mapped the maximum heart rate to
+# lateral acceleration, the minimum to trust, SDNN to task feasibility and two Beh_* items
+# to perceived vehicle influence and perceived safety): the other heart-rate statistics
+# (variable labels "HR Min", "HR Max", "SDNN"; hr_bpm is the mean, the schema's only HRV DV
+# is RMSSD), the duplicated HLNM*_A block (HLNMHRMax_A has 986) and the undocumented Beh_*
+# variables (0-4; the .sav labels none of them).
+HLFMHRMin: meta_hr_min_bpm
+HLFMHRMax: meta_hr_max_bpm
+HLFMSDNN: meta_hrv_sdnn
+HLSMHRMin: meta_hr_min_bpm
+HLSMHRMax: meta_hr_max_bpm
+HLSMSDNN: meta_hrv_sdnn
+HLNMHRMin: meta_hr_min_bpm
+HLNMHRMax: meta_hr_max_bpm
+HLNMSDNN: meta_hrv_sdnn
+LLFMHRMin: meta_hr_min_bpm
+LLFMHRMax: meta_hr_max_bpm
+LLFMSDNN: meta_hrv_sdnn
+LLSMHRMin: meta_hr_min_bpm
+LLSMHRMax: meta_hr_max_bpm
+LLSMSDNN: meta_hrv_sdnn
+LLNMHRMin: meta_hr_min_bpm
+LLNMHRMax: meta_hr_max_bpm
+LLNMSDNN: meta_hrv_sdnn
+HLNMHRAve_A: meta_duplicate_block
+HLNMHRMin_A: meta_duplicate_block
+HLNMHRMax_A: meta_duplicate_block
+HLNMSDNN_A: meta_duplicate_block
+HLNMRMSSD_A: meta_duplicate_block
+Beh_HLFM_Ped: meta_behaviour_undocumented
+Beh_HLFM_Garb: meta_behaviour_undocumented
+Beh_HLFM_Traf: meta_behaviour_undocumented
+Beh_HLFM_Car: meta_behaviour_undocumented
+Beh_HLSM_Ped: meta_behaviour_undocumented
+Beh_HLSM_Garb: meta_behaviour_undocumented
+Beh_HLSM_Traf: meta_behaviour_undocumented
+Beh_HLSM_Car: meta_behaviour_undocumented
+Beh_HLNM_Ped: meta_behaviour_undocumented
+Beh_HLNM_Garb: meta_behaviour_undocumented
+Beh_HLNM_Traf: meta_behaviour_undocumented
+Beh_HLNM_Car: meta_behaviour_undocumented
 
 # --- Dependent measures per drive -------------------------------------------------
 HLFM_TLX_MenD: mental_demand
