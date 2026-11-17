@@ -122,6 +122,10 @@ Readings:
   fuzzy shortlist only about one in four accepted DV mappings is correct on
   real columns. Even with definition retrieval it is 59% (§2.4). LLM-deduced
   rows must be quarantined (the `*_llm_excluded` outputs) or human-reviewed.
+  A larger model does not change this. On the full benchmark E4B (8 B)
+  raises E1 accuracy from 25% to 43%, but it maps as many curated non-DV
+  columns to a DV (63%), so only 22% of its accepted mappings are right
+  (§2.4).
 - **The plausibility layer removes the most damaging errors** (ages, seeds,
   IDs, timestamps, free text) at about 1% cost on genuine DV names. Its two
   E2 false rejections led to one rule refinement (v1.1, documented in the
@@ -471,6 +475,79 @@ Precision falls mainly because columns of questionnaires the schema does not
 cover (ATI, MSSQ, privacy concern), demographics and condition aggregates are
 mapped to some DV. Any fix for these patterns would be designed on these
 studies, so confirming it needs another held-out set.
+
+**A larger model on the same benchmark (2026-11-17, pre-specified in
+`docs/model_comparison_design.md`).** `gemma-4-E4B-it` (8 B parameters, run
+on the 16 GB GPU with its per-layer embeddings on the CPU) against E2B on the
+full benchmark: E1 over the 39 studies (724 DV and 1,136 curated non-DV
+columns) and E2's 300 aliases, both shortlists, the same prompts. Answers are
+paired by item; intervals resample studies (E2: the aliases' DVs), p comes
+from a permutation test that swaps the two models' answers within studies,
+and Holm runs over the 12 E1 tests (E2's 4 separately). Outputs in
+`analyses/output_llm_evaluation/model_comparison/`.
+
+| Checked answers | `definition`: E2B | E4B | E4B − E2B [95% CI] | Holm p | `dense_h`: E2B | E4B | E4B − E2B [95% CI] | Holm p |
+|---|---|---|---|---|---|---|---|---|
+| E1 accuracy on DV columns | 25.0% (181) | 43.1% (312) | +18.1 [8.2, 28.2] | 0.001 | 32.2% (233) | 44.3% (321) | +12.2 [3.5, 21.4] | 0.070 |
+| E1 curated non-DVs mapped to a DV | 62.9% (714) | 63.4% (720) | +0.5 [−1.8, 3.0] | 1.0 | 57.2% (650) | 62.2% (707) | +5.0 [0.6, 10.5] | 0.31 |
+| E1 precision of accepted DV mappings | 13.0% | 22.3% | +9.3 [3.5, 16.8] | 0.002 | 17.8% | 22.7% | +4.9 [−0.05, 10.9] | 0.43 |
+| E2 accuracy | 61.0% (183) | 71.7% (215) | +10.7 [5.5, 15.9] | < 0.001 | 61.3% (184) | 75.7% (227) | +14.3 [9.8, 19.1] | < 0.001 |
+
+- **The hypothesis holds for `definition`, not at the pre-specified level
+  for `dense_h`.** With `definition` E4B gets 149 DV columns right that E2B
+  gets wrong, and E2B 18 that E4B gets wrong. With `dense_h` it is 117
+  against 29: the interval excludes zero, but p = 0.009 becomes 0.070 after
+  Holm. Unchecked answers give the same accuracy differences.
+- **A larger model chooses better but does not abstain more.** E4B maps as
+  many curated non-DV columns to a DV (63%; unchecked 88% against 92%, Holm
+  0.37), so precision rises only through the right answers, to 22%: four in
+  five accepted mappings are still wrong. In the pipeline, where most columns
+  the LLM sees are not DVs (the audit above), that is the number that
+  matters.
+- **Half the `definition` gain is two studies:** driving style (+37), whose
+  Godspeed semantic-differential items E2B maps to crossing time, brake
+  reaction time or skin conductance, and music tempo (+33), whose NASA-TLX
+  subscale columns E2B makes all mental demand ("item numbers misread",
+  above). 23 studies gain, 2 lose and 13 do not change; the study-level
+  interval includes this concentration. "A scale for its parts" remains:
+  E4B maps FACT-AV's SART items to the SART total (−4).
+- **By half:** first 23 studies 36.5% → 49.8% (`definition`) and
+  45.8% → 53.8% (`dense_h`); added 16 studies 16.8% → 38.3% and
+  22.5% → 37.6%. When the gold DV is in the shortlist (542 of 724 columns
+  with `definition`, 519 with `dense_h`), E4B picks it 58% and 62% of the
+  time, E2B 33% and 45%.
+- **Mostly not new evidence for `definition`.** 680 of the 724 DV columns
+  were items of the schema-stability test (§2.6), whose E4B result motivated
+  this one. On the 44 DV columns the audit added since, E4B is no better
+  (2 against 5 right with `definition`, 9 against 11 with `dense_h`), and it
+  maps 96% and 93% of the 348 new curated non-DV columns to a DV (E2B 93%
+  and 79%). New are `dense_h`, E2 and the precision and non-DV outcomes.
+- **Checks.** The E2B reruns reproduce the committed outputs answer for
+  answer (3,452 items). The 1,500 prompts also asked in §2.6 get the same
+  answers from the same model there and here (E2B with both shortlists, E4B
+  with `definition`), so E4B with CPU per-layer embeddings is as
+  reproducible as E2B. No generation errors; E4B peaked at 10.1 GB of GPU
+  memory and took 28–39 minutes per run.
+
+**Exploratory, added after the runs: with E4B the shortlist matters less.**
+`dense_h` minus `definition` (accuracy, checked, all 39 studies, resampling
+studies) is +7.2 points [−0.4, 13.4] for E2B (p = 0.09; the item-level test
+on the first 23 studies above gave p = 0.001) and +1.2 [−6.4, 7.5] for E4B.
+The difference between the two models' gains is −5.9 [−12.0, −0.9]. Part of
+`dense_h`'s lead looks like help for a small model's choices: E4B picks from
+the `definition` shortlist about as well as from `dense_h`. Not tested; P1
+should cross shortlists with models.
+
+**Deviations from the design note.** Items, conditions, outcomes and tests
+are as written. After the note, and before any E4B answer, two safeguards for
+the shared GPU were added (wait for free GPU memory before each run; stop
+after 20 failed generations in a row); neither changes an answer. The first
+attempt stopped before its first answer, because the worktree lacked the local
+study folders (`data/raw/development`). Accuracy has 38 study clusters, not
+39: one study has no DV column. Seconds per prompt are not comparable between
+the models: the E2B runs mostly shared the GPU with other jobs and the E4B runs
+did not (the one E2B run without competition, `dense_h` on the added 16, took
+19 minutes against E4B's 28).
 
 **Trade-off.** Because a plausible-looking candidate is always available, the
 model maps non-DV columns more often with the definition shortlist (74% of
@@ -823,7 +900,8 @@ Checked answers; accuracy intervals Wilson, differences paired by column.
   perturbation-based score is a candidate for P3's conformal abstention.
 - A larger model helps more than any prompt-level change tested here.
   E4B runs on a 16 GB GPU with its per-layer embeddings on the CPU; P1
-  should report it alongside E2B.
+  should report it alongside E2B. On the full benchmark it is more accurate
+  but no more willing to abstain (§2.4, 2026-11-17).
 
 **Deviations from the design note.**
 
@@ -1030,13 +1108,18 @@ shows when a question is answered and when more studies are futile.
 - **Observation-level n.** Pooled estimates use row-level n, which is
   anti-conservative for repeated measures. P5 reports the participant-level
   alternative; the multiverse already includes it.
-- **Model and hardware dependence.** The LLM results are for one small
-  local model (Gemma-4-E2B). E4B fails the pipeline's memory check on a
-  16 GB GPU but runs there with its per-layer embedding table on the CPU
-  (`install_cpu_ple_pipeline`, same logits). In the schema-stability
-  benchmark it got 310 of 681 DV columns right against E2B's 176 and
-  changed fewer answers under schema edits (§2.6). P1 should compare model
-  sizes and hosted models.
+- **Model and hardware dependence.** The committed LLM results are for one
+  small local model (Gemma-4-E2B), the one the pipeline picks on a 16 GB
+  GPU. E4B fails that memory check but runs there with its per-layer
+  embedding table on the CPU (`evaluate_llm_mapping --cpu-ple`, same
+  logits, answers reproducible across runs). On the full benchmark it gets
+  43% of DV columns right against 25% (`definition`; `dense_h` 44% against
+  32%, Holm p = 0.07), and it changes fewer answers under schema edits
+  (§2.6). It maps as many non-DV columns to a DV, though, so precision only
+  rises from 13% to 22% (§2.4). Accuracy figures therefore hold for the
+  model the hardware allows; report the model with every LLM result. Which
+  shortlist is best may depend on the model too (exploratory, §2.4). P1
+  should compare model sizes and hosted models.
 - **Schema dependence of LLM mappings.** An LLM mapping can change when an
   unrelated DV is added, removed or reworded: 2.8% of answers per edit,
   and 25% of columns under at least one of 30 edits (§2.6). A third
