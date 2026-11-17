@@ -79,3 +79,6 @@ done
 
 # Paired comparison, reproduction and determinism checks.
 runmod opendv.analysis.model_comparison
+
+# Exploratory, added after the runs (not in the design note): dense_h against definition within each model.
+runmod opendv.analysis.model_comparison --explore

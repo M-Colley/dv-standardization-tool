@@ -1,0 +1,4 @@
+model,shortlist,schema_stability_condition,n_asked,n_same_prompt,n_same_answer,n_different_answer
+google/gemma-4-E2B-it,definition,e2b_definition,1892,1500,1500,0
+google/gemma-4-E2B-it,dense_h,e2b_dense_h,1892,1500,1500,0
+google/gemma-4-E4B-it,definition,e4b_definition,1892,1500,1500,0

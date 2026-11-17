@@ -412,3 +412,21 @@ def test_benchmark_stops_after_consecutive_generation_errors(monkeypatch):
     with pytest.raises(RuntimeError, match="in a row failed"):
         ev._ask_llm_logged("bad")
     assert calls["n"] == 2 * limit
+
+
+def test_exploratory_shortlist_contrast(tmp_path):
+    write_runs(tmp_path)
+    for half in mc.HALVES:  # E4B with dense_h now misses every second DV column
+        path = mc.cell_dir(tmp_path, "e4b", "dense_h", half) / "llm_mapping_evaluation_items.csv"
+        frame = pd.read_csv(path)
+        wrong = (frame["experiment"] == "E1") & (frame["alias"] == "dv1")
+        frame.loc[wrong, ["suggestion", "final_unchecked", "final_checked"]] = "c"
+        frame.to_csv(path, index=False)
+    table = mc.explore(tmp_path, n_boot=300, n_perm=500, dv_ids=DV_IDS)
+    assert (tmp_path / "exploratory_shortlists.csv").is_file()
+    acc = table[(table.answer == "checked") & (table.outcome == "accuracy")].set_index("contrast")
+    assert acc.loc["dense_h - definition, e2b", "difference"] == 0
+    assert acc.loc["dense_h - definition, e2b", "p_unadjusted"] == 1.0
+    assert acc.loc["dense_h - definition, e4b", "difference"] == -0.5
+    between = acc.loc["(dense_h - definition) of e4b minus that of e2b"]
+    assert (between["difference"], between["ci_low"], between["ci_high"]) == (-0.5, -0.5, -0.5)

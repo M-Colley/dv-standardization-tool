@@ -422,12 +422,75 @@ def analyze(
         "reference": MODELS[REFERENCE], "candidate": MODELS[CANDIDATE],
         "n_items": counts, "n_boot": n_boot, "n_perm": n_perm, "seed": SEED,
         "runs": run_cells(summaries),
-        "comparisons": comparisons.to_dict(orient="records"),
-        "reproduction": repro.to_dict(orient="records"),
-        "determinism": determ.to_dict(orient="records"),
+        "comparisons": _records(comparisons),
+        "reproduction": _records(repro),
+        "determinism": _records(determ),
     }
     (output_dir / "summary.json").write_text(json.dumps(summary, indent=2, default=_json_default), encoding="utf-8")
     return summary
+
+
+def shortlists_by_model(
+    items: pd.DataFrame, dv_ids: set[str], n_boot: int = N_BOOT, n_perm: int = N_PERM, seed: int = SEED
+) -> pd.DataFrame:
+    """Exploratory, added after the runs: ``dense_h`` minus ``definition`` within each model, and between models.
+
+    Within a model the two shortlists' answers are paired by item, with the
+    pre-specified interval and permutation test (shortlists swapped within
+    studies; unadjusted). The difference between the two models' shortlist
+    differences gets a cluster-bootstrap interval only: no exchangeability
+    argument gives a test of it.
+    """
+    rows = []
+    for answer in ANSWERS:
+        for outcome in (*E1_OUTCOMES, "e2_accuracy"):
+            frames = {
+                (m, s): outcome_items(items[(items["model"] == m) & (items["shortlist"] == s)], outcome, answer, dv_ids)
+                for m in MODELS for s in SHORTLISTS
+            }
+            sums = {m: cluster_sums(frames[(m, "definition")], frames[(m, "dense_h")]) for m in MODELS}
+            for model in MODELS:
+                low, high, _ = paired_bootstrap(sums[model], n_boot, seed)
+                rows.append({"answer": answer, "outcome": outcome, "contrast": f"dense_h - definition, {model}",
+                             "difference": paired_difference(sums[model]), "ci_low": low, "ci_high": high,
+                             "p_unadjusted": paired_permutation_p(sums[model], n_perm, seed)})
+            joined = sums[CANDIDATE].join(sums[REFERENCE], how="outer", lsuffix="_c", rsuffix="_r").fillna(0.0)
+            arrays = {name: joined[name].to_numpy(dtype=float) for name in joined}
+            picks = np.random.default_rng(seed).integers(0, len(joined), size=(n_boot, len(joined)))
+            boot = _shortlist_gain(arrays, "c", picks) - _shortlist_gain(arrays, "r", picks)
+            rows.append({"answer": answer, "outcome": outcome,
+                         "contrast": f"(dense_h - definition) of {CANDIDATE} minus that of {REFERENCE}",
+                         "difference": float(_shortlist_gain(arrays, "c") - _shortlist_gain(arrays, "r")),
+                         "ci_low": float(np.nanpercentile(boot, 2.5)), "ci_high": float(np.nanpercentile(boot, 97.5)),
+                         "p_unadjusted": None})
+    return pd.DataFrame(rows)
+
+
+def _shortlist_gain(arrays: dict[str, np.ndarray], suffix: str, index: Any = slice(None)) -> np.ndarray:
+    """One model's dense_h rate minus its definition rate, over all clusters or each bootstrap draw (``index``)."""
+    def total(name: str) -> np.ndarray:
+        return arrays[f"{name}_{suffix}"][index].sum(axis=-1)
+
+    return _ratio(total("num_cand"), total("den_cand")) - _ratio(total("num_ref"), total("den_ref"))
+
+
+def explore(output_dir: Path = OUTPUT_DIR, n_boot: int = N_BOOT, n_perm: int = N_PERM,
+            dv_ids: set[str] | None = None) -> pd.DataFrame:
+    """Exploratory analyses of the finished runs (not in the design note): ``exploratory_shortlists.csv``."""
+    if dv_ids is None:
+        from opendv.analysis.schema_stability import base_dv_ids
+
+        dv_ids = base_dv_ids()
+    items, _ = load_runs(output_dir)
+    check_same_items(items)
+    table = shortlists_by_model(items, dv_ids, n_boot, n_perm)
+    table.to_csv(output_dir / "exploratory_shortlists.csv", index=False)
+    return table
+
+
+def _records(table: pd.DataFrame) -> list[dict[str, Any]]:
+    """Rows as dicts with None for missing values (``NaN`` is not JSON)."""
+    return table.astype(object).where(table.notna(), None).to_dict(orient="records")
 
 
 def _json_default(value: Any) -> Any:
@@ -444,7 +507,13 @@ def main(argv: list[str] | None = None) -> None:
     parser.add_argument("--output-dir", type=Path, default=OUTPUT_DIR)
     parser.add_argument("--n-boot", type=int, default=N_BOOT)
     parser.add_argument("--n-perm", type=int, default=N_PERM)
+    parser.add_argument("--explore", action="store_true",
+                        help="Run the exploratory analyses added after the runs instead (exploratory_shortlists.csv).")
     args = parser.parse_args(argv)
+    if args.explore:
+        table = explore(args.output_dir, args.n_boot, args.n_perm)
+        print(table.to_string(index=False, float_format=lambda v: f"{v:.4f}"))
+        return
     summary = analyze(args.output_dir, args.n_boot, args.n_perm)
     table = pd.DataFrame(summary["comparisons"])
     columns = ["family", "shortlist", "answer", "outcome", "rate_reference", "rate_candidate", "difference",

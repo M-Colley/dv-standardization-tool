@@ -1,0 +1,6 @@
+shortlist,half,experiment,committed,n_committed,n_rerun,only_committed,only_rerun,suggestion_differ,final_unchecked_differ,final_checked_differ
+definition,first_23,E1,analyses\output_llm_evaluation,910,910,0,0,0,0,0
+definition,first_23,E2,analyses\output_llm_evaluation,300,300,0,0,0,0,0
+dense_h,first_23,E1,analyses\output_llm_evaluation\postfix\shortlist_dense_h,910,910,0,0,0,0,0
+dense_h,first_23,E2,analyses\output_llm_evaluation\postfix\shortlist_dense_h,300,300,0,0,0,0,0
+definition,added_16,E1,analyses\output_llm_evaluation\added_2026_11_05,1032,1032,0,0,0,0,0
