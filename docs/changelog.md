@@ -4,6 +4,27 @@ This document logs human-readable updates to the repo's functionality, structure
 
 ---
 
+### [2026-11-17] Schema-stability follow-up: unpadded shortlists and order votes do not stabilize the LLM mappings
+
+The schema-stability experiment (entry below) suggested two changes to how the LLM is asked; neither was pre-specified there. Both were pre-specified in `docs/schema_stability_followup_design.md` before any of their answers was generated, and tested with E2B and the `definition` shortlist on the same 1,468 items and 30 schema edits against the committed reference answers. Results and deviations in `docs/research_agenda.md` §2.7.
+
+- **Conditions.** `e2b_definition_nopad`: DVs with a definition score of 0 no longer pad the shortlist. `e2b_definition_vote3`: each column asked in rank order and in two seeded random orders, majority answer. `e2b_definition_vote3u`: the same three answers, kept only if all agree (otherwise no DV). Four outcomes, paired by column; Holm over 12 tests.
+- **Results** (checked answers; reference: 176 of 681 DV columns right, 387 of 787 curated non-DV columns mapped, precision 17.2%, schema-edit flips 2.79%):
+    - no padding: 176, 382, 17.3%, 2.70% (−0.09 points, p = 0.031, Holm 0.25). Nine columns are no longer asked and five non-DV columns lose a wrong DV; no correct answer is lost. Flips under a permuted DV list 0.85% → 0.31%.
+    - majority vote: 192 (+2.4 points, p = 0.14), 387, 18.7%, 2.72% (p = 0.67). With two other shuffles, 17.4% of its answers change.
+    - unanimous or abstain: 121 (−8.1 points, Holm p < 0.001), 139 (−31.5 points, Holm p < 0.001), 28.9% (+11.7 points [6.9, 17.6], p = 0.008, Holm 0.077), 2.14% (p = 0.020, Holm 0.18). This is a trade-off: about ten wrong mappings removed per correct one lost.
+    - Accepted answers are correct 29% of the time when the three orders agree, 14% when two do and 7% when all differ, a confidence score for P3.
+- **Mapping files.** The LLM-mapping audit (2026-11-15) changed 21 of the 36 study mapping files the benchmark reads to build prompts. The follow-up reads the files the reference read (commit `ffabda7`, new `freeze-mappings` subcommand), and reproduces the reference's prompts and answers wherever a condition leaves them alone (integrity checks in `integrity_checks.csv`, all passed). The identity rerun without the cache changed none of 1,550 answers.
+- **Code** (defaults unchanged):
+    - `dv_retrieval.without_zero_scores` and `definition_shortlist(drop_zero_scores=...)`.
+    - `llm_utils.shuffle_candidates` (the benchmark's shuffle, moved here unchanged), `candidate_orders` and `vote_over_orders`; `deduce_standard_name_with_local_llm(vote_seeds=..., vote_rule=...)`.
+    - `evaluate_llm_mapping`: `--drop-zero-scores`, `--vote-seeds`, `--vote-rule`. Each order's prompt is cached under the single-order key, the answers per order are kept (`order_suggestions`), and the prompt fingerprint covers every order.
+    - `schema_stability`: the three conditions; `freeze-mappings`; `run --extra-cache` (read-only caches, e.g. the reference's); `followup` (outcomes, integrity checks, padded columns, vote agreement). `analyze` was refactored and still reproduces the committed `schema_stability/` outputs byte for byte.
+    - `analyses/schema_stability_followup/run.sh` and `collect_runs.py`. Tests: `tests/test_schema_stability_followup.py` (16).
+- **Outputs** (`analyses/output_llm_evaluation/schema_stability_followup/`): `outcome_comparisons.csv`, `condition_outcomes.csv`, `flip_rates.csv`, `per_column_flip_rates.csv`, `integrity_checks.csv`, `padded_columns.csv`, `vote_agreement.csv`, `summary.json`; `dry_run_prompt_changes.csv`, `generations.csv`, `provenance.json`; exploratory `exploratory.json`; every answer in `answers_<condition>.csv.gz` (3 conditions). The committed `schema_stability/` outputs are unchanged.
+- **Runs** (shared RTX 5080): 19,256 generations, 10 h 15 min (`nopad` 2 h 18 min, `vote3` 7 h 9 min, `vote3u` 48 min without the GPU); one failed generation, redone. Working files in `data/processed/schema_stability_followup/` (not committed).
+- **Unchanged:** the pipeline's default behaviour, the committed benchmark and schema-stability outputs, and every primary result.
+
 ### [2026-11-16] Schema stability of the LLM mappings: how often an unrelated schema change moves an LLM mapping
 
 Schema 3.3 added one DV (`touch_offset`), and 19 LLM mappings changed in five studies whose curated mappings had not (entry of 2026-11-08). This experiment measures that effect on the benchmark and tests three ways to reduce it. Design pre-specified in `docs/schema_stability_design.md` before any answer under a changed schema was generated; results and deviations in `docs/research_agenda.md` §2.6.

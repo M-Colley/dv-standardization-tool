@@ -817,7 +817,8 @@ Checked answers; accuracy intervals Wilson, differences paired by column.
 - Candidate order moves ten times more answers than a schema edit. A
   fixed order does not remove the effect (alphabetical order favours
   whichever DV sorts first); asking under several orders and voting, or
-  abstaining when they disagree, is the next thing to test (P3).
+  abstaining when they disagree, is the next thing to test (P3). §2.7
+  tests both; neither makes the answers more stable.
 - Stability is a cheap confidence signal: accepted answers that never flip
   are three to five times as often correct as those that flip, so a
   perturbation-based score is a candidate for P3's conformal abstention.
@@ -846,6 +847,136 @@ Checked answers; accuracy intervals Wilson, differences paired by column.
   changing, except across sampling seeds, which is what that control
   measures. The dry-run prompt counts of both shortlists are in
   `dry_run_prompt_changes.csv`.
+
+### 2.7 Neither unpadded shortlists nor order votes stabilize the mappings (RQ2, RQ4)
+
+§2.6's exploratory analyses suggested two changes to how the LLM is
+asked. Both were pre-specified in
+[`docs/schema_stability_followup_design.md`](schema_stability_followup_design.md),
+committed before any of their answers was generated, and tested on
+§2.6's items and perturbations against its committed reference answers
+(E2B, `definition` shortlist, greedy). Code: `opendv/analysis/schema_stability.py`
+(`analyses/schema_stability_followup/run.sh`). Outputs, including every
+answer: `analyses/output_llm_evaluation/schema_stability_followup/`.
+Results of 2026-11-17.
+
+- **Design.** *No padding* (`nopad`): DVs whose definition score is 0
+  (no shared character n-gram with the column) leave the shortlist
+  instead of filling it up in the order of the DV list. *Order votes*:
+  each column is asked three times, with the shortlist in rank order and
+  in two seeded random orders (the reference's `candidate_order` draws 1
+  and 2). The answer is the majority (`vote3`), or it is kept only if all three
+  agree and otherwise no DV (`vote3u`). Four outcomes per condition, paired
+  by column against the reference: DV accuracy, curated non-DV columns
+  mapped, precision of accepted DV mappings, and the schema-edit flip rate
+  (§2.6's primary endpoint). 95% intervals resample the 39 studies; p from
+  sign-flip tests on study totals (precision: swapping the two conditions
+  within whole studies); Holm over the 12 tests.
+- **Same prompts as the reference.** Since §2.6 ran, the LLM-mapping audit
+  changed 21 of the 36 study mapping files the benchmark reads to build
+  its prompts. The runs therefore read copies of the files the reference
+  read (`freeze-mappings`). With them the runs reproduce the reference
+  wherever a condition leaves its prompt alone: `nopad` has the
+  reference's prompt and answers in all 56,506 item-runs where its
+  shortlist is the reference's, and each vote has the reference's
+  shortlist and, in rank order, its answer in all 52,700 item-runs both
+  ran. `nopad`'s rerun without the response cache changes none of 1,550
+  answers.
+
+| Condition | DV columns correct (of 681) | Non-DV columns mapped (of 787) | Accepted DV mappings | Precision | Flips, schema edits |
+|---|---|---|---|---|---|
+| Reference (rank order, padded) | 176 (25.8%) | 387 (49.2%) | 1,021 | 17.2% [15.1, 19.7] | 2.79% [1.81, 3.94] |
+| No zero-score padding | 176 (25.8%) | 382 (48.5%) | 1,016 | 17.3% [15.1, 19.8] | 2.70% [1.70, 3.84] |
+| Majority of three orders | 192 (28.2%) | 387 (49.2%) | 1,027 | 18.7% [16.4, 21.2] | 2.72% [1.81, 3.83] |
+| All three orders agree, else no DV | 121 (17.8%) | 139 (17.7%) | 418 | 28.9% [24.8, 33.5] | 2.14% [1.26, 3.13] |
+
+Checked answers under the unchanged schema (flips: under the 30 edits);
+precision Wilson intervals, flip intervals cluster bootstrap.
+
+| Against the reference, points | DV accuracy | Non-DV mapped | Precision | Flips, schema edits |
+|---|---|---|---|---|
+| No padding | 0.0, p = 1 | −0.6 [−1.7, −0.1], p = 0.12 (0.87) | +0.1 [+0.0, +0.3], p = 0.12 (0.87) | −0.09 [−0.20, −0.02], p = 0.031 (0.25) |
+| Majority | +2.4 [−0.4, +5.1], p = 0.14 (0.87) | 0.0 [−1.1, +0.9], p = 1 | +1.5 [−0.5, +3.4], p = 0.14 (0.87) | −0.07 [−0.37, +0.24], p = 0.67 (1) |
+| Unanimous | **−8.1 [−12.8, −4.5], p < 0.001 (< 0.001)** | **−31.5 [−44.2, −16.3], p < 0.001 (< 0.001)** | +11.7 [+6.9, +17.6], p = 0.008 (0.077) | −0.66 [−1.12, −0.17], p = 0.020 (0.18) |
+
+Paired differences [95% CI], two-sided p (Holm over the 12 tests).
+
+- **No padding** does what it was meant to and nothing more. On the
+  unchanged schema it shortens 45 analysed shortlists (39 of them asked;
+  the fuzzy gate never asks the other 6). Nine lose every candidate and
+  are no longer asked, and five curated non-DV columns that were mapped
+  to a DV now get none. No DV column's answer changes. Permuting the DV
+  list now flips 0.31% [0.04, 0.63] of answers instead of 0.85% (7 columns
+  ever flip instead of 17). Too few columns are padded to move any of the
+  four outcomes after correction.
+- **A majority over three orders** is no more stable under schema edits
+  (2.72% against 2.79%). It gets 16 more DV columns right (30 gained, 14
+  lost, spread over 14 and 10 studies; at most +5 in one), which is not
+  significant. Its answer is the rank-1 candidate as often as the
+  reference's (36%). The vote itself depends on which orders it uses:
+  with the two shuffles drawn from other seeds, 17.4% [14.6, 20.2] of its
+  answers change. That is half the 33.5% a single order changes under a
+  random order, but six times a schema edit's effect. The three orders
+  agree on only 40% of the asked columns; 43% are 2–1 majorities and 17%
+  three different answers, decided by retrieval rank. A schema edit that
+  changes one of the three prompts can easily tip such a majority.
+- **Abstaining unless all three orders agree** is a trade-off, as
+  expected. It maps 139 curated non-DV columns instead of 387 and gets 121
+  DV columns right instead of 176, both significant. Of the 1,021 accepted
+  mappings it removes 603: 55 correct, 300 wrong DVs on DV columns and 248
+  non-DV columns, about ten wrong mappings per correct one lost.
+  Precision rises from 17.2% to 28.9% (+11.7 points [6.9, 17.6]; p = 0.008),
+  short of significance after Holm (0.077). Schema edits flip 2.1% of its
+  answers (p = 0.020, Holm 0.18), most of them between a DV and no DV.
+- **Agreement is a confidence score** (pre-specified, descriptive).
+  Accepted majority answers are correct 28.9% [18.9, 42.7] of the time when
+  all three orders agree, 13.8% [7.6, 24.3] when two do and 7.1%
+  [3.8, 13.0] when all differ (DV accuracy 42%, 21% and 12%). This is the
+  same gradient as stability under 30 schema edits in §2.6 (22.7% against
+  6.2%), from three prompts per column.
+
+**What follows.**
+
+- Neither change makes E2B's mappings stable under schema edits. E4B
+  (§2.6) remains the only intervention tested that does.
+- Dropping zero-score candidates lost no correct answer and makes the
+  padded shortlists independent of the DV list's order. It is a safe
+  default for the pipeline, though it changes too few columns to matter
+  for accuracy. The pipeline's default is unchanged until it is adopted.
+- Voting needs more than three orders to give a stable majority, at a
+  cost that grows with every order. Abstaining on disagreement buys
+  precision with recall: even unanimous E2B answers are wrong 71% of the
+  time, so LLM mappings stay out of the primary analyses.
+- Order agreement is a cheap confidence score for P3's conformal
+  abstention, alongside stability under schema edits.
+
+**Deviations from the design note.**
+
+- The note expected `nopad` to change "exactly the 39 padded shortlists
+  of the analysed columns". It changes 45: the 39 asked ones and 6 the
+  fuzzy gate never asks (their shortlists are built but not asked; 10 of
+  the 45 are empty, 9 of them asked before). Asked columns fall from 1,433
+  to 1,424.
+- One generation failed in the first pass of `vote3`'s `add_k1_d1`. The
+  perturbation was redone in a second pass, as the runs' restart rule
+  provides. By then its prompt had been answered under another
+  perturbation, so it came from the cache. No analysed answer has a
+  generation error.
+- Compute: 19,256 generations (`nopad` 1,753, 1,491 of them its identity
+  rerun; `vote3` 17,503, of which 4,498 for the order seeds; `vote3u` none),
+  10 h 15 min on the shared GPU against the note's 7–9 h estimate.
+  `nopad`'s identity rerun ran at 3.4 s per prompt (the reference's at 2.1
+  s). Dry-run and run counts are in `dry_run_prompt_changes.csv` and
+  `generations.csv`.
+- `outcome_comparisons.csv` also gives p-values for the unchecked
+  answers. They are descriptive, since the note specified tests for the
+  checked answers only (unanimous rule: flips 3.7% against 4.9%,
+  p = 0.005; precision 23.0% against 13.1%). `vote_agreement.csv` adds the
+  "all three differ" group. The integrity checks also compare the two vote
+  rules' three answers (identical in all 55,800 item-runs).
+- `exploratory.json` was added after the results were seen: the share of
+  answers that are the rank-1 candidate, the accepted mappings by kind,
+  and the majority vote's accuracy changes by study.
 
 ---
 
@@ -891,7 +1022,13 @@ then accept LLM mappings only with a stated error guarantee, which turns the
 current warning ("LLM rows may be wrong") into a quantified contract.
 Stability under schema edits and candidate orders is a further candidate
 score: accepted mappings that never changed were three to five times as
-often correct as those that did (§2.6).
+often correct as those that did (§2.6). Agreement across three candidate
+orders gives the same signal from three prompts: accepted answers were
+correct 29% of the time when all three orders agreed, 14% when two did
+and 7% when all differed. Abstaining unless they all agree removed about
+ten wrong mappings per correct one lost (§2.7). The score to calibrate
+can therefore be a vote over orders, with the number of orders as a
+cost parameter.
 
 ### P4. Psychometrics-in-the-loop instrument recognition *(medium–high value, medium effort)*
 
@@ -1042,7 +1179,9 @@ shows when a question is answered and when more studies are futile.
   and 25% of columns under at least one of 30 edits (§2.6). A third
   change when only the order of the candidates changes. Results that use
   LLM mappings hold for one schema version; report it, and rerun the LLM
-  mappings when the schema changes.
+  mappings when the schema changes. Neither dropping zero-score
+  candidates nor a majority over three candidate orders reduces the
+  effect (§2.7).
 - **Rule tuning on the evaluation set.** The plausibility rules were refined
   once after the v1.0 evaluation. Report v1.0 and v1.1 (both kept in
   `analyses/output_llm_evaluation/`), and freeze the rules before P1's test

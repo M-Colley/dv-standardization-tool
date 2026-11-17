@@ -1,0 +1,98 @@
+{
+  "frozen_mappings": {
+    "commit": "ffabda75b3da13bd309e33ce664f74de75c6288a",
+    "manifests": [
+      "data/processed/schema_stability_followup/manifest23.yaml",
+      "data/processed/schema_stability_followup/manifest16.yaml"
+    ],
+    "mapping_files_sha256": {
+      "schemas/roads_chi25_mapping.yaml": "6fa4157ea4f85d3179e069c74be717ae506279a24aed7f72edfa405cc9968b70",
+      "schemas/osf_cwd6h_mapping.yaml": "4c7047df415387201d6671ad4e07abe181e06677ca9a1205781b4e9a46385900",
+      "schemas/road_bumps_touch_mapping.yaml": "46e491270be9d05af66148c4d6044ce5f873154ea7dacb54da64e8a46a78e24e",
+      "schemas/ehmi_for_all_chi26_mapping.yaml": "1e790553e4a2fb7ff2a0e83b8024d6af6ee0af07eff466c5f282b93f306e3464",
+      "schemas/fact_av_mapping.yaml": "a30e7fc0f720f55205ec8a4febda0cdc58ca40fdd781956ffba842ac73278d1b",
+      "schemas/running_into_traffic_mapping.yaml": "054ff72ec8164611592ae25b2d6d9b3099461c30c612000cbe967dc5911e2415",
+      "schemas/psych_conflict_handling_mapping.yaml": "42d6d7f1abb8e9988c62615ff382db1e715d6464ed1c47bbc49ef97d986c53d7",
+      "schemas/scrolling_in_the_deep_mapping.yaml": "b4a452256da7a7c5e8e5e1280e2e5cde0b0052a56502d0232d49c06880597367",
+      "schemas/incar_vr_gain_chi24_mapping.yaml": "9ab50aea78ec94f70d7543fd8931f2e23634928f80a3c5b27eb7360e3c290117",
+      "schemas/bvi_auditory_hav_autoui26_mapping.yaml": "beca535134ca53f0d9017033b7f58e2790eb5f080e563f4670aa8ef7dc3dae65",
+      "schemas/av_prevalence_ehmi_autoui24_mapping.yaml": "710ea7939c6e2e6b16b3d5dcd66bf99867741b32efe0dd1d43804c390a4fc2d2",
+      "schemas/ehmi_state_intent_mtap24_mapping.yaml": "86dd6b33fd859509e1f05991cbb88f32837eebd83b7485124ea2fb1b9e0b3e50",
+      "schemas/av_acceptance_vr_ijhci24_mapping.yaml": "829688921b3022b2fe1905a5f8f3d9c6e3b73b722c9f0d0e63ae8f3c3beb27f9",
+      "schemas/fido2_auth_chi23_mapping.yaml": "61bc354c098d96145acac1981dd7eec926e55914a83e2a6818600395e3b57e09",
+      "schemas/pairsonic_cscw24_mapping.yaml": "defa1feacd737d161004d96d5a15597e3cadff32eb8520ee6573ab339489c9eb",
+      "schemas/curved_dragging_vr_ijhci26_mapping.yaml": "13069b3b2d5696de923bf3d002ffa34104149537c37bd4e9453bc38436cdf0ba",
+      "schemas/fov_snapturn_tvcg24_mapping.yaml": "1bdc3742552800f9c5d5d0dd793bb7e9462a249d9c5c0b8d25e4b93e8fce1c73",
+      "schemas/handsize_touch_mobilehci19_mapping.yaml": "8439d6b71b1a7b35d060349c88b5ebd3d7731d2083d3ba0bcb36347a3979101f",
+      "schemas/woz_adaptation_ijhcs24_mapping.yaml": "0d286139db07b50880e5909a114067feaf353b2fbabbfb4bbae8f54d5f941f06",
+      "schemas/gaze_platformer_chi24_mapping.yaml": "d7340a0dcfe9848530c6dcbaaca3eaf9b56df99377d84be35c8d8263d2d9342b",
+      "schemas/ehmi_car_body_2020_mapping.yaml": "8ef1cd51f069e7925a8948917b0399b2a6e97681740fb87dae4d24f2e0890392",
+      "schemas/tlx_formats_uas_2023_mapping.yaml": "545409edd807622ab56da2c94818d99bc4655ab0b2daf9562866a4b073c73e42",
+      "schemas/tactile_sa_display_2022_mapping.yaml": "2d0329a6a78df2ac6c57c639c90927c129c602778cd74a7a089fe46fe0d3227f",
+      "schemas/short_videos_memory_2023_mapping.yaml": "1779d3f398ae34e0b9b561ef996759fc988bbf8242f797ac372b1d52926e5dc4",
+      "schemas/driving_style_automated_2021_mapping.yaml": "c91c8b835f8071fc5359fc3faed5d14c0464e698167c6d95ef0d62a6efb88acf",
+      "schemas/ar_pedestrian_online_2023_mapping.yaml": "45392f985cc2b54f87045b30c0d8e1e46a534b762a77eae574480372876b4a57",
+      "schemas/perceived_risk_merging_2022_mapping.yaml": "4a8317c5e5b9fb0f545289a27b542815cb88bfe05f396e625249af8bf47aa28c",
+      "schemas/ehmi_survey_crowd_2019_mapping.yaml": "46af855602ab85cb48b06645cac9224f3d3a8c9d3b3bed6b8ab70f9652f05e9d",
+      "schemas/reflexion_mapping_2025_mapping.yaml": "c8e7780cd4c2dec588a086f4f05f54636e6f0d212280cc8e157d500043d8b8fa",
+      "schemas/sensecobot_fusion_2024_mapping.yaml": "4332937cf40259b0e7bb8372ab15cf4c967711cd8311432b6d4b65cc66c97d9a",
+      "schemas/myocontrol_intent_2025_mapping.yaml": "c5032197b55b8130c62b7c95be819712c0116939808bf26929584679b6b60a04",
+      "schemas/artv_ornaments_2025_mapping.yaml": "24ec8356b313854854234f5aca5f70ec1050650786ad0b5921c99c21978a7246",
+      "schemas/nl2tap_filter_2026_mapping.yaml": "aee2004fdb6845fa34260a132d0197873a14e6572d6713583070e5fc0e881f79",
+      "schemas/visual_fidelity_curves_2015_mapping.yaml": "ef8d4c5e2b8ba4b72f4730d32a1137634e7d1e463b8b513116935bdcdac58379",
+      "schemas/music_tempo_taskload_2022_mapping.yaml": "a2ad4c7d6fcebc73f2ab3a6efb859892be9f2253074da591e9b1523fc6dab067",
+      "schemas/concurrent_speech_2022_mapping.yaml": "13c132b45d0ee7d22c217231be708c0f32777b1d7cc53a064151bbd947b47491"
+    }
+  },
+  "extra_caches": {
+    "e2b_definition_nopad": [
+      {
+        "path": "data/processed/schema_stability_followup/reference_response_cache.jsonl",
+        "sha256": "75fb660d25eec41562abd0d9aec84dffd013d2895f8d90b9f26a6b0653aaa95c"
+      }
+    ],
+    "e2b_definition_vote3": [
+      {
+        "path": "data/processed/schema_stability_followup/reference_response_cache.jsonl",
+        "sha256": "75fb660d25eec41562abd0d9aec84dffd013d2895f8d90b9f26a6b0653aaa95c"
+      }
+    ],
+    "e2b_definition_vote3u": [
+      {
+        "path": "data/processed/schema_stability_followup/reference_response_cache.jsonl",
+        "sha256": "75fb660d25eec41562abd0d9aec84dffd013d2895f8d90b9f26a6b0653aaa95c"
+      },
+      {
+        "path": "data/processed/schema_stability_followup/e2b_definition_vote3/response_cache.jsonl",
+        "sha256": "f0716c36537fafa29cc3fa1c4839bced98e9df1b2f7ae1faceec320b024c601b"
+      }
+    ]
+  },
+  "chain_progress": [
+    "2026-11-16 19:12:02 dry runs ended",
+    "2026-11-16 19:12:02 START nopad pass 1",
+    "2026-11-16 21:30:28 DONE nopad",
+    "2026-11-16 21:30:28 START vote3 pass 1",
+    "2026-11-17 02:23:48 START vote3 pass 2",
+    "2026-11-17 02:25:44 DONE vote3",
+    "2026-11-17 02:25:44 START vote3_order_seeds pass 1",
+    "2026-11-17 04:39:21 DONE vote3_order_seeds",
+    "2026-11-17 04:39:22 START vote3u pass 1",
+    "2026-11-17 05:27:34 DONE vote3u",
+    "2026-11-17 05:27:34 CHAIN END"
+  ],
+  "generated": {
+    "e2b_definition_nopad": 1753,
+    "e2b_definition_vote3": 17503,
+    "e2b_definition_vote3u": 0
+  },
+  "generation_errors_logged": {
+    "e2b_definition_nopad": 0,
+    "e2b_definition_vote3": 1,
+    "e2b_definition_vote3u": 0
+  },
+  "dry_run_new_prompts": {
+    "e2b_definition_nopad": 262,
+    "e2b_definition_vote3": 13005
+  }
+}
