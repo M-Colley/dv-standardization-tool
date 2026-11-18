@@ -74,8 +74,8 @@
       "pairs_pooled_k3": 51,
       "cross_construct_pairs_k3": 28,
       "participants": 2923,
-      "findings": 21,
-      "cross_construct_findings": 7,
+      "findings": 20,
+      "cross_construct_findings": 6,
       "generalizing_findings": 7
     },
     {
@@ -89,7 +89,7 @@
       "participants": 781,
       "findings": 25,
       "cross_construct_findings": 9,
-      "generalizing_findings": 11
+      "generalizing_findings": 10
     },
     {
       "level": "llm",
@@ -100,8 +100,8 @@
       "pairs_pooled_k3": 51,
       "cross_construct_pairs_k3": 28,
       "participants": 2923,
-      "findings": 21,
-      "cross_construct_findings": 7,
+      "findings": 20,
+      "cross_construct_findings": 6,
       "generalizing_findings": 7
     },
     {
@@ -115,18 +115,18 @@
       "participants": 781,
       "findings": 25,
       "cross_construct_findings": 9,
-      "generalizing_findings": 11
+      "generalizing_findings": 10
     }
   ],
   "llm_columns_set_aside": {
     "rule": "a study's LLM-mapped column of a DV is set aside when the study has a column of that DV mapped without the LLM (a study mapping, the shared schema or a header match; in the replay the study mappings are hidden), or a registry score computed from such columns",
     "llm": {
-      "columns": 153,
-      "studies": 6
+      "columns": 149,
+      "studies": 5
     },
     "llm_replay": {
-      "columns": 156,
-      "studies": 10
+      "columns": 154,
+      "studies": 9
     }
   },
   "llm_replay": {
@@ -135,9 +135,9 @@
       "analyses\\output_llm_evaluation\\added_2026_11_05\\llm_mapping_evaluation_items.csv"
     ],
     "columns": {
-      "curated_dv_columns": 1330,
+      "curated_dv_columns": 1332,
       "answered": 1205,
-      "unanswered_or_rejected": 125,
+      "unanswered_or_rejected": 127,
       "same_dv_as_curated": 999,
       "curated_non_dv_mapped_by_llm": 1438
     },
@@ -145,7 +145,7 @@
       {
         "level": "automatic",
         "association": "between_person",
-        "reference_findings": 21,
+        "reference_findings": 20,
         "findings": 6,
         "confirmed": 6,
         "sign_flipped": 0,
@@ -167,13 +167,13 @@
       {
         "level": "llm_replay",
         "association": "between_person",
-        "reference_findings": 21,
+        "reference_findings": 20,
         "findings": 0,
         "confirmed": 0,
         "sign_flipped": 0,
         "unsupported": 0,
-        "pairs_pooled_in_both": 40,
-        "median_abs_difference_r": 0.05529339311907465
+        "pairs_pooled_in_both": 41,
+        "median_abs_difference_r": 0.0619016653195692
       },
       {
         "level": "llm_replay",

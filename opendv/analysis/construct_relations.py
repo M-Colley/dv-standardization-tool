@@ -543,6 +543,12 @@ def level_frames(
     computed from LLM-mapped items. The LLM thus adds DVs to a study but never
     changes the values of a DV the study has without it.
 
+    At every level but ``names``, a column left out that held the bare name
+    of its DV gives the name to the table's next column of that DV
+    (:func:`msa.reclaim_freed_names`), so registry scores read the column
+    that is kept, e.g. a curated item listed after an LLM-mapped column of
+    the same item.
+
     At ``llm_replay`` (with *replay*: ``{(study, file): {column: DV or None}}``)
     the automatic and LLM columns are kept, and every column a study mapping
     decided (a DV, or a column it locked as ``meta_*``) takes the DV the LLM
@@ -586,6 +592,7 @@ def level_frames(
             continue
         df = msa._read_file(input_dir / study / file_name)
         df.columns = [str(c) for c in df.columns]
+        read_columns = list(df.columns)
         source_file = source_ids[study].get(file_name, file_name)
         column_levels: dict[str, int] | None = None
         raw_names = {c: info.alias for c, info in infos.items()}
@@ -641,6 +648,15 @@ def level_frames(
                 column_levels = {c: lv for c, lv in column_levels.items() if c not in aside}
                 if not column_levels:
                     continue  # nothing of this table is left at this level
+        if column_levels is not None:
+            # A column of a DV left out at this level (above it, set aside, or
+            # renamed in the replay) gives its bare name to the table's next
+            # column of that DV, so registry scores read that column.
+            renames = msa.reclaim_freed_names(df.columns, [c for c in read_columns if c not in df.columns])
+            if renames:
+                df = df.rename(columns=renames)
+                column_levels = {renames.get(c, c): lv for c, lv in column_levels.items()}
+                raw_names.update({new: raw_names.get(old, old) for old, new in renames.items()})
         df[STUDY_FILE_COLUMN] = source_file
         by_study.setdefault(study, []).append(df)
         if column_levels is not None:

@@ -1,6 +1,6 @@
 {
-  "generated_at": "2026-11-15T22:59:40.445385+00:00",
-  "input_dir": "data\\processed\\audit39b\\standardized",
+  "generated_at": "2026-11-16T19:01:30.241256+00:00",
+  "input_dir": "data\\processed\\reclaim39\\standardized",
   "n_studies": 39,
   "studies": [
     "3d_display_comp_vehicle",
@@ -407,14 +407,14 @@
     {
       "dv": "mental_demand",
       "k": 19,
-      "pooled_mean": 8.12527433487768,
-      "pooled_se": 0.8861676383064768,
-      "ci_lower": 6.388385763796986,
-      "ci_upper": 9.862162905958375,
-      "heterogeneity_i2": 99.72367456162954,
-      "heterogeneity_q": 6514.058244564389,
+      "pooled_mean": 8.201682668445704,
+      "pooled_se": 0.8789484533848136,
+      "ci_lower": 6.478943699811469,
+      "ci_upper": 9.924421637079938,
+      "heterogeneity_i2": 99.72107602400484,
+      "heterogeneity_q": 6453.371366078977,
       "heterogeneity_p": 0.0,
-      "egger_p": 0.40576213533819516
+      "egger_p": 0.3777900665058792
     },
     {
       "dv": "perceived_risk",
@@ -431,14 +431,14 @@
     {
       "dv": "perceived_safety",
       "k": 10,
-      "pooled_mean": 1.3854236788604906,
-      "pooled_se": 0.4075356683390853,
-      "ci_lower": 0.5866537689158834,
-      "ci_upper": 2.1841935888050976,
-      "heterogeneity_i2": 99.87396262969183,
-      "heterogeneity_q": 7140.739272800214,
+      "pooled_mean": 1.3436551422506222,
+      "pooled_se": 0.3989127798724884,
+      "ci_lower": 0.561786093700545,
+      "ci_upper": 2.125524190800699,
+      "heterogeneity_i2": 99.86893028156419,
+      "heterogeneity_q": 6866.574604268241,
       "heterogeneity_p": 0.0,
-      "egger_p": 0.028523808055356
+      "egger_p": 0.030994819884412873
     },
     {
       "dv": "perceived_safety_item_01",
@@ -4440,7 +4440,7 @@
       "n_participants": 15,
       "mean": 7.4,
       "sd": 4.937794870366547,
-      "mean_z_vs_global": -0.15977341218828742,
+      "mean_z_vs_global": -0.17501074530809285,
       "scale_note": "",
       "mapping_source": "schema"
     },
@@ -4451,7 +4451,7 @@
       "n_participants": 35,
       "mean": 9.228571428571428,
       "sd": 5.851129317124539,
-      "mean_z_vs_global": 0.24160209806934987,
+      "mean_z_vs_global": 0.22341375479092035,
       "scale_note": "",
       "mapping_source": "repo_mapping"
     },
@@ -4462,7 +4462,7 @@
       "n_participants": 40,
       "mean": 10.8171875,
       "sd": 4.830071902298883,
-      "mean_z_vs_global": 0.5903068718124659,
+      "mean_z_vs_global": 0.5695547664125853,
       "scale_note": "rescaled 0.0-100.0 -> 0.0-20.0",
       "mapping_source": "repo_mapping"
     },
@@ -4473,7 +4473,7 @@
       "n_participants": 24,
       "mean": 7.326388888888889,
       "sd": 4.488203447895594,
-      "mean_z_vs_global": -0.17593121538984813,
+      "mean_z_vs_global": -0.1910497524192836,
       "scale_note": "",
       "mapping_source": "repo_mapping"
     },
@@ -4484,7 +4484,7 @@
       "n_participants": 40,
       "mean": 9.027777777777779,
       "sd": 4.733428665615225,
-      "mean_z_vs_global": 0.19752744351414958,
+      "mean_z_vs_global": 0.1796631477922009,
       "scale_note": "",
       "mapping_source": "schema"
     },
@@ -4495,7 +4495,7 @@
       "n_participants": 37,
       "mean": 2.7756756756756755,
       "sd": 2.0404442994912495,
-      "mean_z_vs_global": -1.1748229236654255,
+      "mean_z_vs_global": -1.1825973664410923,
       "scale_note": "",
       "mapping_source": "schema"
     },
@@ -4506,7 +4506,7 @@
       "n_participants": 130,
       "mean": 9.416538461538462,
       "sd": 5.707568025098006,
-      "mean_z_vs_global": 0.2828612813803891,
+      "mean_z_vs_global": 0.2643695905733342,
       "scale_note": "",
       "mapping_source": "schema"
     },
@@ -4517,20 +4517,20 @@
       "n_participants": 17,
       "mean": 8.058823529411764,
       "sd": 4.202564381133467,
-      "mean_z_vs_global": -0.015160176874874016,
+      "mean_z_vs_global": -0.03146074159594842,
       "scale_note": "",
       "mapping_source": "repo_mapping"
     },
     {
       "study": "longitudinal_usa_germany_ehmi",
       "dv": "mental_demand",
-      "n": 296,
-      "n_participants": 26,
-      "mean": 5.398648648648648,
-      "sd": 3.9242658643928348,
-      "mean_z_vs_global": -0.5990745011706491,
+      "n": 470,
+      "n_participants": 55,
+      "mean": 6.829787234042553,
+      "sd": 4.611190379250889,
+      "mean_z_vs_global": -0.29925349168205395,
       "scale_note": "",
-      "mapping_source": "schema"
+      "mapping_source": "repo_mapping"
     },
     {
       "study": "music_tempo_taskload_2022",
@@ -4539,7 +4539,7 @@
       "n_participants": 46,
       "mean": 6.920289855072466,
       "sd": 3.165738485887708,
-      "mean_z_vs_global": -0.2650708597955047,
+      "mean_z_vs_global": -0.27953402052654974,
       "scale_note": "",
       "mapping_source": "repo_mapping"
     },
@@ -4550,7 +4550,7 @@
       "n_participants": 8,
       "mean": 8.777777777777779,
       "sd": 4.750168687962835,
-      "mean_z_vs_global": 0.14265188547111318,
+      "mean_z_vs_global": 0.12519104816928892,
       "scale_note": "rescaled 0.0-100.0 -> 0.0-20.0",
       "mapping_source": "repo_mapping"
     },
@@ -4561,7 +4561,7 @@
       "n_participants": 85,
       "mean": 5.6258823529411774,
       "sd": 4.770373673622895,
-      "mean_z_vs_global": -0.5491961958536937,
+      "mean_z_vs_global": -0.5615703981615106,
       "scale_note": "rescaled 0.0-100.0 -> 0.0-20.0",
       "mapping_source": "repo_mapping"
     },
@@ -4572,7 +4572,7 @@
       "n_participants": 14,
       "mean": 8.571428571428571,
       "sd": 5.052968652105302,
-      "mean_z_vs_global": 0.0973577740705115,
+      "mean_z_vs_global": 0.08022995006783751,
       "scale_note": "",
       "mapping_source": "repo_mapping"
     },
@@ -4583,7 +4583,7 @@
       "n_participants": 23,
       "mean": 8.01086956521739,
       "sd": 5.137727616299694,
-      "mean_z_vs_global": -0.02568617905704221,
+      "mean_z_vs_global": -0.041909354055586365,
       "scale_note": "",
       "mapping_source": "schema"
     },
@@ -4594,7 +4594,7 @@
       "n_participants": 24,
       "mean": 4.636243386243387,
       "sd": 4.290591812198831,
-      "mean_z_vs_global": -0.7664241580883944,
+      "mean_z_vs_global": -0.7772012477002215,
       "scale_note": "",
       "mapping_source": "repo_mapping"
     },
@@ -4605,7 +4605,7 @@
       "n_participants": 21,
       "mean": 6.984126984126983,
       "sd": 3.3174223435207955,
-      "mean_z_vs_global": -0.25105846747257676,
+      "mean_z_vs_global": -0.26562465071255625,
       "scale_note": "",
       "mapping_source": "repo_mapping"
     },
@@ -4616,7 +4616,7 @@
       "n_participants": 36,
       "mean": 10.408427469135802,
       "sd": 5.383291892330468,
-      "mean_z_vs_global": 0.5005831326150195,
+      "mean_z_vs_global": 0.4804906979201887,
       "scale_note": "rescaled 0.0-100.0 -> 0.0-20.0",
       "mapping_source": "repo_mapping"
     },
@@ -4627,7 +4627,7 @@
       "n_participants": 24,
       "mean": 9.38888888888889,
       "sd": 4.719022205820792,
-      "mean_z_vs_global": 0.276792138465202,
+      "mean_z_vs_global": 0.2583450694697404,
       "scale_note": "rescaled 0.0-100.0 -> 0.0-20.0",
       "mapping_source": "repo_mapping"
     },
@@ -4638,7 +4638,7 @@
       "n_participants": 97,
       "mean": 15.656357388316152,
       "sd": 3.4802530267499754,
-      "mean_z_vs_global": 1.6525154641580937,
+      "mean_z_vs_global": 1.623953743406799,
       "scale_note": "",
       "mapping_source": "repo_mapping"
     },
@@ -4704,7 +4704,7 @@
       "n_participants": 15,
       "mean": 1.5444444444444445,
       "sd": 1.287272584603085,
-      "mean_z_vs_global": 0.1124464756972701,
+      "mean_z_vs_global": 0.13955604448321735,
       "scale_note": "",
       "mapping_source": "repo_mapping"
     },
@@ -4715,7 +4715,7 @@
       "n_participants": 304,
       "mean": 0.5317982456140351,
       "sd": 1.6826770663170034,
-      "mean_z_vs_global": -0.6035135934923944,
+      "mean_z_vs_global": -0.5646989812092462,
       "scale_note": "rescaled 1.0-7.0 -> -3.0-3.0",
       "mapping_source": "repo_mapping"
     },
@@ -4726,7 +4726,7 @@
       "n_participants": 35,
       "mean": 1.35,
       "sd": 1.652722113549457,
-      "mean_z_vs_global": -0.025029434505899416,
+      "mean_z_vs_global": 0.00432769189952048,
       "scale_note": "",
       "mapping_source": "repo_mapping"
     },
@@ -4737,7 +4737,7 @@
       "n_participants": 40,
       "mean": 1.1260416666666666,
       "sd": 1.4074974184567615,
-      "mean_z_vs_global": -0.18337222393633587,
+      "mean_z_vs_global": -0.15142639277277337,
       "scale_note": "",
       "mapping_source": "schema"
     },
@@ -4748,7 +4748,7 @@
       "n_participants": 37,
       "mean": 2.372972972972973,
       "sd": 1.0901108306427008,
-      "mean_z_vs_global": 0.6982318598679957,
+      "mean_z_vs_global": 0.7157645769595413,
       "scale_note": "",
       "mapping_source": "schema"
     },
@@ -4759,7 +4759,7 @@
       "n_participants": 1999,
       "mean": -0.06156666666666667,
       "sd": 0.4943284482525969,
-      "mean_z_vs_global": -1.0230338406842345,
+      "mean_z_vs_global": -0.9773606018482188,
       "scale_note": "",
       "mapping_source": "repo_mapping"
     },
@@ -4770,7 +4770,7 @@
       "n_participants": 130,
       "mean": 1.6322115384615385,
       "sd": 1.7072136951381327,
-      "mean_z_vs_global": 0.17449947582468978,
+      "mean_z_vs_global": 0.20059455637745197,
       "scale_note": "",
       "mapping_source": "repo_mapping"
     },
@@ -4781,18 +4781,18 @@
       "n_participants": 17,
       "mean": 2.388235294117647,
       "sd": 1.0899716738441745,
-      "mean_z_vs_global": 0.7090226103940495,
+      "mean_z_vs_global": 0.7263789123338145,
       "scale_note": "rescaled 0.0-10.0 -> -3.0-3.0",
       "mapping_source": "repo_mapping"
     },
     {
       "study": "longitudinal_usa_germany_ehmi",
       "dv": "perceived_safety",
-      "n": 296,
-      "n_participants": 26,
-      "mean": 2.1157094594594597,
-      "sd": 1.1388359370740073,
-      "mean_z_vs_global": 0.5163416763588408,
+      "n": 470,
+      "n_participants": 55,
+      "mean": 1.699468085106383,
+      "sd": 1.4026607118401924,
+      "mean_z_vs_global": 0.24736880096559938,
       "scale_note": "",
       "mapping_source": "repo_mapping"
     },
@@ -4803,7 +4803,7 @@
       "n_participants": 24,
       "mean": 0.8541666666666666,
       "sd": 1.9929099065111757,
-      "mean_z_vs_global": -0.37559300552398184,
+      "mean_z_vs_global": -0.3405046071889067,
       "scale_note": "rescaled 1.0-5.0 -> -3.0-3.0",
       "mapping_source": "repo_mapping"
     },
