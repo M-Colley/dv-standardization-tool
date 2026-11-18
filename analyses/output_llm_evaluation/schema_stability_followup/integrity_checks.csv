@@ -1,0 +1,10 @@
+check,condition,n_compared,n_mismatched,perturbations_mismatched
+shortlist as the reference's,e2b_definition_nopad,58900,2394,62 under the unchanged schema (expected: the padded shortlists)
+same shortlist: same prompt,e2b_definition_nopad,56506,0,
+same shortlist: same suggestion,e2b_definition_nopad,56506,0,
+same shortlist: same final_checked,e2b_definition_nopad,56506,0,
+shortlist as the reference's,e2b_definition_vote3,52700,0,
+rank-order answer as the reference's,e2b_definition_vote3,52700,0,
+shortlist as the reference's,e2b_definition_vote3u,52700,0,
+rank-order answer as the reference's,e2b_definition_vote3u,52700,0,
+same answers under the three orders,e2b_definition_vote3 / e2b_definition_vote3u,55800,0,

@@ -1,0 +1,180 @@
+{
+  "rank1_answer_share": {
+    "e2b_definition": {
+      "n_asked": 1433,
+      "share": 0.3621772505233775
+    },
+    "e2b_definition_nopad": {
+      "n_asked": 1424,
+      "share": 0.3651685393258427
+    },
+    "e2b_definition_vote3": {
+      "n_asked": 1433,
+      "share": 0.36078157711095604
+    },
+    "e2b_definition_vote3u": {
+      "n_asked": 1433,
+      "share": 0.14305652477320308
+    }
+  },
+  "accepted_mappings": {
+    "e2b_definition": {
+      "accepted": 1021,
+      "correct": 176,
+      "wrong_dv_on_dv_columns": 458,
+      "curated_non_dv": 387
+    },
+    "e2b_definition_nopad": {
+      "accepted": 1016,
+      "correct": 176,
+      "wrong_dv_on_dv_columns": 458,
+      "curated_non_dv": 382
+    },
+    "e2b_definition_vote3": {
+      "accepted": 1027,
+      "correct": 192,
+      "wrong_dv_on_dv_columns": 448,
+      "curated_non_dv": 387
+    },
+    "e2b_definition_vote3u": {
+      "accepted": 418,
+      "correct": 121,
+      "wrong_dv_on_dv_columns": 158,
+      "curated_non_dv": 139
+    }
+  },
+  "vote3_dv_accuracy_by_study": [
+    {
+      "source_id": "fido2_auth_chi23",
+      "net": -3,
+      "gained": 0,
+      "lost": 3
+    },
+    {
+      "source_id": "ehmi_survey_crowd_2019",
+      "net": -2,
+      "gained": 0,
+      "lost": 2
+    },
+    {
+      "source_id": "fact_av",
+      "net": -2,
+      "gained": 0,
+      "lost": 2
+    },
+    {
+      "source_id": "ehmi_optimization_chi25",
+      "net": -1,
+      "gained": 0,
+      "lost": 1
+    },
+    {
+      "source_id": "visual_fidelity_curves_2015",
+      "net": -1,
+      "gained": 0,
+      "lost": 1
+    },
+    {
+      "source_id": "running_into_traffic_chi26",
+      "net": -1,
+      "gained": 0,
+      "lost": 1
+    },
+    {
+      "source_id": "roads_chi25",
+      "net": -1,
+      "gained": 0,
+      "lost": 1
+    },
+    {
+      "source_id": "reflexion_mapping_2025",
+      "net": -1,
+      "gained": 0,
+      "lost": 1
+    },
+    {
+      "source_id": "perceived_risk_merging_2022",
+      "net": 1,
+      "gained": 1,
+      "lost": 0
+    },
+    {
+      "source_id": "nl2tap_filter_2026",
+      "net": 1,
+      "gained": 1,
+      "lost": 0
+    },
+    {
+      "source_id": "fov_snapturn_tvcg24",
+      "net": 1,
+      "gained": 1,
+      "lost": 0
+    },
+    {
+      "source_id": "tlx_formats_uas_2023",
+      "net": 1,
+      "gained": 1,
+      "lost": 0
+    },
+    {
+      "source_id": "myocontrol_intent_2025",
+      "net": 1,
+      "gained": 1,
+      "lost": 0
+    },
+    {
+      "source_id": "gaze_platformer_chi24",
+      "net": 1,
+      "gained": 1,
+      "lost": 0
+    },
+    {
+      "source_id": "ehmi_state_intent_mtap24",
+      "net": 1,
+      "gained": 1,
+      "lost": 0
+    },
+    {
+      "source_id": "driving_style_automated_2021",
+      "net": 2,
+      "gained": 2,
+      "lost": 0
+    },
+    {
+      "source_id": "curved_dragging_vr_ijhci26",
+      "net": 2,
+      "gained": 2,
+      "lost": 0
+    },
+    {
+      "source_id": "ar_pedestrian_online_2023",
+      "net": 2,
+      "gained": 2,
+      "lost": 0
+    },
+    {
+      "source_id": "incar_vr_gain_chi24",
+      "net": 3,
+      "gained": 3,
+      "lost": 0
+    },
+    {
+      "source_id": "music_tempo_taskload_2022",
+      "net": 3,
+      "gained": 4,
+      "lost": 1
+    },
+    {
+      "source_id": "woz_adaptation_ijhcs24",
+      "net": 4,
+      "gained": 4,
+      "lost": 0
+    },
+    {
+      "source_id": "ehmi_for_all_chi26",
+      "net": 5,
+      "gained": 6,
+      "lost": 1
+    }
+  ]
+}

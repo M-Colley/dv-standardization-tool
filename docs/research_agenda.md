@@ -670,6 +670,314 @@ for the 39 development studies (2026-11-05); the 23-study values of
   does not show which findings are lost. With 23 studies the replay
   recovered none of the 16 within-person findings (one with `dense_h`).
 
+### 2.6 LLM mappings move when unrelated DVs change (RQ2, RQ4)
+
+Adding one DV in schema 3.3 (`touch_offset`) changed 19 LLM mappings in
+five studies whose curated mappings had not changed (changelog,
+2026-11-08). A pre-specified experiment measures how often an LLM mapping
+changes when the schema changes in ways unrelated to the column, and tests
+three ways to reduce it. Design:
+[`docs/schema_stability_design.md`](schema_stability_design.md), committed
+before any answer under a changed schema was generated. Code:
+`opendv/analysis/schema_stability.py` (`analyses/schema_stability/run.sh`).
+Outputs, including every answer of every run:
+`analyses/output_llm_evaluation/schema_stability/`. Results of 2026-11-16.
+
+- **Design.** The 1,468 E1 items of the benchmark (681 DV columns and 787
+  curated non-DV columns in 39 studies, leave-alias-out). 30 *schema
+  edits*, five draws each: one or five of 20 new DVs added, or one or five
+  of the 62 DVs that are neither a column's gold label nor named in a
+  curated mapping removed, or their label and notes reworded with the
+  meaning kept. Controls: the DV list permuted, the shortlist listed in a
+  random order, a rerun without the response cache, and schema 3.2 itself
+  (`touch_offset` removed). Outcome: the share of perturbations in which a
+  column's checked answer (the DV accepted after the plausibility rules, or
+  no DV) differs from its answer under the unchanged schema, averaged over
+  columns. 95% intervals resample the 39 studies (10,000 times); conditions
+  are compared with paired sign-flip tests on study totals, Holm-adjusted
+  over the four comparisons.
+
+Flip rates (%, [95% CI]) of the reference (`gemma-4-E2B-it`, `definition`
+shortlist, greedy) and of E4B:
+
+| Perturbation | Prompts changed | Shortlists changed | Flips, checked | Flips, unchecked | Columns that ever flip | E4B, checked |
+|---|---|---|---|---|---|---|
+| 1 DV added | 10% | 6% | 1.3 [0.7, 2.0] | 2.6 [1.5, 3.6] | 70 | 0.9 [0.4, 1.5] |
+| 5 DVs added | 31% | 23% | 6.4 [3.7, 9.5] | 9.7 [5.7, 13.6] | 200 | 4.3 [2.5, 6.6] |
+| 1 DV removed | 8% | 5% | 1.3 [0.5, 2.4] | 2.2 [1.0, 3.5] | 68 | 1.5 [0.5, 3.0] |
+| 5 DVs removed | 36% | 21% | 5.4 [3.3, 7.7] | 8.8 [6.6, 10.8] | 229 | 3.8 [2.2, 5.4] |
+| 1 DV reworded | 5% | 2% | 0.6 [0.1, 1.2] | 1.6 [0.2, 4.0] | 43 | 0.2 [0.1, 0.3] |
+| 5 DVs reworded | 19% | 5% | 1.7 [1.0, 2.4] | 4.1 [1.8, 7.3] | 81 | 1.0 [0.5, 1.6] |
+| **All 30 schema edits (primary)** | 18% | 10% | **2.8 [1.8, 3.9]** | 4.8 [3.0, 6.8] | 372 of 1,468 | **1.9 [1.1, 3.0]** |
+| DV list permuted | 13% | 7% | 0.9 [0.4, 1.5] | 1.6 [0.8, 2.7] | 17 | 1.4 [0.6, 2.6] |
+| Shortlist in random order | 98% | 0% | 33.5 [26.2, 40.7] | 45.0 [39.3, 49.8] | 730 | 24.6 [17.6, 30.7] |
+| Schema 3.2 (`touch_offset` removed) | 19% | 10% | 2.0 [1.0, 3.3] | 4.2 [2.1, 6.6] | 30 | 3.2 [0.9, 6.0] |
+
+- **Size.** A column's answer changes in 2.8% of unrelated schema edits,
+  and 372 of the 1,468 columns (25%) change under at least one of the 30.
+  One added or removed DV changes 1.3% of answers, five change 5–6%;
+  rewordings change fewer. The rerun without the cache changed no answer
+  in any condition, and no answer changed without its prompt changing, so
+  the flips come from the schema text, not from GPU nondeterminism.
+  Accuracy does not change on average (+0.06 points [−0.33, +0.43] on DV
+  columns): a correct answer turns wrong in 1.0% of edits, a wrong one
+  right in 0.4%, and wrong answers are the majority.
+- **Order matters more than content.** Listing the same candidates in a
+  random order changes a third of the answers, ten times the effect of a
+  schema edit. Permuting the DV list, which reaches retrieval only through
+  exact score ties, changes 0.9%.
+- **Schema 3.2.** Removing `touch_offset` again changes 30 answers in 12
+  studies (2.0%), the same order as the 19 mappings in five studies its
+  addition changed in the pipeline. The columns differ, since the benchmark
+  asks about every curated column with its own alias held out.
+
+| Condition | DV columns correct (of 681) | Non-DV columns mapped (of 787) | Flips, schema edits | Difference to reference, points | p (Holm) |
+|---|---|---|---|---|---|
+| E2B, `definition`, greedy (reference) | 176 (25.8% [22.7, 29.3]) | 387 (49.2%) | 2.79% [1.81, 3.94] | – | – |
+| E2B, `dense_h` | 222 (32.6% [29.2, 36.2]) | 373 (47.4%) | 3.21% [2.36, 4.11] | +0.42 [−0.20, +0.90] | 0.19 (0.58) |
+| E4B, `definition` | 310 (45.5% [41.8, 49.3]) | 383 (48.7%) | 1.94% [1.12, 2.95] | −0.85 [−1.42, −0.32] | 0.005 (0.022) |
+| E2B, self-consistency (5 samples, majority vote) | 174 (25.6% [22.4, 29.0]) | 389 (49.4%) | 2.90% [1.88, 4.08] | +0.11 [−0.05, +0.27] | 0.21 (0.58) |
+| E2B, alphabetical order (exploratory) | 221 (32.5% [29.0, 36.1]) | 370 (47.0%) | 2.38% [1.46, 3.58] | −0.41 [−0.97, +0.19] | 0.20 (0.58) |
+
+Checked answers; accuracy intervals Wilson, differences paired by column.
+
+- **E4B** is the only change that makes the mappings more stable. Its
+  answers flip a third less often (1.9% against 2.8%; 266 columns ever
+  flip against 372), it is less sensitive to candidate order (24.6%
+  against 33.5%), and given a changed prompt it changes its answer less
+  often (10.6% against 15.3%). It also gets 310 of the 681 DV columns
+  right against 176 (exploratory paired difference +19.7 points
+  [9.4, 30.2]; 149 gained, 15 lost) and maps as many curated non-DV
+  columns after the check (383 against 387; unchecked 653 against 707).
+  It ran on the 16 GB GPU with its per-layer embedding table on the CPU,
+  which leaves the logits unchanged (design note), in 2 h 44 min for the
+  whole condition. Its flips can come in blocks: under schema 3.2, 23 of
+  the eHMI crowd survey's "the instructions of the car … are clear" items
+  move together from UTAUT facilitating conditions to perceived conflict
+  (47 flips in all).
+- **`dense_h`** does not help (3.2%) and is more sensitive to the order of
+  the DV list (3.9% [1.4, 7.7] against 0.9%); why was not examined. It
+  gets 46 more DV columns right than `definition`, as in §2.4.
+- **Self-consistency** does not help (2.9%). Its own sampling noise is
+  larger than the effect it should remove: with another sampling seed and
+  unchanged prompts, 3.5% [2.4, 5.0] of the voted answers change, more
+  than an unrelated schema edit changes the greedy answer. The vote
+  differs from the greedy answer on 47 of the 1,468 columns.
+- **Alphabetical order** (exploratory) removes order changes by
+  construction: 12% of prompts change instead of 18%. The remaining
+  changes flip more often (19% against 15%), and the net reduction
+  (2.4% against 2.8%) is not significant. Its 45 extra correct DV columns
+  look like a position effect, not better mapping: 35 of its 77 gains are
+  Van der Laan items (`AOA1`–`AOA9`) of the AR pedestrian survey, whose
+  ids sort to the top of their shortlists, and on the 16% of DV columns whose gold DV is listed first
+  alphabetically, accuracy is 40.5% against 12.6% in rank order. Paired by
+  study cluster: +6.6 points [−1.0, +15.5], p = 0.21.
+
+**Mechanism** (exploratory; added after the runs,
+`python -m opendv.analysis.schema_stability explore`):
+
+- **Flips re-choose among the same candidates.** A schema edit changes
+  18% of prompts and 10% of shortlists as a set. 20.5% of pairs with a
+  changed shortlist flip, and 9.2% of pairs whose prompt changed with the
+  same shortlist. Three quarters of the flips to a DV (839 of 1,119) go
+  to a DV that was already on the column's reference shortlist; 78 (7%)
+  go to an added or reworded DV, and every answer that moves to an added
+  DV is wrong by construction.
+- **Ties explain the list-order control, not the edits.** The `definition`
+  shortlist takes as many candidates as the fuzzy shortlist (up to eight),
+  even when fewer DVs share an n-gram with the column. 39 of the 1,433
+  shortlists the LLM is asked about are padded with zero-score DVs, whose
+  order then follows the DV list, and 100 more tie at the cut. Permuting
+  the DV list flips 20.5% [9.6, 35.0] of the padded columns and 0.2% of
+  those without a tie; schema edits flip 3.5% and 2.9%.
+- **Position.** With the candidates shuffled, the model picks the
+  first-listed one in 26% of prompts (E2B) and 25% (E4B), against about
+  11% if position did not matter. In rank order the first candidate is the answer
+  in 36% (E2B) and 48% (E4B) of prompts.
+- **Unstable answers are mostly wrong.** In the reference, correct DV
+  answers flip in 1.0% of edits, wrong DV answers in 3.4%, curated non-DV
+  columns mapped to a DV in 5.1% and unmapped non-DV columns in 0.7%.
+  Accepted DV answers that never flip are correct 22.7% [13.2, 38.3] of
+  the time, those that flip at least once 6.2% [2.7, 12.8]; `dense_h`
+  30.4% against 9.2%, E4B 36.5% against 7.5%.
+- **Least stable columns.** The driving-style study's Godspeed "Anxious vs
+  Relaxed" items (gold: Godspeed perceived safety) flip in up to 73% of
+  the edits, among Godspeed animacy, SUS items and arousal (E4B: up to
+  67%); Scrolling in the Deep's `Multitasking` (not a DV) in 73%, among no
+  DV, task completion time and efficiency; Gaze Platformer's eye-strain
+  items (locked in the pipeline since 2026-11-14) and PairSonic's `ati0`
+  in up to 50%. 57 columns flip in at least 20% of the edits (E4B: 43).
+
+**What follows.**
+
+- An LLM mapping depends on the schema version as well as on the column.
+  Store the schema version with each LLM mapping, and rerun and diff the
+  LLM mappings when the schema changes. The primary analyses exclude LLM
+  mappings and are unaffected.
+- Candidate order moves ten times more answers than a schema edit. A
+  fixed order does not remove the effect (alphabetical order favours
+  whichever DV sorts first); asking under several orders and voting, or
+  abstaining when they disagree, is the next thing to test (P3). §2.7
+  tests both; neither makes the answers more stable.
+- Stability is a cheap confidence signal: accepted answers that never flip
+  are three to five times as often correct as those that flip, so a
+  perturbation-based score is a candidate for P3's conformal abstention.
+- A larger model helps more than any prompt-level change tested here.
+  E4B runs on a 16 GB GPU with its per-layer embeddings on the CPU; P1
+  should report it alongside E2B.
+
+**Deviations from the design note.**
+
+- The note's "flip rate given a change of order only" is reported as the
+  flip rate given a changed prompt with an unchanged candidate set
+  (`flip_rate_given_same_set_prompt_change`). A rewording changes the
+  prompt while the set and order stay the same, so "order only" would
+  mislabel those pairs.
+- `comparisons.csv` also gives sign-flip p-values for the unchecked
+  answers. The note pre-specified tests only for the checked answers, so
+  these are descriptive (unchecked: E4B −1.6 points [−2.9, −0.5],
+  alphabetical −1.1 [−2.2, −0.0]).
+- The mechanism analyses, the analyses by answer status and the paired
+  accuracy comparisons (`stability_by_answer.csv`, `shortlist_ties.csv`,
+  `flip_rate_by_tie.csv`, `answer_positions.csv`,
+  `accuracy_comparisons.csv`, `exploratory.json`) were added after the
+  results were seen.
+- Otherwise as specified: all five conditions ran in the planned order
+  with no generation errors, and no answer changed without its prompt
+  changing, except across sampling seeds, which is what that control
+  measures. The dry-run prompt counts of both shortlists are in
+  `dry_run_prompt_changes.csv`.
+
+### 2.7 Neither unpadded shortlists nor order votes stabilize the mappings (RQ2, RQ4)
+
+§2.6's exploratory analyses suggested two changes to how the LLM is
+asked. Both were pre-specified in
+[`docs/schema_stability_followup_design.md`](schema_stability_followup_design.md),
+committed before any of their answers was generated, and tested on
+§2.6's items and perturbations against its committed reference answers
+(E2B, `definition` shortlist, greedy). Code: `opendv/analysis/schema_stability.py`
+(`analyses/schema_stability_followup/run.sh`). Outputs, including every
+answer: `analyses/output_llm_evaluation/schema_stability_followup/`.
+Results of 2026-11-17.
+
+- **Design.** *No padding* (`nopad`): DVs whose definition score is 0
+  (no shared character n-gram with the column) leave the shortlist
+  instead of filling it up in the order of the DV list. *Order votes*:
+  each column is asked three times, with the shortlist in rank order and
+  in two seeded random orders (the reference's `candidate_order` draws 1
+  and 2). The answer is the majority (`vote3`), or it is kept only if all three
+  agree and otherwise no DV (`vote3u`). Four outcomes per condition, paired
+  by column against the reference: DV accuracy, curated non-DV columns
+  mapped, precision of accepted DV mappings, and the schema-edit flip rate
+  (§2.6's primary endpoint). 95% intervals resample the 39 studies; p from
+  sign-flip tests on study totals (precision: swapping the two conditions
+  within whole studies); Holm over the 12 tests.
+- **Same prompts as the reference.** Since §2.6 ran, the LLM-mapping audit
+  changed 21 of the 36 study mapping files the benchmark reads to build
+  its prompts. The runs therefore read copies of the files the reference
+  read (`freeze-mappings`). With them the runs reproduce the reference
+  wherever a condition leaves its prompt alone: `nopad` has the
+  reference's prompt and answers in all 56,506 item-runs where its
+  shortlist is the reference's, and each vote has the reference's
+  shortlist and, in rank order, its answer in all 52,700 item-runs both
+  ran. `nopad`'s rerun without the response cache changes none of 1,550
+  answers.
+
+| Condition | DV columns correct (of 681) | Non-DV columns mapped (of 787) | Accepted DV mappings | Precision | Flips, schema edits |
+|---|---|---|---|---|---|
+| Reference (rank order, padded) | 176 (25.8%) | 387 (49.2%) | 1,021 | 17.2% [15.1, 19.7] | 2.79% [1.81, 3.94] |
+| No zero-score padding | 176 (25.8%) | 382 (48.5%) | 1,016 | 17.3% [15.1, 19.8] | 2.70% [1.70, 3.84] |
+| Majority of three orders | 192 (28.2%) | 387 (49.2%) | 1,027 | 18.7% [16.4, 21.2] | 2.72% [1.81, 3.83] |
+| All three orders agree, else no DV | 121 (17.8%) | 139 (17.7%) | 418 | 28.9% [24.8, 33.5] | 2.14% [1.26, 3.13] |
+
+Checked answers under the unchanged schema (flips: under the 30 edits);
+precision Wilson intervals, flip intervals cluster bootstrap.
+
+| Against the reference, points | DV accuracy | Non-DV mapped | Precision | Flips, schema edits |
+|---|---|---|---|---|
+| No padding | 0.0, p = 1 | −0.6 [−1.7, −0.1], p = 0.12 (0.87) | +0.1 [+0.0, +0.3], p = 0.12 (0.87) | −0.09 [−0.20, −0.02], p = 0.031 (0.25) |
+| Majority | +2.4 [−0.4, +5.1], p = 0.14 (0.87) | 0.0 [−1.1, +0.9], p = 1 | +1.5 [−0.5, +3.4], p = 0.14 (0.87) | −0.07 [−0.37, +0.24], p = 0.67 (1) |
+| Unanimous | **−8.1 [−12.8, −4.5], p < 0.001 (< 0.001)** | **−31.5 [−44.2, −16.3], p < 0.001 (< 0.001)** | +11.7 [+6.9, +17.6], p = 0.008 (0.077) | −0.66 [−1.12, −0.17], p = 0.020 (0.18) |
+
+Paired differences [95% CI], two-sided p (Holm over the 12 tests).
+
+- **No padding** does what it was meant to and nothing more. On the
+  unchanged schema it shortens 45 analysed shortlists (39 of them asked;
+  the fuzzy gate never asks the other 6). Nine lose every candidate and
+  are no longer asked, and five curated non-DV columns that were mapped
+  to a DV now get none. No DV column's answer changes. Permuting the DV
+  list now flips 0.31% [0.04, 0.63] of answers instead of 0.85% (7 columns
+  ever flip instead of 17). Too few columns are padded to move any of the
+  four outcomes after correction.
+- **A majority over three orders** is no more stable under schema edits
+  (2.72% against 2.79%). It gets 16 more DV columns right (30 gained, 14
+  lost, spread over 14 and 10 studies; at most +5 in one), which is not
+  significant. Its answer is the rank-1 candidate as often as the
+  reference's (36%). The vote itself depends on which orders it uses:
+  with the two shuffles drawn from other seeds, 17.4% [14.6, 20.2] of its
+  answers change. That is half the 33.5% a single order changes under a
+  random order, but six times a schema edit's effect. The three orders
+  agree on only 40% of the asked columns; 43% are 2–1 majorities and 17%
+  three different answers, decided by retrieval rank. A schema edit that
+  changes one of the three prompts can easily tip such a majority.
+- **Abstaining unless all three orders agree** is a trade-off, as
+  expected. It maps 139 curated non-DV columns instead of 387 and gets 121
+  DV columns right instead of 176, both significant. Of the 1,021 accepted
+  mappings it removes 603: 55 correct, 300 wrong DVs on DV columns and 248
+  non-DV columns, about ten wrong mappings per correct one lost.
+  Precision rises from 17.2% to 28.9% (+11.7 points [6.9, 17.6]; p = 0.008),
+  short of significance after Holm (0.077). Schema edits flip 2.1% of its
+  answers (p = 0.020, Holm 0.18), most of them between a DV and no DV.
+- **Agreement is a confidence score** (pre-specified, descriptive).
+  Accepted majority answers are correct 28.9% [18.9, 42.7] of the time when
+  all three orders agree, 13.8% [7.6, 24.3] when two do and 7.1%
+  [3.8, 13.0] when all differ (DV accuracy 42%, 21% and 12%). This is the
+  same gradient as stability under 30 schema edits in §2.6 (22.7% against
+  6.2%), from three prompts per column.
+
+**What follows.**
+
+- Neither change makes E2B's mappings stable under schema edits. E4B
+  (§2.6) remains the only intervention tested that does.
+- Dropping zero-score candidates lost no correct answer and makes the
+  padded shortlists independent of the DV list's order. It is a safe
+  default for the pipeline, though it changes too few columns to matter
+  for accuracy. The pipeline's default is unchanged until it is adopted.
+- Voting needs more than three orders to give a stable majority, at a
+  cost that grows with every order. Abstaining on disagreement buys
+  precision with recall: even unanimous E2B answers are wrong 71% of the
+  time, so LLM mappings stay out of the primary analyses.
+- Order agreement is a cheap confidence score for P3's conformal
+  abstention, alongside stability under schema edits.
+
+**Deviations from the design note.**
+
+- The note expected `nopad` to change "exactly the 39 padded shortlists
+  of the analysed columns". It changes 45: the 39 asked ones and 6 the
+  fuzzy gate never asks (their shortlists are built but not asked; 10 of
+  the 45 are empty, 9 of them asked before). Asked columns fall from 1,433
+  to 1,424.
+- One generation failed in the first pass of `vote3`'s `add_k1_d1`. The
+  perturbation was redone in a second pass, as the runs' restart rule
+  provides. By then its prompt had been answered under another
+  perturbation, so it came from the cache. No analysed answer has a
+  generation error.
+- Compute: 19,256 generations (`nopad` 1,753, 1,491 of them its identity
+  rerun; `vote3` 17,503, of which 4,498 for the order seeds; `vote3u` none),
+  10 h 15 min on the shared GPU against the note's 7–9 h estimate.
+  `nopad`'s identity rerun ran at 3.4 s per prompt (the reference's at 2.1
+  s). Dry-run and run counts are in `dry_run_prompt_changes.csv` and
+  `generations.csv`.
+- `outcome_comparisons.csv` also gives p-values for the unchecked
+  answers. They are descriptive, since the note specified tests for the
+  checked answers only (unanimous rule: flips 3.7% against 4.9%,
+  p = 0.005; precision 23.0% against 13.1%). `vote_agreement.csv` adds the
+  "all three differ" group. The integrity checks also compare the two vote
+  rules' three answers (identical in all 55,800 item-runs).
+- `exploratory.json` was added after the results were seen: the share of
+  answers that are the rank-1 candidate, the accepted mappings by kind,
+  and the majority vote's accuracy changes by study.
+
 ---
 
 ## 3. Proposed studies (ranked by value / effort)
@@ -712,6 +1020,15 @@ conformal prediction to choose the abstention threshold so that accepted
 mappings reach a user-chosen precision (e.g. ≥ 90%). The pipeline would
 then accept LLM mappings only with a stated error guarantee, which turns the
 current warning ("LLM rows may be wrong") into a quantified contract.
+Stability under schema edits and candidate orders is a further candidate
+score: accepted mappings that never changed were three to five times as
+often correct as those that did (§2.6). Agreement across three candidate
+orders gives the same signal from three prompts: accepted answers were
+correct 29% of the time when all three orders agreed, 14% when two did
+and 7% when all differed. Abstaining unless they all agree removed about
+ten wrong mappings per correct one lost (§2.7). The score to calibrate
+can therefore be a vote over orders, with the number of orders as a
+cost parameter.
 
 ### P4. Psychometrics-in-the-loop instrument recognition *(medium–high value, medium effort)*
 
@@ -851,8 +1168,20 @@ shows when a question is answered and when more studies are futile.
   anti-conservative for repeated measures. P5 reports the participant-level
   alternative; the multiverse already includes it.
 - **Model and hardware dependence.** The LLM results are for one small
-  local model (Gemma-4-E2B; E4B does not fit a 16 GB GPU under the default
-  memory check). P1 should compare model sizes and hosted models.
+  local model (Gemma-4-E2B). E4B fails the pipeline's memory check on a
+  16 GB GPU but runs there with its per-layer embedding table on the CPU
+  (`install_cpu_ple_pipeline`, same logits). In the schema-stability
+  benchmark it got 310 of 681 DV columns right against E2B's 176 and
+  changed fewer answers under schema edits (§2.6). P1 should compare model
+  sizes and hosted models.
+- **Schema dependence of LLM mappings.** An LLM mapping can change when an
+  unrelated DV is added, removed or reworded: 2.8% of answers per edit,
+  and 25% of columns under at least one of 30 edits (§2.6). A third
+  change when only the order of the candidates changes. Results that use
+  LLM mappings hold for one schema version; report it, and rerun the LLM
+  mappings when the schema changes. Neither dropping zero-score
+  candidates nor a majority over three candidate orders reduces the
+  effect (§2.7).
 - **Rule tuning on the evaluation set.** The plausibility rules were refined
   once after the v1.0 evaluation. Report v1.0 and v1.1 (both kept in
   `analyses/output_llm_evaluation/`), and freeze the rules before P1's test

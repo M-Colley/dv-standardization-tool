@@ -1,0 +1,49 @@
+condition,answer,set,tie_group,n_items,n_studies,flip_rate,flip_rate_ci_low,flip_rate_ci_high
+e2b_definition,checked,schema_edits,zero-score candidates,39,18,0.03504273504273504,0.014665853658536588,0.0649122807017544
+e2b_definition,checked,schema_edits,tie at the cut,100,13,0.014333333333333333,0.004166666666666667,0.03631856741931369
+e2b_definition,checked,schema_edits,no tie,1294,39,0.029415668628481082,0.01886366118509032,0.041274052186751634
+e2b_definition,checked,schema_order,zero-score candidates,39,18,0.20512820512820512,0.09615384615384616,0.35
+e2b_definition,checked,schema_order,tie at the cut,100,13,0.015,0.0,0.030935889175257615
+e2b_definition,checked,schema_order,no tie,1294,39,0.00231839258114374,0.0,0.0050933786078098476
+e2b_definition,unchecked,schema_edits,zero-score candidates,39,18,0.07264957264957264,0.043715543412264725,0.12179597701149424
+e2b_definition,unchecked,schema_edits,tie at the cut,100,13,0.018333333333333333,0.0061403508771929825,0.03974358974358975
+e2b_definition,unchecked,schema_edits,no tie,1294,39,0.051169855566807004,0.030645553214753655,0.07114112710561585
+e2b_definition,unchecked,schema_order,zero-score candidates,39,18,0.47435897435897434,0.32607872200263505,0.6666666666666666
+e2b_definition,unchecked,schema_order,tie at the cut,100,13,0.015,0.0,0.030935889175257615
+e2b_definition,unchecked,schema_order,no tie,1294,39,0.00231839258114374,0.0,0.0050933786078098476
+e4b_definition,checked,schema_edits,zero-score candidates,39,18,0.017948717948717947,0.006382134414049309,0.034666666666666665
+e4b_definition,checked,schema_edits,tie at the cut,100,13,0.01566666666666667,0.0008438818565400844,0.04359068627450979
+e4b_definition,checked,schema_edits,no tie,1294,39,0.020204975344078897,0.011551049927566307,0.030273538288674563
+e4b_definition,checked,schema_order,zero-score candidates,39,18,0.3333333333333333,0.14814814814814814,0.5
+e4b_definition,checked,schema_order,tie at the cut,100,13,0.04,0.0,0.07857142857142857
+e4b_definition,checked,schema_order,no tie,1294,39,0.0030911901081916537,0.0,0.008209572490392301
+e4b_definition,unchecked,schema_edits,zero-score candidates,39,18,0.052519893899204244,0.02866801893171062,0.08918152992469279
+e4b_definition,unchecked,schema_edits,tie at the cut,100,13,0.022,0.0027126889045493703,0.04823657687374014
+e4b_definition,unchecked,schema_edits,no tie,1294,39,0.0335710098141479,0.022189872814329492,0.04424776814746653
+e4b_definition,unchecked,schema_order,zero-score candidates,39,18,0.5128205128205128,0.3214056776556777,0.6896637931034482
+e4b_definition,unchecked,schema_order,tie at the cut,100,13,0.06,0.0,0.11986301369863013
+e4b_definition,unchecked,schema_order,no tie,1294,39,0.0034775888717156105,0.00041943676111313923,0.008495306841513364
+e2b_definition_sc5,checked,schema_edits,zero-score candidates,39,18,0.04188034188034188,0.01794642857142857,0.07777777777777778
+e2b_definition_sc5,checked,schema_edits,tie at the cut,100,13,0.013666666666666667,0.0034185606060606064,0.035749169685990345
+e2b_definition_sc5,checked,schema_edits,no tie,1294,39,0.030534575392807017,0.019492338351449538,0.042891267734010405
+e2b_definition_sc5,checked,schema_order,zero-score candidates,39,18,0.23076923076923078,0.125,0.3787878787878788
+e2b_definition_sc5,checked,schema_order,tie at the cut,100,13,0.015,0.0,0.0410958904109589
+e2b_definition_sc5,checked,schema_order,no tie,1294,39,0.002704791344667697,0.0003819709702062643,0.005689947136739468
+e2b_definition_sc5,unchecked,schema_edits,zero-score candidates,39,18,0.08205128205128205,0.04808743169398908,0.13908045977011493
+e2b_definition_sc5,unchecked,schema_edits,tie at the cut,100,13,0.017666666666666667,0.005220883534136547,0.03895038671948685
+e2b_definition_sc5,unchecked,schema_edits,no tie,1294,39,0.05168600563926471,0.031566719124935735,0.07081749450123757
+e2b_definition_sc5,unchecked,schema_order,zero-score candidates,39,18,0.5,0.35135135135135137,0.6896551724137931
+e2b_definition_sc5,unchecked,schema_order,tie at the cut,100,13,0.015,0.0,0.0410958904109589
+e2b_definition_sc5,unchecked,schema_order,no tie,1294,39,0.002704791344667697,0.0003819709702062643,0.005689947136739468
+e2b_definition_alpha,checked,schema_edits,zero-score candidates,39,18,0.0658119658119658,0.022222222222222223,0.11538461538461539
+e2b_definition_alpha,checked,schema_edits,tie at the cut,100,13,0.006333333333333333,0.0,0.023333333333333334
+e2b_definition_alpha,checked,schema_edits,no tie,1294,39,0.02446196034241656,0.014965554607768503,0.036743610516706646
+e2b_definition_alpha,checked,schema_order,zero-score candidates,39,18,0.3717948717948718,0.16666666666666666,0.5795454545454546
+e2b_definition_alpha,checked,schema_order,tie at the cut,100,13,0.015,0.0,0.04054054054054054
+e2b_definition_alpha,checked,schema_order,no tie,1294,39,0.0,0.0,0.0
+e2b_definition_alpha,unchecked,schema_edits,zero-score candidates,39,18,0.10341880341880341,0.06589101144333703,0.1438095238095238
+e2b_definition_alpha,unchecked,schema_edits,tie at the cut,100,13,0.00771264367816092,0.0007325006505334375,0.02570287419269555
+e2b_definition_alpha,unchecked,schema_edits,no tie,1294,39,0.039025830979409835,0.02614893513668544,0.051630686982565885
+e2b_definition_alpha,unchecked,schema_order,zero-score candidates,39,18,0.6025641025641025,0.44594594594594594,0.7352941176470589
+e2b_definition_alpha,unchecked,schema_order,tie at the cut,100,13,0.015,0.0,0.04054054054054054
+e2b_definition_alpha,unchecked,schema_order,no tie,1294,39,0.0,0.0,0.0
