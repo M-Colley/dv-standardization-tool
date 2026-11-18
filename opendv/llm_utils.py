@@ -13,6 +13,8 @@ import io
 import logging
 import os
 import re
+from collections import Counter
+from dataclasses import dataclass
 from functools import lru_cache
 from pathlib import Path
 from typing import Any, Callable, Iterable
@@ -35,6 +37,34 @@ MODEL_MIN_MEMORY_GB = {
     "google/gemma-4-E2B-it": 10.0
 }
 CUDA_MEMORY_HEADROOM_FACTOR = 0.9
+
+# GPU memory a Gemma "E" model needs when its per-layer embedding table stays in
+# CPU memory (``configure_cpu_ple``). E4B measured 10.4 GB on the GPU (2026-11-15).
+CPU_PLE_MIN_MEMORY_GB = {
+    "google/gemma-4-E4B-it": 12.0,
+}
+
+
+@dataclass(frozen=True)
+class CpuPlePlacement:
+    """Load a model with its per-layer embedding table (PLE) in CPU memory.
+
+    ``weights_dir`` and ``tokenizer_dir`` are local snapshot folders (they may
+    differ: the tokenizer and chat template can come from the pinned revision
+    while the weights come from another cached snapshot). Everything but the
+    table goes to ``device``; ``min_memory_gb`` is the GPU memory this placement
+    needs, which ``select_local_model_candidates`` uses instead of the model's
+    whole-model estimate in ``MODEL_MIN_MEMORY_GB``.
+    """
+
+    weights_dir: Path
+    tokenizer_dir: Path
+    device: str = "cuda:0"
+    min_memory_gb: float = 12.0
+
+
+# Placements set by ``configure_cpu_ple``; nothing is placed this way by default.
+_CPU_PLE_PLACEMENTS: dict[str, CpuPlePlacement] = {}
 
 README_PATTERNS = ("README", "README.md", "README.txt", "readme.md", "readme.txt")
 DOI_PATTERN = re.compile(r"\b10\.\d{4,9}/[-._;()/:A-Z0-9]+", re.IGNORECASE)
@@ -323,7 +353,7 @@ def _dedupe_case_insensitive(values: Iterable[str]) -> list[str]:
     return ordered
 
 
-@lru_cache(maxsize=1)
+@lru_cache(maxsize=4)
 def _load_candidate_schema_metadata(schema_path: str = str(DEFAULT_DV_SCHEMA_PATH)) -> dict[str, dict[str, object]]:
     path = Path(schema_path)
     if not path.is_file():
@@ -358,16 +388,19 @@ def _load_candidate_schema_metadata(schema_path: str = str(DEFAULT_DV_SCHEMA_PAT
     return metadata
 
 
-def _format_candidate_reference(candidates: Iterable[str], query: str | None = None) -> str:
+def _format_candidate_reference(
+    candidates: Iterable[str], query: str | None = None, schema_path: str | Path | None = None
+) -> str:
     """One reference line per candidate DV (label, cluster, aliases, ...).
 
     Aliases equal to the column being asked about (ignoring case) are left
     out. In the pipeline such a column is mapped before the LLM is asked, so
     nothing changes there; in the leave-alias-out benchmark the held-out alias
     would otherwise be printed next to the correct answer (until 2026-11-04
-    for 86 of 265 E1 and 216 of 300 E2 items).
+    for 86 of 265 E1 and 216 of 300 E2 items). ``schema_path`` reads the
+    definitions from another DV schema file (the schema-stability benchmark).
     """
-    metadata = _load_candidate_schema_metadata()
+    metadata = _load_candidate_schema_metadata(str(schema_path or DEFAULT_DV_SCHEMA_PATH))
     lines: list[str] = []
     hidden = str(query).strip().lower() if query is not None else None
 
@@ -452,7 +485,13 @@ def _detect_cuda_memory_gb() -> float | None:
 
 
 def _estimate_model_min_memory_gb(model_name: str) -> float:
-    """Estimate minimum memory for unknown model ids from a common `xB` pattern."""
+    """Estimate minimum memory for unknown model ids from a common `xB` pattern.
+
+    A model configured with ``configure_cpu_ple`` needs only its placement's GPU memory.
+    """
+    placement = _CPU_PLE_PLACEMENTS.get(model_name)
+    if placement is not None:
+        return placement.min_memory_gb
     known = MODEL_MIN_MEMORY_GB.get(model_name)
     if known is not None:
         return known
@@ -471,6 +510,10 @@ def select_local_model_candidates(
     """Return candidate models filtered by available memory.
 
     Override with `DV_LLM_MODELS` (comma-separated model ids) for explicit control.
+    The memory filter applies to the override and to ``preferred_models`` too; a
+    model either names that does not fit is dropped with a warning (once per
+    model). ``configure_cpu_ple`` lowers a Gemma "E" model's requirement to what
+    it needs with its per-layer embeddings on the CPU.
     """
     override = os.getenv("DV_LLM_MODELS", "").strip()
     candidates = (
@@ -496,7 +539,21 @@ def select_local_model_candidates(
         for model_name in candidates
         if available_memory >= _estimate_model_min_memory_gb(model_name)
     ]
+    if override or preferred_models:
+        for model_name in candidates:
+            if model_name not in filtered and model_name not in _WARNED_DROPPED_MODELS:
+                _WARNED_DROPPED_MODELS.add(model_name)
+                logger.warning(
+                    "LLM %s was requested but needs about %.0f GB and %.1f GB are available; it is not used%s.",
+                    model_name, _estimate_model_min_memory_gb(model_name), available_memory,
+                    " (configure_cpu_ple keeps its per-layer embeddings on the CPU)"
+                    if model_name in CPU_PLE_MIN_MEMORY_GB else "",
+                )
     return filtered
+
+
+# Requested models already reported as not fitting (select_local_model_candidates).
+_WARNED_DROPPED_MODELS: set[str] = set()
 
 
 def _extract_dois(text: str) -> list[str]:
@@ -750,7 +807,10 @@ def generation_errors() -> list[dict[str, str]]:
     return list(_GENERATION_ERRORS)
 
 
-def _generate(model_name: str, prompt: str) -> str:
+def _generate(
+    model_name: str, prompt: str, num_samples: int = 1, temperature: float = 1.0, sample_seed: int = 0
+) -> list[str]:
+    """Generated texts for ``prompt``: one greedy answer, or ``num_samples`` sampled ones."""
     generator = _get_text_generation_pipeline(model_name)
     tokenizer = getattr(generator, "tokenizer", None)
     chat_template = getattr(tokenizer, "chat_template", None) if tokenizer else None
@@ -762,13 +822,28 @@ def _generate(model_name: str, prompt: str) -> str:
         )
     else:
         model_input = prompt
+    if num_samples <= 1:
+        output = generator(
+            model_input,
+            max_new_tokens=64,
+            do_sample=False,
+            return_full_text=False,
+        )
+        return [output[0].get("generated_text", "")]
+    # Self-consistency: num_samples sampled answers to one prompt. The seed is
+    # set before every call, so an identical prompt draws identical samples.
+    import torch  # type: ignore
+
+    torch.manual_seed(int(sample_seed))
     output = generator(
         model_input,
         max_new_tokens=64,
-        do_sample=False,
+        do_sample=True,
+        temperature=float(temperature),
+        num_return_sequences=int(num_samples),
         return_full_text=False,
     )
-    return output[0].get("generated_text", "")
+    return [item.get("generated_text", "") for item in output]
 
 
 def _get_text_generation_pipeline(model_name: str):
@@ -790,40 +865,124 @@ def _get_text_generation_pipeline(model_name: str):
         gc.collect()
         _release_torch_memory()
 
-    from transformers import pipeline  # type: ignore
+    placement = _CPU_PLE_PLACEMENTS.get(model_name)
+    if placement is not None:
+        new_pipeline = _load_cpu_ple_pipeline(placement)
+    else:
+        from transformers import pipeline  # type: ignore
 
-    new_pipeline = pipeline(
-        "text-generation",
-        model=model_name,
-        tokenizer=model_name,
-        device_map="auto",
-    )
+        new_pipeline = pipeline(
+            "text-generation",
+            model=model_name,
+            tokenizer=model_name,
+            device_map="auto",
+        )
     _PIPELINE_CACHE[model_name] = new_pipeline
     _MODELS_USED.setdefault(model_name, None)
     return new_pipeline
 
 
-def deduce_standard_name_with_local_llm(
-    raw_column_name: str,
-    canonical_candidates: Iterable[str],
-    source_root: str | Path | None = None,
-    preferred_models: list[str] | None = None,
-    repository_context: str | None = None,
-) -> str | None:
-    """Infer the most appropriate canonical DV id from a local LLM.
+def configure_cpu_ple(
+    model_id: str,
+    weights_dir: str | Path,
+    tokenizer_dir: str | Path,
+    device: str = "cuda:0",
+    min_memory_gb: float | None = None,
+) -> CpuPlePlacement:
+    """Load ``model_id`` with its per-layer embedding table in CPU memory from now on.
 
-    Returns one candidate from `canonical_candidates` when possible.
+    For Gemma "E" models whose whole bf16 weights do not fit the GPU: gemma-4-E4B-it
+    is 8.0 B parameters (16 GB), 2.8 B of them the per-layer embeddings, a table
+    that is only looked up. ``min_memory_gb`` defaults to ``CPU_PLE_MIN_MEMORY_GB``;
+    a model without an entry there needs it given. Drops a cached pipeline of the
+    model, so the next call loads it with this placement.
     """
-    candidates = [str(c).strip() for c in canonical_candidates if str(c).strip()]
-    if not raw_column_name or not candidates:
-        return None
+    if min_memory_gb is None:
+        if model_id not in CPU_PLE_MIN_MEMORY_GB:
+            raise ValueError(f"no GPU memory estimate for {model_id} with CPU per-layer embeddings; pass min_memory_gb")
+        min_memory_gb = CPU_PLE_MIN_MEMORY_GB[model_id]
+    placement = CpuPlePlacement(Path(weights_dir), Path(tokenizer_dir), device, float(min_memory_gb))
+    _CPU_PLE_PLACEMENTS[model_id] = placement
+    if model_id in _PIPELINE_CACHE:
+        _clear_pipeline_cache()
+    return placement
 
-    model_list = select_local_model_candidates(preferred_models=preferred_models)
-    context = repository_context
-    if context is None:
-        context = collect_repository_context(source_root) if source_root else ""
 
-    candidate_reference = _format_candidate_reference(candidates, query=raw_column_name)
+def cpu_ple_placement(model_id: str) -> CpuPlePlacement | None:
+    """The placement ``configure_cpu_ple`` set for ``model_id`` (None: the normal load)."""
+    return _CPU_PLE_PLACEMENTS.get(model_id)
+
+
+def clear_cpu_ple(model_id: str | None = None) -> None:
+    """Undo ``configure_cpu_ple`` for one model, or for every model."""
+    removed = [model_id] if model_id else list(_CPU_PLE_PLACEMENTS)
+    for name in removed:
+        _CPU_PLE_PLACEMENTS.pop(name, None)
+    if any(name in _PIPELINE_CACHE for name in removed):
+        _clear_pipeline_cache()
+
+
+def place_per_layer_embeddings_on_cpu(model: Any, device: str) -> Any:
+    """Move ``model`` to ``device`` except its per-layer embedding table, which stays on the CPU.
+
+    The table's lookups run on the CPU and their result moves to the device of the
+    token ids. A lookup is a gather and the embedding's scale is applied
+    elementwise, so the numbers are those of the model held wholly on ``device``
+    (checked on gemma-4-E2B-it: bit-identical logits). Returns the model.
+    """
+    import torch  # type: ignore
+
+    owners = [
+        module for module in model.modules()
+        if isinstance(getattr(module, "embed_tokens_per_layer", None), torch.nn.Module)
+    ]
+    if len(owners) != 1:
+        raise ValueError(f"expected one per-layer embedding table (embed_tokens_per_layer), found {len(owners)}")
+    owner = owners[0]
+    table = owner.embed_tokens_per_layer.to("cpu")
+
+    class CpuLookup(torch.nn.Module):
+        def __init__(self, embedding: torch.nn.Module) -> None:
+            super().__init__()
+            self.__dict__["embedding"] = embedding  # not a submodule: .to() leaves it on the CPU
+
+        def forward(self, input_ids: torch.Tensor) -> torch.Tensor:
+            return self.embedding(input_ids.to("cpu")).to(input_ids.device)
+
+    owner.embed_tokens_per_layer = None
+    model.to(device)
+    owner.embed_tokens_per_layer = CpuLookup(table)
+    return model
+
+
+def _load_cpu_ple_pipeline(placement: CpuPlePlacement):
+    """A text-generation pipeline of the model in ``placement`` (bf16, PLE on the CPU)."""
+    import torch  # type: ignore
+    from transformers import AutoModelForCausalLM, AutoTokenizer, pipeline  # type: ignore
+
+    tokenizer = AutoTokenizer.from_pretrained(placement.tokenizer_dir)
+    model = AutoModelForCausalLM.from_pretrained(placement.weights_dir, dtype=torch.bfloat16, device_map="cpu")
+    place_per_layer_embeddings_on_cpu(model, placement.device)
+    model.eval()
+    return pipeline("text-generation", model=model, tokenizer=tokenizer)
+
+
+def install_cpu_ple_pipeline(
+    model_id: str, weights_dir: str | Path, tokenizer_dir: str | Path, device: str = "cuda:0"
+) -> Any:
+    """``configure_cpu_ple`` and load the pipeline now (it fills the single-slot cache)."""
+    configure_cpu_ple(model_id, weights_dir, tokenizer_dir, device)
+    return _get_text_generation_pipeline(model_id)
+
+
+def build_mapping_prompt(
+    raw_column_name: str,
+    candidates: list[str],
+    context: str = "",
+    schema_path: str | Path | None = None,
+) -> str:
+    """The prompt that asks the LLM to map one column to one of ``candidates`` (in their order)."""
+    candidate_reference = _format_candidate_reference(candidates, query=raw_column_name, schema_path=schema_path)
     prompt = (
         "You standardize HCI dependent variable columns into canonical identifiers.\n"
         "Choose exactly one identifier from the candidate list. Do not invent new identifiers.\n\n"
@@ -847,17 +1006,62 @@ def deduce_standard_name_with_local_llm(
             f"\nRepository context:\n{context}\n"
         )
     prompt += "\nRespond with only one canonical identifier from the candidate reference above."
+    return prompt
+
+
+def majority_vote(answers: Iterable[str | None], candidates: list[str]) -> str | None:
+    """Most frequent answer; ties go to the candidate listed first, "no answer" (None) last."""
+    answers = list(answers)
+    if not answers:
+        return None
+    counts = Counter(answers)
+    best = max(counts.values())
+    rank = {candidate: index for index, candidate in enumerate(candidates)}
+    tied = [answer for answer, count in counts.items() if count == best]
+    return min(tied, key=lambda answer: (answer is None, rank.get(answer, len(rank)) if answer else 0))
+
+
+def deduce_standard_name_with_local_llm(
+    raw_column_name: str,
+    canonical_candidates: Iterable[str],
+    source_root: str | Path | None = None,
+    preferred_models: list[str] | None = None,
+    repository_context: str | None = None,
+    schema_path: str | Path | None = None,
+    num_samples: int = 1,
+    temperature: float = 1.0,
+    sample_seed: int = 0,
+) -> str | None:
+    """Infer the most appropriate canonical DV id from a local LLM.
+
+    Returns one candidate from `canonical_candidates` when possible.
+    Generation is greedy; ``num_samples > 1`` instead samples that many
+    answers (``temperature``, ``sample_seed``) and returns their majority
+    (:func:`majority_vote`; self-consistency). ``schema_path`` reads the
+    candidates' definitions from another DV schema file.
+    """
+    candidates = [str(c).strip() for c in canonical_candidates if str(c).strip()]
+    if not raw_column_name or not candidates:
+        return None
+
+    model_list = select_local_model_candidates(preferred_models=preferred_models)
+    context = repository_context
+    if context is None:
+        context = collect_repository_context(source_root) if source_root else ""
+
+    prompt = build_mapping_prompt(raw_column_name, candidates, context, schema_path)
+    sampling = {"num_samples": num_samples, "temperature": temperature, "sample_seed": sample_seed}
 
     for model_name in model_list:
         try:
             try:
-                text = _generate(model_name, prompt)
+                texts = _generate(model_name, prompt, **sampling)
             except Exception as exc:
                 if type(exc).__name__ != "OutOfMemoryError":
                     raise
                 # Shared GPU: free cached blocks and try once more.
                 _release_torch_memory()
-                text = _generate(model_name, prompt)
+                texts = _generate(model_name, prompt, **sampling)
         except Exception as exc:  # noqa: BLE001
             error = f"{type(exc).__name__}: {exc}".splitlines()[0][:300]
             _GENERATION_ERRORS.append({"model": model_name, "column": str(raw_column_name), "error": error})
@@ -865,7 +1069,11 @@ def deduce_standard_name_with_local_llm(
             _release_torch_memory()
             continue
 
-        answer = _extract_candidate_from_llm_output(text, candidates)
+        text = texts[0] if texts else ""
+        if num_samples <= 1:
+            answer = _extract_candidate_from_llm_output(text, candidates)
+        else:
+            answer = majority_vote([_extract_candidate_from_llm_output(t, candidates) for t in texts], candidates)
         if answer:
             logger.debug(
                 "LLM deduction: '%s' -> '%s' (model=%s, raw=%r)",

@@ -102,6 +102,7 @@ class DefinitionRetriever:
         self._definitions = definitions
         self._ids = [d.dv_id for d in definitions]
         self._name_weight = name_weight
+        self._aliases = {normalize_name(alias) for d in definitions for alias in d.aliases}
         self._fitted = self._fit(None)
 
     def _fit(self, exclude_alias: str | None):
@@ -119,11 +120,11 @@ class DefinitionRetriever:
 
         ``exclude_alias`` removes that alias from every definition first
         (leave-alias-out evaluation); this refits the vectorizer, so use it
-        for evaluation only.
+        for evaluation only. An alias no definition lists leaves every text as
+        it is, so the existing fit is used.
         """
-        (name_vec, name_mat), (full_vec, full_mat) = (
-            self._fitted if exclude_alias is None else self._fit(exclude_alias)
-        )
+        refit = exclude_alias is not None and normalize_name(exclude_alias) in self._aliases
+        (name_vec, name_mat), (full_vec, full_mat) = self._fit(exclude_alias) if refit else self._fitted
         query = " ".join(name_tokens(column_name))
         scores = (
             self._name_weight * linear_kernel(name_vec.transform([query]), name_mat).ravel()
@@ -225,8 +226,19 @@ DEFAULT_DENSE_MODEL = "BAAI/bge-small-en-v1.5"
 
 
 @lru_cache(maxsize=2)
-def get_dense_retriever(model_name: str = DEFAULT_DENSE_MODEL, device: str = "cpu") -> DenseRetriever:
-    return DenseRetriever.from_model(load_dv_definitions(), model_name, device=device)
+def _cached_encoder(model_name: str, device: str) -> Encoder:
+    return sentence_transformer_encoder(model_name, device=device)
+
+
+@lru_cache(maxsize=2)
+def get_dense_retriever(
+    model_name: str = DEFAULT_DENSE_MODEL, device: str = "cpu", schema_path: str = str(DEFAULT_DV_SCHEMA_PATH)
+) -> DenseRetriever:
+    """Dense retriever over the definitions in ``schema_path``; retrievers share one loaded model."""
+    query_prefix, document_prefix = MODEL_PREFIXES.get(model_name, ("", ""))
+    return DenseRetriever(
+        load_dv_definitions(Path(schema_path)), _cached_encoder(model_name, device), query_prefix, document_prefix
+    )
 
 
 def reciprocal_rank_fusion(*rankings: list[str], k: int = 60) -> list[str]:

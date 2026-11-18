@@ -34,7 +34,7 @@ LLM mapping and dense retrieval load these Hugging Face snapshots (`~/.cache/hug
 | Model | Use | Revision |
 |---|---|---|
 | `google/gemma-4-E2B-it` | LLM mapping (all committed runs) | `3e22461f65e89153144f8adb70e3b8c2cc9845a7` |
-| `google/gemma-4-E4B-it` | first-choice LLM where memory allows | `ee0ef6023621cff504d758262d4e04895a5af4a2` |
+| `google/gemma-4-E4B-it` | first-choice LLM where memory allows; the E4B/E2B benchmark comparison takes its tokenizer and chat template from this revision and its weights from the cached snapshot `fee6332c1abaafb77f6f9624236c63aa2f1d0187` (same config) | `ee0ef6023621cff504d758262d4e04895a5af4a2` |
 | `BAAI/bge-small-en-v1.5` | dense retrieval (`--llm-shortlist dense`, `hierarchical`, `mixed`) | `5c38ec7c405ec4b44b94cc5a9bb96e735b38267a` |
 | `intfloat/multilingual-e5-small` | dense retrieval of German labels | `614241f622f53c4eeff9890bdc4f31cfecc418b3` |
 
@@ -115,6 +115,8 @@ python -m opendv.analysis.construct_relations --input-dir data/processed/catalog
 ```
 
 On the same environment this reproduces the committed tables exactly; figure PDFs differ only in their embedded timestamps.
+
+The comparison of `gemma-4-E4B-it` with E2B on the benchmark (`docs/model_comparison_design.md`, 2026-11-17) is `bash analyses/model_comparison/run.sh`, with `RUNS` set to the folder that holds `det23b` and `det16b` and `CACHE`, `CACHE16` to the download caches; `WAIT_FOR_GPU_MB=12000` makes each run wait for free memory on a shared GPU. It reruns the four E2B runs into `analyses/output_llm_evaluation/model_comparison/` (the three with committed counterparts reproduce them answer for answer), runs E4B with its per-layer embeddings on the CPU (`evaluate_llm_mapping --cpu-ple WEIGHTS_DIR TOKENIZER_DIR`, 10.1 GB of GPU memory, 28–39 minutes per run) and writes the paired comparison. The local sources (`data/raw/development`) must be in the working directory, as for the batch.
 
 `make_chi_figures` takes the counts of Fig. 1 and Fig. 6 from the batch run whose `standardized` folder the analysis read (the `input_dir` in `analysis_results.json`), so the figures match the analysis wherever the run was written; `OPENDV_BATCH_DIR` overrides it. Until 2026-11-14 it read `data/processed/catalog_meta_analysis` unless that variable was set.
 

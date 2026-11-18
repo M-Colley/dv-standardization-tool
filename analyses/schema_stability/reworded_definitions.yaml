@@ -1,0 +1,150 @@
+# Rewordings used by the "reword" perturbation family (docs/schema_stability_design.md).
+#
+# Fixed on 2026-11-15, before any LLM answer under a perturbed schema was seen.
+# One rewording per DV of the unrelated pool: the 62 DVs of schema 3.3 that are neither the
+# gold label of a benchmark item nor named by a curated mapping of the 39 development studies.
+# A rewording changes the wording of `label` and, where the DV has them, `notes`, and keeps
+# the meaning: instrument names, abbreviations, citations, numbers and ranges stay as they
+# are. Ids, aliases, instruments, clusters and measurement fields are never changed.
+dvs:
+  click_through_rate:
+    label: "Rate of Click-Throughs"
+  retention_time:
+    label: "Dwell / Retention Duration"
+  paas_mental_effort:
+    label: "Invested Mental Effort (Paas Scale)"
+    notes: "Paas, F. G. W. C. (1992). Journal of Educational Psychology, 84(4), 429-434. Nine anchors, from very, very low (1) to very, very high (9) mental effort."
+  rsme:
+    label: "RSME (Rating Scale Mental Effort)"
+    notes: "Zijlstra, F. R. H. (1993). Efficiency in work behaviour: A design approach for modern tools. PhD thesis, Delft University of Technology. A vertical line from 0 to 150 with verbal anchors."
+  dali_total:
+    label: "DALI Overall Score"
+    notes: "Driving Activity Load Index (Pauzié 2008). The mean of its six subscales, each rated 0–5."
+  dali_effort_of_attention:
+    label: "Attentional Effort (DALI)"
+  dali_visual_demand:
+    label: "Visual Demand (DALI)"
+  dali_auditory_demand:
+    label: "Auditory Demand (DALI)"
+  dali_temporal_demand:
+    label: "Temporal Demand (DALI)"
+  dali_interference:
+    label: "Interference (DALI)"
+  dali_situational_stress:
+    label: "Situational Stress (DALI)"
+  tia_reliability_competence:
+    label: "Reliability/Competence (TiA)"
+  tia_understanding_predictability:
+    label: "Understanding/Predictability (TiA)"
+  tia_familiarity:
+    label: "Familiarity (TiA)"
+  tia_intention_of_developers:
+    label: "Developers' Intention (TiA)"
+  tia_propensity_to_trust:
+    label: "Trust Propensity (TiA)"
+  tia_trust_in_automation:
+    label: "Trust in Automation (TiA)"
+    notes: "The overall TiA subscale. Not the same as the single-item trust_rating."
+  jian_trust:
+    label: "Trust Scale of Jian et al."
+    notes: "Checklist of 12 trust and distrust items (Jian, Bisantz & Drury 2000). The mean of the trust items, each on 1–7."
+  user_satisfaction:
+    label: "Satisfaction of Users"
+  usability:
+    label: "SUS Total (Usability)"
+  ueq_attractiveness:
+    label: "Attractiveness (UEQ)"
+  ueq_perspicuity:
+    label: "Perspicuity (UEQ)"
+  ueq_efficiency:
+    label: "Efficiency (UEQ)"
+  ueq_dependability:
+    label: "Dependability (UEQ)"
+  ueq_stimulation:
+    label: "Stimulation (UEQ)"
+  ueq_novelty:
+    label: "Novelty (UEQ)"
+  attrakdiff_pq:
+    label: "Pragmatic Quality (AttrakDiff)"
+  attrakdiff_hqs:
+    label: "Hedonic Quality – Stimulation (AttrakDiff)"
+  attrakdiff_hqi:
+    label: "Hedonic Quality – Identity (AttrakDiff)"
+  attrakdiff_att:
+    label: "Attractiveness (AttrakDiff)"
+  utaut_hedonic_motivation:
+    label: "Hedonic Motivation (UTAUT2)"
+  tam_perceived_usefulness:
+    label: "Perceived Usefulness (TAM)"
+  tam_perceived_ease_of_use:
+    label: "Perceived Ease of Use (TAM)"
+  AOA_USEFULNESS:
+    label: "Usefulness Subscale of the van der Laan Acceptance Scale"
+    notes: "A derived subscale score: the mean of the AOA usefulness items."
+  AOA_SATISFYING:
+    label: "Satisfying Subscale of the van der Laan Acceptance Scale"
+    notes: "A derived subscale score: the mean of the AOA satisfying items."
+  vrsq_score:
+    label: "VRSQ Total"
+    notes: "Virtual Reality Sickness Questionnaire: 9 items, scored 0–100%."
+  ipq_general_presence:
+    label: "General Presence (IPQ)"
+    notes: "One item on the 'sense of being there' (0–6)."
+  ipq_spatial_presence:
+    label: "Spatial Presence (IPQ)"
+  ipq_involvement:
+    label: "Involvement (IPQ)"
+  dominance:
+    label: "Feeling of Dominance"
+  panas_positive:
+    label: "Positive Affect (PANAS)"
+    notes: "The mean of the 10 positive items, each 1–5."
+  panas_negative:
+    label: "Negative Affect (PANAS)"
+    notes: "The mean of the 10 negative items, each 1–5."
+  stress:
+    label: "Stress Level"
+  usability_problems:
+    label: "Problems with Usability"
+    notes: "Include the scale if severity was rated."
+  brake_reaction_time:
+    label: "Reaction Time to Brake"
+  takeover_time:
+    label: "Time to Take Over"
+    notes: "Time from the takeover request (TOR) to the driver's first input."
+  gaze_on_road:
+    label: "Percentage of Gaze on the Road"
+  max_lateral_acceleration:
+    label: "Peak Lateral Acceleration"
+  emg:
+    label: "EMG (Electromyography)"
+  pupil_dilation:
+    label: "Dilation of the Pupil"
+  fixation_duration:
+    label: "Duration of Fixations"
+  fixation_count:
+    label: "Number of Fixations"
+  saccade_rate:
+    label: "Rate of Saccades"
+  dwell_time:
+    label: "AOI Dwell Time"
+  scanpath_length:
+    label: "Length of the Scanpath"
+  eye_tracking:
+    label: "Generic Eye-Tracking Metrics"
+    notes: "DEPRECATED — use fixation_duration, fixation_count, saccade_rate or dwell_time instead."
+  social_presence:
+    label: "Sense of Social Presence"
+  collaboration_quality:
+    label: "Quality of Collaboration"
+  accessibility_outcome:
+    label: "Outcome of Accessibility"
+  perceived_conflict:
+    label: "Perceived Conflict between User and Vehicle"
+    notes: "Subjective conflict or disagreement with the decision of the automated vehicle. The composite is the mean of 5 items, one of them reverse-scored. Lower = less conflict."
+  sts_ad_trust:
+    label: "Situational Trust, STS-AD (composite)"
+    notes: "Situational Trust Scale for Automated Driving. The composite is the mean of 6 items (items 2/4/5 reverse-scored). Not the same as Körber TiA or Jian trust — do not pool with tia_* or jian_trust."
+  task_feasibility:
+    label: "Feasibility of the Task as Perceived"
+    notes: "The composite is the mean of 2 items, one reverse-scored (A2_inv)."

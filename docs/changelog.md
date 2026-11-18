@@ -4,6 +4,50 @@ This document logs human-readable updates to the repo's functionality, structure
 
 ---
 
+### [2026-11-17] E4B against E2B on the full LLM mapping benchmark
+
+The schema-stability test (entry of 2026-11-16) found `gemma-4-E4B-it` more accurate than E2B on its E1 items with the `definition` shortlist. This comparison checks the gain on the whole benchmark: E1 over the 39 studies (724 DV and 1,136 curated non-DV columns, from the runs without the LLM `det23b`, `det16b`) and E2's 300 aliases, with the `definition` and `dense_h` shortlists. Design pre-specified in `docs/model_comparison_design.md`, committed before any E4B answer on these inputs; results, deviations and an exploratory analysis in `docs/research_agenda.md` §2.4.
+
+- **Merge.** The schema-stability branch (`claude/compassionate-poincare-5485e3`), which this builds on, is merged in; the changelog conflict was resolved by keeping both entries.
+- **Results** (checked answers, E4B against E2B; intervals resample studies; Holm over the 12 E1 tests):
+    - `definition`: accuracy on DV columns 43.1% against 25.0% (+18.1 points [8.2, 28.2], Holm p = 0.001; 149 columns gained, 18 lost), precision of accepted DV mappings 22.3% against 13.0% (+9.3 [3.5, 16.8], 0.002), curated non-DV columns mapped to a DV 63.4% against 62.9% (+0.5 [−1.8, 3.0]).
+    - `dense_h`: accuracy 44.3% against 32.2% (+12.2 [3.5, 21.4], p = 0.009, Holm 0.070: not significant at the pre-specified level), precision 22.7% against 17.8% (Holm 0.43), non-DV mapped 62.2% against 57.2% (Holm 0.31).
+    - E2 accuracy 71.7% against 61.0% (`definition`) and 75.7% against 61.3% (`dense_h`), both Holm p < 0.001.
+    - The larger model picks the right candidate more often but maps as many non-DV columns to a DV, so four in five accepted mappings stay wrong. Half the `definition` gain is two studies (Godspeed items in driving style, NASA-TLX subscales in music tempo). 680 of the 724 DV columns were schema-stability items; on the 44 added since, E4B is not better.
+    - Exploratory: `dense_h`'s lead over `definition` shrinks from +7.2 points [−0.4, 13.4] with E2B to +1.2 [−6.4, 7.5] with E4B (difference −5.9 [−12.0, −0.9]).
+- **Checks.** The E2B reruns reproduce the committed benchmark outputs answer for answer (3,452 items); the 1,500 prompts also asked in the schema-stability test get the same answers from the same model; no generation errors.
+- **Code.**
+    - `llm_utils.py`: `configure_cpu_ple` registers a placement that keeps a Gemma "E" model's per-layer embedding table in CPU memory (`CpuPlePlacement`, `place_per_layer_embeddings_on_cpu`, `install_cpu_ple_pipeline`, moved here from `schema_stability.py`, which now delegates). Only a configured placement lowers the model's memory need in `select_local_model_candidates` (E4B 18 → 12 GB), so the default selection is unchanged and E2B stays the model on a 16 GB GPU. A model named in `DV_LLM_MODELS` or `preferred_models` that does not fit is logged once instead of dropped silently.
+    - `evaluate_llm_mapping.py`: `--cpu-ple WEIGHTS_DIR TOKENIZER_DIR`. A model named in `--models` that would not be used (memory, or `DV_LLM_MODELS` replacing it) stops the run instead of turning every item into an abstention, and 20 failed generations in a row stop it instead of reloading the model for every item. The summary records each model's placement (snapshot names) and the peak GPU memory.
+    - `opendv/analysis/model_comparison.py` (analysis, `--explore`) and `analyses/model_comparison/run.sh` (the eight runs; `WAIT_FOR_GPU_MB` waits for free memory on a shared GPU).
+    - Tests: `tests/test_model_comparison.py` (24, including a tiny random Gemma 4 whose logits the placement leaves unchanged, on the CPU and the GPU).
+- **Outputs** (`analyses/output_llm_evaluation/model_comparison/`): the eight runs' items and summaries in `<model>_<shortlist>/<half>/`, `comparisons.csv`, `rates.csv`, `reproduction.csv`, `determinism.csv`, `summary.json`; exploratory `exploratory_shortlists.csv`.
+- **Runs** (shared RTX 5080): E2B 19–81 minutes per run, mostly sharing the GPU with other jobs; E4B 28–39 minutes per run, 10.1 GB of GPU memory.
+- **Unchanged:** the pipeline's default model and behaviour, the committed benchmark outputs and every primary result.
+- `docs/research_agenda.md`: §2.4 new results, §2.2 reading, §2.6 pointer, §4 "Model and hardware dependence" updated. `docs/reproducibility.md`: the comparison's command and E4B's snapshots.
+
+### [2026-11-16] Schema stability of the LLM mappings: how often an unrelated schema change moves an LLM mapping
+
+Schema 3.3 added one DV (`touch_offset`), and 19 LLM mappings changed in five studies whose curated mappings had not (entry of 2026-11-08). This experiment measures that effect on the benchmark and tests three ways to reduce it. Design pre-specified in `docs/schema_stability_design.md` before any answer under a changed schema was generated; results and deviations in `docs/research_agenda.md` §2.6.
+
+- **Design.** The 1,468 E1 items of the benchmark (681 DV columns, 787 curated non-DV columns, 39 studies; the 82 blocklisted columns are asked but not analysed). 30 schema edits that never touch a column's gold DV or a DV named in a curated mapping: 1 or 5 of 20 new DVs added (`analyses/schema_stability/added_dv_pool.yaml`), 1 or 5 of the 62 unrelated DVs removed, or reworded (`reworded_definitions.yaml`), five draws each (`design.json`). Controls: the DV list permuted, the shortlist in a random order, a rerun without the response cache, and schema 3.2. Outcome: the share of perturbations that change a column's checked answer. Intervals resample studies (10,000 times); paired sign-flip tests on study totals; Holm over four comparisons.
+- **Primary result.** With `gemma-4-E2B-it` and the `definition` shortlist, a column's checked answer changes in 2.8% [1.8, 3.9] of the edits, and 372 of the 1,468 columns (25%) change under at least one. One added or removed DV changes 1.3% of answers, five 5–6%. Average accuracy does not change. Showing the same candidates in a random order changes 33.5%. Reverting to schema 3.2 changes 2.0% (30 answers in 12 studies). The rerun without the cache changes nothing, in every condition.
+- **Conditions** (flips under schema edits; DV columns correct of 681):
+    - `dense_h` 3.2% (+0.4 points, p = 0.19), 222 correct;
+    - **E4B** (`gemma-4-E4B-it`) 1.9% (−0.85 points [−1.42, −0.32], p = 0.005, Holm 0.022), 310 correct against 176; the only significant change;
+    - self-consistency (5 samples at temperature 1, majority vote) 2.9% (p = 0.21), 174 correct; a different sampling seed alone changes 3.5% of its answers;
+    - alphabetical candidate order (exploratory) 2.4% (p = 0.20), 221 correct, a gain that looks like a position effect (35 of 77 gains in one study's Van der Laan items).
+- **Mechanism (exploratory, added after the runs).** Three quarters of the flips to a DV go to a DV already on the column's shortlist. Zero-score DVs padding 39 shortlists explain the DV-list permutation's flips, not the edits'. With shuffled candidates the model picks the first-listed one in 26% of prompts, about twice the share if position did not matter. Accepted DV answers that never flip are correct 23% of the time and those that flip 6% (E4B 37% and 8%).
+- **Code.**
+    - `opendv/analysis/schema_stability.py` (commands `plan`, `dry-run`, `run`, `analyze`, `explore`; `analyses/schema_stability/run.sh`) builds the perturbed schemas, runs the benchmark under each and analyses the answers. `install_cpu_ple_pipeline` runs E4B (8.0 B parameters) on a 16 GB GPU by keeping its 2.8 B per-layer embedding table on the CPU (10.4 GB on the GPU; logits on E2B bit-identical to the normal load).
+    - `evaluate_llm_mapping.py`: `--schema` (benchmark under another schema file), `--candidate-order rank|shuffle|alphabetical`, `--samples`/`--temperature`/`--sample-seed` (self-consistency with a majority vote), an exact response cache keyed by models, prompt and decoding settings, and per-item `shortlist` and `prompt_sha256` columns. The defaults reproduce the committed benchmark items exactly.
+    - `llm_utils.py`: `build_mapping_prompt` and `majority_vote` split out of `deduce_standard_name_with_local_llm`; `_generate` can sample several answers. `dv_retrieval.py`: retrievers for another schema file share one loaded embedding model, and the leave-alias-out TF-IDF refit is skipped when no definition lists the held-out alias (the same fit).
+    - Tests: `tests/test_schema_stability.py` (24). Full suite: 872 passed, 2 skipped.
+- **Outputs** (`analyses/output_llm_evaluation/schema_stability/`): `flip_rates.csv`, `comparisons.csv`, `reference_accuracy.csv`, `per_column_flip_rates.csv`, `summary.json`; exploratory `stability_by_answer.csv`, `shortlist_ties.csv`, `flip_rate_by_tie.csv`, `answer_positions.csv`, `accuracy_comparisons.csv`, `exploratory.json`; every answer of every run in `answers_<condition>.csv.gz` (5 × 58,900 rows); `design.json`, `dry_run_prompt_changes.csv`.
+- **Runs** (shared RTX 5080, 0 generation errors): reference about 6 h, `dense_h` 4 h 15 min, self-consistency 3 h 14 min, alphabetical 50 min, E4B 2 h 44 min. Working files in `data/processed/schema_stability/` (not committed).
+- **Unchanged:** the pipeline's default behaviour, the committed benchmark outputs and every primary result.
+- `docs/research_agenda.md`: §2.6 new; §4 updates "Model and hardware dependence" (E4B runs) and adds "Schema dependence of LLM mappings"; P3 names stability as a candidate confidence score.
+
 ### [2026-11-15] Curated columns the batch ignored or pooled on a narrower scale
 
 Found by a scale screen of the development studies run for PR #50 (`opendv check-mapping` and the corpus batch) and settled here from each study's documentation. All are curated (non-LLM) columns, so none was part of the LLM audit below; all but the participant ids change a primary (LLM-excluded) result.
